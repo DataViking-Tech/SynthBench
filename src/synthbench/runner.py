@@ -10,7 +10,7 @@ from dataclasses import dataclass, field
 from synthbench.datasets.base import Question
 from synthbench.datasets import Dataset
 from synthbench.metrics import jensen_shannon_divergence, kendall_tau_b, parity_score
-from synthbench.providers.base import Provider
+from synthbench.providers.base import Distribution, Provider
 
 
 @dataclass
@@ -112,19 +112,23 @@ class BenchmarkRunner:
 
     async def _evaluate_question(self, question: Question) -> QuestionResult:
         """Sample the provider and compute metrics for one question."""
-        responses = await self._collect_samples(question)
-
-        # Build empirical distribution
-        counts = Counter(responses)
-        total = len(responses)
-        model_dist = {
-            opt: counts.get(opt, 0) / total for opt in question.options
-        }
-
-        # Count parse failures (responses that fell back to first option
-        # but we can't distinguish from legitimate first-option choices,
-        # so this is approximate)
-        n_parse_failures = 0
+        if self.provider.supports_distribution:
+            dist = await self.provider.get_distribution(
+                question.text, question.options,
+                n_samples=self.samples_per_question,
+            )
+            model_dist = dict(zip(question.options, dist.probabilities))
+            n_samples = dist.n_samples or self.samples_per_question
+            n_parse_failures = 0
+        else:
+            responses = await self._collect_samples(question)
+            counts = Counter(responses)
+            total = len(responses)
+            model_dist = {
+                opt: counts.get(opt, 0) / total for opt in question.options
+            }
+            n_samples = total
+            n_parse_failures = 0
 
         jsd = jensen_shannon_divergence(question.human_distribution, model_dist)
         tau = kendall_tau_b(question.human_distribution, model_dist)
@@ -139,7 +143,7 @@ class BenchmarkRunner:
             jsd=jsd,
             kendall_tau=tau,
             parity=par,
-            n_samples=total,
+            n_samples=n_samples,
             n_parse_failures=n_parse_failures,
         )
 

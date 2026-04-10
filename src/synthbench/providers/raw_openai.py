@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import re
 
-from synthbench.providers.base import Provider, Response
+from synthbench.providers.base import PersonaSpec, Provider, Response
 
 _LETTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 
@@ -58,7 +58,7 @@ class RawOpenAIProvider(Provider):
     def name(self) -> str:
         return f"raw-openai/{self._model}"
 
-    async def respond(self, question: str, options: list[str]) -> Response:
+    async def respond(self, question: str, options: list[str], *, persona: PersonaSpec | None = None) -> Response:
         prompt = _build_prompt(question, options)
 
         resp = await self._client.chat.completions.create(

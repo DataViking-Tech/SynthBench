@@ -2,8 +2,29 @@
 
 from __future__ import annotations
 
+import asyncio
 from abc import ABC, abstractmethod
+from collections import Counter
 from dataclasses import dataclass
+
+
+@dataclass
+class PersonaSpec:
+    """Specification for persona conditioning."""
+
+    demographics: dict[str, str]
+    biography: str | None = None
+    conditioning_style: str = "default"
+
+
+@dataclass
+class Distribution:
+    """A probability distribution over options."""
+
+    probabilities: list[float]
+    refusal_probability: float = 0.0
+    method: str = "sampling"
+    n_samples: int | None = None
 
 
 @dataclass
@@ -13,6 +34,7 @@ class Response:
     selected_option: str
     raw_text: str = ""
     metadata: dict | None = None
+    refusal: bool = False
 
 
 class Provider(ABC):
@@ -20,21 +42,73 @@ class Provider(ABC):
 
     Providers answer survey questions by selecting from given options.
     The harness calls respond() multiple times per question to build
-    an empirical distribution.
+    an empirical distribution, or get_distribution() for providers that
+    return distributions natively.
     """
 
     @abstractmethod
-    async def respond(self, question: str, options: list[str]) -> Response:
+    async def respond(
+        self,
+        question: str,
+        options: list[str],
+        *,
+        persona: PersonaSpec | None = None,
+    ) -> Response:
         """Answer a survey question by selecting one option.
 
         Args:
             question: The survey question text.
             options: List of answer choices.
+            persona: Optional persona conditioning.
 
         Returns:
             Response with the selected option text.
         """
         ...
+
+    async def get_distribution(
+        self,
+        question: str,
+        options: list[str],
+        *,
+        persona: PersonaSpec | None = None,
+        n_samples: int = 30,
+    ) -> Distribution:
+        """Get a probability distribution over options.
+
+        Default implementation calls respond() n_samples times and builds
+        an empirical distribution. Override for providers that return
+        distributions natively (e.g., via logprobs or direct probability output).
+        """
+        tasks = [
+            self.respond(question, options, persona=persona)
+            for _ in range(n_samples)
+        ]
+        results = await asyncio.gather(*tasks)
+
+        refusals = sum(1 for r in results if r.refusal)
+        responses = [r.selected_option for r in results if not r.refusal]
+
+        total = len(results)
+        counts = Counter(responses)
+        probs = [counts.get(opt, 0) / max(total, 1) for opt in options]
+        refusal_prob = refusals / max(total, 1)
+
+        return Distribution(
+            probabilities=probs,
+            refusal_probability=refusal_prob,
+            method="sampling",
+            n_samples=total,
+        )
+
+    @property
+    def supports_distribution(self) -> bool:
+        """Whether this provider natively supports distribution output.
+
+        Override to return True if get_distribution() has a native
+        implementation (not just repeated sampling).
+        """
+        return False
 
     async def close(self) -> None:
         """Clean up resources (HTTP clients, etc.)."""

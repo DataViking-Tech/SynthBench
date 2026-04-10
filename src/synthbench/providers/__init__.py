@@ -1,4 +1,4 @@
-from synthbench.providers.base import Provider
+from synthbench.providers.base import Distribution, PersonaSpec, Provider, Response
 
 PROVIDERS: dict[str, str] = {
     "raw-anthropic": "synthbench.providers.raw_anthropic:RawAnthropicProvider",
@@ -24,4 +24,4 @@ def load_provider(name: str, **kwargs) -> Provider:
     return cls(**kwargs)
 
 
-__all__ = ["Provider", "PROVIDERS", "load_provider"]
+__all__ = ["Distribution", "PersonaSpec", "Provider", "Response", "PROVIDERS", "load_provider"]

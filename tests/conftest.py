@@ -5,7 +5,7 @@ from __future__ import annotations
 import pytest
 
 from synthbench.datasets.base import Question, Dataset
-from synthbench.providers.base import Provider, Response
+from synthbench.providers.base import PersonaSpec, Provider, Response
 
 
 # --- Sample questions with realistic distributions ---
@@ -96,7 +96,7 @@ class MockProvider(Provider):
     def name(self) -> str:
         return "mock/deterministic"
 
-    async def respond(self, question: str, options: list[str]) -> Response:
+    async def respond(self, question: str, options: list[str], *, persona: PersonaSpec | None = None) -> Response:
         # Always return the first option (simulates a biased model)
         return Response(selected_option=options[0])
 
@@ -112,7 +112,7 @@ class RandomProvider(Provider):
     def name(self) -> str:
         return "mock/random"
 
-    async def respond(self, question: str, options: list[str]) -> Response:
+    async def respond(self, question: str, options: list[str], *, persona: PersonaSpec | None = None) -> Response:
         return Response(selected_option=self._rng.choice(options))
 
 

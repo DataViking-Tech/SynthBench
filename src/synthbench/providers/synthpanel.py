@@ -15,7 +15,7 @@ import json
 import re
 import shutil
 
-from synthbench.providers.base import Provider, Response
+from synthbench.providers.base import PersonaSpec, Provider, Response
 
 _LETTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 
@@ -79,7 +79,7 @@ class SynthPanelProvider(Provider):
     # ------------------------------------------------------------------
     # Library path
     # ------------------------------------------------------------------
-    async def _respond_library(self, question: str, options: list[str]) -> Response:
+    async def _respond_library(self, question: str, options: list[str], *, persona: PersonaSpec | None = None) -> Response:
         """Use the synthpanel Python API."""
         sp = self._synthpanel
 
@@ -134,7 +134,7 @@ class SynthPanelProvider(Provider):
     # ------------------------------------------------------------------
     # CLI path
     # ------------------------------------------------------------------
-    async def _respond_cli(self, question: str, options: list[str]) -> Response:
+    async def _respond_cli(self, question: str, options: list[str], *, persona: PersonaSpec | None = None) -> Response:
         """Shell out to the synthpanel CLI."""
         options_str = ",".join(options)
 
@@ -180,10 +180,10 @@ class SynthPanelProvider(Provider):
     # ------------------------------------------------------------------
     # Public interface
     # ------------------------------------------------------------------
-    async def respond(self, question: str, options: list[str]) -> Response:
+    async def respond(self, question: str, options: list[str], *, persona: PersonaSpec | None = None) -> Response:
         if self._use_library:
-            return await self._respond_library(question, options)
-        return await self._respond_cli(question, options)
+            return await self._respond_library(question, options, persona=persona)
+        return await self._respond_cli(question, options, persona=persona)
 
     async def close(self) -> None:
         # Clean up library resources if applicable
