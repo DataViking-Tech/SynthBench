@@ -18,7 +18,7 @@ from synthbench.metrics import (
     extract_human_refusal_rate,
 )
 from synthbench.providers.base import Provider
-from synthbench.stats import bootstrap_ci, question_set_hash, BootstrapResult
+from synthbench.stats import bootstrap_ci, question_set_hash
 
 
 @dataclass

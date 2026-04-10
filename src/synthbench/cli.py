@@ -199,7 +199,7 @@ async def _run_async(
 
         # Save files
         json_path, md_path = report.save(result, output)
-        click.echo(f"\nResults saved:")
+        click.echo("\nResults saved:")
         click.echo(f"  JSON: {json_path}")
         click.echo(f"  Report: {md_path}")
 
@@ -359,7 +359,6 @@ async def _replicate_async(
     from synthbench.datasets import DATASETS
     from synthbench.providers import load_provider
     from synthbench.runner import BenchmarkRunner
-    from synthbench import report
     import statistics
 
     resolved_model = MODEL_ALIASES.get(model, model)

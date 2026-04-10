@@ -12,6 +12,7 @@ convergence/divergence classification, and Krippendorff's alpha.
 
 from __future__ import annotations
 
+import hashlib
 import math
 import random
 from collections import Counter
@@ -1423,8 +1424,6 @@ def robustness_score(
 # ---------------------------------------------------------------------------
 # Paired bootstrap test and question set hashing (SynthBench additions)
 # ---------------------------------------------------------------------------
-
-import hashlib
 
 
 def paired_bootstrap_test(

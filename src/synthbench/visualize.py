@@ -11,7 +11,6 @@ try:
     import matplotlib
     matplotlib.use("Agg")  # Non-interactive backend
     import matplotlib.pyplot as plt
-    import matplotlib.colors as mcolors
 
     HAS_MATPLOTLIB = True
 except ImportError:
