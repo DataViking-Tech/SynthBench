@@ -316,5 +316,38 @@ def leaderboard(results_dir, output, json_only):
             click.echo(f"\nSaved: {out} + {json_out}", err=True)
 
 
+@main.command()
+@click.option(
+    "--results-dir", "-d",
+    type=click.Path(exists=True),
+    default="leaderboard-results",
+    help="Directory containing result JSON files.",
+)
+@click.option(
+    "--output", "-o",
+    type=click.Path(),
+    default="docs",
+    help="Output directory for the static site.",
+)
+def publish(results_dir, output):
+    """Regenerate the static GitHub Pages leaderboard from result JSON files.
+
+    Example:
+        synthbench publish --results-dir ./leaderboard-results --output docs/
+    """
+    from synthbench.publish import publish_leaderboard
+
+    try:
+        out_path = publish_leaderboard(
+            results_dir=Path(results_dir),
+            output_dir=Path(output),
+            version=__version__,
+        )
+        click.echo(f"Leaderboard published: {out_path}")
+    except ValueError as e:
+        click.echo(str(e), err=True)
+        sys.exit(1)
+
+
 if __name__ == "__main__":
     main()

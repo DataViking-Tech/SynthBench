@@ -6,9 +6,18 @@ Open benchmark harness for synthetic survey respondent quality.
 
 SynthBench measures how well synthetic respondent systems (like [synth-panel](https://github.com/DataViking-Tech/synth-panel), Ditto, Synthetic Users, or raw ChatGPT prompting) reproduce real human survey response patterns.
 
+## Leaderboard
+
+**[View the live leaderboard](https://dataviking-tech.github.io/synthbench/)**
+
+Regenerate from results:
+```bash
+synthbench publish --results-dir ./leaderboard-results --output docs/
+```
+
 ## Status
 
-🚧 Under development. Phase 1: wrapping OpinionsQA into a standardized evaluation harness.
+Phase 1 complete: OpinionsQA evaluation harness with CLI, multiple providers, and public leaderboard.
 
 ## Ground Truth
 
