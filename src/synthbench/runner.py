@@ -18,6 +18,7 @@ from synthbench.metrics import (
     extract_human_refusal_rate,
 )
 from synthbench.providers.base import Provider
+from synthbench.stats import bootstrap_ci, question_set_hash, BootstrapResult
 
 
 @dataclass
@@ -142,6 +143,59 @@ class BenchmarkResult:
         """SynthBench Parity Score — equal-weighted mean of available metrics."""
         return synthbench_parity_score(self.sps_components)
 
+    @property
+    def per_metric_ci(self) -> dict[str, tuple[float, float]]:
+        """Bootstrap 95% CIs for each SPS component metric.
+
+        Returns {metric_name: (ci_lower, ci_upper)}.
+        Requires at least 5 questions for bootstrap to work.
+        """
+        if len(self.questions) < 5:
+            return {}
+
+        def _mean(data: list[float]) -> float:
+            return sum(data) / len(data) if data else 0.0
+
+        cis: dict[str, tuple[float, float]] = {}
+
+        # P_dist CI from per-question JSD values
+        jsd_vals = [q.jsd for q in self.questions]
+        r = bootstrap_ci(jsd_vals, _mean, seed=42)
+        cis["p_dist"] = (round(1.0 - r.ci_upper, 6), round(1.0 - r.ci_lower, 6))
+
+        # P_rank CI from per-question tau values
+        tau_vals = [q.kendall_tau for q in self.questions]
+        r = bootstrap_ci(tau_vals, _mean, seed=43)
+        cis["p_rank"] = (
+            round((1.0 + r.ci_lower) / 2.0, 6),
+            round((1.0 + r.ci_upper) / 2.0, 6),
+        )
+
+        # P_refuse CI from per-question refusal diffs
+        refuse_diffs = [
+            abs(q.model_refusal_rate - q.human_refusal_rate)
+            for q in self.questions
+        ]
+        r = bootstrap_ci(refuse_diffs, _mean, seed=44)
+        cis["p_refuse"] = (round(1.0 - r.ci_upper, 6), round(1.0 - r.ci_lower, 6))
+
+        # SPS CI from per-question parity scores
+        parity_vals = [q.parity for q in self.questions]
+        r = bootstrap_ci(parity_vals, _mean, seed=45)
+        cis["sps"] = (round(r.ci_lower, 6), round(r.ci_upper, 6))
+
+        return cis
+
+    @property
+    def q_set_hash(self) -> str:
+        """SHA256 hash of sorted question keys for reproducibility."""
+        return question_set_hash([q.key for q in self.questions])
+
+    @property
+    def total_parse_failures(self) -> int:
+        """Total parse failures across all questions."""
+        return sum(q.n_parse_failures for q in self.questions)
+
 
 class BenchmarkRunner:
     """Run a benchmark: load data, query provider, compute metrics."""
@@ -162,9 +216,15 @@ class BenchmarkRunner:
         self,
         n: int | None = None,
         progress_callback=None,
+        question_keys: list[str] | None = None,
     ) -> BenchmarkResult:
         t0 = time.monotonic()
         questions = self.dataset.load(n=n)
+
+        # Filter by pinned question set if provided
+        if question_keys is not None:
+            from synthbench.suites import filter_questions_by_suite
+            questions = filter_questions_by_suite(questions, question_keys)
 
         results = []
         for i, question in enumerate(questions):
@@ -201,7 +261,7 @@ class BenchmarkRunner:
             n_samples = dist.n_samples or self.samples_per_question
             n_parse_failures = 0
         else:
-            responses, refusals = await self._collect_samples_with_refusals(question)
+            responses, refusals, parse_fails = await self._collect_samples_with_refusals(question)
             counts = Counter(responses)
             total = len(responses) + refusals
             model_dist = {
@@ -209,7 +269,7 @@ class BenchmarkRunner:
             }
             model_refusal_rate = refusals / max(total, 1)
             n_samples = total
-            n_parse_failures = 0
+            n_parse_failures = parse_fails
 
         human_refusal_rate = extract_human_refusal_rate(question.human_distribution)
 
@@ -234,10 +294,10 @@ class BenchmarkRunner:
 
     async def _collect_samples_with_refusals(
         self, question: Question
-    ) -> tuple[list[str], int]:
+    ) -> tuple[list[str], int, int]:
         """Call the provider samples_per_question times, tracking refusals.
 
-        Returns (selected_options, refusal_count).
+        Returns (selected_options, refusal_count, parse_failure_count).
         """
 
         async def _one_sample():
@@ -250,4 +310,9 @@ class BenchmarkRunner:
 
         selected = [r.selected_option for r in results if not r.refusal]
         refusals = sum(1 for r in results if r.refusal)
-        return selected, refusals
+        valid_options = set(question.options)
+        parse_failures = sum(
+            1 for r in results
+            if not r.refusal and r.selected_option not in valid_options
+        )
+        return selected, refusals, parse_failures

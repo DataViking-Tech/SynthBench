@@ -23,6 +23,11 @@ def to_json(result: BenchmarkResult) -> dict:
     if result.p_cond is not None:
         scores["p_cond"] = round(result.p_cond, 6)
 
+    # Per-metric CIs
+    per_metric_ci = {}
+    for metric, (lo, hi) in result.per_metric_ci.items():
+        per_metric_ci[metric] = [lo, hi]
+
     return {
         "benchmark": "synthbench",
         "version": __version__,
@@ -40,6 +45,9 @@ def to_json(result: BenchmarkResult) -> dict:
             "composite_parity": round(result.composite_parity, 6),
             "n_questions": len(result.questions),
             "elapsed_seconds": round(result.elapsed_seconds, 1),
+            "per_metric_ci": per_metric_ci,
+            "question_set_hash": result.q_set_hash,
+            "n_parse_failures": result.total_parse_failures,
         },
         "per_question": [
             {
@@ -56,6 +64,7 @@ def to_json(result: BenchmarkResult) -> dict:
                 "kendall_tau": round(q.kendall_tau, 6),
                 "parity": round(q.parity, 6),
                 "n_samples": q.n_samples,
+                "n_parse_failures": q.n_parse_failures,
                 "model_refusal_rate": round(q.model_refusal_rate, 6),
                 "human_refusal_rate": round(q.human_refusal_rate, 6),
             }
@@ -73,6 +82,16 @@ def _bar(score: float, width: int = 10) -> str:
 def to_markdown(result: BenchmarkResult) -> str:
     """Generate a markdown score card with full SPS breakdown."""
     components = result.sps_components
+    cis = result.per_metric_ci
+
+    def _fmt_ci(key: str, score: float) -> str:
+        if key in cis:
+            lo, hi = cis[key]
+            return f"{score:.4f} [{lo:.4f}, {hi:.4f}]"
+        return f"{score:.4f}"
+
+    # SPS CI
+    sps_str = _fmt_ci("sps", result.sps)
 
     lines = [
         "# SynthBench Score Card",
@@ -84,7 +103,7 @@ def to_markdown(result: BenchmarkResult) -> str:
         "",
         "## SynthBench Parity Score (SPS)",
         "",
-        f"**SPS: {result.sps:.4f}** (from {len(components)} metrics)",
+        f"**SPS: {sps_str}** (from {len(components)} metrics)",
         "",
         "| Metric | Score | |",
         "|--------|------:|---|",
@@ -101,7 +120,8 @@ def to_markdown(result: BenchmarkResult) -> str:
         if key in components:
             label = metric_labels[key]
             score = components[key]
-            lines.append(f"| {label} | {score:.4f} | {_bar(score)} |")
+            ci_str = _fmt_ci(key, score)
+            lines.append(f"| {label} | {ci_str} | {_bar(score)} |")
 
     lines.extend([
         "",

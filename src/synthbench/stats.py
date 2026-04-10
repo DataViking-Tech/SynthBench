@@ -44,6 +44,8 @@ __all__ = [
     "proportion_stat",
     "robustness_score",
     "silhouette_score",
+    "paired_bootstrap_test",
+    "question_set_hash",
 ]
 
 # ---------------------------------------------------------------------------
@@ -1416,3 +1418,60 @@ def robustness_score(
         k_variants_per_persona=median_k,
         interpretation=_interpret_robustness(overall),
     )
+
+
+# ---------------------------------------------------------------------------
+# Paired bootstrap test and question set hashing (SynthBench additions)
+# ---------------------------------------------------------------------------
+
+import hashlib
+
+
+def paired_bootstrap_test(
+    scores_a: list[float],
+    scores_b: list[float],
+    n_boot: int = 10_000,
+    seed: int | None = None,
+) -> tuple[float, float, str]:
+    """Paired bootstrap test for two sets of per-question scores.
+
+    Tests H0: mean(scores_a) == mean(scores_b).
+
+    Args:
+        scores_a: Per-question scores for system A.
+        scores_b: Per-question scores for system B.
+        n_boot: Number of bootstrap resamples.
+        seed: RNG seed.
+
+    Returns:
+        (delta, p_value, verdict) where verdict is "significant" or "not significant".
+    """
+    if len(scores_a) != len(scores_b):
+        raise ValueError("Score lists must have equal length for paired test")
+    if len(scores_a) == 0:
+        return (0.0, 1.0, "not significant")
+
+    rng = random.Random(seed)
+    n = len(scores_a)
+    diffs = [float(scores_a[i]) - float(scores_b[i]) for i in range(n)]
+    observed_delta = sum(diffs) / n
+
+    # Bootstrap the mean of diffs under H0 (centered)
+    centered = [d - observed_delta for d in diffs]
+    count_extreme = 0
+    for _ in range(n_boot):
+        sample = [centered[rng.randint(0, n - 1)] for _ in range(n)]
+        boot_mean = sum(sample) / n
+        if abs(boot_mean) >= abs(observed_delta):
+            count_extreme += 1
+
+    p_value = count_extreme / n_boot
+    verdict = "significant" if p_value < 0.05 else "not significant"
+    return (observed_delta, p_value, verdict)
+
+
+def question_set_hash(keys: list[str]) -> str:
+    """SHA256 hash of sorted question keys for reproducibility verification."""
+    sorted_keys = sorted(keys)
+    payload = "\n".join(sorted_keys).encode("utf-8")
+    return hashlib.sha256(payload).hexdigest()

@@ -83,19 +83,26 @@ def main():
     help="Endpoint URL (required for --provider http).",
 )
 @click.option("--json-only", is_flag=True, help="Output JSON to stdout instead of files.")
-def run(provider, model, dataset, n, samples, concurrency, output, data_dir, url, json_only):
+@click.option(
+    "--suite",
+    type=click.Choice(["smoke", "core", "full"]),
+    default=None,
+    help="Use a pinned question set (smoke=28, core=200, full=all).",
+)
+def run(provider, model, dataset, n, samples, concurrency, output, data_dir, url, json_only, suite):
     """Run a benchmark evaluation.
 
     Example:
         synthbench run --provider raw-anthropic --model haiku --n 100
+        synthbench run --provider raw-anthropic --model haiku --suite core
     """
     asyncio.run(_run_async(
-        provider, model, dataset, n, samples, concurrency, output, data_dir, url, json_only,
+        provider, model, dataset, n, samples, concurrency, output, data_dir, url, json_only, suite,
     ))
 
 
 async def _run_async(
-    provider_name, model, dataset_name, n, samples, concurrency, output, data_dir, url, json_only,
+    provider_name, model, dataset_name, n, samples, concurrency, output, data_dir, url, json_only, suite,
 ):
     from synthbench.datasets import DATASETS
     from synthbench.providers import load_provider
@@ -128,6 +135,12 @@ async def _run_async(
         click.echo(str(e), err=True)
         sys.exit(1)
 
+    # Load suite if specified
+    question_keys = None
+    if suite:
+        from synthbench.suites import load_suite
+        question_keys = load_suite(suite)
+
     # Run benchmark
     runner = BenchmarkRunner(
         dataset=ds,
@@ -136,10 +149,11 @@ async def _run_async(
         concurrency=concurrency,
     )
 
+    suite_label = f"suite={suite}" if suite else (str(n) if n else "all")
     click.echo(f"SynthBench v{__version__}")
     click.echo(f"  Provider: {prov.name}")
     click.echo(f"  Dataset:  {ds.name}")
-    click.echo(f"  Questions: {n or 'all'}")
+    click.echo(f"  Questions: {suite_label}")
     click.echo(f"  Samples/q: {samples}")
     click.echo()
 
@@ -152,18 +166,29 @@ async def _run_async(
         )
 
     try:
-        result = await runner.run(n=n, progress_callback=progress)
+        result = await runner.run(n=n, progress_callback=progress, question_keys=question_keys)
     finally:
         await prov.close()
 
     click.echo()  # Newline after progress
     click.echo()
 
-    # Per-metric SPS summary
+    # Per-metric SPS summary with CIs
     components = result.sps_components
-    click.echo(f"  SPS: {result.sps:.4f}  ({len(components)} metrics)")
+    cis = result.per_metric_ci
+    sps_ci = cis.get("sps")
+    if sps_ci:
+        click.echo(f"  SPS: {result.sps:.4f} [{sps_ci[0]:.4f}, {sps_ci[1]:.4f}]  ({len(components)} metrics)")
+    else:
+        click.echo(f"  SPS: {result.sps:.4f}  ({len(components)} metrics)")
     for key, score in components.items():
-        click.echo(f"    {key}: {score:.4f}")
+        ci = cis.get(key)
+        if ci:
+            click.echo(f"    {key}: {score:.4f} [{ci[0]:.4f}, {ci[1]:.4f}]")
+        else:
+            click.echo(f"    {key}: {score:.4f}")
+    if result.total_parse_failures > 0:
+        click.echo(f"  Parse failures: {result.total_parse_failures}")
     click.echo()
 
     if json_only:
@@ -245,7 +270,10 @@ def download(dataset, data_dir):
 @click.argument("files", nargs=-1, required=True, type=click.Path(exists=True))
 @click.option("--output", "-o", type=click.Path(), default=None, help="Save comparison to file.")
 def compare(files, output):
-    """Compare 2+ result JSON files side-by-side.
+    """Compare 2+ result JSON files side-by-side with significance testing.
+
+    When exactly 2 files are given, also runs a paired bootstrap test on
+    per-question parity scores and reports delta, p-value, and verdict.
 
     Example:
         synthbench compare result1.json result2.json
@@ -255,15 +283,207 @@ def compare(files, output):
         sys.exit(1)
 
     from synthbench.leaderboard import load_result, compare_results
+    from synthbench.stats import paired_bootstrap_test
 
     results = [load_result(Path(f)) for f in files]
     md = compare_results(results)
 
     click.echo(md)
 
+    # Pairwise significance test for exactly 2 results
+    if len(files) == 2:
+        r1, r2 = results
+        pq1 = {q["key"]: q["parity"] for q in r1.get("per_question", [])}
+        pq2 = {q["key"]: q["parity"] for q in r2.get("per_question", [])}
+        common_keys = sorted(set(pq1) & set(pq2))
+
+        if common_keys:
+            scores_a = [pq1[k] for k in common_keys]
+            scores_b = [pq2[k] for k in common_keys]
+            delta, p_val, verdict = paired_bootstrap_test(scores_a, scores_b, seed=42)
+
+            click.echo("## Pairwise Significance Test")
+            click.echo()
+            click.echo(f"  Paired questions: {len(common_keys)}")
+            click.echo(f"  Delta: {delta:+.4f}")
+            click.echo(f"  p-value: {p_val:.4f}")
+            click.echo(f"  Verdict: {verdict.upper()}")
+            click.echo()
+
+            md += "\n## Pairwise Significance Test\n\n"
+            md += f"- Paired questions: {len(common_keys)}\n"
+            md += f"- Delta: {delta:+.4f}\n"
+            md += f"- p-value: {p_val:.4f}\n"
+            md += f"- Verdict: **{verdict.upper()}**\n"
+        else:
+            click.echo("\nNo common questions for significance test.", err=True)
+
     if output:
         Path(output).write_text(md)
         click.echo(f"\nSaved to {output}", err=True)
+
+
+@main.command()
+@click.option("--provider", "-p", required=True, help="Provider name.")
+@click.option("--model", "-m", default="haiku", help="Model name or alias.")
+@click.option("--dataset", "-d", default="opinionsqa", help="Dataset.")
+@click.option("--n", "-n", type=int, default=None, help="Questions per run.")
+@click.option("--samples", "-s", type=int, default=30, help="Samples per question.")
+@click.option("--n-runs", type=int, default=5, help="Number of independent runs.")
+@click.option("--concurrency", "-c", type=int, default=10, help="Max concurrent requests.")
+@click.option("--data-dir", type=click.Path(), default=None, help="Custom data directory.")
+@click.option("--url", default=None, help="Endpoint URL for http provider.")
+@click.option(
+    "--suite",
+    type=click.Choice(["smoke", "core", "full"]),
+    default=None,
+    help="Use a pinned question set.",
+)
+@click.option("--output", "-o", type=click.Path(), default="results", help="Output directory.")
+def replicate(provider, model, dataset, n, samples, n_runs, concurrency, data_dir, url, suite, output):
+    """Run a benchmark N times and report stability metrics.
+
+    Answers: "how stable is this provider's score?"
+
+    Example:
+        synthbench replicate --provider raw-anthropic --n-runs 5 --suite core
+    """
+    asyncio.run(_replicate_async(
+        provider, model, dataset, n, samples, n_runs, concurrency, data_dir, url, suite, output,
+    ))
+
+
+async def _replicate_async(
+    provider_name, model, dataset_name, n, samples, n_runs, concurrency, data_dir, url, suite, output,
+):
+    from synthbench.datasets import DATASETS
+    from synthbench.providers import load_provider
+    from synthbench.runner import BenchmarkRunner
+    from synthbench import report
+    import statistics
+
+    resolved_model = MODEL_ALIASES.get(model, model)
+
+    if dataset_name not in DATASETS:
+        click.echo(f"Unknown dataset '{dataset_name}'.", err=True)
+        sys.exit(1)
+
+    ds_kwargs = {}
+    if data_dir:
+        ds_kwargs["data_dir"] = data_dir
+    ds = DATASETS[dataset_name](**ds_kwargs)
+
+    provider_kwargs = {"model": resolved_model}
+    if url:
+        provider_kwargs["url"] = url
+    try:
+        prov = load_provider(provider_name, **provider_kwargs)
+    except (KeyError, ImportError) as e:
+        click.echo(str(e), err=True)
+        sys.exit(1)
+
+    # Load suite
+    question_keys = None
+    if suite:
+        from synthbench.suites import load_suite
+        question_keys = load_suite(suite)
+
+    runner = BenchmarkRunner(
+        dataset=ds,
+        provider=prov,
+        samples_per_question=samples,
+        concurrency=concurrency,
+    )
+
+    suite_label = f"suite={suite}" if suite else (str(n) if n else "all")
+    click.echo(f"SynthBench Replicate v{__version__}")
+    click.echo(f"  Provider: {prov.name}")
+    click.echo(f"  Dataset:  {ds.name}")
+    click.echo(f"  Questions: {suite_label}")
+    click.echo(f"  Samples/q: {samples}")
+    click.echo(f"  Runs: {n_runs}")
+    click.echo()
+
+    run_metrics: list[dict[str, float]] = []
+
+    try:
+        for run_i in range(n_runs):
+            click.echo(f"  Run {run_i + 1}/{n_runs}...", nl=False)
+            result = await runner.run(n=n, question_keys=question_keys)
+            metrics = {"sps": result.sps, **result.sps_components}
+            run_metrics.append(metrics)
+            click.echo(f" SPS={result.sps:.4f}")
+    finally:
+        await prov.close()
+
+    click.echo()
+
+    # Aggregate
+    all_metric_names = sorted(set().union(*run_metrics))
+    lines = [
+        "# SynthBench Replication Report",
+        "",
+        f"**Provider:** {prov.name}",
+        f"**Runs:** {n_runs}",
+        f"**Questions:** {suite_label}",
+        f"**Samples/q:** {samples}",
+        "",
+        "| Metric | Mean | Std | Min | Max | CV |",
+        "|--------|------|-----|-----|-----|-----|",
+    ]
+
+    summary = {}
+    for metric in all_metric_names:
+        vals = [rm[metric] for rm in run_metrics if metric in rm]
+        if not vals:
+            continue
+        mean_val = statistics.mean(vals)
+        std_val = statistics.stdev(vals) if len(vals) > 1 else 0.0
+        min_val = min(vals)
+        max_val = max(vals)
+        cv = std_val / mean_val if mean_val > 0 else 0.0
+
+        lines.append(
+            f"| {metric} | {mean_val:.4f} | {std_val:.4f} "
+            f"| {min_val:.4f} | {max_val:.4f} | {cv:.4f} |"
+        )
+        summary[metric] = {
+            "mean": round(mean_val, 6),
+            "std": round(std_val, 6),
+            "min": round(min_val, 6),
+            "max": round(max_val, 6),
+            "cv": round(cv, 6),
+            "values": [round(v, 6) for v in vals],
+        }
+
+    lines.append("")
+    md = "\n".join(lines)
+    click.echo(md)
+
+    # Save
+    out_dir = Path(output)
+    out_dir.mkdir(parents=True, exist_ok=True)
+    from datetime import datetime
+    ts = datetime.now().strftime("%Y%m%d_%H%M%S")
+    provider_slug = prov.name.replace("/", "_")
+
+    json_data = {
+        "benchmark": "synthbench",
+        "type": "replication",
+        "version": __version__,
+        "config": {
+            "provider": prov.name,
+            "dataset": ds.name,
+            "n_runs": n_runs,
+            "n_questions": suite_label,
+            "samples_per_question": samples,
+        },
+        "per_run": run_metrics,
+        "summary": summary,
+    }
+    json_path = out_dir / f"replicate_{dataset_name}_{provider_slug}_{ts}.json"
+    json_path.write_text(json.dumps(json_data, indent=2))
+    click.echo(f"\nSaved: {json_path}")
 
 
 @main.command()
