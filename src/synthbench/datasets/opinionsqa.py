@@ -170,65 +170,45 @@ class OpinionsQADataset(Dataset):
                 "  3. Extract to: {raw_dir}\n"
                 "  4. Re-run synthbench\n\n"
                 "The raw/ directory should contain:\n"
-                "  - model_input/ (survey questions)\n"
-                "  - human_resp/ (response distributions)"
+                "  - human_resp/ (survey waves with info.csv + *_data.json)"
             ) from e
 
     def _process_raw_data(self, raw_dir: Path) -> list[Question]:
-        """Process raw OpinionsQA CSVs into Question objects.
+        """Process raw OpinionsQA data into Question objects.
 
         Expected directory structure under raw_dir:
-          model_input/  or  data/model_input/
-          human_resp/   or  data/human_resp/
+          human_resp/American_Trends_Panel_W{N}/
+            info.csv          — question metadata (key, question, references, ...)
+            NONE_data.json    — overall response counts (preferred)
+            *_data.json       — demographic response counts (fallback)
         """
-        # Find the data directories (may be nested)
-        model_input_dir = self._find_subdir(raw_dir, "model_input")
         human_resp_dir = self._find_subdir(raw_dir, "human_resp")
 
-        if model_input_dir is None or human_resp_dir is None:
+        if human_resp_dir is None:
             raise DatasetDownloadError(
-                f"Expected model_input/ and human_resp/ directories in {raw_dir}.\n"
-                "Download the OpinionsQA dataset from CodaLab and extract it there."
+                f"Expected human_resp/ directory in {raw_dir}.\n"
+                "Download the OpinionsQA dataset and extract it there."
             )
 
-        # Load question metadata
-        questions_by_key: dict[str, Question] = {}
+        questions: list[Question] = []
 
-        # Process each survey wave
         for wave in PEW_WAVES:
-            info_path = model_input_dir / f"American_Trends_Panel_W{wave}" / "info.csv"
+            wave_dir = human_resp_dir / f"American_Trends_Panel_W{wave}"
+            if not wave_dir.is_dir():
+                continue
+
+            info_path = wave_dir / "info.csv"
             if not info_path.exists():
-                # Try alternate naming
-                for p in model_input_dir.rglob(f"*W{wave}*info*csv"):
-                    info_path = p
-                    break
-                else:
-                    continue
+                continue
 
-            survey_dir = info_path.parent
-            meta_path = survey_dir / "metadata.csv"
+            # Load response distributions from JSON
+            dist_by_key = self._load_wave_distributions(wave_dir)
 
-            # Load info.csv: key, option_ordinal, references, survey
-            info_rows = self._read_csv(info_path)
-
-            # Load metadata for answer text if available
-            meta_lookup: dict[str, list[str]] = {}
-            if meta_path.exists():
-                for row in self._read_csv(meta_path):
-                    key = row.get("key", row.get("qkey", ""))
-                    options_raw = row.get("options", "")
-                    try:
-                        opts = literal_eval(options_raw) if options_raw else []
-                    except (ValueError, SyntaxError):
-                        opts = [o.strip() for o in options_raw.split(",")]
-                    meta_lookup[key] = opts
-
-            for row in info_rows:
-                qkey = row.get("key", row.get("qkey", ""))
+            for row in self._read_csv(info_path):
+                qkey = row.get("key", "")
                 if not qkey:
                     continue
 
-                # Parse references (answer options)
                 refs_raw = row.get("references", "")
                 try:
                     refs = literal_eval(refs_raw) if refs_raw else []
@@ -236,99 +216,66 @@ class OpinionsQADataset(Dataset):
                     refs = [r.strip() for r in refs_raw.split(",")]
 
                 if not refs:
-                    refs = meta_lookup.get(qkey, [])
-
-                if not refs:
                     continue
 
-                # Question text: from metadata or reconstruct from key
-                question_text = row.get("question", row.get("text", qkey))
+                question_text = row.get("question", qkey)
+                human_dist = dist_by_key.get(qkey, {})
 
-                questions_by_key[qkey] = Question(
-                    key=qkey,
-                    text=question_text,
-                    options=refs,
-                    human_distribution={r: 0.0 for r in refs},
-                    survey=f"ATP W{wave}",
+                if not human_dist:
+                    continue
+
+                questions.append(
+                    Question(
+                        key=qkey,
+                        text=question_text,
+                        options=refs,
+                        human_distribution=human_dist,
+                        survey=f"ATP W{wave}",
+                    )
                 )
-
-        # Load human response distributions
-        self._load_human_distributions(human_resp_dir, questions_by_key)
-
-        questions = list(questions_by_key.values())
-        # Filter out questions without valid distributions
-        questions = [q for q in questions if any(v > 0 for v in q.human_distribution.values())]
 
         return questions
 
-    def _load_human_distributions(
-        self,
-        human_resp_dir: Path,
-        questions: dict[str, Question],
-    ) -> None:
-        """Load human response distributions from raw data.
+    @staticmethod
+    def _load_wave_distributions(wave_dir: Path) -> dict[str, dict[str, float]]:
+        """Load aggregated human response distributions for one survey wave.
 
-        Looks for CSV files with per-question response counts/proportions
-        and computes the 'Overall' population distribution.
+        Prefers NONE_data.json (overall population). Falls back to summing
+        sub-groups from the first available demographic *_data.json.
+        Returns {question_key: {option: count}} (unnormalized — Question
+        __post_init__ handles normalization).
         """
-        # Try to find processed distribution files
-        for csv_path in human_resp_dir.rglob("*.csv"):
-            for row in self._read_csv(csv_path):
-                qkey = row.get("key", row.get("qkey", ""))
-                if qkey not in questions:
-                    continue
+        # Prefer NONE_data.json; fall back to any *_data.json
+        none_path = wave_dir / "NONE_data.json"
+        json_path = None
+        if none_path.exists():
+            json_path = none_path
+        else:
+            for p in sorted(wave_dir.glob("*_data.json")):
+                json_path = p
+                break
 
-                # Check if this is an 'Overall' demographic row
-                attr = row.get("attribute", row.get("demographic", "Overall"))
-                if attr != "Overall":
-                    continue
+        if json_path is None:
+            return {}
 
-                # Try to get distribution from D_H column
-                dist_raw = row.get("D_H", "")
-                if dist_raw:
-                    try:
-                        dist_vals = literal_eval(dist_raw)
-                        q = questions[qkey]
-                        if len(dist_vals) == len(q.options):
-                            q.human_distribution = {
-                                opt: float(val)
-                                for opt, val in zip(q.options, dist_vals)
-                            }
-                            continue
-                    except (ValueError, SyntaxError):
-                        pass
+        with open(json_path) as f:
+            data = json.load(f)
 
-                # Try column-per-option format
-                q = questions[qkey]
-                dist = {}
-                for opt in q.options:
-                    val = row.get(opt, "")
-                    if val:
-                        try:
-                            dist[opt] = float(val)
-                        except ValueError:
-                            pass
-                if dist:
-                    q.human_distribution = dist
-
-        # Try numpy files as fallback
-        for npy_path in human_resp_dir.rglob("*.npy"):
-            try:
-                import numpy as np
-                data = np.load(npy_path, allow_pickle=True).item()
-                if isinstance(data, dict):
-                    for qkey, dist_data in data.items():
-                        if qkey in questions and isinstance(dist_data, dict):
-                            q = questions[qkey]
-                            if "Overall" in dist_data:
-                                overall = dist_data["Overall"]
-                                if isinstance(overall, (list, tuple)) and len(overall) == len(q.options):
-                                    q.human_distribution = {
-                                        opt: float(val)
-                                        for opt, val in zip(q.options, overall)
-                                    }
-            except Exception:
+        result: dict[str, dict[str, float]] = {}
+        for qkey, entry in data.items():
+            if not isinstance(entry, dict):
                 continue
+            totals: dict[str, float] = {}
+            for sub_key, counts in entry.items():
+                if sub_key in ("MC_options", "question_text"):
+                    continue
+                if not isinstance(counts, dict):
+                    continue
+                for option, val in counts.items():
+                    totals[option] = totals.get(option, 0.0) + float(val)
+            if totals:
+                result[qkey] = totals
+        return result
 
     @staticmethod
     def _find_subdir(root: Path, name: str) -> Path | None:
