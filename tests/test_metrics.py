@@ -12,7 +12,10 @@ from synthbench.metrics.refusal import (
     refusal_calibration,
     detect_refusal,
     extract_human_refusal_rate,
+    refusal_rate,
+    p_refuse,
 )
+from synthbench.metrics.subgroup import p_sub
 from synthbench.metrics.conditioning import conditioning_fidelity
 
 
@@ -283,3 +286,93 @@ class TestSynthBenchParityScore:
         assert "p_cond" in SPS_METRICS
         assert "p_sub" in SPS_METRICS
         assert "p_refuse" in SPS_METRICS
+
+
+class TestRefusalRate:
+    def test_explicit_refused_option(self):
+        dist = {"Yes": 0.5, "No": 0.4, "Refused": 0.1}
+        assert refusal_rate(dist) == pytest.approx(0.1)
+
+    def test_no_refused_option(self):
+        dist = {"Yes": 0.6, "No": 0.4}
+        assert refusal_rate(dist) == 0.0
+
+    def test_high_refusal(self):
+        dist = {"Yes": 0.05, "No": 0.05, "Refused": 0.9}
+        assert refusal_rate(dist) == pytest.approx(0.9)
+
+
+class TestPRefuse:
+    def test_perfect_match(self):
+        model = {"Yes": 0.5, "No": 0.4, "Refused": 0.1}
+        human = {"Yes": 0.5, "No": 0.4, "Refused": 0.1}
+        assert p_refuse(model, human) == pytest.approx(1.0)
+
+    def test_no_refused_option_returns_none(self):
+        model = {"Yes": 0.6, "No": 0.4}
+        human = {"Yes": 0.5, "No": 0.5}
+        assert p_refuse(model, human) is None
+
+    def test_model_over_refuses(self):
+        # Model refuses 90%, humans refuse 0.37% — Haiku LOCALELECT_W29 scenario
+        model = {"Yes": 0.05, "No": 0.05, "Refused": 0.90}
+        human = {"Yes": 0.50, "No": 0.4963, "Refused": 0.0037}
+        result = p_refuse(model, human)
+        # 1.0 - |0.90 - 0.0037| = 1.0 - 0.8963 = 0.1037
+        assert result == pytest.approx(0.1037, abs=1e-4)
+        assert result < 0.15  # Captures the over-refusal problem
+
+    def test_haiku_localelect_w29_over_refusal(self):
+        """Haiku selected 'Refused' on LOCALELECT_W29 90% vs 0.37% human rate.
+
+        Raw LLMs over-refuse on politically adjacent questions. P_refuse
+        captures this signal: the score should be very low (poor calibration).
+        """
+        model_dist = {
+            "A great deal": 0.02,
+            "Some": 0.03,
+            "Not too much": 0.03,
+            "Not at all": 0.02,
+            "Refused": 0.90,
+        }
+        human_dist = {
+            "A great deal": 0.30,
+            "Some": 0.35,
+            "Not too much": 0.20,
+            "Not at all": 0.1163,
+            "Refused": 0.0037,
+        }
+        score = p_refuse(model_dist, human_dist)
+        assert score is not None
+        # Score should be very low — massive refusal miscalibration
+        assert score < 0.15
+        # Exact: 1 - |0.90 - 0.0037| = 0.1037
+        assert score == pytest.approx(1.0 - abs(0.90 - 0.0037), abs=1e-4)
+
+    def test_human_has_refused_model_does_not(self):
+        model = {"Yes": 0.6, "No": 0.4}
+        human = {"Yes": 0.5, "No": 0.45, "Refused": 0.05}
+        result = p_refuse(model, human)
+        assert result is not None
+        # 1.0 - |0.0 - 0.05| = 0.95
+        assert result == pytest.approx(0.95)
+
+
+class TestPSub:
+    def test_perfect_consistency(self):
+        assert p_sub([0.8, 0.8, 0.8]) == pytest.approx(1.0)
+
+    def test_high_variance(self):
+        result = p_sub([0.9, 0.1])
+        assert result < 0.5
+
+    def test_single_score_returns_one(self):
+        assert p_sub([0.5]) == 1.0
+
+    def test_empty_returns_one(self):
+        assert p_sub([]) == 1.0
+
+    def test_matches_subgroup_consistency(self):
+        scores = [0.8, 0.82, 0.78, 0.81]
+        named = {str(i): v for i, v in enumerate(scores)}
+        assert p_sub(scores) == pytest.approx(subgroup_consistency(named))

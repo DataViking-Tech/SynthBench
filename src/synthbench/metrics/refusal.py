@@ -82,3 +82,42 @@ def extract_human_refusal_rate(human_distribution: dict[str, float]) -> float:
         or re.search(r"\bdon'?t know\b", k, re.IGNORECASE)
     ]
     return sum(human_distribution.get(k, 0.0) for k in refusal_keys)
+
+
+def refusal_rate(dist: dict[str, float]) -> float:
+    """Extract the explicit "Refused" option probability from a distribution.
+
+    OpinionsQA includes "Refused" as an explicit answer option in 677 of 684
+    questions. This function reads that option directly — no text parsing.
+
+    Args:
+        dist: Response distribution mapping option text to probability.
+
+    Returns:
+        Probability mass on the "Refused" option, or 0.0 if absent.
+    """
+    return dist.get("Refused", 0.0)
+
+
+def p_refuse(
+    model_dist: dict[str, float],
+    human_dist: dict[str, float],
+) -> float | None:
+    """Per-question refusal calibration via the explicit "Refused" option.
+
+    P_refuse_q = 1.0 - |refusal_rate(model) - refusal_rate(human)|
+
+    For questions where neither distribution contains a "Refused" option,
+    returns None (exclude from aggregate).
+
+    Args:
+        model_dist: Model response distribution for one question.
+        human_dist: Human response distribution for one question.
+
+    Returns:
+        P_refuse in [0, 1], or None if the question has no "Refused" option.
+    """
+    has_refused = "Refused" in model_dist or "Refused" in human_dist
+    if not has_refused:
+        return None
+    return 1.0 - abs(refusal_rate(model_dist) - refusal_rate(human_dist))

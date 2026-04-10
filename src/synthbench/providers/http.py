@@ -77,7 +77,7 @@ class HttpProvider(Provider):
         options: list[str],
         *,
         persona: PersonaSpec | None = None,
-        n_samples: int = 30,
+        n_samples: int | None = None,
     ) -> Distribution:
         body = self._build_body(question, options, persona)
         resp = await self._client.post(self._url, json=body)

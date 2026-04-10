@@ -35,3 +35,24 @@ def subgroup_consistency(group_scores: dict[str, float]) -> float:
     cv = std / mean
 
     return max(0.0, min(1.0, 1.0 - cv))
+
+
+def p_sub(group_scores: list[float]) -> float:
+    """Compute subgroup parity from a list of per-group scores.
+
+    P_sub = 1 - CV(group_scores) where CV = std / mean.
+
+    Convenience wrapper over subgroup_consistency that accepts a list
+    instead of a dict.
+
+    Args:
+        group_scores: Per-group alignment scores (e.g., P_dist per group).
+
+    Returns:
+        P_sub in [0, 1]. Higher = more consistent across groups.
+        Returns 1.0 if fewer than 2 scores.
+    """
+    if len(group_scores) < 2:
+        return 1.0
+    named = {str(i): v for i, v in enumerate(group_scores)}
+    return subgroup_consistency(named)

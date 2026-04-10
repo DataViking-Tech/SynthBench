@@ -13,6 +13,8 @@ class PersonaSpec:
     """Specification for persona conditioning."""
 
     demographics: dict[str, str]
+    attribute: str = ""
+    group: str = ""
     biography: str | None = None
     conditioning_style: str = "default"
 
@@ -72,17 +74,22 @@ class Provider(ABC):
         options: list[str],
         *,
         persona: PersonaSpec | None = None,
-        n_samples: int = 30,
+        n_samples: int | None = None,
     ) -> Distribution:
         """Get a probability distribution over options.
 
         Default implementation calls respond() n_samples times and builds
         an empirical distribution. Override for providers that return
         distributions natively (e.g., via logprobs or direct probability output).
+
+        Args:
+            n_samples: Number of samples. Defaults to 30 for sampling providers.
+                Logprob providers ignore this parameter.
         """
+        effective_samples = n_samples if n_samples is not None else 30
         tasks = [
             self.respond(question, options, persona=persona)
-            for _ in range(n_samples)
+            for _ in range(effective_samples)
         ]
         results = await asyncio.gather(*tasks)
 

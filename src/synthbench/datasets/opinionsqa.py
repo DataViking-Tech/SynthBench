@@ -293,5 +293,71 @@ class OpinionsQADataset(Dataset):
             return list(reader)
 
 
+    # The 8 universal demographic attributes in OpinionsQA
+    DEMOGRAPHIC_ATTRIBUTES = [
+        "AGE", "CREGION", "EDUCATION", "INCOME",
+        "POLIDEOLOGY", "POLPARTY", "RACE", "SEX",
+    ]
+
+    def load_demographic_distributions(
+        self, attribute: str,
+    ) -> dict[str, dict[str, dict[str, float]]]:
+        """Load per-group human distributions for a demographic attribute.
+
+        Reads {attribute}_data.json from each survey wave directory and
+        aggregates them into a single mapping.
+
+        Args:
+            attribute: Demographic attribute name (e.g., "AGE", "POLIDEOLOGY").
+                Must be one of the 8 universal OpinionsQA attributes.
+
+        Returns:
+            {question_key: {group_name: {option: probability}}}
+            Counts are normalized to probabilities per group.
+        """
+        raw_dir = self._data_dir / "raw"
+        human_resp_dir = self._find_subdir(raw_dir, "human_resp")
+        if human_resp_dir is None:
+            return {}
+
+        result: dict[str, dict[str, dict[str, float]]] = {}
+
+        for wave in PEW_WAVES:
+            wave_dir = human_resp_dir / f"American_Trends_Panel_W{wave}"
+            attr_path = wave_dir / f"{attribute}_data.json"
+            if not attr_path.exists():
+                continue
+
+            with open(attr_path) as f:
+                data = json.load(f)
+
+            for qkey, entry in data.items():
+                if not isinstance(entry, dict):
+                    continue
+
+                groups: dict[str, dict[str, float]] = {}
+                for sub_key, counts in entry.items():
+                    if sub_key in ("MC_options", "question_text"):
+                        continue
+                    if sub_key == "nan":
+                        continue
+                    if not isinstance(counts, dict):
+                        continue
+
+                    # Normalize counts to probabilities
+                    total = sum(float(v) for v in counts.values())
+                    if total <= 0:
+                        continue
+                    groups[sub_key] = {
+                        opt: float(val) / total
+                        for opt, val in counts.items()
+                    }
+
+                if groups:
+                    result[qkey] = groups
+
+        return result
+
+
 class DatasetDownloadError(Exception):
     """Raised when dataset download or setup fails."""

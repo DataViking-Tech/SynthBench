@@ -6,8 +6,10 @@ from synthbench.metrics.refusal import (
     refusal_calibration,
     detect_refusal,
     extract_human_refusal_rate,
+    refusal_rate,
+    p_refuse,
 )
-from synthbench.metrics.subgroup import subgroup_consistency
+from synthbench.metrics.subgroup import subgroup_consistency, p_sub
 
 __all__ = [
     "jensen_shannon_divergence",
@@ -19,5 +21,8 @@ __all__ = [
     "refusal_calibration",
     "detect_refusal",
     "extract_human_refusal_rate",
+    "refusal_rate",
+    "p_refuse",
     "subgroup_consistency",
+    "p_sub",
 ]
