@@ -18,6 +18,9 @@ MODEL_ALIASES = {
     "opus": "claude-opus-4-0-20250514",
     "gpt-4o": "gpt-4o",
     "gpt-4o-mini": "gpt-4o-mini",
+    "gemini-flash": "gemini-2.5-flash-preview-05-20",
+    "gemini-flash-lite": "gemini-2.5-flash-lite",
+    "gemini-pro": "gemini-2.5-pro-preview-05-06",
 }
 
 
@@ -32,7 +35,7 @@ def main():
 @click.option(
     "--provider", "-p",
     required=True,
-    help="Provider name (raw-anthropic, raw-openai, http).",
+    help="Provider name (raw-anthropic, raw-openai, raw-gemini, openrouter, ollama, synthpanel, http).",
 )
 @click.option(
     "--model", "-m",
@@ -229,6 +232,88 @@ def download(dataset, data_dir):
     except Exception as e:
         click.echo(f"Error: {e}", err=True)
         sys.exit(1)
+
+
+@main.command()
+@click.argument("files", nargs=-1, required=True, type=click.Path(exists=True))
+@click.option("--output", "-o", type=click.Path(), default=None, help="Save comparison to file.")
+def compare(files, output):
+    """Compare 2+ result JSON files side-by-side.
+
+    Example:
+        synthbench compare result1.json result2.json
+    """
+    if len(files) < 2:
+        click.echo("Error: need at least 2 result files to compare.", err=True)
+        sys.exit(1)
+
+    from synthbench.leaderboard import load_result, compare_results
+
+    results = [load_result(Path(f)) for f in files]
+    md = compare_results(results)
+
+    click.echo(md)
+
+    if output:
+        Path(output).write_text(md)
+        click.echo(f"\nSaved to {output}", err=True)
+
+
+@main.command()
+@click.option(
+    "--results-dir", "-d",
+    type=click.Path(exists=True),
+    default="results",
+    help="Directory containing result JSON files.",
+)
+@click.option("--output", "-o", type=click.Path(), default=None, help="Save markdown + JSON output.")
+@click.option("--json", "json_only", is_flag=True, help="Output JSON only.")
+def leaderboard(results_dir, output, json_only):
+    """Build a ranked leaderboard from all result files in a directory.
+
+    Example:
+        synthbench leaderboard --results-dir ./results
+    """
+    from synthbench.leaderboard import load_result, build_leaderboard
+
+    results_path = Path(results_dir)
+    json_files = sorted(results_path.glob("*.json"))
+
+    if not json_files:
+        click.echo(f"No JSON files found in {results_dir}", err=True)
+        sys.exit(1)
+
+    # Load and filter to valid synthbench results
+    results = []
+    for jf in json_files:
+        try:
+            data = load_result(jf)
+            if data.get("benchmark") == "synthbench":
+                results.append(data)
+        except (json.JSONDecodeError, KeyError):
+            continue
+
+    if not results:
+        click.echo("No valid SynthBench result files found.", err=True)
+        sys.exit(1)
+
+    md, lb_json = build_leaderboard(results)
+
+    if json_only:
+        click.echo(json.dumps(lb_json, indent=2))
+    else:
+        click.echo(md)
+
+    if output:
+        out = Path(output)
+        if json_only:
+            out.write_text(json.dumps(lb_json, indent=2))
+        else:
+            out.write_text(md)
+            # Also write JSON sidecar
+            json_out = out.with_suffix(".json")
+            json_out.write_text(json.dumps(lb_json, indent=2))
+            click.echo(f"\nSaved: {out} + {json_out}", err=True)
 
 
 if __name__ == "__main__":

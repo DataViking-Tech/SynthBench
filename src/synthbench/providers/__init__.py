@@ -3,6 +3,10 @@ from synthbench.providers.base import Provider
 PROVIDERS: dict[str, str] = {
     "raw-anthropic": "synthbench.providers.raw_anthropic:RawAnthropicProvider",
     "raw-openai": "synthbench.providers.raw_openai:RawOpenAIProvider",
+    "raw-gemini": "synthbench.providers.raw_gemini:RawGeminiProvider",
+    "openrouter": "synthbench.providers.openrouter:OpenRouterProvider",
+    "ollama": "synthbench.providers.ollama:OllamaProvider",
+    "synthpanel": "synthbench.providers.synthpanel:SynthPanelProvider",
     "http": "synthbench.providers.http:HttpProvider",
 }
 
