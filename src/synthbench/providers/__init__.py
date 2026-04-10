@@ -8,6 +8,8 @@ PROVIDERS: dict[str, str] = {
     "ollama": "synthbench.providers.ollama:OllamaProvider",
     "synthpanel": "synthbench.providers.synthpanel:SynthPanelProvider",
     "http": "synthbench.providers.http:HttpProvider",
+    "random": "synthbench.providers.random_baseline:RandomBaselineProvider",
+    "majority": "synthbench.providers.majority_baseline:MajorityBaselineProvider",
 }
 
 
