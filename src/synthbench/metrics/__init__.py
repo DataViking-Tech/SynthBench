@@ -10,8 +10,10 @@ from synthbench.metrics.refusal import (
     p_refuse,
 )
 from synthbench.metrics.subgroup import subgroup_consistency, p_sub
+from synthbench.stats import bootstrap_ci
 
 __all__ = [
+    "bootstrap_ci",
     "jensen_shannon_divergence",
     "kendall_tau_b",
     "parity_score",

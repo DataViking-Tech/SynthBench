@@ -1,36 +1,39 @@
-"""Conditioning fidelity metric (P_cond)."""
+"""Conditioning fidelity metric (P_cond).
+
+Uses JSD to measure how much persona conditioning improves alignment
+with human response distributions.
+"""
 
 from __future__ import annotations
 
+from synthbench.metrics.distributional import jensen_shannon_divergence
+
 
 def conditioning_fidelity(
-    conditioned_scores: dict[str, float],
-    default_scores: dict[str, float],
+    conditioned_dist: dict[str, float],
+    unconditioned_dist: dict[str, float],
+    human_dist: dict[str, float],
 ) -> float:
-    """Compute conditioning fidelity: P_cond = mean(max(0, cond - default)).
+    """Compute conditioning fidelity via JSD improvement.
 
-    Measures how much persona conditioning improves alignment with the
-    target demographic. The improvement is floored at 0 per group —
-    if conditioning makes alignment worse, the provider gets no credit
-    for that group.
+    P_cond = JSD(unconditioned, human) - JSD(conditioned, human), floored at 0.
+
+    Measures how much persona conditioning moves the provider's output
+    closer to the human reference distribution compared to the
+    unconditioned baseline.
 
     Args:
-        conditioned_scores: Mapping of group name to alignment score
-            (e.g., P_dist) when persona conditioning is applied.
-        default_scores: Mapping of group name to alignment score
-            when no persona conditioning is applied (default prompt).
+        conditioned_dist: Provider response distribution with persona
+            conditioning applied.
+        unconditioned_dist: Provider response distribution with a generic
+            "You are a survey respondent" prompt (no persona conditioning).
+        human_dist: Human reference distribution for this question/group.
 
     Returns:
-        P_cond in [0, 1]. Higher = conditioning provides more improvement.
-        Returns 0.0 if no common groups found.
+        P_cond in [0, 1]. Higher = conditioning improved alignment.
+        Returns 0.0 if conditioning made things worse or had no effect.
     """
-    common_groups = set(conditioned_scores) & set(default_scores)
-    if not common_groups:
-        return 0.0
+    jsd_unconditioned = jensen_shannon_divergence(unconditioned_dist, human_dist)
+    jsd_conditioned = jensen_shannon_divergence(conditioned_dist, human_dist)
 
-    improvements = [
-        max(0.0, conditioned_scores[g] - default_scores[g])
-        for g in common_groups
-    ]
-
-    return sum(improvements) / len(improvements)
+    return max(0.0, jsd_unconditioned - jsd_conditioned)

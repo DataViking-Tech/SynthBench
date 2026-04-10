@@ -107,11 +107,21 @@ class BenchmarkResult:
 
     @property
     def p_cond(self) -> float | None:
-        """P_cond = mean(max(0, cond - default)). None if no conditioning data."""
+        """P_cond score. None if no conditioning data.
+
+        Uses score-diff fallback until the pipeline provides full
+        distributions for the JSD-based conditioning_fidelity().
+        """
         if not self.conditioned_scores or not self.default_scores:
             return None
-        from synthbench.metrics import conditioning_fidelity
-        return conditioning_fidelity(self.conditioned_scores, self.default_scores)
+        common = set(self.conditioned_scores) & set(self.default_scores)
+        if not common:
+            return 0.0
+        improvements = [
+            max(0.0, self.conditioned_scores[g] - self.default_scores[g])
+            for g in common
+        ]
+        return sum(improvements) / len(improvements)
 
     @property
     def sps_components(self) -> dict[str, float]:

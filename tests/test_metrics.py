@@ -215,38 +215,50 @@ class TestExtractHumanRefusalRate:
 
 
 class TestConditioningFidelity:
-    def test_perfect_improvement(self):
-        cond = {"A": 0.9, "B": 0.8}
-        default = {"A": 0.5, "B": 0.4}
-        result = conditioning_fidelity(cond, default)
-        # mean(0.4, 0.4) = 0.4
-        assert result == pytest.approx(0.4)
+    """Test JSD-based conditioning_fidelity(conditioned, unconditioned, human)."""
 
-    def test_no_improvement(self):
-        cond = {"A": 0.5, "B": 0.5}
-        default = {"A": 0.5, "B": 0.5}
-        assert conditioning_fidelity(cond, default) == pytest.approx(0.0)
+    def test_identical_distributions_zero(self):
+        # Conditioned == unconditioned: no improvement
+        dist = {"A": 0.5, "B": 0.3, "C": 0.2}
+        human = {"A": 0.4, "B": 0.4, "C": 0.2}
+        assert conditioning_fidelity(dist, dist, human) == pytest.approx(0.0)
 
-    def test_conditioning_makes_worse(self):
-        cond = {"A": 0.3, "B": 0.4}
-        default = {"A": 0.5, "B": 0.6}
-        # Floored at 0 per group
-        assert conditioning_fidelity(cond, default) == pytest.approx(0.0)
+    def test_conditioned_closer_to_human(self):
+        human = {"A": 0.5, "B": 0.3, "C": 0.2}
+        conditioned = {"A": 0.48, "B": 0.32, "C": 0.20}  # Very close to human
+        unconditioned = {"A": 0.33, "B": 0.33, "C": 0.34}  # Uniform-ish
+        result = conditioning_fidelity(conditioned, unconditioned, human)
+        assert result > 0.0  # Should show positive improvement
 
-    def test_mixed_improvement(self):
-        cond = {"A": 0.9, "B": 0.3}
-        default = {"A": 0.5, "B": 0.5}
-        # A improves by 0.4, B worsens (floored to 0)
-        # mean(0.4, 0.0) = 0.2
-        assert conditioning_fidelity(cond, default) == pytest.approx(0.2)
+    def test_conditioned_farther_returns_zero(self):
+        human = {"A": 0.5, "B": 0.3, "C": 0.2}
+        conditioned = {"A": 0.33, "B": 0.33, "C": 0.34}  # Farther from human
+        unconditioned = {"A": 0.48, "B": 0.32, "C": 0.20}  # Closer to human
+        result = conditioning_fidelity(conditioned, unconditioned, human)
+        assert result == pytest.approx(0.0)
 
-    def test_no_common_groups(self):
-        cond = {"A": 0.9}
-        default = {"B": 0.5}
-        assert conditioning_fidelity(cond, default) == 0.0
+    def test_perfect_conditioned_match(self):
+        human = {"A": 0.5, "B": 0.5}
+        conditioned = {"A": 0.5, "B": 0.5}  # Perfect match
+        unconditioned = {"A": 1.0, "B": 0.0}  # Maximally different
+        result = conditioning_fidelity(conditioned, unconditioned, human)
+        # JSD(unconditioned, human) should be high, JSD(conditioned, human) = 0
+        assert result > 0.0
+        assert result == pytest.approx(
+            jensen_shannon_divergence(unconditioned, human), abs=1e-10
+        )
 
-    def test_empty_returns_zero(self):
-        assert conditioning_fidelity({}, {}) == 0.0
+    def test_range_zero_to_one(self):
+        import random
+        rng = random.Random(42)
+        for _ in range(50):
+            keys = ["A", "B", "C"]
+            def _rand_dist():
+                vals = [rng.random() for _ in keys]
+                total = sum(vals)
+                return {k: v / total for k, v in zip(keys, vals)}
+            result = conditioning_fidelity(_rand_dist(), _rand_dist(), _rand_dist())
+            assert 0.0 <= result <= 1.0
 
 
 class TestSynthBenchParityScore:
