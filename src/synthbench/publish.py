@@ -90,12 +90,12 @@ def _ci_whisker_svg(ci_low: float, ci_high: float, point: float) -> str:
         f'<svg xmlns="http://www.w3.org/2000/svg" width="{w}" height="{h}" '
         f'style="vertical-align:middle;margin-left:4px">'
         f'<line x1="{x_low:.1f}" y1="{y_mid}" x2="{x_high:.1f}" y2="{y_mid}" '
-        f'stroke="#8b949e" stroke-width="1.5"/>'
+        f'style="stroke:var(--text-muted)" stroke-width="1.5"/>'
         f'<line x1="{x_low:.1f}" y1="{y_mid - 3}" x2="{x_low:.1f}" y2="{y_mid + 3}" '
-        f'stroke="#8b949e" stroke-width="1"/>'
+        f'style="stroke:var(--text-muted)" stroke-width="1"/>'
         f'<line x1="{x_high:.1f}" y1="{y_mid - 3}" x2="{x_high:.1f}" y2="{y_mid + 3}" '
-        f'stroke="#8b949e" stroke-width="1"/>'
-        f'<circle cx="{x_point:.1f}" cy="{y_mid}" r="3" fill="#58a6ff"/>'
+        f'style="stroke:var(--text-muted)" stroke-width="1"/>'
+        f'<circle cx="{x_point:.1f}" cy="{y_mid}" r="3" style="fill:var(--accent)"/>'
         f"</svg>"
     )
 
@@ -152,13 +152,13 @@ def _dot_plot_svg(ranked: list[dict], baselines: dict[str, dict]) -> str:
     for name, r in baselines.items():
         cp = r.get("aggregate", {}).get("composite_parity", 0)
         x = label_w + cp * chart_w
-        color = "#f85149" if "random" in name else "#f0c040"
+        color = "var(--red)" if "random" in name else "var(--gold)"
         label = "Random" if "random" in name else "Majority"
         ref_lines.append(
             f'<line x1="{x:.1f}" y1="30" x2="{x:.1f}" y2="{h - 15}" '
-            f'stroke="{color}" stroke-width="1" stroke-dasharray="4,3" opacity="0.6"/>'
+            f'style="stroke:{color}" stroke-width="1" stroke-dasharray="4,3" opacity="0.6"/>'
             f'<text x="{x:.1f}" y="24" text-anchor="middle" font-size="9" '
-            f'fill="{color}" opacity="0.8">{label}</text>'
+            f'style="fill:{color}" opacity="0.8">{label}</text>'
         )
 
     dots = []
@@ -170,13 +170,13 @@ def _dot_plot_svg(ranked: list[dict], baselines: dict[str, dict]) -> str:
 
         y = i * (row_h + gap) + 40
         x_dot = label_w + cp * chart_w
-        color = "#8b949e" if is_baseline else "#58a6ff"
-        text_color = "#8b949e" if is_baseline else "#e6edf3"
+        color = "var(--text-muted)" if is_baseline else "var(--accent)"
+        text_color = "var(--text-muted)" if is_baseline else "var(--text)"
 
         display_name = _display_provider_name(provider)
         dots.append(
             f'<text x="{label_w - 8}" y="{y + row_h * 0.6}" '
-            f'text-anchor="end" font-size="11" fill="{text_color}">'
+            f'text-anchor="end" font-size="11" style="fill:{text_color}">'
             f"{escape(display_name)}</text>"
         )
 
@@ -188,33 +188,79 @@ def _dot_plot_svg(ranked: list[dict], baselines: dict[str, dict]) -> str:
             dots.append(
                 f'<line x1="{x_lo:.1f}" y1="{y + row_h * 0.5}" '
                 f'x2="{x_hi:.1f}" y2="{y + row_h * 0.5}" '
-                f'stroke="{color}" stroke-width="2" opacity="0.5"/>'
+                f'style="stroke:{color}" stroke-width="2" opacity="0.5"/>'
                 f'<line x1="{x_lo:.1f}" y1="{y + row_h * 0.3}" '
                 f'x2="{x_lo:.1f}" y2="{y + row_h * 0.7}" '
-                f'stroke="{color}" stroke-width="1" opacity="0.5"/>'
+                f'style="stroke:{color}" stroke-width="1" opacity="0.5"/>'
                 f'<line x1="{x_hi:.1f}" y1="{y + row_h * 0.3}" '
                 f'x2="{x_hi:.1f}" y2="{y + row_h * 0.7}" '
-                f'stroke="{color}" stroke-width="1" opacity="0.5"/>'
+                f'style="stroke:{color}" stroke-width="1" opacity="0.5"/>'
             )
 
         dots.append(
-            f'<circle cx="{x_dot:.1f}" cy="{y + row_h * 0.5}" r="4" fill="{color}"/>'
+            f'<circle cx="{x_dot:.1f}" cy="{y + row_h * 0.5}" r="4" style="fill:{color}"/>'
         )
         dots.append(
             f'<text x="{x_dot + 8:.1f}" y="{y + row_h * 0.6}" '
-            f'font-size="10" fill="{text_color}">{cp:.4f}</text>'
+            f'font-size="10" style="fill:{text_color}">{cp:.4f}</text>'
         )
 
     return (
         f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {w} {h}" '
         f'width="100%" style="font-family:sans-serif;max-width:{w}px">\n'
         f'<text x="{w / 2}" y="18" text-anchor="middle" font-size="14" '
-        f'fill="#e6edf3" font-weight="600">SPS by Model</text>\n'
+        f'style="fill:var(--text)" font-weight="600">SPS by Model</text>\n'
         + "\n".join(ref_lines)
         + "\n"
         + "\n".join(dots)
         + "\n</svg>"
     )
+
+
+def _hero_svg(top_score: float, random_score: float, majority_score: float) -> str:
+    """Render a hero SVG showing the top model score with baseline threshold zones."""
+    w = 500
+    h = 60
+    bar_y = 20
+    bar_h = 24
+    usable = w - 40
+    x_start = 20
+
+    # Zone boundaries
+    x_random = x_start + random_score * usable
+    x_majority = x_start + majority_score * usable
+    x_top = x_start + top_score * usable
+
+    parts = [
+        f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {w} {h}" '
+        f'width="100%" style="max-width:{w}px;font-family:sans-serif">',
+        # Red zone (0 to random)
+        f'<rect x="{x_start}" y="{bar_y}" width="{x_random - x_start:.1f}" '
+        f'height="{bar_h}" rx="4" style="fill:var(--red)" opacity="0.15"/>',
+        # Amber zone (random to majority)
+        f'<rect x="{x_random:.1f}" y="{bar_y}" width="{x_majority - x_random:.1f}" '
+        f'height="{bar_h}" style="fill:var(--gold)" opacity="0.15"/>',
+        # Green zone (majority to 1.0)
+        f'<rect x="{x_majority:.1f}" y="{bar_y}" width="{x_start + usable - x_majority:.1f}" '
+        f'height="{bar_h}" rx="4" style="fill:var(--green)" opacity="0.15"/>',
+        # Baseline markers
+        f'<line x1="{x_random:.1f}" y1="{bar_y}" x2="{x_random:.1f}" '
+        f'y2="{bar_y + bar_h}" style="stroke:var(--red)" stroke-width="2" opacity="0.6"/>',
+        f'<text x="{x_random:.1f}" y="{bar_y - 4}" text-anchor="middle" '
+        f'font-size="9" style="fill:var(--text-muted)">Random</text>',
+        f'<line x1="{x_majority:.1f}" y1="{bar_y}" x2="{x_majority:.1f}" '
+        f'y2="{bar_y + bar_h}" style="stroke:var(--gold)" stroke-width="2" opacity="0.6"/>',
+        f'<text x="{x_majority:.1f}" y="{bar_y - 4}" text-anchor="middle" '
+        f'font-size="9" style="fill:var(--text-muted)">Majority</text>',
+        # Top model marker
+        f'<circle cx="{x_top:.1f}" cy="{bar_y + bar_h / 2}" r="8" '
+        f'style="fill:var(--accent)" opacity="0.9"/>',
+        f'<text x="{x_top:.1f}" y="{bar_y + bar_h + 16}" text-anchor="middle" '
+        f'font-size="11" font-weight="600" style="fill:var(--text)">'
+        f"{top_score:.2%}</text>",
+        "</svg>",
+    ]
+    return "\n".join(parts)
 
 
 def _baseline_delta_html(ranked: list[dict], baselines: dict[str, dict]) -> str:
@@ -454,6 +500,16 @@ def generate_html(results: list[dict], version: str = "0.1.0") -> str:
         else:
             provider_entries.append(e)
 
+    # Compute random baseline threshold for zone banding (per-dataset)
+    random_baseline_by_dataset: dict[str, float] = {}
+    for r in ranked:
+        provider = r.get("config", {}).get("provider", "")
+        if provider == "random-baseline":
+            dataset = r.get("config", {}).get("dataset", "unknown")
+            random_baseline_by_dataset[dataset] = r.get("aggregate", {}).get(
+                "composite_parity", 0
+            )
+
     # Build provider table rows
     rows_html = []
     medals = {1: "&#x1f947;", 2: "&#x1f948;", 3: "&#x1f949;"}
@@ -553,8 +609,14 @@ def generate_html(results: list[dict], version: str = "0.1.0") -> str:
                 f'title="Show details">&#x25B6;</span>'
             )
 
+        dataset_baseline = random_baseline_by_dataset.get(e["dataset"], 0)
+        near_baseline_class = (
+            " near-baseline"
+            if dataset_baseline and cp <= dataset_baseline + 0.01
+            else ""
+        )
         rows_html.append(
-            f'      <tr class="{low_n_class}" data-sps="{cp:.4f}" data-n="{n_eval}" '
+            f'      <tr class="{low_n_class}{near_baseline_class}" data-sps="{cp:.4f}" data-n="{n_eval}" '
             f'data-jsd="{e["mean_jsd"]:.4f}" data-tau="{e["mean_kendall_tau"]:.4f}">\n'
             f'        <td class="rank num">{toggle_html}{medal_html}{rank}</td>\n'
             f'        <td class="provider-name">{escape(provider_name)}</td>\n'
@@ -582,8 +644,8 @@ def generate_html(results: list[dict], version: str = "0.1.0") -> str:
                     spark_max = max(spark_vals) if spark_vals else 1
                     spark_min = min(spark_vals) if spark_vals else 0
                     spark_range = spark_max - spark_min if spark_max > spark_min else 1
-                    spark_w = 80
-                    spark_h = 20
+                    spark_w = 120
+                    spark_h = 32
                     points = []
                     for si, sv in enumerate(spark_vals):
                         sx = 2 + si * ((spark_w - 4) / max(1, len(spark_vals) - 1))
@@ -597,7 +659,7 @@ def generate_html(results: list[dict], version: str = "0.1.0") -> str:
                     conv_html = (
                         f'<svg xmlns="http://www.w3.org/2000/svg" width="{spark_w}" height="{spark_h}" '
                         f'style="vertical-align:middle">'
-                        f'<polyline points="{polyline}" fill="none" stroke="#58a6ff" stroke-width="1.5"/>'
+                        f'<polyline points="{polyline}" fill="none" style="stroke:var(--accent)" stroke-width="1.5"/>'
                         f"</svg>"
                     )
 
@@ -697,19 +759,39 @@ def generate_html(results: list[dict], version: str = "0.1.0") -> str:
     explanations = _metric_explanations_html()
     metric_legend = _metric_legend_html()
 
+    # Hero section data
+    top_sps = provider_entries[0]["composite_parity"] if provider_entries else 0
+    rb_scores = baseline_data.get("random-baseline", {})
+    mb_scores = baseline_data.get("majority-baseline", {})
+    random_sps = max(rb_scores.values()) if rb_scores else 0
+    majority_sps = max(mb_scores.values()) if mb_scores else 0
+    hero_svg = _hero_svg(top_sps, random_sps, majority_sps)
+    top_pct = int(top_sps * 100)
+    random_pct = int(random_sps * 100)
+
     # Convergence section
     convergence_html = ""
     if convergence_data:
         conv_rows = []
         for provider, sweeps in sorted(convergence_data.items()):
-            for sweep in sweeps:
+            display_name = _display_provider_name(provider)
+            for si, sweep in enumerate(sweeps):
                 samples = sweep["samples"]
                 runs = sweep["runs"]
                 mean_cp = sum(runs) / len(runs)
-                display_name = _display_provider_name(provider)
+                is_first = si == 0
+                border_style = (
+                    ' style="border-top:2px solid var(--border)"'
+                    if is_first and conv_rows
+                    else ""
+                )
+                provider_cell = f"{escape(display_name)}" if is_first else ""
+                left_border = (
+                    "" if is_first else ' style="border-left:2px solid var(--accent)"'
+                )
                 conv_rows.append(
-                    f"      <tr>\n"
-                    f'        <td class="provider-name">{escape(display_name)}</td>\n'
+                    f"      <tr{border_style}>\n"
+                    f'        <td class="provider-name"{left_border}>{provider_cell}</td>\n'
                     f'        <td class="num">{samples}</td>\n'
                     f'        <td class="num">{len(runs)}</td>\n'
                     f'        <td class="num composite">{mean_cp:.4f}</td>\n'
@@ -792,6 +874,10 @@ header h1{{font-size:2.2rem;font-weight:700;letter-spacing:-0.5px}}
 header h1 span{{color:var(--accent)}}
 header .tagline{{color:var(--text-muted);font-size:1.05rem;margin-top:0.5rem}}
 
+.hero{{text-align:center;padding:2rem 1.5rem;margin-bottom:2rem}}
+.hero h2{{font-size:1.5rem;font-weight:700;margin-bottom:1rem;color:var(--text)}}
+.hero p{{color:var(--text-muted);font-size:1rem;margin-top:0.75rem}}
+
 .about{{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:1.5rem;margin-bottom:2rem;font-size:0.95rem;color:var(--text-muted)}}
 .about p+p{{margin-top:0.75rem}}
 .about strong{{color:var(--text)}}
@@ -801,7 +887,7 @@ header .tagline{{color:var(--text-muted);font-size:1.05rem;margin-top:0.5rem}}
 
 .section-title{{font-size:1.3rem;font-weight:600;margin:2.5rem 0 1rem;padding-bottom:0.5rem;border-bottom:1px solid var(--border)}}
 
-.chart-section{{margin:2rem 0;padding:1.5rem;background:var(--surface);border:1px solid var(--border);border-radius:8px}}
+.chart-section{{margin:2rem 0;padding:1.5rem;background:var(--surface);border:1px solid var(--border);border-radius:8px;color:var(--text)}}
 
 .leaderboard-table{{width:100%;border-collapse:collapse;font-size:0.9rem}}
 .leaderboard-table thead{{position:sticky;top:0;z-index:10}}
@@ -838,8 +924,15 @@ header .tagline{{color:var(--text-muted);font-size:1.05rem;margin-top:0.5rem}}
 .baseline-row .composite{{color:var(--text-muted);font-weight:400}}
 .baseline-name{{font-weight:400 !important;color:var(--text-muted) !important}}
 
+.near-baseline td{{background:rgba(248,81,73,0.1)}}
 .low-n td{{opacity:0.7}}
 .low-n-marker{{color:var(--red);font-weight:700;margin-left:1px}}
+
+.cta{{text-align:center;padding:2rem 1.5rem;margin:2rem 0;background:var(--surface);border:1px solid var(--border);border-radius:8px}}
+.cta p{{font-size:1.2rem;font-weight:600;margin-bottom:0.75rem}}
+.cta code{{display:inline-block;background:var(--bg);padding:0.5rem 1rem;border-radius:6px;font-size:0.95rem;margin-bottom:1rem}}
+.cta-btn{{display:inline-block;background:var(--accent);color:#fff;padding:0.6rem 1.5rem;border-radius:6px;font-weight:600;text-decoration:none;transition:opacity 0.2s}}
+.cta-btn:hover{{opacity:0.85;text-decoration:none}}
 
 .footnote{{font-size:0.85rem;color:var(--text-muted);margin-top:0.75rem;padding-left:0.5rem;border-left:2px solid var(--border)}}
 
@@ -864,6 +957,12 @@ footer a{{color:var(--accent)}}
   .leaderboard-table{{font-size:0.8rem}}
   .leaderboard-table th,.leaderboard-table td{{padding:0.5rem 0.6rem}}
   .detail-content{{flex-direction:column;gap:0.5rem}}
+  .leaderboard-table th:nth-child(4),.leaderboard-table td:nth-child(4),
+  .leaderboard-table th:nth-child(7),.leaderboard-table td:nth-child(7),
+  .leaderboard-table th:nth-child(8),.leaderboard-table td:nth-child(8),
+  .leaderboard-table th:nth-child(9),.leaderboard-table td:nth-child(9),
+  .leaderboard-table th:nth-child(10),.leaderboard-table td:nth-child(10),
+  .leaderboard-table th:nth-child(13),.leaderboard-table td:nth-child(13){{display:none}}
 }}
 </style>
 </head>
@@ -880,6 +979,11 @@ footer a{{color:var(--accent)}}
 </header>
 
 <div class="container">
+  <div class="hero">
+    <h2>How well can AI reproduce real human survey responses?</h2>
+{hero_svg}
+    <p>Top model achieves {top_pct}% human parity. Random chance: {random_pct}%.</p>
+  </div>
   <div class="about">
     <p>SynthBench measures how well synthetic respondent systems reproduce real human survey response distributions.
        Scores are computed against ground-truth data from <strong>OpinionsQA</strong> (Santurkar et al., ICML 2023) &mdash;
@@ -890,6 +994,7 @@ footer a{{color:var(--accent)}}
 
 {metric_legend}
 
+  <div style="overflow-x:auto;-webkit-overflow-scrolling:touch">
   <table class="leaderboard-table" id="leaderboard">
     <thead>
       <tr>
@@ -908,9 +1013,16 @@ footer a{{color:var(--accent)}}
 {tbody}
     </tbody>
   </table>
+  </div>
   {synthpanel_footnote}
   {low_n_footnote}
 {topic_legend_html}
+
+  <div class="cta">
+    <p>Benchmark your own model</p>
+    <code>pip install synthbench</code><br>
+    <a href="https://github.com/DataViking-Tech/synthbench#quick-start" class="cta-btn">Get Started</a>
+  </div>
 
   <div class="chart-section">
 {dot_plot}
