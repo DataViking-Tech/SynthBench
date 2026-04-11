@@ -26,6 +26,39 @@ _CODALAB_API = "https://worksheets.codalab.org/rest"
 # Surveys included in OpinionsQA
 PEW_WAVES = [26, 27, 29, 32, 34, 36, 41, 42, 43, 45, 49, 50, 54, 82, 92]
 
+# ATP wave number → survey fielding year (Pew American Trends Panel)
+WAVE_YEAR_MAP: dict[int, int] = {
+    26: 2017,
+    27: 2017,
+    29: 2017,
+    32: 2018,
+    34: 2018,
+    36: 2019,
+    41: 2019,
+    42: 2019,
+    43: 2019,
+    45: 2019,
+    49: 2020,
+    50: 2020,
+    54: 2020,
+    82: 2022,
+    92: 2022,
+}
+
+
+def wave_year(survey: str) -> int:
+    """Extract survey year from an ATP survey label like 'ATP W82'.
+
+    Falls back to 0 if the wave number is unrecognised.
+    """
+    if survey.startswith("ATP W"):
+        try:
+            wave_num = int(survey.removeprefix("ATP W"))
+            return WAVE_YEAR_MAP.get(wave_num, 0)
+        except ValueError:
+            pass
+    return 0
+
 
 def _default_cache_dir() -> Path:
     return Path.home() / ".synthbench" / "data" / "opinionsqa"

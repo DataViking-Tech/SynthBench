@@ -9,6 +9,7 @@ from dataclasses import dataclass, field
 
 from synthbench.datasets.base import Question
 from synthbench.datasets import Dataset
+from synthbench.datasets.opinionsqa import wave_year
 from synthbench.metrics import (
     jensen_shannon_divergence,
     kendall_tau_b,
@@ -38,6 +39,7 @@ class QuestionResult:
     n_parse_failures: int = 0
     model_refusal_rate: float = 0.0
     human_refusal_rate: float = 0.0
+    temporal_year: int = 0
 
 
 @dataclass
@@ -202,6 +204,31 @@ class BenchmarkResult:
         return cis
 
     @property
+    def temporal_breakdown(self) -> dict[int, dict[str, float]]:
+        """Per-year P_dist scores for temporal contamination analysis.
+
+        Groups questions by survey wave year and computes P_dist for each.
+        Returns {year: {"p_dist": ..., "mean_jsd": ..., "n_questions": ...}}.
+        """
+        by_year: dict[int, list[QuestionResult]] = {}
+        for q in self.questions:
+            if q.temporal_year > 0:
+                by_year.setdefault(q.temporal_year, []).append(q)
+
+        result: dict[int, dict[str, float]] = {}
+        for year in sorted(by_year):
+            qs = by_year[year]
+            mean_jsd = sum(q.jsd for q in qs) / len(qs)
+            mean_tau = sum(q.kendall_tau for q in qs) / len(qs)
+            result[year] = {
+                "p_dist": round(1.0 - mean_jsd, 6),
+                "p_rank": round((1.0 + mean_tau) / 2.0, 6),
+                "mean_jsd": round(mean_jsd, 6),
+                "n_questions": len(qs),
+            }
+        return result
+
+    @property
     def q_set_hash(self) -> str:
         """SHA256 hash of sorted question keys for reproducibility."""
         return question_set_hash([q.key for q in self.questions])
@@ -311,6 +338,7 @@ class BenchmarkRunner:
             n_parse_failures=n_parse_failures,
             model_refusal_rate=model_refusal_rate,
             human_refusal_rate=human_refusal_rate,
+            temporal_year=wave_year(question.survey),
         )
 
     async def _collect_samples_with_refusals(
