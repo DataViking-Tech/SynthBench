@@ -88,10 +88,13 @@ header .tagline{color:var(--text-muted);font-size:1.05rem;margin-top:0.5rem}
 .detail-section{min-width:200px}
 .detail-item{margin:0.25rem 0}
 
-.baseline-divider td{height:2px;padding:0 !important;background:var(--border)}
+.section-divider td{padding:0.5rem 1rem !important;background:var(--surface);border-bottom:2px solid var(--border);border-top:2px solid var(--border)}
+.section-label{font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-muted)}
 .baseline-row td{color:var(--text-muted)}
 .baseline-row .composite{color:var(--text-muted);font-weight:400}
 .baseline-name{font-weight:400 !important;color:var(--text-muted) !important}
+.product-row td{color:var(--text)}
+.product-row .composite{font-weight:600}
 
 .low-n td{opacity:0.7}
 .low-n-marker{color:var(--red);font-weight:700;margin-left:1px}
@@ -154,7 +157,7 @@ footer a{color:var(--accent)}
 <div class="container">
 <h2 class="hero-headline">The best AI is only 13&nbsp;points above random chance.</h2>
   <div class="hero-chart">
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 382" width="100%" style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;max-width:800px">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 354" width="100%" style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;max-width:800px">
 <defs>
 <linearGradient id="zone-grad" x1="0%" y1="0%" x2="100%" y2="0%">
 <stop offset="0%" style="stop-color:var(--red)" stop-opacity="0.15"/>
@@ -164,10 +167,10 @@ footer a{color:var(--accent)}
 <stop offset="100%" style="stop-color:var(--green)" stop-opacity="0.15"/>
 </linearGradient>
 </defs>
-<rect x="180.0" y="52" width="560.0" height="280" fill="url(#zone-grad)"/>
-<line x1="425.5" y1="52" x2="425.5" y2="332" style="stroke:var(--text-muted)" stroke-width="0.5" opacity="0.15" stroke-dasharray="3,3"/>
-<line x1="730.5" y1="52" x2="730.5" y2="332" style="stroke:var(--text-muted)" stroke-width="0.5" opacity="0.15" stroke-dasharray="3,3"/>
-<line x1="271.5" y1="47" x2="271.5" y2="337" style="stroke:var(--red)" stroke-width="2" stroke-dasharray="6,3" opacity="0.7"/>
+<rect x="180.0" y="52" width="560.0" height="252" fill="url(#zone-grad)"/>
+<line x1="425.5" y1="52" x2="425.5" y2="304" style="stroke:var(--text-muted)" stroke-width="0.5" opacity="0.15" stroke-dasharray="3,3"/>
+<line x1="730.5" y1="52" x2="730.5" y2="304" style="stroke:var(--text-muted)" stroke-width="0.5" opacity="0.15" stroke-dasharray="3,3"/>
+<line x1="271.5" y1="47" x2="271.5" y2="309" style="stroke:var(--red)" stroke-width="2" stroke-dasharray="6,3" opacity="0.7"/>
 <text x="271.5" y="42" text-anchor="middle" font-size="10" style="fill:var(--red)" font-weight="600">Random Baseline (65%)</text>
 <text x="170" y="70.0" text-anchor="end" font-size="12" style="fill:var(--text)" font-weight="700">SynthPanel</text>
 <circle cx="663.7" cy="66.0" r="7" style="fill:var(--green)" opacity="0.9"/>
@@ -190,28 +193,25 @@ footer a{color:var(--accent)}
 <text x="170" y="238.0" text-anchor="end" font-size="11" style="fill:var(--text)" font-weight="400">GPT-4o Mini</text>
 <circle cx="498.7" cy="234.0" r="4.5" style="fill:var(--green)" opacity="0.9"/>
 <text x="508.2" y="237.5" font-size="10" style="fill:var(--text-muted)">72.40%</text>
-<text x="170" y="266.0" text-anchor="end" font-size="11" style="fill:var(--text)" font-weight="400">Claude Haiku 4.5</text>
-<circle cx="498.1" cy="262.0" r="4.5" style="fill:var(--green)" opacity="0.9"/>
-<text x="507.6" y="265.5" font-size="10" style="fill:var(--text-muted)">72.38%</text>
-<text x="170" y="294.0" text-anchor="end" font-size="11" style="fill:var(--text)" font-weight="400">GPT-4o</text>
-<circle cx="496.8" cy="290.0" r="4.5" style="fill:var(--green)" opacity="0.9"/>
-<text x="506.3" y="293.5" font-size="10" style="fill:var(--text-muted)">72.34%</text>
-<text x="170" y="322.0" text-anchor="end" font-size="11" style="fill:var(--text)" font-weight="400">Claude Sonnet 4</text>
-<circle cx="289.0" cy="318.0" r="4.5" style="fill:var(--gold)" opacity="0.9"/>
-<text x="298.5" y="321.5" font-size="10" style="fill:var(--text-muted)">65.53%</text>
+<text x="170" y="266.0" text-anchor="end" font-size="11" style="fill:var(--text)" font-weight="400">GPT-4o</text>
+<circle cx="496.8" cy="262.0" r="4.5" style="fill:var(--green)" opacity="0.9"/>
+<text x="506.3" y="265.5" font-size="10" style="fill:var(--text-muted)">72.34%</text>
+<text x="170" y="294.0" text-anchor="end" font-size="11" style="fill:var(--text)" font-weight="400">Claude Sonnet 4</text>
+<circle cx="289.0" cy="290.0" r="4.5" style="fill:var(--gold)" opacity="0.9"/>
+<text x="298.5" y="293.5" font-size="10" style="fill:var(--text-muted)">65.53%</text>
 <text x="400.0" y="20" text-anchor="middle" font-size="14" style="fill:var(--text)" font-weight="700">How Well Does AI Reproduce Human Survey Responses?</text>
 <text x="400.0" y="38" text-anchor="middle" font-size="11" style="fill:var(--text-muted)">Best: SynthPanel at 78% human parity  ·  Random chance: 65%</text>
-<text x="302.0" y="350" text-anchor="middle" font-size="9" style="fill:var(--gold)" opacity="0.8">Near baseline</text>
-<text x="582.0" y="350" text-anchor="middle" font-size="9" style="fill:var(--green)" opacity="0.8">Above baseline</text>
-<line x1="273.0" y1="332" x2="273.0" y2="336" style="stroke:var(--text-muted)" stroke-width="0.5" opacity="0.5"/>
-<text x="273.0" y="367" text-anchor="middle" font-size="9" style="fill:var(--text-muted)">65%</text>
-<line x1="425.5" y1="332" x2="425.5" y2="336" style="stroke:var(--text-muted)" stroke-width="0.5" opacity="0.5"/>
-<text x="425.5" y="367" text-anchor="middle" font-size="9" style="fill:var(--text-muted)">70%</text>
-<line x1="578.0" y1="332" x2="578.0" y2="336" style="stroke:var(--text-muted)" stroke-width="0.5" opacity="0.5"/>
-<text x="578.0" y="367" text-anchor="middle" font-size="9" style="fill:var(--text-muted)">75%</text>
-<line x1="730.5" y1="332" x2="730.5" y2="336" style="stroke:var(--text-muted)" stroke-width="0.5" opacity="0.5"/>
-<text x="730.5" y="367" text-anchor="middle" font-size="9" style="fill:var(--text-muted)">80%</text>
-<text x="460.0" y="379" text-anchor="middle" font-size="9" style="fill:var(--text-muted)">SPS (SynthBench Parity Score)</text>
+<text x="302.0" y="322" text-anchor="middle" font-size="9" style="fill:var(--gold)" opacity="0.8">Near baseline</text>
+<text x="582.0" y="322" text-anchor="middle" font-size="9" style="fill:var(--green)" opacity="0.8">Above baseline</text>
+<line x1="273.0" y1="304" x2="273.0" y2="308" style="stroke:var(--text-muted)" stroke-width="0.5" opacity="0.5"/>
+<text x="273.0" y="339" text-anchor="middle" font-size="9" style="fill:var(--text-muted)">65%</text>
+<line x1="425.5" y1="304" x2="425.5" y2="308" style="stroke:var(--text-muted)" stroke-width="0.5" opacity="0.5"/>
+<text x="425.5" y="339" text-anchor="middle" font-size="9" style="fill:var(--text-muted)">70%</text>
+<line x1="578.0" y1="304" x2="578.0" y2="308" style="stroke:var(--text-muted)" stroke-width="0.5" opacity="0.5"/>
+<text x="578.0" y="339" text-anchor="middle" font-size="9" style="fill:var(--text-muted)">75%</text>
+<line x1="730.5" y1="304" x2="730.5" y2="308" style="stroke:var(--text-muted)" stroke-width="0.5" opacity="0.5"/>
+<text x="730.5" y="339" text-anchor="middle" font-size="9" style="fill:var(--text-muted)">80%</text>
+<text x="460.0" y="351" text-anchor="middle" font-size="9" style="fill:var(--text-muted)">SPS (SynthBench Parity Score)</text>
 </svg>
   </div>
 
@@ -255,33 +255,11 @@ footer a{color:var(--accent)}
       </tr>
     </thead>
     <tbody id="leaderboard-body">
-      <tr class=" low-n" data-sps="0.7781" data-n="30" data-jsd="0.2529" data-tau="0.6182">
-        <td class="rank num"><span class="chevron" data-provider="synthpanel/claude-haiku-4-5-20251001_opinionsqa" title="Show details">&#x25B6;</span><span class="medal">&#x1f947;</span>1</td>
-        <td class="provider-name">synthpanel (adapter test)</td>
-        <td><span class="model-name">claude-haiku-4-5-20251001 n=20</span></td>
-        <td>opinionsqa</td>
-        <td class="num">30<span class="low-n-marker">*</span></td>
-        <td class="num composite">0.7781<svg xmlns="http://www.w3.org/2000/svg" width="60" height="16" style="vertical-align:middle;margin-left:4px"><line x1="42.6" y1="8.0" x2="47.8" y2="8.0" class="chart-muted" stroke-width="1.5"/><line x1="42.6" y1="5.0" x2="42.6" y2="11.0" class="chart-muted" stroke-width="1"/><line x1="47.8" y1="5.0" x2="47.8" y2="11.0" class="chart-muted" stroke-width="1"/><circle cx="45.6" cy="8.0" r="3" class="chart-accent"/></svg></td>
-        <td class="num" style="color:var(--green)">+0.1286</td>
-        <td class="num" style="color:var(--green)">+0.2161</td>
-        <td class="num">&mdash;</td>
-        <td class="num">0.9942</td>
-        <td class="num">0.2529</td>
-        <td class="num">0.6182</td>
-        <td>2026-04-11</td>
-      </tr>
-      <tr class="detail-row" data-provider="synthpanel/claude-haiku-4-5-20251001_opinionsqa" style="display:none">
-        <td colspan="13" class="detail-cell">
-          <div class="detail-content">
-            <div class="detail-section"><strong>Runs:</strong> <div class="detail-item">n=30 samples=10 SPS=0.7781 JSD=0.2529 tau=0.6182</div><div class="detail-item">n=20 samples=3 SPS=0.5497 JSD=0.5128 tau=0.2245</div></div>
-            <div class="detail-section"><strong>Convergence:</strong> <svg xmlns="http://www.w3.org/2000/svg" width="80" height="20" style="vertical-align:middle"><polyline points="2.0,18.0 78.0,2.0" fill="none" style="stroke:var(--accent)" stroke-width="1.5"/></svg></div>
-          </div>
-        </td>
-      </tr>
+      <tr class="section-divider"><td colspan="13"><span class="section-label">Raw LLMs</span></td></tr>
       <tr class="" data-sps="0.7378" data-n="100" data-jsd="0.2653" data-tau="0.4819">
-        <td class="rank num"><span class="chevron" data-provider="raw-gemini/gemini-2.5-flash-lite_opinionsqa" title="Show details">&#x25B6;</span><span class="medal">&#x1f948;</span>2</td>
-        <td class="provider-name">raw-gemini</td>
-        <td><span class="model-name">gemini-2.5-flash-lite</span></td>
+        <td class="rank num"><span class="chevron" data-provider="raw-gemini/gemini-2.5-flash-lite_opinionsqa" title="Show details">&#x25B6;</span><span class="medal">&#x1f947;</span>1</td>
+        <td class="provider-name">Gemini Flash Lite</td>
+        <td><span class="model-name">&mdash;</span></td>
         <td>opinionsqa</td>
         <td class="num">100</td>
         <td class="num composite">0.7378<span style="font-size:0.75rem;color:var(--text-muted);margin-left:4px">1 run</span></td>
@@ -301,25 +279,10 @@ footer a{color:var(--accent)}
           </div>
         </td>
       </tr>
-      <tr class=" low-n" data-sps="0.7358" data-n="30" data-jsd="0.3125" data-tau="0.5683">
-        <td class="rank num"><span class="medal">&#x1f949;</span>3</td>
-        <td class="provider-name">synthpanel (adapter test)</td>
-        <td><span class="model-name">gemini-2.5-flash-lite n=20</span></td>
-        <td>opinionsqa</td>
-        <td class="num">30<span class="low-n-marker">*</span></td>
-        <td class="num composite">0.7358<svg xmlns="http://www.w3.org/2000/svg" width="60" height="16" style="vertical-align:middle;margin-left:4px"><line x1="40.5" y1="8.0" x2="45.8" y2="8.0" class="chart-muted" stroke-width="1.5"/><line x1="40.5" y1="5.0" x2="40.5" y2="11.0" class="chart-muted" stroke-width="1"/><line x1="45.8" y1="5.0" x2="45.8" y2="11.0" class="chart-muted" stroke-width="1"/><circle cx="43.2" cy="8.0" r="3" class="chart-accent"/></svg></td>
-        <td class="num" style="color:var(--green)">+0.0863</td>
-        <td class="num" style="color:var(--green)">+0.1738</td>
-        <td class="num">&mdash;</td>
-        <td class="num">0.9942</td>
-        <td class="num">0.3125</td>
-        <td class="num">0.5683</td>
-        <td>2026-04-11</td>
-      </tr>
       <tr class="" data-sps="0.7337" data-n="684" data-jsd="0.3071" data-tau="0.5489">
-        <td class="rank num"><span class="chevron" data-provider="openrouter/meta-llama/llama-3.3-70b-instruct_opinionsqa" title="Show details">&#x25B6;</span>4</td>
-        <td class="provider-name">openrouter</td>
-        <td><span class="model-name">meta-llama/llama-3.3-70b-instruct</span></td>
+        <td class="rank num"><span class="chevron" data-provider="openrouter/meta-llama/llama-3.3-70b-instruct_opinionsqa" title="Show details">&#x25B6;</span><span class="medal">&#x1f948;</span>2</td>
+        <td class="provider-name">Llama 3.3 70B</td>
+        <td><span class="model-name">&mdash;</span></td>
         <td>opinionsqa</td>
         <td class="num">684</td>
         <td class="num composite">0.7337<svg xmlns="http://www.w3.org/2000/svg" width="60" height="16" style="vertical-align:middle;margin-left:4px"><line x1="42.5" y1="8.0" x2="43.6" y2="8.0" class="chart-muted" stroke-width="1.5"/><line x1="42.5" y1="5.0" x2="42.5" y2="11.0" class="chart-muted" stroke-width="1"/><line x1="43.6" y1="5.0" x2="43.6" y2="11.0" class="chart-muted" stroke-width="1"/><circle cx="43.1" cy="8.0" r="3" class="chart-accent"/></svg></td>
@@ -340,9 +303,9 @@ footer a{color:var(--accent)}
         </td>
       </tr>
       <tr class="" data-sps="0.7306" data-n="200" data-jsd="0.2735" data-tau="0.4693">
-        <td class="rank num"><span class="chevron" data-provider="openrouter/google/gemini-2.5-flash_opinionsqa" title="Show details">&#x25B6;</span>5</td>
-        <td class="provider-name">openrouter</td>
-        <td><span class="model-name">google/gemini-2.5-flash</span></td>
+        <td class="rank num"><span class="chevron" data-provider="openrouter/google/gemini-2.5-flash_opinionsqa" title="Show details">&#x25B6;</span><span class="medal">&#x1f949;</span>3</td>
+        <td class="provider-name">Gemini 2.5 Flash</td>
+        <td><span class="model-name">&mdash;</span></td>
         <td>opinionsqa</td>
         <td class="num">200</td>
         <td class="num composite">0.7306<svg xmlns="http://www.w3.org/2000/svg" width="60" height="16" style="vertical-align:middle;margin-left:4px"><line x1="41.6" y1="8.0" x2="44.1" y2="8.0" class="chart-muted" stroke-width="1.5"/><line x1="41.6" y1="5.0" x2="41.6" y2="11.0" class="chart-muted" stroke-width="1"/><line x1="44.1" y1="5.0" x2="44.1" y2="11.0" class="chart-muted" stroke-width="1"/><circle cx="42.9" cy="8.0" r="3" class="chart-accent"/></svg></td>
@@ -363,9 +326,9 @@ footer a{color:var(--accent)}
         </td>
       </tr>
       <tr class="" data-sps="0.7282" data-n="684" data-jsd="0.3104" data-tau="0.5336">
-        <td class="rank num"><span class="chevron" data-provider="openrouter/anthropic/claude-haiku-4-5_opinionsqa" title="Show details">&#x25B6;</span>6</td>
-        <td class="provider-name">openrouter</td>
-        <td><span class="model-name">anthropic/claude-haiku-4-5</span></td>
+        <td class="rank num"><span class="chevron" data-provider="openrouter/anthropic/claude-haiku-4-5_opinionsqa" title="Show details">&#x25B6;</span>4</td>
+        <td class="provider-name">Claude Haiku 4.5</td>
+        <td><span class="model-name">&mdash;</span></td>
         <td>opinionsqa</td>
         <td class="num">684</td>
         <td class="num composite">0.7282<svg xmlns="http://www.w3.org/2000/svg" width="60" height="16" style="vertical-align:middle;margin-left:4px"><line x1="42.1" y1="8.0" x2="43.4" y2="8.0" class="chart-muted" stroke-width="1.5"/><line x1="42.1" y1="5.0" x2="42.1" y2="11.0" class="chart-muted" stroke-width="1"/><line x1="43.4" y1="5.0" x2="43.4" y2="11.0" class="chart-muted" stroke-width="1"/><circle cx="42.8" cy="8.0" r="3" class="chart-accent"/></svg></td>
@@ -386,9 +349,9 @@ footer a{color:var(--accent)}
         </td>
       </tr>
       <tr class="" data-sps="0.7240" data-n="684" data-jsd="0.3139" data-tau="0.5238">
-        <td class="rank num"><span class="chevron" data-provider="openrouter/openai/gpt-4o-mini_opinionsqa" title="Show details">&#x25B6;</span>7</td>
-        <td class="provider-name">openrouter</td>
-        <td><span class="model-name">openai/gpt-4o-mini</span></td>
+        <td class="rank num"><span class="chevron" data-provider="openrouter/openai/gpt-4o-mini_opinionsqa" title="Show details">&#x25B6;</span>5</td>
+        <td class="provider-name">GPT-4o-mini</td>
+        <td><span class="model-name">&mdash;</span></td>
         <td>opinionsqa</td>
         <td class="num">684</td>
         <td class="num composite">0.7240<svg xmlns="http://www.w3.org/2000/svg" width="60" height="16" style="vertical-align:middle;margin-left:4px"><line x1="41.8" y1="8.0" x2="43.2" y2="8.0" class="chart-muted" stroke-width="1.5"/><line x1="41.8" y1="5.0" x2="41.8" y2="11.0" class="chart-muted" stroke-width="1"/><line x1="43.2" y1="5.0" x2="43.2" y2="11.0" class="chart-muted" stroke-width="1"/><circle cx="42.5" cy="8.0" r="3" class="chart-accent"/></svg></td>
@@ -408,33 +371,10 @@ footer a{color:var(--accent)}
           </div>
         </td>
       </tr>
-      <tr class="" data-sps="0.7238" data-n="100" data-jsd="0.3081" data-tau="0.5114">
-        <td class="rank num"><span class="chevron" data-provider="raw-anthropic/claude-haiku-4-5-20251001_opinionsqa" title="Show details">&#x25B6;</span>8</td>
-        <td class="provider-name">raw-anthropic</td>
-        <td><span class="model-name">claude-haiku-4-5-20251001</span></td>
-        <td>opinionsqa</td>
-        <td class="num">100</td>
-        <td class="num composite">0.7238<span style="font-size:0.75rem;color:var(--text-muted);margin-left:4px">1 run</span></td>
-        <td class="num" style="color:var(--green)">+0.0743</td>
-        <td class="num" style="color:var(--green)">+0.1618</td>
-        <td class="num">&mdash;</td>
-        <td class="num">&mdash;</td>
-        <td class="num">0.3081</td>
-        <td class="num">0.5114</td>
-        <td>2026-04-10</td>
-      </tr>
-      <tr class="detail-row" data-provider="raw-anthropic/claude-haiku-4-5-20251001_opinionsqa" style="display:none">
-        <td colspan="13" class="detail-cell">
-          <div class="detail-content">
-            <div class="detail-section"><strong>Runs:</strong> <div class="detail-item">n=100 samples=30 SPS=0.7238 JSD=0.3081 tau=0.5114</div><div class="detail-item">n=50 samples=10 SPS=0.7147 JSD=0.3197 tau=0.4981</div></div>
-            <div class="detail-section"><strong>Convergence:</strong> <svg xmlns="http://www.w3.org/2000/svg" width="80" height="20" style="vertical-align:middle"><polyline points="2.0,18.0 78.0,2.0" fill="none" style="stroke:var(--accent)" stroke-width="1.5"/></svg></div>
-          </div>
-        </td>
-      </tr>
       <tr class="" data-sps="0.7234" data-n="200" data-jsd="0.2737" data-tau="0.4409">
-        <td class="rank num"><span class="chevron" data-provider="openrouter/openai/gpt-4o_opinionsqa" title="Show details">&#x25B6;</span>9</td>
-        <td class="provider-name">openrouter</td>
-        <td><span class="model-name">openai/gpt-4o</span></td>
+        <td class="rank num"><span class="chevron" data-provider="openrouter/openai/gpt-4o_opinionsqa" title="Show details">&#x25B6;</span>6</td>
+        <td class="provider-name">GPT-4o</td>
+        <td><span class="model-name">&mdash;</span></td>
         <td>opinionsqa</td>
         <td class="num">200</td>
         <td class="num composite">0.7234<svg xmlns="http://www.w3.org/2000/svg" width="60" height="16" style="vertical-align:middle;margin-left:4px"><line x1="41.1" y1="8.0" x2="43.8" y2="8.0" class="chart-muted" stroke-width="1.5"/><line x1="41.1" y1="5.0" x2="41.1" y2="11.0" class="chart-muted" stroke-width="1"/><line x1="43.8" y1="5.0" x2="43.8" y2="11.0" class="chart-muted" stroke-width="1"/><circle cx="42.5" cy="8.0" r="3" class="chart-accent"/></svg></td>
@@ -455,9 +395,9 @@ footer a{color:var(--accent)}
         </td>
       </tr>
       <tr class="" data-sps="0.6553" data-n="200" data-jsd="0.3727" data-tau="0.3664">
-        <td class="rank num"><span class="chevron" data-provider="openrouter/anthropic/claude-sonnet-4_opinionsqa" title="Show details">&#x25B6;</span>10</td>
-        <td class="provider-name">openrouter</td>
-        <td><span class="model-name">anthropic/claude-sonnet-4</span></td>
+        <td class="rank num"><span class="chevron" data-provider="openrouter/anthropic/claude-sonnet-4_opinionsqa" title="Show details">&#x25B6;</span>7</td>
+        <td class="provider-name">Claude Sonnet 4</td>
+        <td><span class="model-name">&mdash;</span></td>
         <td>opinionsqa</td>
         <td class="num">200</td>
         <td class="num composite">0.6553<svg xmlns="http://www.w3.org/2000/svg" width="60" height="16" style="vertical-align:middle;margin-left:4px"><line x1="36.8" y1="8.0" x2="40.4" y2="8.0" class="chart-muted" stroke-width="1.5"/><line x1="36.8" y1="5.0" x2="36.8" y2="11.0" class="chart-muted" stroke-width="1"/><line x1="40.4" y1="5.0" x2="40.4" y2="11.0" class="chart-muted" stroke-width="1"/><circle cx="38.7" cy="8.0" r="3" class="chart-accent"/></svg></td>
@@ -477,10 +417,41 @@ footer a{color:var(--accent)}
           </div>
         </td>
       </tr>
-      <tr class="baseline-divider"><td colspan="13"></td></tr>
+      <tr class="section-divider"><td colspan="13"><span class="section-label">Products</span></td></tr>
+      <tr class="product-row" data-sps="0.7781" data-n="30" data-jsd="0.2529" data-tau="0.6182">
+        <td class="rank num"></td>
+        <td class="provider-name">SynthPanel (Haiku)</td>
+        <td></td>
+        <td>opinionsqa</td>
+        <td class="num">30</td>
+        <td class="num composite">0.7781</td>
+        <td class="num" style="color:var(--green)">+0.1286</td>
+        <td class="num" style="color:var(--green)">+0.2161</td>
+        <td class="num">&mdash;</td>
+        <td class="num">&mdash;</td>
+        <td class="num">0.2529</td>
+        <td class="num">0.6182</td>
+        <td>2026-04-11</td>
+      </tr>
+      <tr class="product-row" data-sps="0.7358" data-n="30" data-jsd="0.3125" data-tau="0.5683">
+        <td class="rank num"></td>
+        <td class="provider-name">SynthPanel (Gemini)</td>
+        <td></td>
+        <td>opinionsqa</td>
+        <td class="num">30</td>
+        <td class="num composite">0.7358</td>
+        <td class="num" style="color:var(--green)">+0.0863</td>
+        <td class="num" style="color:var(--green)">+0.1738</td>
+        <td class="num">&mdash;</td>
+        <td class="num">&mdash;</td>
+        <td class="num">0.3125</td>
+        <td class="num">0.5683</td>
+        <td>2026-04-11</td>
+      </tr>
+      <tr class="section-divider"><td colspan="13"><span class="section-label">Baselines</span></td></tr>
       <tr class="baseline-row" data-sps="0.6495" data-n="684" data-jsd="0.1940" data-tau="-0.0139">
         <td class="rank num"></td>
-        <td class="provider-name baseline-name">random-baseline</td>
+        <td class="provider-name baseline-name">Random Baseline</td>
         <td></td>
         <td>opinionsqa</td>
         <td class="num">684</td>
@@ -495,7 +466,7 @@ footer a{color:var(--accent)}
       </tr>
       <tr class="baseline-row" data-sps="0.5729" data-n="10" data-jsd="0.2532" data-tau="-0.2019">
         <td class="rank num"></td>
-        <td class="provider-name baseline-name">random-baseline</td>
+        <td class="provider-name baseline-name">Random Baseline</td>
         <td></td>
         <td>globalopinionqa</td>
         <td class="num">10</td>
@@ -510,7 +481,7 @@ footer a{color:var(--accent)}
       </tr>
       <tr class="baseline-row" data-sps="0.5620" data-n="684" data-jsd="0.4919" data-tau="0.2317">
         <td class="rank num"></td>
-        <td class="provider-name baseline-name">majority-baseline</td>
+        <td class="provider-name baseline-name">Majority Baseline</td>
         <td></td>
         <td>opinionsqa</td>
         <td class="num">684</td>
@@ -526,67 +497,64 @@ footer a{color:var(--accent)}
     </tbody>
   </table>
   <p class="footnote"><strong>Adapter test:</strong> SynthPanel entries use an early, untuned adapter integration and are not representative of production SynthPanel quality. Included for transparency and baseline comparison.</p>
-  <p class="footnote">* Scores from small samples (N&nbsp;&lt;&nbsp;50) have higher variance and should be interpreted with caution.</p>
+  
 
   <div class="secondary-panel">
     <details class="collapsible">
       <summary>SPS by Model</summary>
       <div class="collapsible-body">
         <div class="chart-section">
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 660 518" width="100%" style="font-family:sans-serif;max-width:660px">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 660 482" width="100%" style="font-family:sans-serif;max-width:660px">
 <text x="330.0" y="18" text-anchor="middle" font-size="14" class="chart-text" font-weight="600">SPS by Model</text>
-<line x1="449.2" y1="30" x2="449.2" y2="503" style="stroke:var(--red)" stroke-width="1" stroke-dasharray="4,3" opacity="0.6"/><text x="449.2" y="24" text-anchor="middle" font-size="9" style="fill:var(--red)" opacity="0.8">Random</text>
-<line x1="444.8" y1="30" x2="444.8" y2="503" style="stroke:var(--gold)" stroke-width="1" stroke-dasharray="4,3" opacity="0.6"/><text x="444.8" y="24" text-anchor="middle" font-size="9" style="fill:var(--gold)" opacity="0.8">Majority</text>
-<text x="212" y="59.2" text-anchor="end" font-size="11" class="chart-text">synthpanel/claude-haiku-4-5-20251001 (adapter test, n=20)</text>
+<line x1="449.2" y1="30" x2="449.2" y2="467" style="stroke:var(--red)" stroke-width="1" stroke-dasharray="4,3" opacity="0.6"/><text x="449.2" y="24" text-anchor="middle" font-size="9" style="fill:var(--red)" opacity="0.8">Random</text>
+<line x1="444.8" y1="30" x2="444.8" y2="467" style="stroke:var(--gold)" stroke-width="1" stroke-dasharray="4,3" opacity="0.6"/><text x="444.8" y="24" text-anchor="middle" font-size="9" style="fill:var(--gold)" opacity="0.8">Majority</text>
+<text x="212" y="59.2" text-anchor="end" font-size="11" class="chart-text">SynthPanel (Haiku)</text>
 <line x1="509.8" y1="56.0" x2="547.1" y2="56.0" class="chart-accent" stroke-width="2" opacity="0.5"/><line x1="509.8" y1="49.6" x2="509.8" y2="62.4" class="chart-accent" stroke-width="1" opacity="0.5"/><line x1="547.1" y1="49.6" x2="547.1" y2="62.4" class="chart-accent" stroke-width="1" opacity="0.5"/>
 <circle cx="531.2" cy="56.0" r="4" class="chart-accent"/>
 <text x="539.2" y="59.2" font-size="10" class="chart-text">0.7781</text>
-<text x="212" y="95.2" text-anchor="end" font-size="11" class="chart-text">raw-gemini/gemini-2.5-flash-lite</text>
+<text x="212" y="95.2" text-anchor="end" font-size="11" class="chart-text">Gemini Flash Lite</text>
 <circle cx="515.1" cy="92.0" r="4" class="chart-accent"/>
 <text x="523.1" y="95.2" font-size="10" class="chart-text">0.7378</text>
-<text x="212" y="131.2" text-anchor="end" font-size="11" class="chart-text">synthpanel/gemini-2.5-flash-lite (adapter test, n=20)</text>
+<text x="212" y="131.2" text-anchor="end" font-size="11" class="chart-text">SynthPanel (Gemini)</text>
 <line x1="495.0" y1="128.0" x2="532.9" y2="128.0" class="chart-accent" stroke-width="2" opacity="0.5"/><line x1="495.0" y1="121.6" x2="495.0" y2="134.4" class="chart-accent" stroke-width="1" opacity="0.5"/><line x1="532.9" y1="121.6" x2="532.9" y2="134.4" class="chart-accent" stroke-width="1" opacity="0.5"/>
 <circle cx="514.3" cy="128.0" r="4" class="chart-accent"/>
 <text x="522.3" y="131.2" font-size="10" class="chart-text">0.7358</text>
-<text x="212" y="167.2" text-anchor="end" font-size="11" class="chart-text">openrouter/meta-llama/llama-3.3-70b-instruct</text>
+<text x="212" y="167.2" text-anchor="end" font-size="11" class="chart-text">Llama 3.3 70B</text>
 <line x1="509.2" y1="164.0" x2="517.4" y2="164.0" class="chart-accent" stroke-width="2" opacity="0.5"/><line x1="509.2" y1="157.6" x2="509.2" y2="170.4" class="chart-accent" stroke-width="1" opacity="0.5"/><line x1="517.4" y1="157.6" x2="517.4" y2="170.4" class="chart-accent" stroke-width="1" opacity="0.5"/>
 <circle cx="513.5" cy="164.0" r="4" class="chart-accent"/>
 <text x="521.5" y="167.2" font-size="10" class="chart-text">0.7337</text>
-<text x="212" y="203.2" text-anchor="end" font-size="11" class="chart-text">openrouter/google/gemini-2.5-flash</text>
+<text x="212" y="203.2" text-anchor="end" font-size="11" class="chart-text">Gemini 2.5 Flash</text>
 <line x1="502.9" y1="200.0" x2="520.4" y2="200.0" class="chart-accent" stroke-width="2" opacity="0.5"/><line x1="502.9" y1="193.6" x2="502.9" y2="206.4" class="chart-accent" stroke-width="1" opacity="0.5"/><line x1="520.4" y1="193.6" x2="520.4" y2="206.4" class="chart-accent" stroke-width="1" opacity="0.5"/>
 <circle cx="512.2" cy="200.0" r="4" class="chart-accent"/>
 <text x="520.2" y="203.2" font-size="10" class="chart-text">0.7306</text>
-<text x="212" y="239.2" text-anchor="end" font-size="11" class="chart-text">openrouter/anthropic/claude-haiku-4-5</text>
+<text x="212" y="239.2" text-anchor="end" font-size="11" class="chart-text">Claude Haiku 4.5</text>
 <line x1="506.4" y1="236.0" x2="515.7" y2="236.0" class="chart-accent" stroke-width="2" opacity="0.5"/><line x1="506.4" y1="229.6" x2="506.4" y2="242.4" class="chart-accent" stroke-width="1" opacity="0.5"/><line x1="515.7" y1="229.6" x2="515.7" y2="242.4" class="chart-accent" stroke-width="1" opacity="0.5"/>
 <circle cx="511.3" cy="236.0" r="4" class="chart-accent"/>
 <text x="519.3" y="239.2" font-size="10" class="chart-text">0.7282</text>
-<text x="212" y="275.2" text-anchor="end" font-size="11" class="chart-text">openrouter/openai/gpt-4o-mini</text>
+<text x="212" y="275.2" text-anchor="end" font-size="11" class="chart-text">GPT-4o-mini</text>
 <line x1="504.6" y1="272.0" x2="514.0" y2="272.0" class="chart-accent" stroke-width="2" opacity="0.5"/><line x1="504.6" y1="265.6" x2="504.6" y2="278.4" class="chart-accent" stroke-width="1" opacity="0.5"/><line x1="514.0" y1="265.6" x2="514.0" y2="278.4" class="chart-accent" stroke-width="1" opacity="0.5"/>
 <circle cx="509.6" cy="272.0" r="4" class="chart-accent"/>
 <text x="517.6" y="275.2" font-size="10" class="chart-text">0.7240</text>
-<text x="212" y="311.2" text-anchor="end" font-size="11" class="chart-text">raw-anthropic/claude-haiku-4-5-20251001</text>
-<circle cx="509.5" cy="308.0" r="4" class="chart-accent"/>
-<text x="517.5" y="311.2" font-size="10" class="chart-text">0.7238</text>
-<text x="212" y="347.2" text-anchor="end" font-size="11" class="chart-text">openrouter/openai/gpt-4o</text>
-<line x1="499.3" y1="344.0" x2="518.4" y2="344.0" class="chart-accent" stroke-width="2" opacity="0.5"/><line x1="499.3" y1="337.6" x2="499.3" y2="350.4" class="chart-accent" stroke-width="1" opacity="0.5"/><line x1="518.4" y1="337.6" x2="518.4" y2="350.4" class="chart-accent" stroke-width="1" opacity="0.5"/>
-<circle cx="509.3" cy="344.0" r="4" class="chart-accent"/>
-<text x="517.3" y="347.2" font-size="10" class="chart-text">0.7234</text>
-<text x="212" y="383.2" text-anchor="end" font-size="11" class="chart-text">openrouter/anthropic/claude-sonnet-4</text>
-<line x1="468.3" y1="380.0" x2="494.2" y2="380.0" class="chart-accent" stroke-width="2" opacity="0.5"/><line x1="468.3" y1="373.6" x2="468.3" y2="386.4" class="chart-accent" stroke-width="1" opacity="0.5"/><line x1="494.2" y1="373.6" x2="494.2" y2="386.4" class="chart-accent" stroke-width="1" opacity="0.5"/>
-<circle cx="482.1" cy="380.0" r="4" class="chart-accent"/>
-<text x="490.1" y="383.2" font-size="10" class="chart-text">0.6553</text>
-<text x="212" y="419.2" text-anchor="end" font-size="11" class="chart-muted">random-baseline</text>
-<line x1="475.0" y1="416.0" x2="484.4" y2="416.0" class="chart-muted" stroke-width="2" opacity="0.5"/><line x1="475.0" y1="409.6" x2="475.0" y2="422.4" class="chart-muted" stroke-width="1" opacity="0.5"/><line x1="484.4" y1="409.6" x2="484.4" y2="422.4" class="chart-muted" stroke-width="1" opacity="0.5"/>
-<circle cx="479.8" cy="416.0" r="4" class="chart-muted"/>
-<text x="487.8" y="419.2" font-size="10" class="chart-muted">0.6495</text>
-<text x="212" y="455.2" text-anchor="end" font-size="11" class="chart-muted">random-baseline</text>
-<line x1="412.3" y1="452.0" x2="491.9" y2="452.0" class="chart-muted" stroke-width="2" opacity="0.5"/><line x1="412.3" y1="445.6" x2="412.3" y2="458.4" class="chart-muted" stroke-width="1" opacity="0.5"/><line x1="491.9" y1="445.6" x2="491.9" y2="458.4" class="chart-muted" stroke-width="1" opacity="0.5"/>
-<circle cx="449.2" cy="452.0" r="4" class="chart-muted"/>
-<text x="457.2" y="455.2" font-size="10" class="chart-muted">0.5729</text>
-<text x="212" y="491.2" text-anchor="end" font-size="11" class="chart-muted">majority-baseline</text>
-<line x1="438.5" y1="488.0" x2="450.9" y2="488.0" class="chart-muted" stroke-width="2" opacity="0.5"/><line x1="438.5" y1="481.6" x2="438.5" y2="494.4" class="chart-muted" stroke-width="1" opacity="0.5"/><line x1="450.9" y1="481.6" x2="450.9" y2="494.4" class="chart-muted" stroke-width="1" opacity="0.5"/>
-<circle cx="444.8" cy="488.0" r="4" class="chart-muted"/>
-<text x="452.8" y="491.2" font-size="10" class="chart-muted">0.5620</text>
+<text x="212" y="311.2" text-anchor="end" font-size="11" class="chart-text">GPT-4o</text>
+<line x1="499.3" y1="308.0" x2="518.4" y2="308.0" class="chart-accent" stroke-width="2" opacity="0.5"/><line x1="499.3" y1="301.6" x2="499.3" y2="314.4" class="chart-accent" stroke-width="1" opacity="0.5"/><line x1="518.4" y1="301.6" x2="518.4" y2="314.4" class="chart-accent" stroke-width="1" opacity="0.5"/>
+<circle cx="509.3" cy="308.0" r="4" class="chart-accent"/>
+<text x="517.3" y="311.2" font-size="10" class="chart-text">0.7234</text>
+<text x="212" y="347.2" text-anchor="end" font-size="11" class="chart-text">Claude Sonnet 4</text>
+<line x1="468.3" y1="344.0" x2="494.2" y2="344.0" class="chart-accent" stroke-width="2" opacity="0.5"/><line x1="468.3" y1="337.6" x2="468.3" y2="350.4" class="chart-accent" stroke-width="1" opacity="0.5"/><line x1="494.2" y1="337.6" x2="494.2" y2="350.4" class="chart-accent" stroke-width="1" opacity="0.5"/>
+<circle cx="482.1" cy="344.0" r="4" class="chart-accent"/>
+<text x="490.1" y="347.2" font-size="10" class="chart-text">0.6553</text>
+<text x="212" y="383.2" text-anchor="end" font-size="11" class="chart-muted">Random Baseline</text>
+<line x1="475.0" y1="380.0" x2="484.4" y2="380.0" class="chart-muted" stroke-width="2" opacity="0.5"/><line x1="475.0" y1="373.6" x2="475.0" y2="386.4" class="chart-muted" stroke-width="1" opacity="0.5"/><line x1="484.4" y1="373.6" x2="484.4" y2="386.4" class="chart-muted" stroke-width="1" opacity="0.5"/>
+<circle cx="479.8" cy="380.0" r="4" class="chart-muted"/>
+<text x="487.8" y="383.2" font-size="10" class="chart-muted">0.6495</text>
+<text x="212" y="419.2" text-anchor="end" font-size="11" class="chart-muted">Random Baseline</text>
+<line x1="412.3" y1="416.0" x2="491.9" y2="416.0" class="chart-muted" stroke-width="2" opacity="0.5"/><line x1="412.3" y1="409.6" x2="412.3" y2="422.4" class="chart-muted" stroke-width="1" opacity="0.5"/><line x1="491.9" y1="409.6" x2="491.9" y2="422.4" class="chart-muted" stroke-width="1" opacity="0.5"/>
+<circle cx="449.2" cy="416.0" r="4" class="chart-muted"/>
+<text x="457.2" y="419.2" font-size="10" class="chart-muted">0.5729</text>
+<text x="212" y="455.2" text-anchor="end" font-size="11" class="chart-muted">Majority Baseline</text>
+<line x1="438.5" y1="452.0" x2="450.9" y2="452.0" class="chart-muted" stroke-width="2" opacity="0.5"/><line x1="438.5" y1="445.6" x2="438.5" y2="458.4" class="chart-muted" stroke-width="1" opacity="0.5"/><line x1="450.9" y1="445.6" x2="450.9" y2="458.4" class="chart-muted" stroke-width="1" opacity="0.5"/>
+<circle cx="444.8" cy="452.0" r="4" class="chart-muted"/>
+<text x="452.8" y="455.2" font-size="10" class="chart-muted">0.5620</text>
 </svg>
         </div>
       </div>
@@ -599,24 +567,24 @@ footer a{color:var(--accent)}
           <p>Each model&rsquo;s P_dist, P_rank, and P_refuse on a shared 0&ndash;1 axis. Whiskers show bootstrap 95% CI where available.</p>
         </div>
         <div class="chart-section">
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 660 420" width="100%" style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;max-width:660px">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 660 388" width="100%" style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;max-width:660px">
 <text x="330.0" y="20" text-anchor="middle" font-size="14" style="fill:var(--text)" font-weight="700">Per-Metric Breakdown</text>
-<line x1="437.8" y1="45" x2="437.8" y2="365" style="stroke:var(--red)" stroke-width="1" stroke-dasharray="4,3" opacity="0.5"/>
+<line x1="437.8" y1="45" x2="437.8" y2="333" style="stroke:var(--red)" stroke-width="1" stroke-dasharray="4,3" opacity="0.5"/>
 <text x="437.8" y="39" text-anchor="middle" font-size="9" style="fill:var(--red)" opacity="0.7">Random</text>
-<line x1="432.9" y1="45" x2="432.9" y2="365" style="stroke:var(--text-muted)" stroke-width="1" stroke-dasharray="4,3" opacity="0.5"/>
+<line x1="432.9" y1="45" x2="432.9" y2="333" style="stroke:var(--text-muted)" stroke-width="1" stroke-dasharray="4,3" opacity="0.5"/>
 <text x="432.9" y="39" text-anchor="middle" font-size="9" style="fill:var(--text-muted)" opacity="0.7">Majority</text>
-<line x1="180.0" y1="45" x2="180.0" y2="365" style="stroke:var(--text-muted)" stroke-width="0.5" opacity="0.12"/>
-<text x="180.0" y="380" text-anchor="middle" font-size="9" style="fill:var(--text-muted)">0.0</text>
-<line x1="270.0" y1="45" x2="270.0" y2="365" style="stroke:var(--text-muted)" stroke-width="0.5" opacity="0.12"/>
-<text x="270.0" y="380" text-anchor="middle" font-size="9" style="fill:var(--text-muted)">0.2</text>
-<line x1="360.0" y1="45" x2="360.0" y2="365" style="stroke:var(--text-muted)" stroke-width="0.5" opacity="0.12"/>
-<text x="360.0" y="380" text-anchor="middle" font-size="9" style="fill:var(--text-muted)">0.4</text>
-<line x1="450.0" y1="45" x2="450.0" y2="365" style="stroke:var(--text-muted)" stroke-width="0.5" opacity="0.12"/>
-<text x="450.0" y="380" text-anchor="middle" font-size="9" style="fill:var(--text-muted)">0.6</text>
-<line x1="540.0" y1="45" x2="540.0" y2="365" style="stroke:var(--text-muted)" stroke-width="0.5" opacity="0.12"/>
-<text x="540.0" y="380" text-anchor="middle" font-size="9" style="fill:var(--text-muted)">0.8</text>
-<line x1="630.0" y1="45" x2="630.0" y2="365" style="stroke:var(--text-muted)" stroke-width="0.5" opacity="0.12"/>
-<text x="630.0" y="380" text-anchor="middle" font-size="9" style="fill:var(--text-muted)">1.0</text>
+<line x1="180.0" y1="45" x2="180.0" y2="333" style="stroke:var(--text-muted)" stroke-width="0.5" opacity="0.12"/>
+<text x="180.0" y="348" text-anchor="middle" font-size="9" style="fill:var(--text-muted)">0.0</text>
+<line x1="270.0" y1="45" x2="270.0" y2="333" style="stroke:var(--text-muted)" stroke-width="0.5" opacity="0.12"/>
+<text x="270.0" y="348" text-anchor="middle" font-size="9" style="fill:var(--text-muted)">0.2</text>
+<line x1="360.0" y1="45" x2="360.0" y2="333" style="stroke:var(--text-muted)" stroke-width="0.5" opacity="0.12"/>
+<text x="360.0" y="348" text-anchor="middle" font-size="9" style="fill:var(--text-muted)">0.4</text>
+<line x1="450.0" y1="45" x2="450.0" y2="333" style="stroke:var(--text-muted)" stroke-width="0.5" opacity="0.12"/>
+<text x="450.0" y="348" text-anchor="middle" font-size="9" style="fill:var(--text-muted)">0.6</text>
+<line x1="540.0" y1="45" x2="540.0" y2="333" style="stroke:var(--text-muted)" stroke-width="0.5" opacity="0.12"/>
+<text x="540.0" y="348" text-anchor="middle" font-size="9" style="fill:var(--text-muted)">0.8</text>
+<line x1="630.0" y1="45" x2="630.0" y2="333" style="stroke:var(--text-muted)" stroke-width="0.5" opacity="0.12"/>
+<text x="630.0" y="348" text-anchor="middle" font-size="9" style="fill:var(--text-muted)">1.0</text>
 <text x="170" y="65.0" text-anchor="end" font-size="11" style="fill:var(--text)">SynthPanel</text>
 <line x1="490.2" y1="55.0" x2="539.4" y2="55.0" style="stroke:var(--accent)" stroke-width="1.5" opacity="0.35"/>
 <line x1="490.2" y1="52.0" x2="490.2" y2="58.0" style="stroke:var(--accent)" stroke-width="1" opacity="0.35"/>
@@ -704,44 +672,40 @@ footer a{color:var(--accent)}
 <line x1="624.8" y1="256.0" x2="624.8" y2="262.0" style="stroke:var(--gold)" stroke-width="1" opacity="0.35"/>
 <line x1="625.6" y1="256.0" x2="625.6" y2="262.0" style="stroke:var(--gold)" stroke-width="1" opacity="0.35"/>
 <circle cx="625.2" cy="259.0" r="3.5" style="fill:var(--gold)" opacity="0.85"/>
-<text x="170" y="289.0" text-anchor="end" font-size="11" style="fill:var(--text)">Claude Haiku 4.5</text>
+<text x="170" y="289.0" text-anchor="end" font-size="11" style="fill:var(--text)">GPT-4o</text>
 <line x1="180" y1="269" x2="630" y2="269" style="stroke:var(--border)" stroke-width="0.5" opacity="0.3"/>
-<circle cx="491.4" cy="279.0" r="3.5" style="fill:var(--accent)" opacity="0.85"/>
-<circle cx="520.1" cy="285.0" r="3.5" style="fill:var(--green)" opacity="0.85"/>
-<text x="170" y="321.0" text-anchor="end" font-size="11" style="fill:var(--text)">GPT-4o</text>
+<line x1="494.7" y1="279.0" x2="517.4" y2="279.0" style="stroke:var(--accent)" stroke-width="1.5" opacity="0.35"/>
+<line x1="494.7" y1="276.0" x2="494.7" y2="282.0" style="stroke:var(--accent)" stroke-width="1" opacity="0.35"/>
+<line x1="517.4" y1="276.0" x2="517.4" y2="282.0" style="stroke:var(--accent)" stroke-width="1" opacity="0.35"/>
+<circle cx="506.8" cy="279.0" r="3.5" style="fill:var(--accent)" opacity="0.85"/>
+<line x1="489.6" y1="285.0" x2="517.2" y2="285.0" style="stroke:var(--green)" stroke-width="1.5" opacity="0.35"/>
+<line x1="489.6" y1="282.0" x2="489.6" y2="288.0" style="stroke:var(--green)" stroke-width="1" opacity="0.35"/>
+<line x1="517.2" y1="282.0" x2="517.2" y2="288.0" style="stroke:var(--green)" stroke-width="1" opacity="0.35"/>
+<circle cx="504.2" cy="285.0" r="3.5" style="fill:var(--green)" opacity="0.85"/>
+<line x1="626.1" y1="291.0" x2="627.1" y2="291.0" style="stroke:var(--gold)" stroke-width="1.5" opacity="0.35"/>
+<line x1="626.1" y1="288.0" x2="626.1" y2="294.0" style="stroke:var(--gold)" stroke-width="1" opacity="0.35"/>
+<line x1="627.1" y1="288.0" x2="627.1" y2="294.0" style="stroke:var(--gold)" stroke-width="1" opacity="0.35"/>
+<circle cx="626.6" cy="291.0" r="3.5" style="fill:var(--gold)" opacity="0.85"/>
+<text x="170" y="321.0" text-anchor="end" font-size="11" style="fill:var(--text)">Claude Sonnet 4</text>
 <line x1="180" y1="301" x2="630" y2="301" style="stroke:var(--border)" stroke-width="0.5" opacity="0.3"/>
-<line x1="494.7" y1="311.0" x2="517.4" y2="311.0" style="stroke:var(--accent)" stroke-width="1.5" opacity="0.35"/>
-<line x1="494.7" y1="308.0" x2="494.7" y2="314.0" style="stroke:var(--accent)" stroke-width="1" opacity="0.35"/>
-<line x1="517.4" y1="308.0" x2="517.4" y2="314.0" style="stroke:var(--accent)" stroke-width="1" opacity="0.35"/>
-<circle cx="506.8" cy="311.0" r="3.5" style="fill:var(--accent)" opacity="0.85"/>
-<line x1="489.6" y1="317.0" x2="517.2" y2="317.0" style="stroke:var(--green)" stroke-width="1.5" opacity="0.35"/>
-<line x1="489.6" y1="314.0" x2="489.6" y2="320.0" style="stroke:var(--green)" stroke-width="1" opacity="0.35"/>
-<line x1="517.2" y1="314.0" x2="517.2" y2="320.0" style="stroke:var(--green)" stroke-width="1" opacity="0.35"/>
-<circle cx="504.2" cy="317.0" r="3.5" style="fill:var(--green)" opacity="0.85"/>
+<line x1="446.7" y1="311.0" x2="477.1" y2="311.0" style="stroke:var(--accent)" stroke-width="1.5" opacity="0.35"/>
+<line x1="446.7" y1="308.0" x2="446.7" y2="314.0" style="stroke:var(--accent)" stroke-width="1" opacity="0.35"/>
+<line x1="477.1" y1="308.0" x2="477.1" y2="314.0" style="stroke:var(--accent)" stroke-width="1" opacity="0.35"/>
+<circle cx="462.3" cy="311.0" r="3.5" style="fill:var(--accent)" opacity="0.85"/>
+<line x1="472.0" y1="317.0" x2="501.5" y2="317.0" style="stroke:var(--green)" stroke-width="1.5" opacity="0.35"/>
+<line x1="472.0" y1="314.0" x2="472.0" y2="320.0" style="stroke:var(--green)" stroke-width="1" opacity="0.35"/>
+<line x1="501.5" y1="314.0" x2="501.5" y2="320.0" style="stroke:var(--green)" stroke-width="1" opacity="0.35"/>
+<circle cx="487.4" cy="317.0" r="3.5" style="fill:var(--green)" opacity="0.85"/>
 <line x1="626.1" y1="323.0" x2="627.1" y2="323.0" style="stroke:var(--gold)" stroke-width="1.5" opacity="0.35"/>
 <line x1="626.1" y1="320.0" x2="626.1" y2="326.0" style="stroke:var(--gold)" stroke-width="1" opacity="0.35"/>
 <line x1="627.1" y1="320.0" x2="627.1" y2="326.0" style="stroke:var(--gold)" stroke-width="1" opacity="0.35"/>
 <circle cx="626.6" cy="323.0" r="3.5" style="fill:var(--gold)" opacity="0.85"/>
-<text x="170" y="353.0" text-anchor="end" font-size="11" style="fill:var(--text)">Claude Sonnet 4</text>
-<line x1="180" y1="333" x2="630" y2="333" style="stroke:var(--border)" stroke-width="0.5" opacity="0.3"/>
-<line x1="446.7" y1="343.0" x2="477.1" y2="343.0" style="stroke:var(--accent)" stroke-width="1.5" opacity="0.35"/>
-<line x1="446.7" y1="340.0" x2="446.7" y2="346.0" style="stroke:var(--accent)" stroke-width="1" opacity="0.35"/>
-<line x1="477.1" y1="340.0" x2="477.1" y2="346.0" style="stroke:var(--accent)" stroke-width="1" opacity="0.35"/>
-<circle cx="462.3" cy="343.0" r="3.5" style="fill:var(--accent)" opacity="0.85"/>
-<line x1="472.0" y1="349.0" x2="501.5" y2="349.0" style="stroke:var(--green)" stroke-width="1.5" opacity="0.35"/>
-<line x1="472.0" y1="346.0" x2="472.0" y2="352.0" style="stroke:var(--green)" stroke-width="1" opacity="0.35"/>
-<line x1="501.5" y1="346.0" x2="501.5" y2="352.0" style="stroke:var(--green)" stroke-width="1" opacity="0.35"/>
-<circle cx="487.4" cy="349.0" r="3.5" style="fill:var(--green)" opacity="0.85"/>
-<line x1="626.1" y1="355.0" x2="627.1" y2="355.0" style="stroke:var(--gold)" stroke-width="1.5" opacity="0.35"/>
-<line x1="626.1" y1="352.0" x2="626.1" y2="358.0" style="stroke:var(--gold)" stroke-width="1" opacity="0.35"/>
-<line x1="627.1" y1="352.0" x2="627.1" y2="358.0" style="stroke:var(--gold)" stroke-width="1" opacity="0.35"/>
-<circle cx="626.6" cy="355.0" r="3.5" style="fill:var(--gold)" opacity="0.85"/>
-<circle cx="185" cy="397" r="4" style="fill:var(--accent)" opacity="0.85"/>
-<text x="194" y="401" font-size="10" style="fill:var(--text-muted)">P_dist</text>
-<circle cx="305" cy="397" r="4" style="fill:var(--green)" opacity="0.85"/>
-<text x="314" y="401" font-size="10" style="fill:var(--text-muted)">P_rank</text>
-<circle cx="425" cy="397" r="4" style="fill:var(--gold)" opacity="0.85"/>
-<text x="434" y="401" font-size="10" style="fill:var(--text-muted)">P_refuse</text>
+<circle cx="185" cy="365" r="4" style="fill:var(--accent)" opacity="0.85"/>
+<text x="194" y="369" font-size="10" style="fill:var(--text-muted)">P_dist</text>
+<circle cx="305" cy="365" r="4" style="fill:var(--green)" opacity="0.85"/>
+<text x="314" y="369" font-size="10" style="fill:var(--text-muted)">P_rank</text>
+<circle cx="425" cy="365" r="4" style="fill:var(--gold)" opacity="0.85"/>
+<text x="434" y="369" font-size="10" style="fill:var(--text-muted)">P_refuse</text>
 </svg>
         </div>
       </div>
@@ -895,7 +859,7 @@ footer a{color:var(--accent)}
     </thead>
           <tbody>
       <tr>
-        <td class="provider-name">openrouter/anthropic/claude-sonnet-4</td>
+        <td class="provider-name">Claude Sonnet 4</td>
         <td class="num">10</td>
         <td class="num">1</td>
         <td class="num composite">0.6384</td>
@@ -903,7 +867,7 @@ footer a{color:var(--accent)}
         <td class="num">0.6384</td>
       </tr>
       <tr>
-        <td class="provider-name">openrouter/anthropic/claude-sonnet-4</td>
+        <td class="provider-name">Claude Sonnet 4</td>
         <td class="num">50</td>
         <td class="num">1</td>
         <td class="num composite">0.6553</td>
@@ -911,7 +875,7 @@ footer a{color:var(--accent)}
         <td class="num">0.6553</td>
       </tr>
       <tr>
-        <td class="provider-name">openrouter/google/gemini-2.5-flash</td>
+        <td class="provider-name">Gemini 2.5 Flash</td>
         <td class="num">10</td>
         <td class="num">1</td>
         <td class="num composite">0.7511</td>
@@ -919,7 +883,7 @@ footer a{color:var(--accent)}
         <td class="num">0.7511</td>
       </tr>
       <tr>
-        <td class="provider-name">openrouter/google/gemini-2.5-flash</td>
+        <td class="provider-name">Gemini 2.5 Flash</td>
         <td class="num">50</td>
         <td class="num">1</td>
         <td class="num composite">0.7306</td>
@@ -927,7 +891,7 @@ footer a{color:var(--accent)}
         <td class="num">0.7306</td>
       </tr>
       <tr>
-        <td class="provider-name">openrouter/meta-llama/llama-3.3-70b-instruct</td>
+        <td class="provider-name">Llama 3.3 70B</td>
         <td class="num">10</td>
         <td class="num">1</td>
         <td class="num composite">0.7560</td>
@@ -935,7 +899,7 @@ footer a{color:var(--accent)}
         <td class="num">0.7560</td>
       </tr>
       <tr>
-        <td class="provider-name">openrouter/meta-llama/llama-3.3-70b-instruct</td>
+        <td class="provider-name">Llama 3.3 70B</td>
         <td class="num">50</td>
         <td class="num">4</td>
         <td class="num composite">0.7288</td>
@@ -943,7 +907,7 @@ footer a{color:var(--accent)}
         <td class="num">0.7337</td>
       </tr>
       <tr>
-        <td class="provider-name">openrouter/openai/gpt-4o</td>
+        <td class="provider-name">GPT-4o</td>
         <td class="num">10</td>
         <td class="num">1</td>
         <td class="num composite">0.7037</td>
@@ -951,7 +915,7 @@ footer a{color:var(--accent)}
         <td class="num">0.7037</td>
       </tr>
       <tr>
-        <td class="provider-name">openrouter/openai/gpt-4o</td>
+        <td class="provider-name">GPT-4o</td>
         <td class="num">50</td>
         <td class="num">1</td>
         <td class="num composite">0.7234</td>
@@ -959,7 +923,7 @@ footer a{color:var(--accent)}
         <td class="num">0.7234</td>
       </tr>
       <tr>
-        <td class="provider-name">raw-anthropic/claude-haiku-4-5-20251001</td>
+        <td class="provider-name">Claude Haiku 4.5</td>
         <td class="num">10</td>
         <td class="num">1</td>
         <td class="num composite">0.7147</td>
@@ -967,7 +931,7 @@ footer a{color:var(--accent)}
         <td class="num">0.7147</td>
       </tr>
       <tr>
-        <td class="provider-name">raw-anthropic/claude-haiku-4-5-20251001</td>
+        <td class="provider-name">Claude Haiku 4.5</td>
         <td class="num">30</td>
         <td class="num">1</td>
         <td class="num composite">0.7238</td>
@@ -975,7 +939,7 @@ footer a{color:var(--accent)}
         <td class="num">0.7238</td>
       </tr>
       <tr>
-        <td class="provider-name">raw-gemini/gemini-2.5-flash-lite</td>
+        <td class="provider-name">Gemini Flash Lite</td>
         <td class="num">10</td>
         <td class="num">1</td>
         <td class="num composite">0.7619</td>
@@ -983,7 +947,7 @@ footer a{color:var(--accent)}
         <td class="num">0.7619</td>
       </tr>
       <tr>
-        <td class="provider-name">raw-gemini/gemini-2.5-flash-lite</td>
+        <td class="provider-name">Gemini Flash Lite</td>
         <td class="num">30</td>
         <td class="num">1</td>
         <td class="num composite">0.7378</td>
@@ -991,7 +955,7 @@ footer a{color:var(--accent)}
         <td class="num">0.7378</td>
       </tr>
       <tr>
-        <td class="provider-name">synthpanel/claude-haiku-4-5-20251001 (adapter test, n=20)</td>
+        <td class="provider-name">SynthPanel (Haiku)</td>
         <td class="num">3</td>
         <td class="num">1</td>
         <td class="num composite">0.5497</td>
@@ -999,7 +963,7 @@ footer a{color:var(--accent)}
         <td class="num">0.5497</td>
       </tr>
       <tr>
-        <td class="provider-name">synthpanel/claude-haiku-4-5-20251001 (adapter test, n=20)</td>
+        <td class="provider-name">SynthPanel (Haiku)</td>
         <td class="num">10</td>
         <td class="num">1</td>
         <td class="num composite">0.7781</td>
@@ -1137,10 +1101,11 @@ document.addEventListener('DOMContentLoaded',function(){
       arrow.className='sort-arrow';
       arrow.innerHTML=dir==='asc'?'&#x25B2;':'&#x25BC;';
       this.appendChild(arrow);
-      // Collect provider rows (not baseline or detail rows)
-      var rows=Array.from(tbody.querySelectorAll('tr:not(.detail-row):not(.baseline-divider):not(.baseline-row)'));
+      // Collect sortable rows (not section dividers, detail rows, baselines, or products)
+      var rows=Array.from(tbody.querySelectorAll('tr:not(.detail-row):not(.section-divider):not(.baseline-row):not(.product-row)'));
       var detailRows=Array.from(tbody.querySelectorAll('.detail-row'));
-      var divider=tbody.querySelector('.baseline-divider');
+      var dividers=Array.from(tbody.querySelectorAll('.section-divider'));
+      var productRows=Array.from(tbody.querySelectorAll('.product-row'));
       var baselineRows=Array.from(tbody.querySelectorAll('.baseline-row'));
       rows.sort(function(a,b){
         var va,vb;
@@ -1153,7 +1118,8 @@ document.addEventListener('DOMContentLoaded',function(){
         vb=parseFloat(b.dataset[col])||0;
         return dir==='asc'?va-vb:vb-va;
       });
-      // Re-insert sorted rows, then details, divider, baselines
+      // Re-insert: Raw LLMs divider, sorted rows+details, Products divider+rows, Baselines divider+rows
+      if(dividers[0])tbody.appendChild(dividers[0]);
       rows.forEach(function(r){
         tbody.appendChild(r);
         var key=r.querySelector('.chevron')?.dataset.provider;
@@ -1161,11 +1127,13 @@ document.addEventListener('DOMContentLoaded',function(){
           detailRows.filter(function(d){return d.dataset.provider===key}).forEach(function(d){tbody.appendChild(d)});
         }
       });
-      if(divider)tbody.appendChild(divider);
+      if(dividers[1])tbody.appendChild(dividers[1]);
+      productRows.forEach(function(r){tbody.appendChild(r)});
+      if(dividers[2])tbody.appendChild(dividers[2]);
       baselineRows.forEach(function(r){tbody.appendChild(r)});
-      // Re-number ranks
+      // Re-number ranks (only raw LLM rows)
       var rank=1;
-      tbody.querySelectorAll('tr:not(.detail-row):not(.baseline-divider):not(.baseline-row)').forEach(function(r){
+      tbody.querySelectorAll('tr:not(.detail-row):not(.section-divider):not(.baseline-row):not(.product-row)').forEach(function(r){
         var cell=r.querySelector('.rank');
         if(cell){
           var medal='';
