@@ -4,6 +4,31 @@
 
 ---
 
+## Quick Guide: What SynthBench Measures
+
+SynthBench answers one question: **how well does an AI reproduce real human survey responses?**
+
+We compare the AI's answers against ground-truth data from thousands of real human survey respondents, then score it across six dimensions:
+
+| Metric | Plain English | 0 means... | 1 means... |
+|--------|--------------|------------|------------|
+| **SPS** | Overall score (average of all metrics below) | Random noise | Indistinguishable from humans |
+| **P_dist** | Do the AI's answer percentages match humans? | Completely different distributions | Identical distributions |
+| **P_rank** | Does the AI rank options in the same order as humans? | Reversed or random ordering | Perfect rank agreement |
+| **P_refuse** | Does the AI decline to answer at the right rate? | Refusal rates completely off | Matches human refusal patterns |
+| **P_cond** | When told "respond as a 65-year-old conservative," does the AI shift its answers? | Personas have no effect | Perfect demographic role-playing |
+| **P_sub** | Is the AI equally accurate for all demographics? | Wildly uneven across groups | Equally accurate everywhere |
+
+**Concrete example**: On "Do you support renewable energy?" real humans split 70/30. If the AI also splits 70/30, P_dist is near 1. If the AI splits 50/50, P_dist drops. P_rank checks whether the AI at least got the *ordering* right (more "yes" than "no"), even if the exact percentages are off.
+
+**Baselines** give meaning to scores:
+- **Random**: Picks answers uniformly. The absolute floor — scoring at or below this means the AI adds negative value.
+- **Majority-Class**: Always picks the most popular answer. Scores well on consensus questions, poorly on divisive ones.
+
+For the full technical details, read on.
+
+---
+
 ## 1. Metric Framework: Recommended Hybrid Approach
 
 ### 1.1 Analysis of the Two Frameworks
