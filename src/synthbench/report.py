@@ -92,9 +92,15 @@ def to_json(result: BenchmarkResult) -> dict:
                 "n_parse_failures": q.n_parse_failures,
                 "model_refusal_rate": round(q.model_refusal_rate, 6),
                 "human_refusal_rate": round(q.human_refusal_rate, 6),
+                "temporal_year": q.temporal_year,
             }
             for q in result.questions
         ],
+        "temporal_breakdown": {
+            str(year): data for year, data in result.temporal_breakdown.items()
+        }
+        if result.temporal_breakdown
+        else {},
     }
 
 
@@ -289,6 +295,28 @@ def to_markdown(
                     f"| {gr.group} | {gr.p_dist:.4f} | {gr.p_cond:.4f} | {gr.n_questions} |"
                 )
             lines.append("")
+
+    # Temporal breakdown (contamination analysis)
+    temporal = result.temporal_breakdown
+    if temporal:
+        lines.extend(
+            [
+                "## Temporal Breakdown (by Survey Year)",
+                "",
+                "Scores stratified by Pew ATP survey wave year. "
+                "Rising P_dist in recent years may indicate training-data contamination.",
+                "",
+                "| Year | P_dist | P_rank | Mean JSD | Questions |",
+                "|------|--------|--------|----------|-----------|",
+            ]
+        )
+        for year in sorted(temporal):
+            d = temporal[year]
+            lines.append(
+                f"| {year} | {d['p_dist']:.4f} | {d['p_rank']:.4f} "
+                f"| {d['mean_jsd']:.4f} | {d['n_questions']} |"
+            )
+        lines.append("")
 
     # Top 5 best and worst questions
     sorted_by_jsd = sorted(result.questions, key=lambda q: q.jsd)
