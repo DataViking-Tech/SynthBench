@@ -157,8 +157,32 @@ class GlobalOpinionQADataset(Dataset):
 
         for i, row in enumerate(split):
             text = row["question"]
+            if not text:
+                continue
             options = row["options"]
             selections = row["selections"]
+
+            # HuggingFace returns these as strings — parse them
+            if isinstance(options, str):
+                import ast
+
+                try:
+                    options = ast.literal_eval(options)
+                except (ValueError, SyntaxError):
+                    continue
+            if isinstance(selections, str):
+                import ast
+                import re
+
+                # selections is repr() of defaultdict — extract the dict portion
+                m = re.search(r"\{.*\}", selections, re.DOTALL)
+                if m:
+                    try:
+                        selections = ast.literal_eval(m.group(0))
+                    except (ValueError, SyntaxError):
+                        continue
+                else:
+                    continue
 
             key = _question_key(text, i)
             survey = ""
