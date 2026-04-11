@@ -136,6 +136,7 @@ async def run_suite(
     force: bool = False,
     default_repeats: int = 3,
     repeats_override: int | None = None,
+    temperature: float | None = None,
 ) -> list[dict]:
     """Run the full suite of benchmarks for a provider/model combination.
 
@@ -163,6 +164,8 @@ async def run_suite(
     provider_kwargs = {"model": resolved_model}
     if url:
         provider_kwargs["url"] = url
+    if temperature is not None:
+        provider_kwargs["temperature"] = temperature
     prov = load_provider(provider_name, **provider_kwargs)
 
     # Check existing results for gap detection

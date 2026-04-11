@@ -125,6 +125,12 @@ def main():
     default=None,
     help="Country for GlobalOpinionQA ground truth (e.g., France, Japan).",
 )
+@click.option(
+    "--temperature",
+    type=float,
+    default=None,
+    help="Sampling temperature to pass to the provider (e.g., 0.7, 1.0).",
+)
 def run(
     provider,
     model,
@@ -142,6 +148,7 @@ def run(
     demographics,
     full_evaluation,
     country,
+    temperature,
 ):
     """Run a benchmark evaluation.
 
@@ -185,6 +192,7 @@ def run(
             baselines_dir,
             demo_list,
             country,
+            temperature,
         )
     )
 
@@ -205,6 +213,7 @@ async def _run_async(
     baselines_dir,
     demographics=None,
     country=None,
+    temperature=None,
 ):
     from synthbench.datasets import DATASETS
     from synthbench.providers import load_provider
@@ -232,6 +241,8 @@ async def _run_async(
     provider_kwargs = {"model": resolved_model}
     if url:
         provider_kwargs["url"] = url
+    if temperature is not None:
+        provider_kwargs["temperature"] = temperature
     try:
         prov = load_provider(provider_name, **provider_kwargs)
     except KeyError as e:
@@ -306,6 +317,8 @@ async def _run_async(
     # Tag result with topic if specified
     if topic:
         result.config["topic"] = topic
+    if temperature is not None:
+        result.config["temperature"] = temperature
 
     click.echo()  # Newline after progress
     click.echo()
@@ -826,6 +839,12 @@ def leaderboard(results_dir, output, json_only, topic, show_all, model_filter):
 @click.option(
     "--data-dir", type=click.Path(), default=None, help="Custom data directory."
 )
+@click.option(
+    "--temperature",
+    type=float,
+    default=None,
+    help="Sampling temperature to pass to the provider (e.g., 0.7, 1.0).",
+)
 def suite(
     provider,
     model,
@@ -837,6 +856,7 @@ def suite(
     suite_name,
     url,
     data_dir,
+    temperature,
 ):
     """Run a full structured benchmark matrix for a provider.
 
@@ -871,6 +891,8 @@ def suite(
     provider_kwargs = {"model": resolved_model}
     if url:
         provider_kwargs["url"] = url
+    if temperature is not None:
+        provider_kwargs["temperature"] = temperature
     try:
         prov = load_provider(provider, **provider_kwargs)
         resolved_provider = prov.name
@@ -906,6 +928,7 @@ def suite(
             data_dir=data_dir,
             force=force,
             repeats_override=repeats,
+            temperature=temperature,
         )
     )
 
