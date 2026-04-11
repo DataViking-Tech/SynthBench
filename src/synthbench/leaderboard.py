@@ -23,8 +23,11 @@ MODEL_MAP: dict[str, tuple[str, str]] = {
     "raw-anthropic/claude-haiku-4-5-20251001": ("Claude Haiku 4.5", "raw"),
     "raw-gemini/gemini-2.5-flash-lite": ("Gemini Flash Lite", "raw"),
     # Products (orchestration / adapter layers)
-    "synthpanel/claude-haiku-4-5-20251001": ("SynthPanel (Haiku)", "product"),
-    "synthpanel/gemini-2.5-flash-lite": ("SynthPanel (Gemini)", "product"),
+    "synthpanel/claude-haiku-4-5-20251001": ("SynthPanel (Haiku 4.5)", "product"),
+    "synthpanel/gemini-2.5-flash-lite": (
+        "SynthPanel (Gemini 2.5 Flash Lite)",
+        "product",
+    ),
     # Baselines
     "random-baseline": ("Random Baseline", "baseline"),
     "majority-baseline": ("Majority Baseline", "baseline"),
