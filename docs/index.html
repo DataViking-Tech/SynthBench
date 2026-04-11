@@ -113,7 +113,7 @@ footer a{color:var(--accent)}
         <td>opinionsqa</td>
         <td class="num">50</td>
         <td class="num composite">0.7560</td>
-        <td class="num">&mdash;</td>
+        <td class="num">0.7420</td>
         <td class="num">&mdash;</td>
         <td class="num">&mdash;</td>
         <td class="num">0.2754</td>
@@ -139,9 +139,9 @@ footer a{color:var(--accent)}
         <td>opinionsqa</td>
         <td class="num">30</td>
         <td class="num composite">0.7467</td>
+        <td class="num">0.7657</td>
         <td class="num">&mdash;</td>
-        <td class="num">&mdash;</td>
-        <td class="num">&mdash;</td>
+        <td class="num">0.7436</td>
         <td class="num">0.2793</td>
         <td class="num">0.5453</td>
         <td>2026-04-11</td>
@@ -165,7 +165,7 @@ footer a{color:var(--accent)}
         <td>opinionsqa</td>
         <td class="num">50</td>
         <td class="num composite">0.7290</td>
-        <td class="num">&mdash;</td>
+        <td class="num">0.7663</td>
         <td class="num">&mdash;</td>
         <td class="num">&mdash;</td>
         <td class="num">0.2959</td>
@@ -239,6 +239,19 @@ footer a{color:var(--accent)}
       </tr>
       <tr>
         <td class="rank num">11</td>
+        <td><span class="provider-name">synthpanel</span><br><span class="model-name">claude-haiku-4-5-20251001</span></td>
+        <td>opinionsqa</td>
+        <td class="num">20</td>
+        <td class="num composite">0.5497</td>
+        <td class="num">&mdash;</td>
+        <td class="num">&mdash;</td>
+        <td class="num">&mdash;</td>
+        <td class="num">0.5128</td>
+        <td class="num">0.2245</td>
+        <td>2026-04-11</td>
+      </tr>
+      <tr>
+        <td class="rank num">12</td>
         <td><span class="provider-name">majority-baseline</span><br><span class="model-name">&mdash;</span></td>
         <td>opinionsqa</td>
         <td class="num">200</td>
@@ -254,7 +267,7 @@ footer a{color:var(--accent)}
   </table>
 
   <div class="chart-section">
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 680 414" width="100%" style="font-family:sans-serif;max-width:680px">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 680 448" width="100%" style="font-family:sans-serif;max-width:680px">
 <text x="340.0" y="18" text-anchor="middle" font-size="14" fill="#e6edf3" font-weight="600">Composite Parity by Model</text>
 <text x="212" y="49.599999999999994" text-anchor="end" font-size="12" fill="#e6edf3">openrouter/meta-llama/llama-3.3-70b-instruct</text>
 <rect x="220" y="30" width="302.4" height="28" rx="3" fill="#58a6ff" opacity="0.85" />
@@ -286,14 +299,17 @@ footer a{color:var(--accent)}
 <text x="212" y="355.6" text-anchor="end" font-size="12" fill="#e6edf3">random-baseline</text>
 <rect x="220" y="336" width="229.2" height="28" rx="3" fill="#8b949e" opacity="0.85" />
 <text x="455.174" y="355.6" font-size="11" fill="#e6edf3">0.5729</text>
-<text x="212" y="389.6" text-anchor="end" font-size="12" fill="#e6edf3">majority-baseline</text>
-<rect x="220" y="370" width="219.3" height="28" rx="3" fill="#8b949e" opacity="0.85" />
-<text x="445.3044" y="389.6" font-size="11" fill="#e6edf3">0.5483</text>
+<text x="212" y="389.6" text-anchor="end" font-size="12" fill="#e6edf3">synthpanel/claude-haiku-4-5-20251001</text>
+<rect x="220" y="370" width="219.9" height="28" rx="3" fill="#58a6ff" opacity="0.85" />
+<text x="445.8856" y="389.6" font-size="11" fill="#e6edf3">0.5497</text>
+<text x="212" y="423.6" text-anchor="end" font-size="12" fill="#e6edf3">majority-baseline</text>
+<rect x="220" y="404" width="219.3" height="28" rx="3" fill="#8b949e" opacity="0.85" />
+<text x="445.3044" y="423.6" font-size="11" fill="#e6edf3">0.5483</text>
 </svg>
   </div>
 
   <div class="chart-section">
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 680 556" width="100%" style="font-family:sans-serif;max-width:680px">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 680 618" width="100%" style="font-family:sans-serif;max-width:680px">
 <text x="340.0" y="22" text-anchor="middle" font-size="14" fill="#e6edf3" font-weight="600">Per-Metric Breakdown</text>
 <text x="212" y="65.0" text-anchor="end" font-size="12" fill="#e6edf3">openrouter/meta-llama/llama-3.3-70b-instruct</text>
 <rect x="220" y="40" width="289.8" height="20" rx="2" fill="#3fb950" opacity="0.8" />
@@ -335,8 +351,13 @@ footer a{color:var(--accent)}
 <text x="470.3376" y="488.4" font-size="10" fill="#e6edf3">P_dist 0.6133</text>
 <rect x="220" y="498" width="265.4" height="20" rx="2" fill="#58a6ff" opacity="0.8" />
 <text x="490.3812" y="512.4" font-size="10" fill="#e6edf3">P_rank 0.6635</text>
-<rect x="220" y="544" width="12" height="12" fill="#3fb950" /><text x="236" y="554" font-size="10" fill="#8b949e">P_dist (1 - JSD)</text>
-<rect x="360" y="544" width="12" height="12" fill="#58a6ff" /><text x="376" y="554" font-size="10" fill="#8b949e">P_rank ((1+tau)/2)</text>
+<text x="212" y="561.0" text-anchor="end" font-size="12" fill="#e6edf3">synthpanel/claude-haiku-4-5-20251001</text>
+<rect x="220" y="536" width="194.9" height="20" rx="2" fill="#3fb950" opacity="0.8" />
+<text x="419.87199999999996" y="550.4" font-size="10" fill="#e6edf3">P_dist 0.4872</text>
+<rect x="220" y="560" width="244.9" height="20" rx="2" fill="#58a6ff" opacity="0.8" />
+<text x="469.8992" y="574.4" font-size="10" fill="#e6edf3">P_rank 0.6122</text>
+<rect x="220" y="606" width="12" height="12" fill="#3fb950" /><text x="236" y="616" font-size="10" fill="#8b949e">P_dist (1 - JSD)</text>
+<rect x="360" y="606" width="12" height="12" fill="#58a6ff" /><text x="376" y="616" font-size="10" fill="#8b949e">P_rank ((1+tau)/2)</text>
 </svg>
   </div>
 
@@ -363,6 +384,7 @@ footer a{color:var(--accent)}
       <tr><td class="provider-name">raw-anthropic/claude-haiku-4-5-20251001</td><td class="num composite">0.7238</td><td class="num" style="color:var(--green)">+0.1756</td><td class="num" style="color:var(--green)">+32%</td><td class="num" style="color:var(--green)">+0.1509</td><td class="num" style="color:var(--green)">+26%</td></tr>
       <tr><td class="provider-name">openrouter/openai/gpt-4o</td><td class="num composite">0.7037</td><td class="num" style="color:var(--green)">+0.1554</td><td class="num" style="color:var(--green)">+28%</td><td class="num" style="color:var(--green)">+0.1307</td><td class="num" style="color:var(--green)">+23%</td></tr>
       <tr><td class="provider-name">openrouter/anthropic/claude-sonnet-4</td><td class="num composite">0.6384</td><td class="num" style="color:var(--green)">+0.0901</td><td class="num" style="color:var(--green)">+16%</td><td class="num" style="color:var(--green)">+0.0655</td><td class="num" style="color:var(--green)">+11%</td></tr>
+      <tr><td class="provider-name">synthpanel/claude-haiku-4-5-20251001</td><td class="num composite">0.5497</td><td class="num" style="color:var(--green)">+0.0015</td><td class="num" style="color:var(--green)">+0%</td><td class="num" style="color:var(--red)">-0.0232</td><td class="num" style="color:var(--red)">-4%</td></tr>
     </tbody>
   </table>
 

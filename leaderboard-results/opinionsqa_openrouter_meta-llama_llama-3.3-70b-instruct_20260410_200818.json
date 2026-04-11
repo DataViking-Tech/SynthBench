@@ -1,0 +1,207 @@
+{
+  "benchmark": "synthbench",
+  "version": "0.1.0",
+  "timestamp": "2026-04-11T01:08:18.528426+00:00",
+  "config": {
+    "dataset": "opinionsqa",
+    "provider": "openrouter/meta-llama/llama-3.3-70b-instruct",
+    "samples_per_question": 10,
+    "n_requested": 30,
+    "n_evaluated": 5,
+    "topic": "consumer"
+  },
+  "scores": {
+    "sps": 0.826672,
+    "p_dist": 0.691958,
+    "p_rank": 0.79207,
+    "p_refuse": 0.99599
+  },
+  "aggregate": {
+    "mean_jsd": 0.308042,
+    "median_jsd": 0.289694,
+    "mean_kendall_tau": 0.58414,
+    "composite_parity": 0.742014,
+    "n_questions": 5,
+    "elapsed_seconds": 34.3,
+    "per_metric_ci": {
+      "p_dist": [
+        0.596423,
+        0.749171
+      ],
+      "p_rank": [
+        0.689737,
+        0.831158
+      ],
+      "p_refuse": [
+        0.993761,
+        0.997159
+      ],
+      "sps": [
+        0.625539,
+        0.786854
+      ]
+    },
+    "question_set_hash": "6e5316612b2b39c14462c9356a81491c8efc4715a14f832129f9c0517274e1b4",
+    "n_parse_failures": 0
+  },
+  "demographic_breakdown": {},
+  "per_question": [
+    {
+      "key": "PREDICTA_W27",
+      "text": "Do you think the following will or will not happen in the next 20 years? Doctors will rely on computer programs to diagn",
+      "options": [
+        "Will definitely happen",
+        "Will probably happen",
+        "Will probably not happen",
+        "Will definitely not happen",
+        "Refused"
+      ],
+      "human_distribution": {
+        "Refused": 0.0044,
+        "Will definitely happen": 0.2027,
+        "Will definitely not happen": 0.0119,
+        "Will probably happen": 0.5983,
+        "Will probably not happen": 0.1828
+      },
+      "model_distribution": {
+        "Will definitely happen": 0.0,
+        "Will probably happen": 1.0,
+        "Will probably not happen": 0.0,
+        "Will definitely not happen": 0.0,
+        "Refused": 0.0
+      },
+      "jsd": 0.237652,
+      "kendall_tau": 0.632456,
+      "parity": 0.789288,
+      "n_samples": 10,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "human_refusal_rate": 0.004353
+    },
+    {
+      "key": "PREDICTB_W27",
+      "text": "Do you think the following will or will not happen in the next 20 years? Most stores and retail businesses will be fully",
+      "options": [
+        "Will definitely happen",
+        "Will probably happen",
+        "Will probably not happen",
+        "Will definitely not happen",
+        "Refused"
+      ],
+      "human_distribution": {
+        "Refused": 0.0031,
+        "Will definitely happen": 0.1139,
+        "Will definitely not happen": 0.0167,
+        "Will probably happen": 0.5207,
+        "Will probably not happen": 0.3456
+      },
+      "model_distribution": {
+        "Will definitely happen": 0.0,
+        "Will probably happen": 1.0,
+        "Will probably not happen": 0.0,
+        "Will definitely not happen": 0.0,
+        "Refused": 0.0
+      },
+      "jsd": 0.295094,
+      "kendall_tau": 0.632456,
+      "parity": 0.760567,
+      "n_samples": 10,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "human_refusal_rate": 0.003144
+    },
+    {
+      "key": "PREDICTC_W27",
+      "text": "Do you think the following will or will not happen in the next 20 years? Most deliveries in cities will be made by robot",
+      "options": [
+        "Will definitely happen",
+        "Will probably happen",
+        "Will probably not happen",
+        "Will definitely not happen",
+        "Refused"
+      ],
+      "human_distribution": {
+        "Refused": 0.0024,
+        "Will definitely happen": 0.1098,
+        "Will definitely not happen": 0.0222,
+        "Will probably happen": 0.5277,
+        "Will probably not happen": 0.3378
+      },
+      "model_distribution": {
+        "Will definitely happen": 0.0,
+        "Will probably happen": 1.0,
+        "Will probably not happen": 0.0,
+        "Will definitely not happen": 0.0,
+        "Refused": 0.0
+      },
+      "jsd": 0.289694,
+      "kendall_tau": 0.632456,
+      "parity": 0.763267,
+      "n_samples": 10,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "human_refusal_rate": 0.002418
+    },
+    {
+      "key": "PREDICTD_W27",
+      "text": "Do you think the following will or will not happen in the next 20 years? When people want to buy most common products, t",
+      "options": [
+        "Will definitely happen",
+        "Will probably happen",
+        "Will probably not happen",
+        "Will definitely not happen",
+        "Refused"
+      ],
+      "human_distribution": {
+        "Refused": 0.0075,
+        "Will definitely happen": 0.0459,
+        "Will definitely not happen": 0.0607,
+        "Will probably happen": 0.3168,
+        "Will probably not happen": 0.569
+      },
+      "model_distribution": {
+        "Will definitely happen": 0.0,
+        "Will probably happen": 1.0,
+        "Will probably not happen": 0.0,
+        "Will definitely not happen": 0.0,
+        "Refused": 0.0
+      },
+      "jsd": 0.4759,
+      "kendall_tau": 0.316228,
+      "parity": 0.591107,
+      "n_samples": 10,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "human_refusal_rate": 0.007497
+    },
+    {
+      "key": "WORRYG_W26",
+      "text": "How much, if at all, do you worry about the following happening to you? Having a personal health crisis",
+      "options": [
+        "Worry a lot",
+        "Worry a little",
+        "Do not worry at all",
+        "Refused"
+      ],
+      "human_distribution": {
+        "Do not worry at all": 0.178,
+        "Refused": 0.0026,
+        "Worry a little": 0.5924,
+        "Worry a lot": 0.227
+      },
+      "model_distribution": {
+        "Worry a lot": 0.0,
+        "Worry a little": 1.0,
+        "Do not worry at all": 0.0,
+        "Refused": 0.0
+      },
+      "jsd": 0.241873,
+      "kendall_tau": 0.707107,
+      "parity": 0.80584,
+      "n_samples": 10,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "human_refusal_rate": 0.002639
+    }
+  ]
+}
