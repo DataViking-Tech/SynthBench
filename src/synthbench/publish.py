@@ -32,14 +32,18 @@ def _extract_metrics(result: dict) -> dict[str, float]:
 
 
 def _dedup_results(results: list[dict]) -> list[dict]:
-    """De-duplicate results: keep the run with the most n_evaluated per provider+dataset."""
-    best: dict[tuple[str, str], dict] = {}
+    """De-duplicate results: keep the run with the most n_evaluated per (display_name, framework, dataset)."""
+    from synthbench.leaderboard import display_provider_name, provider_framework
+
+    best: dict[tuple[str, str, str], dict] = {}
     for r in results:
         cfg = r.get("config", {})
         provider = cfg.get("provider", "unknown")
         dataset = cfg.get("dataset", "unknown")
         n_eval = cfg.get("n_evaluated", 0)
-        key = (provider, dataset)
+        name = display_provider_name(provider)
+        fw = provider_framework(provider)
+        key = (name, fw, dataset)
         existing = best.get(key)
         if existing is None or n_eval > existing["config"].get("n_evaluated", 0):
             best[key] = r
@@ -67,10 +71,10 @@ def _is_synthpanel(provider: str) -> bool:
 
 
 def _display_provider_name(provider: str) -> str:
-    """Annotate synthpanel providers with adapter test context."""
-    if _is_synthpanel(provider):
-        return provider + " (adapter test, n=20)"
-    return provider
+    """Map provider strings to human-friendly display names via MODEL_MAP."""
+    from synthbench.leaderboard import display_provider_name
+
+    return display_provider_name(provider)
 
 
 def _ci_whisker_svg(ci_low: float, ci_high: float, point: float) -> str:
@@ -1178,35 +1182,48 @@ def generate_html(results: list[dict], version: str = "0.1.0") -> str:
 
     has_baselines = bool(baseline_data)
 
-    # Separate summary_entries into providers and baselines
-    provider_entries = []
+    # Separate summary_entries into 3 sections: raw LLMs, products, baselines
+    from synthbench.leaderboard import provider_framework
+
+    raw_entries = []
+    product_entries = []
     baseline_entries = []
     for e in summary_entries:
-        if e["provider"] in BASELINE_PROVIDERS:
+        fw = e.get("framework") or provider_framework(e["provider"])
+        if fw == "baseline":
             baseline_entries.append(e)
+        elif fw == "product":
+            product_entries.append(e)
         else:
-            provider_entries.append(e)
+            raw_entries.append(e)
+    provider_entries = raw_entries
 
     # Build provider table rows
     rows_html = []
+
+    # Section divider helper (defined early so all sections can use it)
+    def _make_section_divider(label: str) -> str:
+        n_cols = 10
+        if has_baselines:
+            n_cols += 2
+        if topics_present:
+            n_cols += 1
+        return (
+            f'      <tr class="section-divider"><td colspan="{n_cols}">'
+            f'<span class="section-label">{escape(label)}</span></td></tr>'
+        )
+
+    if provider_entries:
+        rows_html.append(_make_section_divider("Raw LLMs"))
+
     medals = {1: "&#x1f947;", 2: "&#x1f948;", 3: "&#x1f949;"}
     for rank, e in enumerate(provider_entries, 1):
         provider_raw = e["provider"]
-        if "/" in provider_raw:
-            provider_name, model_name = provider_raw.split("/", 1)
-        else:
-            provider_name = provider_raw
-            model_name = None
-
-        # #1 synthpanel label
-        if _is_synthpanel(provider_raw):
-            provider_name = provider_name + " (adapter test)"
-            if model_name:
-                model_name = model_name + " n=20"
+        display_name = _display_provider_name(provider_raw)
 
         medal = medals.get(rank, "")
         medal_html = f'<span class="medal">{medal}</span>' if medal else ""
-        model_display = escape(model_name) if model_name else "&mdash;"
+        model_display = "&mdash;"
 
         n_eval = e.get("n", 0)
 
@@ -1290,7 +1307,7 @@ def generate_html(results: list[dict], version: str = "0.1.0") -> str:
             f'      <tr class="{low_n_class}" data-sps="{cp:.4f}" data-n="{n_eval}" '
             f'data-jsd="{e["mean_jsd"]:.4f}" data-tau="{e["mean_kendall_tau"]:.4f}">\n'
             f'        <td class="rank num">{toggle_html}{medal_html}{rank}</td>\n'
-            f'        <td class="provider-name">{escape(provider_name)}</td>\n'
+            f'        <td class="provider-name">{escape(display_name)}</td>\n'
             f'        <td><span class="model-name">{model_display}</span></td>\n'
             f"        <td>{escape(e['dataset'])}</td>\n"
             f'        <td class="num">{n_display}</td>\n'
@@ -1361,24 +1378,79 @@ def generate_html(results: list[dict], version: str = "0.1.0") -> str:
                 f"      </tr>"
             )
 
-    # #4 Baseline divider + baseline rows
+    # #4 Products section
+    if product_entries:
+        rows_html.append(_make_section_divider("Products"))
+        for pi, e in enumerate(product_entries, 1):
+            provider_raw = e["provider"]
+            cp = e["composite_parity"]
+            display_name = _display_provider_name(provider_raw)
+
+            n_cols = 10
+            if has_baselines:
+                n_cols += 2
+            if topics_present:
+                n_cols += 1
+
+            baseline_cells = ""
+            if has_baselines:
+                vs_r = e.get("vs_random")
+                vs_m = e.get("vs_majority")
+                if vs_r:
+                    delta_val = float(vs_r)
+                    color = "var(--green)" if delta_val > 0 else "var(--red)"
+                    baseline_cells += (
+                        f'        <td class="num" style="color:{color}">{vs_r}</td>\n'
+                    )
+                else:
+                    baseline_cells += '        <td class="num">&mdash;</td>\n'
+                if vs_m:
+                    delta_val = float(vs_m)
+                    color = "var(--green)" if delta_val > 0 else "var(--red)"
+                    baseline_cells += (
+                        f'        <td class="num" style="color:{color}">{vs_m}</td>\n'
+                    )
+                else:
+                    baseline_cells += '        <td class="num">&mdash;</td>\n'
+
+            topic_cells = ""
+            if topics_present:
+                provider_topics = e.get("topic_scores", {})
+                topic_cell_svg = _topic_bars_svg(
+                    provider_topics, topics_present, topic_colors
+                )
+                topic_cells = f'        <td class="num">{topic_cell_svg}</td>\n'
+
+            rows_html.append(
+                f'      <tr class="product-row" data-sps="{cp:.4f}" data-n="{e.get("n", 0)}" '
+                f'data-jsd="{e["mean_jsd"]:.4f}" data-tau="{e["mean_kendall_tau"]:.4f}">\n'
+                f'        <td class="rank num"></td>\n'
+                f'        <td class="provider-name">{escape(display_name)}</td>\n'
+                f"        <td></td>\n"
+                f"        <td>{escape(e['dataset'])}</td>\n"
+                f'        <td class="num">{e.get("n", 0)}</td>\n'
+                f'        <td class="num composite">{cp:.4f}</td>\n'
+                f"{baseline_cells}"
+                f"{topic_cells}"
+                f'        <td class="num">&mdash;</td>\n'
+                f'        <td class="num">{e["mean_jsd"]:.4f}</td>\n'
+                f'        <td class="num">{e["mean_kendall_tau"]:.4f}</td>\n'
+                f"        <td>{e['date']}</td>\n"
+                f"      </tr>"
+            )
+
+    # Baseline divider + baseline rows
     if baseline_entries:
-        n_cols = 10  # includes P_refuse column
-        if has_baselines:
-            n_cols += 2
-        if topics_present:
-            n_cols += 1
-        rows_html.append(
-            f'      <tr class="baseline-divider"><td colspan="{n_cols}"></td></tr>'
-        )
+        rows_html.append(_make_section_divider("Baselines"))
         for e in baseline_entries:
             provider_raw = e["provider"]
             cp = e["composite_parity"]
+            display_name = _display_provider_name(provider_raw)
             rows_html.append(
                 f'      <tr class="baseline-row" data-sps="{cp:.4f}" data-n="{e.get("n", 0)}" '
                 f'data-jsd="{e["mean_jsd"]:.4f}" data-tau="{e["mean_kendall_tau"]:.4f}">\n'
                 f'        <td class="rank num"></td>\n'
-                f'        <td class="provider-name baseline-name">{escape(provider_raw)}</td>\n'
+                f'        <td class="provider-name baseline-name">{escape(display_name)}</td>\n'
                 f"        <td></td>\n"
                 f"        <td>{escape(e['dataset'])}</td>\n"
                 f'        <td class="num">{e.get("n", 0)}</td>\n'
@@ -1631,10 +1703,13 @@ header .tagline{{color:var(--text-muted);font-size:1.05rem;margin-top:0.5rem}}
 .detail-section{{min-width:200px}}
 .detail-item{{margin:0.25rem 0}}
 
-.baseline-divider td{{height:2px;padding:0 !important;background:var(--border)}}
+.section-divider td{{padding:0.5rem 1rem !important;background:var(--surface);border-bottom:2px solid var(--border);border-top:2px solid var(--border)}}
+.section-label{{font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-muted)}}
 .baseline-row td{{color:var(--text-muted)}}
 .baseline-row .composite{{color:var(--text-muted);font-weight:400}}
 .baseline-name{{font-weight:400 !important;color:var(--text-muted) !important}}
+.product-row td{{color:var(--text)}}
+.product-row .composite{{font-weight:600}}
 
 .low-n td{{opacity:0.7}}
 .low-n-marker{{color:var(--red);font-weight:700;margin-left:1px}}
@@ -1816,10 +1891,11 @@ document.addEventListener('DOMContentLoaded',function(){{
       arrow.className='sort-arrow';
       arrow.innerHTML=dir==='asc'?'&#x25B2;':'&#x25BC;';
       this.appendChild(arrow);
-      // Collect provider rows (not baseline or detail rows)
-      var rows=Array.from(tbody.querySelectorAll('tr:not(.detail-row):not(.baseline-divider):not(.baseline-row)'));
+      // Collect sortable rows (not section dividers, detail rows, baselines, or products)
+      var rows=Array.from(tbody.querySelectorAll('tr:not(.detail-row):not(.section-divider):not(.baseline-row):not(.product-row)'));
       var detailRows=Array.from(tbody.querySelectorAll('.detail-row'));
-      var divider=tbody.querySelector('.baseline-divider');
+      var dividers=Array.from(tbody.querySelectorAll('.section-divider'));
+      var productRows=Array.from(tbody.querySelectorAll('.product-row'));
       var baselineRows=Array.from(tbody.querySelectorAll('.baseline-row'));
       rows.sort(function(a,b){{
         var va,vb;
@@ -1832,7 +1908,8 @@ document.addEventListener('DOMContentLoaded',function(){{
         vb=parseFloat(b.dataset[col])||0;
         return dir==='asc'?va-vb:vb-va;
       }});
-      // Re-insert sorted rows, then details, divider, baselines
+      // Re-insert: Raw LLMs divider, sorted rows+details, Products divider+rows, Baselines divider+rows
+      if(dividers[0])tbody.appendChild(dividers[0]);
       rows.forEach(function(r){{
         tbody.appendChild(r);
         var key=r.querySelector('.chevron')?.dataset.provider;
@@ -1840,11 +1917,13 @@ document.addEventListener('DOMContentLoaded',function(){{
           detailRows.filter(function(d){{return d.dataset.provider===key}}).forEach(function(d){{tbody.appendChild(d)}});
         }}
       }});
-      if(divider)tbody.appendChild(divider);
+      if(dividers[1])tbody.appendChild(dividers[1]);
+      productRows.forEach(function(r){{tbody.appendChild(r)}});
+      if(dividers[2])tbody.appendChild(dividers[2]);
       baselineRows.forEach(function(r){{tbody.appendChild(r)}});
-      // Re-number ranks
+      // Re-number ranks (only raw LLM rows)
       var rank=1;
-      tbody.querySelectorAll('tr:not(.detail-row):not(.baseline-divider):not(.baseline-row)').forEach(function(r){{
+      tbody.querySelectorAll('tr:not(.detail-row):not(.section-divider):not(.baseline-row):not(.product-row)').forEach(function(r){{
         var cell=r.querySelector('.rank');
         if(cell){{
           var medal='';

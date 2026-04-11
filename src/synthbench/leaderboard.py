@@ -8,31 +8,45 @@ from pathlib import Path
 
 BASELINE_PROVIDERS = {"random-baseline", "majority-baseline"}
 
-# Full provider path → human-friendly display name
-PROVIDER_DISPLAY_NAMES: dict[str, str] = {
-    "openrouter/meta-llama/llama-3.3-70b-instruct": "Llama 3.3 70B",
-    "openrouter/openai/gpt-4o-mini": "GPT-4o-mini",
-    "openrouter/openai/gpt-4o": "GPT-4o",
-    "openrouter/anthropic/claude-haiku-4-5": "Claude Haiku 4.5",
-    "openrouter/anthropic/claude-sonnet-4": "Claude Sonnet 4",
-    "openrouter/google/gemini-2.5-flash": "Gemini 2.5 Flash",
+# Canonical taxonomy: provider string → (display_name, framework)
+# framework is one of: "raw" (raw LLM APIs), "product" (orchestration layers),
+# "baseline" (statistical baselines)
+MODEL_MAP: dict[str, tuple[str, str]] = {
+    # Raw LLMs via OpenRouter
+    "openrouter/meta-llama/llama-3.3-70b-instruct": ("Llama 3.3 70B", "raw"),
+    "openrouter/openai/gpt-4o-mini": ("GPT-4o-mini", "raw"),
+    "openrouter/openai/gpt-4o": ("GPT-4o", "raw"),
+    "openrouter/anthropic/claude-haiku-4-5": ("Claude Haiku 4.5", "raw"),
+    "openrouter/anthropic/claude-sonnet-4": ("Claude Sonnet 4", "raw"),
+    "openrouter/google/gemini-2.5-flash": ("Gemini 2.5 Flash", "raw"),
+    # Raw LLMs via direct API
+    "raw-anthropic/claude-haiku-4-5-20251001": ("Claude Haiku 4.5", "raw"),
+    "raw-gemini/gemini-2.5-flash-lite": ("Gemini Flash Lite", "raw"),
+    # Products (orchestration / adapter layers)
+    "synthpanel/claude-haiku-4-5-20251001": ("SynthPanel (Haiku)", "product"),
+    "synthpanel/gemini-2.5-flash-lite": ("SynthPanel (Gemini)", "product"),
+    # Baselines
+    "random-baseline": ("Random Baseline", "baseline"),
+    "majority-baseline": ("Majority Baseline", "baseline"),
 }
-
-PROVIDER_PREFIX_NAMES: list[tuple[str, str]] = [
-    ("raw-anthropic/", "Claude Haiku 4.5 (direct)"),
-    ("raw-gemini/", "Gemini Flash Lite (direct)"),
-    ("synthpanel/", "SynthPanel (Haiku)"),
-]
 
 
 def display_provider_name(provider: str) -> str:
-    """Map full provider paths to human-friendly display names."""
-    if provider in PROVIDER_DISPLAY_NAMES:
-        return PROVIDER_DISPLAY_NAMES[provider]
-    for prefix, name in PROVIDER_PREFIX_NAMES:
-        if provider.startswith(prefix):
-            return name
+    """Map full provider paths to human-friendly display names via MODEL_MAP."""
+    entry = MODEL_MAP.get(provider)
+    if entry:
+        return entry[0]
     return provider
+
+
+def provider_framework(provider: str) -> str:
+    """Return the framework category for a provider: 'raw', 'product', or 'baseline'."""
+    entry = MODEL_MAP.get(provider)
+    if entry:
+        return entry[1]
+    if provider in BASELINE_PROVIDERS:
+        return "baseline"
+    return "raw"
 
 
 def load_result(path: Path) -> dict:
@@ -178,12 +192,16 @@ def _result_entry(r: dict, rank: int) -> dict:
     }
 
 
-def _count_runs(results: list[dict]) -> dict[tuple[str, str], int]:
-    """Count total runs per (provider, dataset) pair."""
-    counts: dict[tuple[str, str], int] = {}
+def _count_runs(results: list[dict]) -> dict[tuple[str, str, str], int]:
+    """Count total runs per (display_name, framework, dataset) triple."""
+    counts: dict[tuple[str, str, str], int] = {}
     for r in results:
         cfg = r.get("config", {})
-        key = (cfg.get("provider", "unknown"), cfg.get("dataset", "unknown"))
+        provider = cfg.get("provider", "unknown")
+        name = display_provider_name(provider)
+        fw = provider_framework(provider)
+        dataset = cfg.get("dataset", "unknown")
+        key = (name, fw, dataset)
         counts[key] = counts.get(key, 0) + 1
     return counts
 
@@ -403,15 +421,17 @@ def build_leaderboard(
     )
     detail_entries = [_result_entry(r, i + 1) for i, r in enumerate(detail_ranked)]
 
-    # --- Summary tier: best per provider+dataset ---
+    # --- Summary tier: best per (display_name, framework, dataset) ---
     run_counts = _count_runs(target)
-    best: dict[tuple[str, str], dict] = {}
+    best: dict[tuple[str, str, str], dict] = {}
     for r in target:
         cfg = r.get("config", {})
         provider = cfg.get("provider", "unknown")
         dataset = cfg.get("dataset", "unknown")
         n_eval = cfg.get("n_evaluated", 0)
-        key = (provider, dataset)
+        name = display_provider_name(provider)
+        fw = provider_framework(provider)
+        key = (name, fw, dataset)
 
         existing = best.get(key)
         if existing is None or n_eval > existing["config"].get("n_evaluated", 0):
@@ -427,8 +447,13 @@ def build_leaderboard(
     for rank, r in enumerate(summary_ranked, 1):
         entry = _result_entry(r, rank)
         cfg = r.get("config", {})
-        key = (cfg.get("provider", "unknown"), cfg.get("dataset", "unknown"))
+        provider = cfg.get("provider", "unknown")
+        name = display_provider_name(provider)
+        fw = provider_framework(provider)
+        dataset = cfg.get("dataset", "unknown")
+        key = (name, fw, dataset)
         entry["n_runs"] = run_counts.get(key, 1)
+        entry["framework"] = fw
         if entry["provider"] in topic_scores:
             entry["topic_scores"] = topic_scores[entry["provider"]]
         summary_entries.append(entry)
