@@ -13,9 +13,10 @@ import json
 import re
 import shutil
 import tempfile
+from collections import Counter
 from pathlib import Path
 
-from synthbench.providers.base import PersonaSpec, Provider, Response
+from synthbench.providers.base import Distribution, PersonaSpec, Provider, Response
 
 _LETTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 
@@ -38,41 +39,69 @@ def _parse_letter(text: str, options: list[str]) -> str | None:
     return None
 
 
+def _yaml_escape(text: str) -> str:
+    """Escape a string for embedding in double-quoted YAML."""
+    return text.replace("\\", "\\\\").replace('"', '\\"').replace("\n", "\\n")
+
+
 def _build_instrument_yaml(question: str, options: list[str]) -> str:
-    """Build a single-question instrument YAML string."""
-    # Build options list as a YAML flow sequence
-    opts_str = ", ".join(f'"{o}"' for o in options)
+    """Build a single-question instrument YAML with natural presentation.
+
+    Embeds the options in the question text so synthpanel sees a natural
+    survey question rather than a forced-choice letter prompt.
+    """
+    opts_lines = "\\n".join(f"({_LETTERS[i]}) {opt}" for i, opt in enumerate(options))
+    full_text = _yaml_escape(question) + "\\n\\n" + opts_lines
+    opts_str = ", ".join(f'"{_yaml_escape(o)}"' for o in options)
     return (
         "version: 3\n"
         "rounds:\n"
         '  - name: "q"\n'
         "    questions:\n"
-        f'    - text: "{question}"\n'
+        f'    - text: "{full_text}"\n'
         f"      options: [{opts_str}]\n"
         "      type: multiple_choice\n"
     )
 
 
-def _build_persona_yaml(persona: PersonaSpec | None) -> str:
-    """Build a persona YAML string from a PersonaSpec or a generic default."""
+def _build_persona_yaml(persona: PersonaSpec | None, count: int = 1) -> str:
+    """Build persona YAML with full conditioning context.
+
+    When *count* > 1, replicates the persona to enable batch runs
+    through a single synthpanel invocation.
+    """
     if persona is None:
-        return (
-            "personas:\n"
+        block = (
             '  - name: "Survey Respondent"\n'
-            "    demographics:\n"
-            '      role: "general respondent"\n'
+            '    occupation: "survey respondent"\n'
+            '    background: "A general survey respondent."\n'
+            '    personality_traits: "Responds thoughtfully and authentically."\n'
         )
-    demo_lines = "\n".join(f'      {k}: "{v}"' for k, v in persona.demographics.items())
-    name = persona.group or "Survey Respondent"
-    parts = [
-        "personas:\n",
-        f'  - name: "{name}"\n',
-        "    demographics:\n",
-        f"{demo_lines}\n",
-    ]
-    if persona.biography:
-        parts.append(f'    biography: "{persona.biography}"\n')
-    return "".join(parts)
+        return "personas:\n" + block * count
+
+    # Build descriptive name from demographics
+    demo_parts = [f"{k}: {v}" for k, v in persona.demographics.items()]
+    demo_summary = ", ".join(demo_parts)
+    name_base = f"Respondent ({demo_summary})"
+
+    # Build background from biography or demographics
+    background = persona.biography or f"A person with {demo_summary.lower()}."
+
+    entries: list[str] = []
+    for i in range(count):
+        suffix = f" {i + 1}" if count > 1 else ""
+        lines = [f'  - name: "{_yaml_escape(name_base)}{suffix}"\n']
+        for k, v in persona.demographics.items():
+            lines.append(f'    {k.lower()}: "{_yaml_escape(v)}"\n')
+        lines.append('    occupation: "survey respondent"\n')
+        lines.append(f'    background: "{_yaml_escape(background)}"\n')
+        lines.append(
+            '    personality_traits: "Responds authentically based on their'
+            ' demographic background."\n'
+        )
+        entries.append("".join(lines))
+
+    return "personas:\n" + "".join(entries)
 
 
 class SynthPanelProvider(Provider):
@@ -115,6 +144,31 @@ class SynthPanelProvider(Provider):
             parts.append(f"profile={self._profile}")
         return " ".join(parts)
 
+    def _build_cmd(self, inst_path: str, pers_path: str) -> list[str]:
+        """Build the synthpanel CLI command (no --no-synthesis)."""
+        cmd = [
+            self._synthpanel_bin,
+            "--output-format",
+            "json",
+        ]
+        if self._profile:
+            cmd.extend(["--profile", self._profile])
+        cmd.extend(
+            [
+                "panel",
+                "run",
+                "--personas",
+                pers_path,
+                "--instrument",
+                inst_path,
+                "--models",
+                f"{self._model}:1.0",
+            ]
+        )
+        if self._temperature is not None:
+            cmd.extend(["--temperature", str(self._temperature)])
+        return cmd
+
     async def respond(
         self, question: str, options: list[str], *, persona: PersonaSpec | None = None
     ) -> Response:
@@ -140,32 +194,45 @@ class SynthPanelProvider(Provider):
             Path(inst_path).unlink(missing_ok=True)
             Path(pers_path).unlink(missing_ok=True)
 
+    async def get_distribution(
+        self,
+        question: str,
+        options: list[str],
+        *,
+        persona: PersonaSpec | None = None,
+        n_samples: int | None = None,
+    ) -> Distribution:
+        """Batch N identical personas into one synthpanel invocation."""
+        effective_samples = n_samples if n_samples is not None else 30
+        instrument_yaml = _build_instrument_yaml(question, options)
+        persona_yaml = _build_persona_yaml(persona, count=effective_samples)
+
+        with (
+            tempfile.NamedTemporaryFile(
+                mode="w", suffix=".yaml", prefix="sb_inst_", delete=False
+            ) as inst_f,
+            tempfile.NamedTemporaryFile(
+                mode="w", suffix=".yaml", prefix="sb_pers_", delete=False
+            ) as pers_f,
+        ):
+            inst_f.write(instrument_yaml)
+            inst_path = inst_f.name
+            pers_f.write(persona_yaml)
+            pers_path = pers_f.name
+
+        try:
+            return await self._run_batch(
+                inst_path, pers_path, options, effective_samples
+            )
+        finally:
+            Path(inst_path).unlink(missing_ok=True)
+            Path(pers_path).unlink(missing_ok=True)
+
     async def _run_cli(
         self, inst_path: str, pers_path: str, options: list[str]
     ) -> Response:
         """Execute synthpanel CLI and parse the JSON output."""
-        cmd = [
-            self._synthpanel_bin,
-            "--output-format",
-            "json",
-        ]
-        if self._profile:
-            cmd.extend(["--profile", self._profile])
-        cmd.extend(
-            [
-                "panel",
-                "run",
-                "--personas",
-                pers_path,
-                "--instrument",
-                inst_path,
-                "--models",
-                f"{self._model}:1.0",
-                "--no-synthesis",
-            ]
-        )
-        if self._temperature is not None:
-            cmd.extend(["--temperature", str(self._temperature)])
+        cmd = self._build_cmd(inst_path, pers_path)
 
         proc = await asyncio.create_subprocess_exec(
             *cmd,
@@ -231,6 +298,71 @@ class SynthPanelProvider(Provider):
             selected_option=selected,
             raw_text=raw_text,
             metadata=metadata,
+        )
+
+    async def _run_batch(
+        self,
+        inst_path: str,
+        pers_path: str,
+        options: list[str],
+        n_samples: int,
+    ) -> Distribution:
+        """Run a batch of personas and build a distribution."""
+        cmd = self._build_cmd(inst_path, pers_path)
+
+        proc = await asyncio.create_subprocess_exec(
+            *cmd,
+            stdout=asyncio.subprocess.PIPE,
+            stderr=asyncio.subprocess.PIPE,
+        )
+        stdout, stderr = await proc.communicate()
+
+        raw_stdout = stdout.decode().strip()
+
+        if proc.returncode != 0:
+            n = len(options)
+            return Distribution(
+                probabilities=[1.0 / n] * n,
+                method="sampling",
+                n_samples=0,
+            )
+
+        try:
+            data = json.loads(raw_stdout)
+        except json.JSONDecodeError:
+            n = len(options)
+            return Distribution(
+                probabilities=[1.0 / n] * n,
+                method="sampling",
+                n_samples=0,
+            )
+
+        # Extract all panelist responses from the batch
+        responses: list[str] = []
+        refusals = 0
+        try:
+            results = data["rounds"][0]["results"]
+            for result in results:
+                for resp in result.get("responses", []):
+                    raw_text = resp.get("response", "")
+                    selected = _parse_letter(raw_text, options)
+                    if selected is None:
+                        refusals += 1
+                    else:
+                        responses.append(selected)
+        except (KeyError, IndexError):
+            pass
+
+        total = len(responses) + refusals
+        counts = Counter(responses)
+        probs = [counts.get(opt, 0) / max(total, 1) for opt in options]
+        refusal_prob = refusals / max(total, 1)
+
+        return Distribution(
+            probabilities=probs,
+            refusal_probability=refusal_prob,
+            method="sampling",
+            n_samples=total,
         )
 
     async def close(self) -> None:
