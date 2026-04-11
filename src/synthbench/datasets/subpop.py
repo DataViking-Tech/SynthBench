@@ -152,15 +152,28 @@ class SubPOPDataset(Dataset):
         for split_name in ds:
             split = ds[split_name]
             for row in split:
+                opts = list(row["options"])
+                resp = list(row["responses"])
+                refusal = row.get("refusal_rate", 0.0)
+
+                # SubPOP stores refusal_rate separately; options includes
+                # "Refused" but responses does not.  Append refusal to
+                # align lengths, or trim "Refused" from options.
+                if len(opts) == len(resp) + 1 and opts[-1].lower() in (
+                    "refused",
+                    "dk/refused",
+                ):
+                    resp.append(refusal)
+
                 all_rows.append(
                     {
                         "qkey": row["qkey"],
                         "attribute": row["attribute"],
                         "group": row["group"],
                         "question": row["question"],
-                        "options": list(row["options"]),
-                        "responses": list(row["responses"]),
-                        "refusal_rate": row.get("refusal_rate", 0.0),
+                        "options": opts,
+                        "responses": resp,
+                        "refusal_rate": refusal,
                         "split": split_name,
                     }
                 )
