@@ -8,6 +8,32 @@ from pathlib import Path
 
 BASELINE_PROVIDERS = {"random-baseline", "majority-baseline"}
 
+# Full provider path → human-friendly display name
+PROVIDER_DISPLAY_NAMES: dict[str, str] = {
+    "openrouter/meta-llama/llama-3.3-70b-instruct": "Llama 3.3 70B",
+    "openrouter/openai/gpt-4o-mini": "GPT-4o-mini",
+    "openrouter/openai/gpt-4o": "GPT-4o",
+    "openrouter/anthropic/claude-haiku-4-5": "Claude Haiku 4.5",
+    "openrouter/anthropic/claude-sonnet-4": "Claude Sonnet 4",
+    "openrouter/google/gemini-2.5-flash": "Gemini 2.5 Flash",
+}
+
+PROVIDER_PREFIX_NAMES: list[tuple[str, str]] = [
+    ("raw-anthropic/", "Claude Haiku 4.5 (direct)"),
+    ("raw-gemini/", "Gemini Flash Lite (direct)"),
+    ("synthpanel/", "SynthPanel (Haiku)"),
+]
+
+
+def display_provider_name(provider: str) -> str:
+    """Map full provider paths to human-friendly display names."""
+    if provider in PROVIDER_DISPLAY_NAMES:
+        return PROVIDER_DISPLAY_NAMES[provider]
+    for prefix, name in PROVIDER_PREFIX_NAMES:
+        if provider.startswith(prefix):
+            return name
+    return provider
+
 
 def load_result(path: Path) -> dict:
     """Load a single result JSON file and return the dict as-is."""
@@ -16,11 +42,12 @@ def load_result(path: Path) -> dict:
 
 
 def _column_label(result: dict) -> str:
-    """Build a short column label from a result dict: provider (n=N)."""
+    """Build a short column label from a result dict: display_name (n=N)."""
     cfg = result.get("config", {})
     provider = cfg.get("provider", "unknown")
+    name = display_provider_name(provider)
     n = cfg.get("n_evaluated", cfg.get("n_requested", "?"))
-    return f"{provider} (n={n})"
+    return f"{name} (n={n})"
 
 
 def compare_results(results: list[dict]) -> str:
@@ -224,9 +251,10 @@ def _format_leaderboard_md(
         if "n_runs" in e and e["n_runs"] > 1:
             runs_note = f" ({e['n_runs']} runs)"
 
+        provider_label = display_provider_name(e["provider"])
         lines.append(
             f"| {e['rank']} "
-            f"| {e['provider']}{runs_note} "
+            f"| {provider_label}{runs_note} "
             f"| {e['dataset']} "
             f"| {e['n']} "
             f"|{samples_col} {e['composite_parity']:.4f} "
