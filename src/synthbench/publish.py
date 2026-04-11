@@ -124,7 +124,7 @@ def _topic_bars_svg(
         color = colors[i % len(colors)]
         parts.append(
             f'<rect x="{x}" y="{y:.1f}" width="{bar_w}" height="{bar_h:.1f}" '
-            f'rx="1" fill="{color}" opacity="0.85"/>'
+            f'rx="1" style="fill:{color}"/>'
         )
     if not parts:
         return "&mdash;"
@@ -152,13 +152,13 @@ def _dot_plot_svg(ranked: list[dict], baselines: dict[str, dict]) -> str:
     for name, r in baselines.items():
         cp = r.get("aggregate", {}).get("composite_parity", 0)
         x = label_w + cp * chart_w
-        color = "#f85149" if "random" in name else "#f0c040"
+        color = "var(--red)" if "random" in name else "var(--gold)"
         label = "Random" if "random" in name else "Majority"
         ref_lines.append(
             f'<line x1="{x:.1f}" y1="30" x2="{x:.1f}" y2="{h - 15}" '
-            f'stroke="{color}" stroke-width="1" stroke-dasharray="4,3" opacity="0.6"/>'
+            f'style="stroke:{color}" stroke-width="1" stroke-dasharray="4,3" opacity="0.6"/>'
             f'<text x="{x:.1f}" y="24" text-anchor="middle" font-size="9" '
-            f'fill="{color}" opacity="0.8">{label}</text>'
+            f'style="fill:{color}" opacity="0.8">{label}</text>'
         )
 
     dots = []
@@ -433,7 +433,13 @@ def generate_html(results: list[dict], version: str = "0.1.0") -> str:
     topic_results = [r for r in results if r.get("config", {}).get("topic")]
 
     topic_scores, topics_present = _collect_topic_scores(topic_results)
-    topic_colors = ["#3fb950", "#58a6ff", "#f0c040", "#f85149", "#bc8cff"]
+    topic_colors = [
+        "var(--topic-0)",
+        "var(--topic-1)",
+        "var(--topic-2)",
+        "var(--topic-3)",
+        "var(--topic-4)",
+    ]
 
     deduped = _dedup_results(overall_results if overall_results else results)
     ranked = sorted(
@@ -604,7 +610,7 @@ def generate_html(results: list[dict], version: str = "0.1.0") -> str:
                     conv_html = (
                         f'<svg xmlns="http://www.w3.org/2000/svg" width="{spark_w}" height="{spark_h}" '
                         f'style="vertical-align:middle">'
-                        f'<polyline points="{polyline}" fill="none" stroke="#58a6ff" stroke-width="1.5"/>'
+                        f'<polyline points="{polyline}" fill="none" style="stroke:var(--accent)" stroke-width="1.5"/>'
                         f"</svg>"
                     )
 
@@ -683,7 +689,7 @@ def generate_html(results: list[dict], version: str = "0.1.0") -> str:
             color = topic_colors[i % len(topic_colors)]
             legend_items.append(
                 f'<span style="display:inline-flex;align-items:center;gap:0.25rem;margin-right:0.75rem">'
-                f'<span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:{color};opacity:0.85"></span>'
+                f'<span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:{color}"></span>'
                 f'<span style="font-size:0.8rem;color:var(--text-muted)">{escape(t.capitalize())}</span></span>'
             )
         topic_legend_inline = (
@@ -811,13 +817,15 @@ def generate_html(results: list[dict], version: str = "0.1.0") -> str:
   --text:#e6edf3;--text-muted:#8b949e;--accent:#58a6ff;
   --gold:#f0c040;--silver:#c0c0c0;--bronze:#cd7f32;
   --green:#3fb950;--red:#f85149;
+  --topic-0:#3fb950;--topic-1:#58a6ff;--topic-2:#f0c040;--topic-3:#f85149;--topic-4:#bc8cff;
 }}
 @media(prefers-color-scheme:light){{
   :root{{
     --bg:#ffffff;--surface:#f6f8fa;--border:#d0d7de;
-    --text:#1f2328;--text-muted:#656d76;--accent:#0969da;
+    --text:#1f2328;--text-muted:#57606a;--accent:#0969da;
     --gold:#bf8700;--silver:#8b949e;--bronze:#9a6700;
     --green:#1a7f37;--red:#cf222e;
+    --topic-0:#1a7f37;--topic-1:#0969da;--topic-2:#9a6700;--topic-3:#cf222e;--topic-4:#8250df;
   }}
 }}
 body{{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;line-height:1.6;padding:0}}
