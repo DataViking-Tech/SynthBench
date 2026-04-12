@@ -118,7 +118,7 @@ def main():
 @click.option(
     "--full-evaluation",
     is_flag=True,
-    help="Run all 8 demographic attributes (AGE,CREGION,EDUCATION,INCOME,POLIDEOLOGY,POLPARTY,RACE,SEX).",
+    help="Run all demographic attributes supported by the dataset.",
 )
 @click.option(
     "--country",
@@ -166,19 +166,10 @@ def run(
         synthbench run --provider raw-anthropic --demographics AGE,POLIDEOLOGY
         synthbench run --provider raw-anthropic --full-evaluation
     """
-    # Resolve demographics
+    # Resolve demographics (attribute list resolved in _run_async after dataset loads)
     demo_list = None
     if full_evaluation:
-        demo_list = [
-            "AGE",
-            "CREGION",
-            "EDUCATION",
-            "INCOME",
-            "POLIDEOLOGY",
-            "POLPARTY",
-            "RACE",
-            "SEX",
-        ]
+        demo_list = "__all__"  # sentinel: resolved per-dataset in _run_async
     elif demographics:
         demo_list = [d.strip().upper() for d in demographics.split(",")]
 
@@ -245,6 +236,18 @@ async def _run_async(
     if country:
         ds_kwargs["country"] = country
     ds = DATASETS[dataset_name](**ds_kwargs)
+
+    # Resolve --full-evaluation sentinel to dataset-specific attributes
+    if demographics == "__all__":
+        ds_attrs = getattr(ds, "DEMOGRAPHIC_ATTRIBUTES", None)
+        if ds_attrs:
+            demographics = list(ds_attrs)
+        else:
+            click.echo(
+                f"Dataset '{dataset_name}' does not support demographic evaluation.",
+                err=True,
+            )
+            demographics = None
 
     # Load provider
     provider_kwargs = {"model": resolved_model}
