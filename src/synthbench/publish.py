@@ -8,6 +8,8 @@ from datetime import datetime, timezone
 from pathlib import Path
 from html import escape
 
+from synthbench.leaderboard import display_provider_name
+
 BASELINE_PROVIDERS = {"random-baseline", "majority-baseline"}
 SYNTHPANEL_PREFIX = "synthpanel/"
 N_THRESHOLD = 50
@@ -319,10 +321,21 @@ def _hero_svg(
     )
 
     # ── Model dots and labels ──
+    # Check if multiple datasets present — if so, add dataset suffix to labels
+    datasets_in_chart = {r.get("config", {}).get("dataset", "") for r, _, _ in models}
+    multi_dataset = len(datasets_in_chart) > 1
+    _ds_abbrev = {"opinionsqa": "OQA", "subpop": "SubPOP", "globalopinionqa": "GQA"}
+
     for i, (_r, cp, provider) in enumerate(models):
         y = top_pad + i * row_h + row_h / 2
         dot_x = x(cp)
         name = _hero_model_name(provider)
+        full_name = display_provider_name(provider)
+        if full_name != provider:
+            name = full_name
+        if multi_dataset:
+            ds = _r.get("config", {}).get("dataset", "")
+            name += f" ({_ds_abbrev.get(ds, ds)})"
 
         # Zone-based dot color
         if cp > amber_hi:

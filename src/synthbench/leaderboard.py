@@ -42,6 +42,10 @@ MODEL_MAP: dict[str, tuple[str, str]] = {
         "SynthPanel (GPT-4o-mini)",
         "product",
     ),
+    "synthpanel/openrouter/anthropic/claude-sonnet-4": (
+        "SynthPanel (Sonnet 4)",
+        "product",
+    ),
     "synthpanel/gpt-4o-mini": ("SynthPanel (GPT-4o-mini)", "product"),
     # Baselines
     "random-baseline": ("Random Baseline", "baseline"),
