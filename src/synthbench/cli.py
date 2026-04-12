@@ -1272,9 +1272,7 @@ def ensemble(files, output, weights):
     if weights:
         w = [float(x) for x in weights.split(",")]
         if len(w) != len(files):
-            click.echo(
-                f"Error: got {len(w)} weights for {len(files)} files.", err=True
-            )
+            click.echo(f"Error: got {len(w)} weights for {len(files)} files.", err=True)
             sys.exit(1)
         w_total = sum(w)
         w = [x / w_total for x in w]  # normalize
@@ -1288,7 +1286,9 @@ def ensemble(files, output, weights):
         with open(fpath) as f:
             data = json.load(f)
         datasets.append(data)
-        source_providers.append(data.get("config", {}).get("provider", Path(fpath).stem))
+        source_providers.append(
+            data.get("config", {}).get("provider", Path(fpath).stem)
+        )
 
     # Index per-question data by key for each file
     per_q_maps = []
@@ -1306,7 +1306,9 @@ def ensemble(files, output, weights):
         click.echo("Error: no common questions across all input files.", err=True)
         sys.exit(1)
 
-    click.echo(f"Ensembling {len(files)} results over {len(common_keys)} common questions")
+    click.echo(
+        f"Ensembling {len(files)} results over {len(common_keys)} common questions"
+    )
 
     # Blend distributions and recompute metrics
     per_question = []
@@ -1325,8 +1327,7 @@ def ensemble(files, output, weights):
         blended = {}
         for opt in all_option_keys:
             blended[opt] = sum(
-                w[i] * qs[i]["model_distribution"].get(opt, 0.0)
-                for i in range(len(qs))
+                w[i] * qs[i]["model_distribution"].get(opt, 0.0) for i in range(len(qs))
             )
 
         # Recompute metrics
@@ -1334,23 +1335,29 @@ def ensemble(files, output, weights):
         tau = kendall_tau_b(human_dist, blended)
         parity = parity_score(jsd, tau)
 
-        per_question.append({
-            "key": key,
-            "text": ref_q.get("text", ""),
-            "options": ref_q.get("options", []),
-            "human_distribution": {k: round(v, 4) for k, v in human_dist.items()},
-            "model_distribution": {k: round(v, 4) for k, v in blended.items()},
-            "jsd": round(jsd, 6),
-            "kendall_tau": round(tau, 6),
-            "parity": round(parity, 6),
-            "n_samples": sum(q.get("n_samples", 0) for q in qs),
-            "n_parse_failures": sum(q.get("n_parse_failures", 0) for q in qs),
-            "model_refusal_rate": round(
-                sum(w[i] * qs[i].get("model_refusal_rate", 0.0) for i in range(len(qs))), 6
-            ),
-            "human_refusal_rate": ref_q.get("human_refusal_rate", 0.0),
-            "temporal_year": ref_q.get("temporal_year", 0),
-        })
+        per_question.append(
+            {
+                "key": key,
+                "text": ref_q.get("text", ""),
+                "options": ref_q.get("options", []),
+                "human_distribution": {k: round(v, 4) for k, v in human_dist.items()},
+                "model_distribution": {k: round(v, 4) for k, v in blended.items()},
+                "jsd": round(jsd, 6),
+                "kendall_tau": round(tau, 6),
+                "parity": round(parity, 6),
+                "n_samples": sum(q.get("n_samples", 0) for q in qs),
+                "n_parse_failures": sum(q.get("n_parse_failures", 0) for q in qs),
+                "model_refusal_rate": round(
+                    sum(
+                        w[i] * qs[i].get("model_refusal_rate", 0.0)
+                        for i in range(len(qs))
+                    ),
+                    6,
+                ),
+                "human_refusal_rate": ref_q.get("human_refusal_rate", 0.0),
+                "temporal_year": ref_q.get("temporal_year", 0),
+            }
+        )
 
     # Aggregate metrics
     n_q = len(per_question)
@@ -1384,9 +1391,7 @@ def ensemble(files, output, weights):
         },
         "aggregate": {
             "mean_jsd": round(mean_jsd, 6),
-            "median_jsd": round(
-                sorted(q["jsd"] for q in per_question)[n_q // 2], 6
-            ),
+            "median_jsd": round(sorted(q["jsd"] for q in per_question)[n_q // 2], 6),
             "mean_kendall_tau": round(mean_tau, 6),
             "composite_parity": composite,
             "n_questions": n_q,

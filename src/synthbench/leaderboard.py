@@ -68,6 +68,7 @@ def _extract_hyperparams(result: dict) -> dict[str, object]:
     tpl = cfg.get("prompt_template")
     if tpl:
         from pathlib import Path
+
         hp["template"] = Path(tpl).stem
     return hp
 
@@ -87,6 +88,7 @@ def _config_key(result: dict) -> tuple:
     tpl_name = None
     if tpl:
         from pathlib import Path
+
         tpl_name = Path(tpl).stem
     return (name, fw, dataset, temp, tpl_name)
 
@@ -302,20 +304,14 @@ def _aggregate_replications(
 
     aggregated: dict[tuple, dict] = {}
     for key, runs in groups.items():
-        sps_vals = [
-            r.get("aggregate", {}).get("composite_parity", 0) for r in runs
-        ]
+        sps_vals = [r.get("aggregate", {}).get("composite_parity", 0) for r in runs]
         jsd_vals = [r.get("aggregate", {}).get("mean_jsd", 0) for r in runs]
-        tau_vals = [
-            r.get("aggregate", {}).get("mean_kendall_tau", 0) for r in runs
-        ]
+        tau_vals = [r.get("aggregate", {}).get("mean_kendall_tau", 0) for r in runs]
 
         n = len(sps_vals)
         mean_sps = sum(sps_vals) / n if n else 0
         std_sps = (
-            math.sqrt(sum((v - mean_sps) ** 2 for v in sps_vals) / n)
-            if n > 1
-            else 0
+            math.sqrt(sum((v - mean_sps) ** 2 for v in sps_vals) / n) if n > 1 else 0
         )
 
         # Pick the result with most questions evaluated as representative

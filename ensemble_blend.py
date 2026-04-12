@@ -26,6 +26,7 @@ from scipy.stats import kendalltau
 # Metrics (matching synthbench.metrics exactly)
 # ---------------------------------------------------------------------------
 
+
 def jensen_shannon_divergence(p: dict[str, float], q: dict[str, float]) -> float:
     """JSD between two distributions. Returns value in [0, 1] (base-2 log)."""
     keys = sorted(set(p) | set(q))
@@ -56,8 +57,9 @@ def kendall_tau_b(p: dict[str, float], q: dict[str, float]) -> float:
     return float(tau)
 
 
-def sps_from_components(mean_jsd: float, mean_tau: float,
-                        p_refuse: float = 1.0) -> float:
+def sps_from_components(
+    mean_jsd: float, mean_tau: float, p_refuse: float = 1.0
+) -> float:
     """SPS = mean(p_dist, p_rank, p_refuse)."""
     p_dist = 1.0 - mean_jsd
     p_rank = (1.0 + mean_tau) / 2.0
@@ -73,27 +75,42 @@ RESULTS_DIR = Path(__file__).parent / "leaderboard-results"
 # --- Optimal-temperature file patterns (all n=100 on OpinionsQA) ---
 OPTIMAL_TEMP_PATTERNS = {
     "Haiku": {
-        "opinionsqa": lambda f: ("claude-haiku" in f and "synthpanel" in f
-                                  and " t=0.85" in f and " tpl=" not in f),
+        "opinionsqa": lambda f: (
+            "claude-haiku" in f
+            and "synthpanel" in f
+            and " t=0.85" in f
+            and " tpl=" not in f
+        ),
     },
     "Gemini": {
-        "opinionsqa": lambda f: ("gemini" in f and "synthpanel" in f
-                                  and " t=2.0" in f and " tpl=" not in f),
+        "opinionsqa": lambda f: (
+            "gemini" in f and "synthpanel" in f and " t=2.0" in f and " tpl=" not in f
+        ),
     },
     "GPT-4o-mini": {
-        "opinionsqa": lambda f: ("gpt-4o-mini" in f and "synthpanel" in f
-                                  and " t=1.0" in f and " tpl=" not in f),
+        "opinionsqa": lambda f: (
+            "gpt-4o-mini" in f
+            and "synthpanel" in f
+            and " t=1.0" in f
+            and " tpl=" not in f
+        ),
     },
 }
 
 # --- Default-temperature file patterns (no t= in filename) ---
 DEFAULT_TEMP_PATTERNS = {
-    "Haiku": lambda f: ("claude-haiku" in f and "synthpanel" in f
-                         and " t=" not in f and " tpl=" not in f),
-    "Gemini": lambda f: ("gemini" in f and "synthpanel" in f
-                          and " t=" not in f and " tpl=" not in f),
-    "GPT-4o-mini": lambda f: ("gpt-4o-mini" in f and "synthpanel" in f
-                               and " t=" not in f and " tpl=" not in f),
+    "Haiku": lambda f: (
+        "claude-haiku" in f
+        and "synthpanel" in f
+        and " t=" not in f
+        and " tpl=" not in f
+    ),
+    "Gemini": lambda f: (
+        "gemini" in f and "synthpanel" in f and " t=" not in f and " tpl=" not in f
+    ),
+    "GPT-4o-mini": lambda f: (
+        "gpt-4o-mini" in f and "synthpanel" in f and " t=" not in f and " tpl=" not in f
+    ),
 }
 
 
@@ -135,8 +152,10 @@ def find_best_file(dataset: str, model_name: str, matcher) -> Optional[Path]:
 # Blending logic
 # ---------------------------------------------------------------------------
 
-def blend_distributions(dists: list[dict[str, float]],
-                        weights: list[float]) -> dict[str, float]:
+
+def blend_distributions(
+    dists: list[dict[str, float]], weights: list[float]
+) -> dict[str, float]:
     """Weighted average of distributions."""
     all_keys = set()
     for d in dists:
@@ -149,16 +168,20 @@ def blend_distributions(dists: list[dict[str, float]],
     return result
 
 
-def compute_blend_metrics(per_q_by_model: dict, common_keys: list[str],
-                          model_names: list[str],
-                          weights: list[float]) -> dict:
+def compute_blend_metrics(
+    per_q_by_model: dict,
+    common_keys: list[str],
+    model_names: list[str],
+    weights: list[float],
+) -> dict:
     """Compute JSD/tau for a blend on the common question set."""
     jsds = []
     taus = []
     for key in common_keys:
         human_dist = per_q_by_model[model_names[0]][key]["human_distribution"]
-        model_dists = [per_q_by_model[mn][key]["model_distribution"]
-                       for mn in model_names]
+        model_dists = [
+            per_q_by_model[mn][key]["model_distribution"] for mn in model_names
+        ]
         blended = blend_distributions(model_dists, weights)
         jsds.append(jensen_shannon_divergence(human_dist, blended))
         taus.append(kendall_tau_b(human_dist, blended))
@@ -173,8 +196,9 @@ def compute_blend_metrics(per_q_by_model: dict, common_keys: list[str],
     }
 
 
-def compute_single_model_metrics(per_q: dict, common_keys: list[str],
-                                 p_refuse: float = 1.0) -> dict:
+def compute_single_model_metrics(
+    per_q: dict, common_keys: list[str], p_refuse: float = 1.0
+) -> dict:
     """Compute metrics for a single model on the common question set."""
     jsds = []
     taus = []
@@ -197,8 +221,10 @@ def compute_single_model_metrics(per_q: dict, common_keys: list[str],
 # Oracle blend
 # ---------------------------------------------------------------------------
 
-def compute_oracle(per_q_by_model: dict, common_keys: list[str],
-                   model_names: list[str]) -> dict:
+
+def compute_oracle(
+    per_q_by_model: dict, common_keys: list[str], model_names: list[str]
+) -> dict:
     """Best single model per question (upper bound)."""
     jsds = []
     taus = []
@@ -231,15 +257,16 @@ def compute_oracle(per_q_by_model: dict, common_keys: list[str],
 # Main experiment
 # ---------------------------------------------------------------------------
 
+
 def run_optimal_temp_experiment():
     """Compare default-temp vs optimal-temp ensemble blending."""
 
     dataset = "opinionsqa"
     model_names = ["Haiku", "Gemini", "GPT-4o-mini"]
 
-    print(f"{'='*80}")
+    print(f"{'=' * 80}")
     print("OPTIMAL-TEMPERATURE ENSEMBLE BLENDING EXPERIMENT")
-    print(f"{'='*80}")
+    print(f"{'=' * 80}")
     print(f"Dataset: {dataset}")
     print()
 
@@ -269,7 +296,9 @@ def run_optimal_temp_experiment():
         opt_per_q[mn] = {q["key"]: q for q in opt_data[mn]["per_question"]}
 
     opt_common = sorted(
-        set(opt_per_q["Haiku"]) & set(opt_per_q["Gemini"]) & set(opt_per_q["GPT-4o-mini"])
+        set(opt_per_q["Haiku"])
+        & set(opt_per_q["Gemini"])
+        & set(opt_per_q["GPT-4o-mini"])
     )
     print(f"\n  Common questions (optimal-temp): {len(opt_common)}")
 
@@ -303,8 +332,10 @@ def run_optimal_temp_experiment():
             except (KeyError, json.JSONDecodeError):
                 continue
         if best_f is None:
-            print(f"  ERROR: No default-temp file covers all {len(opt_common)} "
-                  f"questions for {mn}")
+            print(
+                f"  ERROR: No default-temp file covers all {len(opt_common)} "
+                f"questions for {mn}"
+            )
             return
         data = json.loads(best_f.read_text())
         def_files[mn] = best_f
@@ -322,13 +353,14 @@ def run_optimal_temp_experiment():
     # -----------------------------------------------------------------------
     # 3. Compute single-model metrics on the 100 common questions
     # -----------------------------------------------------------------------
-    print(f"\n{'='*80}")
+    print(f"\n{'=' * 80}")
     print(f"SINGLE-MODEL RESULTS (on {len(opt_common)} common questions)")
-    print(f"{'='*80}")
-    header = (f"  {'Model':<14} {'Regime':<14} {'Mean JSD':>10} {'Mean tau':>10} "
-              f"{'SPS':>10}")
+    print(f"{'=' * 80}")
+    header = (
+        f"  {'Model':<14} {'Regime':<14} {'Mean JSD':>10} {'Mean tau':>10} {'SPS':>10}"
+    )
     print(header)
-    print(f"  {'-'*14} {'-'*14} {'-'*10} {'-'*10} {'-'*10}")
+    print(f"  {'-' * 14} {'-' * 14} {'-' * 10} {'-' * 10} {'-' * 10}")
 
     single_stats = {"default": {}, "optimal": {}}
     for mn in model_names:
@@ -338,8 +370,10 @@ def run_optimal_temp_experiment():
             p_refuse = src_data["scores"].get("p_refuse", 1.0)
             stats = compute_single_model_metrics(pq[mn], opt_common, p_refuse)
             single_stats[regime][mn] = stats
-            print(f"  {mn:<14} {regime:<14} {stats['mean_jsd']:10.6f} "
-                  f"{stats['mean_tau']:10.6f} {stats['sps']:10.6f}")
+            print(
+                f"  {mn:<14} {regime:<14} {stats['mean_jsd']:10.6f} "
+                f"{stats['mean_tau']:10.6f} {stats['sps']:10.6f}"
+            )
 
     # -----------------------------------------------------------------------
     # 4. Compute ensemble blends
@@ -360,26 +394,32 @@ def run_optimal_temp_experiment():
     opt_score_prop = compute_blend_metrics(opt_per_q, opt_common, model_names, opt_sp_w)
 
     # INV_JSD blend
-    def_inv_w = [1.0 / max(single_stats["default"][mn]["mean_jsd"], 0.001)
-                 for mn in model_names]
-    opt_inv_w = [1.0 / max(single_stats["optimal"][mn]["mean_jsd"], 0.001)
-                 for mn in model_names]
+    def_inv_w = [
+        1.0 / max(single_stats["default"][mn]["mean_jsd"], 0.001) for mn in model_names
+    ]
+    opt_inv_w = [
+        1.0 / max(single_stats["optimal"][mn]["mean_jsd"], 0.001) for mn in model_names
+    ]
     def_inv_jsd = compute_blend_metrics(def_per_q, opt_common, model_names, def_inv_w)
     opt_inv_jsd = compute_blend_metrics(opt_per_q, opt_common, model_names, opt_inv_w)
 
     # -----------------------------------------------------------------------
     # 5. Comparison table
     # -----------------------------------------------------------------------
-    print(f"\n{'='*80}")
+    print(f"\n{'=' * 80}")
     print("ENSEMBLE COMPARISON: Default-Temp vs Optimal-Temp")
     print(f"({len(opt_common)} common questions, OpinionsQA)")
-    print(f"{'='*80}")
+    print(f"{'=' * 80}")
 
     rows = [
-        ("Best Single (def)", max(single_stats["default"].values(),
-                                   key=lambda s: s["sps"])),
-        ("Best Single (opt)", max(single_stats["optimal"].values(),
-                                   key=lambda s: s["sps"])),
+        (
+            "Best Single (def)",
+            max(single_stats["default"].values(), key=lambda s: s["sps"]),
+        ),
+        (
+            "Best Single (opt)",
+            max(single_stats["optimal"].values(), key=lambda s: s["sps"]),
+        ),
         ("EQUAL (default)", def_equal),
         ("EQUAL (optimal)", opt_equal),
         ("SCORE_PROP (def)", def_score_prop),
@@ -390,52 +430,58 @@ def run_optimal_temp_experiment():
         ("ORACLE (optimal)", opt_oracle),
     ]
 
-    header = (f"  {'Method':<22} {'Mean JSD':>10} {'Mean tau':>10} "
-              f"{'SPS':>10}")
+    header = f"  {'Method':<22} {'Mean JSD':>10} {'Mean tau':>10} {'SPS':>10}"
     print(header)
-    print(f"  {'-'*22} {'-'*10} {'-'*10} {'-'*10}")
+    print(f"  {'-' * 22} {'-' * 10} {'-' * 10} {'-' * 10}")
     for label, stats in rows:
-        print(f"  {label:<22} {stats['mean_jsd']:10.6f} "
-              f"{stats['mean_tau']:10.6f} {stats['sps']:10.6f}")
+        print(
+            f"  {label:<22} {stats['mean_jsd']:10.6f} "
+            f"{stats['mean_tau']:10.6f} {stats['sps']:10.6f}"
+        )
 
     # -----------------------------------------------------------------------
     # 6. Delta table (optimal - default for each blend method)
     # -----------------------------------------------------------------------
-    print(f"\n{'='*80}")
+    print(f"\n{'=' * 80}")
     print("SPS DELTAS: Optimal-Temp minus Default-Temp")
-    print(f"{'='*80}")
+    print(f"{'=' * 80}")
     delta_rows = [
-        ("Best Single", max(single_stats["optimal"].values(), key=lambda s: s["sps"])["sps"]
-                      - max(single_stats["default"].values(), key=lambda s: s["sps"])["sps"]),
+        (
+            "Best Single",
+            max(single_stats["optimal"].values(), key=lambda s: s["sps"])["sps"]
+            - max(single_stats["default"].values(), key=lambda s: s["sps"])["sps"],
+        ),
         ("EQUAL blend", opt_equal["sps"] - def_equal["sps"]),
         ("SCORE_PROP", opt_score_prop["sps"] - def_score_prop["sps"]),
         ("INV_JSD", opt_inv_jsd["sps"] - def_inv_jsd["sps"]),
         ("ORACLE", opt_oracle["sps"] - def_oracle["sps"]),
     ]
     print(f"  {'Method':<22} {'SPS Delta':>12} {'Pct Points':>12}")
-    print(f"  {'-'*22} {'-'*12} {'-'*12}")
+    print(f"  {'-' * 22} {'-' * 12} {'-' * 12}")
     for label, delta in delta_rows:
         sign = "+" if delta >= 0 else ""
-        print(f"  {label:<22} {sign}{delta:11.6f} {sign}{delta*100:10.2f}pp")
+        print(f"  {label:<22} {sign}{delta:11.6f} {sign}{delta * 100:10.2f}pp")
 
     # -----------------------------------------------------------------------
     # 7. Per-question analysis: EQUAL optimal vs EQUAL default
     # -----------------------------------------------------------------------
-    print(f"\n{'='*80}")
+    print(f"\n{'=' * 80}")
     print("PER-QUESTION ANALYSIS: EQUAL(optimal) vs EQUAL(default)")
-    print(f"{'='*80}")
+    print(f"{'=' * 80}")
     eq_opt_jsds = opt_equal["per_q_jsds"]
     eq_def_jsds = def_equal["per_q_jsds"]
     improved = sum(1 for a, b in zip(eq_opt_jsds, eq_def_jsds) if a < b)
     worsened = sum(1 for a, b in zip(eq_opt_jsds, eq_def_jsds) if a > b)
     tied = sum(1 for a, b in zip(eq_opt_jsds, eq_def_jsds) if abs(a - b) < 1e-10)
     n = len(opt_common)
-    print(f"  JSD improved (opt < def): {improved}/{n} ({100*improved/n:.1f}%)")
-    print(f"  JSD worsened (opt > def): {worsened}/{n} ({100*worsened/n:.1f}%)")
-    print(f"  JSD tied:                 {tied}/{n} ({100*tied/n:.1f}%)")
+    print(f"  JSD improved (opt < def): {improved}/{n} ({100 * improved / n:.1f}%)")
+    print(f"  JSD worsened (opt > def): {worsened}/{n} ({100 * worsened / n:.1f}%)")
+    print(f"  JSD tied:                 {tied}/{n} ({100 * tied / n:.1f}%)")
 
     jsd_deltas = [a - b for a, b in zip(eq_opt_jsds, eq_def_jsds)]
-    print(f"  Mean JSD delta: {np.mean(jsd_deltas):+.6f} (negative = optimal is better)")
+    print(
+        f"  Mean JSD delta: {np.mean(jsd_deltas):+.6f} (negative = optimal is better)"
+    )
     print(f"  Median JSD delta: {np.median(jsd_deltas):+.6f}")
 
     # Oracle picks comparison
@@ -445,9 +491,9 @@ def run_optimal_temp_experiment():
     # -----------------------------------------------------------------------
     # 8. Check SubPOP and GlobalOpinionQA availability
     # -----------------------------------------------------------------------
-    print(f"\n{'='*80}")
+    print(f"\n{'=' * 80}")
     print("ADDITIONAL DATASET AVAILABILITY CHECK")
-    print(f"{'='*80}")
+    print(f"{'=' * 80}")
     for ds in ["subpop", "globalopinionqa"]:
         print(f"\n  {ds}:")
         for mn in model_names:
@@ -456,8 +502,10 @@ def run_optimal_temp_experiment():
                 f = find_best_file(ds, mn, matcher)
                 if f:
                     data = json.loads(f.read_text())
-                    print(f"    {mn} optimal-temp: {f.name} "
-                          f"(n_q={data['aggregate']['n_questions']})")
+                    print(
+                        f"    {mn} optimal-temp: {f.name} "
+                        f"(n_q={data['aggregate']['n_questions']})"
+                    )
                 else:
                     print(f"    {mn} optimal-temp: NOT FOUND")
             else:
@@ -465,12 +513,29 @@ def run_optimal_temp_experiment():
                 found = False
                 for f in RESULTS_DIR.glob(f"{ds}_*.json"):
                     if " t=" in f.name and "synthpanel" in f.name:
-                        if (mn == "Haiku" and "claude-haiku" in f.name and "t=0.85" in f.name and "tpl=" not in f.name) or \
-                           (mn == "Gemini" and "gemini" in f.name and "t=2.0" in f.name) or \
-                           (mn == "GPT-4o-mini" and "gpt-4o-mini" in f.name and "t=1.0" in f.name):
+                        if (
+                            (
+                                mn == "Haiku"
+                                and "claude-haiku" in f.name
+                                and "t=0.85" in f.name
+                                and "tpl=" not in f.name
+                            )
+                            or (
+                                mn == "Gemini"
+                                and "gemini" in f.name
+                                and "t=2.0" in f.name
+                            )
+                            or (
+                                mn == "GPT-4o-mini"
+                                and "gpt-4o-mini" in f.name
+                                and "t=1.0" in f.name
+                            )
+                        ):
                             data = json.loads(f.read_text())
-                            print(f"    {mn} optimal-temp: {f.name} "
-                                  f"(n_q={data['aggregate']['n_questions']})")
+                            print(
+                                f"    {mn} optimal-temp: {f.name} "
+                                f"(n_q={data['aggregate']['n_questions']})"
+                            )
                             found = True
                             break
                 if not found:
@@ -480,9 +545,9 @@ def run_optimal_temp_experiment():
     # 9. Run SubPOP default-temp ensemble for comparison
     #    (only if all 3 default-temp models available)
     # -----------------------------------------------------------------------
-    print(f"\n{'='*80}")
+    print(f"\n{'=' * 80}")
     print("SUBPOP DEFAULT-TEMP ENSEMBLE (for reference)")
-    print(f"{'='*80}")
+    print(f"{'=' * 80}")
     sub_def_data = {}
     sub_ok = True
     for mn in model_names:
@@ -509,28 +574,34 @@ def run_optimal_temp_experiment():
         else:
             data = json.loads(best_f.read_text())
             sub_def_data[mn] = data
-            print(f"  {mn}: {best_f.name} "
-                  f"(n_q={data['aggregate']['n_questions']}, "
-                  f"SPS={data['scores']['sps']:.6f})")
+            print(
+                f"  {mn}: {best_f.name} "
+                f"(n_q={data['aggregate']['n_questions']}, "
+                f"SPS={data['scores']['sps']:.6f})"
+            )
 
     if sub_ok:
         sub_per_q = {}
         for mn in model_names:
             sub_per_q[mn] = {q["key"]: q for q in sub_def_data[mn]["per_question"]}
         sub_common = sorted(
-            set(sub_per_q["Haiku"]) & set(sub_per_q["Gemini"])
+            set(sub_per_q["Haiku"])
+            & set(sub_per_q["Gemini"])
             & set(sub_per_q["GPT-4o-mini"])
         )
         print(f"  Common questions: {len(sub_common)}")
         if sub_common:
             sub_blend = compute_blend_metrics(
-                sub_per_q, sub_common, model_names, [1.0, 1.0, 1.0])
+                sub_per_q, sub_common, model_names, [1.0, 1.0, 1.0]
+            )
             print(f"  EQUAL blend SPS: {sub_blend['sps']:.6f}")
             for mn in model_names:
                 stats = compute_single_model_metrics(sub_per_q[mn], sub_common)
                 print(f"  {mn} single SPS (common): {stats['sps']:.6f}")
-        print("  (No optimal-temp SubPOP ensemble possible -- "
-              "Gemini/GPT-4o-mini temp runs not available)")
+        print(
+            "  (No optimal-temp SubPOP ensemble possible -- "
+            "Gemini/GPT-4o-mini temp runs not available)"
+        )
 
 
 if __name__ == "__main__":
