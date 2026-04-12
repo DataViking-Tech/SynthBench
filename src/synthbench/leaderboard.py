@@ -47,6 +47,8 @@ MODEL_MAP: dict[str, tuple[str, str]] = {
         "product",
     ),
     "synthpanel/gpt-4o-mini": ("SynthPanel (GPT-4o-mini)", "product"),
+    # Ensemble
+    "ensemble/3-model-blend": ("SynthPanel Ensemble (3-model)", "product"),
     # Baselines
     "random-baseline": ("Random Baseline", "baseline"),
     "majority-baseline": ("Majority Baseline", "baseline"),
