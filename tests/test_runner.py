@@ -124,9 +124,43 @@ _DEMO_DISTS = {
     },
 }
 
+# SEX-specific distributions (distinct from AGE) for isolation testing
+_SEX_DISTS = {
+    "ABORTION_W82": {
+        "Male": {
+            "Legal in all cases": 0.28,
+            "Legal in most cases": 0.32,
+            "Illegal in most cases": 0.24,
+            "Illegal in all cases": 0.16,
+        },
+        "Female": {
+            "Legal in all cases": 0.38,
+            "Legal in most cases": 0.34,
+            "Illegal in most cases": 0.18,
+            "Illegal in all cases": 0.10,
+        },
+    },
+    "CLIMATE_W29": {
+        "Male": {
+            "A great deal": 0.42,
+            "Some": 0.30,
+            "Not too much": 0.16,
+            "Not at all": 0.12,
+        },
+        "Female": {
+            "A great deal": 0.55,
+            "Some": 0.28,
+            "Not too much": 0.11,
+            "Not at all": 0.06,
+        },
+    },
+}
+
 
 class DemoAwareDataset(Dataset):
     """Dataset that provides demographic distributions for testing."""
+
+    DEMOGRAPHIC_ATTRIBUTES = ["AGE", "SEX"]
 
     def __init__(self, questions: list[Question]):
         self._questions = questions
@@ -149,6 +183,8 @@ class DemoAwareDataset(Dataset):
     ) -> dict[str, dict[str, dict[str, float]]]:
         if attribute == "AGE":
             return _DEMO_DISTS
+        if attribute == "SEX":
+            return _SEX_DISTS
         return {}
 
 
@@ -264,6 +300,51 @@ async def test_run_with_demographics_baseline_still_works(
     assert result.sps > 0
 
 
+@pytest.mark.asyncio
+async def test_run_with_demographics_attribute_isolation(
+    demo_dataset, persona_provider
+):
+    """Each demographic attribute produces its own groups — no cross-contamination."""
+    runner = BenchmarkRunner(
+        dataset=demo_dataset,
+        provider=persona_provider,
+        samples_per_question=10,
+        concurrency=5,
+    )
+    result = await runner.run_with_demographics(demographics=["SEX"], n=2)
+
+    # Should have SEX breakdown, NOT AGE
+    assert "SEX" in result.demographic_breakdown
+    assert "AGE" not in result.demographic_breakdown
+
+    sex_groups = {gr.group for gr in result.demographic_breakdown["SEX"]}
+    assert sex_groups == {"Male", "Female"}
+
+    # Group score labels should use SEX prefix
+    for key in result.group_scores:
+        assert key.startswith("SEX:"), f"Expected SEX: prefix, got {key}"
+
+
+@pytest.mark.asyncio
+async def test_run_with_demographics_multi_attribute(demo_dataset, persona_provider):
+    """Multiple attributes produce independent breakdowns."""
+    runner = BenchmarkRunner(
+        dataset=demo_dataset,
+        provider=persona_provider,
+        samples_per_question=10,
+        concurrency=5,
+    )
+    result = await runner.run_with_demographics(demographics=["AGE", "SEX"], n=2)
+
+    assert "AGE" in result.demographic_breakdown
+    assert "SEX" in result.demographic_breakdown
+
+    age_groups = {gr.group for gr in result.demographic_breakdown["AGE"]}
+    sex_groups = {gr.group for gr in result.demographic_breakdown["SEX"]}
+    assert age_groups == {"young", "old"}
+    assert sex_groups == {"Male", "Female"}
+
+
 def test_build_persona_system_prompt_none():
     """No persona returns base system prompt unchanged."""
     base = "You are answering a survey."
@@ -290,3 +371,24 @@ def test_build_persona_system_prompt_multi_demographics():
     result = build_persona_system_prompt(base, persona)
     assert "AGE: 18-29" in result
     assert "SEX: Female" in result
+
+
+def test_subpop_attributes_match_raw_data():
+    """SUBPOP_ATTRIBUTES must match what's actually in the raw dataset."""
+    from synthbench.datasets.subpop import SUBPOP_ATTRIBUTES
+
+    # These are the 8 attributes in the SubPOP raw data (verified against HuggingFace)
+    expected = {
+        "CREGION",
+        "EDUCATION",
+        "INCOME",
+        "POLIDEOLOGY",
+        "POLPARTY",
+        "RACE",
+        "RELIG",
+        "SEX",
+    }
+    assert set(SUBPOP_ATTRIBUTES) == expected, (
+        f"SUBPOP_ATTRIBUTES mismatch. Got {sorted(SUBPOP_ATTRIBUTES)}, "
+        f"expected {sorted(expected)}"
+    )

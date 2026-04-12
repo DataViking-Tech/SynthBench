@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import asyncio
+import logging
 import time
 from collections import Counter
 from dataclasses import dataclass, field
@@ -237,6 +238,9 @@ class BenchmarkResult:
     def total_parse_failures(self) -> int:
         """Total parse failures across all questions."""
         return sum(q.n_parse_failures for q in self.questions)
+
+
+logger = logging.getLogger(__name__)
 
 
 class BenchmarkRunner:
@@ -522,6 +526,11 @@ class BenchmarkRunner:
         for attr in demographics:
             demo_dists = self.dataset.load_demographic_distributions(attr)
             if not demo_dists:
+                logger.warning(
+                    "No demographic data for attribute '%s' in dataset '%s' — skipping.",
+                    attr,
+                    self.dataset.name,
+                )
                 continue
 
             # Collect all groups across questions for this attribute
