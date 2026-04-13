@@ -43,12 +43,13 @@ jobs:
       # Copy Astro output into docs/
       - name: Deploy Astro site
         run: |
-          rm -rf docs/index.html docs/leaderboard docs/leaderboard.json
-          cp -r site/dist/synthbench/* docs/
+          rm -rf docs/index.html docs/leaderboard docs/leaderboard.json docs/_astro
+          cp -r site/dist/* docs/
 
       - name: Create PR if changed
         run: |
-          git diff --quiet docs/ && echo "No changes to docs/" && exit 0
+          git add docs/
+          git diff --cached --quiet docs/ && echo "No changes to docs/" && exit 0
 
           BRANCH="auto/regenerate-pages"
           git config user.name "github-actions[bot]"
