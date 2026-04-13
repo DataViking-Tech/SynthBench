@@ -139,13 +139,15 @@ def _build_entry(r: dict, rank: int) -> dict:
         for _attr, groups in demo_breakdown.items():
             if isinstance(groups, list):
                 for g in groups:
-                    flat_demographics.append({
-                        "attribute": g.get("attribute", ""),
-                        "group": g.get("group", ""),
-                        "p_dist": round(g.get("p_dist", 0), 6),
-                        "p_cond": round(g.get("p_cond", 0), 6),
-                        "n_questions": g.get("n_questions", 0),
-                    })
+                    flat_demographics.append(
+                        {
+                            "attribute": g.get("attribute", ""),
+                            "group": g.get("group", ""),
+                            "p_dist": round(g.get("p_dist", 0), 6),
+                            "p_cond": round(g.get("p_cond", 0), 6),
+                            "n_questions": g.get("n_questions", 0),
+                        }
+                    )
         if flat_demographics:
             entry["demographic_scores"] = flat_demographics
 
@@ -157,22 +159,92 @@ def _build_findings() -> dict:
     return {
         "temperature_sweep": [
             # Experiment A: Claude Haiku 4.5
-            {"model": "Claude Haiku 4.5", "temperature": 0.3, "sps": 0.843, "std": 0.003},
-            {"model": "Claude Haiku 4.5", "temperature": 0.5, "sps": 0.845, "std": 0.002},
-            {"model": "Claude Haiku 4.5", "temperature": 0.7, "sps": 0.847, "std": 0.003},
-            {"model": "Claude Haiku 4.5", "temperature": 0.85, "sps": 0.849, "std": 0.002},
-            {"model": "Claude Haiku 4.5", "temperature": 1.0, "sps": 0.850, "std": 0.001},
+            {
+                "model": "Claude Haiku 4.5",
+                "temperature": 0.3,
+                "sps": 0.843,
+                "std": 0.003,
+            },
+            {
+                "model": "Claude Haiku 4.5",
+                "temperature": 0.5,
+                "sps": 0.845,
+                "std": 0.002,
+            },
+            {
+                "model": "Claude Haiku 4.5",
+                "temperature": 0.7,
+                "sps": 0.847,
+                "std": 0.003,
+            },
+            {
+                "model": "Claude Haiku 4.5",
+                "temperature": 0.85,
+                "sps": 0.849,
+                "std": 0.002,
+            },
+            {
+                "model": "Claude Haiku 4.5",
+                "temperature": 1.0,
+                "sps": 0.850,
+                "std": 0.001,
+            },
             # Experiment A: Gemini Flash Lite
-            {"model": "Gemini Flash Lite", "temperature": 0.3, "sps": 0.819, "std": 0.004},
-            {"model": "Gemini Flash Lite", "temperature": 0.5, "sps": 0.831, "std": 0.003},
-            {"model": "Gemini Flash Lite", "temperature": 0.7, "sps": 0.842, "std": 0.003},
-            {"model": "Gemini Flash Lite", "temperature": 0.85, "sps": 0.850, "std": 0.002},
-            {"model": "Gemini Flash Lite", "temperature": 1.0, "sps": 0.856, "std": 0.003},
+            {
+                "model": "Gemini Flash Lite",
+                "temperature": 0.3,
+                "sps": 0.819,
+                "std": 0.004,
+            },
+            {
+                "model": "Gemini Flash Lite",
+                "temperature": 0.5,
+                "sps": 0.831,
+                "std": 0.003,
+            },
+            {
+                "model": "Gemini Flash Lite",
+                "temperature": 0.7,
+                "sps": 0.842,
+                "std": 0.003,
+            },
+            {
+                "model": "Gemini Flash Lite",
+                "temperature": 0.85,
+                "sps": 0.850,
+                "std": 0.002,
+            },
+            {
+                "model": "Gemini Flash Lite",
+                "temperature": 1.0,
+                "sps": 0.856,
+                "std": 0.003,
+            },
             # Experiment D: Gemini extended temperature
-            {"model": "Gemini Flash Lite", "temperature": 1.2, "sps": 0.856, "std": 0.002},
-            {"model": "Gemini Flash Lite", "temperature": 1.5, "sps": 0.858, "std": 0.003},
-            {"model": "Gemini Flash Lite", "temperature": 1.8, "sps": 0.857, "std": 0.002},
-            {"model": "Gemini Flash Lite", "temperature": 2.0, "sps": 0.864, "std": 0.002},
+            {
+                "model": "Gemini Flash Lite",
+                "temperature": 1.2,
+                "sps": 0.856,
+                "std": 0.002,
+            },
+            {
+                "model": "Gemini Flash Lite",
+                "temperature": 1.5,
+                "sps": 0.858,
+                "std": 0.003,
+            },
+            {
+                "model": "Gemini Flash Lite",
+                "temperature": 1.8,
+                "sps": 0.857,
+                "std": 0.002,
+            },
+            {
+                "model": "Gemini Flash Lite",
+                "temperature": 2.0,
+                "sps": 0.864,
+                "std": 0.002,
+            },
             # Experiment A: GPT-4o-mini
             {"model": "GPT-4o-mini", "temperature": 0.3, "sps": 0.817, "std": 0.004},
             {"model": "GPT-4o-mini", "temperature": 0.5, "sps": 0.820, "std": 0.003},
@@ -204,18 +276,80 @@ def _build_findings() -> dict:
             },
         ],
         "conditioning_results": [
-            {"attribute": "POLPARTY", "group": "Republican", "p_dist": 0.666, "p_cond": 0.073, "p_cond_std": 0.004, "n_replications": 4},
-            {"attribute": "POLPARTY", "group": "Democrat", "p_dist": 0.644, "p_cond": 0.033, "p_cond_std": 0.005, "n_replications": 4},
-            {"attribute": "INCOME", "group": "$100K+", "p_dist": 0.673, "p_cond": 0.031, "n_replications": 2},
-            {"attribute": "INCOME", "group": "<$30K", "p_dist": 0.603, "p_cond": 0.020, "n_replications": 2},
-            {"attribute": "EDUCATION", "group": "College graduate", "p_dist": 0.641, "p_cond": 0.036, "n_replications": 1},
-            {"attribute": "EDUCATION", "group": "Less than HS", "p_dist": 0.597, "p_cond": 0.038, "n_replications": 1},
+            {
+                "attribute": "POLPARTY",
+                "group": "Republican",
+                "p_dist": 0.666,
+                "p_cond": 0.073,
+                "p_cond_std": 0.004,
+                "n_replications": 4,
+            },
+            {
+                "attribute": "POLPARTY",
+                "group": "Democrat",
+                "p_dist": 0.644,
+                "p_cond": 0.033,
+                "p_cond_std": 0.005,
+                "n_replications": 4,
+            },
+            {
+                "attribute": "INCOME",
+                "group": "$100K+",
+                "p_dist": 0.673,
+                "p_cond": 0.031,
+                "n_replications": 2,
+            },
+            {
+                "attribute": "INCOME",
+                "group": "<$30K",
+                "p_dist": 0.603,
+                "p_cond": 0.020,
+                "n_replications": 2,
+            },
+            {
+                "attribute": "EDUCATION",
+                "group": "College graduate",
+                "p_dist": 0.641,
+                "p_cond": 0.036,
+                "n_replications": 1,
+            },
+            {
+                "attribute": "EDUCATION",
+                "group": "Less than HS",
+                "p_dist": 0.597,
+                "p_cond": 0.038,
+                "n_replications": 1,
+            },
         ],
         "lever_hierarchy": [
-            {"name": "Ensemble blending", "effect_min": 5.0, "effect_max": 7.0, "cost": "zero", "status": "done"},
-            {"name": "Per-model optimal temperature", "effect_min": 0.0, "effect_max": 4.5, "cost": "low", "status": "actionable"},
-            {"name": "Demographic conditioning", "effect_min": 2.0, "effect_max": 7.0, "cost": "moderate", "status": "scientific"},
-            {"name": "Persona template", "effect_min": 0.0, "effect_max": 0.0, "cost": "zero", "status": "done"},
+            {
+                "name": "Ensemble blending",
+                "effect_min": 5.0,
+                "effect_max": 7.0,
+                "cost": "zero",
+                "status": "done",
+            },
+            {
+                "name": "Per-model optimal temperature",
+                "effect_min": 0.0,
+                "effect_max": 4.5,
+                "cost": "low",
+                "status": "actionable",
+            },
+            {
+                "name": "Demographic conditioning",
+                "effect_min": 2.0,
+                "effect_max": 7.0,
+                "cost": "moderate",
+                "status": "scientific",
+            },
+            {
+                "name": "Persona template",
+                "effect_min": 0.0,
+                "effect_max": 0.0,
+                "cost": "zero",
+                "status": "done",
+            },
         ],
     }
 
@@ -266,17 +400,20 @@ def publish_leaderboard_data(
 
     # Build convergence data
     from synthbench.leaderboard import build_convergence_data
+
     convergence_raw = build_convergence_data(results)
     convergence: list[dict] = []
     for provider, sweeps in convergence_raw.items():
         for sweep in sweeps:
             for sps_val in sweep.get("runs", []):
-                convergence.append({
-                    "model": provider,
-                    "dataset": "opinionsqa",
-                    "rep_count": sweep.get("samples", 0),
-                    "sps": sps_val,
-                })
+                convergence.append(
+                    {
+                        "model": provider,
+                        "dataset": "opinionsqa",
+                        "rep_count": sweep.get("samples", 0),
+                        "sps": sps_val,
+                    }
+                )
 
     synthbench_data = {
         "generated_at": datetime.now(timezone.utc).isoformat(),
