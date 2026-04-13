@@ -1,0 +1,111 @@
+---
+const bibtex = `@software{synthbench2026,
+  title   = {SynthBench: Open Benchmark for Synthetic Survey Respondents},
+  author  = {DataViking-Tech},
+  year    = {2026},
+  url     = {https://github.com/DataViking-Tech/synthbench},
+  version = {0.1.0}
+}`;
+---
+
+<section class="w-full max-w-4xl mx-auto py-12" id="about">
+  <h2 class="text-2xl font-bold text-center mb-6">About SynthBench</h2>
+
+  <div class="space-y-6 text-sm leading-relaxed">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+      <div>
+        <h3 class="font-semibold text-base mb-3">What is SynthBench?</h3>
+        <p class="text-muted">
+          SynthBench is an open benchmark that measures how well large language models
+          replicate human survey response distributions. It compares synthetic respondent
+          outputs against real survey data across multiple datasets and demographics.
+        </p>
+      </div>
+      <div>
+        <h3 class="font-semibold text-base mb-3">Methodology</h3>
+        <p class="text-muted">
+          Models generate synthetic survey responses matching real demographic profiles.
+          We measure quality using the Survey Parity Score (SPS), Jensen-Shannon Divergence
+          (JSD), and Kendall's Tau rank correlation. Confidence intervals are computed via
+          bootstrap resampling.
+        </p>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 py-4">
+      <div class="rounded-lg border border-muted/20 p-4">
+        <h4 class="font-semibold mb-1">SPS (Survey Parity Score)</h4>
+        <p class="text-xs text-muted">
+          Primary metric. 1.0 = perfect match to human distributions. Combines distribution
+          similarity and rank preservation into a single 0-1 score.
+        </p>
+      </div>
+      <div class="rounded-lg border border-muted/20 p-4">
+        <h4 class="font-semibold mb-1">JSD (Jensen-Shannon Divergence)</h4>
+        <p class="text-xs text-muted">
+          Measures distributional distance between synthetic and human responses. Lower is
+          better. 0 = identical distributions.
+        </p>
+      </div>
+      <div class="rounded-lg border border-muted/20 p-4">
+        <h4 class="font-semibold mb-1">Tau (Kendall's Rank Correlation)</h4>
+        <p class="text-xs text-muted">
+          Measures rank-order agreement between synthetic and human response distributions.
+          Higher is better. 1.0 = perfect rank agreement.
+        </p>
+      </div>
+    </div>
+
+    <div class="space-y-4">
+      <h3 class="font-semibold text-base">Datasets</h3>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs text-muted">
+        <div class="rounded-lg border border-muted/20 p-3">
+          <span class="font-semibold text-text dark:text-text-dark">SubPOP</span> &mdash;
+          Subset of Pew Opinion Polls. US demographic focus with political and social attitudes.
+        </div>
+        <div class="rounded-lg border border-muted/20 p-3">
+          <span class="font-semibold text-text dark:text-text-dark">OpinionsQA</span> &mdash;
+          Cross-sectional opinion survey covering economic, social, and political topics.
+        </div>
+        <div class="rounded-lg border border-muted/20 p-3">
+          <span class="font-semibold text-text dark:text-text-dark">GlobalQA</span> &mdash;
+          Global attitudes survey with cross-cultural demographic representation.
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="w-full max-w-4xl mx-auto pb-12" id="citation">
+  <h3 class="font-semibold text-base mb-3">Citation</h3>
+  <p class="text-sm text-muted mb-3">
+    If you use SynthBench in your research, please cite:
+  </p>
+  <div class="relative">
+    <pre class="bg-surface dark:bg-surface-dark border border-muted/20 rounded-lg p-4 text-xs font-mono overflow-x-auto">{bibtex}</pre>
+    <button
+      type="button"
+      class="absolute top-2 right-2 p-1.5 rounded text-muted hover:text-text dark:hover:text-text-dark transition-colors"
+      id="copy-bibtex"
+      aria-label="Copy BibTeX"
+      data-bibtex={bibtex}
+    >
+      <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M15.666 3.888A2.25 2.25 0 0013.5 2.25h-3c-1.03 0-1.9.693-2.166 1.638m7.332 0c.055.194.084.4.084.612v0a.75.75 0 01-.75.75H9.75a.75.75 0 01-.75-.75v0c0-.212.03-.418.084-.612m7.332 0c.646.049 1.288.11 1.927.184 1.1.128 1.907 1.077 1.907 2.185V19.5a2.25 2.25 0 01-2.25 2.25H6.75A2.25 2.25 0 014.5 19.5V6.257c0-1.108.806-2.057 1.907-2.185a48.208 48.208 0 011.927-.184" />
+      </svg>
+    </button>
+  </div>
+</section>
+
+<script>
+  const btn = document.getElementById("copy-bibtex");
+  if (btn) {
+    btn.addEventListener("click", () => {
+      const text = btn.dataset.bibtex ?? "";
+      navigator.clipboard.writeText(text).then(() => {
+        btn.setAttribute("aria-label", "Copied!");
+        setTimeout(() => btn.setAttribute("aria-label", "Copy BibTeX"), 2000);
+      });
+    });
+  }
+</script>

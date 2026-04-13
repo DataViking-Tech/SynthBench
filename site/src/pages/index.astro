@@ -1,5 +1,14 @@
 ---
+import AboutSection from "@/components/AboutSection.astro";
+import ConvergenceLine from "@/components/ConvergenceLine.astro";
+import DotPlot from "@/components/DotPlot.astro";
+import Footer from "@/components/Footer.astro";
+import Header from "@/components/Header.astro";
 import HeroChart from "@/components/HeroChart.astro";
+import LeaderboardTable from "@/components/LeaderboardTable.astro";
+import PerMetricDot from "@/components/PerMetricDot.astro";
+import TopicGroupedBar from "@/components/TopicGroupedBar.astro";
+import WhiskerPlot from "@/components/WhiskerPlot.astro";
 import "@/styles/global.css";
 
 import leaderboardRaw from "@/data/leaderboard.json";
@@ -22,30 +31,37 @@ const leaderboard = leaderboardRaw as LeaderboardData;
   <body
     class="min-h-screen bg-surface text-text dark:bg-surface-dark dark:text-text-dark"
   >
-    <header class="py-8 px-4 text-center">
-      <h1 class="text-4xl font-bold tracking-tight">SynthBench</h1>
-      <p class="mt-2 text-lg text-muted max-w-2xl mx-auto">
+    <Header />
+
+    <div class="py-12 px-4 text-center">
+      <h1 class="text-4xl sm:text-5xl font-bold tracking-tight">SynthBench</h1>
+      <p class="mt-3 text-lg text-muted max-w-2xl mx-auto">
         Open benchmark for synthetic survey respondent quality. Measuring how
         well LLMs replicate human survey response distributions.
       </p>
-      <p class="mt-1 text-xs text-muted">
-        v{leaderboard.synthbench_version} · Generated {
+      <p class="mt-2 text-xs text-muted">
+        v{leaderboard.synthbench_version} &middot; Generated {
           new Date(leaderboard.generated_at).toLocaleDateString()
         }
       </p>
-    </header>
+    </div>
 
     <main class="px-4 pb-16">
       <HeroChart />
+
+      <LeaderboardTable />
+
+      <div id="charts">
+        <DotPlot />
+        <PerMetricDot />
+        <ConvergenceLine />
+        <TopicGroupedBar />
+        <WhiskerPlot />
+      </div>
+
+      <AboutSection />
     </main>
 
-    <footer class="text-center py-8 text-xs text-muted border-t border-muted/20">
-      <p>
-        SynthBench &mdash; DataViking-Tech · <a
-          href="https://github.com/DataViking-Tech/synthbench"
-          class="underline hover:text-primary">GitHub</a
-        >
-      </p>
-    </footer>
+    <Footer />
   </body>
 </html>

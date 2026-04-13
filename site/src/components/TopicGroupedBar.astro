@@ -1,0 +1,104 @@
+---
+import type { LeaderboardData, LeaderboardEntry } from "@/types/leaderboard";
+import Chart from "./Chart.astro";
+
+import leaderboardRaw from "@/data/leaderboard.json";
+
+const leaderboard = leaderboardRaw as LeaderboardData;
+
+// Collect all topic categories and deduplicate models
+const topicSet = new Set<string>();
+const modelMap = new Map<string, LeaderboardEntry>();
+for (const entry of leaderboard.entries) {
+  if (entry.topic_scores) {
+    for (const topic of Object.keys(entry.topic_scores)) {
+      topicSet.add(topic);
+    }
+  }
+  const key = `${entry.provider}/${entry.model}`;
+  const existing = modelMap.get(key);
+  if (!existing || entry.sps > existing.sps) {
+    modelMap.set(key, entry);
+  }
+}
+
+const topics = [...topicSet].sort();
+const models = [...modelMap.values()].sort((a, b) => b.sps - a.sps);
+
+const modelColors: Record<string, string> = {
+  "Ensemble (3-model)": "#4f46e5",
+  "Haiku 4.5": "#0891b2",
+  Random: "#a3a3a3",
+};
+
+const chartOption = {
+  tooltip: {
+    trigger: "axis",
+    axisPointer: { type: "shadow" },
+    formatter: (params: { seriesName: string; value: number; marker: string; name?: string }[]) => {
+      const topic = params[0].name ?? "";
+      const lines = params.map(
+        (p) =>
+          `${p.marker} ${p.seriesName}: ${typeof p.value === "number" ? p.value.toFixed(3) : "—"}`,
+      );
+      return `<div style="font-size:13px"><strong>${topic}</strong><br/>${lines.join("<br/>")}</div>`;
+    },
+  },
+  legend: {
+    data: models.map((m) => m.model),
+    top: 10,
+  },
+  grid: { left: 60, right: 30, top: 60, bottom: 50, containLabel: true },
+  xAxis: {
+    type: "category",
+    data: topics,
+    axisLabel: {
+      rotate: topics.length > 6 ? 30 : 0,
+      overflow: "truncate",
+      width: 100,
+    },
+  },
+  yAxis: {
+    type: "value",
+    name: "SPS",
+    nameLocation: "middle",
+    nameGap: 45,
+    min: 0,
+    max: 1,
+    axisLabel: { formatter: (v: number) => v.toFixed(1) },
+  },
+  series: models.map((model) => ({
+    name: model.model,
+    type: "bar",
+    data: topics.map((t) => model.topic_scores?.[t] ?? null),
+    itemStyle: { color: modelColors[model.model] ?? "#6366f1" },
+    barMaxWidth: 40,
+    emphasis: {
+      focus: "series",
+      itemStyle: { shadowBlur: 10, shadowColor: "rgba(0,0,0,0.3)" },
+    },
+  })),
+  dataZoom: topics.length > 8 ? [{ type: "slider", start: 0, end: 100, bottom: 5 }] : undefined,
+  toolbox: {
+    feature: { saveAsImage: { title: "Save as PNG" } },
+    right: 10,
+    top: 10,
+  },
+};
+
+const hasTopics = topics.length > 0;
+---
+
+<section class="w-full max-w-4xl mx-auto py-8">
+  <h2 class="text-2xl font-bold text-center mb-2">SPS by Topic</h2>
+  <p class="text-center text-sm text-muted mb-6">
+    Performance across topic categories, grouped by model. Higher SPS indicates better survey parity for that topic.
+  </p>
+  {hasTopics ? (
+    <Chart option={chartOption} height="450px" />
+  ) : (
+    <div class="text-center text-muted py-12 border border-muted/20 rounded-lg">
+      Topic score data not yet available.
+    </div>
+  )}
+</section>
