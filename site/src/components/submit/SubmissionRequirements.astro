@@ -1,0 +1,99 @@
+---
+const required = [
+  "Valid JSON matching the synthbench result schema",
+  "Per-question human_distribution must match ground truth (hash-verified)",
+  "Per-question model_distribution must sum to 1.0",
+  "Aggregate scores must be recomputable from per-question data",
+  "Minimum 100 questions evaluated",
+  'benchmark field must equal "synthbench"',
+];
+
+const optional = [
+  "Temperature and template metadata (encouraged for reproducibility)",
+  "Demographic breakdown (only available for SubPOP dataset)",
+  "Multiple runs for confidence intervals (recommended: 3+)",
+];
+---
+
+<section class="w-full max-w-4xl mx-auto py-12" id="requirements">
+  <h2
+    class="text-2xl font-bold tracking-tight text-text dark:text-text-dark mb-2"
+  >
+    Submission Requirements
+  </h2>
+  <p class="text-muted mb-8 max-w-2xl">
+    What a valid submission must include, and what is optional.
+  </p>
+
+  <div class="grid gap-6 sm:grid-cols-2">
+    <div
+      class="rounded-lg border border-muted/20 bg-surface p-6 dark:bg-surface-dark"
+    >
+      <h3
+        class="text-base font-semibold text-text dark:text-text-dark mb-4"
+      >
+        Required
+      </h3>
+      <ul class="space-y-3">
+        {
+          required.map((item) => (
+            <li class="text-sm text-muted flex gap-2">
+              <span class="text-primary dark:text-primary-light mt-0.5 shrink-0">
+                <svg
+                  class="size-4"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke-width="2"
+                  stroke="currentColor"
+                  aria-hidden="true"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M4.5 12.75l6 6 9-13.5"
+                  />
+                </svg>
+              </span>
+              {item}
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+
+    <div
+      class="rounded-lg border border-muted/20 bg-surface p-6 dark:bg-surface-dark"
+    >
+      <h3
+        class="text-base font-semibold text-text dark:text-text-dark mb-4"
+      >
+        Optional
+      </h3>
+      <ul class="space-y-3">
+        {
+          optional.map((item) => (
+            <li class="text-sm text-muted flex gap-2">
+              <span class="text-muted/60 mt-0.5 shrink-0">
+                <svg
+                  class="size-4"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke-width="2"
+                  stroke="currentColor"
+                  aria-hidden="true"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M12 6v12m6-6H6"
+                  />
+                </svg>
+              </span>
+              {item}
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </div>
+</section>

@@ -1,0 +1,64 @@
+---
+const commands = [
+  {
+    cmd: "pip install synthbench",
+    desc: "Install the SynthBench CLI and evaluation framework from PyPI.",
+  },
+  {
+    cmd: "synthbench run --dataset opinionsqa --provider your-provider",
+    desc: "Run the benchmark against your model. Replace your-provider with your adapter (e.g. openai, anthropic, openrouter).",
+  },
+  {
+    cmd: "# Copy result JSON to leaderboard-results/ and open a PR",
+    desc: "Fork the repo, add your result file, and submit a pull request. CI validates everything automatically.",
+  },
+];
+---
+
+<section class="w-full max-w-4xl mx-auto py-12" id="quick-start">
+  <h2
+    class="text-2xl font-bold tracking-tight text-text dark:text-text-dark mb-2"
+  >
+    Quick Start
+  </h2>
+  <p class="text-muted mb-8 max-w-2xl">
+    Three commands to benchmark your model and submit results.
+  </p>
+
+  <div class="rounded-lg border border-muted/20 bg-surface dark:bg-surface-dark overflow-hidden">
+    <pre
+      class="p-6 text-sm/6 font-mono text-text dark:text-text-dark overflow-x-auto"
+      >{commands.map((c) => c.cmd).join("\n")}</pre>
+  </div>
+
+  <div class="mt-6 space-y-4">
+    {
+      commands.map((c, i) => (
+        <div class="flex gap-3">
+          <span class="flex size-6 shrink-0 items-center justify-center rounded-full bg-primary text-white text-xs font-bold dark:bg-primary-light">
+            {i + 1}
+          </span>
+          <div>
+            <p class="text-sm font-medium text-text dark:text-text-dark">
+              <code class="text-sm bg-muted/10 rounded px-1.5 py-0.5">
+                {c.cmd.replace(/^#\s*/, "")}
+              </code>
+            </p>
+            <p class="text-sm text-muted mt-1">{c.desc}</p>
+          </div>
+        </div>
+      ))
+    }
+  </div>
+
+  <div class="mt-6 flex flex-wrap gap-4 text-sm">
+    <a
+      href="https://github.com/DataViking-Tech/synthbench"
+      class="text-primary hover:underline dark:text-primary-light"
+      target="_blank"
+      rel="noopener noreferrer"
+    >
+      GitHub repository
+    </a>
+  </div>
+</section>

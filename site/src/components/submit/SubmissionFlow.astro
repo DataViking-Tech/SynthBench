@@ -1,0 +1,66 @@
+---
+const steps = [
+  {
+    number: 1,
+    title: "Install synthbench",
+    detail: "Install the package from PyPI with pip install synthbench. Requires Python 3.10+.",
+  },
+  {
+    number: 2,
+    title: "Run the benchmark",
+    detail:
+      "Execute synthbench run against your provider and model. The CLI handles sampling, parsing, and metric computation.",
+  },
+  {
+    number: 3,
+    title: "Review result JSON",
+    detail:
+      "The run produces a result JSON file with per-question response distributions and aggregate scores.",
+  },
+  {
+    number: 4,
+    title: "Fork the repo and add your results",
+    detail:
+      "Fork DataViking-Tech/synthbench on GitHub and copy your result JSON into the leaderboard-results/ directory.",
+  },
+  {
+    number: 5,
+    title: "Open a pull request",
+    detail:
+      "Submit a PR with your result file. CI validates the JSON schema and recomputes all aggregate scores from your per-question data. You cannot fake scores.",
+  },
+  {
+    number: 6,
+    title: "Leaderboard updates on merge",
+    detail:
+      "Once the PR is merged, GitHub Pages rebuilds automatically and your model appears on the leaderboard.",
+  },
+];
+---
+
+<section class="w-full max-w-4xl mx-auto py-12" id="submission-flow">
+  <h2
+    class="text-2xl font-bold tracking-tight text-text dark:text-text-dark mb-2"
+  >
+    Submission Flow
+  </h2>
+  <p class="text-muted mb-8 max-w-2xl">
+    Step-by-step process from installation to leaderboard listing.
+  </p>
+
+  <ol class="relative border-l border-muted/30 ml-4 space-y-6">
+    {
+      steps.map((s) => (
+        <li class="pl-8">
+          <div class="absolute -left-3 flex size-6 items-center justify-center rounded-full bg-primary text-white text-xs font-bold dark:bg-primary-light">
+            {s.number}
+          </div>
+          <h3 class="text-base font-semibold text-text dark:text-text-dark mb-1">
+            {s.title}
+          </h3>
+          <p class="text-sm text-muted">{s.detail}</p>
+        </li>
+      ))
+    }
+  </ol>
+</section>
