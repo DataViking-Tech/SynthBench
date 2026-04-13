@@ -31,13 +31,13 @@ jobs:
       - name: Build docs output
         run: synthbench publish --results-dir leaderboard-results --output docs/
 
-      - name: Deploy preview to gh-pages/previews/pr-<number>
+      - name: Deploy preview to main/docs/previews/pr-<number>
         uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./docs
-          publish_branch: gh-pages
-          destination_dir: previews/pr-${{ github.event.pull_request.number }}
+          publish_branch: main
+          destination_dir: docs/previews/pr-${{ github.event.pull_request.number }}
           keep_files: true
 
       - name: Comment preview URL
