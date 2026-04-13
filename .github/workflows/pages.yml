@@ -43,7 +43,7 @@ jobs:
       - name: Deploy Astro site
         run: |
           rm -rf docs/index.html docs/leaderboard docs/leaderboard.json
-          cp -r site/dist/* docs/
+          cp -r site/dist/synthbench/* docs/
 
       - name: Create PR if changed
         run: |
