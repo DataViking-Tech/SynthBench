@@ -1,0 +1,103 @@
+---
+import type { LeaderboardData, LeaderboardEntry } from "@/types/leaderboard";
+import Chart from "./Chart.astro";
+
+import leaderboardRaw from "@/data/leaderboard.json";
+
+const leaderboard = leaderboardRaw as LeaderboardData;
+
+// Deduplicate models — show best SPS per model
+const modelMap = new Map<string, LeaderboardEntry>();
+for (const entry of leaderboard.entries) {
+  const key = `${entry.provider}/${entry.model}`;
+  const existing = modelMap.get(key);
+  if (!existing || entry.sps > existing.sps) {
+    modelMap.set(key, entry);
+  }
+}
+const models = [...modelMap.values()].sort((a, b) => b.sps - a.sps);
+const modelLabels = models.map((m) => `${m.model} (${m.provider})`);
+
+const metrics = [
+  {
+    name: "SPS",
+    key: "sps" as const,
+    color: "#4f46e5",
+    desc: "Survey Parity Score (higher is better)",
+  },
+  {
+    name: "JSD",
+    key: "jsd" as const,
+    color: "#dc2626",
+    desc: "Jensen-Shannon Divergence (lower is better)",
+  },
+  {
+    name: "Tau",
+    key: "tau" as const,
+    color: "#059669",
+    desc: "Kendall's Tau rank correlation (higher is better)",
+  },
+];
+
+const chartOption = {
+  tooltip: {
+    trigger: "axis",
+    axisPointer: { type: "shadow" },
+    formatter: (params: { seriesName: string; value: number[]; marker: string }[]) => {
+      const name = modelLabels[params[0].value[1]];
+      const lines = params.map(
+        (p) => `${p.marker} ${p.seriesName}: ${(p.value[0] as number).toFixed(3)}`,
+      );
+      return `<div style="font-size:13px"><strong>${name}</strong><br/>${lines.join("<br/>")}</div>`;
+    },
+  },
+  legend: {
+    data: metrics.map((m) => m.name),
+    top: 10,
+  },
+  grid: { left: 180, right: 40, top: 50, bottom: 30, containLabel: false },
+  xAxis: {
+    type: "value",
+    min: 0,
+    max: 1,
+    axisLabel: { formatter: (v: number) => v.toFixed(1) },
+  },
+  yAxis: {
+    type: "category",
+    data: modelLabels,
+    axisLabel: { width: 170, overflow: "truncate" },
+  },
+  series: metrics.map((metric) => ({
+    name: metric.name,
+    type: "scatter",
+    data: models.map((m, i) => [m[metric.key], i]),
+    symbolSize: 12,
+    itemStyle: { color: metric.color },
+    emphasis: {
+      focus: "series",
+      itemStyle: { shadowBlur: 10, shadowColor: "rgba(0,0,0,0.3)" },
+    },
+  })),
+  toolbox: {
+    feature: { saveAsImage: { title: "Save as PNG" } },
+    right: 10,
+    top: 10,
+  },
+};
+---
+
+<section class="w-full max-w-4xl mx-auto py-8">
+  <h2 class="text-2xl font-bold text-center mb-2">Per-Metric Breakdown</h2>
+  <p class="text-center text-sm text-muted mb-6">
+    SPS, JSD, and Kendall's Tau side-by-side per model. SPS and Tau: higher is better. JSD: lower is better.
+  </p>
+  <Chart option={chartOption} height="400px" />
+  <div class="mt-3 flex flex-wrap justify-center gap-4 text-xs text-muted">
+    {metrics.map((m) => (
+      <span>
+        <span class="inline-block w-3 h-3 rounded-full mr-1 align-middle" style={`background:${m.color}`} />
+        {m.name}: {m.desc}
+      </span>
+    ))}
+  </div>
+</section>

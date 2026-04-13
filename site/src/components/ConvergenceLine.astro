@@ -1,0 +1,96 @@
+---
+import type { LeaderboardData } from "@/types/leaderboard";
+import Chart from "./Chart.astro";
+
+import leaderboardRaw from "@/data/leaderboard.json";
+
+const leaderboard = leaderboardRaw as LeaderboardData;
+
+const convergence = leaderboard.convergence ?? [];
+
+const modelColors: Record<string, string> = {
+  "Ensemble (3-model)": "#4f46e5",
+  "Haiku 4.5": "#0891b2",
+  Random: "#a3a3a3",
+};
+
+// Group by model
+const modelGroups = new Map<string, { rep_count: number; sps: number }[]>();
+for (const pt of convergence) {
+  const group = modelGroups.get(pt.model) ?? [];
+  group.push({ rep_count: pt.rep_count, sps: pt.sps });
+  modelGroups.set(pt.model, group);
+}
+
+const modelNames = [...modelGroups.keys()];
+
+const chartOption = {
+  tooltip: {
+    trigger: "axis",
+    formatter: (params: { seriesName: string; value: number[]; marker: string }[]) => {
+      const repCount = params[0].value[0];
+      const lines = params.map(
+        (p) => `${p.marker} ${p.seriesName}: ${(p.value[1] as number).toFixed(3)}`,
+      );
+      return `<div style="font-size:13px"><strong>${repCount} replicates</strong><br/>${lines.join("<br/>")}</div>`;
+    },
+  },
+  legend: { data: modelNames, top: 10 },
+  grid: { left: 60, right: 40, top: 60, bottom: 40, containLabel: true },
+  xAxis: {
+    type: "value",
+    name: "Replicate Count",
+    nameLocation: "middle",
+    nameGap: 30,
+    min: 0,
+  },
+  yAxis: {
+    type: "value",
+    name: "SPS",
+    nameLocation: "middle",
+    nameGap: 45,
+    min: 0,
+    max: 1,
+    axisLabel: { formatter: (v: number) => v.toFixed(1) },
+  },
+  series: modelNames.map((model) => {
+    const points = modelGroups.get(model) ?? [];
+    points.sort((a, b) => a.rep_count - b.rep_count);
+    return {
+      name: model,
+      type: "line",
+      data: points.map((p) => [p.rep_count, p.sps]),
+      smooth: true,
+      symbol: "circle",
+      symbolSize: 8,
+      lineStyle: { color: modelColors[model] ?? "#6366f1", width: 2 },
+      itemStyle: { color: modelColors[model] ?? "#6366f1" },
+      emphasis: {
+        focus: "series",
+        lineStyle: { width: 4 },
+      },
+    };
+  }),
+  toolbox: {
+    feature: { saveAsImage: { title: "Save as PNG" } },
+    right: 10,
+    top: 10,
+  },
+};
+
+const hasData = convergence.length > 0;
+---
+
+<section class="w-full max-w-4xl mx-auto py-8">
+  <h2 class="text-2xl font-bold text-center mb-2">SPS Convergence</h2>
+  <p class="text-center text-sm text-muted mb-6">
+    How SPS stabilizes as replicate count increases. More replicates yield more reliable estimates.
+  </p>
+  {hasData ? (
+    <Chart option={chartOption} height="400px" />
+  ) : (
+    <div class="text-center text-muted py-12 border border-muted/20 rounded-lg">
+      Convergence data not yet available. Run evaluations with multiple replicate counts to populate.
+    </div>
+  )}
+</section>

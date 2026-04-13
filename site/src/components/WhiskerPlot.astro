@@ -1,0 +1,142 @@
+---
+import type { LeaderboardData, LeaderboardEntry } from "@/types/leaderboard";
+import Chart from "./Chart.astro";
+
+import leaderboardRaw from "@/data/leaderboard.json";
+
+const leaderboard = leaderboardRaw as LeaderboardData;
+
+// Deduplicate models — show best SPS per model
+const modelMap = new Map<string, LeaderboardEntry>();
+for (const entry of leaderboard.entries) {
+  const key = `${entry.provider}/${entry.model}`;
+  const existing = modelMap.get(key);
+  if (!existing || entry.sps > existing.sps) {
+    modelMap.set(key, entry);
+  }
+}
+const models = [...modelMap.values()].sort((a, b) => a.sps - b.sps);
+const modelLabels = models.map((m) => `${m.model} (${m.provider})`);
+
+const providerColors: Record<string, string> = {
+  SynthPanel: "#4f46e5",
+  "Raw LLM": "#0891b2",
+  "Random Baseline": "#a3a3a3",
+};
+
+const chartOption = {
+  tooltip: {
+    trigger: "axis",
+    axisPointer: { type: "shadow" },
+    formatter: (params: { data: number[] }[]) => {
+      const idx = params[0]?.data?.[1];
+      if (idx == null) return "";
+      const entry = models[idx];
+      if (!entry) return "";
+      const ciRange = entry.ci_upper - entry.ci_lower;
+      return `<div style="font-size:13px">
+        <strong>${entry.model}</strong> (${entry.provider})<br/>
+        SPS: ${entry.sps.toFixed(3)}<br/>
+        95% CI: [${entry.ci_lower.toFixed(3)}, ${entry.ci_upper.toFixed(3)}]<br/>
+        CI Width: ${ciRange.toFixed(3)}<br/>
+        <span style="color:#888">Narrower CI = more precise estimate</span>
+      </div>`;
+    },
+  },
+  grid: { left: 180, right: 50, top: 20, bottom: 30, containLabel: false },
+  xAxis: {
+    type: "value",
+    name: "SPS",
+    min: 0,
+    max: 1,
+    nameLocation: "middle",
+    nameGap: 25,
+    axisLabel: { formatter: (v: number) => v.toFixed(1) },
+  },
+  yAxis: {
+    type: "category",
+    data: modelLabels,
+    axisLabel: { width: 170, overflow: "truncate" },
+  },
+  series: [
+    {
+      name: "CI Range",
+      type: "custom",
+      renderItem: (
+        _params: unknown,
+        api: {
+          value: (idx: number) => number;
+          coord: (val: number[]) => number[];
+          size: (val: number[]) => number[];
+          style: (extra: Record<string, unknown>) => Record<string, unknown>;
+        },
+      ) => {
+        const categoryIndex = api.value(0);
+        const low = api.coord([api.value(1), categoryIndex]);
+        const high = api.coord([api.value(2), categoryIndex]);
+        const halfHeight = api.size([0, 1])[1] * 0.2;
+        return {
+          type: "group",
+          children: [
+            {
+              type: "line",
+              shape: { x1: low[0], y1: low[1], x2: high[0], y2: high[1] },
+              style: api.style({ stroke: "#666", lineWidth: 2 }),
+            },
+            {
+              type: "line",
+              shape: {
+                x1: low[0],
+                y1: low[1] - halfHeight,
+                x2: low[0],
+                y2: low[1] + halfHeight,
+              },
+              style: api.style({ stroke: "#666", lineWidth: 2 }),
+            },
+            {
+              type: "line",
+              shape: {
+                x1: high[0],
+                y1: high[1] - halfHeight,
+                x2: high[0],
+                y2: high[1] + halfHeight,
+              },
+              style: api.style({ stroke: "#666", lineWidth: 2 }),
+            },
+          ],
+        };
+      },
+      encode: { x: [1, 2], y: 0 },
+      data: models.map((m, i) => [i, m.ci_lower, m.ci_upper]),
+      z: 1,
+    },
+    {
+      name: "SPS",
+      type: "scatter",
+      data: models.map((m, i) => ({
+        value: [m.sps, i],
+        itemStyle: { color: providerColors[m.provider] ?? "#6366f1" },
+      })),
+      symbolSize: 16,
+      emphasis: {
+        focus: "self",
+        itemStyle: { shadowBlur: 12, shadowColor: "rgba(0,0,0,0.3)" },
+      },
+      z: 2,
+    },
+  ],
+  toolbox: {
+    feature: { saveAsImage: { title: "Save as PNG" } },
+    right: 10,
+    top: 0,
+  },
+};
+---
+
+<section class="w-full max-w-4xl mx-auto py-8">
+  <h2 class="text-2xl font-bold text-center mb-2">Confidence Intervals</h2>
+  <p class="text-center text-sm text-muted mb-6">
+    95% confidence interval for each model's SPS. Center dot = point estimate, whiskers = CI bounds.
+  </p>
+  <Chart option={chartOption} height="350px" />
+</section>

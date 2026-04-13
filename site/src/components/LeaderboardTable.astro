@@ -1,0 +1,228 @@
+---
+import type { LeaderboardData } from "@/types/leaderboard";
+
+import leaderboardRaw from "@/data/leaderboard.json";
+
+const leaderboard = leaderboardRaw as LeaderboardData;
+const entries = leaderboard.entries;
+---
+
+<section class="w-full max-w-5xl mx-auto py-8" id="leaderboard">
+  <h2 class="text-2xl font-bold text-center mb-2">Leaderboard</h2>
+  <p class="text-center text-sm text-muted mb-6">
+    Click column headers to sort. Click a row to expand details.
+  </p>
+
+  <!-- Desktop table -->
+  <div class="hidden md:block overflow-x-auto rounded-lg border border-muted/20">
+    <table class="w-full text-sm" id="leaderboard-table">
+      <thead>
+        <tr class="bg-surface dark:bg-surface-dark border-b border-muted/20">
+          <th class="px-4 py-3 text-left font-semibold cursor-pointer hover:text-primary" data-sort="rank">#</th>
+          <th class="px-4 py-3 text-left font-semibold">Model</th>
+          <th class="px-4 py-3 text-left font-semibold">Dataset</th>
+          <th class="px-4 py-3 text-right font-semibold cursor-pointer hover:text-primary" data-sort="sps">SPS <span class="sort-indicator"></span></th>
+          <th class="px-4 py-3 text-right font-semibold cursor-pointer hover:text-primary" data-sort="jsd">JSD <span class="sort-indicator"></span></th>
+          <th class="px-4 py-3 text-right font-semibold cursor-pointer hover:text-primary" data-sort="tau">Tau <span class="sort-indicator"></span></th>
+          <th class="px-4 py-3 text-right font-semibold cursor-pointer hover:text-primary" data-sort="n">N <span class="sort-indicator"></span></th>
+          <th class="px-4 py-3 text-right font-semibold cursor-pointer hover:text-primary" data-sort="ci">95% CI <span class="sort-indicator"></span></th>
+        </tr>
+      </thead>
+      <tbody>
+        {entries.map((entry) => (
+          <tr
+            class:list={[
+              "border-b border-muted/10 cursor-pointer transition-colors",
+              "hover:bg-primary/5 dark:hover:bg-primary/10",
+              entry.is_baseline && "bg-baseline/5",
+              entry.is_ensemble && "bg-primary/5",
+            ]}
+            data-entry={JSON.stringify(entry)}
+          >
+            <td class="px-4 py-3 text-muted">{entry.rank}</td>
+            <td class="px-4 py-3 font-medium">
+              {entry.model}
+              {entry.is_ensemble && <span class="ml-1 text-xs px-1.5 py-0.5 rounded bg-primary/10 text-primary">ensemble</span>}
+              {entry.is_baseline && <span class="ml-1 text-xs px-1.5 py-0.5 rounded bg-muted/20 text-muted">baseline</span>}
+              <span class="block text-xs text-muted">{entry.provider}</span>
+            </td>
+            <td class="px-4 py-3">{entry.dataset}</td>
+            <td class="px-4 py-3 text-right font-mono">{entry.sps.toFixed(3)}</td>
+            <td class="px-4 py-3 text-right font-mono">{entry.jsd.toFixed(3)}</td>
+            <td class="px-4 py-3 text-right font-mono">{entry.tau.toFixed(3)}</td>
+            <td class="px-4 py-3 text-right font-mono">{entry.n}</td>
+            <td class="px-4 py-3 text-right font-mono text-xs">
+              [{entry.ci_lower.toFixed(3)}, {entry.ci_upper.toFixed(3)}]
+            </td>
+          </tr>
+          <tr class="detail-row hidden border-b border-muted/10">
+            <td colspan="8" class="px-4 py-4 bg-surface/50 dark:bg-surface-dark/50">
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
+                {entry.topic_scores && (
+                  <div>
+                    <h4 class="font-semibold mb-2">Topic Scores</h4>
+                    <div class="space-y-1">
+                      {Object.entries(entry.topic_scores).map(([topic, score]) => (
+                        <div class="flex justify-between">
+                          <span class="text-muted">{topic}</span>
+                          <span class="font-mono">{(score as number).toFixed(3)}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                {entry.replicates && entry.replicates.length > 0 && (
+                  <div>
+                    <h4 class="font-semibold mb-2">Replicates</h4>
+                    <div class="space-y-1">
+                      {entry.replicates.map((rep) => (
+                        <div class="flex justify-between text-xs">
+                          <span class="text-muted">Rep {rep.rep}</span>
+                          <span class="font-mono">SPS {rep.sps.toFixed(3)} / JSD {rep.jsd.toFixed(3)} / Tau {rep.tau.toFixed(3)}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                {!entry.topic_scores && !entry.replicates && (
+                  <div class="text-muted col-span-2">No additional detail data available.</div>
+                )}
+              </div>
+            </td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Mobile card layout -->
+  <div class="md:hidden space-y-3">
+    {entries.map((entry) => (
+      <div
+        class:list={[
+          "rounded-lg border border-muted/20 p-4 cursor-pointer transition-colors",
+          "hover:border-primary/30",
+          entry.is_baseline && "bg-baseline/5",
+          entry.is_ensemble && "bg-primary/5",
+        ]}
+        data-entry={JSON.stringify(entry)}
+      >
+        <div class="flex items-baseline justify-between mb-2">
+          <div>
+            <span class="font-medium">{entry.model}</span>
+            {entry.is_ensemble && <span class="ml-1 text-xs px-1.5 py-0.5 rounded bg-primary/10 text-primary">ensemble</span>}
+            {entry.is_baseline && <span class="ml-1 text-xs px-1.5 py-0.5 rounded bg-muted/20 text-muted">baseline</span>}
+          </div>
+          <span class="text-lg font-mono font-bold">{entry.sps.toFixed(3)}</span>
+        </div>
+        <div class="text-xs text-muted mb-2">{entry.provider} · {entry.dataset}</div>
+        <div class="grid grid-cols-3 gap-2 text-xs">
+          <div><span class="text-muted">JSD</span> <span class="font-mono">{entry.jsd.toFixed(3)}</span></div>
+          <div><span class="text-muted">Tau</span> <span class="font-mono">{entry.tau.toFixed(3)}</span></div>
+          <div><span class="text-muted">CI</span> <span class="font-mono">[{entry.ci_lower.toFixed(2)}, {entry.ci_upper.toFixed(2)}]</span></div>
+        </div>
+        <div class="mobile-detail hidden mt-3 pt-3 border-t border-muted/20 text-xs space-y-2">
+          {entry.topic_scores && (
+            <div>
+              <span class="font-semibold">Topics:</span>
+              {Object.entries(entry.topic_scores).map(([topic, score]) => (
+                <span class="ml-2">{topic}: <span class="font-mono">{(score as number).toFixed(3)}</span></span>
+              ))}
+            </div>
+          )}
+          {entry.replicates && entry.replicates.length > 0 && (
+            <div>
+              <span class="font-semibold">Replicates:</span>
+              {entry.replicates.map((rep) => (
+                <span class="ml-2">R{rep.rep}: {rep.sps.toFixed(3)}</span>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+    ))}
+  </div>
+</section>
+
+<script>
+  function initLeaderboard() {
+    // Toggle detail rows (desktop)
+    const table = document.getElementById("leaderboard-table");
+    if (table) {
+      const rows = table.querySelectorAll<HTMLTableRowElement>("tbody tr[data-entry]");
+      for (const row of rows) {
+        row.addEventListener("click", () => {
+          const detail = row.nextElementSibling as HTMLElement | null;
+          if (detail?.classList.contains("detail-row")) {
+            detail.classList.toggle("hidden");
+          }
+        });
+      }
+
+      // Sort functionality
+      const headers = table.querySelectorAll<HTMLElement>("th[data-sort]");
+      let currentSort = "";
+      let ascending = true;
+
+      for (const header of headers) {
+        header.addEventListener("click", () => {
+          const sortKey = header.dataset.sort ?? "";
+          if (currentSort === sortKey) {
+            ascending = !ascending;
+          } else {
+            currentSort = sortKey;
+            ascending = sortKey === "jsd";
+          }
+
+          // Clear indicators
+          for (const h of headers) {
+            const ind = h.querySelector(".sort-indicator");
+            if (ind) ind.textContent = "";
+          }
+          const indicator = header.querySelector(".sort-indicator");
+          if (indicator) indicator.textContent = ascending ? " \u25B2" : " \u25BC";
+
+          // Get entry rows + detail rows as pairs
+          const tbody = table.querySelector("tbody");
+          if (!tbody) return;
+          const allRows = [...tbody.querySelectorAll("tr")];
+          const pairs: [HTMLTableRowElement, HTMLTableRowElement][] = [];
+          for (let i = 0; i < allRows.length; i += 2) {
+            pairs.push([allRows[i] as HTMLTableRowElement, allRows[i + 1] as HTMLTableRowElement]);
+          }
+
+          pairs.sort((a, b) => {
+            const aData = JSON.parse(a[0].dataset.entry ?? "{}");
+            const bData = JSON.parse(b[0].dataset.entry ?? "{}");
+            let aVal: number;
+            let bVal: number;
+            if (sortKey === "ci") {
+              aVal = aData.ci_upper - aData.ci_lower;
+              bVal = bData.ci_upper - bData.ci_lower;
+            } else {
+              aVal = aData[sortKey] ?? 0;
+              bVal = bData[sortKey] ?? 0;
+            }
+            return ascending ? aVal - bVal : bVal - aVal;
+          });
+
+          for (const [entryRow, detailRow] of pairs) {
+            tbody.appendChild(entryRow);
+            tbody.appendChild(detailRow);
+          }
+        });
+      }
+    }
+
+    // Toggle detail (mobile)
+    const cards = document.querySelectorAll<HTMLElement>(".md\\:hidden [data-entry]");
+    for (const card of cards) {
+      card.addEventListener("click", () => {
+        const detail = card.querySelector(".mobile-detail");
+        if (detail) detail.classList.toggle("hidden");
+      });
+    }
+  }
+
+  initLeaderboard();
+</script>
