@@ -33,191 +33,243 @@ function hiddenInDefaultView(entry: LeaderboardEntry): boolean {
 }
 ---
 
-<section class="w-full max-w-5xl mx-auto py-8" id="leaderboard">
-  <h2 class="text-2xl font-bold text-center mb-2">Leaderboard</h2>
+<section class="w-full max-w-5xl mx-auto py-8" id="leaderboard" aria-labelledby="leaderboard-heading">
+  <h2 id="leaderboard-heading" class="text-2xl font-bold text-center mb-2">Leaderboard</h2>
   <p class="text-center text-sm text-muted mb-6">
-    Click column headers to sort. Click a row to expand details.
+    Select column headers to sort. Expand any row (button in the first column) for details.
   </p>
+
+  <!-- Visually hidden status region announces sort changes. -->
+  <p id="leaderboard-sort-status" class="sr-only" role="status" aria-live="polite"></p>
 
   <!-- Desktop table -->
   <div class="hidden md:block overflow-x-auto rounded-lg border border-muted/20">
     <table class="w-full text-sm" id="leaderboard-table">
+      <caption class="sr-only">Synthetic survey respondent quality leaderboard. Each row is a model result; expand a row for per-topic and replicate detail.</caption>
       <thead>
         <tr class="bg-surface dark:bg-surface-dark border-b border-muted/20">
-          <th class="px-4 py-3 text-left font-semibold cursor-pointer hover:text-primary" data-sort="rank">#</th>
-          <th class="px-4 py-3 text-left font-semibold">Model</th>
-          <th class="px-4 py-3 text-left font-semibold">Dataset</th>
-          <th class="px-4 py-3 text-left font-semibold">Framework</th>
-          <th class="px-4 py-3 text-right font-semibold cursor-pointer hover:text-primary" data-sort="sps">SPS <span class="sort-indicator"></span></th>
-          <th class="px-4 py-3 text-right font-semibold cursor-pointer hover:text-primary" data-sort="normalized_sps" title="Position in the meaningful evaluation range: (SPS − raw-LLM baseline) / (Human Ceiling − raw-LLM baseline). Shown only when a raw-LLM baseline is available for the underlying model.">Range % <span class="sort-indicator"></span></th>
-          <th class="px-4 py-3 text-right font-semibold cursor-pointer hover:text-primary" data-sort="p_dist">p_dist <span class="sort-indicator"></span></th>
-          <th class="px-4 py-3 text-right font-semibold cursor-pointer hover:text-primary" data-sort="p_rank">p_rank <span class="sort-indicator"></span></th>
-          <th class="px-4 py-3 text-right font-semibold cursor-pointer hover:text-primary" data-sort="p_refuse">p_refuse <span class="sort-indicator"></span></th>
-          <th class="px-4 py-3 text-right font-semibold cursor-pointer hover:text-primary" data-sort="n">N <span class="sort-indicator"></span></th>
-          <th class="px-4 py-3 text-right font-semibold cursor-pointer hover:text-primary" data-sort="ci">95% CI <span class="sort-indicator"></span></th>
+          <th class="px-4 py-3 w-8" scope="col"><span class="sr-only">Expand row</span></th>
+          <th class="px-4 py-3 text-left font-semibold" scope="col" aria-sort="none"><button type="button" class="flex items-center gap-1 font-semibold hover:text-primary focus-visible:outline-primary" data-sort="rank">#</button></th>
+          <th class="px-4 py-3 text-left font-semibold" scope="col">Model</th>
+          <th class="px-4 py-3 text-left font-semibold" scope="col">Dataset</th>
+          <th class="px-4 py-3 text-left font-semibold" scope="col">Framework</th>
+          <th class="px-4 py-3 text-right font-semibold" scope="col" aria-sort="none"><button type="button" class="ml-auto flex items-center gap-1 font-semibold hover:text-primary" data-sort="sps">SPS <span class="sort-indicator" aria-hidden="true"></span></button></th>
+          <th class="px-4 py-3 text-right font-semibold" scope="col" aria-sort="none" title="Position in the meaningful evaluation range: (SPS − raw-LLM baseline) / (Human Ceiling − raw-LLM baseline). Shown only when a raw-LLM baseline is available for the underlying model."><button type="button" class="ml-auto flex items-center gap-1 font-semibold hover:text-primary" data-sort="normalized_sps">Range % <span class="sort-indicator" aria-hidden="true"></span></button></th>
+          <th class="px-4 py-3 text-right font-semibold" scope="col" aria-sort="none"><button type="button" class="ml-auto flex items-center gap-1 font-semibold hover:text-primary" data-sort="p_dist">p_dist <span class="sort-indicator" aria-hidden="true"></span></button></th>
+          <th class="px-4 py-3 text-right font-semibold" scope="col" aria-sort="none"><button type="button" class="ml-auto flex items-center gap-1 font-semibold hover:text-primary" data-sort="p_rank">p_rank <span class="sort-indicator" aria-hidden="true"></span></button></th>
+          <th class="px-4 py-3 text-right font-semibold" scope="col" aria-sort="none"><button type="button" class="ml-auto flex items-center gap-1 font-semibold hover:text-primary" data-sort="p_refuse">p_refuse <span class="sort-indicator" aria-hidden="true"></span></button></th>
+          <th class="px-4 py-3 text-right font-semibold" scope="col" aria-sort="none"><button type="button" class="ml-auto flex items-center gap-1 font-semibold hover:text-primary" data-sort="n">N <span class="sort-indicator" aria-hidden="true"></span></button></th>
+          <th class="px-4 py-3 text-right font-semibold" scope="col" aria-sort="none"><button type="button" class="ml-auto flex items-center gap-1 font-semibold hover:text-primary" data-sort="ci">95% CI <span class="sort-indicator" aria-hidden="true"></span></button></th>
         </tr>
       </thead>
       <tbody>
-        {entries.map((entry) => (
-          <tr
-            class:list={[
-              "leaderboard-row border-b border-muted/10 cursor-pointer transition-colors",
-              "hover:bg-primary/5 dark:hover:bg-primary/10",
-              entry.is_baseline && "bg-baseline/5",
-              entry.is_ensemble && "bg-primary/5",
-            ]}
-            data-entry={JSON.stringify(entry)}
-            data-dataset={entry.dataset}
-            data-variant={hiddenInDefaultView(entry) ? "variant" : "best"}
-          >
-            <td class="px-4 py-3 text-muted">{entry.rank}</td>
-            <td class="px-4 py-3 font-medium">
-              <span>{entry.model}</span>
-              {entry.is_ensemble && <span class="ml-1 text-xs px-1.5 py-0.5 rounded bg-primary/10 text-primary" title={entry.provider}>ensemble</span>}
-              {entry.is_baseline && <span class="ml-1 text-xs px-1.5 py-0.5 rounded bg-muted/20 text-muted" title={entry.provider}>baseline</span>}
-              {!entry.is_baseline && entry.provider.startsWith("SynthPanel") && !entry.is_ensemble && (
-                <span class="ml-1 text-xs px-1.5 py-0.5 rounded bg-provider-synthpanel/10 text-provider-synthpanel" title={entry.provider}>conditioned</span>
-              )}
-              {entry.temperature != null && <span class="ml-1 text-xs px-1.5 py-0.5 rounded bg-accent/10 text-accent font-mono" title={`temperature=${entry.temperature}`}>t={entry.temperature}</span>}
-              {entry.template && <span class="ml-1 text-xs px-1.5 py-0.5 rounded bg-accent/10 text-accent font-mono" title={`prompt template=${entry.template}`}>tpl={entry.template}</span>}
-              <span class="block text-xs text-muted" title={entry.provider}>{entry.provider}</span>
-            </td>
-            <td class="px-4 py-3">{entry.dataset}</td>
-            <td class="px-4 py-3 text-xs text-muted">{entry.framework}</td>
-            <td class="px-4 py-3 text-right font-mono">{entry.sps.toFixed(3)}</td>
-            <td class="px-4 py-3 text-right font-mono text-muted" title={entry.normalized_sps != null ? "(SPS − raw-LLM baseline) / (Human Ceiling − raw-LLM baseline)" : "No raw-LLM baseline available for this row"}>{formatNormalized(entry.normalized_sps)}</td>
-            <td class="px-4 py-3 text-right font-mono">{entry.p_dist.toFixed(3)}</td>
-            <td class="px-4 py-3 text-right font-mono">{entry.p_rank.toFixed(3)}</td>
-            <td class="px-4 py-3 text-right font-mono">{entry.p_refuse.toFixed(3)}</td>
-            <td class="px-4 py-3 text-right font-mono">{entry.n}</td>
-            <td class="px-4 py-3 text-right font-mono text-xs">
-              [{entry.ci_lower.toFixed(3)}, {entry.ci_upper.toFixed(3)}]
-            </td>
-          </tr>
-          <tr class="detail-row hidden border-b border-muted/10" data-dataset={entry.dataset} data-variant={hiddenInDefaultView(entry) ? "variant" : "best"}>
-            <td colspan="11" class="px-4 py-4 bg-surface/50 dark:bg-surface-dark/50">
-              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
-                {entry.topic_scores && (
-                  <div>
-                    <h4 class="font-semibold mb-2">Topic Scores</h4>
-                    <div class="space-y-1">
-                      {Object.entries(entry.topic_scores).map(([topic, score]) => (
-                        <div class="flex justify-between">
-                          <span class="text-muted">{topic}</span>
-                          <span class="font-mono">{(score as number).toFixed(3)}</span>
+        {entries.map((entry, i) => {
+          const detailId = `lb-detail-${i}`;
+          const rowLabel = `${entry.model} on ${entry.dataset}`;
+          return (
+            <>
+              <tr
+                class:list={[
+                  "leaderboard-row border-b border-muted/10 transition-colors",
+                  entry.is_baseline && "bg-baseline/5",
+                  entry.is_ensemble && "bg-primary/5",
+                ]}
+                data-entry={JSON.stringify(entry)}
+                data-dataset={entry.dataset}
+                data-variant={hiddenInDefaultView(entry) ? "variant" : "best"}
+              >
+                <td class="px-2 py-3">
+                  <button
+                    type="button"
+                    class="expand-row inline-flex h-6 w-6 items-center justify-center rounded text-muted hover:bg-primary/10 hover:text-primary"
+                    aria-expanded="false"
+                    aria-controls={detailId}
+                    aria-label={`Show details for ${rowLabel}`}
+                  >
+                    <span class="expand-caret" aria-hidden="true">▸</span>
+                  </button>
+                </td>
+                <td class="px-4 py-3 text-muted">{entry.rank}</td>
+                <td class="px-4 py-3 font-medium">
+                  <span>{entry.model}</span>
+                  {entry.is_ensemble && <span class="ml-1 text-xs px-1.5 py-0.5 rounded bg-primary/10 text-primary" title={entry.provider}>ensemble</span>}
+                  {entry.is_baseline && <span class="ml-1 text-xs px-1.5 py-0.5 rounded bg-muted/20 text-muted" title={entry.provider}>baseline</span>}
+                  {!entry.is_baseline && entry.provider.startsWith("SynthPanel") && !entry.is_ensemble && (
+                    <span class="ml-1 text-xs px-1.5 py-0.5 rounded bg-provider-synthpanel/10 text-provider-synthpanel" title={entry.provider}>conditioned</span>
+                  )}
+                  {entry.temperature != null && <span class="ml-1 text-xs px-1.5 py-0.5 rounded bg-accent/15 text-accent font-mono"><span class="sr-only">temperature </span>t={entry.temperature}</span>}
+                  {entry.template && <span class="ml-1 text-xs px-1.5 py-0.5 rounded bg-accent/15 text-accent font-mono"><span class="sr-only">prompt template </span>tpl={entry.template}</span>}
+                  <span class="block text-xs text-muted">{entry.provider}</span>
+                </td>
+                <td class="px-4 py-3">{entry.dataset}</td>
+                <td class="px-4 py-3 text-xs text-muted">{entry.framework}</td>
+                <td class="px-4 py-3 text-right font-mono">{entry.sps.toFixed(3)}</td>
+                <td class="px-4 py-3 text-right font-mono text-muted" title={entry.normalized_sps != null ? "(SPS − raw-LLM baseline) / (Human Ceiling − raw-LLM baseline)" : "No raw-LLM baseline available for this row"}>{formatNormalized(entry.normalized_sps)}</td>
+                <td class="px-4 py-3 text-right font-mono">{entry.p_dist.toFixed(3)}</td>
+                <td class="px-4 py-3 text-right font-mono">{entry.p_rank.toFixed(3)}</td>
+                <td class="px-4 py-3 text-right font-mono">{entry.p_refuse.toFixed(3)}</td>
+                <td class="px-4 py-3 text-right font-mono">{entry.n}</td>
+                <td class="px-4 py-3 text-right font-mono text-xs">
+                  [{entry.ci_lower.toFixed(3)}, {entry.ci_upper.toFixed(3)}]
+                </td>
+              </tr>
+              <tr id={detailId} class="detail-row hidden border-b border-muted/10" data-dataset={entry.dataset} data-variant={hiddenInDefaultView(entry) ? "variant" : "best"}>
+                <td colspan="12" class="px-4 py-4 bg-surface/50 dark:bg-surface-dark/50">
+                  <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
+                    {entry.topic_scores && (
+                      <div>
+                        <h3 class="font-semibold mb-2">Topic Scores</h3>
+                        <div class="space-y-1">
+                          {Object.entries(entry.topic_scores).map(([topic, score]) => (
+                            <div class="flex justify-between">
+                              <span class="text-muted">{topic}</span>
+                              <span class="font-mono">{(score as number).toFixed(3)}</span>
+                            </div>
+                          ))}
                         </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-                {entry.replicates && entry.replicates.length > 0 && (
-                  <div>
-                    <h4 class="font-semibold mb-2">Replicates</h4>
-                    <div class="space-y-1">
-                      {entry.replicates.map((rep) => (
-                        <div class="flex justify-between text-xs">
-                          <span class="text-muted">Rep {rep.rep}</span>
-                          <span class="font-mono">SPS {rep.sps.toFixed(3)} / p_dist {rep.p_dist.toFixed(3)} / p_rank {rep.p_rank.toFixed(3)}</span>
+                      </div>
+                    )}
+                    {entry.replicates && entry.replicates.length > 0 && (
+                      <div>
+                        <h3 class="font-semibold mb-2">Replicates</h3>
+                        <div class="space-y-1">
+                          {entry.replicates.map((rep) => (
+                            <div class="flex justify-between text-xs">
+                              <span class="text-muted">Rep {rep.rep}</span>
+                              <span class="font-mono">SPS {rep.sps.toFixed(3)} / p_dist {rep.p_dist.toFixed(3)} / p_rank {rep.p_rank.toFixed(3)}</span>
+                            </div>
+                          ))}
                         </div>
-                      ))}
-                    </div>
+                      </div>
+                    )}
+                    {!entry.topic_scores && !entry.replicates && (
+                      <div class="text-muted col-span-2">No additional detail data available.</div>
+                    )}
                   </div>
-                )}
-                {!entry.topic_scores && !entry.replicates && (
-                  <div class="text-muted col-span-2">No additional detail data available.</div>
-                )}
-              </div>
-            </td>
-          </tr>
-        ))}
+                </td>
+              </tr>
+            </>
+          );
+        })}
       </tbody>
     </table>
   </div>
 
   <!-- Mobile card layout -->
-  <div class="md:hidden space-y-3">
-    {entries.map((entry) => (
-      <div
-        class:list={[
-          "leaderboard-card rounded-lg border border-muted/20 p-4 cursor-pointer transition-colors",
-          "hover:border-primary/30",
-          entry.is_baseline && "bg-baseline/5",
-          entry.is_ensemble && "bg-primary/5",
-        ]}
-        data-entry={JSON.stringify(entry)}
-        data-dataset={entry.dataset}
-        data-variant={hiddenInDefaultView(entry) ? "variant" : "best"}
-      >
-        <div class="flex items-baseline justify-between mb-2">
-          <div>
-            <span class="font-medium">{entry.model}</span>
-            {entry.is_ensemble && <span class="ml-1 text-xs px-1.5 py-0.5 rounded bg-primary/10 text-primary">ensemble</span>}
-            {entry.is_baseline && <span class="ml-1 text-xs px-1.5 py-0.5 rounded bg-muted/20 text-muted">baseline</span>}
-            {!entry.is_baseline && entry.provider.startsWith("SynthPanel") && !entry.is_ensemble && (
-              <span class="ml-1 text-xs px-1.5 py-0.5 rounded bg-provider-synthpanel/10 text-provider-synthpanel">conditioned</span>
-            )}
-            {entry.temperature != null && <span class="ml-1 text-xs px-1.5 py-0.5 rounded bg-accent/10 text-accent font-mono">t={entry.temperature}</span>}
-            {entry.template && <span class="ml-1 text-xs px-1.5 py-0.5 rounded bg-accent/10 text-accent font-mono">tpl={entry.template}</span>}
-          </div>
-          <div class="text-right">
-            <span class="text-lg font-mono font-bold">{entry.sps.toFixed(3)}</span>
-            {entry.normalized_sps != null && (
-              <span class="ml-1 text-xs font-mono text-muted" title="(SPS − raw-LLM baseline) / (Human Ceiling − raw-LLM baseline)">{formatNormalized(entry.normalized_sps)}</span>
-            )}
-          </div>
-        </div>
-        <div class="text-xs text-muted mb-2">{entry.provider} · {entry.dataset} · {entry.framework}</div>
-        <div class="grid grid-cols-3 gap-2 text-xs">
-          <div><span class="text-muted">p_dist</span> <span class="font-mono">{entry.p_dist.toFixed(3)}</span></div>
-          <div><span class="text-muted">p_rank</span> <span class="font-mono">{entry.p_rank.toFixed(3)}</span></div>
-          <div><span class="text-muted">p_refuse</span> <span class="font-mono">{entry.p_refuse.toFixed(3)}</span></div>
-        </div>
-        <div class="mobile-detail hidden mt-3 pt-3 border-t border-muted/20 text-xs space-y-2">
-          {entry.topic_scores && (
+  <ul class="md:hidden space-y-3 list-none p-0">
+    {entries.map((entry, i) => {
+      const detailId = `lb-mobile-detail-${i}`;
+      const rowLabel = `${entry.model} on ${entry.dataset}`;
+      return (
+        <li
+          class:list={[
+            "leaderboard-card rounded-lg border border-muted/20 p-4 transition-colors",
+            entry.is_baseline && "bg-baseline/5",
+            entry.is_ensemble && "bg-primary/5",
+          ]}
+          data-entry={JSON.stringify(entry)}
+          data-dataset={entry.dataset}
+          data-variant={hiddenInDefaultView(entry) ? "variant" : "best"}
+        >
+          <div class="flex items-baseline justify-between mb-2">
             <div>
-              <span class="font-semibold">Topics:</span>
-              {Object.entries(entry.topic_scores).map(([topic, score]) => (
-                <span class="ml-2">{topic}: <span class="font-mono">{(score as number).toFixed(3)}</span></span>
-              ))}
+              <span class="font-medium">{entry.model}</span>
+              {entry.is_ensemble && <span class="ml-1 text-xs px-1.5 py-0.5 rounded bg-primary/10 text-primary">ensemble</span>}
+              {entry.is_baseline && <span class="ml-1 text-xs px-1.5 py-0.5 rounded bg-muted/20 text-muted">baseline</span>}
+              {!entry.is_baseline && entry.provider.startsWith("SynthPanel") && !entry.is_ensemble && (
+                <span class="ml-1 text-xs px-1.5 py-0.5 rounded bg-provider-synthpanel/10 text-provider-synthpanel">conditioned</span>
+              )}
+              {entry.temperature != null && <span class="ml-1 text-xs px-1.5 py-0.5 rounded bg-accent/15 text-accent font-mono"><span class="sr-only">temperature </span>t={entry.temperature}</span>}
+              {entry.template && <span class="ml-1 text-xs px-1.5 py-0.5 rounded bg-accent/15 text-accent font-mono"><span class="sr-only">prompt template </span>tpl={entry.template}</span>}
             </div>
-          )}
-          {entry.replicates && entry.replicates.length > 0 && (
-            <div>
-              <span class="font-semibold">Replicates:</span>
-              {entry.replicates.map((rep) => (
-                <span class="ml-2">R{rep.rep}: {rep.sps.toFixed(3)}</span>
-              ))}
+            <div class="text-right">
+              <span class="text-lg font-mono font-bold">{entry.sps.toFixed(3)}</span>
+              {entry.normalized_sps != null && (
+                <span class="ml-1 text-xs font-mono text-muted" title="(SPS − raw-LLM baseline) / (Human Ceiling − raw-LLM baseline)">{formatNormalized(entry.normalized_sps)}</span>
+              )}
             </div>
-          )}
-        </div>
-      </div>
-    ))}
-  </div>
+          </div>
+          <div class="text-xs text-muted mb-2">{entry.provider} · {entry.dataset} · {entry.framework}</div>
+          <div class="grid grid-cols-3 gap-2 text-xs">
+            <div><span class="text-muted">p_dist</span> <span class="font-mono">{entry.p_dist.toFixed(3)}</span></div>
+            <div><span class="text-muted">p_rank</span> <span class="font-mono">{entry.p_rank.toFixed(3)}</span></div>
+            <div><span class="text-muted">p_refuse</span> <span class="font-mono">{entry.p_refuse.toFixed(3)}</span></div>
+          </div>
+          <button
+            type="button"
+            class="expand-mobile mt-3 inline-flex items-center gap-1 text-xs font-medium text-primary hover:underline"
+            aria-expanded="false"
+            aria-controls={detailId}
+            aria-label={`Show details for ${rowLabel}`}
+          >
+            <span class="expand-caret" aria-hidden="true">▸</span>
+            Details
+          </button>
+          <div id={detailId} class="mobile-detail hidden mt-3 pt-3 border-t border-muted/20 text-xs space-y-2">
+            {entry.topic_scores && (
+              <div>
+                <span class="font-semibold">Topics:</span>
+                {Object.entries(entry.topic_scores).map(([topic, score]) => (
+                  <span class="ml-2">{topic}: <span class="font-mono">{(score as number).toFixed(3)}</span></span>
+                ))}
+              </div>
+            )}
+            {entry.replicates && entry.replicates.length > 0 && (
+              <div>
+                <span class="font-semibold">Replicates:</span>
+                {entry.replicates.map((rep) => (
+                  <span class="ml-2">R{rep.rep}: {rep.sps.toFixed(3)}</span>
+                ))}
+              </div>
+            )}
+          </div>
+        </li>
+      );
+    })}
+  </ul>
 </section>
 
 <script>
+  function announce(message: string): void {
+    const status = document.getElementById("leaderboard-sort-status");
+    if (status) status.textContent = message;
+  }
+
   function initLeaderboard() {
-    // Toggle detail rows (desktop)
+    // Desktop: per-row expand buttons
     const table = document.getElementById("leaderboard-table");
     if (table) {
-      const rows = table.querySelectorAll<HTMLTableRowElement>("tbody tr[data-entry]");
-      for (const row of rows) {
-        row.addEventListener("click", () => {
-          const detail = row.nextElementSibling as HTMLElement | null;
-          if (detail?.classList.contains("detail-row")) {
-            detail.classList.toggle("hidden");
-          }
+      const expandButtons = table.querySelectorAll<HTMLButtonElement>(
+        "tbody button.expand-row",
+      );
+      for (const btn of expandButtons) {
+        btn.addEventListener("click", () => {
+          const controls = btn.getAttribute("aria-controls");
+          if (!controls) return;
+          const detail = document.getElementById(controls);
+          if (!detail) return;
+          const expanded = btn.getAttribute("aria-expanded") === "true";
+          const next = !expanded;
+          btn.setAttribute("aria-expanded", String(next));
+          detail.classList.toggle("hidden", !next);
+          const caret = btn.querySelector(".expand-caret");
+          if (caret) caret.textContent = next ? "▾" : "▸";
         });
       }
 
-      // Sort functionality
-      const headers = table.querySelectorAll<HTMLElement>("th[data-sort]");
+      // Sort — button-in-th pattern with aria-sort on th.
+      const sortButtons = table.querySelectorAll<HTMLButtonElement>(
+        "thead button[data-sort]",
+      );
+      const allTh = table.querySelectorAll<HTMLTableCellElement>(
+        "thead th[aria-sort]",
+      );
       let currentSort = "";
       let ascending = true;
 
-      for (const header of headers) {
-        header.addEventListener("click", () => {
-          const sortKey = header.dataset.sort ?? "";
+      for (const btn of sortButtons) {
+        btn.addEventListener("click", () => {
+          const sortKey = btn.dataset.sort ?? "";
           if (currentSort === sortKey) {
             ascending = !ascending;
           } else {
@@ -225,21 +277,30 @@ function hiddenInDefaultView(entry: LeaderboardEntry): boolean {
             ascending = false;
           }
 
-          // Clear indicators
-          for (const h of headers) {
-            const ind = h.querySelector(".sort-indicator");
+          // Reset all aria-sort + indicators, then set the active one.
+          for (const th of allTh) {
+            th.setAttribute("aria-sort", "none");
+            const ind = th.querySelector(".sort-indicator");
             if (ind) ind.textContent = "";
           }
-          const indicator = header.querySelector(".sort-indicator");
+          const activeTh = btn.closest("th");
+          activeTh?.setAttribute(
+            "aria-sort",
+            ascending ? "ascending" : "descending",
+          );
+          const indicator = btn.querySelector(".sort-indicator");
           if (indicator) indicator.textContent = ascending ? " \u25B2" : " \u25BC";
 
-          // Get entry rows + detail rows as pairs
+          // Sort entry+detail row pairs together.
           const tbody = table.querySelector("tbody");
           if (!tbody) return;
           const allRows = [...tbody.querySelectorAll("tr")];
           const pairs: [HTMLTableRowElement, HTMLTableRowElement][] = [];
           for (let i = 0; i < allRows.length; i += 2) {
-            pairs.push([allRows[i] as HTMLTableRowElement, allRows[i + 1] as HTMLTableRowElement]);
+            pairs.push([
+              allRows[i] as HTMLTableRowElement,
+              allRows[i + 1] as HTMLTableRowElement,
+            ]);
           }
 
           pairs.sort((a, b) => {
@@ -261,16 +322,29 @@ function hiddenInDefaultView(entry: LeaderboardEntry): boolean {
             tbody.appendChild(entryRow);
             tbody.appendChild(detailRow);
           }
+
+          const colLabel = btn.textContent?.trim().replace(/\s*[\u25B2\u25BC]\s*$/, "") ?? sortKey;
+          announce(`Sorted by ${colLabel} ${ascending ? "ascending" : "descending"}.`);
         });
       }
     }
 
-    // Toggle detail (mobile)
-    const cards = document.querySelectorAll<HTMLElement>(".md\\:hidden [data-entry]");
-    for (const card of cards) {
-      card.addEventListener("click", () => {
-        const detail = card.querySelector(".mobile-detail");
-        if (detail) detail.classList.toggle("hidden");
+    // Mobile: per-card expand buttons
+    const mobileButtons = document.querySelectorAll<HTMLButtonElement>(
+      ".expand-mobile",
+    );
+    for (const btn of mobileButtons) {
+      btn.addEventListener("click", () => {
+        const controls = btn.getAttribute("aria-controls");
+        if (!controls) return;
+        const detail = document.getElementById(controls);
+        if (!detail) return;
+        const expanded = btn.getAttribute("aria-expanded") === "true";
+        const next = !expanded;
+        btn.setAttribute("aria-expanded", String(next));
+        detail.classList.toggle("hidden", !next);
+        const caret = btn.querySelector(".expand-caret");
+        if (caret) caret.textContent = next ? "▾" : "▸";
       });
     }
   }

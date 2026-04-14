@@ -12,7 +12,7 @@ const labels: Record<string, string> = {
 };
 ---
 
-<nav class="flex flex-wrap gap-2 justify-center" id="dataset-tabs" aria-label="Filter by dataset">
+<div class="flex flex-wrap gap-2 justify-center" id="dataset-tabs" role="group" aria-label="Filter by dataset">
   <button
     class="tab-btn px-4 py-2 rounded-full text-sm font-medium transition-colors bg-primary text-white"
     data-dataset="all"
@@ -29,7 +29,7 @@ const labels: Record<string, string> = {
       {labels[ds] ?? ds}
     </button>
   ))}
-</nav>
+</div>
 
 <script>
   function initDatasetTabs() {

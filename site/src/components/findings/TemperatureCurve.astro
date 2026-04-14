@@ -128,7 +128,12 @@ const hasData = sweepData.length > 0;
     while Claude Haiku 4.5 moves under its own noise band.
   </p>
   {hasData ? (
-    <Chart option={chartOption} height="420px" />
+    <Chart
+      title="SPS vs Temperature — per-model sensitivity"
+      description="Line chart of SPS across temperature settings for each model. Error bars show ±1 standard deviation across replicates."
+      option={chartOption}
+      height="420px"
+    />
   ) : (
     <div class="text-center text-muted py-12 border border-muted/20 rounded-lg">
       Temperature sweep data not yet available.

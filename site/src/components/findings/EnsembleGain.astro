@@ -94,7 +94,12 @@ const hasData = ensembleData.length > 0;
     by +5.2 to +7.0 SPS points. Zero additional API cost — just arithmetic.
   </p>
   {hasData ? (
-    <Chart option={chartOption} height="420px" />
+    <Chart
+      title="Ensemble Gain over Best Single Model"
+      description="Bar chart comparing the SPS of the best single model against a 3-model ensemble for each dataset. Ensemble gains range from +5.2 to +7.0 points."
+      option={chartOption}
+      height="420px"
+    />
   ) : (
     <div class="text-center text-muted py-12 border border-muted/20 rounded-lg">
       Ensemble comparison data not yet available.
