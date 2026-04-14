@@ -1,23 +1,96 @@
 ---
+interface DataTable {
+  caption?: string;
+  headers: string[];
+  rows: Array<Array<string | number | null>>;
+}
+
 interface Props {
+  /** Short, human-readable name for the chart (REQUIRED for screen readers). */
+  title: string;
+  /** Optional longer description of what the chart shows. */
+  description?: string;
+  /** Optional equivalent data table, rendered inside a <details>
+   *  disclosure so screen readers and keyboard users can access the
+   *  underlying numbers. Required for WCAG 1.1.1 on data-carrying charts. */
+  dataTable?: DataTable;
   option: Record<string, unknown>;
   height?: string;
   theme?: "dark" | "light" | "auto";
   renderer?: "svg" | "canvas";
 }
 
-const { option, height = "400px", theme = "auto", renderer = "svg" } = Astro.props;
+const {
+  title,
+  description,
+  dataTable,
+  option,
+  height = "400px",
+  theme = "auto",
+  renderer = "svg",
+} = Astro.props;
+
 const chartId = `chart-${Math.random().toString(36).slice(2, 9)}`;
+const titleId = `${chartId}-title`;
+const descId = `${chartId}-desc`;
+const tableId = `${chartId}-table`;
 ---
 
-<div
-  id={chartId}
-  class="echarts-container w-full"
-  style={`height: ${height}; min-height: 200px;`}
-  data-option={JSON.stringify(option)}
-  data-theme={theme}
-  data-renderer={renderer}
-></div>
+<figure class="chart-figure" aria-labelledby={titleId}>
+  <figcaption id={titleId} class="sr-only">{title}</figcaption>
+  {description && (
+    <p id={descId} class="sr-only">{description}</p>
+  )}
+  <div
+    id={chartId}
+    class="echarts-container w-full"
+    style={`height: ${height}; min-height: 200px;`}
+    role="img"
+    aria-labelledby={titleId}
+    aria-describedby={description ? descId : undefined}
+    data-option={JSON.stringify(option)}
+    data-theme={theme}
+    data-renderer={renderer}
+  ></div>
+  {dataTable && (
+    <details class="chart-data-table mt-2 text-sm">
+      <summary class="cursor-pointer text-xs text-muted hover:text-text dark:hover:text-text-dark">
+        Show data table
+      </summary>
+      <div class="mt-2 overflow-x-auto rounded-md border border-muted/20">
+        <table id={tableId} class="w-full text-xs">
+          {dataTable.caption && (
+            <caption class="sr-only">{dataTable.caption}</caption>
+          )}
+          <thead>
+            <tr class="border-b border-muted/20 bg-surface dark:bg-surface-dark">
+              {dataTable.headers.map((h) => (
+                <th
+                  class="px-3 py-1.5 text-left font-semibold"
+                  scope="col">{h}</th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {dataTable.rows.map((row) => (
+              <tr class="border-b border-muted/10">
+                {row.map((cell) => (
+                  <td
+                    class:list={[
+                      "px-3 py-1.5",
+                      typeof cell === "number" && "font-mono text-right",
+                    ]}>
+                    {cell == null ? "—" : cell}
+                  </td>
+                ))}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </details>
+  )}
+</figure>
 
 <script>
   import * as echarts from "echarts";
@@ -50,6 +123,10 @@ const chartId = `chart-${Math.random().toString(36).slice(2, 9)}`;
     return obj;
   }
 
+  const prefersReducedMotion = window.matchMedia(
+    "(prefers-reduced-motion: reduce)",
+  ).matches;
+
   function initChart(container: HTMLElement) {
     const optionStr = container.dataset.option;
     const themeMode = container.dataset.theme ?? "auto";
@@ -62,6 +139,10 @@ const chartId = `chart-${Math.random().toString(36).slice(2, 9)}`;
     const chart = echarts.init(container, resolvedTheme, { renderer });
     const styles = getComputedStyle(document.documentElement);
     const option = resolveCssVars(JSON.parse(optionStr), styles) as Record<string, unknown>;
+    // WCAG 2.3.3 / best practice: respect reduced-motion.
+    if (prefersReducedMotion) {
+      (option as { animation?: boolean }).animation = false;
+    }
     chart.setOption(option);
 
     const ro = new ResizeObserver(() => {

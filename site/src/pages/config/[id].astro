@@ -35,7 +35,7 @@ const base = rawBase.endsWith("/") ? rawBase : `${rawBase}/`;
         id="config-title"
         class="text-2xl sm:text-3xl font-bold tracking-tight break-words"
       >
-        <span class="text-muted">Loading…</span>
+        <span class="text-muted">Loading: {id}</span>
       </h1>
       <p id="config-subtitle" class="mt-1 text-sm text-muted font-mono break-all">{id}</p>
     </header>
@@ -128,17 +128,30 @@ const base = rawBase.endsWith("/") ? rawBase : `${rawBase}/`;
     </section>
 
     <!-- Section 4: Per-topic breakdown -->
-    <section class="mb-8">
-      <h2 class="mb-3 text-lg font-semibold">Per-topic breakdown</h2>
-      <p class="mb-3 text-xs text-muted">
+    <section class="mb-8" aria-labelledby="topic-chart-heading">
+      <h2 id="topic-chart-heading" class="mb-3 text-lg font-semibold">Per-topic breakdown</h2>
+      <p id="topic-chart-desc" class="mb-3 text-xs text-muted">
         Mean SPS per topic across replicates. All 10 categories shown — bars are empty for topics
         the config did not cover.
       </p>
-      <div
-        id="topic-chart"
-        class="echarts-container w-full rounded-lg border border-black/10 dark:border-white/10 bg-white/50 dark:bg-white/5 p-2"
-        style="height: 420px; min-height: 200px;"
-      ></div>
+      <figure class="chart-figure" aria-labelledby="topic-chart-heading">
+        <div
+          id="topic-chart"
+          class="echarts-container w-full rounded-lg border border-black/10 dark:border-white/10 bg-white/50 dark:bg-white/5 p-2"
+          style="height: 420px; min-height: 200px;"
+          role="img"
+          aria-labelledby="topic-chart-heading"
+          aria-describedby="topic-chart-desc"
+        ></div>
+        <details class="mt-2 text-sm">
+          <summary class="cursor-pointer text-xs text-muted hover:text-text dark:hover:text-text-dark">
+            Show data table
+          </summary>
+          <div id="topic-chart-table" class="mt-2 overflow-x-auto rounded-md border border-muted/20">
+            <p class="p-3 text-xs text-muted">Loading data…</p>
+          </div>
+        </details>
+      </figure>
     </section>
 
     <!-- Section 2: Replicates list -->
@@ -317,6 +330,9 @@ const base = rawBase.endsWith("/") ? rawBase : `${rawBase}/`;
     });
 
     const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+    const prefersReducedMotion = window.matchMedia(
+      "(prefers-reduced-motion: reduce)",
+    ).matches;
     const chart = echarts.init(container, prefersDark ? "dark" : "", { renderer: "svg" });
 
     const styles = getComputedStyle(document.documentElement);
@@ -326,6 +342,7 @@ const base = rawBase.endsWith("/") ? rawBase : `${rawBase}/`;
     const barData = means.map((m) => (m === null ? { value: 0, itemStyle: { opacity: 0.15 } } : m));
 
     chart.setOption({
+      animation: !prefersReducedMotion,
       tooltip: {
         trigger: "axis",
         axisPointer: { type: "shadow" },
@@ -370,6 +387,21 @@ const base = rawBase.endsWith("/") ? rawBase : `${rawBase}/`;
 
     const ro = new ResizeObserver(() => chart.resize());
     ro.observe(container);
+
+    // Render equivalent data table for screen readers and keyboard users.
+    const tableContainer = document.getElementById("topic-chart-table");
+    if (tableContainer) {
+      const rows = ALL_TOPICS.map((topic, i) => {
+        const m = means[i];
+        const s = stds[i];
+        const meanCell = m == null ? "—" : m.toFixed(3);
+        const stdCell = s == null ? "—" : s.toFixed(3);
+        return `<tr class="border-b border-muted/10"><th scope="row" class="px-3 py-1.5 text-left font-normal">${escapeHtml(
+          String(topic),
+        )}</th><td class="px-3 py-1.5 text-right font-mono">${meanCell}</td><td class="px-3 py-1.5 text-right font-mono">${stdCell}</td></tr>`;
+      }).join("");
+      tableContainer.innerHTML = `<table class="w-full text-xs"><caption class="sr-only">Mean SPS per topic with standard deviation across replicates</caption><thead><tr class="border-b border-muted/20 bg-surface dark:bg-surface-dark"><th class="px-3 py-1.5 text-left font-semibold" scope="col">Topic</th><th class="px-3 py-1.5 text-right font-semibold" scope="col">Mean SPS</th><th class="px-3 py-1.5 text-right font-semibold" scope="col">Std</th></tr></thead><tbody>${rows}</tbody></table>`;
+    }
   }
 
   async function load(configId: string) {

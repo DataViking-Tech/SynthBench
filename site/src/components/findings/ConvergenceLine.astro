@@ -113,7 +113,12 @@ const hasData = presentModels.length > 0;
     How SPS stabilizes as replicate count increases. Showing the ensemble and the three blended single models.
   </p>
   {hasData ? (
-    <Chart option={chartOption} height="400px" />
+    <Chart
+      title="SPS Convergence by replicate count"
+      description="Line chart showing how Survey Parity Score stabilizes as the number of replicates increases. One line per model plus the ensemble."
+      option={chartOption}
+      height="400px"
+    />
   ) : (
     <div class="text-center text-muted py-12 border border-muted/20 rounded-lg">
       Convergence data not yet available. Run evaluations with multiple replicate counts to populate.

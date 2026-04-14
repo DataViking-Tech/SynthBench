@@ -4,13 +4,16 @@
   --color-primary: oklch(0.55 0.18 264);
   --color-primary-light: oklch(0.7 0.14 264);
   --color-primary-dark: oklch(0.4 0.18 264);
-  --color-accent: oklch(0.65 0.2 150);
+  --color-accent: oklch(0.55 0.16 150);
   --color-surface: oklch(0.98 0.005 264);
   --color-surface-dark: oklch(0.15 0.01 264);
   --color-text: oklch(0.2 0.01 264);
   --color-text-dark: oklch(0.92 0.005 264);
-  --color-muted: oklch(0.55 0.01 264);
-  --color-baseline: oklch(0.65 0.05 30);
+  /* WCAG 1.4.3: darkened from 0.55 to 0.45 (≈5.7:1 on --color-surface) */
+  --color-muted: oklch(0.45 0.01 264);
+  /* Brightened for dark-mode body-text contrast (≥4.5:1 on --color-surface-dark) */
+  --color-muted-dark: oklch(0.72 0.01 264);
+  --color-baseline: oklch(0.55 0.14 30);
   --color-best: oklch(0.55 0.18 264);
   --color-provider-synthpanel: #4f46e5;
   --color-provider-raw-llm: #0891b2;
@@ -29,6 +32,22 @@ html {
     background-color: oklch(0.15 0.01 264);
     color: oklch(0.92 0.005 264);
   }
+  /* Dark-mode contrast (WCAG 1.4.3). We keep --color-primary at its original
+     value so solid `bg-primary` buttons retain >4.5:1 contrast against white
+     text, and we lift TEXT-color tokens via dedicated overrides below. */
+  :root {
+    --color-muted: var(--color-muted-dark);
+    --color-accent: oklch(0.78 0.18 150);
+    --color-baseline: oklch(0.78 0.12 30);
+    --color-provider-synthpanel: #a5b4fc;
+    --color-provider-raw-llm: #67e8f9;
+  }
+  /* In dark mode, `text-primary` (used for links and accent text) needs a
+     brighter hue to clear 4.5:1 against the dark surface. `bg-primary` is
+     left alone. */
+  .text-primary {
+    color: var(--color-primary-light) !important;
+  }
 }
 
 /* Smooth scroll for anchor links */
@@ -39,4 +58,49 @@ html {
 /* Chart containers inherit theme */
 .echarts-container {
   border-radius: 0.5rem;
+}
+
+/* Accessible focus ring — applies to any focusable element that hasn't
+   opted in to a page-specific style. WCAG 2.4.7 Focus Visible. */
+:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+/* Visually hidden utility (sr-only equivalent, keyboard-focusable variant
+   for skip links). */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+.focus\:not-sr-only:focus,
+.focus-visible\:not-sr-only:focus-visible {
+  position: static;
+  width: auto;
+  height: auto;
+  padding: revert;
+  margin: revert;
+  overflow: visible;
+  clip: auto;
+  white-space: normal;
+}
+
+/* Reduced-motion: honor user preference (WCAG 2.3.3 / best practice). */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
 }

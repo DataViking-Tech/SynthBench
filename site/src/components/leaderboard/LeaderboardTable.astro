@@ -47,33 +47,38 @@ function hiddenInDefaultView(entry: LeaderboardEntry): boolean {
 }
 ---
 
-<section class="w-full max-w-5xl mx-auto py-8" id="leaderboard">
-  <h2 class="text-2xl font-bold text-center mb-2">Leaderboard</h2>
+<section class="w-full max-w-5xl mx-auto py-8" id="leaderboard" aria-labelledby="leaderboard-heading">
+  <h2 id="leaderboard-heading" class="text-2xl font-bold text-center mb-2">Leaderboard</h2>
   <p class="text-center text-sm text-muted mb-6">
-    Click a row to open its configuration page. Click the chevron to expand details inline.
+    Select a column header to sort. Activate a row (Enter) to open its configuration, or use the chevron button to expand details inline.
   </p>
+
+  <!-- Visually hidden status region announces sort changes. -->
+  <p id="leaderboard-sort-status" class="sr-only" role="status" aria-live="polite"></p>
 
   <!-- Desktop table -->
   <div class="hidden md:block overflow-x-auto rounded-lg border border-muted/20">
     <table class="w-full text-sm" id="leaderboard-table">
+      <caption class="sr-only">Synthetic survey respondent quality leaderboard. Each row is a model result; activate the row to open its config page, or expand via the chevron button for inline detail.</caption>
       <thead>
         <tr class="bg-surface dark:bg-surface-dark border-b border-muted/20">
-          <th class="px-2 py-3 w-8" aria-label="Expand"></th>
-          <th class="px-4 py-3 text-left font-semibold cursor-pointer hover:text-primary" data-sort="rank">#</th>
-          <th class="px-4 py-3 text-left font-semibold">Model</th>
-          <th class="px-4 py-3 text-left font-semibold">Dataset</th>
-          <th class="px-4 py-3 text-left font-semibold">Framework</th>
-          <th class="px-4 py-3 text-right font-semibold cursor-pointer hover:text-primary" data-sort="sps">SPS <span class="sort-indicator"></span></th>
-          <th class="px-4 py-3 text-right font-semibold cursor-pointer hover:text-primary" data-sort="normalized_sps" title="Position in the meaningful evaluation range: (SPS − raw-LLM baseline) / (Human Ceiling − raw-LLM baseline). Shown only when a raw-LLM baseline is available for the underlying model.">Range % <span class="sort-indicator"></span></th>
-          <th class="px-4 py-3 text-right font-semibold cursor-pointer hover:text-primary" data-sort="p_dist">p_dist <span class="sort-indicator"></span></th>
-          <th class="px-4 py-3 text-right font-semibold cursor-pointer hover:text-primary" data-sort="p_rank">p_rank <span class="sort-indicator"></span></th>
-          <th class="px-4 py-3 text-right font-semibold cursor-pointer hover:text-primary" data-sort="p_refuse">p_refuse <span class="sort-indicator"></span></th>
-          <th class="px-4 py-3 text-right font-semibold cursor-pointer hover:text-primary" data-sort="n">N <span class="sort-indicator"></span></th>
-          <th class="px-4 py-3 text-right font-semibold cursor-pointer hover:text-primary" data-sort="ci">95% CI <span class="sort-indicator"></span></th>
+          <th class="px-2 py-3 w-8" scope="col"><span class="sr-only">Expand row</span></th>
+          <th class="px-4 py-3 text-left font-semibold" scope="col" aria-sort="none"><button type="button" class="flex items-center gap-1 font-semibold hover:text-primary" data-sort="rank">#</button></th>
+          <th class="px-4 py-3 text-left font-semibold" scope="col">Model</th>
+          <th class="px-4 py-3 text-left font-semibold" scope="col">Dataset</th>
+          <th class="px-4 py-3 text-left font-semibold" scope="col">Framework</th>
+          <th class="px-4 py-3 text-right font-semibold" scope="col" aria-sort="none"><button type="button" class="ml-auto flex items-center gap-1 font-semibold hover:text-primary" data-sort="sps">SPS <span class="sort-indicator" aria-hidden="true"></span></button></th>
+          <th class="px-4 py-3 text-right font-semibold" scope="col" aria-sort="none" title="Position in the meaningful evaluation range: (SPS − raw-LLM baseline) / (Human Ceiling − raw-LLM baseline). Shown only when a raw-LLM baseline is available for the underlying model."><button type="button" class="ml-auto flex items-center gap-1 font-semibold hover:text-primary" data-sort="normalized_sps">Range % <span class="sort-indicator" aria-hidden="true"></span></button></th>
+          <th class="px-4 py-3 text-right font-semibold" scope="col" aria-sort="none"><button type="button" class="ml-auto flex items-center gap-1 font-semibold hover:text-primary" data-sort="p_dist">p_dist <span class="sort-indicator" aria-hidden="true"></span></button></th>
+          <th class="px-4 py-3 text-right font-semibold" scope="col" aria-sort="none"><button type="button" class="ml-auto flex items-center gap-1 font-semibold hover:text-primary" data-sort="p_rank">p_rank <span class="sort-indicator" aria-hidden="true"></span></button></th>
+          <th class="px-4 py-3 text-right font-semibold" scope="col" aria-sort="none"><button type="button" class="ml-auto flex items-center gap-1 font-semibold hover:text-primary" data-sort="p_refuse">p_refuse <span class="sort-indicator" aria-hidden="true"></span></button></th>
+          <th class="px-4 py-3 text-right font-semibold" scope="col" aria-sort="none"><button type="button" class="ml-auto flex items-center gap-1 font-semibold hover:text-primary" data-sort="n">N <span class="sort-indicator" aria-hidden="true"></span></button></th>
+          <th class="px-4 py-3 text-right font-semibold" scope="col" aria-sort="none"><button type="button" class="ml-auto flex items-center gap-1 font-semibold hover:text-primary" data-sort="ci">95% CI <span class="sort-indicator" aria-hidden="true"></span></button></th>
         </tr>
       </thead>
       <tbody>
-        {entries.map((entry) => {
+        {entries.map((entry, i) => {
+          const detailId = `lb-detail-${i}`;
           const href = configHref(entry);
           const label = rowAriaLabel(entry);
           return (
@@ -96,11 +101,12 @@ function hiddenInDefaultView(entry: LeaderboardEntry): boolean {
             <td class="px-2 py-3 text-center">
               <button
                 type="button"
-                class="expand-chevron inline-flex items-center justify-center w-6 h-6 rounded text-muted hover:text-primary hover:bg-primary/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary"
-                aria-label="Toggle configuration details"
+                class="expand-chevron inline-flex items-center justify-center w-6 h-6 rounded text-muted hover:text-primary hover:bg-primary/10"
+                aria-label={`Toggle configuration details for ${entry.model} on ${entry.dataset}`}
                 aria-expanded="false"
+                aria-controls={detailId}
               >
-                <span class="chevron-icon inline-block transition-transform">▶</span>
+                <span class="chevron-icon inline-block transition-transform" aria-hidden="true">▶</span>
               </button>
             </td>
             <td class="px-4 py-3 text-muted">{entry.rank}</td>
@@ -115,9 +121,9 @@ function hiddenInDefaultView(entry: LeaderboardEntry): boolean {
               {!entry.is_baseline && entry.provider.startsWith("SynthPanel") && !entry.is_ensemble && (
                 <span class="ml-1 text-xs px-1.5 py-0.5 rounded bg-provider-synthpanel/10 text-provider-synthpanel" title={entry.provider}>conditioned</span>
               )}
-              {entry.temperature != null && <span class="ml-1 text-xs px-1.5 py-0.5 rounded bg-accent/10 text-accent font-mono" title={`temperature=${entry.temperature}`}>t={entry.temperature}</span>}
-              {entry.template && <span class="ml-1 text-xs px-1.5 py-0.5 rounded bg-accent/10 text-accent font-mono" title={`prompt template=${entry.template}`}>tpl={entry.template}</span>}
-              <span class="block text-xs text-muted" title={entry.provider}>{entry.provider}</span>
+              {entry.temperature != null && <span class="ml-1 text-xs px-1.5 py-0.5 rounded bg-accent/15 text-accent font-mono"><span class="sr-only">temperature </span>t={entry.temperature}</span>}
+              {entry.template && <span class="ml-1 text-xs px-1.5 py-0.5 rounded bg-accent/15 text-accent font-mono"><span class="sr-only">prompt template </span>tpl={entry.template}</span>}
+              <span class="block text-xs text-muted">{entry.provider}</span>
             </td>
             <td class="px-4 py-3">{entry.dataset}</td>
             <td class="px-4 py-3 text-xs text-muted">{entry.framework}</td>
@@ -131,12 +137,12 @@ function hiddenInDefaultView(entry: LeaderboardEntry): boolean {
               [{entry.ci_lower.toFixed(3)}, {entry.ci_upper.toFixed(3)}]
             </td>
           </tr>
-          <tr class="detail-row hidden border-b border-muted/10" data-dataset={entry.dataset} data-variant={hiddenInDefaultView(entry) ? "variant" : "best"}>
+          <tr id={detailId} class="detail-row hidden border-b border-muted/10" data-dataset={entry.dataset} data-variant={hiddenInDefaultView(entry) ? "variant" : "best"}>
             <td colspan="12" class="px-4 py-4 bg-surface/50 dark:bg-surface-dark/50">
               <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
                 {entry.topic_scores && (
                   <div>
-                    <h4 class="font-semibold mb-2">Topic Scores</h4>
+                    <h3 class="font-semibold mb-2">Topic Scores</h3>
                     <div class="space-y-1">
                       {Object.entries(entry.topic_scores).map(([topic, score]) => (
                         <div class="flex justify-between">
@@ -149,7 +155,7 @@ function hiddenInDefaultView(entry: LeaderboardEntry): boolean {
                 )}
                 {entry.replicates && entry.replicates.length > 0 && (
                   <div>
-                    <h4 class="font-semibold mb-2">Replicates</h4>
+                    <h3 class="font-semibold mb-2">Replicates</h3>
                     <div class="space-y-1">
                       {entry.replicates.map((rep) => (
                         <div class="flex justify-between text-xs">
@@ -174,13 +180,13 @@ function hiddenInDefaultView(entry: LeaderboardEntry): boolean {
   </div>
 
   <!-- Mobile card layout -->
-  <div class="md:hidden space-y-3">
+  <ul class="md:hidden space-y-3 list-none p-0">
     {entries.map((entry) => {
       const href = configHref(entry);
       const label = rowAriaLabel(entry);
       const cardClasses = [
         "leaderboard-card block rounded-lg border border-muted/20 p-4 transition-colors",
-        href && "cursor-pointer hover:border-primary/30 focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary",
+        href && "cursor-pointer hover:border-primary/30",
         entry.is_baseline && "bg-baseline/5",
         entry.is_ensemble && "bg-primary/5",
       ];
@@ -194,8 +200,8 @@ function hiddenInDefaultView(entry: LeaderboardEntry): boolean {
             {!entry.is_baseline && entry.provider.startsWith("SynthPanel") && !entry.is_ensemble && (
               <span class="ml-1 text-xs px-1.5 py-0.5 rounded bg-provider-synthpanel/10 text-provider-synthpanel">conditioned</span>
             )}
-            {entry.temperature != null && <span class="ml-1 text-xs px-1.5 py-0.5 rounded bg-accent/10 text-accent font-mono">t={entry.temperature}</span>}
-            {entry.template && <span class="ml-1 text-xs px-1.5 py-0.5 rounded bg-accent/10 text-accent font-mono">tpl={entry.template}</span>}
+            {entry.temperature != null && <span class="ml-1 text-xs px-1.5 py-0.5 rounded bg-accent/15 text-accent font-mono"><span class="sr-only">temperature </span>t={entry.temperature}</span>}
+            {entry.template && <span class="ml-1 text-xs px-1.5 py-0.5 rounded bg-accent/15 text-accent font-mono"><span class="sr-only">prompt template </span>tpl={entry.template}</span>}
           </div>
           <div class="text-right">
             <span class="text-lg font-mono font-bold">{entry.sps.toFixed(3)}</span>
@@ -213,29 +219,36 @@ function hiddenInDefaultView(entry: LeaderboardEntry): boolean {
         </>
       );
       return href ? (
-        <a
-          href={href}
-          class:list={cardClasses}
-          data-dataset={entry.dataset}
-          data-variant={hiddenInDefaultView(entry) ? "variant" : "best"}
-          aria-label={label}
-        >
-          {Inner}
-        </a>
+        <li>
+          <a
+            href={href}
+            class:list={cardClasses}
+            data-dataset={entry.dataset}
+            data-variant={hiddenInDefaultView(entry) ? "variant" : "best"}
+            aria-label={label}
+          >
+            {Inner}
+          </a>
+        </li>
       ) : (
-        <div
+        <li
           class:list={cardClasses}
           data-dataset={entry.dataset}
           data-variant={hiddenInDefaultView(entry) ? "variant" : "best"}
         >
           {Inner}
-        </div>
+        </li>
       );
     })}
-  </div>
+  </ul>
 </section>
 
 <script>
+  function announce(message: string): void {
+    const status = document.getElementById("leaderboard-sort-status");
+    if (status) status.textContent = message;
+  }
+
   function initLeaderboard() {
     const table = document.getElementById("leaderboard-table");
     if (!table) return;
@@ -248,14 +261,16 @@ function hiddenInDefaultView(entry: LeaderboardEntry): boolean {
     for (const btn of chevrons) {
       btn.addEventListener("click", (event) => {
         event.stopPropagation();
-        const row = btn.closest("tr");
-        const detail = row?.nextElementSibling as HTMLElement | null;
-        if (detail?.classList.contains("detail-row")) {
-          const hidden = detail.classList.toggle("hidden");
-          btn.setAttribute("aria-expanded", hidden ? "false" : "true");
-          const icon = btn.querySelector(".chevron-icon") as HTMLElement | null;
-          if (icon) icon.style.transform = hidden ? "" : "rotate(90deg)";
-        }
+        const controls = btn.getAttribute("aria-controls");
+        if (!controls) return;
+        const detail = document.getElementById(controls);
+        if (!detail?.classList.contains("detail-row")) return;
+        const expanded = btn.getAttribute("aria-expanded") === "true";
+        const next = !expanded;
+        btn.setAttribute("aria-expanded", String(next));
+        detail.classList.toggle("hidden", !next);
+        const icon = btn.querySelector(".chevron-icon") as HTMLElement | null;
+        if (icon) icon.style.transform = next ? "rotate(90deg)" : "";
       });
     }
 
@@ -288,14 +303,19 @@ function hiddenInDefaultView(entry: LeaderboardEntry): boolean {
       });
     }
 
-    // Sort functionality
-    const headers = table.querySelectorAll<HTMLElement>("th[data-sort]");
+    // Sort — button-in-th pattern with aria-sort on th.
+    const sortButtons = table.querySelectorAll<HTMLButtonElement>(
+      "thead button[data-sort]",
+    );
+    const allTh = table.querySelectorAll<HTMLTableCellElement>(
+      "thead th[aria-sort]",
+    );
     let currentSort = "";
     let ascending = true;
 
-    for (const header of headers) {
-      header.addEventListener("click", () => {
-        const sortKey = header.dataset.sort ?? "";
+    for (const btn of sortButtons) {
+      btn.addEventListener("click", () => {
+        const sortKey = btn.dataset.sort ?? "";
         if (currentSort === sortKey) {
           ascending = !ascending;
         } else {
@@ -303,11 +323,17 @@ function hiddenInDefaultView(entry: LeaderboardEntry): boolean {
           ascending = false;
         }
 
-        for (const h of headers) {
-          const ind = h.querySelector(".sort-indicator");
+        for (const th of allTh) {
+          th.setAttribute("aria-sort", "none");
+          const ind = th.querySelector(".sort-indicator");
           if (ind) ind.textContent = "";
         }
-        const indicator = header.querySelector(".sort-indicator");
+        const activeTh = btn.closest("th");
+        activeTh?.setAttribute(
+          "aria-sort",
+          ascending ? "ascending" : "descending",
+        );
+        const indicator = btn.querySelector(".sort-indicator");
         if (indicator) indicator.textContent = ascending ? " \u25B2" : " \u25BC";
 
         const allRows = [...tbody.querySelectorAll("tr")];
@@ -335,6 +361,9 @@ function hiddenInDefaultView(entry: LeaderboardEntry): boolean {
           tbody.appendChild(entryRow);
           tbody.appendChild(detailRow);
         }
+
+        const colLabel = btn.textContent?.trim().replace(/\s*[\u25B2\u25BC]\s*$/, "") ?? sortKey;
+        announce(`Sorted by ${colLabel} ${ascending ? "ascending" : "descending"}.`);
       });
     }
   }

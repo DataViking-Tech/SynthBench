@@ -35,22 +35,23 @@ for (const ds of leaderboard.datasets) {
 ---
 
 <section class="w-full max-w-5xl mx-auto py-12 px-4">
-  <h2 class="text-2xl font-bold text-center mb-2">Leaderboard Summary</h2>
+  <h2 id="summary-leaderboard-heading" class="text-2xl font-bold text-center mb-2">Leaderboard Summary</h2>
   <p class="text-center text-sm text-muted mb-8">
-    Top 3 models per dataset by Survey Parity Score · click a row for config details
+    Top 3 models per dataset by Survey Parity Score · activate a row (Enter) for config details
   </p>
 
-  <div class="overflow-x-auto rounded-lg border border-muted/20">
+  <div class="overflow-x-auto rounded-lg border border-muted/20" aria-labelledby="summary-leaderboard-heading">
     <table class="w-full text-sm" id="summary-leaderboard-table">
+      <caption class="sr-only">Top 3 models per dataset by Survey Parity Score. Activate a row to open its configuration page.</caption>
       <thead>
         <tr class="bg-surface dark:bg-surface-dark border-b border-muted/20">
-          <th class="px-4 py-3 text-left font-semibold">#</th>
-          <th class="px-4 py-3 text-left font-semibold">Model</th>
-          <th class="px-4 py-3 text-left font-semibold">Dataset</th>
-          <th class="px-4 py-3 text-right font-semibold">SPS</th>
-          <th class="px-4 py-3 text-right font-semibold" title="Position in the meaningful evaluation range: (SPS − raw-LLM baseline) / (Human Ceiling − raw-LLM baseline)">Range %</th>
-          <th class="px-4 py-3 text-right font-semibold">p_dist</th>
-          <th class="px-4 py-3 text-right font-semibold">p_rank</th>
+          <th class="px-4 py-3 text-left font-semibold" scope="col">#</th>
+          <th class="px-4 py-3 text-left font-semibold" scope="col">Model</th>
+          <th class="px-4 py-3 text-left font-semibold" scope="col">Dataset</th>
+          <th class="px-4 py-3 text-right font-semibold" scope="col">SPS</th>
+          <th class="px-4 py-3 text-right font-semibold" scope="col" title="Position in the meaningful evaluation range: (SPS − raw-LLM baseline) / (Human Ceiling − raw-LLM baseline)">Range %</th>
+          <th class="px-4 py-3 text-right font-semibold" scope="col">p_dist</th>
+          <th class="px-4 py-3 text-right font-semibold" scope="col">p_rank</th>
         </tr>
       </thead>
       <tbody>
@@ -89,12 +90,12 @@ for (const ds of leaderboard.datasets) {
                   </span>
                 )}
                 {entry.temperature != null && (
-                  <span class="ml-1 text-xs px-1.5 py-0.5 rounded bg-accent/10 text-accent font-mono" title={`temperature=${entry.temperature}`}>
+                  <span class="ml-1 text-xs px-1.5 py-0.5 rounded bg-accent/15 text-accent font-mono" title={`temperature=${entry.temperature}`}>
                     t={entry.temperature}
                   </span>
                 )}
                 {entry.template && (
-                  <span class="ml-1 text-xs px-1.5 py-0.5 rounded bg-accent/10 text-accent font-mono" title={`prompt template=${entry.template}`}>
+                  <span class="ml-1 text-xs px-1.5 py-0.5 rounded bg-accent/15 text-accent font-mono" title={`prompt template=${entry.template}`}>
                     tpl={entry.template}
                   </span>
                 )}
