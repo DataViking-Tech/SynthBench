@@ -119,7 +119,12 @@ const hasData = conditioning.length > 0;
           </span>
         ))}
       </div>
-      <Chart option={chartOption} height="400px" />
+      <Chart
+        title="Demographic Conditioning Gap"
+        description="Chart showing how conditioning on different demographic groups shifts model responses (p_cond). Republican conditioning produces a larger shift than Democrat — evidence of a default progressive lean."
+        option={chartOption}
+        height="400px"
+      />
     </>
   ) : (
     <div class="text-center text-muted py-12 border border-muted/20 rounded-lg">

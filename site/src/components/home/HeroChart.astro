@@ -123,7 +123,12 @@ const chartOption = {
     Survey Parity Score (SPS) — higher is better. 1.0 = perfect match to human
     survey distributions.
   </p>
-  <Chart option={chartOption} height="450px" />
+  <Chart
+    title="Best Model vs Random Baseline — Survey Parity Score"
+    description="Bar chart comparing the top-performing model's SPS against the random-pick baseline. Higher is better; 1.0 is a perfect match to human distributions."
+    option={chartOption}
+    height="450px"
+  />
   <div class="mt-4 text-xs text-muted text-center">
     {bestModels.map((m) => `${m.dataset}: ${m.model}`).join(" · ")}
   </div>

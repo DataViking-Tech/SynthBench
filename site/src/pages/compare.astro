@@ -111,16 +111,17 @@ const exploreUrl = `${base}/explore`;
 
       <div class="overflow-x-auto rounded-lg border border-muted/20">
         <table class="w-full text-sm" id="flipped-table">
+          <caption class="sr-only">Per-question comparison of A versus B. Select a column header to sort; expand a row with its question button for full distributions.</caption>
           <thead>
             <tr class="border-b border-muted/20 bg-surface dark:bg-surface-dark">
-              <th class="px-3 py-2 text-left font-semibold" data-sort="question">Question</th>
-              <th class="px-3 py-2 text-left font-semibold" data-sort="topic">Topic</th>
-              <th class="px-3 py-2 text-left font-semibold" data-sort="a_modal">A modal</th>
-              <th class="px-3 py-2 text-left font-semibold" data-sort="b_modal">B modal</th>
-              <th class="px-3 py-2 text-right font-semibold" data-sort="delta_jsd">
+              <th class="px-3 py-2 text-left font-semibold" scope="col" data-sort="question" aria-sort="none"><button type="button" class="font-semibold hover:text-primary" data-sort="question">Question</button></th>
+              <th class="px-3 py-2 text-left font-semibold" scope="col" data-sort="topic" aria-sort="none"><button type="button" class="font-semibold hover:text-primary" data-sort="topic">Topic</button></th>
+              <th class="px-3 py-2 text-left font-semibold" scope="col" data-sort="a_modal" aria-sort="none"><button type="button" class="font-semibold hover:text-primary" data-sort="a_modal">A modal</button></th>
+              <th class="px-3 py-2 text-left font-semibold" scope="col" data-sort="b_modal" aria-sort="none"><button type="button" class="font-semibold hover:text-primary" data-sort="b_modal">B modal</button></th>
+              <th class="px-3 py-2 text-right font-semibold" scope="col" data-sort="delta_jsd" aria-sort="descending"><button type="button" class="ml-auto flex items-center gap-1 font-semibold hover:text-primary" data-sort="delta_jsd">
                 ΔJSD <span class="sort-arrow" aria-hidden="true">▼</span>
-              </th>
-              <th class="px-3 py-2 text-center font-semibold" data-sort="flip">Flip</th>
+              </button></th>
+              <th class="px-3 py-2 text-center font-semibold" scope="col" data-sort="flip" aria-sort="none"><button type="button" class="mx-auto font-semibold hover:text-primary" data-sort="flip">Flip</button></th>
             </tr>
           </thead>
           <tbody id="flipped-tbody">
@@ -285,10 +286,16 @@ const exploreUrl = `${base}/explore`;
         return `<span class="dist-seg" title="${title}" style="width:${pct}%;background:${color}"></span>`;
       })
       .join("");
+    // Accessible text equivalent for screen readers and keyboard users —
+    // the `title` tooltips above are not reachable without a mouse.
+    const accessibleSummary = keys
+      .map((k) => `${k}: ${((dist[k] ?? 0) * 100).toFixed(1)}%`)
+      .join(", ");
+    const barLabel = `${label} distribution: ${accessibleSummary}`;
     return `
       <div class="dist-row">
-        <span class="dist-label">${escapeHtml(label)}</span>
-        <span class="dist-bar">${segments}</span>
+        <span class="dist-label" aria-hidden="true">${escapeHtml(label)}</span>
+        <span class="dist-bar" role="img" aria-label="${escapeHtml(barLabel)}">${segments}</span>
       </div>
     `;
   }
@@ -591,6 +598,7 @@ const exploreUrl = `${base}/explore`;
 
     tbody.innerHTML = sorted
       .map((row, i) => {
+        const detailId = `fq-detail-${i}`;
         const deltaStr = fmtSigned(row.deltaJsd);
         const deltaClass =
           row.deltaJsd == null
@@ -599,15 +607,23 @@ const exploreUrl = `${base}/explore`;
               ? "text-baseline"
               : "text-primary";
         const flipCell = row.flip
-          ? '<span class="rounded bg-baseline/15 px-1.5 py-0.5 text-xs text-baseline">yes</span>'
+          ? '<span class="rounded bg-baseline/20 px-1.5 py-0.5 text-xs text-baseline">yes</span>'
           : '<span class="text-muted">—</span>';
         return `
-          <tr class="fq-row cursor-pointer border-b border-muted/10 hover:bg-primary/5"
+          <tr class="fq-row border-b border-muted/10 hover:bg-primary/5"
               data-index="${i}"
               data-key="${escapeHtml(row.key)}">
             <td class="px-3 py-2">
-              <span class="font-mono text-xs text-muted">${escapeHtml(row.key)}</span>
-              <span class="block max-w-xl text-xs text-muted">${escapeHtml(truncate(row.text, 110))}</span>
+              <button type="button" class="fq-expand flex items-start gap-2 text-left"
+                      aria-expanded="false"
+                      aria-controls="${detailId}"
+                      aria-label="Show full distribution for question ${escapeHtml(row.key)}">
+                <span class="fq-caret mt-0.5 text-xs text-muted" aria-hidden="true">▸</span>
+                <span>
+                  <span class="font-mono text-xs text-muted block">${escapeHtml(row.key)}</span>
+                  <span class="block max-w-xl text-xs text-muted">${escapeHtml(truncate(row.text, 110))}</span>
+                </span>
+              </button>
             </td>
             <td class="px-3 py-2 text-xs">${escapeHtml(row.topic)}</td>
             <td class="px-3 py-2 text-xs">${escapeHtml(row.a.modal)}</td>
@@ -615,7 +631,7 @@ const exploreUrl = `${base}/explore`;
             <td class="px-3 py-2 text-right font-mono ${deltaClass}">${escapeHtml(deltaStr)}</td>
             <td class="px-3 py-2 text-center">${flipCell}</td>
           </tr>
-          <tr class="fq-detail hidden border-b border-muted/10 bg-surface/50 dark:bg-surface-dark/50"
+          <tr id="${detailId}" class="fq-detail hidden border-b border-muted/10 bg-surface/50 dark:bg-surface-dark/50"
               data-detail-for="${i}">
             <td colspan="6" class="px-4 py-4">
               <div class="mb-3 text-sm">
@@ -642,22 +658,24 @@ const exploreUrl = `${base}/explore`;
   }
 
   function wireInteractions(): void {
-    // Sortable headers
-    document.querySelectorAll<HTMLElement>("#flipped-table thead th[data-sort]").forEach((th) => {
-      th.addEventListener("click", () => {
-        const key = th.dataset.sort as SortKey | undefined;
-        if (!key) return;
-        if (state.sortKey === key) {
-          state.sortDir = state.sortDir === "asc" ? "desc" : "asc";
-        } else {
-          state.sortKey = key;
-          // Default direction per column: numeric → desc, text → asc
-          state.sortDir = key === "delta_jsd" || key === "flip" ? "desc" : "asc";
-        }
-        renderSortIndicators();
-        renderTable();
+    // Sortable headers (button-in-th pattern).
+    document
+      .querySelectorAll<HTMLButtonElement>("#flipped-table thead button[data-sort]")
+      .forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const key = btn.dataset.sort as SortKey | undefined;
+          if (!key) return;
+          if (state.sortKey === key) {
+            state.sortDir = state.sortDir === "asc" ? "desc" : "asc";
+          } else {
+            state.sortKey = key;
+            // Default direction per column: numeric → desc, text → asc
+            state.sortDir = key === "delta_jsd" || key === "flip" ? "desc" : "asc";
+          }
+          renderSortIndicators();
+          renderTable();
+        });
       });
-    });
 
     // Flipped-only toggle
     const flippedOnly = document.getElementById("flipped-only") as HTMLInputElement | null;
@@ -668,35 +686,49 @@ const exploreUrl = `${base}/explore`;
       });
     }
 
-    // Row expansion (delegated)
+    // Row expansion — delegate on the expand button inside the first cell.
     const tbody = document.getElementById("flipped-tbody");
     if (tbody) {
       tbody.addEventListener("click", (e) => {
         const target = e.target as HTMLElement | null;
-        const row = target?.closest("tr.fq-row") as HTMLElement | null;
-        if (!row) return;
-        const idx = row.dataset.index;
-        if (!idx) return;
-        const detail = tbody.querySelector<HTMLElement>(
-          `tr.fq-detail[data-detail-for="${idx}"]`,
-        );
-        if (detail) detail.classList.toggle("hidden");
+        const btn = target?.closest<HTMLButtonElement>("button.fq-expand");
+        if (!btn) return;
+        const controls = btn.getAttribute("aria-controls");
+        if (!controls) return;
+        const detail = document.getElementById(controls);
+        if (!detail) return;
+        const expanded = btn.getAttribute("aria-expanded") === "true";
+        const next = !expanded;
+        btn.setAttribute("aria-expanded", String(next));
+        detail.classList.toggle("hidden", !next);
+        const caret = btn.querySelector(".fq-caret");
+        if (caret) caret.textContent = next ? "▾" : "▸";
       });
     }
   }
 
   function renderSortIndicators(): void {
-    const ths = document.querySelectorAll<HTMLElement>("#flipped-table thead th[data-sort]");
+    const ths = document.querySelectorAll<HTMLTableCellElement>(
+      "#flipped-table thead th[data-sort]",
+    );
     ths.forEach((th) => {
       const arrow = th.querySelector<HTMLElement>(".sort-arrow");
       if (arrow) arrow.remove();
       if (th.dataset.sort === state.sortKey) {
+        th.setAttribute(
+          "aria-sort",
+          state.sortDir === "asc" ? "ascending" : "descending",
+        );
         const span = document.createElement("span");
         span.className = "sort-arrow";
         span.setAttribute("aria-hidden", "true");
         span.textContent = state.sortDir === "asc" ? "▲" : "▼";
         span.style.marginLeft = "0.25rem";
-        th.appendChild(span);
+        // Append inside the button so the arrow stays with the label.
+        const host = th.querySelector<HTMLButtonElement>("button[data-sort]") ?? th;
+        host.appendChild(span);
+      } else {
+        th.setAttribute("aria-sort", "none");
       }
     });
   }

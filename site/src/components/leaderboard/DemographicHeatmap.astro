@@ -326,11 +326,18 @@ const defaultAttribute = heatmaps[0]?.attribute ?? "";
     const byAttribute = new Map(heatmaps.map((h) => [h.attribute, h]));
     let theme: "" | "dark" = preferredTheme();
     let chart = echarts.init(container, theme, { renderer: "svg" });
+    const prefersReducedMotion = window.matchMedia(
+      "(prefers-reduced-motion: reduce)",
+    ).matches;
 
     const render = () => {
       const attr = select.value || heatmaps[0].attribute;
       const data = byAttribute.get(attr) ?? heatmaps[0];
-      chart.setOption(buildOption(data, theme === "dark"), true);
+      const option = buildOption(data, theme === "dark");
+      if (prefersReducedMotion) {
+        (option as { animation?: boolean }).animation = false;
+      }
+      chart.setOption(option, true);
     };
 
     render();

@@ -118,14 +118,21 @@ import BaseLayout from "@/layouts/BaseLayout.astro";
       </div>
     </section>
 
+    <!--
+      Design note: this is a disclosure list, not an ARIA tree. role="tree" was
+      removed because the component does not implement the required keyboard
+      model (arrow-key navigation, roving tabindex, Home/End, aria-level).
+      Nested <button aria-expanded> disclosure groups pass WCAG on their own.
+    -->
     <div
       id="explore-tree"
-      role="tree"
-      aria-label="Runs hierarchy"
+      aria-label="Runs grouped by framework and base model"
       class="space-y-2 min-h-[240px]"
     >
       <p class="text-muted text-sm">Loading runs…</p>
     </div>
+    <!-- Live region for screen-reader announcements (errors + filter counts). -->
+    <div id="explore-live" class="sr-only" role="status" aria-live="polite"></div>
 
     <div
       id="compare-tray"
@@ -150,9 +157,12 @@ import BaseLayout from "@/layouts/BaseLayout.astro";
         <a
           id="compare-go"
           href="#"
-          class="rounded-md bg-primary px-3 py-1.5 text-sm font-semibold text-white hover:bg-primary-dark disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50"
+          class="rounded-md bg-primary px-3 py-1.5 text-sm font-semibold text-white hover:bg-primary-dark aria-disabled:pointer-events-none aria-disabled:opacity-50"
+          role="link"
           aria-disabled="true"
-        >Compare &rarr;</a>
+          tabindex="-1"
+          >Compare <span aria-hidden="true">→</span></a
+        >
       </div>
     </div>
   </div>
@@ -353,10 +363,12 @@ import BaseLayout from "@/layouts/BaseLayout.astro";
       const url = `${BASE}/compare/?a=${encodeURIComponent(a.id)}&b=${encodeURIComponent(b.id)}&mode=${mode}`;
       go.setAttribute("href", url);
       go.setAttribute("aria-disabled", "false");
+      go.removeAttribute("tabindex");
       hint.textContent = `Ready to compare ${mode}s`;
     } else {
       go.setAttribute("href", "#");
       go.setAttribute("aria-disabled", "true");
+      go.setAttribute("tabindex", "-1");
       hint.textContent =
         state.selection.length === 1
           ? `Pick one more ${mode ?? "item"} to enable compare`
@@ -364,10 +376,46 @@ import BaseLayout from "@/layouts/BaseLayout.astro";
     }
   }
 
+  function guardDisabledLink(el: HTMLAnchorElement): void {
+    const block = (e: Event): void => {
+      if (el.getAttribute("aria-disabled") === "true") {
+        e.preventDefault();
+        e.stopPropagation();
+      }
+    };
+    el.addEventListener("click", block);
+    el.addEventListener("keydown", (e) => {
+      if (e.key !== "Enter" && e.key !== " ") return;
+      if (el.getAttribute("aria-disabled") === "true") {
+        e.preventDefault();
+        e.stopPropagation();
+      }
+    });
+  }
+
+  function captureFocusKey(): string | null {
+    const active = document.activeElement as HTMLElement | null;
+    if (!active) return null;
+    const tree = document.getElementById("explore-tree");
+    if (!tree || !tree.contains(active)) return null;
+    return active.dataset.focusKey ?? null;
+  }
+
+  function restoreFocus(key: string | null): void {
+    if (!key) return;
+    const target = document.querySelector<HTMLElement>(
+      `[data-focus-key="${CSS.escape(key)}"]`,
+    );
+    target?.focus();
+  }
+
   function render(): void {
     const tree = document.getElementById("explore-tree");
     const summary = document.getElementById("explore-summary");
+    const live = document.getElementById("explore-live");
     if (!tree || !summary) return;
+
+    const focusKey = captureFocusKey();
 
     const filtered = state.runs.filter(matchesFilters);
     const nRuns = filtered.length;
@@ -375,6 +423,7 @@ import BaseLayout from "@/layouts/BaseLayout.astro";
     summary.textContent = state.collapseReplicates
       ? `${nConfigs} configs · ${nRuns} runs (replicates collapsed)`
       : `${nRuns} runs across ${nConfigs} configs`;
+    if (live) live.textContent = summary.textContent;
 
     tree.innerHTML = "";
     if (nRuns === 0) {
@@ -450,11 +499,15 @@ import BaseLayout from "@/layouts/BaseLayout.astro";
       fwBody.className = "divide-y divide-muted/10";
 
       const fwKey = `fw::${framework}`;
+      const fwBodyId = `panel-${fwKey}`.replace(/[^a-zA-Z0-9_-]/g, "_");
       const fwCollapsed = state.collapsedGroups.has(fwKey);
       fwBody.hidden = fwCollapsed;
+      fwBody.id = fwBodyId;
       const fwCaret = fwHeader.querySelector("span[aria-hidden]");
       if (fwCaret) fwCaret.textContent = fwCollapsed ? "▸" : "▾";
       fwHeader.setAttribute("aria-expanded", String(!fwCollapsed));
+      fwHeader.setAttribute("aria-controls", fwBodyId);
+      fwHeader.dataset.focusKey = fwKey;
       fwHeader.addEventListener("click", () => {
         if (state.collapsedGroups.has(fwKey)) state.collapsedGroups.delete(fwKey);
         else state.collapsedGroups.add(fwKey);
@@ -472,8 +525,11 @@ import BaseLayout from "@/layouts/BaseLayout.astro";
         bmHeader.className =
           "w-full flex items-center justify-between gap-2 px-2 py-2 text-left text-sm font-medium hover:bg-muted/5";
         const bmKey = groupKey(framework, baseModel);
+        const bmBodyId = `panel-${bmKey}`.replace(/[^a-zA-Z0-9_-]/g, "_");
         const bmCollapsed = state.collapsedGroups.has(bmKey);
         bmHeader.setAttribute("aria-expanded", String(!bmCollapsed));
+        bmHeader.setAttribute("aria-controls", bmBodyId);
+        bmHeader.dataset.focusKey = `bm::${bmKey}`;
         bmHeader.innerHTML = `
           <span class="flex items-center gap-2">
             <span aria-hidden="true" class="text-muted">${bmCollapsed ? "▸" : "▾"}</span>
@@ -491,6 +547,7 @@ import BaseLayout from "@/layouts/BaseLayout.astro";
         const rowsWrap = document.createElement("div");
         rowsWrap.className = "pb-2";
         rowsWrap.hidden = bmCollapsed;
+        rowsWrap.id = bmBodyId;
 
         // Sort by aggregate SPS desc (nulls last).
         groups.sort((a, b) => (b.agg_sps ?? -Infinity) - (a.agg_sps ?? -Infinity));
@@ -514,6 +571,7 @@ import BaseLayout from "@/layouts/BaseLayout.astro";
           checkbox.className = "accent-primary";
           checkbox.checked = selectionContainsId(rowId);
           checkbox.setAttribute("aria-label", `Select for compare: ${g.display_name}`);
+          checkbox.dataset.focusKey = `pick::${rowId}`;
           checkbox.addEventListener("change", () =>
             toggleSelection({ id: rowId, label: g.display_name, mode }),
           );
@@ -591,6 +649,8 @@ import BaseLayout from "@/layouts/BaseLayout.astro";
       fwBlock.appendChild(fwBody);
       tree.appendChild(fwBlock);
     }
+
+    restoreFocus(focusKey);
   }
 
   function wireFilters(): void {
@@ -701,6 +761,10 @@ import BaseLayout from "@/layouts/BaseLayout.astro";
 
   async function init(): Promise<void> {
     wireFilters();
+    const compareGo = document.getElementById(
+      "compare-go",
+    ) as HTMLAnchorElement | null;
+    if (compareGo) guardDisabledLink(compareGo);
     try {
       const resp = await fetch(`${BASE}/data/runs-index.json`, { cache: "force-cache" });
       if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
@@ -710,9 +774,12 @@ import BaseLayout from "@/layouts/BaseLayout.astro";
       render();
     } catch (err) {
       const tree = document.getElementById("explore-tree");
+      const live = document.getElementById("explore-live");
+      const msg = `Failed to load runs index: ${(err as Error).message}. Make sure \`synthbench publish-runs\` has been run.`;
       if (tree) {
-        tree.innerHTML = `<p class="text-sm text-red-500">Failed to load runs index: ${(err as Error).message}. Make sure <code>synthbench publish-runs</code> has been run.</p>`;
+        tree.innerHTML = `<p class="text-sm text-baseline">${msg}</p>`;
       }
+      if (live) live.textContent = msg;
     }
   }
 
