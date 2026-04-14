@@ -74,6 +74,63 @@ def _compute_topic_scores(per_question: list[dict]) -> dict[str, float]:
     return topic_scores
 
 
+def _compute_topic_metrics(per_question: list[dict]) -> dict[str, dict[str, float]]:
+    """Per-topic breakdown of SPS components (p_dist, p_rank, p_refuse, sps).
+
+    Mirrors the aggregate-level formulas in ``runner.ParityResult``:
+        p_dist   = 1 - mean(JSD)
+        p_rank   = (1 + mean(tau)) / 2
+        p_refuse = 1 - mean(|R_model - R_human|)
+        sps      = mean(parity)  (per-question composite score)
+
+    Used by the leaderboard expansion to render full topic-score metrics
+    instead of a single SPS value per topic.
+    """
+    from synthbench.topics import categorize_question
+
+    buckets: dict[str, dict[str, list[float]]] = {}
+    for q in per_question:
+        text = q.get("text", "")
+        if not text:
+            continue
+        category = categorize_question(text)
+        bucket = buckets.setdefault(
+            category, {"jsd": [], "tau": [], "refuse_diff": [], "parity": []}
+        )
+        parity = q.get("parity")
+        if parity is not None:
+            bucket["parity"].append(float(parity))
+        jsd = q.get("jsd")
+        if jsd is not None:
+            bucket["jsd"].append(float(jsd))
+        tau = q.get("kendall_tau")
+        if tau is not None:
+            bucket["tau"].append(float(tau))
+        model_r = q.get("model_refusal_rate")
+        human_r = q.get("human_refusal_rate")
+        if model_r is not None and human_r is not None:
+            bucket["refuse_diff"].append(abs(float(model_r) - float(human_r)))
+
+    metrics: dict[str, dict[str, float]] = {}
+    for category, b in sorted(buckets.items()):
+        if not b["parity"]:
+            continue
+        entry: dict[str, float] = {
+            "sps": round(sum(b["parity"]) / len(b["parity"]), 6),
+            "n": len(b["parity"]),
+        }
+        if b["jsd"]:
+            entry["p_dist"] = round(1.0 - sum(b["jsd"]) / len(b["jsd"]), 6)
+        if b["tau"]:
+            entry["p_rank"] = round((1.0 + sum(b["tau"]) / len(b["tau"])) / 2.0, 6)
+        if b["refuse_diff"]:
+            entry["p_refuse"] = round(
+                max(0.0, 1.0 - sum(b["refuse_diff"]) / len(b["refuse_diff"])), 6
+            )
+        metrics[category] = entry
+    return metrics
+
+
 def _build_entry(r: dict, rank: int) -> dict:
     """Build a leaderboard entry from a result dict."""
     from synthbench.config_id import build_config_id
@@ -160,6 +217,9 @@ def _build_entry(r: dict, rank: int) -> dict:
         topic_scores = _compute_topic_scores(per_question)
         if topic_scores:
             entry["topic_scores"] = topic_scores
+        topic_metrics = _compute_topic_metrics(per_question)
+        if topic_metrics:
+            entry["topic_metrics"] = topic_metrics
 
     # Demographic scores (real SubPOP data)
     demo_breakdown = r.get("demographic_breakdown", {})
