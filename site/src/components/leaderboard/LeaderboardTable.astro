@@ -25,6 +25,33 @@ function rowAriaLabel(entry: LeaderboardEntry): string {
   return `View configuration details for ${parts.join(", ")}`;
 }
 
+function fmtMetric(value: number | undefined): string {
+  return value == null || Number.isNaN(value) ? "—" : value.toFixed(3);
+}
+
+interface TopicRow {
+  topic: string;
+  sps: number;
+  p_dist?: number;
+  p_rank?: number;
+  p_refuse?: number;
+  n?: number;
+}
+
+function topicRows(entry: LeaderboardEntry): TopicRow[] {
+  if (entry.topic_metrics) {
+    return Object.entries(entry.topic_metrics)
+      .map(([topic, m]) => ({ topic, ...m }))
+      .sort((a, b) => b.sps - a.sps);
+  }
+  if (entry.topic_scores) {
+    return Object.entries(entry.topic_scores)
+      .map(([topic, sps]) => ({ topic, sps: sps as number }))
+      .sort((a, b) => b.sps - a.sps);
+  }
+  return [];
+}
+
 // Best-effort coverage filter for the default view.
 // A config is a (model, temperature, template) triple. The default view
 // hides variant configs (those with a temperature or template override) that
@@ -133,20 +160,51 @@ function hiddenInDefaultView(entry: LeaderboardEntry): boolean {
           </tr>
           <tr class="detail-row hidden border-b border-muted/10" data-dataset={entry.dataset} data-variant={hiddenInDefaultView(entry) ? "variant" : "best"}>
             <td colspan="12" class="px-4 py-4 bg-surface/50 dark:bg-surface-dark/50">
-              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
-                {entry.topic_scores && (
-                  <div>
-                    <h4 class="font-semibold mb-2">Topic Scores</h4>
-                    <div class="space-y-1">
-                      {Object.entries(entry.topic_scores).map(([topic, score]) => (
-                        <div class="flex justify-between">
-                          <span class="text-muted">{topic}</span>
-                          <span class="font-mono">{(score as number).toFixed(3)}</span>
-                        </div>
-                      ))}
+              <div class="space-y-4 text-sm">
+                {(() => {
+                  const rows = topicRows(entry);
+                  if (rows.length === 0) return null;
+                  const hasFull = rows.some((r) => r.p_dist != null || r.p_rank != null || r.p_refuse != null);
+                  return (
+                    <div>
+                      <h4 class="font-semibold mb-2">Topic Scores</h4>
+                      <div class="overflow-x-auto rounded border border-muted/20">
+                        <table class="w-full text-xs">
+                          <thead>
+                            <tr class="bg-surface dark:bg-surface-dark border-b border-muted/20 text-muted">
+                              <th class="px-3 py-1.5 text-left font-medium">Topic</th>
+                              <th class="px-3 py-1.5 text-right font-medium" title="SynthBench Parity Score — equal-weighted composite">SPS</th>
+                              {hasFull && (
+                                <>
+                                  <th class="px-3 py-1.5 text-right font-medium" title="Distributional parity: 1 − mean(JSD)">p_dist</th>
+                                  <th class="px-3 py-1.5 text-right font-medium" title="Rank-order parity: (1 + mean(τ)) / 2">p_rank</th>
+                                  <th class="px-3 py-1.5 text-right font-medium" title="Refusal calibration: 1 − mean(|R_model − R_human|)">p_refuse</th>
+                                  <th class="px-3 py-1.5 text-right font-medium" title="Questions per topic">N</th>
+                                </>
+                              )}
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {rows.map((r) => (
+                              <tr class="border-b border-muted/10 last:border-b-0">
+                                <td class="px-3 py-1.5">{r.topic}</td>
+                                <td class="px-3 py-1.5 text-right font-mono">{r.sps.toFixed(3)}</td>
+                                {hasFull && (
+                                  <>
+                                    <td class="px-3 py-1.5 text-right font-mono text-muted">{fmtMetric(r.p_dist)}</td>
+                                    <td class="px-3 py-1.5 text-right font-mono text-muted">{fmtMetric(r.p_rank)}</td>
+                                    <td class="px-3 py-1.5 text-right font-mono text-muted">{fmtMetric(r.p_refuse)}</td>
+                                    <td class="px-3 py-1.5 text-right font-mono text-muted">{r.n ?? "—"}</td>
+                                  </>
+                                )}
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
                     </div>
-                  </div>
-                )}
+                  );
+                })()}
                 {entry.replicates && entry.replicates.length > 0 && (
                   <div>
                     <h4 class="font-semibold mb-2">Replicates</h4>
@@ -160,8 +218,8 @@ function hiddenInDefaultView(entry: LeaderboardEntry): boolean {
                     </div>
                   </div>
                 )}
-                {!entry.topic_scores && !entry.replicates && (
-                  <div class="text-muted col-span-2">No additional detail data available.</div>
+                {!entry.topic_scores && !entry.topic_metrics && !entry.replicates && (
+                  <div class="text-muted">No additional detail data available.</div>
                 )}
               </div>
             </td>

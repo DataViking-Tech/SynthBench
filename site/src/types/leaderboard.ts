@@ -52,8 +52,17 @@ export interface LeaderboardEntry {
   is_ensemble: boolean;
 
   topic_scores?: Record<TopicCategory, number>;
+  topic_metrics?: Record<TopicCategory, TopicMetricBreakdown>;
   demographic_scores?: DemographicBreakdown[];
   replicates?: ReplicateRun[];
+}
+
+export interface TopicMetricBreakdown {
+  sps: number;
+  n: number;
+  p_dist?: number;
+  p_rank?: number;
+  p_refuse?: number;
 }
 
 export interface DemographicBreakdown {
