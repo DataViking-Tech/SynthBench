@@ -6,9 +6,23 @@ import leaderboardRaw from "@/data/leaderboard.json";
 const leaderboard = leaderboardRaw as LeaderboardData;
 const entries = leaderboard.entries;
 
+const rawBase = import.meta.env.BASE_URL || "/";
+const base = rawBase.endsWith("/") ? rawBase : `${rawBase}/`;
+
 function formatNormalized(value: number | undefined): string {
   if (value == null || Number.isNaN(value)) return "—";
   return `${Math.round(value * 100)}%`;
+}
+
+function configHref(entry: LeaderboardEntry): string | null {
+  return entry.config_id ? `${base}config/${entry.config_id}/` : null;
+}
+
+function rowAriaLabel(entry: LeaderboardEntry): string {
+  const parts = [entry.model, entry.dataset, `SPS ${entry.sps.toFixed(3)}`];
+  if (entry.temperature != null) parts.push(`t=${entry.temperature}`);
+  if (entry.template) parts.push(`tpl=${entry.template}`);
+  return `View configuration details for ${parts.join(", ")}`;
 }
 
 // Best-effort coverage filter for the default view.
@@ -36,7 +50,7 @@ function hiddenInDefaultView(entry: LeaderboardEntry): boolean {
 <section class="w-full max-w-5xl mx-auto py-8" id="leaderboard">
   <h2 class="text-2xl font-bold text-center mb-2">Leaderboard</h2>
   <p class="text-center text-sm text-muted mb-6">
-    Click column headers to sort. Click a row to expand details.
+    Click a row to open its configuration page. Click the chevron to expand details inline.
   </p>
 
   <!-- Desktop table -->
@@ -44,6 +58,7 @@ function hiddenInDefaultView(entry: LeaderboardEntry): boolean {
     <table class="w-full text-sm" id="leaderboard-table">
       <thead>
         <tr class="bg-surface dark:bg-surface-dark border-b border-muted/20">
+          <th class="px-2 py-3 w-8" aria-label="Expand"></th>
           <th class="px-4 py-3 text-left font-semibold cursor-pointer hover:text-primary" data-sort="rank">#</th>
           <th class="px-4 py-3 text-left font-semibold">Model</th>
           <th class="px-4 py-3 text-left font-semibold">Dataset</th>
@@ -58,21 +73,43 @@ function hiddenInDefaultView(entry: LeaderboardEntry): boolean {
         </tr>
       </thead>
       <tbody>
-        {entries.map((entry) => (
+        {entries.map((entry) => {
+          const href = configHref(entry);
+          const label = rowAriaLabel(entry);
+          return (
+          <>
           <tr
             class:list={[
-              "leaderboard-row border-b border-muted/10 cursor-pointer transition-colors",
-              "hover:bg-primary/5 dark:hover:bg-primary/10",
+              "leaderboard-row border-b border-muted/10 transition-colors outline-none",
+              href && "cursor-pointer hover:bg-primary/5 dark:hover:bg-primary/10 focus-visible:bg-primary/10",
               entry.is_baseline && "bg-baseline/5",
               entry.is_ensemble && "bg-primary/5",
             ]}
             data-entry={JSON.stringify(entry)}
             data-dataset={entry.dataset}
             data-variant={hiddenInDefaultView(entry) ? "variant" : "best"}
+            data-href={href ?? undefined}
+            role={href ? "link" : undefined}
+            tabindex={href ? 0 : undefined}
+            aria-label={href ? label : undefined}
           >
+            <td class="px-2 py-3 text-center">
+              <button
+                type="button"
+                class="expand-chevron inline-flex items-center justify-center w-6 h-6 rounded text-muted hover:text-primary hover:bg-primary/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary"
+                aria-label="Toggle configuration details"
+                aria-expanded="false"
+              >
+                <span class="chevron-icon inline-block transition-transform">▶</span>
+              </button>
+            </td>
             <td class="px-4 py-3 text-muted">{entry.rank}</td>
             <td class="px-4 py-3 font-medium">
-              <span>{entry.model}</span>
+              {href ? (
+                <a href={href} class="hover:underline focus-visible:underline" tabindex={-1}>{entry.model}</a>
+              ) : (
+                <span>{entry.model}</span>
+              )}
               {entry.is_ensemble && <span class="ml-1 text-xs px-1.5 py-0.5 rounded bg-primary/10 text-primary" title={entry.provider}>ensemble</span>}
               {entry.is_baseline && <span class="ml-1 text-xs px-1.5 py-0.5 rounded bg-muted/20 text-muted" title={entry.provider}>baseline</span>}
               {!entry.is_baseline && entry.provider.startsWith("SynthPanel") && !entry.is_ensemble && (
@@ -95,7 +132,7 @@ function hiddenInDefaultView(entry: LeaderboardEntry): boolean {
             </td>
           </tr>
           <tr class="detail-row hidden border-b border-muted/10" data-dataset={entry.dataset} data-variant={hiddenInDefaultView(entry) ? "variant" : "best"}>
-            <td colspan="11" class="px-4 py-4 bg-surface/50 dark:bg-surface-dark/50">
+            <td colspan="12" class="px-4 py-4 bg-surface/50 dark:bg-surface-dark/50">
               <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
                 {entry.topic_scores && (
                   <div>
@@ -129,25 +166,26 @@ function hiddenInDefaultView(entry: LeaderboardEntry): boolean {
               </div>
             </td>
           </tr>
-        ))}
+          </>
+          );
+        })}
       </tbody>
     </table>
   </div>
 
   <!-- Mobile card layout -->
   <div class="md:hidden space-y-3">
-    {entries.map((entry) => (
-      <div
-        class:list={[
-          "leaderboard-card rounded-lg border border-muted/20 p-4 cursor-pointer transition-colors",
-          "hover:border-primary/30",
-          entry.is_baseline && "bg-baseline/5",
-          entry.is_ensemble && "bg-primary/5",
-        ]}
-        data-entry={JSON.stringify(entry)}
-        data-dataset={entry.dataset}
-        data-variant={hiddenInDefaultView(entry) ? "variant" : "best"}
-      >
+    {entries.map((entry) => {
+      const href = configHref(entry);
+      const label = rowAriaLabel(entry);
+      const cardClasses = [
+        "leaderboard-card block rounded-lg border border-muted/20 p-4 transition-colors",
+        href && "cursor-pointer hover:border-primary/30 focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary",
+        entry.is_baseline && "bg-baseline/5",
+        entry.is_ensemble && "bg-primary/5",
+      ];
+      const Inner = (
+        <>
         <div class="flex items-baseline justify-between mb-2">
           <div>
             <span class="font-medium">{entry.model}</span>
@@ -172,123 +210,146 @@ function hiddenInDefaultView(entry: LeaderboardEntry): boolean {
           <div><span class="text-muted">p_rank</span> <span class="font-mono">{entry.p_rank.toFixed(3)}</span></div>
           <div><span class="text-muted">p_refuse</span> <span class="font-mono">{entry.p_refuse.toFixed(3)}</span></div>
         </div>
-        <div class="mobile-detail hidden mt-3 pt-3 border-t border-muted/20 text-xs space-y-2">
-          {entry.topic_scores && (
-            <div>
-              <span class="font-semibold">Topics:</span>
-              {Object.entries(entry.topic_scores).map(([topic, score]) => (
-                <span class="ml-2">{topic}: <span class="font-mono">{(score as number).toFixed(3)}</span></span>
-              ))}
-            </div>
-          )}
-          {entry.replicates && entry.replicates.length > 0 && (
-            <div>
-              <span class="font-semibold">Replicates:</span>
-              {entry.replicates.map((rep) => (
-                <span class="ml-2">R{rep.rep}: {rep.sps.toFixed(3)}</span>
-              ))}
-            </div>
-          )}
+        </>
+      );
+      return href ? (
+        <a
+          href={href}
+          class:list={cardClasses}
+          data-dataset={entry.dataset}
+          data-variant={hiddenInDefaultView(entry) ? "variant" : "best"}
+          aria-label={label}
+        >
+          {Inner}
+        </a>
+      ) : (
+        <div
+          class:list={cardClasses}
+          data-dataset={entry.dataset}
+          data-variant={hiddenInDefaultView(entry) ? "variant" : "best"}
+        >
+          {Inner}
         </div>
-      </div>
-    ))}
+      );
+    })}
   </div>
 </section>
 
 <script>
   function initLeaderboard() {
-    // Toggle detail rows (desktop)
     const table = document.getElementById("leaderboard-table");
-    if (table) {
-      const rows = table.querySelectorAll<HTMLTableRowElement>("tbody tr[data-entry]");
-      for (const row of rows) {
-        row.addEventListener("click", () => {
-          const detail = row.nextElementSibling as HTMLElement | null;
-          if (detail?.classList.contains("detail-row")) {
-            detail.classList.toggle("hidden");
-          }
-        });
-      }
+    if (!table) return;
 
-      // Sort functionality
-      const headers = table.querySelectorAll<HTMLElement>("th[data-sort]");
-      let currentSort = "";
-      let ascending = true;
+    const tbody = table.querySelector("tbody");
+    if (!tbody) return;
 
-      for (const header of headers) {
-        header.addEventListener("click", () => {
-          const sortKey = header.dataset.sort ?? "";
-          if (currentSort === sortKey) {
-            ascending = !ascending;
-          } else {
-            currentSort = sortKey;
-            ascending = false;
-          }
-
-          // Clear indicators
-          for (const h of headers) {
-            const ind = h.querySelector(".sort-indicator");
-            if (ind) ind.textContent = "";
-          }
-          const indicator = header.querySelector(".sort-indicator");
-          if (indicator) indicator.textContent = ascending ? " \u25B2" : " \u25BC";
-
-          // Get entry rows + detail rows as pairs
-          const tbody = table.querySelector("tbody");
-          if (!tbody) return;
-          const allRows = [...tbody.querySelectorAll("tr")];
-          const pairs: [HTMLTableRowElement, HTMLTableRowElement][] = [];
-          for (let i = 0; i < allRows.length; i += 2) {
-            pairs.push([allRows[i] as HTMLTableRowElement, allRows[i + 1] as HTMLTableRowElement]);
-          }
-
-          pairs.sort((a, b) => {
-            const aData = JSON.parse(a[0].dataset.entry ?? "{}");
-            const bData = JSON.parse(b[0].dataset.entry ?? "{}");
-            let aVal: number;
-            let bVal: number;
-            if (sortKey === "ci") {
-              aVal = aData.ci_upper - aData.ci_lower;
-              bVal = bData.ci_upper - bData.ci_lower;
-            } else {
-              aVal = aData[sortKey] ?? 0;
-              bVal = bData[sortKey] ?? 0;
-            }
-            return ascending ? aVal - bVal : bVal - aVal;
-          });
-
-          for (const [entryRow, detailRow] of pairs) {
-            tbody.appendChild(entryRow);
-            tbody.appendChild(detailRow);
-          }
-        });
-      }
+    // Chevron: toggle next detail row without navigating
+    const chevrons = tbody.querySelectorAll<HTMLButtonElement>(".expand-chevron");
+    for (const btn of chevrons) {
+      btn.addEventListener("click", (event) => {
+        event.stopPropagation();
+        const row = btn.closest("tr");
+        const detail = row?.nextElementSibling as HTMLElement | null;
+        if (detail?.classList.contains("detail-row")) {
+          const hidden = detail.classList.toggle("hidden");
+          btn.setAttribute("aria-expanded", hidden ? "false" : "true");
+          const icon = btn.querySelector(".chevron-icon") as HTMLElement | null;
+          if (icon) icon.style.transform = hidden ? "" : "rotate(90deg)";
+        }
+      });
     }
 
-    // Toggle detail (mobile)
-    const cards = document.querySelectorAll<HTMLElement>(".md\\:hidden [data-entry]");
-    for (const card of cards) {
-      card.addEventListener("click", () => {
-        const detail = card.querySelector(".mobile-detail");
-        if (detail) detail.classList.toggle("hidden");
+    // Row: navigate to config page on click / Enter / Space
+    const rows = tbody.querySelectorAll<HTMLTableRowElement>("tr.leaderboard-row[data-href]");
+    for (const row of rows) {
+      const href = row.dataset.href;
+      if (!href) continue;
+
+      const navigate = () => {
+        window.location.href = href;
+      };
+
+      row.addEventListener("click", (event) => {
+        // Ignore clicks on interactive descendants (chevron button, anchor tags)
+        const target = event.target as HTMLElement;
+        if (target.closest(".expand-chevron")) return;
+        if (target.closest("a")) return;
+        if (window.getSelection()?.toString()) return;
+        navigate();
+      });
+
+      row.addEventListener("keydown", (event) => {
+        if (event.key === "Enter" || event.key === " ") {
+          const target = event.target as HTMLElement;
+          if (target !== row) return;
+          event.preventDefault();
+          navigate();
+        }
+      });
+    }
+
+    // Sort functionality
+    const headers = table.querySelectorAll<HTMLElement>("th[data-sort]");
+    let currentSort = "";
+    let ascending = true;
+
+    for (const header of headers) {
+      header.addEventListener("click", () => {
+        const sortKey = header.dataset.sort ?? "";
+        if (currentSort === sortKey) {
+          ascending = !ascending;
+        } else {
+          currentSort = sortKey;
+          ascending = false;
+        }
+
+        for (const h of headers) {
+          const ind = h.querySelector(".sort-indicator");
+          if (ind) ind.textContent = "";
+        }
+        const indicator = header.querySelector(".sort-indicator");
+        if (indicator) indicator.textContent = ascending ? " \u25B2" : " \u25BC";
+
+        const allRows = [...tbody.querySelectorAll("tr")];
+        const pairs: [HTMLTableRowElement, HTMLTableRowElement][] = [];
+        for (let i = 0; i < allRows.length; i += 2) {
+          pairs.push([allRows[i] as HTMLTableRowElement, allRows[i + 1] as HTMLTableRowElement]);
+        }
+
+        pairs.sort((a, b) => {
+          const aData = JSON.parse(a[0].dataset.entry ?? "{}");
+          const bData = JSON.parse(b[0].dataset.entry ?? "{}");
+          let aVal: number;
+          let bVal: number;
+          if (sortKey === "ci") {
+            aVal = aData.ci_upper - aData.ci_lower;
+            bVal = bData.ci_upper - bData.ci_lower;
+          } else {
+            aVal = aData[sortKey] ?? 0;
+            bVal = bData[sortKey] ?? 0;
+          }
+          return ascending ? aVal - bVal : bVal - aVal;
+        });
+
+        for (const [entryRow, detailRow] of pairs) {
+          tbody.appendChild(entryRow);
+          tbody.appendChild(detailRow);
+        }
       });
     }
   }
 
   // Dataset filter: show/hide rows based on active tab
   function filterByDataset(dataset: string) {
-    // Desktop rows
     const rows = document.querySelectorAll<HTMLElement>("#leaderboard-table tbody tr[data-dataset]");
     for (const row of rows) {
       const match = dataset === "all" || row.dataset.dataset === dataset;
       row.classList.toggle("hidden", !match);
-      // Also hide detail rows when their parent is hidden
       if (row.classList.contains("detail-row") && !match) {
         row.classList.add("hidden");
       }
     }
 
-    // Mobile cards
     const cards = document.querySelectorAll<HTMLElement>(".leaderboard-card[data-dataset]");
     for (const card of cards) {
       const match = dataset === "all" || card.dataset.dataset === dataset;
@@ -299,13 +360,11 @@ function hiddenInDefaultView(entry: LeaderboardEntry): boolean {
   // View toggle: show/hide variant rows
   function filterByView(view: string) {
     if (view === "all") {
-      // Show all rows
       const rows = document.querySelectorAll<HTMLElement>("[data-variant]");
       for (const row of rows) {
         row.classList.remove("view-hidden");
       }
     } else {
-      // Hide variant rows (those with temperature/template)
       const rows = document.querySelectorAll<HTMLElement>("[data-variant='variant']");
       for (const row of rows) {
         row.classList.add("view-hidden");

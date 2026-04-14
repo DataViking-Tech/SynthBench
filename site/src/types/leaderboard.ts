@@ -12,6 +12,11 @@ export type TopicCategory =
 
 export interface LeaderboardEntry {
   rank: number;
+  /**
+   * Canonical config slug (framework--model--t<temp>--tpl<name>--<hash8>).
+   * Used to link rows to /config/<id>/. Emitted by publish.py.
+   */
+  config_id?: string;
   provider: string;
   model: string;
   dataset: string;
