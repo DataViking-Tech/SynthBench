@@ -48,6 +48,35 @@ pushed, so already-formatted branches add no meaningful overhead. Run
 `./scripts/format-check.sh` anytime to mirror the full CI lint job. Emergency
 bypass: `git push --no-verify`.
 
+### Storybook (site components)
+
+The site has a Storybook workshop for isolating and visually regressing Astro
+components, built on the community [`@storybook-astro/framework`](https://storybook-astro.org/)
+(Astro has no first-party Storybook support as of Storybook 10.3).
+
+```bash
+cd site
+npm run storybook            # dev server on :6006
+npm run build-storybook      # static build -> storybook-static/
+npm run test-storybook:vrt   # Playwright VRT against built stories
+```
+
+Stories live next to components as `*.stories.ts`. Current coverage is a
+5-component representative set (Chart, LeaderboardTable, KeyFindings,
+HeroSection, ConvergenceLine); full catalog is tracked under `sb-v8j`.
+
+Two known limitations of the Astro + Storybook integration:
+
+1. **Storybook MCP is React-only** in Storybook 10.3. Agent-queryable component
+   metadata (the MCP feature called out in the frontend workflow spec) is
+   deferred until Storybook ships MCP support for non-React renderers. See
+   bead `sb-v8j`.
+2. **Client-side `<script>` hoisting** inside `.astro` components does not
+   execute in storybook-astro's static render mode. Chart containers render
+   with their `data-option` attributes but echarts does not initialize; VRT
+   baselines capture the container + layout, not live chart paint. Live
+   charts are covered by the route-level VRT under `e2e/visual/routes.visual.spec.ts`.
+
 ## Submit Results
 
 Want to add your provider to the leaderboard? Here's how:

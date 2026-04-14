@@ -150,13 +150,48 @@ jobs:
             site/e2e/test-results/
           retention-days: 14
 
+  storybook:
+    # sb-u74 Pass 4.1 — Storybook build + story-level VRT gate.
+    # Runs on macOS because story VRT baselines under e2e/visual/__screenshots__/
+    # are generated from the macOS Playwright Chromium build, same rationale
+    # as the routes-VRT `visual` job above.
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Install site dependencies
+        working-directory: site
+        run: npm ci
+      - name: Install Playwright browsers
+        working-directory: site
+        run: npx playwright install --with-deps chromium
+      - name: Build Storybook
+        working-directory: site
+        run: npm run build-storybook
+      - name: Run Storybook VRT
+        working-directory: site
+        env:
+          CI: "true"
+        run: npm run test-storybook:vrt
+      - name: Upload Storybook VRT report on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: storybook-vrt-report
+          path: |
+            site/playwright-report/
+            site/e2e/test-results-storybook/
+          retention-days: 14
+
   merge-ready:
     if: always()
-    # `visual` is intentionally NOT a required input: VRT diffs are sensitive
-    # to runner-OS font rasterization, and we treat it as a signal that gets
-    # investigated per-PR rather than a hard merge gate. Baselines are still
-    # committed and the job still runs.
-    needs: [lint, test, site, validate-submissions, visual]
+    # `visual` and `storybook` are intentionally NOT required inputs: VRT diffs
+    # are sensitive to runner-OS font rasterization, and we treat them as
+    # signals that get investigated per-PR rather than hard merge gates.
+    # Baselines are still committed and the jobs still run.
+    needs: [lint, test, site, validate-submissions, visual, storybook]
     runs-on: ubuntu-latest
     steps:
       - name: Check required jobs passed
@@ -166,3 +201,4 @@ jobs:
             exit 1
           fi
           echo "VRT status (advisory): ${{ needs.visual.result }}"
+          echo "Storybook VRT status (advisory): ${{ needs.storybook.result }}"

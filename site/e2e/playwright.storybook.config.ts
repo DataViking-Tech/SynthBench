@@ -1,15 +1,14 @@
 import { defineConfig, devices } from "@playwright/test";
 
+// sb-u74 Pass 4.1 — VRT for Storybook stories.
+// Runs Playwright against a pre-built storybook-static/ served by http-server.
+// Shares the route-VRT snapshot-path convention so macOS dev vs Linux CI baselines
+// coexist without collision.
+
 export default defineConfig({
   testDir: "./visual",
-  // sb-u74 added storybook.visual.spec.ts under the same dir but it has its
-  // own config (playwright.storybook.config.ts) + http-server webServer. Keep
-  // the routes-VRT config scoped to routes+charts so `playwright test` from
-  // site/ doesn't try to load Storybook stories against the Astro dev server.
-  testIgnore: ["storybook.visual.spec.ts"],
-  outputDir: "./test-results",
-  // Scope snapshots by platform + project so macOS dev baselines and Linux CI
-  // baselines can coexist (font rendering differs across OSes).
+  testMatch: "storybook.visual.spec.ts",
+  outputDir: "./test-results-storybook",
   snapshotPathTemplate:
     "{testDir}/__screenshots__/{testFilePath}/{platform}/{projectName}/{arg}{ext}",
   fullyParallel: true,
@@ -18,7 +17,7 @@ export default defineConfig({
   workers: process.env.CI ? 1 : undefined,
   reporter: "html",
   use: {
-    baseURL: "http://localhost:4321/synthbench/",
+    baseURL: "http://localhost:6007",
     screenshot: "only-on-failure",
   },
   expect: {
@@ -32,15 +31,12 @@ export default defineConfig({
       name: "desktop-chromium",
       use: { ...devices["Desktop Chrome"] },
     },
-    {
-      name: "mobile-chromium",
-      use: { ...devices["Pixel 5"] },
-    },
   ],
   webServer: {
-    command: "npm run preview",
-    port: 4321,
+    command: "npx http-server storybook-static -p 6007 --silent",
+    port: 6007,
     reuseExistingServer: !process.env.CI,
     cwd: "..",
+    timeout: 30000,
   },
 });

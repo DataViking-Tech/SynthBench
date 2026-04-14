@@ -9,7 +9,10 @@
     "preview": "astro preview",
     "check": "astro check",
     "lint": "biome check .",
-    "lint:fix": "biome check --write ."
+    "lint:fix": "biome check --write .",
+    "storybook": "storybook dev -p 6006",
+    "build-storybook": "storybook build",
+    "test-storybook:vrt": "playwright test --config=e2e/playwright.storybook.config.ts"
   },
   "dependencies": {
     "astro": "^6.1.5",
@@ -19,8 +22,14 @@
     "@astrojs/check": "^0.9.8",
     "@biomejs/biome": "^1.9.4",
     "@playwright/test": "^1.59.1",
+    "@storybook-astro/framework": "^1.1.0",
+    "@storybook/addon-a11y": "^10.3.5",
+    "@storybook/addon-themes": "^10.3.5",
+    "@storybook/builder-vite": "^10.3.5",
     "@tailwindcss/vite": "^4.1.4",
     "@types/node": "^25.6.0",
+    "http-server": "^14.1.1",
+    "storybook": "^10.3.5",
     "tailwindcss": "^4.1.4",
     "typescript": "^5.8.3"
   }
