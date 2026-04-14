@@ -116,6 +116,7 @@ class OllamaProvider(Provider):
             metadata={
                 "model": self._model,
                 "finish_reason": resp.choices[0].finish_reason,
+                "usage": None,
             },
         )
 

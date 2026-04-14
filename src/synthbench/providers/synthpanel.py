@@ -379,6 +379,9 @@ class SynthPanelProvider(Provider):
 
         responses: list[str] = []
         refusals = 0
+        input_tokens_total = 0
+        output_tokens_total = 0
+        usage_calls = 0
         for result in results:
             if isinstance(result, Exception):
                 refusals += 1
@@ -389,17 +392,33 @@ class SynthPanelProvider(Provider):
                 refusals += 1
             else:
                 responses.append(selected)
+            usage = getattr(result, "usage", None)
+            if usage is not None:
+                input_tokens_total += getattr(usage, "input_tokens", 0) or 0
+                output_tokens_total += getattr(usage, "output_tokens", 0) or 0
+                usage_calls += 1
 
         total = len(responses) + refusals
         counts = Counter(responses)
         probs = [counts.get(opt, 0) / max(total, 1) for opt in options]
         refusal_prob = refusals / max(total, 1)
 
+        metadata: dict | None = None
+        if usage_calls > 0:
+            metadata = {
+                "usage": {
+                    "input_tokens": input_tokens_total,
+                    "output_tokens": output_tokens_total,
+                    "call_count": usage_calls,
+                }
+            }
+
         return Distribution(
             probabilities=probs,
             refusal_probability=refusal_prob,
             method="sampling",
             n_samples=total,
+            metadata=metadata,
         )
 
     # ── CLI fallback path ────────────────────────────────────────
