@@ -76,6 +76,7 @@ def _compute_topic_scores(per_question: list[dict]) -> dict[str, float]:
 
 def _build_entry(r: dict, rank: int) -> dict:
     """Build a leaderboard entry from a result dict."""
+    from synthbench.config_id import build_config_id
     from synthbench.leaderboard import display_provider_name, provider_framework
 
     cfg = r.get("config", {})
@@ -88,6 +89,16 @@ def _build_entry(r: dict, rank: int) -> dict:
 
     is_baseline = framework == "baseline"
     is_ensemble = "ensemble" in provider_raw.lower()
+
+    tpl_stem = _tpl_name(cfg.get("prompt_template"))
+    config_id, _ = build_config_id(
+        provider_raw,
+        dataset=cfg.get("dataset", "unknown"),
+        temperature=cfg.get("temperature"),
+        template=tpl_stem,
+        samples_per_question=cfg.get("samples_per_question"),
+        question_set_hash=cfg.get("question_set_hash"),
+    )
 
     ci_lower = round(ci[0], 6) if len(ci) >= 2 else 0
     ci_upper = round(ci[1], 6) if len(ci) >= 2 else 0
@@ -106,6 +117,7 @@ def _build_entry(r: dict, rank: int) -> dict:
 
     entry: dict = {
         "rank": rank,
+        "config_id": config_id,
         "provider": provider_name,
         "model": provider_name,
         "dataset": cfg.get("dataset", "unknown"),

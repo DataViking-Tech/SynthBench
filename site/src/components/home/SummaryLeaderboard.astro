@@ -5,9 +5,21 @@ import leaderboardRaw from "@/data/leaderboard.json";
 
 const leaderboard = leaderboardRaw as LeaderboardData;
 
+const rawBase = import.meta.env.BASE_URL || "/";
+const base = rawBase.endsWith("/") ? rawBase : `${rawBase}/`;
+
 function formatNormalized(value: number | undefined): string {
   if (value == null || Number.isNaN(value)) return "—";
   return `${Math.round(value * 100)}%`;
+}
+
+function configHref(entry: LeaderboardEntry): string | null {
+  return entry.config_id ? `${base}config/${entry.config_id}/` : null;
+}
+
+function rowAriaLabel(entry: LeaderboardEntry): string {
+  const parts = [entry.model, entry.dataset, `SPS ${entry.sps.toFixed(3)}`];
+  return `View configuration details for ${parts.join(", ")}`;
 }
 
 // Group entries by dataset, sort by SPS desc, take top 3 non-baseline
@@ -25,11 +37,11 @@ for (const ds of leaderboard.datasets) {
 <section class="w-full max-w-5xl mx-auto py-12 px-4">
   <h2 class="text-2xl font-bold text-center mb-2">Leaderboard Summary</h2>
   <p class="text-center text-sm text-muted mb-8">
-    Top 3 models per dataset by Survey Parity Score
+    Top 3 models per dataset by Survey Parity Score · click a row for config details
   </p>
 
   <div class="overflow-x-auto rounded-lg border border-muted/20">
-    <table class="w-full text-sm">
+    <table class="w-full text-sm" id="summary-leaderboard-table">
       <thead>
         <tr class="bg-surface dark:bg-surface-dark border-b border-muted/20">
           <th class="px-4 py-3 text-left font-semibold">#</th>
@@ -43,17 +55,29 @@ for (const ds of leaderboard.datasets) {
       </thead>
       <tbody>
         {topEntries.map((group) =>
-          group.entries.map((entry, i) => (
+          group.entries.map((entry, i) => {
+            const href = configHref(entry);
+            const label = rowAriaLabel(entry);
+            return (
             <tr
               class:list={[
-                "border-b border-muted/10",
+                "summary-row border-b border-muted/10 transition-colors outline-none",
+                href && "cursor-pointer hover:bg-primary/5 dark:hover:bg-primary/10 focus-visible:bg-primary/10",
                 entry.is_ensemble && "bg-primary/5",
                 i === 0 && "font-medium",
               ]}
+              data-href={href ?? undefined}
+              role={href ? "link" : undefined}
+              tabindex={href ? 0 : undefined}
+              aria-label={href ? label : undefined}
             >
               <td class="px-4 py-2.5 text-muted">{i + 1}</td>
               <td class="px-4 py-2.5">
-                <span>{entry.model}</span>
+                {href ? (
+                  <a href={href} class="hover:underline focus-visible:underline" tabindex={-1}>{entry.model}</a>
+                ) : (
+                  <span>{entry.model}</span>
+                )}
                 {entry.is_ensemble && (
                   <span class="ml-1 text-xs px-1.5 py-0.5 rounded bg-primary/10 text-primary" title={entry.provider}>
                     ensemble
@@ -89,7 +113,8 @@ for (const ds of leaderboard.datasets) {
                 {entry.p_rank.toFixed(3)}
               </td>
             </tr>
-          )),
+            );
+          }),
         )}
       </tbody>
     </table>
@@ -110,3 +135,37 @@ for (const ds of leaderboard.datasets) {
     </a>
   </p>
 </section>
+
+<script>
+  function initSummaryLeaderboard() {
+    const table = document.getElementById("summary-leaderboard-table");
+    if (!table) return;
+    const rows = table.querySelectorAll<HTMLTableRowElement>("tr.summary-row[data-href]");
+    for (const row of rows) {
+      const href = row.dataset.href;
+      if (!href) continue;
+
+      const navigate = () => {
+        window.location.href = href;
+      };
+
+      row.addEventListener("click", (event) => {
+        const target = event.target as HTMLElement;
+        if (target.closest("a")) return;
+        if (window.getSelection()?.toString()) return;
+        navigate();
+      });
+
+      row.addEventListener("keydown", (event) => {
+        if (event.key === "Enter" || event.key === " ") {
+          const target = event.target as HTMLElement;
+          if (target !== row) return;
+          event.preventDefault();
+          navigate();
+        }
+      });
+    }
+  }
+
+  initSummaryLeaderboard();
+</script>
