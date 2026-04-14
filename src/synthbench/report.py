@@ -7,7 +7,34 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 from synthbench import __version__
-from synthbench.runner import BenchmarkResult
+from synthbench.runner import BenchmarkResult, QuestionResult
+
+
+def _sum_per_question_usage(per_q: list[QuestionResult]) -> dict | None:
+    """Sum token_usage across per-question results.
+
+    Returns None when no question carries usage. ``source`` is ``"measured"``
+    if every question reported usage, ``"partial"`` if only some did.
+    """
+    input_tot = 0
+    output_tot = 0
+    calls = 0
+    with_usage = 0
+    for q in per_q:
+        if not q.token_usage:
+            continue
+        with_usage += 1
+        input_tot += q.token_usage.get("input_tokens", 0) or 0
+        output_tot += q.token_usage.get("output_tokens", 0) or 0
+        calls += q.token_usage.get("call_count", 0) or 0
+    if with_usage == 0:
+        return None
+    return {
+        "input_tokens": input_tot,
+        "output_tokens": output_tot,
+        "call_count": calls,
+        "source": "measured" if with_usage == len(per_q) else "partial",
+    }
 
 
 def to_json(result: BenchmarkResult) -> dict:
@@ -33,6 +60,8 @@ def to_json(result: BenchmarkResult) -> dict:
     parse_failure_rate = (
         result.total_parse_failures / total_samples if total_samples > 0 else 0.0
     )
+
+    aggregate_token_usage = _sum_per_question_usage(result.questions)
 
     return {
         "benchmark": "synthbench",
@@ -67,6 +96,7 @@ def to_json(result: BenchmarkResult) -> dict:
                 if "contamination_sensitivity" in result.config
                 else {}
             ),
+            **({"token_usage": aggregate_token_usage} if aggregate_token_usage else {}),
         },
         "demographic_breakdown": {
             attr: [
@@ -102,6 +132,7 @@ def to_json(result: BenchmarkResult) -> dict:
                 "model_refusal_rate": round(q.model_refusal_rate, 6),
                 "human_refusal_rate": round(q.human_refusal_rate, 6),
                 "temporal_year": q.temporal_year,
+                **({"token_usage": q.token_usage} if q.token_usage else {}),
             }
             for q in result.questions
         ],

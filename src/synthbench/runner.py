@@ -20,7 +20,7 @@ from synthbench.metrics import (
     extract_human_refusal_rate,
     conditioning_fidelity,
 )
-from synthbench.providers.base import Distribution, PersonaSpec, Provider
+from synthbench.providers.base import Distribution, PersonaSpec, Provider, Response
 from synthbench.stats import bootstrap_ci, question_set_hash
 
 
@@ -72,6 +72,39 @@ class QuestionResult:
     model_refusal_rate: float = 0.0
     human_refusal_rate: float = 0.0
     temporal_year: int = 0
+    token_usage: dict | None = None
+    """Summed token usage across samples for this question.
+
+    Shape: {"input_tokens": int, "output_tokens": int, "call_count": int}.
+    None when the provider did not report usage for any sample.
+    """
+
+
+def _aggregate_token_usage(responses: list[Response]) -> dict | None:
+    """Sum input/output tokens across sample responses.
+
+    Returns None if no response carried usage data; otherwise returns
+    {"input_tokens": int, "output_tokens": int, "call_count": int}.
+    """
+    input_tot = 0
+    output_tot = 0
+    calls = 0
+    any_usage = False
+    for r in responses:
+        usage = (r.metadata or {}).get("usage")
+        if usage is None:
+            continue
+        any_usage = True
+        input_tot += usage.get("input_tokens", 0) or 0
+        output_tot += usage.get("output_tokens", 0) or 0
+        calls += 1
+    if not any_usage:
+        return None
+    return {
+        "input_tokens": input_tot,
+        "output_tokens": output_tot,
+        "call_count": calls,
+    }
 
 
 @dataclass
@@ -340,6 +373,7 @@ class BenchmarkRunner:
     async def _evaluate_question(self, question: Question) -> QuestionResult:
         """Sample the provider and compute metrics for one question."""
         model_refusal_rate = 0.0
+        token_usage: dict | None = None
 
         if self.provider.supports_distribution:
             dist = await self.provider.get_distribution(
@@ -351,11 +385,14 @@ class BenchmarkRunner:
             model_refusal_rate = dist.refusal_probability
             n_samples = dist.n_samples or self.samples_per_question
             n_parse_failures = 0
+            if dist.metadata:
+                token_usage = dist.metadata.get("usage")
         else:
             (
                 responses,
                 refusals,
                 parse_fails,
+                token_usage,
             ) = await self._collect_samples_with_refusals(question)
             counts = Counter(responses)
             total = len(responses) + refusals
@@ -387,6 +424,7 @@ class BenchmarkRunner:
             model_refusal_rate=model_refusal_rate,
             human_refusal_rate=human_refusal_rate,
             temporal_year=wave_year(question.survey),
+            token_usage=token_usage,
         )
 
     async def _run_batched(
@@ -438,6 +476,7 @@ class BenchmarkRunner:
         model_dist = _normalize_model_dist(model_dist, question.options)
         model_refusal_rate = dist.refusal_probability
         n_samples = dist.n_samples or self.samples_per_question
+        token_usage = dist.metadata.get("usage") if dist.metadata else None
 
         human_refusal_rate = extract_human_refusal_rate(question.human_distribution)
         jsd = jensen_shannon_divergence(question.human_distribution, model_dist)
@@ -458,14 +497,17 @@ class BenchmarkRunner:
             model_refusal_rate=model_refusal_rate,
             human_refusal_rate=human_refusal_rate,
             temporal_year=wave_year(question.survey),
+            token_usage=token_usage,
         )
 
     async def _collect_samples_with_refusals(
         self, question: Question, persona: PersonaSpec | None = None
-    ) -> tuple[list[str], int, int]:
+    ) -> tuple[list[str], int, int, dict | None]:
         """Call the provider samples_per_question times, tracking refusals.
 
-        Returns (selected_options, refusal_count, parse_failure_count).
+        Returns (selected_options, refusal_count, parse_failure_count,
+        token_usage). token_usage is the summed per-sample usage dict, or
+        None if no sample reported usage.
         """
 
         async def _one_sample():
@@ -486,7 +528,8 @@ class BenchmarkRunner:
             for r in results
             if not r.refusal and r.selected_option not in valid_options
         )
-        return selected, refusals, parse_failures
+        token_usage = _aggregate_token_usage(results)
+        return selected, refusals, parse_failures, token_usage
 
     async def _sample_distribution(
         self, question: Question, persona: PersonaSpec | None = None
@@ -501,9 +544,12 @@ class BenchmarkRunner:
             )
             model_dist = dict(zip(question.options, dist.probabilities))
         else:
-            responses, _refusals, _fails = await self._collect_samples_with_refusals(
-                question, persona=persona
-            )
+            (
+                responses,
+                _refusals,
+                _fails,
+                _usage,
+            ) = await self._collect_samples_with_refusals(question, persona=persona)
             total = len(responses) + _refusals
             counts = Counter(responses)
             model_dist = {

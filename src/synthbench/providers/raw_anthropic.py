@@ -90,10 +90,21 @@ class RawAnthropicProvider(Provider):
             # Fallback: pick first option (will show up as noise in metrics)
             selected = options[0]
 
+        usage = None
+        if getattr(message, "usage", None) is not None:
+            usage = {
+                "input_tokens": message.usage.input_tokens,
+                "output_tokens": message.usage.output_tokens,
+            }
+
         return Response(
             selected_option=selected,
             raw_text=raw_text,
-            metadata={"model": self._model, "stop_reason": message.stop_reason},
+            metadata={
+                "model": self._model,
+                "stop_reason": message.stop_reason,
+                "usage": usage,
+            },
         )
 
     async def close(self) -> None:

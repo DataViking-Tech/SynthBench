@@ -14,6 +14,7 @@ from synthbench.providers.base import (
 from synthbench.runner import (
     BenchmarkRunner,
     DemographicGroupResult,
+    _aggregate_token_usage,
     _normalize_model_dist,
 )
 
@@ -514,3 +515,62 @@ def test_subpop_attributes_match_raw_data():
         f"SUBPOP_ATTRIBUTES mismatch. Got {sorted(SUBPOP_ATTRIBUTES)}, "
         f"expected {sorted(expected)}"
     )
+
+
+# --- Token usage aggregation ---
+
+
+def _resp_with_usage(input_tokens: int | None, output_tokens: int | None) -> Response:
+    if input_tokens is None and output_tokens is None:
+        return Response(selected_option="A", metadata={"model": "x", "usage": None})
+    return Response(
+        selected_option="A",
+        metadata={
+            "model": "x",
+            "usage": {
+                "input_tokens": input_tokens,
+                "output_tokens": output_tokens,
+            },
+        },
+    )
+
+
+class TestAggregateTokenUsage:
+    def test_all_have_usage_sums_correctly(self):
+        responses = [
+            _resp_with_usage(10, 2),
+            _resp_with_usage(15, 3),
+            _resp_with_usage(7, 1),
+        ]
+        agg = _aggregate_token_usage(responses)
+        assert agg == {"input_tokens": 32, "output_tokens": 6, "call_count": 3}
+
+    def test_some_have_usage_sums_only_those(self):
+        responses = [
+            _resp_with_usage(10, 2),
+            _resp_with_usage(None, None),  # ollama-style: usage=None
+            Response(selected_option="A"),  # no metadata at all
+            _resp_with_usage(5, 1),
+        ]
+        agg = _aggregate_token_usage(responses)
+        assert agg == {"input_tokens": 15, "output_tokens": 3, "call_count": 2}
+
+    def test_none_have_usage_returns_none(self):
+        responses = [
+            _resp_with_usage(None, None),
+            Response(selected_option="A"),
+            Response(selected_option="B", metadata={"model": "x"}),
+        ]
+        assert _aggregate_token_usage(responses) is None
+
+    def test_zero_usage_returns_zeros_not_none(self):
+        """Provider explicitly reporting zero tokens should still register."""
+        responses = [
+            _resp_with_usage(0, 0),
+            _resp_with_usage(0, 0),
+        ]
+        agg = _aggregate_token_usage(responses)
+        assert agg == {"input_tokens": 0, "output_tokens": 0, "call_count": 2}
+
+    def test_empty_responses_returns_none(self):
+        assert _aggregate_token_usage([]) is None

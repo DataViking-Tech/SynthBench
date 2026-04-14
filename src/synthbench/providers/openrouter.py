@@ -109,12 +109,20 @@ class OpenRouterProvider(Provider):
         if selected is None:
             selected = options[0]
 
+        usage = None
+        if getattr(resp, "usage", None) is not None:
+            usage = {
+                "input_tokens": resp.usage.prompt_tokens,
+                "output_tokens": resp.usage.completion_tokens,
+            }
+
         return Response(
             selected_option=selected,
             raw_text=raw_text,
             metadata={
                 "model": self._model,
                 "finish_reason": resp.choices[0].finish_reason,
+                "usage": usage,
             },
         )
 

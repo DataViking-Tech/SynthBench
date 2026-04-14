@@ -27,6 +27,7 @@ class Distribution:
     refusal_probability: float = 0.0
     method: str = "sampling"
     n_samples: int | None = None
+    metadata: dict | None = None
 
 
 @dataclass
