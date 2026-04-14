@@ -1,6 +1,6 @@
 """Contamination detection for benchmark results.
 
-Two complementary probes:
+Three complementary probes:
 
 1. Cross-model convergence (:func:`convergence_analysis`) — given multiple
    result files, flag questions where every model produces nearly-identical
@@ -10,6 +10,12 @@ Two complementary probes:
    each and measure how much parity changes. High sensitivity = the model
    behaves very differently on rephrased inputs, consistent with surface-form
    memorization rather than semantic reasoning.
+3. De-identification sensitivity (:func:`run_deident_test`) — for a single
+   model, run 20 well-known opinion topics at 5 progressively abstracted
+   levels (full brand → feature description). A model that reasons from
+   features should produce stable distributions across levels; a model that
+   recognizes the brand and recalls training-corpus opinions drifts as
+   identifying information is stripped.
 """
 
 from __future__ import annotations
@@ -496,6 +502,251 @@ def result_to_json(result: ContaminationTestResult) -> dict:
                 "sensitivity_pct": round(q.sensitivity_pct, 6),
             }
             for q in result.per_question
+        ],
+    }
+
+
+# ---------------------------------------------------------------------------
+# De-identification sensitivity
+# ---------------------------------------------------------------------------
+
+
+@dataclass
+class DeidentTopicResult:
+    """De-identification sensitivity result for a single topic."""
+
+    key: str
+    topic: str
+    options: list[str]
+    level_texts: list[str]
+    level_labels: list[str]
+    level_distributions: list[dict[str, float]]
+    pairwise_jsd: list[list[float]]  # symmetric n_levels x n_levels matrix
+    mean_pairwise_jsd: float  # mean of upper triangle (diagonal excluded)
+    per_option_std: dict[str, float]  # std of each option's prob across levels
+    mean_option_std: float  # mean across options
+    drift_l1_to_l5: float  # JSD between level 1 and level 5 distributions
+
+
+@dataclass
+class DeidentTestResult:
+    """Aggregate de-identification sensitivity result across all topics."""
+
+    provider_name: str
+    n_topics: int
+    n_levels: int
+    samples_per_question: int
+    level_labels: list[str]
+    per_topic: list[DeidentTopicResult]
+    mean_pairwise_jsd: float  # avg across topics — primary recognition score
+    mean_option_std: float  # avg across topics
+    mean_drift_l1_to_l5: float  # avg across topics
+    elapsed_seconds: float
+
+
+def _pairwise_jsd_matrix(distributions: list[dict[str, float]]) -> list[list[float]]:
+    """Compute the full symmetric pairwise JSD matrix."""
+    from synthbench.metrics import jensen_shannon_divergence
+
+    n = len(distributions)
+    matrix = [[0.0] * n for _ in range(n)]
+    for i in range(n):
+        for j in range(i + 1, n):
+            jsd = jensen_shannon_divergence(distributions[i], distributions[j])
+            matrix[i][j] = jsd
+            matrix[j][i] = jsd
+    return matrix
+
+
+def _mean_upper_triangle(matrix: list[list[float]]) -> float:
+    n = len(matrix)
+    if n < 2:
+        return 0.0
+    values = [matrix[i][j] for i in range(n) for j in range(i + 1, n)]
+    return sum(values) / len(values) if values else 0.0
+
+
+async def run_deident_test(
+    *,
+    provider: Provider,
+    samples_per_question: int,
+    concurrency: int = 10,
+    suite_path: Path,
+) -> DeidentTestResult:
+    """Run the de-identification sensitivity test against a single provider.
+
+    Loads a de-identification suite (see ``suites/deident_test.json``) with
+    20 well-known opinion topics, each presented at 5 progressively abstracted
+    levels (full brand → abstract feature description). For every level the
+    provider returns a response distribution; we then compute the pairwise
+    Jensen-Shannon divergence across the 5 distributions. Larger divergence
+    means the provider's opinion shifts substantially as identifying
+    information is stripped — a signature of brand recognition rather than
+    feature-driven reasoning.
+
+    Args:
+        provider: Provider to evaluate.
+        samples_per_question: Samples used to estimate each distribution.
+        concurrency: Max concurrent in-flight distribution requests.
+        suite_path: Path to the de-identification suite JSON.
+
+    Returns:
+        DeidentTestResult with per-topic and aggregate metrics.
+    """
+    with open(suite_path) as f:
+        suite = json.load(f)
+
+    items: list[dict] = suite["items"]
+    if not items:
+        raise ValueError(f"De-identification suite is empty: {suite_path}")
+
+    suite_options: list[str] | None = suite.get("options")
+    level_labels: list[str] = list(
+        suite.get(
+            "level_labels",
+            [f"level_{i + 1}" for i in range(len(items[0]["levels"]))],
+        )
+    )
+    n_levels = len(items[0]["levels"])
+    for item in items:
+        if len(item["levels"]) != n_levels:
+            raise ValueError(
+                f"Topic {item.get('key')} has {len(item['levels'])} levels; "
+                f"expected {n_levels} for consistency."
+            )
+
+    sem = asyncio.Semaphore(max(1, concurrency))
+
+    async def _query(text: str, options: list[str]) -> dict[str, float]:
+        async with sem:
+            dist = await provider.get_distribution(
+                text, options, n_samples=samples_per_question
+            )
+        return dict(zip(options, dist.probabilities))
+
+    tasks: list[asyncio.Task] = []
+    item_options: list[list[str]] = []
+    for item in items:
+        options = list(item.get("options") or suite_options or [])
+        if not options:
+            raise ValueError(
+                f"Topic {item.get('key')} has no options (neither item-level "
+                "nor suite-level) — cannot query provider."
+            )
+        item_options.append(options)
+        for text in item["levels"]:
+            tasks.append(asyncio.create_task(_query(text, options)))
+
+    t0 = time.monotonic()
+    all_dists = await asyncio.gather(*tasks)
+    elapsed = time.monotonic() - t0
+
+    per_topic: list[DeidentTopicResult] = []
+    idx = 0
+    for item, options in zip(items, item_options):
+        dists: list[dict[str, float]] = []
+        for _ in range(n_levels):
+            dists.append(all_dists[idx])
+            idx += 1
+
+        matrix = _pairwise_jsd_matrix(dists)
+        mean_pairwise = _mean_upper_triangle(matrix)
+
+        per_option_std: dict[str, float] = {}
+        for option in options:
+            proportions = [d.get(option, 0.0) for d in dists]
+            per_option_std[option] = _std(proportions)
+        mean_option_std = (
+            sum(per_option_std.values()) / len(per_option_std)
+            if per_option_std
+            else 0.0
+        )
+
+        from synthbench.metrics import jensen_shannon_divergence
+
+        drift = jensen_shannon_divergence(dists[0], dists[-1])
+
+        per_topic.append(
+            DeidentTopicResult(
+                key=item["key"],
+                topic=item.get("topic", item["key"]),
+                options=options,
+                level_texts=list(item["levels"]),
+                level_labels=level_labels,
+                level_distributions=dists,
+                pairwise_jsd=[[round(x, 6) for x in row] for row in matrix],
+                mean_pairwise_jsd=round(mean_pairwise, 6),
+                per_option_std={k: round(v, 6) for k, v in per_option_std.items()},
+                mean_option_std=round(mean_option_std, 6),
+                drift_l1_to_l5=round(drift, 6),
+            )
+        )
+
+    mean_pairwise_agg = (
+        sum(t.mean_pairwise_jsd for t in per_topic) / len(per_topic)
+        if per_topic
+        else 0.0
+    )
+    mean_option_std_agg = (
+        sum(t.mean_option_std for t in per_topic) / len(per_topic) if per_topic else 0.0
+    )
+    mean_drift_agg = (
+        sum(t.drift_l1_to_l5 for t in per_topic) / len(per_topic) if per_topic else 0.0
+    )
+
+    return DeidentTestResult(
+        provider_name=provider.name,
+        n_topics=len(items),
+        n_levels=n_levels,
+        samples_per_question=samples_per_question,
+        level_labels=level_labels,
+        per_topic=per_topic,
+        mean_pairwise_jsd=round(mean_pairwise_agg, 6),
+        mean_option_std=round(mean_option_std_agg, 6),
+        mean_drift_l1_to_l5=round(mean_drift_agg, 6),
+        elapsed_seconds=elapsed,
+    )
+
+
+def deident_result_to_json(result: DeidentTestResult) -> dict:
+    """Serialize a :class:`DeidentTestResult` to a JSON-ready dict.
+
+    The ``aggregate.mean_pairwise_jsd`` field is the primary recognition
+    score: higher values indicate the provider's opinion varies substantially
+    across de-identification levels, consistent with brand-recognition-driven
+    memorization rather than feature-driven reasoning.
+    """
+    return {
+        "benchmark": "synthbench",
+        "type": "contamination_deident",
+        "provider": result.provider_name,
+        "config": {
+            "samples_per_question": result.samples_per_question,
+            "n_topics": result.n_topics,
+            "n_levels": result.n_levels,
+            "level_labels": result.level_labels,
+        },
+        "aggregate": {
+            "mean_pairwise_jsd": round(result.mean_pairwise_jsd, 6),
+            "mean_option_std": round(result.mean_option_std, 6),
+            "mean_drift_l1_to_l5": round(result.mean_drift_l1_to_l5, 6),
+        },
+        "elapsed_seconds": round(result.elapsed_seconds, 3),
+        "per_topic": [
+            {
+                "key": t.key,
+                "topic": t.topic,
+                "options": t.options,
+                "level_labels": t.level_labels,
+                "level_texts": t.level_texts,
+                "level_distributions": t.level_distributions,
+                "pairwise_jsd": t.pairwise_jsd,
+                "mean_pairwise_jsd": t.mean_pairwise_jsd,
+                "per_option_std": t.per_option_std,
+                "mean_option_std": t.mean_option_std,
+                "drift_l1_to_l5": t.drift_l1_to_l5,
+            }
+            for t in result.per_topic
         ],
     }
 
