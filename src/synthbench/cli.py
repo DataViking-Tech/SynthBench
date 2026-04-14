@@ -1201,6 +1201,142 @@ async def _contamination_async(
         click.echo(f"Results saved: {json_path}")
 
 
+@main.command("contamination-deident")
+@click.option(
+    "--provider",
+    "-p",
+    required=True,
+    help="Provider name (raw-anthropic, openrouter, etc.).",
+)
+@click.option(
+    "--model",
+    "-m",
+    default="haiku",
+    help="Model name or alias.",
+)
+@click.option(
+    "--output",
+    "-o",
+    type=click.Path(),
+    default="results",
+    help="Output directory for results.",
+)
+@click.option(
+    "--samples",
+    "-s",
+    type=int,
+    default=30,
+    help="Samples per question for distribution estimation.",
+)
+@click.option(
+    "--concurrency",
+    "-c",
+    type=int,
+    default=10,
+    help="Max concurrent API requests.",
+)
+@click.option("--url", default=None, help="Endpoint URL for http provider.")
+@click.option(
+    "--json-only", is_flag=True, help="Output JSON to stdout instead of files."
+)
+def contamination_deident(
+    provider, model, output, samples, concurrency, url, json_only
+):
+    """Run de-identification sensitivity test to detect brand recognition.
+
+    Evaluates 20 well-known topics at 5 progressively abstracted levels
+    (full brand -> abstract feature description). Providers that reason
+    from features produce stable distributions; providers that recognize
+    the brand drift as identifying information is stripped.
+
+    Example:
+        synthbench contamination-deident --provider openrouter --model anthropic/claude-haiku-4-5
+    """
+    asyncio.run(
+        _contamination_deident_async(
+            provider, model, output, samples, concurrency, url, json_only
+        )
+    )
+
+
+async def _contamination_deident_async(
+    provider_name, model, output, samples, concurrency, url, json_only
+):
+    from synthbench.contamination import (
+        deident_result_to_json,
+        run_deident_test,
+    )
+    from synthbench.providers import load_provider
+
+    resolved_model = MODEL_ALIASES.get(model, model)
+
+    provider_kwargs = {"model": resolved_model}
+    if url:
+        provider_kwargs["url"] = url
+    try:
+        prov = load_provider(provider_name, **provider_kwargs)
+    except (KeyError, ImportError) as e:
+        click.echo(str(e), err=True)
+        sys.exit(1)
+
+    suite_path = Path(__file__).parent / "suites" / "deident_test.json"
+
+    click.echo(f"SynthBench De-identification Test v{__version__}")
+    click.echo(f"  Provider: {prov.name}")
+    click.echo(f"  Samples/q: {samples}")
+    click.echo("  Topics: 20 × 5 levels = 100 distributions")
+    click.echo()
+
+    try:
+        result = await run_deident_test(
+            provider=prov,
+            samples_per_question=samples,
+            concurrency=concurrency,
+            suite_path=suite_path,
+        )
+    finally:
+        await prov.close()
+
+    click.echo(
+        f"  Mean pairwise JSD: {result.mean_pairwise_jsd:.4f} "
+        f"(option std {result.mean_option_std:.4f}, "
+        f"L1->L5 drift {result.mean_drift_l1_to_l5:.4f})"
+    )
+    click.echo(f"  Elapsed: {result.elapsed_seconds:.1f}s")
+    click.echo()
+
+    result_data = deident_result_to_json(result)
+
+    if json_only:
+        click.echo(json.dumps(result_data, indent=2))
+    else:
+        sorted_topics = sorted(
+            result.per_topic, key=lambda t: t.mean_pairwise_jsd, reverse=True
+        )
+        click.echo("## Most Recognition-Sensitive Topics (top 10)")
+        click.echo()
+        click.echo("| Topic | Mean Pairwise JSD | Option Std | L1->L5 Drift |")
+        click.echo("|-------|-------------------|------------|--------------|")
+        for t in sorted_topics[:10]:
+            click.echo(
+                f"| {t.topic[:40]} "
+                f"| {t.mean_pairwise_jsd:.4f} "
+                f"| {t.mean_option_std:.4f} "
+                f"| {t.drift_l1_to_l5:.4f} |"
+            )
+        click.echo()
+
+        out_dir = Path(output)
+        out_dir.mkdir(parents=True, exist_ok=True)
+        from datetime import datetime
+
+        ts = datetime.now().strftime("%Y%m%d_%H%M%S")
+        provider_slug = prov.name.replace("/", "_")
+        json_path = out_dir / f"contamination_deident_{provider_slug}_{ts}.json"
+        json_path.write_text(json.dumps(result_data, indent=2))
+        click.echo(f"Results saved: {json_path}")
+
+
 @main.command("publish-data")
 @click.option(
     "--results-dir",

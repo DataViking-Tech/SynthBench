@@ -11,10 +11,12 @@ import pytest
 from synthbench.contamination import (
     convergence_analysis,
     convergence_to_json,
+    deident_result_to_json,
     format_convergence_report,
     load_result_distributions,
     result_to_json,
     run_contamination_test,
+    run_deident_test,
 )
 from synthbench.providers.base import Distribution, PersonaSpec, Provider, Response
 
@@ -400,6 +402,26 @@ class TestRunContaminationTest:
                 )
             )
 
+    def test_bundled_deident_suite_matches_header(self):
+        """The shipped de-identification suite has consistent header counts."""
+        suite_path = (
+            Path(__file__).parent.parent
+            / "src"
+            / "synthbench"
+            / "suites"
+            / "deident_test.json"
+        )
+        with open(suite_path) as f:
+            suite = json.load(f)
+        items = suite["items"]
+        assert len(items) == suite["n_topics"] == 20
+        assert suite["n_levels"] == 5
+        assert len(suite["level_labels"]) == 5
+        for item in items:
+            assert len(item["levels"]) == 5, item["key"]
+            assert "key" in item and "topic" in item
+        assert suite["n_total"] == 20 * 5
+
     def test_handles_zero_original_parity(self, tmp_path):
         """Guard against division-by-zero in the sensitivity ratio."""
         options = ["A", "B"]
@@ -432,3 +454,241 @@ class TestRunContaminationTest:
         assert q.original_parity == pytest.approx(0.0)
         assert q.sensitivity_pct == 0.0
         assert result.sensitivity_pct == 0.0
+
+
+# ---------------------------------------------------------------------------
+# De-identification sensitivity
+# ---------------------------------------------------------------------------
+
+
+def _write_deident_suite(
+    tmp_path: Path,
+    items: list[dict],
+    *,
+    options: list[str] | None = None,
+    level_labels: list[str] | None = None,
+) -> Path:
+    n_levels = len(items[0]["levels"]) if items else 0
+    suite = {
+        "suite": "deident_test",
+        "version": "test",
+        "n_topics": len(items),
+        "n_levels": n_levels,
+        "n_total": len(items) * n_levels,
+        "level_labels": level_labels or [f"level_{i + 1}" for i in range(n_levels)],
+        "items": items,
+    }
+    if options is not None:
+        suite["options"] = options
+    path = tmp_path / "deident_test.json"
+    path.write_text(json.dumps(suite))
+    return path
+
+
+class TestRunDeidentTest:
+    def test_identical_level_distributions_zero_variance(self, tmp_path):
+        """All five levels return the same dist -> pairwise JSD = 0."""
+        options = ["Yes", "No"]
+        item = {
+            "key": "topic1",
+            "topic": "A shared topic",
+            "levels": [f"L{i} text" for i in range(1, 6)],
+        }
+        suite_path = _write_deident_suite(tmp_path, [item], options=options)
+
+        same = [0.7, 0.3]
+        provider = _StaticDistributionProvider(
+            {f"L{i} text": same for i in range(1, 6)}
+        )
+
+        result = asyncio.run(
+            run_deident_test(
+                provider=provider,
+                samples_per_question=1,
+                concurrency=4,
+                suite_path=suite_path,
+            )
+        )
+
+        assert result.n_topics == 1
+        assert result.n_levels == 5
+        assert result.mean_pairwise_jsd == pytest.approx(0.0)
+        assert result.mean_option_std == pytest.approx(0.0)
+        assert result.mean_drift_l1_to_l5 == pytest.approx(0.0)
+
+        t = result.per_topic[0]
+        # pairwise_jsd matrix is 5x5, zero everywhere
+        assert len(t.pairwise_jsd) == 5
+        for row in t.pairwise_jsd:
+            assert all(cell == pytest.approx(0.0) for cell in row)
+
+    def test_divergent_levels_positive_variance(self, tmp_path):
+        """Distinct distributions across levels yield positive JSD."""
+        options = ["A", "B"]
+        item = {
+            "key": "topic1",
+            "topic": "Topic",
+            "levels": ["L1", "L2", "L3", "L4", "L5"],
+        }
+        suite_path = _write_deident_suite(tmp_path, [item], options=options)
+
+        provider = _StaticDistributionProvider(
+            {
+                "L1": [1.0, 0.0],  # strongly A (brand known)
+                "L2": [0.9, 0.1],
+                "L3": [0.5, 0.5],
+                "L4": [0.2, 0.8],
+                "L5": [0.0, 1.0],  # strongly B (brand stripped)
+            }
+        )
+
+        result = asyncio.run(
+            run_deident_test(
+                provider=provider,
+                samples_per_question=1,
+                concurrency=4,
+                suite_path=suite_path,
+            )
+        )
+
+        t = result.per_topic[0]
+        assert t.mean_pairwise_jsd > 0.0
+        assert t.drift_l1_to_l5 > t.mean_pairwise_jsd * 0.5
+        assert t.mean_option_std > 0.0
+        assert result.mean_pairwise_jsd == pytest.approx(t.mean_pairwise_jsd)
+
+    def test_per_item_options_override_suite_options(self, tmp_path):
+        """Item-level options take precedence over suite-level options."""
+        item = {
+            "key": "t1",
+            "topic": "Topic",
+            "levels": ["L1", "L2", "L3", "L4", "L5"],
+            "options": ["X", "Y", "Z"],
+        }
+        # Suite-level options should be ignored in favor of item-level.
+        suite_path = _write_deident_suite(
+            tmp_path, [item], options=["Ignored1", "Ignored2"]
+        )
+
+        uniform = [1.0 / 3] * 3
+        provider = _StaticDistributionProvider({f"L{i}": uniform for i in range(1, 6)})
+        result = asyncio.run(
+            run_deident_test(
+                provider=provider,
+                samples_per_question=1,
+                concurrency=2,
+                suite_path=suite_path,
+            )
+        )
+        assert result.per_topic[0].options == ["X", "Y", "Z"]
+
+    def test_empty_suite_raises(self, tmp_path):
+        path = tmp_path / "empty.json"
+        path.write_text(
+            json.dumps(
+                {
+                    "suite": "deident_test",
+                    "version": "test",
+                    "n_topics": 0,
+                    "n_levels": 0,
+                    "n_total": 0,
+                    "items": [],
+                }
+            )
+        )
+        provider = _StaticDistributionProvider({})
+        with pytest.raises(ValueError, match="empty"):
+            asyncio.run(
+                run_deident_test(
+                    provider=provider,
+                    samples_per_question=1,
+                    concurrency=2,
+                    suite_path=path,
+                )
+            )
+
+    def test_inconsistent_level_count_raises(self, tmp_path):
+        """All topics must have the same number of levels."""
+        items = [
+            {"key": "t1", "topic": "A", "levels": ["a", "b", "c", "d", "e"]},
+            {"key": "t2", "topic": "B", "levels": ["a", "b", "c"]},
+        ]
+        suite_path = _write_deident_suite(tmp_path, items, options=["X", "Y"])
+        provider = _StaticDistributionProvider({})
+        with pytest.raises(ValueError, match="levels"):
+            asyncio.run(
+                run_deident_test(
+                    provider=provider,
+                    samples_per_question=1,
+                    concurrency=2,
+                    suite_path=suite_path,
+                )
+            )
+
+    def test_missing_options_raises(self, tmp_path):
+        """Topic with no options at either level raises a clear error."""
+        item = {
+            "key": "t1",
+            "topic": "Topic",
+            "levels": ["L1", "L2", "L3", "L4", "L5"],
+        }
+        suite_path = _write_deident_suite(tmp_path, [item], options=None)
+        provider = _StaticDistributionProvider({})
+        with pytest.raises(ValueError, match="options"):
+            asyncio.run(
+                run_deident_test(
+                    provider=provider,
+                    samples_per_question=1,
+                    concurrency=2,
+                    suite_path=suite_path,
+                )
+            )
+
+    def test_deident_result_to_json_structure(self, tmp_path):
+        options = ["A", "B"]
+        item = {
+            "key": "t1",
+            "topic": "Topic label",
+            "levels": ["L1", "L2", "L3", "L4", "L5"],
+        }
+        suite_path = _write_deident_suite(
+            tmp_path,
+            [item],
+            options=options,
+            level_labels=["l1", "l2", "l3", "l4", "l5"],
+        )
+
+        provider = _StaticDistributionProvider(
+            {f"L{i}": [0.5, 0.5] for i in range(1, 6)}
+        )
+        result = asyncio.run(
+            run_deident_test(
+                provider=provider,
+                samples_per_question=1,
+                concurrency=2,
+                suite_path=suite_path,
+            )
+        )
+
+        data = deident_result_to_json(result)
+        assert data["benchmark"] == "synthbench"
+        assert data["type"] == "contamination_deident"
+        assert data["provider"] == "stub/paraphrase"
+        assert data["config"]["n_topics"] == 1
+        assert data["config"]["n_levels"] == 5
+        assert data["config"]["level_labels"] == ["l1", "l2", "l3", "l4", "l5"]
+        assert "mean_pairwise_jsd" in data["aggregate"]
+        assert "mean_option_std" in data["aggregate"]
+        assert "mean_drift_l1_to_l5" in data["aggregate"]
+        topic = data["per_topic"][0]
+        assert topic["key"] == "t1"
+        assert topic["topic"] == "Topic label"
+        assert len(topic["level_distributions"]) == 5
+        assert len(topic["pairwise_jsd"]) == 5
+        matrix = topic["pairwise_jsd"]
+        for i in range(len(matrix)):
+            assert matrix[i][i] == pytest.approx(0.0)
+            for j in range(len(matrix)):
+                assert matrix[i][j] == pytest.approx(matrix[j][i])
+        # End-to-end JSON serializable.
+        json.dumps(data)
