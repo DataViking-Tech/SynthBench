@@ -1,0 +1,415 @@
+---
+import { readFileSync } from "node:fs";
+import { dirname, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import type { RunIndex } from "@/types/runs";
+
+export async function getStaticPaths() {
+  const here = dirname(fileURLToPath(import.meta.url));
+  const indexPath = resolve(here, "../../../public/data/runs-index.json");
+  const index = JSON.parse(readFileSync(indexPath, "utf-8")) as RunIndex;
+  const configIds = new Set<string>();
+  for (const run of index.runs) {
+    if (run.config_id) configIds.add(run.config_id);
+  }
+  return [...configIds].map((id) => ({ params: { id } }));
+}
+
+const { id } = Astro.params;
+
+const rawBase = import.meta.env.BASE_URL || "/";
+const base = rawBase.endsWith("/") ? rawBase : `${rawBase}/`;
+---
+
+<BaseLayout title={`Config ${id} — SynthBench`}>
+  <div class="mx-auto w-full max-w-5xl px-4 py-8">
+    <nav class="mb-4 text-sm text-muted">
+      <a class="hover:underline" href={`${base}leaderboard/`}>Leaderboard</a>
+      <span class="mx-2">/</span>
+      <span>Configuration</span>
+    </nav>
+
+    <header class="mb-8">
+      <h1
+        id="config-title"
+        class="text-2xl sm:text-3xl font-bold tracking-tight break-words"
+      >
+        <span class="text-muted">Loading…</span>
+      </h1>
+      <p id="config-subtitle" class="mt-1 text-sm text-muted font-mono break-all">{id}</p>
+    </header>
+
+    <div
+      id="config-error"
+      class="hidden rounded border border-red-300 bg-red-50 p-4 text-sm text-red-800 dark:border-red-900 dark:bg-red-950 dark:text-red-200"
+    >
+      Failed to load configuration data.
+    </div>
+
+    <!-- Section 1: Metadata card -->
+    <section class="mb-8">
+      <h2 class="mb-3 text-lg font-semibold">Metadata</h2>
+      <dl
+        id="metadata-card"
+        class="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-3 rounded-lg border border-black/10 dark:border-white/10 bg-white/50 dark:bg-white/5 p-4 text-sm"
+      >
+        <div><dt class="text-muted">Framework</dt><dd data-field="framework">—</dd></div>
+        <div><dt class="text-muted">Base provider</dt><dd data-field="base_provider">—</dd></div>
+        <div><dt class="text-muted">Model</dt><dd data-field="model">—</dd></div>
+        <div><dt class="text-muted">Display name</dt><dd data-field="display_name">—</dd></div>
+        <div><dt class="text-muted">Dataset</dt><dd data-field="dataset">—</dd></div>
+        <div><dt class="text-muted">Temperature</dt><dd data-field="temperature">—</dd></div>
+        <div><dt class="text-muted">Template</dt><dd data-field="template">—</dd></div>
+        <div><dt class="text-muted">Samples / question</dt><dd data-field="samples_per_question">—</dd></div>
+        <div><dt class="text-muted">First replicate</dt><dd data-field="first_replicate">—</dd></div>
+        <div><dt class="text-muted">Last replicate</dt><dd data-field="last_replicate">—</dd></div>
+      </dl>
+    </section>
+
+    <!-- Section 3: Aggregated metrics (rendered before replicates for scannability) -->
+    <section class="mb-8">
+      <h2 class="mb-3 text-lg font-semibold">Aggregated metrics</h2>
+      <p class="mb-3 text-xs text-muted">
+        Mean across replicates, ± standard deviation. A single-replicate config reports std = 0.
+      </p>
+      <div id="aggregated-metrics" class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+        <div
+          class="rounded-lg border border-black/10 dark:border-white/10 bg-white/50 dark:bg-white/5 p-4"
+          data-metric="sps"
+        >
+          <div class="text-xs uppercase tracking-wide text-muted">SPS</div>
+          <div class="mt-1 text-2xl font-semibold tabular-nums" data-field="mean">—</div>
+          <div class="text-sm text-muted tabular-nums">± <span data-field="std">—</span></div>
+        </div>
+        <div
+          class="rounded-lg border border-black/10 dark:border-white/10 bg-white/50 dark:bg-white/5 p-4"
+          data-metric="jsd"
+        >
+          <div class="text-xs uppercase tracking-wide text-muted">Mean JSD</div>
+          <div class="mt-1 text-2xl font-semibold tabular-nums" data-field="mean">—</div>
+          <div class="text-sm text-muted tabular-nums">± <span data-field="std">—</span></div>
+        </div>
+        <div
+          class="rounded-lg border border-black/10 dark:border-white/10 bg-white/50 dark:bg-white/5 p-4"
+          data-metric="tau"
+        >
+          <div class="text-xs uppercase tracking-wide text-muted">Kendall τ</div>
+          <div class="mt-1 text-2xl font-semibold tabular-nums" data-field="mean">—</div>
+          <div class="text-sm text-muted tabular-nums">± <span data-field="std">—</span></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 5: Variance summary -->
+    <section class="mb-8">
+      <h2 class="mb-3 text-lg font-semibold">Variance summary</h2>
+      <dl
+        id="variance-summary"
+        class="grid grid-cols-2 sm:grid-cols-4 gap-x-6 gap-y-3 rounded-lg border border-black/10 dark:border-white/10 bg-white/50 dark:bg-white/5 p-4 text-sm"
+      >
+        <div>
+          <dt class="text-muted">Replicates</dt>
+          <dd data-field="n_replicates" class="tabular-nums">—</dd>
+        </div>
+        <div>
+          <dt class="text-muted">SPS std dev</dt>
+          <dd data-field="sps_std" class="tabular-nums">—</dd>
+        </div>
+        <div>
+          <dt class="text-muted">SPS range</dt>
+          <dd data-field="sps_range" class="tabular-nums">—</dd>
+        </div>
+        <div>
+          <dt class="text-muted">Coefficient of variation</dt>
+          <dd data-field="sps_cv" class="tabular-nums">—</dd>
+        </div>
+      </dl>
+    </section>
+
+    <!-- Section 4: Per-topic breakdown -->
+    <section class="mb-8">
+      <h2 class="mb-3 text-lg font-semibold">Per-topic breakdown</h2>
+      <p class="mb-3 text-xs text-muted">
+        Mean SPS per topic across replicates. All 10 categories shown — bars are empty for topics
+        the config did not cover.
+      </p>
+      <div
+        id="topic-chart"
+        class="echarts-container w-full rounded-lg border border-black/10 dark:border-white/10 bg-white/50 dark:bg-white/5 p-2"
+        style="height: 420px; min-height: 200px;"
+      ></div>
+    </section>
+
+    <!-- Section 2: Replicates list -->
+    <section class="mb-8">
+      <h2 class="mb-3 text-lg font-semibold">
+        Replicates <span id="replicates-count" class="text-muted font-normal">(—)</span>
+      </h2>
+      <div class="overflow-x-auto rounded-lg border border-black/10 dark:border-white/10">
+        <table class="w-full text-sm">
+          <thead class="bg-black/5 dark:bg-white/5 text-left">
+            <tr>
+              <th class="p-2 font-medium">Run</th>
+              <th class="p-2 font-medium">Timestamp</th>
+              <th class="p-2 font-medium text-right">SPS</th>
+              <th class="p-2 font-medium text-right">JSD</th>
+              <th class="p-2 font-medium text-right">τ</th>
+              <th class="p-2 font-medium text-right">N</th>
+            </tr>
+          </thead>
+          <tbody id="replicates-tbody">
+            <tr>
+              <td colspan="6" class="p-4 text-center text-muted">Loading replicates…</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </div>
+</BaseLayout>
+
+<script>
+  import * as echarts from "echarts";
+  import type { ConfigRollup } from "@/types/runs";
+
+  const ALL_TOPICS = [
+    "Politics & Governance",
+    "International Relations & Security",
+    "Economy & Work",
+    "Technology & Digital Life",
+    "Media & Information",
+    "Health & Science",
+    "Social Values & Religion",
+    "Identity & Demographics",
+    "Trust & Wellbeing",
+    "General Attitudes",
+  ] as const;
+
+  function fmt(value: number | null | undefined, digits = 3): string {
+    if (value === null || value === undefined || Number.isNaN(value)) return "—";
+    return value.toFixed(digits);
+  }
+
+  function fmtDate(iso: string | null | undefined): string {
+    if (!iso) return "—";
+    const d = new Date(iso);
+    if (Number.isNaN(d.getTime())) return iso;
+    return d.toISOString().replace("T", " ").slice(0, 16) + " UTC";
+  }
+
+  function setField(scope: Element, field: string, value: string) {
+    const el = scope.querySelector<HTMLElement>(`[data-field="${field}"]`);
+    if (el) el.textContent = value;
+  }
+
+  function renderMetadata(data: ConfigRollup) {
+    const card = document.getElementById("metadata-card");
+    if (!card) return;
+    setField(card, "framework", data.framework || "—");
+    setField(card, "base_provider", data.base_provider || "—");
+    setField(card, "model", data.model || "—");
+    setField(card, "display_name", data.display_name || "—");
+    setField(card, "dataset", data.dataset || "—");
+    setField(card, "temperature", data.temperature === null ? "—" : String(data.temperature));
+    setField(card, "template", data.template || "—");
+    setField(
+      card,
+      "samples_per_question",
+      data.samples_per_question === null ? "—" : String(data.samples_per_question),
+    );
+
+    const reps = data.replicates ?? [];
+    const timestamps = reps.map((r) => r.timestamp).filter((t): t is string => !!t).sort();
+    setField(card, "first_replicate", fmtDate(timestamps[0]));
+    setField(card, "last_replicate", fmtDate(timestamps[timestamps.length - 1]));
+  }
+
+  function renderAggregated(data: ConfigRollup) {
+    const container = document.getElementById("aggregated-metrics");
+    if (!container) return;
+    for (const metric of ["sps", "jsd", "tau"] as const) {
+      const cell = container.querySelector<HTMLElement>(`[data-metric="${metric}"]`);
+      if (!cell) continue;
+      const vals = data.aggregate?.[metric];
+      setField(cell, "mean", fmt(vals?.mean ?? null));
+      setField(cell, "std", fmt(vals?.std ?? null));
+    }
+  }
+
+  function renderVariance(data: ConfigRollup) {
+    const card = document.getElementById("variance-summary");
+    if (!card) return;
+    const v = data.variance_summary;
+    setField(card, "n_replicates", String(v?.n_replicates ?? data.n_replicates ?? 0));
+    setField(card, "sps_std", fmt(v?.sps_std ?? null));
+    const range = v?.sps_range;
+    setField(
+      card,
+      "sps_range",
+      range && range[0] !== null && range[1] !== null
+        ? `${fmt(range[0])}–${fmt(range[1])}`
+        : "—",
+    );
+    setField(card, "sps_cv", fmt(v?.sps_cv ?? null, 4));
+  }
+
+  function renderReplicates(data: ConfigRollup) {
+    const tbody = document.getElementById("replicates-tbody");
+    const count = document.getElementById("replicates-count");
+    if (!tbody) return;
+
+    const reps = data.replicates ?? [];
+    if (count) count.textContent = `(${reps.length})`;
+
+    if (reps.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="6" class="p-4 text-center text-muted">No replicates.</td></tr>`;
+      return;
+    }
+
+    const baseUrl = import.meta.env.BASE_URL || "/";
+    const base = baseUrl.endsWith("/") ? baseUrl : `${baseUrl}/`;
+
+    const rows = reps.map((rep) => {
+      const href = `${base}run/${encodeURIComponent(rep.run_id)}/`;
+      const runLabel = rep.run_id;
+      return `
+        <tr class="border-t border-black/5 dark:border-white/5 hover:bg-black/5 dark:hover:bg-white/5">
+          <td class="p-2">
+            <a class="text-primary hover:underline font-mono text-xs break-all" href="${href}">
+              ${escapeHtml(runLabel)}
+            </a>
+          </td>
+          <td class="p-2 text-muted tabular-nums whitespace-nowrap">${escapeHtml(fmtDate(rep.timestamp))}</td>
+          <td class="p-2 text-right tabular-nums">${fmt(rep.sps)}</td>
+          <td class="p-2 text-right tabular-nums">${fmt(rep.jsd)}</td>
+          <td class="p-2 text-right tabular-nums">${fmt(rep.tau)}</td>
+          <td class="p-2 text-right tabular-nums">${rep.n_questions ?? "—"}</td>
+        </tr>
+      `;
+    });
+    tbody.innerHTML = rows.join("");
+  }
+
+  function escapeHtml(s: string): string {
+    return s
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#39;");
+  }
+
+  function renderTopicChart(data: ConfigRollup) {
+    const container = document.getElementById("topic-chart");
+    if (!container) return;
+
+    const breakdown = data.topic_breakdown ?? {};
+    const means: (number | null)[] = ALL_TOPICS.map((t) => {
+      const bucket = breakdown[t as keyof typeof breakdown];
+      const m = bucket?.mean;
+      return m === null || m === undefined ? null : m;
+    });
+    const stds: (number | null)[] = ALL_TOPICS.map((t) => {
+      const bucket = breakdown[t as keyof typeof breakdown];
+      const s = bucket?.std;
+      return s === null || s === undefined ? null : s;
+    });
+
+    const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+    const chart = echarts.init(container, prefersDark ? "dark" : "", { renderer: "svg" });
+
+    const styles = getComputedStyle(document.documentElement);
+    const barColor =
+      styles.getPropertyValue("--color-provider-synthpanel").trim() || "#4f46e5";
+
+    const barData = means.map((m) => (m === null ? { value: 0, itemStyle: { opacity: 0.15 } } : m));
+
+    chart.setOption({
+      tooltip: {
+        trigger: "axis",
+        axisPointer: { type: "shadow" },
+        formatter: (params: { dataIndex: number; name: string }[]) => {
+          const idx = params[0]?.dataIndex ?? 0;
+          const name = params[0]?.name ?? "";
+          const mean = means[idx];
+          const std = stds[idx];
+          if (mean === null) return `<strong>${name}</strong><br/>No data`;
+          const stdText = std === null ? "" : ` ± ${std.toFixed(3)}`;
+          return `<strong>${name}</strong><br/>Mean SPS: ${mean.toFixed(3)}${stdText}`;
+        },
+      },
+      grid: { left: 20, right: 20, top: 20, bottom: 120, containLabel: true },
+      xAxis: {
+        type: "category",
+        data: ALL_TOPICS as unknown as string[],
+        axisLabel: {
+          rotate: 35,
+          interval: 0,
+          fontSize: 11,
+        },
+      },
+      yAxis: {
+        type: "value",
+        name: "Mean SPS",
+        nameLocation: "middle",
+        nameGap: 45,
+        min: 0,
+        max: 1,
+        axisLabel: { formatter: (v: number) => v.toFixed(1) },
+      },
+      series: [
+        {
+          name: "Mean SPS",
+          type: "bar",
+          data: barData,
+          itemStyle: { color: barColor },
+        },
+      ],
+    });
+
+    const ro = new ResizeObserver(() => chart.resize());
+    ro.observe(container);
+  }
+
+  async function load(configId: string) {
+    const baseUrl = import.meta.env.BASE_URL || "/";
+    const base = baseUrl.endsWith("/") ? baseUrl : `${baseUrl}/`;
+    const url = `${base}data/config/${encodeURIComponent(configId)}.json`;
+
+    const response = await fetch(url);
+    if (!response.ok) {
+      throw new Error(`Failed to fetch config data: ${response.status}`);
+    }
+    const data = (await response.json()) as ConfigRollup;
+
+    const title = document.getElementById("config-title");
+    if (title) {
+      title.textContent = data.display_name || data.model || configId;
+    }
+
+    renderMetadata(data);
+    renderAggregated(data);
+    renderVariance(data);
+    renderReplicates(data);
+    renderTopicChart(data);
+  }
+
+  function extractConfigId(): string | null {
+    // URL shape: <base>/config/<id>/  or  <base>/config/<id>
+    const match = window.location.pathname.match(/\/config\/([^/]+)\/?$/);
+    return match ? decodeURIComponent(match[1]) : null;
+  }
+
+  const configId = extractConfigId();
+  if (configId) {
+    load(configId).catch((err) => {
+      console.error(err);
+      const errBox = document.getElementById("config-error");
+      if (errBox) {
+        errBox.classList.remove("hidden");
+        errBox.textContent = `Failed to load configuration data: ${err instanceof Error ? err.message : String(err)}`;
+      }
+    });
+  }
+</script>
