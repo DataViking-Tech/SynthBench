@@ -95,7 +95,12 @@ const hasData = levers.length > 0;
     Ensemble blending delivers +5-7 SPS points at zero additional cost.
   </p>
   {hasData ? (
-    <Chart option={chartOption} height="300px" />
+    <Chart
+      title="Optimization Lever Effect Sizes"
+      description="Horizontal bar chart of effect sizes for each optimization lever (ensemble, temperature, conditioning, and more), sorted by maximum impact."
+      option={chartOption}
+      height="300px"
+    />
   ) : (
     <div class="text-center text-muted py-12 border border-muted/20 rounded-lg">
       Lever hierarchy data not yet available.

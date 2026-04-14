@@ -130,7 +130,12 @@ const hasTopics = models.length > 0;
     Best-per-model performance across the ten topic categories. Baselines and temperature variants hidden; scroll the legend to toggle models.
   </p>
   {hasTopics ? (
-    <Chart option={chartOption} height="450px" />
+    <Chart
+      title="SPS by Topic — per-model breakdown"
+      description="Grouped bar chart of best-per-model SPS across ten topic categories. Each group is a topic; each bar is a model."
+      option={chartOption}
+      height="450px"
+    />
   ) : (
     <div class="text-center text-muted py-12 border border-muted/20 rounded-lg">
       Topic score data not yet available.

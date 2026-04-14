@@ -113,7 +113,12 @@ const hasData = !!drift && gapEntries.length > 0;
   </p>
   {hasData && chartOption ? (
     <>
-      <Chart option={chartOption} height="360px" />
+      <Chart
+        title="Temporal Drift Floor — mean JSD by year gap"
+        description="Bar chart of mean Jensen-Shannon divergence between the same Pew ATP question stems across different waves, grouped by year gap. Shaded band indicates bootstrap 95% CI on the overall mean."
+        option={chartOption}
+        height="360px"
+      />
       <p class="mt-4 text-xs text-muted max-w-2xl mx-auto text-center italic">
         A model frozen at time T cannot improve beyond the temporal drift floor
         when evaluated against later waves. Shaded band = bootstrap 95% CI on the

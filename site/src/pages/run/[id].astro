@@ -153,16 +153,17 @@ const leaderboardUrl = `${base}/leaderboard`;
 
       <div class="overflow-x-auto rounded-lg border border-muted/20">
         <table class="w-full text-sm" id="per-question-table">
+          <caption class="sr-only">Per-question results for this run. Expand a row via the button in the Question column for full distribution bars.</caption>
           <thead>
             <tr class="bg-surface dark:bg-surface-dark border-b border-muted/20">
-              <th class="px-3 py-2 text-left font-semibold">Question</th>
-              <th class="px-3 py-2 text-left font-semibold">Topic</th>
-              <th class="px-3 py-2 text-left font-semibold">Model modal</th>
-              <th class="px-3 py-2 text-left font-semibold">Human modal</th>
-              <th class="year-col hidden px-3 py-2 text-right font-semibold">
+              <th class="px-3 py-2 text-left font-semibold" scope="col">Question</th>
+              <th class="px-3 py-2 text-left font-semibold" scope="col">Topic</th>
+              <th class="px-3 py-2 text-left font-semibold" scope="col">Model modal</th>
+              <th class="px-3 py-2 text-left font-semibold" scope="col">Human modal</th>
+              <th class="year-col hidden px-3 py-2 text-right font-semibold" scope="col">
                 Year
               </th>
-              <th class="px-3 py-2 text-right font-semibold">JSD</th>
+              <th class="px-3 py-2 text-right font-semibold" scope="col">JSD</th>
             </tr>
           </thead>
           <tbody id="per-question-tbody">
@@ -259,10 +260,14 @@ const leaderboardUrl = `${base}/leaderboard`;
         return `<span class="dist-seg" title="${title}" style="width:${pct}%;background:${color}"></span>`;
       })
       .join("");
+    const accessibleSummary = keys
+      .map((k) => `${k}: ${((dist[k] ?? 0) * 100).toFixed(1)}%`)
+      .join(", ");
+    const barLabel = `${label} distribution: ${accessibleSummary}`;
     return `
       <div class="dist-row">
-        <span class="dist-label">${escapeHtml(label)}</span>
-        <span class="dist-bar">${segments}</span>
+        <span class="dist-label" aria-hidden="true">${escapeHtml(label)}</span>
+        <span class="dist-bar" role="img" aria-label="${escapeHtml(barLabel)}">${segments}</span>
       </div>
     `;
   }
@@ -334,15 +339,15 @@ const leaderboardUrl = `${base}/leaderboard`;
           .join("");
         return `
           <div class="mb-3">
-            <h4 class="mb-1 text-xs font-semibold uppercase tracking-wide text-muted">${escapeHtml(attr)}</h4>
+            <h3 class="mb-1 text-xs font-semibold uppercase tracking-wide text-muted">${escapeHtml(attr)}</h3>
             <div class="overflow-x-auto rounded border border-muted/20">
               <table class="w-full text-sm">
                 <thead>
                   <tr class="border-b border-muted/20 bg-surface text-xs dark:bg-surface-dark">
-                    <th class="px-3 py-1.5 text-left font-semibold">Group</th>
-                    <th class="px-3 py-1.5 text-right font-semibold">p_dist</th>
-                    <th class="px-3 py-1.5 text-right font-semibold">p_cond</th>
-                    <th class="px-3 py-1.5 text-right font-semibold">N</th>
+                    <th class="px-3 py-1.5 text-left font-semibold" scope="col">Group</th>
+                    <th class="px-3 py-1.5 text-right font-semibold" scope="col">p_dist</th>
+                    <th class="px-3 py-1.5 text-right font-semibold" scope="col">p_cond</th>
+                    <th class="px-3 py-1.5 text-right font-semibold" scope="col">N</th>
                   </tr>
                 </thead>
                 <tbody>${rows}</tbody>
@@ -377,11 +382,20 @@ const leaderboardUrl = `${base}/leaderboard`;
               row.temporal_year ? String(row.temporal_year) : "—"
             }</td>`
           : "";
+        const detailId = `pq-detail-${i}`;
         return `
-          <tr class="pq-row cursor-pointer border-b border-muted/10 hover:bg-primary/5" data-index="${i}" data-topic="${escapeHtml(topic)}">
+          <tr class="pq-row border-b border-muted/10 hover:bg-primary/5" data-index="${i}" data-topic="${escapeHtml(topic)}">
             <td class="px-3 py-2">
-              <span class="pq-key font-mono text-xs text-muted">${escapeHtml(row.key)}</span>
-              <span class="pq-text block max-w-xl text-xs text-muted">${escapeHtml(truncate(row.text ?? "", 110))}</span>
+              <button type="button" class="pq-expand flex items-start gap-2 text-left"
+                      aria-expanded="false"
+                      aria-controls="${detailId}"
+                      aria-label="Show full distribution for question ${escapeHtml(row.key)}">
+                <span class="pq-caret mt-0.5 text-xs text-muted" aria-hidden="true">▸</span>
+                <span>
+                  <span class="pq-key font-mono text-xs text-muted block">${escapeHtml(row.key)}</span>
+                  <span class="pq-text block max-w-xl text-xs text-muted">${escapeHtml(truncate(row.text ?? "", 110))}</span>
+                </span>
+              </button>
             </td>
             <td class="px-3 py-2 text-xs">${escapeHtml(topic)}</td>
             <td class="px-3 py-2 text-xs">${escapeHtml(modelModal)}</td>
@@ -389,7 +403,7 @@ const leaderboardUrl = `${base}/leaderboard`;
             ${yearCell}
             <td class="px-3 py-2 text-right font-mono">${fmt(row.jsd)}</td>
           </tr>
-          <tr class="pq-detail hidden border-b border-muted/10 bg-surface/50 dark:bg-surface-dark/50" data-detail-for="${i}" data-topic="${escapeHtml(topic)}">
+          <tr id="${detailId}" class="pq-detail hidden border-b border-muted/10 bg-surface/50 dark:bg-surface-dark/50" data-detail-for="${i}" data-topic="${escapeHtml(topic)}">
             <td colspan="6" class="px-4 py-4">
               <div class="mb-3 text-sm">
                 <strong>Question:</strong>
@@ -460,14 +474,18 @@ const leaderboardUrl = `${base}/leaderboard`;
     if (!tbody) return;
     tbody.addEventListener("click", (e) => {
       const target = e.target as HTMLElement | null;
-      const row = target?.closest("tr.pq-row") as HTMLElement | null;
-      if (!row) return;
-      const idx = row.dataset.index;
-      if (!idx) return;
-      const detail = tbody.querySelector<HTMLElement>(
-        `tr.pq-detail[data-detail-for="${idx}"]`,
-      );
-      if (detail) detail.classList.toggle("hidden");
+      const btn = target?.closest<HTMLButtonElement>("button.pq-expand");
+      if (!btn) return;
+      const controls = btn.getAttribute("aria-controls");
+      if (!controls) return;
+      const detail = document.getElementById(controls);
+      if (!detail) return;
+      const expanded = btn.getAttribute("aria-expanded") === "true";
+      const next = !expanded;
+      btn.setAttribute("aria-expanded", String(next));
+      detail.classList.toggle("hidden", !next);
+      const caret = btn.querySelector(".pq-caret");
+      if (caret) caret.textContent = next ? "▾" : "▸";
     });
   }
 

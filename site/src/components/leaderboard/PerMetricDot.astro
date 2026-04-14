@@ -97,7 +97,12 @@ const chartOption = {
   <p class="text-center text-sm text-muted mb-6">
     SPS and component metrics side-by-side per model. All metrics: higher is better.
   </p>
-  <Chart option={chartOption} height="400px" />
+  <Chart
+    title="Per-Metric Breakdown — SPS and component metrics per model"
+    description="Grouped dot plot of SPS, p_dist, p_rank, and p_refuse for every model. Legend below identifies each metric."
+    option={chartOption}
+    height="400px"
+  />
   <div class="mt-3 flex flex-wrap justify-center gap-4 text-xs text-muted">
     {metrics.map((m) => (
       <span>
