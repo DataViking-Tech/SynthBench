@@ -1,0 +1,26 @@
+{
+  "name": "@synthbench/data-proxy",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Cloudflare Worker: Supabase JWT gate + audit log in front of gated-tier R2 data (sb-io1).",
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "lint": "biome check .",
+    "lint:fix": "biome check --write .",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "jose": "^5.9.6"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^1.9.4",
+    "@cloudflare/workers-types": "^4.20250109.0",
+    "typescript": "^5.8.3",
+    "vitest": "^2.1.9",
+    "wrangler": "^3.99.0"
+  }
+}

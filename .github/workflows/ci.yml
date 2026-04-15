@@ -69,6 +69,28 @@ jobs:
         if: steps.changed.outputs.count != '0'
         run: xargs -0 -a /tmp/synthbench-changed-files.txt synthbench validate
 
+  worker-data-proxy:
+    # sb-io1: Cloudflare Worker that gates R2 reads on a valid Supabase JWT.
+    # Runs in isolation (no dependency on site/ or Python) — just the Worker
+    # package's own lint/typecheck/test gates.
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: workers/data-proxy
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Install
+        run: npm install --no-audit --no-fund
+      - name: Biome lint
+        run: npm run lint
+      - name: Typecheck
+        run: npm run typecheck
+      - name: Test
+        run: npm test
+
   site:
     runs-on: ubuntu-latest
     steps:
@@ -197,12 +219,12 @@ jobs:
     # to runner-OS font rasterization, and we treat it as a signal that gets
     # investigated per-PR rather than a hard merge gate. Baselines are still
     # committed and the job still runs.
-    needs: [lint, test, site, validate-submissions, visual]
+    needs: [lint, test, site, validate-submissions, visual, worker-data-proxy]
     runs-on: ubuntu-latest
     steps:
       - name: Check required jobs passed
         run: |
-          if [[ "${{ needs.lint.result }}" != "success" || "${{ needs.test.result }}" != "success" || "${{ needs.site.result }}" != "success" || "${{ needs.validate-submissions.result }}" != "success" ]]; then
+          if [[ "${{ needs.lint.result }}" != "success" || "${{ needs.test.result }}" != "success" || "${{ needs.site.result }}" != "success" || "${{ needs.validate-submissions.result }}" != "success" || "${{ needs.worker-data-proxy.result }}" != "success" ]]; then
             echo "Required jobs failed"
             exit 1
           fi
