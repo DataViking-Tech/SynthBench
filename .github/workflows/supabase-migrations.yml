@@ -93,9 +93,18 @@ jobs:
               | sort -u
           )
 
+          # supabase migration list --linked prints a pipe-separated table
+          # using U+2502 (│) box-draw chars, which awk does not treat as a
+          # field separator. Normalize to ASCII | with sed first, then parse
+          # the Remote column ($2). A local-only (unapplied) row has an empty
+          # Remote column and is correctly excluded by the 14-digit regex.
           remote_versions=$(
             supabase migration list --linked 2>/dev/null \
-              | awk 'NR>2 && $2 ~ /^[0-9]{14}$/ { print $2 }' \
+              | sed 's/│/|/g' \
+              | awk -F'|' '{
+                  gsub(/[[:space:]]/, "", $2)
+                  if ($2 ~ /^[0-9]{14}$/) print $2
+                }' \
               | sort -u
           )
 
