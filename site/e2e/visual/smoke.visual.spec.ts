@@ -6,9 +6,10 @@ import { expect, test } from "@playwright/test";
 // Ubuntu CI via the `vrt-baseline-update` label workflow — do NOT commit
 // baselines generated on macOS.
 //
-// Baselines last refreshed: 2026-04-15 (sb-l879) — catch-up after gated-tier
-// UI (sb-sj6), OpinionsQA tier promotion (sb-dek), and shared CF/R2 creds
-// migration (sb-vkz) landed cumulative pixel drift across all three snapshots.
+// Baselines last refreshed: 2026-04-15 (sb-b4l) — catch-up after sb-private
+// holdout split (PR #161) shifted leaderboard-dark rows, and the AuthButton
+// nav component (sb-8o4 PR #169, follow-up sb-8o4 PR #182) added a nav-bar
+// element rendered on every smoke route (home, leaderboard, run-detail).
 //
 // Representative run id is chosen to be stable across rebuilds: it lives in
 // leaderboard-results/ and survives publish-runs regeneration.
