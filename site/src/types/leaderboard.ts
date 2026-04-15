@@ -183,6 +183,20 @@ export interface PricingSnapshot {
   rates: Record<string, number | Record<string, number>>;
 }
 
+/**
+ * Per-dataset cross-provider JSD matrix. Operationalizes HBR's "trendslop"
+ * hypothesis (cross-model consensus without ground truth): the 2-D matrix is
+ * pairwise mean JSD between raw-LLM model distributions, symmetric with a
+ * zero diagonal; ``mean_cross_model_jsd`` / ``mean_human_jsd`` give the 1-D
+ * quadrant summary pair (cross-model agreement vs. ground-truth accuracy).
+ */
+export interface CrossProviderConcordanceBlock {
+  models: string[];
+  matrix: (number | null)[][];
+  mean_cross_model_jsd: number | null;
+  mean_human_jsd: number | null;
+}
+
 export interface SynthBenchData {
   generated_at: string;
   synthbench_version: string;
@@ -192,6 +206,7 @@ export interface SynthBenchData {
   findings: FindingsData;
   baselines?: Baselines;
   pricing_snapshot?: PricingSnapshot;
+  cross_provider_concordance?: Record<string, CrossProviderConcordanceBlock>;
 }
 
 /** @deprecated Use SynthBenchData — alias kept for existing component imports */

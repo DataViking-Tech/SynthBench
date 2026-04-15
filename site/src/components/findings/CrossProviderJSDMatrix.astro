@@ -1,0 +1,350 @@
+---
+import type { LeaderboardData } from "@/types/leaderboard";
+
+import leaderboardRaw from "@/data/leaderboard.json";
+
+const leaderboard = leaderboardRaw as LeaderboardData;
+const concordance = leaderboard.cross_provider_concordance ?? {};
+
+interface DatasetBlock {
+  dataset: string;
+  models: string[];
+  matrix: (number | null)[][];
+  mean_cross_model_jsd: number | null;
+  mean_human_jsd: number | null;
+}
+
+const blocks: DatasetBlock[] = Object.entries(concordance)
+  .map(([dataset, block]) => ({
+    dataset,
+    models: block.models,
+    matrix: block.matrix,
+    mean_cross_model_jsd: block.mean_cross_model_jsd,
+    mean_human_jsd: block.mean_human_jsd,
+  }))
+  .filter((b) => b.models.length >= 2);
+
+blocks.sort((a, b) => a.dataset.localeCompare(b.dataset));
+
+const defaultDataset = blocks[0]?.dataset ?? "";
+const hasAnyData = blocks.length > 0;
+---
+
+<section class="w-full max-w-5xl mx-auto py-8 px-4">
+  <h2 class="text-2xl font-bold text-center mb-2">
+    Cross-Provider JSD Matrix
+  </h2>
+  <p class="text-center text-sm text-muted mb-6 max-w-3xl mx-auto">
+    Pairwise Jensen-Shannon divergence between each raw-LLM pair, averaged
+    across shared questions per dataset. Low values (cooler) mean providers
+    agree with each other — a red flag for HBR's
+    <a
+      href="https://hbr.org/2026/03/researchers-asked-llms-for-strategic-advice-they-got-trendslop-in-return"
+      class="underline hover:text-accent"
+      target="_blank"
+      rel="noopener noreferrer">trendslop hypothesis</a
+    > (cross-model consensus reached on shared errors). High values (warmer) mean
+    providers genuinely diverge. Ground-truth concordance (model vs. human) stays
+    a separate axis — see <code class="text-xs">mean_human_jsd</code> below the chart.
+  </p>
+
+  {
+    hasAnyData ? (
+      <>
+        <div class="flex items-center justify-center gap-3 mb-4">
+          <label for="xprov-jsd-dataset" class="text-sm font-medium">
+            Dataset:
+          </label>
+          <select
+            id="xprov-jsd-dataset"
+            class="px-3 py-1.5 rounded border border-default bg-surface text-sm font-medium focus:outline-none focus:ring-2 focus:ring-accent"
+            aria-label="Select dataset"
+          >
+            {blocks.map((b) => (
+              <option value={b.dataset} selected={b.dataset === defaultDataset}>
+                {b.dataset} ({b.models.length} models)
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <figure class="chart-figure" aria-labelledby="xprov-jsd-title">
+          <figcaption id="xprov-jsd-title" class="sr-only">
+            Cross-Provider JSD Matrix
+          </figcaption>
+          <p id="xprov-jsd-desc" class="sr-only">
+            Heatmap of pairwise Jensen-Shannon divergence between raw-LLM
+            providers, per dataset. Lower off-diagonal values indicate
+            cross-model agreement; higher values indicate divergence.
+          </p>
+          <div
+            id="xprov-jsd-chart"
+            class="echarts-container w-full"
+            style="height: 480px; min-height: 240px;"
+            role="img"
+            aria-labelledby="xprov-jsd-title"
+            aria-describedby="xprov-jsd-desc"
+            tabindex="0"
+            data-blocks={JSON.stringify(blocks)}
+            data-default-dataset={defaultDataset}
+          />
+
+          <div
+            id="xprov-jsd-summary"
+            class="mt-3 text-xs text-muted text-center"
+            aria-live="polite"
+          />
+
+          <details class="chart-data-table mt-2 text-sm">
+            <summary class="cursor-pointer text-xs text-muted hover:text-text dark:hover:text-text-dark">
+              Show data table
+            </summary>
+            <div
+              id="xprov-jsd-table"
+              class="mt-2 overflow-x-auto rounded-md border border-muted/20"
+            />
+          </details>
+        </figure>
+      </>
+    ) : (
+      <div class="rounded-lg border border-default bg-surface p-8 text-center text-sm text-muted">
+        <p class="mb-1 font-medium">
+          Cross-provider concordance data not yet available.
+        </p>
+        <p>
+          Two or more raw-LLM runs on the same dataset are required before the
+          matrix can be rendered.
+        </p>
+      </div>
+    )
+  }
+</section>
+
+<script>
+  import * as echarts from "echarts";
+
+  interface DatasetBlock {
+    dataset: string;
+    models: string[];
+    matrix: (number | null)[][];
+    mean_cross_model_jsd: number | null;
+    mean_human_jsd: number | null;
+  }
+
+  function escapeHtml(s: string): string {
+    return s
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;");
+  }
+
+  function buildOption(block: DatasetBlock, isDark: boolean) {
+    const cells: Array<[number, number, number | null]> = [];
+    let maxOff = 0;
+    for (let i = 0; i < block.models.length; i++) {
+      for (let j = 0; j < block.models.length; j++) {
+        const v = block.matrix[i]?.[j] ?? null;
+        cells.push([j, i, v]);
+        if (i !== j && typeof v === "number" && v > maxOff) maxOff = v;
+      }
+    }
+
+    return {
+      tooltip: {
+        position: "top",
+        formatter: (params: { value: [number, number, number | null] }) => {
+          const [col, row, value] = params.value;
+          const rowLabel = block.models[row] ?? "?";
+          const colLabel = block.models[col] ?? "?";
+          if (row === col) {
+            return `<div style="font-size:13px"><strong>${escapeHtml(rowLabel)}</strong><br/>Self-pair (JSD = 0)</div>`;
+          }
+          if (value === null || value === undefined) {
+            return `<div style="font-size:13px"><strong>${escapeHtml(rowLabel)}</strong> × <strong>${escapeHtml(colLabel)}</strong><br/>No shared questions</div>`;
+          }
+          return [
+            `<div style="font-size:13px">`,
+            `<strong>${escapeHtml(rowLabel)}</strong> × <strong>${escapeHtml(colLabel)}</strong><br/>`,
+            `JSD: <strong>${value.toFixed(3)}</strong>`,
+            `</div>`,
+          ].join("");
+        },
+      },
+      grid: { left: 180, right: 40, top: 40, bottom: 90, containLabel: false },
+      xAxis: {
+        type: "category",
+        data: block.models,
+        splitArea: { show: true },
+        axisLabel: {
+          interval: 0,
+          rotate: block.models.length > 3 ? 30 : 0,
+          fontSize: 11,
+          width: 140,
+          overflow: "truncate",
+          color: isDark ? "#e5e7eb" : "#374151",
+        },
+      },
+      yAxis: {
+        type: "category",
+        data: block.models,
+        splitArea: { show: true },
+        axisLabel: {
+          fontSize: 11,
+          width: 170,
+          overflow: "truncate",
+          color: isDark ? "#e5e7eb" : "#374151",
+        },
+      },
+      visualMap: {
+        min: 0,
+        max: Math.max(0.01, Math.ceil(maxOff * 100) / 100),
+        calculable: true,
+        orient: "horizontal",
+        left: "center",
+        bottom: 5,
+        inRange: {
+          color: ["#10b981", "#84cc16", "#eab308", "#f59e0b", "#dc2626"],
+        },
+        textStyle: {
+          color: isDark ? "#e5e7eb" : "#374151",
+          fontSize: 11,
+        },
+        text: ["diverge", "agree"],
+      },
+      series: [
+        {
+          name: "cross-provider JSD",
+          type: "heatmap",
+          data: cells,
+          label: {
+            show: true,
+            formatter: (p: { value: [number, number, number | null] }) => {
+              const v = p.value[2];
+              if (v === null || v === undefined) return "—";
+              return v.toFixed(2);
+            },
+            fontSize: 11,
+            color: "#111827",
+          },
+          emphasis: {
+            itemStyle: {
+              shadowBlur: 10,
+              shadowColor: "rgba(0, 0, 0, 0.5)",
+            },
+          },
+        },
+      ],
+      toolbox: {
+        feature: { saveAsImage: { title: "Save as PNG" } },
+        right: 10,
+        top: 10,
+      },
+    };
+  }
+
+  function buildTable(block: DatasetBlock): string {
+    const header = [
+      "<thead><tr class='border-b border-muted/20 bg-surface dark:bg-surface-dark'>",
+      "<th class='px-3 py-1.5 text-left font-semibold' scope='col'>Model</th>",
+      ...block.models.map(
+        (m) =>
+          `<th class='px-3 py-1.5 text-left font-semibold' scope='col'>${escapeHtml(m)}</th>`,
+      ),
+      "</tr></thead>",
+    ].join("");
+
+    const body = block.models
+      .map((rowLabel, i) => {
+        const cells = block.models
+          .map((_col, j) => {
+            const v = block.matrix[i]?.[j];
+            const display =
+              i === j ? "0.00" : v === null || v === undefined ? "—" : v.toFixed(3);
+            return `<td class='px-3 py-1.5 font-mono text-right'>${display}</td>`;
+          })
+          .join("");
+        return `<tr class='border-b border-muted/10'><th class='px-3 py-1.5 text-left font-medium' scope='row'>${escapeHtml(rowLabel)}</th>${cells}</tr>`;
+      })
+      .join("");
+
+    return `<table class='w-full text-xs'><caption class='sr-only'>Cross-provider JSD matrix for ${escapeHtml(block.dataset)}</caption>${header}<tbody>${body}</tbody></table>`;
+  }
+
+  function summaryText(block: DatasetBlock): string {
+    const cross =
+      block.mean_cross_model_jsd === null
+        ? "—"
+        : block.mean_cross_model_jsd.toFixed(3);
+    const human =
+      block.mean_human_jsd === null ? "—" : block.mean_human_jsd.toFixed(3);
+    return `mean cross-model JSD: <strong>${cross}</strong> &nbsp;·&nbsp; mean human-vs-model JSD: <strong>${human}</strong>`;
+  }
+
+  function preferredTheme(): "" | "dark" {
+    return window.matchMedia("(prefers-color-scheme: dark)").matches
+      ? "dark"
+      : "";
+  }
+
+  function initCrossProviderJSDMatrix() {
+    const container = document.getElementById("xprov-jsd-chart");
+    const select = document.getElementById(
+      "xprov-jsd-dataset",
+    ) as HTMLSelectElement | null;
+    const summary = document.getElementById("xprov-jsd-summary");
+    const tableHost = document.getElementById("xprov-jsd-table");
+    if (!container || !select) return;
+
+    const raw = container.dataset.blocks;
+    if (!raw) return;
+
+    let blocks: DatasetBlock[];
+    try {
+      blocks = JSON.parse(raw) as DatasetBlock[];
+    } catch {
+      return;
+    }
+    if (!blocks.length) return;
+
+    const byDataset = new Map(blocks.map((b) => [b.dataset, b]));
+    let theme: "" | "dark" = preferredTheme();
+    let chart = echarts.init(container, theme, { renderer: "svg" });
+    const prefersReducedMotion = window.matchMedia(
+      "(prefers-reduced-motion: reduce)",
+    ).matches;
+
+    const render = () => {
+      const selected = select.value || blocks[0].dataset;
+      const block = byDataset.get(selected) ?? blocks[0];
+      const option = buildOption(block, theme === "dark") as Record<
+        string,
+        unknown
+      >;
+      if (prefersReducedMotion) option.animation = false;
+      chart.setOption(option, true);
+      if (summary) summary.innerHTML = summaryText(block);
+      if (tableHost) tableHost.innerHTML = buildTable(block);
+    };
+
+    render();
+    select.addEventListener("change", render);
+
+    const ro = new ResizeObserver(() => chart.resize());
+    ro.observe(container);
+
+    window
+      .matchMedia("(prefers-color-scheme: dark)")
+      .addEventListener("change", (e) => {
+        theme = e.matches ? "dark" : "";
+        chart.dispose();
+        chart = echarts.init(container, theme, { renderer: "svg" });
+        render();
+      });
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initCrossProviderJSDMatrix);
+  } else {
+    initCrossProviderJSDMatrix();
+  }
+</script>

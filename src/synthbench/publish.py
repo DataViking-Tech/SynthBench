@@ -821,6 +821,99 @@ def _annotate_normalized_sps(entries: list[dict], baselines: dict) -> None:
         e["normalized_sps"] = round(normalized, 6)
 
 
+def _compute_cross_provider_concordance(deduped: list[dict]) -> dict[str, dict]:
+    """Per-dataset cross-provider JSD matrix between raw-LLM model runs.
+
+    Operationalizes HBR Romasanta/Thomas/Levina (2026) "trendslop": cross-model
+    consensus without ground truth. Low off-diagonal cells = providers agree
+    with each other (potentially on shared error modes). High off-diagonal =
+    providers genuinely diverge.
+
+    For each dataset, build ``M[i][j] = mean JSD(dist_i(q), dist_j(q))`` over
+    the set of questions both models answered. Matrix is symmetric with a zero
+    diagonal. Pairs with no shared questions emit ``None``. Only raw-framework
+    runs are included — products and baselines conflate architecture with
+    prompting, which muddies the cross-model interpretation.
+
+    Also emits the 1-D summary pair used for the concordance-vs-correctness
+    quadrant view: ``mean_cross_model_jsd`` (mean of the off-diagonal) and
+    ``mean_human_jsd`` (mean across models of their per-run mean_jsd vs human).
+    """
+    from synthbench.leaderboard import display_provider_name, provider_framework
+    from synthbench.metrics.distributional import jensen_shannon_divergence
+
+    # dataset -> model_display -> {question_key: model_distribution}
+    by_dataset: dict[str, dict[str, dict[str, dict[str, float]]]] = {}
+    # dataset -> model_display -> aggregate mean_jsd vs human
+    human_jsd_by_dataset: dict[str, dict[str, float]] = {}
+
+    for r in deduped:
+        cfg = r.get("config", {})
+        provider_raw = cfg.get("provider", "")
+        if not provider_raw:
+            continue
+        if provider_framework(provider_raw) != "raw":
+            continue
+        dataset = cfg.get("dataset", "unknown")
+        display = display_provider_name(provider_raw)
+
+        q_map = by_dataset.setdefault(dataset, {}).setdefault(display, {})
+        for q in r.get("per_question", []):
+            key = q.get("key")
+            dist = q.get("model_distribution")
+            if key and isinstance(dist, dict) and dist:
+                q_map[key] = dist
+
+        mean_jsd = r.get("aggregate", {}).get("mean_jsd")
+        if isinstance(mean_jsd, (int, float)):
+            human_jsd_by_dataset.setdefault(dataset, {})[display] = float(mean_jsd)
+
+    out: dict[str, dict] = {}
+    for dataset, model_map in by_dataset.items():
+        models = sorted(model_map.keys())
+        if len(models) < 2:
+            continue
+        n = len(models)
+        matrix: list[list[float | None]] = [[0.0] * n for _ in range(n)]
+        off_diag_vals: list[float] = []
+
+        for i in range(n):
+            for j in range(i + 1, n):
+                dists_i = model_map[models[i]]
+                dists_j = model_map[models[j]]
+                shared = set(dists_i) & set(dists_j)
+                if not shared:
+                    matrix[i][j] = None
+                    matrix[j][i] = None
+                    continue
+                jsd_sum = 0.0
+                for k in shared:
+                    jsd_sum += jensen_shannon_divergence(dists_i[k], dists_j[k])
+                mean_pair = round(jsd_sum / len(shared), 6)
+                matrix[i][j] = mean_pair
+                matrix[j][i] = mean_pair
+                off_diag_vals.append(mean_pair)
+
+        mean_cross = (
+            round(sum(off_diag_vals) / len(off_diag_vals), 6) if off_diag_vals else None
+        )
+        human_vals = [
+            human_jsd_by_dataset.get(dataset, {})[m]
+            for m in models
+            if m in human_jsd_by_dataset.get(dataset, {})
+        ]
+        mean_human = round(sum(human_vals) / len(human_vals), 6) if human_vals else None
+
+        out[dataset] = {
+            "models": models,
+            "matrix": matrix,
+            "mean_cross_model_jsd": mean_cross,
+            "mean_human_jsd": mean_human,
+        }
+
+    return out
+
+
 def _annotate_run_counts(entries: list[dict], all_results: list[dict]) -> None:
     """Add ``run_count`` and ``dataset_coverage_count`` to leaderboard entries.
 
@@ -945,6 +1038,8 @@ def publish_leaderboard_data(
     _annotate_normalized_sps(entries, baselines)
     _annotate_run_counts(entries, results)
 
+    cross_provider_concordance = _compute_cross_provider_concordance(deduped)
+
     synthbench_data = {
         "generated_at": datetime.now(timezone.utc).isoformat(),
         "synthbench_version": version,
@@ -953,6 +1048,7 @@ def publish_leaderboard_data(
         "convergence": convergence,
         "findings": _build_findings(),
         "baselines": baselines,
+        "cross_provider_concordance": cross_provider_concordance,
         "pricing_snapshot": _build_pricing_snapshot(),
     }
 
