@@ -1372,6 +1372,20 @@ def publish_data(results_dir, output):
         sys.exit(1)
 
 
+def _resolve_r2_uploader(no_r2: bool):
+    """Return an R2Uploader (or None for local-only mode).
+
+    Auto-detects R2 credentials in the environment. ``--no-r2`` forces
+    local writes regardless of env vars — useful for local dev and for
+    debugging publish output without round-tripping to R2.
+    """
+    from synthbench.r2_upload import R2Uploader, env_has_r2_config
+
+    if no_r2 or not env_has_r2_config():
+        return None
+    return R2Uploader.from_env()
+
+
 @main.command("publish-runs")
 @click.option(
     "--results-dir",
@@ -1390,7 +1404,18 @@ def publish_data(results_dir, output):
         "runs-index.json + config/ + run/ subtrees."
     ),
 )
-def publish_runs_cmd(results_dir, output_dir):
+@click.option(
+    "--no-r2",
+    is_flag=True,
+    default=False,
+    help=(
+        "Force local writes for gated datasets even when R2 env vars are set. "
+        "Default behavior uploads gated-tier per-run/config/question JSONs to "
+        "Cloudflare R2 when R2_ACCOUNT_ID/R2_ACCESS_KEY_ID/R2_SECRET_ACCESS_KEY/"
+        "R2_BUCKET are all present, falling back to local writes otherwise (sb-sjs)."
+    ),
+)
+def publish_runs_cmd(results_dir, output_dir, no_r2):
     """Emit run-explorer artifacts (runs-index, per-config, per-run JSON).
 
     Also emits per-question rollups under ``<output-dir>/question/`` for the
@@ -1404,24 +1429,37 @@ def publish_runs_cmd(results_dir, output_dir):
     from synthbench.publish import publish_questions, publish_runs
 
     try:
+        r2_uploader = _resolve_r2_uploader(no_r2)
         counts = publish_runs(
             results_dir=Path(results_dir),
             output_dir=Path(output_dir),
             version=__version__,
+            r2_uploader=r2_uploader,
+        )
+        sink = (
+            f"R2 bucket {r2_uploader.bucket} (gated) + {output_dir} (public)"
+            if r2_uploader is not None
+            else str(output_dir)
         )
         click.echo(
             f"Run explorer data exported: {counts['runs']} runs, "
-            f"{counts['configs']} configs → {output_dir}"
+            f"{counts['configs']} configs → {sink}"
         )
         q_counts = publish_questions(
             results_dir=Path(results_dir),
             output_dir=Path(output_dir),
             version=__version__,
+            r2_uploader=r2_uploader,
         )
         click.echo(
             f"Question explorer data exported: {q_counts['questions']} questions "
-            f"across {q_counts['datasets']} datasets → {output_dir}/question"
+            f"across {q_counts['datasets']} datasets → {sink}"
         )
+        if r2_uploader is not None:
+            click.echo(
+                f"R2 upload summary: {r2_uploader.object_count} objects to "
+                f"{r2_uploader.bucket}"
+            )
     except ValueError as e:
         click.echo(str(e), err=True)
         sys.exit(1)
@@ -1569,7 +1607,16 @@ def scan_invalid(results_dir, json_output, quarantine):
         "question/<dataset>/index.json beneath this path."
     ),
 )
-def publish_questions_cmd(results_dir, output_dir):
+@click.option(
+    "--no-r2",
+    is_flag=True,
+    default=False,
+    help=(
+        "Force local writes for gated datasets even when R2 env vars are set "
+        "(sb-sjs). See `synthbench publish-runs --help` for details."
+    ),
+)
+def publish_questions_cmd(results_dir, output_dir, no_r2):
     """Emit per-question rollups for the /question explorer view (sb-eiv).
 
     Example:
@@ -1578,15 +1625,27 @@ def publish_questions_cmd(results_dir, output_dir):
     from synthbench.publish import publish_questions
 
     try:
+        r2_uploader = _resolve_r2_uploader(no_r2)
         counts = publish_questions(
             results_dir=Path(results_dir),
             output_dir=Path(output_dir),
             version=__version__,
+            r2_uploader=r2_uploader,
+        )
+        sink = (
+            f"R2 bucket {r2_uploader.bucket} (gated) + {output_dir} (public)"
+            if r2_uploader is not None
+            else f"{output_dir}/question"
         )
         click.echo(
             f"Question explorer data exported: {counts['questions']} questions "
-            f"across {counts['datasets']} datasets → {output_dir}/question"
+            f"across {counts['datasets']} datasets → {sink}"
         )
+        if r2_uploader is not None:
+            click.echo(
+                f"R2 upload summary: {r2_uploader.object_count} objects to "
+                f"{r2_uploader.bucket}"
+            )
     except ValueError as e:
         click.echo(str(e), err=True)
         sys.exit(1)

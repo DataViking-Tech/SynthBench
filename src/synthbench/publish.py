@@ -7,9 +7,13 @@ import math
 import re
 from datetime import datetime, timezone
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 from synthbench.datasets.policy import DatasetPolicy, all_policies, policy_for
 from synthbench.run_validity import is_invalid_run, run_identity
+
+if TYPE_CHECKING:
+    from synthbench.r2_upload import R2Uploader
 
 
 def _partition_valid_runs(
@@ -1564,17 +1568,66 @@ def _write_minified(path: Path, payload: dict) -> None:
         json.dump(payload, f, separators=(",", ":"), sort_keys=False)
 
 
+def _routes_to_r2(dataset: str | None, r2_uploader: "R2Uploader | None") -> bool:
+    """Whether a per-dataset artifact should ship to R2 instead of local disk.
+
+    Returns False when no uploader is configured (local-only mode), when the
+    dataset is unknown (caller should treat as non-routable metadata), or
+    when the resolved redistribution policy is ``full`` — public-tier data
+    continues to land in ``site/public/data/`` so the static site can serve
+    it without auth.
+    """
+    if r2_uploader is None or dataset is None:
+        return False
+    return policy_for(dataset).redistribution_policy != "full"
+
+
+def _emit_artifact(
+    output_dir: Path,
+    relative_key: str,
+    payload: dict,
+    *,
+    dataset: str | None,
+    r2_uploader: "R2Uploader | None",
+) -> None:
+    """Route a single publish artifact to R2 or local disk per dataset policy.
+
+    ``relative_key`` is interpreted both as a path under ``output_dir`` for
+    local writes and as the R2 object key for uploads, so the two surfaces
+    stay in lock-step (the Worker proxy looks up the same path).
+    """
+    if _routes_to_r2(dataset, r2_uploader):
+        # mypy: r2_uploader is not None here (proved by _routes_to_r2).
+        assert r2_uploader is not None
+        r2_uploader.put_json(relative_key, payload)
+        return
+    _write_minified(output_dir / relative_key, payload)
+
+
 def publish_runs(
     results_dir: Path,
     output_dir: Path,
     version: str = "0.1.0",
+    *,
+    r2_uploader: "R2Uploader | None" = None,
 ) -> dict[str, int]:
-    """Emit the three run-explorer artifact families to ``output_dir``.
+    """Emit the three run-explorer artifact families.
+
+    Per-run and per-config artifacts route to Cloudflare R2 when
+    ``r2_uploader`` is supplied AND the run's dataset has a non-``full``
+    redistribution policy (sb-sjs); otherwise they land on disk under
+    ``output_dir``. The catalog (``runs-index.json``) always lands locally —
+    it spans every dataset and carries only aggregate fields, so it stays
+    public alongside ``leaderboard.json``.
 
     Artifacts written:
-        ``<output_dir>/runs-index.json`` — lightweight catalog of all runs
-        ``<output_dir>/config/<config-id>.json`` — per-config rollup
-        ``<output_dir>/run/<run-id>.json`` — full per-question detail
+        ``<output_dir>/runs-index.json`` — public catalog (always local)
+        public datasets:
+            ``<output_dir>/config/<config-id>.json`` — per-config rollup
+            ``<output_dir>/run/<run-id>.json`` — full per-question detail
+        gated datasets (when ``r2_uploader`` is set):
+            ``r2://<bucket>/config/<config-id>.json``
+            ``r2://<bucket>/run/<run-id>.json``
 
     Returns a dict of counts: {"runs": N, "configs": M}.
     """
@@ -1587,7 +1640,10 @@ def publish_runs(
     output_dir = Path(output_dir)
     run_dir = output_dir / "run"
     config_dir = output_dir / "config"
-    # Clean stale artifacts so removed source runs don't linger.
+    # Clean stale local artifacts so removed/migrated source runs don't
+    # linger. R2 objects are not pruned here — the uploader overwrites by
+    # key on republish, and bucket versioning preserves prior versions for
+    # operator-driven rollback.
     if run_dir.exists():
         shutil.rmtree(run_dir)
     if config_dir.exists():
@@ -1675,7 +1731,13 @@ def publish_runs(
                 k: _round_or_none(v) for k, v in topic_scores.items()
             }
 
-        _write_minified(run_dir / f"{run_id}.json", run_detail)
+        _emit_artifact(
+            output_dir,
+            f"run/{run_id}.json",
+            run_detail,
+            dataset=dataset,
+            r2_uploader=r2_uploader,
+        )
 
         agg = result.get("aggregate", {}) or {}
         scores = result.get("scores", {}) or {}
@@ -1729,7 +1791,13 @@ def publish_runs(
             is_baseline=meta["is_baseline"],
             is_ensemble=meta["is_ensemble"],
         )
-        _write_minified(config_dir / f"{config_id}.json", rollup)
+        _emit_artifact(
+            output_dir,
+            f"config/{config_id}.json",
+            rollup,
+            dataset=meta["dataset"],
+            r2_uploader=r2_uploader,
+        )
 
     # Sort index for stable output: dataset, then SPS desc, then timestamp.
     index_entries.sort(
@@ -2093,6 +2161,8 @@ def publish_questions(
     results_dir: Path,
     output_dir: Path,
     version: str = "0.1.0",
+    *,
+    r2_uploader: "R2Uploader | None" = None,
 ) -> dict[str, int]:
     """Emit per-question rollups for the question-explorer view.
 
@@ -2101,9 +2171,18 @@ def publish_questions(
     JSON file. Also emits a per-dataset index so the site can iterate keys
     at build time.
 
-    Artifacts written under ``<output_dir>``:
-        ``question/<dataset>/<sanitized-key>.json`` — full rollup
-        ``question/<dataset>/index.json`` — catalog per dataset
+    Per-question files and the dataset index route to Cloudflare R2 when
+    ``r2_uploader`` is supplied AND the dataset's redistribution policy is
+    not ``full`` (sb-sjs). Public-tier datasets continue to land on disk so
+    the static site can serve them without auth.
+
+    Artifacts written:
+        public datasets:
+            ``<output_dir>/question/<dataset>/<sanitized-key>.json``
+            ``<output_dir>/question/<dataset>/index.json``
+        gated datasets (when ``r2_uploader`` is set):
+            ``r2://<bucket>/question/<dataset>/<sanitized-key>.json``
+            ``r2://<bucket>/question/<dataset>/index.json``
 
     Returns counts: ``{"questions": N, "datasets": M}``.
     """
@@ -2112,6 +2191,8 @@ def publish_questions(
     results_dir = Path(results_dir)
     output_dir = Path(output_dir)
     question_root = output_dir / "question"
+    # Clean stale local rollups; R2 objects are overwritten by key on
+    # republish (versioning preserves history server-side).
     if question_root.exists():
         shutil.rmtree(question_root)
     question_root.mkdir(parents=True, exist_ok=True)
@@ -2163,9 +2244,13 @@ def publish_questions(
             continue
         payload = _finalize_question_payload(rollup)
         safe_key = _safe_question_key(key)
-        dataset_dir = question_root / dataset
-        dataset_dir.mkdir(parents=True, exist_ok=True)
-        _write_minified(dataset_dir / f"{safe_key}.json", payload)
+        _emit_artifact(
+            output_dir,
+            f"question/{dataset}/{safe_key}.json",
+            payload,
+            dataset=dataset,
+            r2_uploader=r2_uploader,
+        )
         by_dataset_index.setdefault(dataset, []).append(
             _build_question_index_entry(payload)
         )
@@ -2188,6 +2273,12 @@ def publish_questions(
             "n_questions": len(entries),
             "questions": entries,
         }
-        _write_minified(question_root / dataset / "index.json", index_payload)
+        _emit_artifact(
+            output_dir,
+            f"question/{dataset}/index.json",
+            index_payload,
+            dataset=dataset,
+            r2_uploader=r2_uploader,
+        )
 
     return {"questions": n_questions, "datasets": len(by_dataset_index)}

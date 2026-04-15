@@ -45,7 +45,12 @@ def check_leaderboard(path: Path) -> set[str]:
     return {e["config_id"] for e in entries}
 
 
-def check_runs_index(path: Path) -> set[str]:
+def check_runs_index(path: Path) -> tuple[set[str], dict[str, str]]:
+    """Validate runs-index.json and return ``(config_ids, config_to_dataset)``.
+
+    The dataset map lets the config-file check skip configs whose dataset
+    rolls up to R2 instead of local disk under the gated tier (sb-sjs).
+    """
     data = _load_json(path)
     if not isinstance(data, dict):
         sys.exit(f"FAIL: {path} is not a dict")
@@ -69,15 +74,45 @@ def check_runs_index(path: Path) -> set[str]:
             f"FAIL: {path} n_configs={declared} but runs reference "
             f"{len(config_ids)} distinct config_ids"
         )
-    return config_ids
+    config_to_dataset = {
+        r["config_id"]: r.get("dataset", "") for r in runs if r.get("config_id")
+    }
+    return config_ids, config_to_dataset
 
 
-def check_config_files(config_dir: Path, referenced: set[str]) -> None:
+def _gated_datasets() -> set[str]:
+    """Names of datasets whose rollups ship to R2 instead of local disk.
+
+    Falls back to an empty set if the synthbench package isn't importable
+    from this script's runtime — in that case all configs are checked
+    locally, which matches the legacy behavior.
+    """
+    try:
+        from synthbench.datasets.policy import all_policies
+    except ImportError:
+        return set()
+    return {p.name for p in all_policies() if p.redistribution_policy != "full"}
+
+
+def check_config_files(
+    config_dir: Path,
+    referenced: set[str],
+    config_to_dataset: dict[str, str],
+) -> None:
     if not config_dir.is_dir():
         sys.exit(f"FAIL: config rollup directory {config_dir} does not exist")
 
+    gated = _gated_datasets()
+    # Configs whose dataset is gated land in R2; their absence from the
+    # local rollup directory is expected, not a regression.
+    locally_required = {
+        cid
+        for cid in referenced
+        if config_to_dataset.get(cid, "").split(" ", 1)[0] not in gated
+    }
+
     on_disk = {p.stem for p in config_dir.glob("*.json")}
-    missing_files = referenced - on_disk
+    missing_files = locally_required - on_disk
     if missing_files:
         sample = sorted(missing_files)[:3]
         sys.exit(
@@ -106,8 +141,8 @@ def main() -> int:
     args = parser.parse_args()
 
     leaderboard_ids = check_leaderboard(args.leaderboard)
-    runs_ids = check_runs_index(args.runs_index)
-    check_config_files(args.config_dir, runs_ids)
+    runs_ids, config_to_dataset = check_runs_index(args.runs_index)
+    check_config_files(args.config_dir, runs_ids, config_to_dataset)
 
     # Every config_id appearing on the leaderboard must also have a rollup
     # file — this is what the /run/[id] and /config/[id] routes hydrate from.
