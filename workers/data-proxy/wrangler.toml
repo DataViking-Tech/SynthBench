@@ -1,0 +1,48 @@
+# Cloudflare Worker: Supabase-gated R2 proxy for synthbench gated-tier data (sb-io1).
+#
+# Runtime deploy path (per bead sb-io1):
+#   1. `wrangler secret put SUPABASE_SERVICE_ROLE_KEY` — audit log writer (server-only)
+#   2. Bind route api.synthbench.org/data/* to this Worker in the CF dashboard
+#      or via `routes` below once the zone is registered.
+#   3. Confirm the R2 bucket `synthbench-data-prod` exists (created by sb-sjs).
+#
+# Rate limiting (bead scope §5) is configured as a Cloudflare Rulesets rate-limit
+# rule on the route, not in worker code. See README.md §"Rate limiting".
+
+name = "synthbench-data-proxy"
+main = "src/index.ts"
+compatibility_date = "2025-01-09"
+compatibility_flags = ["nodejs_compat"]
+
+[vars]
+# Supabase project base URL (e.g. https://kfealsliqlvfxgoymbco.supabase.co).
+# The Worker derives JWKS + REST endpoints from this value.
+SUPABASE_URL = ""
+# Expected `aud` claim on Supabase JWTs. Supabase's GoTrue issues tokens with
+# aud="authenticated" for signed-in users.
+SUPABASE_JWT_AUD = "authenticated"
+# Comma-separated allowlist of origins the Worker will echo back in CORS
+# headers. Non-matching origins still get 200s but no CORS grant.
+ALLOWED_ORIGINS = "https://synthbench.org,https://www.synthbench.org"
+
+[[r2_buckets]]
+binding = "DATA_BUCKET"
+bucket_name = "synthbench-data-prod"
+preview_bucket_name = "synthbench-data-preview"
+
+# Route binding. Uncomment once DNS + zone are configured for api.synthbench.org.
+# [[routes]]
+# pattern = "api.synthbench.org/data/*"
+# zone_name = "synthbench.org"
+
+[env.preview]
+name = "synthbench-data-proxy-preview"
+
+[env.preview.vars]
+SUPABASE_URL = ""
+SUPABASE_JWT_AUD = "authenticated"
+ALLOWED_ORIGINS = "https://synthbench.org,https://www.synthbench.org,http://localhost:4321"
+
+[[env.preview.r2_buckets]]
+binding = "DATA_BUCKET"
+bucket_name = "synthbench-data-preview"
