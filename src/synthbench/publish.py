@@ -284,7 +284,7 @@ def _build_pricing_snapshot() -> dict:
         from importlib.metadata import PackageNotFoundError, version
 
         try:
-            synth_panel_version = version("synth-panel")
+            synth_panel_version = version("synthpanel")
         except PackageNotFoundError:
             synth_panel_version = None
     except ImportError:
