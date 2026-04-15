@@ -792,6 +792,19 @@ const exploreUrl = `${base}/explore`;
     border-radius: 0.5rem;
     background: color-mix(in oklch, var(--color-surface) 60%, transparent);
   }
+  /* `--color-surface` is the LIGHT-mode token and is not flipped in
+     dark mode (the body uses Tailwind's `dark:bg-surface-dark` instead).
+     Without this override the tile renders translucent-white over the dark
+     page background, which collides with the lifted `--color-muted-dark`
+     label/sig/side text and produces grey-on-grey (sb-3ie, mirrors sb-ave). */
+  @media (prefers-color-scheme: dark) {
+    .metric-tile {
+      background: color-mix(in oklch, var(--color-surface-dark) 70%, transparent);
+    }
+    .metric-tile--unknown {
+      border-color: color-mix(in oklch, var(--color-muted) 35%, transparent);
+    }
+  }
   .metric-tile--disjoint {
     border: 2px solid color-mix(in oklch, var(--color-primary) 55%, transparent);
   }
