@@ -34,6 +34,33 @@ Regenerate leaderboard data for the Astro site:
 synthbench publish-data --results-dir ./leaderboard-results --output site/src/data/leaderboard.json
 ```
 
+### Gated dataset uploads (R2)
+
+`publish-runs` and `publish-questions` ship per-question/run/config JSONs for
+gated-tier datasets (any dataset whose `redistribution_policy` is not `full`)
+to a private Cloudflare R2 bucket. The catalog (`runs-index.json`) and
+`leaderboard.json` always stay public.
+
+R2 credentials are read from the environment:
+
+| Var                    | Purpose                                |
+| ---------------------- | -------------------------------------- |
+| `R2_ACCOUNT_ID`        | Cloudflare account ID (endpoint host)  |
+| `R2_ACCESS_KEY_ID`     | R2 API token's access key              |
+| `R2_SECRET_ACCESS_KEY` | R2 API token's secret                  |
+| `R2_BUCKET`            | Bucket name (e.g. `synthbench-data-prod`) |
+
+When **any** of these are unset, the publish CLI falls back to writing every
+artifact to `site/public/data/` — preserving the pre-gate behavior so local
+development never depends on R2. Force this fallback explicitly with the
+`--no-r2` flag:
+
+```bash
+synthbench publish-runs --results-dir leaderboard-results --output-dir site/public/data --no-r2
+```
+
+Install the R2 client extra when uploading from CI: `pip install -e .[r2]`.
+
 ## Development
 
 After cloning, enable the repo-tracked git hooks so pushes that would fail CI's
