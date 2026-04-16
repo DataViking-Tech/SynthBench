@@ -2,7 +2,7 @@
 
 Target standard: **WCAG 2.1 AA**. Lighthouse accessibility gate: **≥ 0.90** on every route (enforced in CI via `site/lighthouserc.json`).
 
-This doc codifies the patterns that came out of the site-wide audit (bead `sb-fo4`, successor to `sb-a3z`). If you're writing a new component or page, match these patterns — don't invent a new one. If you genuinely need something new, update this doc in the same PR.
+This doc codifies the patterns that came out of the site-wide accessibility audits. If you're writing a new component or page, match these patterns — don't invent a new one. If you genuinely need something new, update this doc in the same PR.
 
 ---
 

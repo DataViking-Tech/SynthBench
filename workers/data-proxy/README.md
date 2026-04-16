@@ -3,10 +3,8 @@
 Worker that enforces the gated-tier access contract introduced in the `cf-gate`
 epic. It sits on `api.synthbench.org/data/*`, validates a Supabase-issued JWT,
 streams the requested artifact out of the private R2 bucket
-(`synthbench-data-prod`, created by sb-sjs), and writes an audit row to
+(`synthbench-data-prod`), and writes an audit row to
 Supabase via a fire-and-forget `ctx.waitUntil`.
-
-Bead: **sb-io1** — [cf-gate] Cloudflare Worker proxy.
 
 ## Responsibilities
 
@@ -32,7 +30,7 @@ Bindings and vars are declared in `wrangler.toml`; secrets are set with
 
 | Name                         | Kind    | Purpose                                                               |
 | ---------------------------- | ------- | --------------------------------------------------------------------- |
-| `DATA_BUCKET`                | R2      | Private bucket created by sb-sjs (`synthbench-data-prod`).            |
+| `DATA_BUCKET`                | R2      | Private bucket name (for example `synthbench-data-prod`).             |
 | `SUPABASE_URL`               | var     | e.g. `https://<project>.supabase.co`. Used for JWKS + REST endpoints. |
 | `SUPABASE_JWT_AUD`           | var     | Expected `aud` claim. Supabase issues `authenticated`.                |
 | `ALLOWED_ORIGINS`            | var     | Comma-separated list of allowed browser origins for CORS.             |
@@ -50,12 +48,12 @@ npm run dev                      # wrangler dev, uses preview R2 bucket
 
 ```bash
 npm run deploy                   # prod
-npm run deploy -- --env preview  # preview (matches sb-sjs preview bucket)
+npm run deploy -- --env preview  # preview environment
 ```
 
 ## Path contract
 
-The Worker mirrors the key layout emitted by `publish.py` (sb-sjs):
+The Worker mirrors the key layout emitted by `publish.py`:
 
 | Request path                         | R2 key                          |
 | ------------------------------------ | ------------------------------- |
@@ -94,7 +92,7 @@ and so the rule is visible alongside the rest of our WAF config.
 
 ## Out of scope
 
-- Frontend integration — sb-sj6 wires the Astro UI to call this Worker.
-- Audit dashboard — a separate bead reads `data_access_log` for ops visibility.
+- Frontend integration (Astro UI calling this Worker).
+- Audit dashboard for `data_access_log` visibility.
 - Billing/quota enforcement — the audit log is the source of truth if we add
   per-user limits later.

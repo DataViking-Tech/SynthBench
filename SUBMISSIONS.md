@@ -6,13 +6,13 @@ public leaderboard.
 
 ## Three submission paths
 
-1. **Web upload (Tier-1 MVP — sb-me0f).** Sign in at
+1. **Web upload (Tier-1 MVP).** Sign in at
    [synthbench.org/account](https://synthbench.org/account/), then drop
    your result JSON into [/submit/upload](https://synthbench.org/submit/upload/).
    Validation runs server-side; you can track status on
    [/account/submissions](https://synthbench.org/account/submissions/).
    Successful runs land on the leaderboard within ~5 minutes.
-2. **CLI submit with API key (recommended for automation — sb-t61h).** Mint
+2. **CLI submit with API key (recommended for automation).** Mint
    a key at [/account](https://synthbench.org/account/), export it, and
    `synthbench submit run.json` from the same machine that produced the
    benchmark output. No browser needed; same server-side validation as the
@@ -377,7 +377,7 @@ across edge nodes.
 
 ## Changelog
 
-**2026-04-15 (sb-1rn)** — Tier 3 added. New schema fields
+**2026-04-15** — Tier 3 added. New schema fields
 `raw_responses` and `reproducibility` are warnings when missing so
 existing leaderboard entries stay valid. CI will graduate them to
 errors after the ecosystem has migrated. New `synthbench validate`
