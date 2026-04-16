@@ -64,6 +64,9 @@ pushed, so already-formatted branches add no meaningful overhead. Run
 `./scripts/format-check.sh` anytime to mirror the full CI lint job. Emergency
 bypass: `git push --no-verify`.
 
+For contribution workflow and PR expectations, see
+[`CONTRIBUTING.md`](CONTRIBUTING.md).
+
 ## Submit Results
 
 Three ways to land a run on the leaderboard, in order of friction:
