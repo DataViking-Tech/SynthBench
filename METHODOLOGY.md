@@ -613,7 +613,7 @@ Every SynthBench run produces a JSON artifact:
 ```json
 {
   "synthbench_version": "1.0.0",
-  "run_id": "sb-20260410-a1b2c3",
+  "run_id": "run-20260410-a1b2c3",
   "timestamp": "2026-04-10T12:00:00Z",
   "suite": "core",
   "provider": {
@@ -672,7 +672,7 @@ Every SynthBench run produces a JSON artifact:
   Provider:  synthpanel v2.1.0
   Suite:     SynthBench-Core (300 questions)
   Date:      2026-04-10
-  Run ID:    sb-20260410-a1b2c3
+  Run ID:    run-20260410-a1b2c3
 ================================================================
 
   COMPOSITE PARITY SCORE:  0.74 / 1.00
@@ -786,7 +786,7 @@ not intended for bulk scraping.
 - `robots.txt` disallows crawlers from the `/data/` JSON paths and the runs
   index. Well-behaved crawlers will stay out.
 - Holdout-private and license-restricted question-level data is governed by
-  `sb-private` and `sb-djx`; those policies take precedence over anything a
+  internal access policies; those policies take precedence over anything a
   crawler could opportunistically fetch.
 
 **Requesting research access:**

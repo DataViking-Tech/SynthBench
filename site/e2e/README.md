@@ -7,8 +7,8 @@ This directory holds Playwright suites for the SynthBench site:
 - `mobile-audit.spec.ts` / `mobile-audit.config.ts` — accessibility and layout
   checks at mobile viewports (not a VRT suite).
 
-This README covers the **smoke VRT** workflow introduced by sb-o3b. The
-previous full route-matrix suite (sb-va6, 36 snapshots × macOS baselines) was
+This README covers the **smoke VRT** workflow. The
+previous full route-matrix suite (36 snapshots × macOS baselines) was
 retired because cross-platform font rendering produced false positives the
 team could not sustainably investigate.
 
@@ -139,13 +139,12 @@ diffs to surface as a signal reviewers investigate, not a hard blocker that
 spams the merge queue.
 
 After 3–5 PRs of green VRT with no investigation churn, we will flip VRT to
-a **required** gate in the `dvinfra` branch protection (tracked as a
-follow-up bead). The gate flip is a branch-protection change only; no code
+a **required** gate in branch protection. The gate flip is a branch-protection change only; no code
 change is required in this repo.
 
 ## Why only 3 snapshots
 
-The previous suite (sb-va6) ran 9 routes × 2 themes × 2 devices = 36
+The previous suite ran 9 routes × 2 themes × 2 devices = 36
 snapshots. In practice every PR that touched shared CSS diffed on macOS vs
 Linux in subtle ways (antialiasing, font hinting, emoji metrics) and the
 team spent more time investigating baseline noise than catching real
