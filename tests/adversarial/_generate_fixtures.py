@@ -34,7 +34,9 @@ from synthbench.stats import question_set_hash
 
 DATASET = "globalopinionqa"
 PROVIDER = "openrouter/anthropic/claude-haiku-4-5"
-N_QUESTIONS = 40  # >=25 after dropping private rows, still small enough to read
+N_QUESTIONS = 70  # >=50 public rows after dropping private holdout (~20%)
+# so ANOMALY_NEAR_COPY_PUBLIC (NEAR_COPY_MIN_PUBLIC=50) can fire on copy-style
+# fixtures, while still clearing ANOMALY_PERFECTION's n>=25 minimum.
 
 HERE = Path(__file__).parent
 FIXTURE_DIR = HERE / "fixtures"
