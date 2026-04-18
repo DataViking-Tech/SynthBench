@@ -64,6 +64,14 @@ RAW_RESPONSE_MAX_LENGTH = 10_000
 RAW_RESPONSE_SHORT_FRACTION_LIMIT = 0.95
 RAW_RESPONSE_LONG_FRACTION_LIMIT = 0.95
 
+# HOLDOUT_DIVERGENCE promotes from WARNING to ERROR once both split subsets
+# contain at least this many rows. At min_side=50 the adaptive threshold
+# 0.5/√min_side ≈ 0.0707 is within striking distance of the 0.05 floor;
+# from min_side=100 onward the floor dominates entirely. Any honest run
+# with public/private SPS gap above the floor at this scale is
+# statistically implausible under sampling noise alone.
+HOLDOUT_DIVERGENCE_ERROR_MIN_SIDE = 50
+
 # Reproducibility metadata fields required on new submissions. Missing
 # fields are WARNINGS in tier 3 (not ERRORS in tier 1) so existing
 # leaderboard files remain valid until we re-generate them.
@@ -583,9 +591,12 @@ def _validate_private_holdout(data: Mapping[str, Any]) -> list[Issue]:
        the submission as suspicious. Public SPS that massively outstrips
        private SPS means the submitter "knew" the public answers — by
        training on them, by peeking at published distributions, or by
-       outright fabrication. The flag is a WARNING so a human reviewer can
-       adjudicate borderline cases; ship-stopping decisions happen
-       upstream.
+       outright fabrication. Severity is ERROR when both subsets have
+       ``min_side >= HOLDOUT_DIVERGENCE_ERROR_MIN_SIDE`` rows — at that
+       scale the adaptive threshold collapses to the 0.05 floor and
+       sampling noise can't plausibly explain the gap. Below that cutoff
+       we stay at WARNING so partial / fixture submissions aren't blocked
+       by legitimate small-N variance.
     """
     issues: list[Issue] = []
     config = data.get("config") or {}
@@ -680,18 +691,31 @@ def _validate_private_holdout(data: Mapping[str, Any]) -> list[Issue]:
             and isinstance(sps_private, (int, float))
             and float(delta) > effective_threshold
         ):
+            # At min_side >= 50 the adaptive threshold collapses to the
+            # 0.05 floor (0.5/√50 ≈ 0.0707, still above floor; 0.5/√100 =
+            # 0.05 exactly). From this regime onward the detector is
+            # governed by the fabrication floor rather than sampling
+            # noise, so an honest run should not clear it. Promote to
+            # ERROR per sb-0rvy / benchmark-hardening-analysis.md §2.2.
+            at_production_scale = min_side >= HOLDOUT_DIVERGENCE_ERROR_MIN_SIDE
+            severity = Severity.ERROR if at_production_scale else Severity.WARNING
+            verdict = (
+                "Rejected — at production scale this gap exceeds the "
+                "fabrication floor; submit a reviewer override to appeal."
+                if at_production_scale
+                else "Suspicious — may indicate fabrication, contamination, "
+                "or a legitimate distribution shift worth reviewing."
+            )
             issues.append(
                 Issue(
                     code="HOLDOUT_DIVERGENCE",
-                    severity=Severity.WARNING,
+                    severity=severity,
                     message=(
                         f"sps_public={float(sps_public):.4f} vs "
                         f"sps_private={float(sps_private):.4f} "
                         f"(delta={float(delta):.4f}) exceeds "
                         f"threshold {effective_threshold:.4f} "
-                        f"(min_side={min_side}). "
-                        "Suspicious — may indicate fabrication, contamination, "
-                        "or a legitimate distribution shift worth reviewing."
+                        f"(min_side={min_side}). " + verdict
                     ),
                     path="aggregate",
                 )

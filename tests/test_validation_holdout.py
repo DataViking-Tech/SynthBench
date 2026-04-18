@@ -85,9 +85,11 @@ class TestPrivateHoldoutValidator:
         issues = _validate_private_holdout(data)
         assert any(i.code == "HOLDOUT_COVERAGE" for i in issues)
 
-    def test_divergent_scores_warn(self):
+    def test_divergent_scores_warn_at_small_n(self):
+        # min_side = 20 (below HOLDOUT_DIVERGENCE_ERROR_MIN_SIDE=50), so the
+        # detector stays WARNING — sampling-noise regime for the adaptive
+        # threshold.
         pub_keys, priv_keys = _find_keys_by_partition("opinionsqa", 80, 20)
-        # High-SPS public rows (jsd=0.02, tau=0.9) + low-SPS private rows (jsd=0.5, tau=-0.2).
         rows = [_mk_row(k, jsd=0.02, tau=0.9) for k in pub_keys] + [
             _mk_row(k, jsd=0.5, tau=-0.2) for k in priv_keys
         ]
@@ -96,6 +98,30 @@ class TestPrivateHoldoutValidator:
         assert any(i.code == "HOLDOUT_DIVERGENCE" for i in issues)
         warn = next(i for i in issues if i.code == "HOLDOUT_DIVERGENCE")
         assert warn.severity is Severity.WARNING
+
+    def test_divergent_scores_error_at_production_scale(self):
+        # min_side = 60 (>= HOLDOUT_DIVERGENCE_ERROR_MIN_SIDE=50) triggers
+        # the promotion from WARNING to ERROR: the 0.5/√min_side adaptive
+        # threshold has collapsed close to the 0.05 fabrication floor, so
+        # an honest submission cannot plausibly clear it.
+        pub_keys, priv_keys = _find_keys_by_partition("opinionsqa", 200, 60)
+        rows = [_mk_row(k, jsd=0.02, tau=0.9) for k in pub_keys] + [
+            _mk_row(k, jsd=0.5, tau=-0.2) for k in priv_keys
+        ]
+        data = _mk_submission("opinionsqa", rows)
+        issues = _validate_private_holdout(data)
+        err = next((i for i in issues if i.code == "HOLDOUT_DIVERGENCE"), None)
+        assert err is not None
+        assert err.severity is Severity.ERROR
+
+    def test_honest_production_scale_submission_passes(self):
+        # Matched public/private SPS on a 300+60 split must not trip the
+        # divergence detector even after the ERROR promotion.
+        pub_keys, priv_keys = _find_keys_by_partition("opinionsqa", 300, 60)
+        rows = [_mk_row(k, jsd=0.05, tau=0.9) for k in pub_keys + priv_keys]
+        data = _mk_submission("opinionsqa", rows)
+        issues = _validate_private_holdout(data)
+        assert not any(i.code == "HOLDOUT_DIVERGENCE" for i in issues)
 
     def test_non_holdout_dataset_skipped(self):
         # pewtech isn't in HOLDOUT_ENABLED_DATASETS — validator is a no-op.
