@@ -871,6 +871,89 @@ class TestSbA613Regression:
         assert report.ok
 
 
+class TestSchemaVersionGraduation:
+    """sb-88fw: v2 submissions promote raw_responses warnings to errors."""
+
+    def test_v1_default_when_field_absent(self, clean_submission):
+        """No schema_version → legacy v1 path → missing raw_responses stays WARNING."""
+        sub = copy.deepcopy(clean_submission)
+        assert "schema_version" not in sub
+        report = validate_submission(sub, tier3=True)
+        assert report.ok, "v1 missing-raw_responses must NOT fail the run"
+        assert any(
+            i.code == "RAW_RESPONSES_MISSING" and i.severity.value == "warning"
+            for i in report.warnings
+        )
+
+    def test_v1_explicit_keeps_warning(self, clean_submission):
+        """Explicit schema_version=1 also keeps the legacy WARNING path."""
+        sub = copy.deepcopy(clean_submission)
+        sub["schema_version"] = 1
+        report = validate_submission(sub, tier3=True)
+        assert report.ok
+        assert any(i.code == "RAW_RESPONSES_MISSING" for i in report.warnings)
+
+    def test_v2_missing_raw_responses_is_error(self, clean_submission):
+        """v2 submissions must carry raw_responses or fail."""
+        sub = copy.deepcopy(clean_submission)
+        sub["schema_version"] = 2
+        report = validate_submission(sub, tier3=True)
+        assert not report.ok, "v2 must reject submissions without raw_responses"
+        error_codes = {i.code for i in report.errors}
+        assert "RAW_RESPONSES_MISSING" in error_codes
+
+    def test_v2_mode_desync_is_error(self, clean_submission):
+        """v2 submissions whose raw sample disagrees with model_distribution fail."""
+        sub = _with_raw_and_repro(clean_submission)
+        sub["schema_version"] = 2
+        # Q_B's distribution is {A:0.6, B:0.3, C:0.1}; pick "C" so the gap
+        # exceeds sample-noise tolerance and RAW_RESPONSES_MODE fires.
+        sub["raw_responses"][1]["selected_option"] = "C"
+        report = validate_submission(sub, tier3=True)
+        error_codes = {i.code for i in report.errors}
+        assert "RAW_RESPONSES_MODE" in error_codes
+        assert not report.ok
+
+    def test_v2_clean_submission_passes(self, clean_submission):
+        """v2 with proper raw_responses + repro validates cleanly."""
+        sub = _with_raw_and_repro(clean_submission)
+        sub["schema_version"] = 2
+        report = validate_submission(sub, tier3=True)
+        assert report.ok, report.format()
+
+    def test_v1_mode_desync_stays_warning(self, clean_submission):
+        """A v1 submission with mode desync still only warns."""
+        sub = _with_raw_and_repro(clean_submission)
+        sub["raw_responses"][1]["selected_option"] = "C"
+        report = validate_submission(sub, tier3=True)
+        assert report.ok, "v1 mode desync must NOT fail the run"
+        assert any(i.code == "RAW_RESPONSES_MODE" for i in report.warnings)
+
+    def test_non_graduated_codes_stay_warning_in_v2(self, clean_submission):
+        """Other raw_response codes (e.g. coverage, length) remain WARNING in v2."""
+        sub = copy.deepcopy(clean_submission)
+        # Build 100-question fixture so coverage check has a real floor.
+        base_q = sub["per_question"][0]
+        sub["per_question"] = []
+        for i in range(100):
+            q = copy.deepcopy(base_q)
+            q["key"] = f"Q_{i:03d}"
+            sub["per_question"].append(q)
+        sub["aggregate"]["n_questions"] = 100
+        sub["config"]["question_set_hash"] = question_set_hash(
+            [q["key"] for q in sub["per_question"]]
+        )
+        sub = _with_raw_and_repro(sub)
+        sub["schema_version"] = 2
+        sub["raw_responses"] = sub["raw_responses"][:2]  # 2/100 < 10% coverage
+        report = validate_submission(sub, tier3=True)
+        # Coverage stays WARNING — it's not in the v2-graduated set.
+        assert any(
+            i.code == "RAW_RESPONSES_COVERAGE" and i.severity.value == "warning"
+            for i in report.warnings
+        )
+
+
 class TestFileIO:
     def test_missing_file(self, tmp_path):
         report = validate_file(tmp_path / "nope.json")

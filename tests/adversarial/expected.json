@@ -89,10 +89,10 @@
       "extra_assertions": ["null_agent_baseline_sps_in_band"]
     },
     "raw_response_desync": {
-      "description": "raw_text/selected_option disagrees with model_distribution top option",
+      "description": "schema_version=2 submission whose raw_text/selected_option disagrees with model_distribution top option — RAW_RESPONSES_MODE graduates to ERROR",
       "must_fire": ["RAW_RESPONSES_MODE"],
       "must_not_fire": ["BOUNDS_RANGE", "AGG_MEAN_JSD", "HOLDOUT_MISSING_PRIVATE", "QSET_HASH"],
-      "must_be_ok": true
+      "must_be_ok": false
     }
   }
 }

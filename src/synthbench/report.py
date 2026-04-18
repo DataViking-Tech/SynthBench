@@ -8,6 +8,7 @@ from pathlib import Path
 
 from synthbench import __version__
 from synthbench.runner import BenchmarkResult, QuestionResult
+from synthbench.validation import CURRENT_SCHEMA_VERSION
 
 
 def _sum_per_question_usage(per_q: list[QuestionResult]) -> dict | None:
@@ -106,6 +107,7 @@ def to_json(result: BenchmarkResult) -> dict:
 
     return {
         "benchmark": "synthbench",
+        "schema_version": CURRENT_SCHEMA_VERSION,
         "version": __version__,
         "timestamp": datetime.now(timezone.utc).isoformat(),
         "config": {

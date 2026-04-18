@@ -102,6 +102,7 @@ def _assemble(
     override_aggregate: dict[str, float] | None = None,
     qset_hash_override: str | None = None,
     raw_responses: list[dict[str, Any]] | None = None,
+    schema_version: int | None = None,
 ) -> dict[str, Any]:
     """Assemble a complete submission dict around a per_question list."""
     jsds = [q["jsd"] for q in per_question]
@@ -138,6 +139,7 @@ def _assemble(
         "benchmark": "synthbench",
         "version": "0.1.0",
         "timestamp": "2026-04-18T00:00:00+00:00",
+        **({"schema_version": schema_version} if schema_version is not None else {}),
         "config": config,
         "scores": {
             "sps": composite,
@@ -374,7 +376,8 @@ def raw_response_desync() -> dict[str, Any]:
     The submitter crafted believable distributions but their raw-sample
     log is internally inconsistent — ``raw_text`` and ``selected_option``
     say option "B" for questions whose model_distribution puts >99% of
-    mass on "A". Fires RAW_RESPONSES_MODE (tier-3 WARNING).
+    mass on "A". Tagged ``schema_version=2`` so RAW_RESPONSES_MODE
+    surfaces as ERROR (sb-88fw graduation), not WARNING.
     """
     humans = _human_distributions(seed=11)
     keys = _keys()
@@ -393,7 +396,7 @@ def raw_response_desync() -> dict[str, Any]:
                 "selected_option": "B",
             }
         )
-    return _assemble(pq, raw_responses=raw)
+    return _assemble(pq, raw_responses=raw, schema_version=2)
 
 
 FIXTURES = {
