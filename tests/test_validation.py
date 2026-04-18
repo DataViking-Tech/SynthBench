@@ -713,7 +713,7 @@ class TestSbA613Regression:
         """Minimal approximation of the sb-0qlc submission shape.
 
         Uses ``opinionsqa`` so the partitioning deterministically lands
-        enough rows on each side of the 80/20 holdout split, even at
+        enough rows on each side of the 20% holdout split, even at
         n=100. Each question ships ``n_samples=15`` with zero parse
         failures and zero model refusals (architectural for the current
         provider prompt). One raw sample per ~10 questions is attached,

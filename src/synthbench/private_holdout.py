@@ -1,9 +1,12 @@
 """Private holdout split for the synthbench public leaderboard.
 
-Each holdout-enabled dataset is deterministically partitioned 80/20 into a
-public subset (keys whose ``human_distribution`` stays visible in published
+Each holdout-enabled dataset is deterministically partitioned into a public
+subset (keys whose ``human_distribution`` stays visible in published
 artifacts) and a private subset (keys whose ``human_distribution`` is
-suppressed — we score submissions against our hidden copy).
+suppressed — we score submissions against our hidden copy). The private
+fraction is chosen per-dataset based on dataset size — see
+:data:`HOLDOUT_ENABLED_DATASETS` for the current mapping and
+``docs/benchmark-hardening-analysis.md`` §4.2 for the power analysis.
 
 The split serves two purposes:
 
@@ -13,7 +16,8 @@ The split serves two purposes:
   copied public distributions has no signal for the private keys, so their
   public-vs-private SPS must diverge.
 * **Anti-contamination.** Future LLMs may be trained on synthbench itself;
-  holding out 20% prevents that recursion from consuming the whole benchmark.
+  holding out a chunk prevents that recursion from consuming the whole
+  benchmark.
 
 The split is computed by hashing ``base_dataset_name + ":" + key``. That gives
 us three properties we rely on:
@@ -35,26 +39,42 @@ from __future__ import annotations
 
 import hashlib
 from collections.abc import Iterable
+from types import MappingProxyType
+from typing import Mapping
 
-# Datasets we apply the 80/20 split to. Pewtech is excluded because it ships
-# without per-question redistribution rights (citation_only) — the entire
-# human distribution is already suppressed, so a holdout split adds nothing.
-HOLDOUT_ENABLED_DATASETS: frozenset[str] = frozenset(
+# Per-dataset private-holdout percentages (integer, out of HOLDOUT_MOD).
+# Fractions are calibrated by dataset size to balance public-leaderboard
+# signal against HOLDOUT_DIVERGENCE resolution — large datasets keep 20% so
+# the headline public benchmark retains full statistical power; small
+# datasets go up to 40% so the private subset is large enough to resolve a
+# fabrication delta against honest sampling noise (<2σ at 20% on a ~200q
+# dataset).
+#
+#   - OpinionsQA / WVS / GSS      → 20% (large, N ≥ 500)
+#   - SubPOP / GlobalOpinionQA    → 30% (medium, 200 ≤ N < 500)
+#   - Michigan / NTIA / Eurobar.  → 40% (small, N < 200)
+#
+# Pewtech is absent because it ships without per-question redistribution
+# rights (citation_only) — the entire human distribution is already
+# suppressed, so a holdout split adds nothing.
+#
+# See ``docs/benchmark-hardening-analysis.md`` §4.2 for the power analysis.
+HOLDOUT_ENABLED_DATASETS: Mapping[str, int] = MappingProxyType(
     {
-        "eurobarometer",
-        "globalopinionqa",
-        "gss",
-        "michigan",
-        "ntia",
-        "opinionsqa",
-        "subpop",
-        "wvs",
+        "eurobarometer": 40,
+        "globalopinionqa": 30,
+        "gss": 20,
+        "michigan": 40,
+        "ntia": 40,
+        "opinionsqa": 20,
+        "subpop": 30,
+        "wvs": 20,
     }
 )
 
-# 20% private, 80% public. Kept as two constants (instead of a single float)
-# so the split is integer-modulo-based and the boundary is unambiguous.
-HOLDOUT_FRACTION = 20
+# Modulus of the integer-bucket partition. Per-dataset fractions in
+# HOLDOUT_ENABLED_DATASETS are expressed relative to this modulus, so the
+# boundary is unambiguous (``bucket < fraction`` → private).
 HOLDOUT_MOD = 100
 
 # SPS delta above which a submission's public/private divergence is flagged.
@@ -73,25 +93,37 @@ def _base_dataset_name(dataset: str) -> str:
 
 
 def is_holdout_enabled(dataset: str) -> bool:
-    """True iff the dataset participates in the 80/20 split."""
+    """True iff the dataset participates in the private/public split."""
     return _base_dataset_name(dataset) in HOLDOUT_ENABLED_DATASETS
 
 
+def holdout_fraction(dataset: str) -> int:
+    """Return the private-holdout percentage (out of :data:`HOLDOUT_MOD`) for
+    ``dataset``, or ``0`` for non-holdout datasets.
+
+    The fraction is looked up from :data:`HOLDOUT_ENABLED_DATASETS` after
+    stripping the filter suffix (``"gss (2018)"`` → ``"gss"``).
+    """
+    return HOLDOUT_ENABLED_DATASETS.get(_base_dataset_name(dataset), 0)
+
+
 def is_private_holdout(dataset: str, key: str) -> bool:
-    """Return ``True`` when ``(dataset, key)`` belongs to the private 20%.
+    """Return ``True`` when ``(dataset, key)`` belongs to the private subset.
 
     Hash-based and stable: the same ``(dataset, key)`` pair always lands in
     the same partition across runs, machines, and Python versions (the hash
-    is SHA-256 on a fixed ASCII encoding).
+    is SHA-256 on a fixed ASCII encoding). The private-bucket cutoff is
+    dataset-specific — see :data:`HOLDOUT_ENABLED_DATASETS`.
 
     Datasets outside :data:`HOLDOUT_ENABLED_DATASETS` always return ``False``.
     """
     base = _base_dataset_name(dataset)
-    if base not in HOLDOUT_ENABLED_DATASETS:
+    fraction = HOLDOUT_ENABLED_DATASETS.get(base)
+    if fraction is None:
         return False
     digest = hashlib.sha256(f"{base}:{key}".encode("utf-8")).hexdigest()
     bucket = int(digest[:8], 16) % HOLDOUT_MOD
-    return bucket < HOLDOUT_FRACTION
+    return bucket < fraction
 
 
 def holdout_keys(dataset: str, keys: Iterable[str]) -> set[str]:
@@ -197,10 +229,10 @@ def compute_split_sps(
 
 __all__ = [
     "HOLDOUT_ENABLED_DATASETS",
-    "HOLDOUT_FRACTION",
     "HOLDOUT_MOD",
     "SPS_DIVERGENCE_THRESHOLD",
     "compute_split_sps",
+    "holdout_fraction",
     "holdout_keys",
     "is_holdout_enabled",
     "is_private_holdout",

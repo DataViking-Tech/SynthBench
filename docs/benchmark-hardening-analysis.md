@@ -15,7 +15,7 @@ But the paper's underlying threat model — *"attackers defeat the evaluator, no
 
 | Berkeley class              | SynthBench analogue                                                                                  |
 | --------------------------- | ---------------------------------------------------------------------------------------------------- |
-| Filesystem answer leakage   | Public `human_distribution` fields are the answer key. 80/20 split is our mitigation.                |
+| Filesystem answer leakage   | Public `human_distribution` fields are the answer key. Per-dataset private holdout (20–40%) is our mitigation. |
 | Dead-code evaluation        | Warning-only Tier-3 detectors effectively *are* dead code — they never fail a submission.            |
 | Normalization collisions    | 4-decimal rounding of distributions plus loose metric recompute tolerances create collision surface. |
 | Null-agent recommendation   | We have baselines (random, majority) but do not treat them as a validator tripwire.                  |
@@ -26,7 +26,7 @@ But the paper's underlying threat model — *"attackers defeat the evaluator, no
 
 1. **Promote `HOLDOUT_DIVERGENCE` from WARNING to ERROR at production scale** (effort: S). This is the highest-signal existing detector and is currently toothless.
 2. **Add a near-copy detector** computing per-question JSD of the submitted `model_distribution` against the *public* `human_distribution` at the submission's own resolution (effort: M). Closes the dominant fabrication shortcut.
-3. **Adopt a quarterly-rotated private-holdout salt** without changing the 20% fraction (effort: S, policy: M). Increases temporal diversity without burning coverage or statistical power.
+3. **Adopt a quarterly-rotated private-holdout salt** on top of the per-dataset fractions (effort: S, policy: M). Increases temporal diversity without burning coverage or statistical power.
 4. **Add an adversarial test suite as a CI gate** with ≥7 fabrications that MUST fail validation (effort: M). Converts our validator from "no known false negatives" to "measured true-positive rate."
 5. **Publish a methodology / anti-gaming page** citing the Berkeley paper (effort: S). Reputational rather than technical, but important.
 
@@ -146,10 +146,10 @@ If JSD correlates >0.9 with the number of options, the submitter is likely produ
 
 ### 4.1 Current design
 
-- **Fraction:** 20% private / 80% public.
-- **Mechanism:** SHA-256(`base_dataset_name + ":" + key`) mod 100 < 20.
+- **Fraction:** per-dataset (sb-26s1) — 20% on large datasets (N ≥ 500), 30% medium, 40% small. See `HOLDOUT_ENABLED_DATASETS` for the canonical mapping.
+- **Mechanism:** SHA-256(`base_dataset_name + ":" + key`) mod 100 < `HOLDOUT_ENABLED_DATASETS[dataset]`.
 - **Rotation:** None. The hash is static.
-- **Datasets:** 8 (eurobarometer, globalopinionqa, gss, michigan, ntia, opinionsqa, subpop, wvs).
+- **Datasets:** 8, with per-dataset fractions — opinionsqa/wvs/gss=20%, subpop/globalopinionqa=30%, michigan/ntia/eurobarometer=40%.
 
 ### 4.2 Statistical-power analysis
 
@@ -166,13 +166,13 @@ SPS is a bounded-variance sample mean. Approximate per-question SPS variance in 
 
 At the 0.05 threshold, 20% private is already >3σ at OpinionsQA scale. On the smaller datasets, 20% private gives <2σ resolution — a fabrication delta of 0.10 would blur into honest-noise. Moving to 40% would push Michigan/SubPOP from ~1.5σ to ~2σ resolution — a real but modest gain — at the cost of shrinking the public score (the thing we report on the leaderboard) by ~25%.
 
-**My recommendation: keep 20% on large datasets (N ≥ 500), move to 40% on small (N < 200).** Concretely:
+**Recommendation (implemented in sb-26s1): keep 20% on large datasets (N ≥ 500), move to 40% on small (N < 200).** Concretely:
 
-- OpinionsQA, WVS, GSS → stay at 20%.
+- OpinionsQA, WVS, GSS → 20%.
 - Michigan, NTIA, Eurobarometer (slice-dependent) → 40%.
 - SubPOP, GlobalOpinionQA → 30% (middle ground).
 
-This preserves public leaderboard statistical identity on the headline benchmark while increasing fabrication resolution where we're weakest. Heterogeneous fractions can be encoded per-dataset in `HOLDOUT_ENABLED_DATASETS` (promote to a `dict[str, int]`).
+This preserves public leaderboard statistical identity on the headline benchmark while increasing fabrication resolution where we're weakest. Heterogeneous fractions are encoded per-dataset in `HOLDOUT_ENABLED_DATASETS: Mapping[str, int]`. The validator's `HOLDOUT_COVERAGE` floor scales off the per-dataset expected ratio (quarter-of-expected), so a submission on a 40% dataset must land ≥10% private rows to clear the gate.
 
 ### 4.3 Rotation
 
@@ -190,7 +190,7 @@ This mirrors the "version bump" discipline already in the codebase. The cost is:
 
 ### 4.4 Adversary model for holdout
 
-Worth stating explicitly: the hash construction (`sha256(base + ":" + key)`) is **not a cryptographic commitment** — the attacker can trivially compute it themselves. The 80/20 split is not secret; what is secret is the `human_distribution` on private keys. An attacker who compromises the private answer key (by repo clone, by social engineering, by insider access) defeats the whole holdout regardless of rotation cadence. Defenses here are operational (limit who has access to raw private distributions, audit access logs) not cryptographic.
+Worth stating explicitly: the hash construction (`sha256(base + ":" + key)`) is **not a cryptographic commitment** — the attacker can trivially compute it themselves. The partition is not secret; what is secret is the `human_distribution` on private keys. An attacker who compromises the private answer key (by repo clone, by social engineering, by insider access) defeats the whole holdout regardless of rotation cadence. Defenses here are operational (limit who has access to raw private distributions, audit access logs) not cryptographic.
 
 ---
 
@@ -260,7 +260,7 @@ SynthBench takes the threat of benchmark gaming seriously. Our threat model and 
 
 SynthBench is a submission-artifact benchmark — participants submit a JSON file, we score it — so attacks that assume a co-resident evaluating agent (sandbox escapes, `eval()` on agent input, binary trojan wrappers, LLM-judge prompt injection) are structurally inapplicable. But the *pattern* behind Wang et al.'s attacks — attack the evaluator, not the task — applies to us, and we have designed three lines of defence.
 
-**1. Private holdout.** Each holdout-enabled dataset is deterministically partitioned into a public 80% (whose human-response distributions are published on the leaderboard) and a private 20% (whose distributions are withheld). A submitter who copies published distributions has no signal for the private subset, so their public-vs-private SPS must diverge. A separation larger than 0.05 on production-scale submissions is flagged as a validation error. The split is keyed on a versioned salt rotated quarterly so that the partition is not permanently fixed.
+**1. Private holdout.** Each holdout-enabled dataset is deterministically partitioned into a public subset (whose human-response distributions are published on the leaderboard) and a private subset (whose distributions are withheld). Fractions are per-dataset — 20% on large datasets (OpinionsQA, WVS, GSS), 30% medium (SubPOP, GlobalOpinionQA), 40% small (Michigan, NTIA, Eurobarometer) — calibrated to give ≥2σ `HOLDOUT_DIVERGENCE` resolution even on the smallest dataset. A submitter who copies published distributions has no signal for the private subset, so their public-vs-private SPS must diverge. A separation larger than 0.05 on production-scale submissions is flagged as a validation error. The split is keyed on a versioned salt rotated quarterly so that the partition is not permanently fixed.
 
 **2. Tiered statistical validation.** Every submission runs through three progressively deeper checks. Tier 1 verifies schema, bounds, and distribution validity. Tier 2 recomputes JSD, Kendall's τ, and composite parity from per-question distributions and rejects any submission whose reported aggregates do not reconcile with its claimed per-question data. Tier 3 applies statistical-anomaly detectors that compare the submission against the distribution of legitimate runs: *implausibly perfect* per-question JSD, *suspiciously-close-to-public-human* distributions, and *same-family peer deviation*.
 
