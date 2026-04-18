@@ -172,11 +172,17 @@ supplied in the harness config so that auditors can spot-check by
 rerunning a randomly chosen question. Missing or empty fields emit
 `REPRO_FIELD_MISSING` / `REPRO_FIELD_EMPTY` warnings.
 
-**Graduation plan.** The current release keeps Tier 3 soft
-(warnings) so that existing leaderboard entries stay valid. Once all
-active submitters have migrated their tooling, `--tier3 --strict`
-will become the default on new PRs and the detectors promote to
-errors.
+**Graduation plan.** Submissions carry a top-level `schema_version`
+integer. v1 (the legacy shape — every leaderboard entry written before
+sb-88fw landed) keeps the old WARNING semantics so historical files
+stay valid. v2, emitted by the current runner, promotes
+`RAW_RESPONSES_MISSING` and `RAW_RESPONSES_MODE` to ERROR — a v2
+submission cannot ship without auditable raw model output that agrees
+with the reported `model_distribution`. Other Tier-3 codes (coverage,
+length, repro metadata) remain WARNING under both versions; submitters
+can still gate them at the CLI with `--tier3 --strict`. Set
+`"schema_version": 2` explicitly when authoring a submission by hand;
+the harness sets it for you.
 
 ### Tier 4 — Cryptographic attestation (future)
 

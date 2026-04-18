@@ -77,6 +77,30 @@ REQUIRED_REPRODUCIBILITY = (
     "submitted_at",
 )
 
+# Submission schema versioning. v1 is the legacy shape — every leaderboard
+# entry written before sb-88fw landed. v2 makes raw_responses load-bearing:
+# missing samples and selected_option/distribution desync graduate from
+# WARNING to ERROR so a v2 submission cannot ship without auditable raw
+# model output. The runner stamps new files with CURRENT_SCHEMA_VERSION;
+# legacy files (no field, or schema_version < 2) keep the v1 warning path
+# so historical leaderboard entries stay valid.
+CURRENT_SCHEMA_VERSION = 2
+RAW_RESPONSES_V2_GRADUATED_CODES = frozenset(
+    {"RAW_RESPONSES_MISSING", "RAW_RESPONSES_MODE"}
+)
+
+
+def _schema_version(data: Mapping[str, Any]) -> int:
+    """Return the submission's declared schema_version (default v1)."""
+    raw = data.get("schema_version")
+    if isinstance(raw, bool):  # bool is a subclass of int — reject
+        return 1
+    if isinstance(raw, int):
+        return raw
+    if isinstance(raw, float) and raw.is_integer():
+        return int(raw)
+    return 1
+
 
 class Severity(str, Enum):
     """Issue severity. ERROR fails the run; WARNING is informational."""
@@ -129,6 +153,31 @@ class ValidationReport:
         for issue in self.issues:
             lines.append(f"  {issue.format()}")
         return "\n".join(lines)
+
+
+def _graduate_raw_response_severity(
+    issues: list[Issue], schema_version: int
+) -> list[Issue]:
+    """Promote v2-graduated raw_response codes from WARNING to ERROR.
+
+    Mutates and returns the supplied list. v1 (legacy) submissions keep
+    the original WARNING severity so historical leaderboard files stay
+    valid; v2 submissions fail the run on these codes.
+    """
+    if schema_version < 2:
+        return issues
+    for i, issue in enumerate(issues):
+        if (
+            issue.code in RAW_RESPONSES_V2_GRADUATED_CODES
+            and issue.severity is Severity.WARNING
+        ):
+            issues[i] = Issue(
+                code=issue.code,
+                severity=Severity.ERROR,
+                message=issue.message,
+                path=issue.path,
+            )
+    return issues
 
 
 # ---------------------------------------------------------------------------
@@ -1253,7 +1302,10 @@ def validate_submission(
         from synthbench.anomaly import tier3_checks
 
         mapping: Mapping[str, Any] = data  # type: ignore[assignment]
-        report.extend(_validate_raw_responses(mapping))
+        version = _schema_version(mapping)
+        raw_issues = _validate_raw_responses(mapping)
+        _graduate_raw_response_severity(raw_issues, version)
+        report.extend(raw_issues)
         report.extend(_validate_reproducibility_metadata(mapping))
         report.extend(tier3_checks(mapping, peers=peers))
 
