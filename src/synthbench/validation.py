@@ -26,8 +26,10 @@ from synthbench.metrics.distributional import jensen_shannon_divergence
 from synthbench.metrics.ranking import kendall_tau_b
 from synthbench.metrics.refusal import refusal_calibration
 from synthbench.private_holdout import (
+    HOLDOUT_MOD,
     SPS_DIVERGENCE_THRESHOLD,
     compute_split_sps,
+    holdout_fraction,
     is_holdout_enabled,
     is_private_holdout,
 )
@@ -571,11 +573,13 @@ def _validate_private_holdout(data: Mapping[str, Any]) -> list[Issue]:
     1. **Full coverage.** Submissions must include per-question results for
        *both* halves of the split. Missing the private subset is the classic
        fabrication shortcut — a cheater matches the visible public human
-       distributions and never looks at the private keys. We reject with a
-       clear error whenever fewer than ~5% of submitted rows are private
-       (for honest splits we expect ~20%, so the 5% threshold tolerates the
-       legitimate small-sample case where only a handful of private keys
-       land in a subset by chance).
+       distributions and never looks at the private keys. We reject when the
+       observed private ratio falls below a quarter of the per-dataset
+       expected ratio (which is itself dataset-specific — 20/30/40% private
+       depending on dataset size; see
+       :data:`synthbench.private_holdout.HOLDOUT_ENABLED_DATASETS`). The
+       quarter-of-expected floor tolerates the small-sample case where only
+       a handful of private keys land in a subset by chance.
 
     2. **SPS divergence.** Recompute SPS on the public and private subsets
        separately. When the gap exceeds
@@ -610,20 +614,24 @@ def _validate_private_holdout(data: Mapping[str, Any]) -> list[Issue]:
     if total == 0:
         return issues
 
-    # Below this threshold, the 20% expected private ratio becomes a
-    # statistical claim we can't actually make — at N=2 a fair split
-    # might land 0-private-rows with probability 0.64. Partial / fixture
-    # submissions used in development routinely sit under this bar, so we
-    # skip enforcement on small submissions and rely on production-scale
-    # runs (which always have hundreds of questions) to hit the validator.
+    # Below this threshold, the expected private ratio becomes a statistical
+    # claim we can't actually make — at N=2 a fair split might land 0
+    # private rows with probability 0.64 even for a 40% fraction. Partial /
+    # fixture submissions used in development routinely sit under this bar,
+    # so we skip enforcement on small submissions and rely on
+    # production-scale runs (which always have hundreds of questions) to
+    # hit the validator.
     MIN_ROWS_FOR_ENFORCEMENT = 25
     if total < MIN_ROWS_FOR_ENFORCEMENT:
         return issues
 
-    # Private-coverage gate. Using a conservative 5% lower bound so we don't
-    # false-positive on intentionally tiny debug submissions — a legit full
-    # run hits the 20% expected ratio.
-    expected_private_ratio = 0.05
+    # Private-coverage gate. Scale the floor with the per-dataset expected
+    # ratio: quarter-of-expected tolerates sampling noise on intentionally
+    # tiny debug submissions while still catching "the cheater sent zero
+    # private rows" on any real production run.
+    expected_fraction = holdout_fraction(dataset)
+    expected_private_ratio_float = expected_fraction / HOLDOUT_MOD
+    min_private_ratio = expected_private_ratio_float / 4.0
     if n_private == 0:
         issues.append(
             Issue(
@@ -638,7 +646,7 @@ def _validate_private_holdout(data: Mapping[str, Any]) -> list[Issue]:
                 path="per_question",
             )
         )
-    elif n_private / total < expected_private_ratio:
+    elif n_private / total < min_private_ratio:
         issues.append(
             Issue(
                 code="HOLDOUT_COVERAGE",
@@ -646,7 +654,8 @@ def _validate_private_holdout(data: Mapping[str, Any]) -> list[Issue]:
                 message=(
                     f"submission on {dataset!r} has {n_private}/{total} "
                     f"private-holdout rows ({n_private / total:.1%}); "
-                    f"expected ~20% (min {expected_private_ratio:.0%})"
+                    f"expected ~{expected_private_ratio_float:.0%} "
+                    f"(min {min_private_ratio:.1%})"
                 ),
                 path="per_question",
             )

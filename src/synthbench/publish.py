@@ -1219,7 +1219,7 @@ def _augment_per_question(
     before emission. Aggregate metrics (jsd, kendall_tau, parity) stay — they
     are derived, not raw upstream data.
 
-    On holdout-enabled datasets, the private 20% split also has its
+    On holdout-enabled datasets, the private split also has its
     ``human_distribution`` / ``human_refusal_rate`` suppressed regardless of
     redistribution policy: the point of the private set is that the public
     JSON can't be used to reverse-engineer the answer key. Rows get an

@@ -34,9 +34,12 @@ from synthbench.stats import question_set_hash
 
 DATASET = "globalopinionqa"
 PROVIDER = "openrouter/anthropic/claude-haiku-4-5"
-N_QUESTIONS = 70  # >=50 public rows after dropping private holdout (~20%)
-# so ANOMALY_NEAR_COPY_PUBLIC (NEAR_COPY_MIN_PUBLIC=50) can fire on copy-style
-# fixtures, while still clearing ANOMALY_PERFECTION's n>=25 minimum.
+# Sized to deliver >=50 public rows even at the highest per-dataset holdout
+# fraction (40%) — 100*(1-0.40)=60 public — so ANOMALY_NEAR_COPY_PUBLIC
+# (NEAR_COPY_MIN_PUBLIC=50) can fire on copy-style fixtures on any dataset
+# this generator is retargeted to. Well clear of ANOMALY_PERFECTION's
+# n>=25 minimum.
+N_QUESTIONS = 100
 
 HERE = Path(__file__).parent
 FIXTURE_DIR = HERE / "fixtures"
@@ -199,10 +202,11 @@ def public_copy_fake_private() -> dict[str, Any]:
     """Public rows copy human; private rows fabricated from marginal.
 
     Classic Berkeley-style attack: the submitter has access to the public
-    20% of distributions and parrots them, then backfills the 20% private
-    subset with a Dirichlet draw from the global marginal. Public SPS
-    is near 1.0, private SPS falls back to the random-baseline floor,
-    producing a large HOLDOUT_DIVERGENCE delta.
+    distributions and parrots them, then backfills the private subset with
+    a Dirichlet draw from the global marginal. Public SPS is near 1.0,
+    private SPS falls back to the random-baseline floor, producing a
+    large HOLDOUT_DIVERGENCE delta. The split itself is per-dataset
+    (20/30/40%); this fixture targets globalopinionqa (30%).
     """
     rng = random.Random(33)
     humans = _human_distributions(seed=11)
@@ -308,10 +312,12 @@ def lied_aggregate() -> dict[str, Any]:
 
 
 def zero_private_rows() -> dict[str, Any]:
-    """Submit only public keys; private 20% omitted.
+    """Submit only public keys; the private subset is entirely omitted.
 
     Flags HOLDOUT_MISSING_PRIVATE — the private-subset coverage gate
-    that already runs at ERROR severity.
+    that already runs at ERROR severity. The private fraction is
+    per-dataset (see :data:`HOLDOUT_ENABLED_DATASETS`); for
+    globalopinionqa that's 30%.
     """
     humans = _human_distributions(seed=11)
     keys = _keys()

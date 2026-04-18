@@ -1,4 +1,4 @@
-"""Tests for the deterministic 80/20 private holdout split."""
+"""Tests for the deterministic per-dataset private holdout split."""
 
 from __future__ import annotations
 
@@ -9,10 +9,10 @@ import pytest
 
 from synthbench.private_holdout import (
     HOLDOUT_ENABLED_DATASETS,
-    HOLDOUT_FRACTION,
     HOLDOUT_MOD,
     SPS_DIVERGENCE_THRESHOLD,
     compute_split_sps,
+    holdout_fraction,
     holdout_keys,
     is_holdout_enabled,
     is_private_holdout,
@@ -37,10 +37,12 @@ class TestDeterminism:
     def test_different_dataset_independent_partition(self):
         # The same key must classify independently across datasets —
         # otherwise a leak on one dataset would propagate across all of
-        # them. Sample many keys and confirm that disagreement happens
-        # (under independent 80/20 partitions, two datasets agree on a
-        # given key with probability 0.68, so across 500 keys we expect
-        # ~160 disagreements — well above any reasonable lower bound).
+        # them. Sample many keys and confirm that disagreement happens.
+        # opinionsqa (20%) and globalopinionqa (30%) partition
+        # independently, so the two-dataset disagreement rate on a given
+        # key is 0.20*(1-0.30) + 0.30*(1-0.20) = 0.38; across 500 keys
+        # we expect ~190 disagreements — well above any reasonable
+        # lower bound.
         keys = _random_keys(500)
         disagreements = sum(
             1
@@ -59,6 +61,22 @@ class TestEnabledDatasets:
     def test_bead_specifies_eight_datasets(self):
         assert len(HOLDOUT_ENABLED_DATASETS) == 8
 
+    def test_per_dataset_fractions_match_hardening_plan(self):
+        # Fractions are calibrated by dataset size per §4.2 of
+        # ``docs/benchmark-hardening-analysis.md``. A drift here would
+        # silently change private-subset sizes across the benchmark, so
+        # freeze the canonical mapping in a test.
+        assert dict(HOLDOUT_ENABLED_DATASETS) == {
+            "eurobarometer": 40,
+            "globalopinionqa": 30,
+            "gss": 20,
+            "michigan": 40,
+            "ntia": 40,
+            "opinionsqa": 20,
+            "subpop": 30,
+            "wvs": 20,
+        }
+
     def test_unknown_dataset_returns_false(self):
         # Non-holdout datasets must never be marked holdout — otherwise
         # we'd silently start suppressing data on a dataset whose license
@@ -73,16 +91,26 @@ class TestEnabledDatasets:
         assert not is_holdout_enabled("pewtech")
         assert not is_holdout_enabled("novel_dataset")
 
+    def test_holdout_fraction_returns_dataset_specific_value(self):
+        assert holdout_fraction("opinionsqa") == 20
+        assert holdout_fraction("subpop") == 30
+        assert holdout_fraction("michigan") == 40
+        # Filter-suffix variants share the base dataset's fraction.
+        assert holdout_fraction("gss (2018)") == 20
+        # Non-holdout datasets report 0.
+        assert holdout_fraction("pewtech") == 0
+        assert holdout_fraction("unknown_dataset") == 0
+
 
 class TestSplitRatio:
     @pytest.mark.parametrize("dataset", sorted(HOLDOUT_ENABLED_DATASETS))
-    def test_split_is_close_to_twenty_percent(self, dataset):
+    def test_split_matches_per_dataset_fraction(self, dataset):
         # Sample 5,000 synthetic keys per dataset; the observed ratio should
-        # land within ~3% of the nominal 20% target.
+        # land within ~3% of the per-dataset target fraction.
         keys = _random_keys(5000, seed=hash(dataset) & 0xFFFFFFFF)
         n_private = sum(is_private_holdout(dataset, k) for k in keys)
         ratio = n_private / len(keys)
-        expected = HOLDOUT_FRACTION / HOLDOUT_MOD
+        expected = HOLDOUT_ENABLED_DATASETS[dataset] / HOLDOUT_MOD
         assert abs(ratio - expected) < 0.03, (
             f"{dataset}: {n_private}/5000 = {ratio:.3%}, expected {expected:.1%}"
         )
