@@ -76,6 +76,20 @@ NEAR_COPY_MEAN_JSD = 0.02
 NEAR_COPY_STD_JSD = 0.03
 NEAR_COPY_MIN_PUBLIC = 50
 
+# Constant-offset fingerprint. A deterministic monotonic transformation of
+# the human distribution (``model = normalize(human + c)`` is the canonical
+# example from docs/benchmark-hardening-analysis.md §3.3; scaling and power
+# transforms produce the same shape) preserves rank order exactly on every
+# question — per-question ``kendall_tau == 1.0`` uniformly. Real LLM
+# sampling flips minor ranks on nearly-tied options: across every real
+# submission in leaderboard-results/ the share of questions with perfect
+# tau tops out around 26% (claude-haiku, ensemble) and is typically 10–20%.
+# A 95% threshold over n >= 25 sits >3x above the real-run ceiling and
+# catches the fabricated ``constant_offset.json`` fixture (100% perfect tau).
+CONSTANT_OFFSET_PERFECT_TAU_FRACTION = 0.95
+CONSTANT_OFFSET_TAU_EPSILON = 1e-4
+CONSTANT_OFFSET_MIN_N = 25
+
 
 def _mean(values: Sequence[float]) -> float:
     return sum(values) / len(values) if values else 0.0
@@ -370,6 +384,61 @@ def check_near_copy_public(
     )
 
 
+def check_constant_offset(
+    per_question: Sequence[Mapping[str, Any]],
+) -> Issue | None:
+    """Flag deterministic monotonic-transformation attacks.
+
+    The canonical attack from ``docs/benchmark-hardening-analysis.md §3.3``
+    is ``model[opt] = human[opt] + c`` renormalized. Because adding a
+    constant to every option is a strictly monotonic transformation, the
+    option rank order is preserved exactly on every question — so
+    per-question ``kendall_tau`` equals 1.0 uniformly. The same fingerprint
+    appears for any deterministic monotonic transformation the attacker
+    might apply to the answer key (scaling, power transform, etc.).
+
+    Real LLM sampling flips minor rank orders on nearly-tied options: across
+    the full leaderboard the share of questions with ``tau == 1.0`` tops
+    out near 26% and sits at 10–20% for typical strong models. A
+    submission with ``>= 95%`` of questions at near-unity tau over n >= 25
+    is therefore not a plausible real run.
+
+    The detector is independent of :func:`check_suspicious_perfection` and
+    :func:`check_near_copy_public` — those fire on distribution-distance
+    signals, which a cleverly-tuned multiplicative/offset attack could
+    drive out of range by choosing a large constant. The tau fingerprint
+    survives any monotonic f, which is why it's the right cross-check.
+    """
+    tau_values = [
+        float(q["kendall_tau"])
+        for q in per_question
+        if isinstance(q.get("kendall_tau"), (int, float))
+    ]
+    if len(tau_values) < CONSTANT_OFFSET_MIN_N:
+        return None
+
+    perfect = sum(1 for t in tau_values if t >= 1.0 - CONSTANT_OFFSET_TAU_EPSILON)
+    fraction = perfect / len(tau_values)
+    if fraction < CONSTANT_OFFSET_PERFECT_TAU_FRACTION:
+        return None
+
+    return Issue(
+        code="ANOMALY_CONSTANT_OFFSET",
+        severity=Severity.ERROR,
+        message=(
+            f"per-question kendall_tau is near-unity on "
+            f"{perfect}/{len(tau_values)} questions ({fraction:.1%}, "
+            f"threshold >= {CONSTANT_OFFSET_PERFECT_TAU_FRACTION:.0%}). "
+            f"Real LLM sampling flips minor rank orders on nearly-tied "
+            f"options — uniform rank preservation is the fingerprint of a "
+            f"deterministic monotonic transformation of the human "
+            f"distribution (e.g. model = normalize(human + c)). See "
+            f"docs/benchmark-hardening-analysis.md §3.3."
+        ),
+        path="per_question",
+    )
+
+
 def tier3_checks(
     data: Mapping[str, Any],
     *,
@@ -400,6 +469,10 @@ def tier3_checks(
     if near_copy is not None:
         issues.append(near_copy)
 
+    constant_offset = check_constant_offset(per_question)
+    if constant_offset is not None:
+        issues.append(constant_offset)
+
     peer_outlier = check_peer_distribution_outlier(data, peers)
     if peer_outlier is not None:
         issues.append(peer_outlier)
@@ -418,9 +491,13 @@ __all__ = [
     "NEAR_COPY_MEAN_JSD",
     "NEAR_COPY_STD_JSD",
     "NEAR_COPY_MIN_PUBLIC",
+    "CONSTANT_OFFSET_PERFECT_TAU_FRACTION",
+    "CONSTANT_OFFSET_TAU_EPSILON",
+    "CONSTANT_OFFSET_MIN_N",
     "check_suspicious_perfection",
     "check_missing_refusals",
     "check_peer_distribution_outlier",
     "check_near_copy_public",
+    "check_constant_offset",
     "tier3_checks",
 ]
