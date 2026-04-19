@@ -25,8 +25,14 @@ test.describe("/findings — Cost vs SPS Pareto", () => {
   test("figure exposes accessible name (or empty-state message)", async ({ page }) => {
     const figure = page.locator(`${SECTION} figure.chart-figure`);
     if ((await figure.count()) === 0) {
-      // No cost data yet — empty-state path. Acceptance: copy is shown.
-      await expect(page.locator(`${SECTION}`)).toContainText(/Cost data not yet available/i);
+      // No cost data yet — empty-state path. Acceptance: dated ship-date copy
+      // pointing readers to leaderboard.json is shown. This intentionally does
+      // NOT assert the exact month/year — the ship-date moves when the publish
+      // pipeline does. It asserts the shape: "ships <date>" + mention of the
+      // raw-cost fields living in leaderboard.json.
+      const section = page.locator(SECTION);
+      await expect(section).toContainText(/Cost-vs-SPS Pareto ships/i);
+      await expect(section).toContainText(/leaderboard\.json/i);
       return;
     }
     await expect(figure).toBeVisible();
