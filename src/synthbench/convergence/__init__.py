@@ -22,6 +22,11 @@ bead). Treat this curve as the floor everything else gets compared to.
 
 from __future__ import annotations
 
+from synthbench.convergence.baseline import (
+    BaselineGatedError,
+    BaselineUnavailable,
+    load_convergence_baseline,
+)
 from synthbench.convergence.bootstrap import (
     bootstrap_sample,
     empirical_distribution,
@@ -44,6 +49,9 @@ from synthbench.convergence.thresholds import (
 )
 
 __all__ = [
+    "BaselineGatedError",
+    "BaselineUnavailable",
+    "load_convergence_baseline",
     "bootstrap_sample",
     "empirical_distribution",
     "compute_curve",

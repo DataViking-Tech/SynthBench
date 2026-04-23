@@ -211,12 +211,20 @@ through into the synthpanel run metadata.
 
 ### Status
 
-The loader is **not yet exported** from synthbench. synthpanel falls back
-through the attribute-probe list above and raises
-`SynthbenchUnavailableError` with an install / upgrade hint when none
-resolve. Adding a stable `load_convergence_baseline(dataset, question_key)`
-export that reuses the dataset adapter registry is tracked as a follow-on
-to the bootstrap (`sb-ygp7`) and real-sampling (`sb-gh1n`) beads.
+The loader is exported as `synthbench.load_convergence_baseline` (also
+importable from `synthbench.convergence`) as of `sb-ham8`. Tier handling:
+
+* `full` datasets (`gss`, `ntia`) return the documented payload directly.
+* `gated` datasets raise `BaselineGatedError` — serving those baselines
+  requires hitting the authenticated R2 origin with credentials, which is
+  out of scope for the in-process loader.
+* `aggregates_only` / `citation_only` / unknown datasets raise
+  `BaselineUnavailable` — synthbench has no per-question redistribution
+  rights for them.
+
+Both error classes subclass `LookupError`; `BaselineGatedError` is itself
+a subclass of `BaselineUnavailable`, so synthpanel can catch the parent
+when the distinction does not matter.
 
 ## Cross-reference
 
