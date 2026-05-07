@@ -15,21 +15,19 @@ const ensemblePoints = `+${Math.round(ensembleAvgImprovement * 100)}-${Math.roun
   Math.max(...findings.ensemble_comparison.map((e) => e.improvement)) * 100,
 )} SPS points`;
 
-// Card 2: Persona Prompting Asymmetry
+// Card 2: Income Persona Asymmetry (lead non-political asymmetry)
+// $100K+ vs <$30K p_cond ratio
+const income = findings.conditioning_results.filter((c) => c.attribute === "INCOME");
+const highIncomeCond = income.find((c) => c.group === "$100K+")?.p_cond ?? 0;
+const lowIncomeCond = income.find((c) => c.group === "<$30K")?.p_cond ?? 0;
+const incomeRatio = lowIncomeCond > 0 ? (highIncomeCond / lowIncomeCond).toFixed(2) : "N/A";
+
+// Card 3: Persona Prompting Asymmetry (political, reframed)
 // Republican vs Democrat p_cond ratio
 const polparty = findings.conditioning_results.filter((c) => c.attribute === "POLPARTY");
 const repCond = polparty.find((c) => c.group === "Republican")?.p_cond ?? 0;
 const demCond = polparty.find((c) => c.group === "Democrat")?.p_cond ?? 0;
 const condRatio = demCond > 0 ? (repCond / demCond).toFixed(1) : "N/A";
-
-// Card 3: Temperature sensitivity
-// Gemini Flash Lite range vs Haiku range
-const haikuTemps = findings.temperature_sweep.filter((t) => t.model === "Claude Haiku 4.5");
-const geminiTemps = findings.temperature_sweep.filter((t) => t.model === "Gemini Flash Lite");
-const haikuRange =
-  Math.max(...haikuTemps.map((t) => t.sps)) - Math.min(...haikuTemps.map((t) => t.sps));
-const geminiRange =
-  Math.max(...geminiTemps.map((t) => t.sps)) - Math.min(...geminiTemps.map((t) => t.sps));
 
 const cards = [
   {
@@ -38,14 +36,14 @@ const cards = [
     text: "Blending 3 models beats any single model. Zero additional API cost—just arithmetic on existing responses.",
   },
   {
-    title: "Persona Prompting Asymmetry",
-    stat: `${condRatio}× gap`,
-    text: `Prompting the model as a Republican shifts responses ${condRatio}× more than prompting as a Democrat—revealing the model’s progressive default lean.`,
+    title: "Income Persona Asymmetry",
+    stat: `${incomeRatio}× gap`,
+    text: `Prompting the model as a high-income respondent ($100K+) shifts responses ${incomeRatio}× more than prompting as a low-income respondent (<$30K).`,
   },
   {
-    title: "Temperature Matters (Sometimes)",
-    stat: `+${(geminiRange * 100).toFixed(1)}% for Gemini, ±${(haikuRange * 100).toFixed(1)}% for Haiku`,
-    text: "Temperature sensitivity is model-specific, not universal. One size does not fit all.",
+    title: "Political Persona Asymmetry",
+    stat: `${condRatio}× gap`,
+    text: `Prompting as a Republican shifts responses ${condRatio}× more than prompting as a Democrat.`,
   },
 ];
 ---
