@@ -207,6 +207,17 @@ const defaultAttribute = heatmaps[0]?.attribute ?? "";
     const extra = new Map<string, HeatmapCell>();
     for (const c of heatmap.cells) extra.set(`${c.row}|${c.col}`, c);
 
+    // Auto-scale color range to actual p_dist values so cells aren't all
+    // bucketed into one band when values cluster (e.g., a single row at
+    // 0.58–0.84 against the full [0,1] range). Pad ±5% and clamp to [0,1].
+    const values = heatmap.cells.map((c) => c.p_dist);
+    const dataMin = values.length > 0 ? Math.min(...values) : 0;
+    const dataMax = values.length > 0 ? Math.max(...values) : 1;
+    const visMin = Math.max(0, dataMin * 0.95);
+    const visMax = Math.min(1, dataMax * 1.05);
+    // Guard against degenerate range (single value or zero spread).
+    const visMaxSafe = visMax > visMin ? visMax : Math.min(1, visMin + 0.01);
+
     return {
       tooltip: {
         position: "top",
@@ -262,8 +273,8 @@ const defaultAttribute = heatmaps[0]?.attribute ?? "";
         },
       },
       visualMap: {
-        min: 0,
-        max: 1,
+        min: visMin,
+        max: visMaxSafe,
         calculable: true,
         orient: "horizontal",
         left: "center",

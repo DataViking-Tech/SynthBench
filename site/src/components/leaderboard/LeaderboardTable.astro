@@ -9,8 +9,13 @@ const entries = leaderboard.entries;
 const rawBase = import.meta.env.BASE_URL || "/";
 const base = rawBase.endsWith("/") ? rawBase : `${rawBase}/`;
 
+// Range % = (SPS − raw-LLM baseline) / (Human Ceiling − raw-LLM baseline).
+// For a row that IS its own raw-LLM baseline the formula is structurally 0,
+// which reads as "no useful range above baseline" — misleading. Render
+// "baseline" instead so the relationship is explicit.
 function formatNormalized(value: number | undefined): string {
   if (value == null || Number.isNaN(value)) return "—";
+  if (value === 0) return "baseline";
   return `${Math.round(value * 100)}%`;
 }
 

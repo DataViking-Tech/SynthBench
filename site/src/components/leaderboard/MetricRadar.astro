@@ -19,6 +19,18 @@ const top3 = [...modelMap.values()].sort((a, b) => b.sps - a.sps).slice(0, 3);
 
 const radarColors = ["#4f46e5", "#0891b2", "#d946ef"];
 
+// Auto-scale each axis to the value range across the displayed models so
+// tightly-clustered top performers don't collapse into a single overlapping
+// polygon. Floor each axis at min*0.9 (clamped ≥0); ceiling stays at 1.
+function axisMin(values: number[]): number {
+  if (values.length === 0) return 0;
+  const lo = Math.min(...values);
+  return Math.max(0, lo * 0.9);
+}
+const distMin = axisMin(top3.map((m) => m.p_dist));
+const rankMin = axisMin(top3.map((m) => m.p_rank));
+const refuseMin = axisMin(top3.map((m) => m.p_refuse));
+
 const chartOption = {
   tooltip: {
     trigger: "item",
@@ -30,9 +42,9 @@ const chartOption = {
   },
   radar: {
     indicator: [
-      { name: "p_dist", max: 1 },
-      { name: "p_rank", max: 1 },
-      { name: "p_refuse", max: 1 },
+      { name: "p_dist", min: distMin, max: 1 },
+      { name: "p_rank", min: rankMin, max: 1 },
+      { name: "p_refuse", min: refuseMin, max: 1 },
     ],
     shape: "polygon",
     splitNumber: 5,
