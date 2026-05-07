@@ -18,7 +18,15 @@
 //
 // Common plumbing (CORS allowlist, JWT verification, Supabase audit writer)
 // is shared across both. Every branch has a matching unit test in tests/.
+//
+// Observability: the default export is wrapped in `withSentry` (sb-xjf) so
+// uncaught exceptions and unhandled rejections inside the fetch handler reach
+// our Sentry project (`dataviking-llc/synthbench`). When SENTRY_DSN is unset
+// (local `wrangler dev`, vitest), the wrapper no-ops — no events emitted, no
+// extra latency. server_name / component tags distinguish worker events from
+// the Astro site events that share the project.
 
+import { withSentry } from "@sentry/cloudflare";
 import { type ApiKeyConfig, authenticateApiKey, isApiKey, touchLastUsed } from "./apiKey";
 import { type AuditConfig, clientIpFor, writeAuditLog } from "./audit";
 import { parseBearer, verifySupabaseJwt } from "./auth";
@@ -43,6 +51,13 @@ export interface Env {
   GITHUB_DISPATCH_REPO: string;
   GITHUB_DISPATCH_WORKFLOW: string;
   GITHUB_DISPATCH_REF: string;
+  // sb-xjf: optional. Empty / unset disables Sentry entirely (see withSentry
+  // wrapper at the bottom of this file). Populated at deploy time by
+  // .github/workflows/deploy-worker.yml from synthbench/prd Doppler.
+  SENTRY_DSN?: string;
+  // sb-xjf: optional. Set at deploy time to the deploying commit SHA so
+  // Sentry events can be associated with the release that produced them.
+  SENTRY_RELEASE?: string;
 }
 
 function jsonResponse(
@@ -78,7 +93,11 @@ function submitConfigOk(env: Env): boolean {
   );
 }
 
-export default {
+// Use a struct-typed handler (not `ExportedHandler<Env>`) so callers — vitest
+// included — see `fetch` as a required, non-optional method. `withSentry`
+// preserves the input type, so `worker.fetch(...)` stays a direct call after
+// wrapping.
+const handler = {
   async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
     const origin = request.headers.get("Origin");
     const allowed = parseAllowedOrigins(env.ALLOWED_ORIGINS);
@@ -112,6 +131,31 @@ export default {
     return handleData(request, env, ctx, cors, url);
   },
 };
+
+// sb-xjf: wrap the handler so uncaught errors and unhandled rejections inside
+// fetch reach Sentry. Returning `undefined` from the options callback when
+// SENTRY_DSN is missing tells the SDK to skip init entirely — local
+// `wrangler dev` and vitest both run with no DSN and stay silent.
+export default withSentry((env: Env) => {
+  if (!env.SENTRY_DSN) return undefined;
+  return {
+    dsn: env.SENTRY_DSN,
+    release: env.SENTRY_RELEASE,
+    // Keep performance traces inexpensive: this is a low-traffic edge worker
+    // where errors matter more than spans. Bump if we ever need request-level
+    // tracing.
+    tracesSampleRate: 0.1,
+    sendDefaultPii: false,
+    initialScope: {
+      tags: {
+        component: "data-proxy",
+        // Distinguishes worker events from site events when both share the
+        // `synthbench` Sentry project (see sb-xjf description).
+        server_name: "synthbench-data-proxy",
+      },
+    },
+  };
+}, handler);
 
 async function handleData(
   request: Request,

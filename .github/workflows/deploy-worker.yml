@@ -68,10 +68,13 @@ jobs:
             printf '%s<<__DWK_EOF__\n%s\n__DWK_EOF__\n' "$name" "$value" >> "$GITHUB_ENV"
           done
 
-      # Worker-runtime secrets from synthbench/prd. GITHUB_DISPATCH_TOKEN is
-      # allowed to be absent on first rollout: /submit will stay 503 until
-      # submitConfigOk() in src/index.ts sees all four dispatch values set,
-      # but /data/* still serves. The reconcile step below skips empty values.
+      # Worker-runtime secrets from synthbench/prd. GITHUB_DISPATCH_TOKEN and
+      # SENTRY_DSN are allowed to be absent on first rollout:
+      #   - /submit stays 503 until submitConfigOk() in src/index.ts sees all
+      #     four dispatch values set, but /data/* still serves.
+      #   - SENTRY_DSN missing means the Worker runs without observability
+      #     (the `withSentry` wrapper no-ops on undefined DSN — sb-xjf).
+      # The reconcile step below skips empty values.
       - name: Load Worker-runtime secrets from Doppler
         env:
           DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN }}
@@ -89,6 +92,18 @@ jobs:
             echo "::warning::GITHUB_DISPATCH_TOKEN not found in synthbench/prd Doppler — /submit will stay 503 until it is provisioned and this workflow re-runs."
             echo "GITHUB_DISPATCH_TOKEN=" >> "$GITHUB_ENV"
           fi
+          # sb-xjf: Sentry runtime + source-map upload secrets. All four are
+          # optional on first rollout — if any are missing we deploy without
+          # observability and skip the source-map upload step.
+          for name in SENTRY_DSN SENTRY_AUTH_TOKEN SENTRY_ORG_SLUG SENTRY_PROJECT_SLUG; do
+            if value=$(doppler secrets get "$name" --project synthbench --config prd --plain 2>/dev/null); then
+              echo "::add-mask::$value"
+              printf '%s<<__DWK_EOF__\n%s\n__DWK_EOF__\n' "$name" "$value" >> "$GITHUB_ENV"
+            else
+              echo "::warning::${name} not found in synthbench/prd Doppler — Sentry instrumentation/source-map upload will be skipped until provisioned."
+              echo "${name}=" >> "$GITHUB_ENV"
+            fi
+          done
 
       # Populate SUPABASE_URL in wrangler.toml before deploy (sb-svih). The
       # committed placeholder is `SUPABASE_URL = ""` so local `wrangler dev`
@@ -117,7 +132,34 @@ jobs:
           apiToken: ${{ env.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ env.CLOUDFLARE_ACCOUNT_ID }}
           workingDirectory: workers/data-proxy
-          command: deploy
+          # --outdir writes the bundled worker + source maps to dist/ so the
+          # follow-up sentry-cli step can upload .map files (sb-xjf).
+          # `upload_source_maps = true` in wrangler.toml separately tells
+          # wrangler to ship maps to Cloudflare for its own dashboard
+          # symbolication.
+          command: deploy --outdir=dist
+
+      # sb-xjf: upload source maps to Sentry so production stack traces resolve
+      # to original .ts file paths. Skipped silently if any of the four
+      # SENTRY_* env values are unset (e.g. before Doppler is provisioned).
+      - name: Upload Worker source maps to Sentry
+        if: env.SENTRY_AUTH_TOKEN != '' && env.SENTRY_DSN != '' && env.SENTRY_ORG_SLUG != '' && env.SENTRY_PROJECT_SLUG != ''
+        working-directory: workers/data-proxy
+        env:
+          SENTRY_AUTH_TOKEN: ${{ env.SENTRY_AUTH_TOKEN }}
+          SENTRY_ORG: ${{ env.SENTRY_ORG_SLUG }}
+          SENTRY_PROJECT: ${{ env.SENTRY_PROJECT_SLUG }}
+          SENTRY_RELEASE: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+          # Pin sentry-cli rather than `latest` so a breaking CLI change can't
+          # silently break our deploys. Bump intentionally.
+          npx --yes @sentry/cli@^2 releases new "$SENTRY_RELEASE"
+          npx --yes @sentry/cli@^2 sourcemaps upload \
+            --release "$SENTRY_RELEASE" \
+            --dist worker \
+            dist
+          npx --yes @sentry/cli@^2 releases finalize "$SENTRY_RELEASE"
 
       # Reconcile secrets AFTER deploy (the Worker must exist before
       # `wrangler secret put` will accept the name). Values are piped on
@@ -132,6 +174,8 @@ jobs:
           CLOUDFLARE_ACCOUNT_ID: ${{ env.CLOUDFLARE_ACCOUNT_ID }}
           SUPABASE_SERVICE_ROLE_KEY_VALUE: ${{ env.SUPABASE_SERVICE_ROLE_KEY }}
           GITHUB_DISPATCH_TOKEN_VALUE: ${{ env.GITHUB_DISPATCH_TOKEN }}
+          SENTRY_DSN_VALUE: ${{ env.SENTRY_DSN }}
+          SENTRY_RELEASE_VALUE: ${{ github.sha }}
         run: |
           set -euo pipefail
           put_secret() {
@@ -144,3 +188,8 @@ jobs:
           }
           put_secret SUPABASE_SERVICE_ROLE_KEY "$SUPABASE_SERVICE_ROLE_KEY_VALUE"
           put_secret GITHUB_DISPATCH_TOKEN "$GITHUB_DISPATCH_TOKEN_VALUE"
+          # sb-xjf: SENTRY_DSN is treated as a secret (see wrangler.toml comment).
+          # SENTRY_RELEASE is the deploying SHA so events tag back to the build
+          # whose source maps were just uploaded.
+          put_secret SENTRY_DSN "$SENTRY_DSN_VALUE"
+          put_secret SENTRY_RELEASE "$SENTRY_RELEASE_VALUE"

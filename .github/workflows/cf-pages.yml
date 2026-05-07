@@ -86,12 +86,38 @@ jobs:
             printf '%s<<__SB_EOF__\n%s\n__SB_EOF__\n' "$to" "$value" >> "$GITHUB_ENV"
           done
 
+      # sb-xjf: load Sentry config (DSN baked into client bundle, the rest used
+      # at build time for source-map upload). All four are optional — if any are
+      # missing the @sentry/astro integration is skipped or its source-map
+      # upload step no-ops, but the Astro build still succeeds.
+      - name: Load Sentry config for Astro build
+        env:
+          DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN }}
+        run: |
+          set -euo pipefail
+          for name in PUBLIC_SENTRY_DSN SENTRY_AUTH_TOKEN SENTRY_ORG_SLUG SENTRY_PROJECT_SLUG; do
+            if value=$(doppler secrets get "$name" --project synthbench --config prd --plain 2>/dev/null); then
+              echo "::add-mask::$value"
+              printf '%s<<__SB_EOF__\n%s\n__SB_EOF__\n' "$name" "$value" >> "$GITHUB_ENV"
+            else
+              echo "::warning::${name} not found in synthbench/prd Doppler — Sentry instrumentation/source-map upload will be skipped until provisioned."
+              echo "${name}=" >> "$GITHUB_ENV"
+            fi
+          done
+
       - name: Build Astro site
         working-directory: site
         env:
           SITE_URL: https://synthbench.org
           BASE_PATH: /
           PUBLIC_GATED_API_BASE: https://api.synthbench.org
+          # sb-xjf: Sentry release tag = deploying SHA. The @sentry/astro
+          # integration reads SENTRY_RELEASE at build time so source maps
+          # uploaded by the integration are linked to the same release tag the
+          # runtime SDK reports on events. SENTRY_AUTH_TOKEN, SENTRY_ORG_SLUG,
+          # SENTRY_PROJECT_SLUG, PUBLIC_SENTRY_DSN come from $GITHUB_ENV
+          # (loaded from Doppler in the prior step).
+          SENTRY_RELEASE: ${{ github.sha }}
         run: |
           npm ci
           npx biome format --write src/data/leaderboard.json

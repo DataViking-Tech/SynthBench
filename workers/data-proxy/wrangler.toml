@@ -4,9 +4,12 @@
 #   1. `.github/workflows/deploy-worker.yml` runs on merge to main (sb-v09i,
 #      sb-svih). It sed-swaps the placeholder `SUPABASE_URL = ""` below with
 #      the real value from Doppler (synthbench/prd) before running
-#      `wrangler deploy`, then reconciles SUPABASE_SERVICE_ROLE_KEY and
-#      GITHUB_DISPATCH_TOKEN via `wrangler secret put`. SUPABASE_URL stays a
-#      plain var because it is not a secret; the other two are secrets.
+#      `wrangler deploy`, then reconciles SUPABASE_SERVICE_ROLE_KEY,
+#      GITHUB_DISPATCH_TOKEN, and SENTRY_DSN (sb-xjf) via `wrangler secret
+#      put`. SUPABASE_URL stays a plain var because it is not a secret; the
+#      others are secrets. SENTRY_DSN is treated as a secret out of caution
+#      (DSNs are technically public, but rotating one without leaking the old
+#      value is easier when it has never been committed to the repo).
 #   2. Route api.synthbench.org/* is declared in the `[[routes]]` block below
 #      and applied by the workflow — no dashboard click-ops required.
 #   3. Confirm R2 buckets exist:
@@ -19,7 +22,14 @@
 name = "synthbench-data-proxy"
 main = "src/index.ts"
 compatibility_date = "2025-01-09"
+# nodejs_compat already provides AsyncLocalStorage which @sentry/cloudflare's
+# `withSentry` wrapper requires (sb-xjf). Removing this flag would break Sentry
+# init at runtime — keep it.
 compatibility_flags = ["nodejs_compat"]
+# sb-xjf: emit source maps so Cloudflare can symbolicate stack traces in its
+# own dashboard *and* so the deploy workflow can upload them to Sentry via
+# sentry-cli. Maps stay server-side; they are not exposed at api.synthbench.org.
+upload_source_maps = true
 
 [vars]
 # Supabase project base URL (e.g. https://kfealsliqlvfxgoymbco.supabase.co).
