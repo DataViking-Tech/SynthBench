@@ -91,6 +91,7 @@ jobs:
         env:
           SITE_URL: https://synthbench.org
           BASE_PATH: /
+          PUBLIC_GATED_API_BASE: https://api.synthbench.org
         run: |
           npm ci
           npx biome format --write src/data/leaderboard.json
