@@ -1,5 +1,4 @@
 ---
-import Chart from "@/components/shared/Chart.astro";
 import type { LeaderboardData } from "@/types/leaderboard";
 
 import leaderboardRaw from "@/data/leaderboard.json";
@@ -25,94 +24,17 @@ for (const ds of datasets) {
   }
 }
 
-const chartOption = {
-  tooltip: {
-    trigger: "axis",
-    axisPointer: { type: "shadow" },
-    formatter: (params: { name: string; seriesName: string; value: number }[]) => {
-      const lines = params.map(
-        (p: { seriesName: string; value: number }) =>
-          `<strong>${p.seriesName}</strong>: ${p.value.toFixed(3)}`,
-      );
-      return `<div style="font-size:13px">${params[0].name}<br/>${lines.join("<br/>")}</div>`;
-    },
-  },
-  legend: {
-    data: ["Best Model", "Random Baseline"],
-    top: 10,
-  },
-  grid: {
-    left: 60,
-    right: 30,
-    bottom: 50,
-    top: 60,
-    containLabel: true,
-  },
-  xAxis: {
-    type: "category",
-    data: datasets,
-    axisLabel: {
-      rotate: datasets.length > 5 ? 30 : 0,
-      overflow: "truncate",
-      width: 120,
-    },
-  },
-  yAxis: {
-    type: "value",
-    name: "SPS Score",
-    nameLocation: "middle",
-    nameGap: 45,
-    min: 0,
-    max: 1,
-    axisLabel: {
-      formatter: (v: number) => v.toFixed(1),
-    },
-  },
-  series: [
-    {
-      name: "Best Model",
-      type: "bar",
-      data: bestModels.map((m) => m.sps),
-      itemStyle: { color: "var(--color-provider-synthpanel)" },
-      barMaxWidth: 50,
-      emphasis: {
-        focus: "series",
-        itemStyle: { shadowBlur: 10, shadowColor: "rgba(0,0,0,0.3)" },
-      },
-      label: {
-        show: true,
-        position: "top",
-        formatter: (p: { value: number }) => p.value.toFixed(3),
-        fontSize: 11,
-      },
-    },
-    {
-      name: "Random Baseline",
-      type: "bar",
-      data: baselines.map((b) => b.sps),
-      itemStyle: { color: "var(--color-provider-baseline)" },
-      barMaxWidth: 50,
-      emphasis: {
-        focus: "series",
-        itemStyle: { shadowBlur: 10, shadowColor: "rgba(0,0,0,0.3)" },
-      },
-      label: {
-        show: true,
-        position: "top",
-        formatter: (p: { value: number }) => p.value.toFixed(3),
-        fontSize: 11,
-      },
-    },
-  ],
-  dataZoom: datasets.length > 8 ? [{ type: "slider", start: 0, end: 100, bottom: 5 }] : undefined,
-  toolbox: {
-    feature: {
-      saveAsImage: { title: "Save as PNG" },
-    },
-    right: 20,
-    top: 10,
-  },
+// JSON-safe payload for the client script. The chart option (which contains
+// label/tooltip/axis formatter functions) is built inside the script, because
+// Chart.astro's JSON.stringify path drops function values, leaving bar labels
+// showing full-precision floats like "0.79451..." instead of "0.795".
+const heroChartData = {
+  datasets,
+  bestModels: bestModels.map((m) => m.sps),
+  baselines: baselines.map((b) => b.sps),
 };
+
+const bestModelCaption = bestModels.map((m) => `${m.dataset}: ${m.model}`).join(" · ");
 ---
 
 <section class="w-full max-w-4xl mx-auto py-8">
@@ -123,13 +45,198 @@ const chartOption = {
     Survey Parity Score (SPS) — higher is better. 1.0 = perfect match to human
     survey distributions.
   </p>
-  <Chart
-    title="Best Model vs Random Baseline — Survey Parity Score"
-    description="Bar chart comparing the top-performing model's SPS against the random-pick baseline. Higher is better; 1.0 is a perfect match to human distributions."
-    option={chartOption}
-    height="450px"
-  />
-  <div class="mt-4 text-xs text-muted text-center">
-    {bestModels.map((m) => `${m.dataset}: ${m.model}`).join(" · ")}
-  </div>
+  <figure class="chart-figure" aria-labelledby="hero-chart-title">
+    <figcaption id="hero-chart-title" class="sr-only">
+      Best Model vs Random Baseline — Survey Parity Score
+    </figcaption>
+    <p id="hero-chart-desc" class="sr-only">
+      Bar chart comparing the top-performing model's SPS against the random-pick baseline. Higher is better; 1.0 is a perfect match to human distributions.
+    </p>
+    <div
+      id="hero-chart"
+      class="echarts-container w-full"
+      style="height: 450px; min-height: 200px;"
+      role="img"
+      aria-labelledby="hero-chart-title"
+      aria-describedby="hero-chart-desc"
+      data-chart={JSON.stringify(heroChartData)}
+    ></div>
+  </figure>
+  <div class="mt-4 text-xs text-muted text-center">{bestModelCaption}</div>
 </section>
+
+<script>
+  import * as echarts from "echarts";
+
+  interface HeroChartData {
+    datasets: string[];
+    bestModels: number[];
+    baselines: number[];
+  }
+
+  function preferredTheme(): "" | "dark" {
+    return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "";
+  }
+
+  function resolveCssVars(obj: unknown, styles: CSSStyleDeclaration): unknown {
+    if (typeof obj === "string") {
+      const m = obj.match(/^var\((--[^)]+)\)$/);
+      if (m) {
+        return styles.getPropertyValue(m[1]).trim() || obj;
+      }
+      return obj;
+    }
+    if (Array.isArray(obj)) {
+      return obj.map((item) => resolveCssVars(item, styles));
+    }
+    if (obj !== null && typeof obj === "object") {
+      const result: Record<string, unknown> = {};
+      for (const [key, value] of Object.entries(obj)) {
+        result[key] = resolveCssVars(value, styles);
+      }
+      return result;
+    }
+    return obj;
+  }
+
+  function buildOption(payload: HeroChartData) {
+    const { datasets, bestModels, baselines } = payload;
+    return {
+      tooltip: {
+        trigger: "axis",
+        axisPointer: { type: "shadow" },
+        formatter: (params: { name: string; seriesName: string; value: number }[]) => {
+          const lines = params.map(
+            (p) => `<strong>${p.seriesName}</strong>: ${p.value.toFixed(3)}`,
+          );
+          return `<div style="font-size:13px">${params[0].name}<br/>${lines.join("<br/>")}</div>`;
+        },
+      },
+      legend: {
+        data: ["Best Model", "Random Baseline"],
+        top: 10,
+      },
+      grid: {
+        left: 60,
+        right: 30,
+        bottom: 50,
+        top: 60,
+        containLabel: true,
+      },
+      xAxis: {
+        type: "category",
+        data: datasets,
+        axisLabel: {
+          rotate: datasets.length > 5 ? 30 : 0,
+          overflow: "truncate",
+          width: 120,
+        },
+      },
+      yAxis: {
+        type: "value",
+        name: "SPS Score",
+        nameLocation: "middle",
+        nameGap: 45,
+        min: 0,
+        max: 1,
+        axisLabel: {
+          formatter: (v: number) => v.toFixed(1),
+        },
+      },
+      series: [
+        {
+          name: "Best Model",
+          type: "bar",
+          data: bestModels,
+          itemStyle: { color: "var(--color-provider-synthpanel)" },
+          barMaxWidth: 50,
+          emphasis: {
+            focus: "series",
+            itemStyle: { shadowBlur: 10, shadowColor: "rgba(0,0,0,0.3)" },
+          },
+          label: {
+            show: true,
+            position: "top",
+            formatter: (p: { value: number }) => p.value.toFixed(3),
+            fontSize: 11,
+          },
+        },
+        {
+          name: "Random Baseline",
+          type: "bar",
+          data: baselines,
+          itemStyle: { color: "var(--color-provider-baseline)" },
+          barMaxWidth: 50,
+          emphasis: {
+            focus: "series",
+            itemStyle: { shadowBlur: 10, shadowColor: "rgba(0,0,0,0.3)" },
+          },
+          label: {
+            show: true,
+            position: "top",
+            formatter: (p: { value: number }) => p.value.toFixed(3),
+            fontSize: 11,
+          },
+        },
+      ],
+      dataZoom:
+        datasets.length > 8 ? [{ type: "slider", start: 0, end: 100, bottom: 5 }] : undefined,
+      toolbox: {
+        feature: {
+          saveAsImage: { title: "Save as PNG" },
+        },
+        right: 20,
+        top: 10,
+      },
+    };
+  }
+
+  function initHeroChart() {
+    const container = document.getElementById("hero-chart");
+    if (!container) return;
+    const raw = container.dataset.chart;
+    if (!raw) return;
+    let payload: HeroChartData;
+    try {
+      payload = JSON.parse(raw) as HeroChartData;
+    } catch {
+      return;
+    }
+
+    let theme: "" | "dark" = preferredTheme();
+    let chart = echarts.init(container, theme, { renderer: "svg" });
+    const styles = getComputedStyle(document.documentElement);
+    const prefersReducedMotion = window.matchMedia(
+      "(prefers-reduced-motion: reduce)",
+    ).matches;
+
+    const render = () => {
+      const option = resolveCssVars(buildOption(payload), styles) as Record<
+        string,
+        unknown
+      >;
+      if (prefersReducedMotion) option.animation = false;
+      chart.setOption(option, true);
+    };
+
+    render();
+
+    const ro = new ResizeObserver(() => chart.resize());
+    ro.observe(container);
+
+    window
+      .matchMedia("(prefers-color-scheme: dark)")
+      .addEventListener("change", (e) => {
+        theme = e.matches ? "dark" : "";
+        chart.dispose();
+        chart = echarts.init(container, theme, { renderer: "svg" });
+        render();
+      });
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initHeroChart);
+  } else {
+    initHeroChart();
+  }
+</script>

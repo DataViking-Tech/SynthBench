@@ -1,5 +1,4 @@
 ---
-import Chart from "@/components/shared/Chart.astro";
 import type { LeaderboardData, LeaderboardEntry } from "@/types/leaderboard";
 
 import leaderboardRaw from "@/data/leaderboard.json";
@@ -16,121 +15,18 @@ for (const entry of leaderboard.entries) {
   }
 }
 const models = [...modelMap.values()].sort((a, b) => a.sps - b.sps);
-const modelLabels = models.map((m) => `${m.model} (${m.provider})`);
 
-const providerColors: Record<string, string> = {
-  SynthPanel: "var(--color-provider-synthpanel)",
-  "Raw LLM": "var(--color-provider-raw-llm)",
-  "Random Baseline": "var(--color-provider-baseline)",
-};
-
-const chartOption = {
-  tooltip: {
-    trigger: "axis",
-    axisPointer: { type: "shadow" },
-    formatter: (params: { data: number[] }[]) => {
-      const idx = params[0]?.data?.[1];
-      if (idx == null) return "";
-      const entry = models[idx];
-      if (!entry) return "";
-      const ciRange = entry.ci_upper - entry.ci_lower;
-      return `<div style="font-size:13px">
-        <strong>${entry.model}</strong> (${entry.provider})<br/>
-        SPS: ${entry.sps.toFixed(3)}<br/>
-        95% CI: [${entry.ci_lower.toFixed(3)}, ${entry.ci_upper.toFixed(3)}]<br/>
-        CI Width: ${ciRange.toFixed(3)}<br/>
-        <span style="color:#888">Narrower CI = more precise estimate</span>
-      </div>`;
-    },
-  },
-  grid: { left: 180, right: 50, top: 20, bottom: 30, containLabel: false },
-  xAxis: {
-    type: "value",
-    name: "SPS",
-    min: 0,
-    max: 1,
-    nameLocation: "middle",
-    nameGap: 25,
-    axisLabel: { formatter: (v: number) => v.toFixed(1) },
-  },
-  yAxis: {
-    type: "category",
-    data: modelLabels,
-    axisLabel: { width: 170, overflow: "truncate" },
-  },
-  series: [
-    {
-      name: "CI Range",
-      type: "custom",
-      renderItem: (
-        _params: unknown,
-        api: {
-          value: (idx: number) => number;
-          coord: (val: number[]) => number[];
-          size: (val: number[]) => number[];
-          style: (extra: Record<string, unknown>) => Record<string, unknown>;
-        },
-      ) => {
-        const categoryIndex = api.value(0);
-        const low = api.coord([api.value(1), categoryIndex]);
-        const high = api.coord([api.value(2), categoryIndex]);
-        const halfHeight = api.size([0, 1])[1] * 0.2;
-        return {
-          type: "group",
-          children: [
-            {
-              type: "line",
-              shape: { x1: low[0], y1: low[1], x2: high[0], y2: high[1] },
-              style: api.style({ stroke: "#666", lineWidth: 2 }),
-            },
-            {
-              type: "line",
-              shape: {
-                x1: low[0],
-                y1: low[1] - halfHeight,
-                x2: low[0],
-                y2: low[1] + halfHeight,
-              },
-              style: api.style({ stroke: "#666", lineWidth: 2 }),
-            },
-            {
-              type: "line",
-              shape: {
-                x1: high[0],
-                y1: high[1] - halfHeight,
-                x2: high[0],
-                y2: high[1] + halfHeight,
-              },
-              style: api.style({ stroke: "#666", lineWidth: 2 }),
-            },
-          ],
-        };
-      },
-      encode: { x: [1, 2], y: 0 },
-      data: models.map((m, i) => [i, m.ci_lower, m.ci_upper]),
-      z: 1,
-    },
-    {
-      name: "SPS",
-      type: "scatter",
-      data: models.map((m, i) => ({
-        value: [m.sps, i],
-        itemStyle: { color: providerColors[m.provider] ?? "#6366f1" },
-      })),
-      symbolSize: 16,
-      emphasis: {
-        focus: "self",
-        itemStyle: { shadowBlur: 12, shadowColor: "rgba(0,0,0,0.3)" },
-      },
-      z: 2,
-    },
-  ],
-  toolbox: {
-    feature: { saveAsImage: { title: "Save as PNG" } },
-    right: 10,
-    top: 0,
-  },
-};
+// JSON-safe payload for the client script. The chart option (which contains
+// `renderItem` / tooltip formatter functions) is built inside the script,
+// because Chart.astro's JSON.stringify path drops function values and the
+// `type: "custom"` series aborts without a renderItem.
+const whiskerData = models.map((m) => ({
+  model: m.model,
+  provider: m.provider,
+  sps: m.sps,
+  ci_lower: m.ci_lower,
+  ci_upper: m.ci_upper,
+}));
 ---
 
 <section class="w-full max-w-4xl mx-auto py-8">
@@ -138,10 +34,225 @@ const chartOption = {
   <p class="text-center text-sm text-muted mb-6">
     95% confidence interval for each model's SPS. Center dot = point estimate, whiskers = CI bounds.
   </p>
-  <Chart
-    title="SPS Confidence Intervals per Model"
-    description="Each row shows a model's point-estimate SPS (dot) and 95% confidence interval (whiskers)."
-    option={chartOption}
-    height="350px"
-  />
+  <figure class="chart-figure" aria-labelledby="whisker-title">
+    <figcaption id="whisker-title" class="sr-only">
+      SPS Confidence Intervals per Model
+    </figcaption>
+    <p id="whisker-desc" class="sr-only">
+      Each row shows a model's point-estimate SPS (dot) and 95% confidence interval (whiskers).
+    </p>
+    <div
+      id="whisker-chart"
+      class="echarts-container w-full"
+      style="height: 350px; min-height: 200px;"
+      role="img"
+      aria-labelledby="whisker-title"
+      aria-describedby="whisker-desc"
+      data-models={JSON.stringify(whiskerData)}
+    ></div>
+  </figure>
 </section>
+
+<script>
+  import * as echarts from "echarts";
+
+  interface WhiskerModel {
+    model: string;
+    provider: string;
+    sps: number;
+    ci_lower: number;
+    ci_upper: number;
+  }
+
+  function preferredTheme(): "" | "dark" {
+    return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "";
+  }
+
+  function resolveCssVars(obj: unknown, styles: CSSStyleDeclaration): unknown {
+    if (typeof obj === "string") {
+      const m = obj.match(/^var\((--[^)]+)\)$/);
+      if (m) {
+        return styles.getPropertyValue(m[1]).trim() || obj;
+      }
+      return obj;
+    }
+    if (Array.isArray(obj)) {
+      return obj.map((item) => resolveCssVars(item, styles));
+    }
+    if (obj !== null && typeof obj === "object") {
+      const result: Record<string, unknown> = {};
+      for (const [key, value] of Object.entries(obj)) {
+        result[key] = resolveCssVars(value, styles);
+      }
+      return result;
+    }
+    return obj;
+  }
+
+  function buildOption(models: WhiskerModel[]) {
+    const providerColors: Record<string, string> = {
+      SynthPanel: "var(--color-provider-synthpanel)",
+      "Raw LLM": "var(--color-provider-raw-llm)",
+      "Random Baseline": "var(--color-provider-baseline)",
+    };
+
+    const modelLabels = models.map((m) => `${m.model} (${m.provider})`);
+
+    return {
+      tooltip: {
+        trigger: "axis",
+        axisPointer: { type: "shadow" },
+        formatter: (params: { data: number[] }[]) => {
+          const idx = params[0]?.data?.[1];
+          if (idx == null) return "";
+          const entry = models[idx];
+          if (!entry) return "";
+          const ciRange = entry.ci_upper - entry.ci_lower;
+          return `<div style="font-size:13px">
+            <strong>${entry.model}</strong> (${entry.provider})<br/>
+            SPS: ${entry.sps.toFixed(3)}<br/>
+            95% CI: [${entry.ci_lower.toFixed(3)}, ${entry.ci_upper.toFixed(3)}]<br/>
+            CI Width: ${ciRange.toFixed(3)}<br/>
+            <span style="color:#888">Narrower CI = more precise estimate</span>
+          </div>`;
+        },
+      },
+      grid: { left: 180, right: 50, top: 20, bottom: 30, containLabel: false },
+      xAxis: {
+        type: "value",
+        name: "SPS",
+        min: 0,
+        max: 1,
+        nameLocation: "middle",
+        nameGap: 25,
+        axisLabel: { formatter: (v: number) => v.toFixed(1) },
+      },
+      yAxis: {
+        type: "category",
+        data: modelLabels,
+        axisLabel: { width: 170, overflow: "truncate" },
+      },
+      series: [
+        {
+          name: "CI Range",
+          type: "custom",
+          renderItem: (
+            _params: unknown,
+            api: {
+              value: (idx: number) => number;
+              coord: (val: number[]) => number[];
+              size: (val: number[]) => number[];
+              style: (extra: Record<string, unknown>) => Record<string, unknown>;
+            },
+          ) => {
+            const categoryIndex = api.value(0);
+            const low = api.coord([api.value(1), categoryIndex]);
+            const high = api.coord([api.value(2), categoryIndex]);
+            const halfHeight = api.size([0, 1])[1] * 0.2;
+            return {
+              type: "group",
+              children: [
+                {
+                  type: "line",
+                  shape: { x1: low[0], y1: low[1], x2: high[0], y2: high[1] },
+                  style: api.style({ stroke: "#666", lineWidth: 2 }),
+                },
+                {
+                  type: "line",
+                  shape: {
+                    x1: low[0],
+                    y1: low[1] - halfHeight,
+                    x2: low[0],
+                    y2: low[1] + halfHeight,
+                  },
+                  style: api.style({ stroke: "#666", lineWidth: 2 }),
+                },
+                {
+                  type: "line",
+                  shape: {
+                    x1: high[0],
+                    y1: high[1] - halfHeight,
+                    x2: high[0],
+                    y2: high[1] + halfHeight,
+                  },
+                  style: api.style({ stroke: "#666", lineWidth: 2 }),
+                },
+              ],
+            };
+          },
+          encode: { x: [1, 2], y: 0 },
+          data: models.map((m, i) => [i, m.ci_lower, m.ci_upper]),
+          z: 1,
+        },
+        {
+          name: "SPS",
+          type: "scatter",
+          data: models.map((m, i) => ({
+            value: [m.sps, i],
+            itemStyle: { color: providerColors[m.provider] ?? "#6366f1" },
+          })),
+          symbolSize: 16,
+          emphasis: {
+            focus: "self",
+            itemStyle: { shadowBlur: 12, shadowColor: "rgba(0,0,0,0.3)" },
+          },
+          z: 2,
+        },
+      ],
+      toolbox: {
+        feature: { saveAsImage: { title: "Save as PNG" } },
+        right: 10,
+        top: 0,
+      },
+    };
+  }
+
+  function initWhiskerPlot() {
+    const container = document.getElementById("whisker-chart");
+    if (!container) return;
+    const raw = container.dataset.models;
+    if (!raw) return;
+    let models: WhiskerModel[];
+    try {
+      models = JSON.parse(raw) as WhiskerModel[];
+    } catch {
+      return;
+    }
+
+    let theme: "" | "dark" = preferredTheme();
+    let chart = echarts.init(container, theme, { renderer: "svg" });
+    const styles = getComputedStyle(document.documentElement);
+    const prefersReducedMotion = window.matchMedia(
+      "(prefers-reduced-motion: reduce)",
+    ).matches;
+
+    const render = () => {
+      const option = resolveCssVars(buildOption(models), styles) as Record<
+        string,
+        unknown
+      >;
+      if (prefersReducedMotion) option.animation = false;
+      chart.setOption(option, true);
+    };
+
+    render();
+
+    const ro = new ResizeObserver(() => chart.resize());
+    ro.observe(container);
+
+    window
+      .matchMedia("(prefers-color-scheme: dark)")
+      .addEventListener("change", (e) => {
+        theme = e.matches ? "dark" : "";
+        chart.dispose();
+        chart = echarts.init(container, theme, { renderer: "svg" });
+        render();
+      });
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initWhiskerPlot);
+  } else {
+    initWhiskerPlot();
+  }
+</script>
