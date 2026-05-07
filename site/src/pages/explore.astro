@@ -1,5 +1,21 @@
 ---
+import { existsSync } from "node:fs";
+import { fileURLToPath } from "node:url";
+
 import BaseLayout from "@/layouts/BaseLayout.astro";
+
+// Build-time guard: warn (don't fail) if runs-index.json isn't available so
+// releases ship the friendly empty-state below rather than a runtime 404 error.
+// Only meaningful during `astro build` / SSR-time evaluation.
+const runsIndexPath = fileURLToPath(new URL("../../public/data/runs-index.json", import.meta.url));
+const hasRunsIndex = existsSync(runsIndexPath);
+if (!hasRunsIndex && import.meta.env.PROD) {
+  // eslint-disable-next-line no-console
+  console.warn(
+    "[explore.astro] public/data/runs-index.json not found at build time — " +
+      "Explore page will render empty-state. Run `synthbench publish-runs` to populate.",
+  );
+}
 ---
 
 <BaseLayout title="Explore Runs - SynthBench">
@@ -826,11 +842,34 @@ import BaseLayout from "@/layouts/BaseLayout.astro";
     } catch (err) {
       const tree = document.getElementById("explore-tree");
       const live = document.getElementById("explore-live");
-      const msg = `Failed to load runs index: ${(err as Error).message}. Make sure \`synthbench publish-runs\` has been run.`;
+      const message = (err as Error).message;
+      const isMissing = /HTTP 404/.test(message);
+      const baseHref = `${BASE}/`;
+      const liveMsg = isMissing
+        ? "No runs published yet — try the Leaderboard."
+        : `Failed to load runs index: ${message}. Make sure \`synthbench publish-runs\` has been run.`;
       if (tree) {
-        tree.innerHTML = `<p class="text-sm text-baseline">${msg}</p>`;
+        if (isMissing) {
+          tree.innerHTML = `
+            <div class="rounded-lg border border-muted/20 bg-surface dark:bg-surface-dark p-6 text-sm">
+              <p class="font-medium mb-1">No runs published yet.</p>
+              <p class="text-muted mb-3">
+                The runs index isn't available in this build. Once benchmark runs
+                are published, this page will list them grouped by framework and
+                base model.
+              </p>
+              <p>
+                In the meantime, head to the
+                <a class="text-primary hover:underline" href="${baseHref}leaderboard/">Leaderboard</a>
+                for aggregate scores.
+              </p>
+            </div>
+          `;
+        } else {
+          tree.innerHTML = `<p class="text-sm text-baseline">${liveMsg}</p>`;
+        }
       }
-      if (live) live.textContent = msg;
+      if (live) live.textContent = liveMsg;
     }
   }
 
