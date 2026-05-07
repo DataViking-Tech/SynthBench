@@ -1,5 +1,4 @@
 ---
-import Chart from "@/components/shared/Chart.astro";
 import type { LeaderboardData, LeaderboardEntry } from "@/types/leaderboard";
 
 import leaderboardRaw from "@/data/leaderboard.json";
@@ -16,7 +15,6 @@ for (const entry of leaderboard.entries) {
   }
 }
 const models = [...modelMap.values()].sort((a, b) => b.sps - a.sps);
-const modelLabels = models.map((m) => `${m.model} (${m.provider})`);
 
 const metrics = [
   {
@@ -45,50 +43,16 @@ const metrics = [
   },
 ];
 
-const chartOption = {
-  tooltip: {
-    trigger: "axis",
-    axisPointer: { type: "shadow" },
-    formatter: (params: { seriesName: string; value: number[]; marker: string }[]) => {
-      const name = modelLabels[params[0].value[1]];
-      const lines = params.map(
-        (p) => `${p.marker} ${p.seriesName}: ${(p.value[0] as number).toFixed(3)}`,
-      );
-      return `<div style="font-size:13px"><strong>${name}</strong><br/>${lines.join("<br/>")}</div>`;
-    },
-  },
-  legend: {
-    data: metrics.map((m) => m.name),
-    top: 10,
-  },
-  grid: { left: 180, right: 40, top: 50, bottom: 30, containLabel: false },
-  xAxis: {
-    type: "value",
-    min: 0,
-    max: 1,
-    axisLabel: { formatter: (v: number) => v.toFixed(1) },
-  },
-  yAxis: {
-    type: "category",
-    data: modelLabels,
-    axisLabel: { width: 170, overflow: "truncate" },
-  },
+// JSON-safe payload for the client script. The chart option (which contains
+// formatter functions) is built inside the script, because Chart.astro's
+// JSON.stringify path drops function values.
+const perMetricData = {
+  labels: models.map((m) => `${m.model} (${m.provider})`),
   series: metrics.map((metric) => ({
     name: metric.name,
-    type: "scatter",
-    data: models.map((m, i) => [m[metric.key], i]),
-    symbolSize: 12,
-    itemStyle: { color: metric.color },
-    emphasis: {
-      focus: "series",
-      itemStyle: { shadowBlur: 10, shadowColor: "rgba(0,0,0,0.3)" },
-    },
+    color: metric.color,
+    data: models.map((m, i) => [m[metric.key], i] as [number, number]),
   })),
-  toolbox: {
-    feature: { saveAsImage: { title: "Save as PNG" } },
-    right: 10,
-    top: 10,
-  },
 };
 ---
 
@@ -97,12 +61,23 @@ const chartOption = {
   <p class="text-center text-sm text-muted mb-6">
     SPS and component metrics side-by-side per model. All metrics: higher is better.
   </p>
-  <Chart
-    title="Per-Metric Breakdown — SPS and component metrics per model"
-    description="Grouped dot plot of SPS, p_dist, p_rank, and p_refuse for every model. Legend below identifies each metric."
-    option={chartOption}
-    height="400px"
-  />
+  <figure class="chart-figure" aria-labelledby="permetric-title">
+    <figcaption id="permetric-title" class="sr-only">
+      Per-Metric Breakdown — SPS and component metrics per model
+    </figcaption>
+    <p id="permetric-desc" class="sr-only">
+      Grouped dot plot of SPS, p_dist, p_rank, and p_refuse for every model. Legend below identifies each metric.
+    </p>
+    <div
+      id="permetric-chart"
+      class="echarts-container w-full"
+      style="height: 400px; min-height: 200px;"
+      role="img"
+      aria-labelledby="permetric-title"
+      aria-describedby="permetric-desc"
+      data-chart={JSON.stringify(perMetricData)}
+    ></div>
+  </figure>
   <div class="mt-3 flex flex-wrap justify-center gap-4 text-xs text-muted">
     {metrics.map((m) => (
       <span>
@@ -112,3 +87,116 @@ const chartOption = {
     ))}
   </div>
 </section>
+
+<script>
+  import * as echarts from "echarts";
+
+  interface PerMetricSeries {
+    name: string;
+    color: string;
+    data: [number, number][];
+  }
+
+  interface PerMetricChartData {
+    labels: string[];
+    series: PerMetricSeries[];
+  }
+
+  function preferredTheme(): "" | "dark" {
+    return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "";
+  }
+
+  function buildOption(payload: PerMetricChartData) {
+    const { labels, series } = payload;
+    return {
+      tooltip: {
+        trigger: "axis",
+        axisPointer: { type: "shadow" },
+        formatter: (params: { seriesName: string; value: number[]; marker: string }[]) => {
+          const name = labels[params[0].value[1]];
+          const lines = params.map(
+            (p) => `${p.marker} ${p.seriesName}: ${(p.value[0] as number).toFixed(3)}`,
+          );
+          return `<div style="font-size:13px"><strong>${name}</strong><br/>${lines.join("<br/>")}</div>`;
+        },
+      },
+      legend: {
+        data: series.map((s) => s.name),
+        top: 10,
+      },
+      grid: { left: 180, right: 40, top: 50, bottom: 30, containLabel: false },
+      xAxis: {
+        type: "value",
+        min: 0,
+        max: 1,
+        axisLabel: { formatter: (v: number) => v.toFixed(1) },
+      },
+      yAxis: {
+        type: "category",
+        data: labels,
+        axisLabel: { width: 170, overflow: "truncate" },
+      },
+      series: series.map((s) => ({
+        name: s.name,
+        type: "scatter",
+        data: s.data,
+        symbolSize: 12,
+        itemStyle: { color: s.color },
+        emphasis: {
+          focus: "series",
+          itemStyle: { shadowBlur: 10, shadowColor: "rgba(0,0,0,0.3)" },
+        },
+      })),
+      toolbox: {
+        feature: { saveAsImage: { title: "Save as PNG" } },
+        right: 10,
+        top: 10,
+      },
+    };
+  }
+
+  function initPerMetricDot() {
+    const container = document.getElementById("permetric-chart");
+    if (!container) return;
+    const raw = container.dataset.chart;
+    if (!raw) return;
+    let payload: PerMetricChartData;
+    try {
+      payload = JSON.parse(raw) as PerMetricChartData;
+    } catch {
+      return;
+    }
+
+    let theme: "" | "dark" = preferredTheme();
+    let chart = echarts.init(container, theme, { renderer: "svg" });
+    const prefersReducedMotion = window.matchMedia(
+      "(prefers-reduced-motion: reduce)",
+    ).matches;
+
+    const render = () => {
+      const option = buildOption(payload) as Record<string, unknown>;
+      if (prefersReducedMotion) option.animation = false;
+      chart.setOption(option, true);
+    };
+
+    render();
+
+    const ro = new ResizeObserver(() => chart.resize());
+    ro.observe(container);
+
+    window
+      .matchMedia("(prefers-color-scheme: dark)")
+      .addEventListener("change", (e) => {
+        theme = e.matches ? "dark" : "";
+        chart.dispose();
+        chart = echarts.init(container, theme, { renderer: "svg" });
+        render();
+      });
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initPerMetricDot);
+  } else {
+    initPerMetricDot();
+  }
+</script>
