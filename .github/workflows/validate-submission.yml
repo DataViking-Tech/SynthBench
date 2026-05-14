@@ -1,0 +1,92 @@
+name: Validate Submission PR
+
+# sb-6gw: gate adapter-based submissions (from `synthbench submit-adapter`)
+# before they can merge. Three checks: adapter identity registry, run-hash
+# re-derivation parity with the local CLI, submission.md format lint.
+# Posts a sticky PR comment summarizing pass/fail per check.
+#
+# Legacy provider-keyed submissions (no `adapter` block in run.json) are
+# silently skipped here — they are already gated by `ci.yml ::
+# validate-submissions`.
+#
+# Auth: contents:read only — the workflow never pushes. pull-requests:write
+# is required for the sticky comment action.
+
+on:
+  pull_request:
+    paths:
+      - "leaderboard-results/**"
+      - "data/accepted_adapters.json"
+      - "src/synthbench/suites/**"
+      - "src/synthbench/run_hash.py"
+      - "src/synthbench/submission_pr.py"
+      - "scripts/validate-submission-pr.py"
+      - ".github/workflows/validate-submission.yml"
+
+permissions:
+  contents: read
+  pull-requests: write
+
+concurrency:
+  # Per-PR: a re-push cancels the in-flight run so reviewers see results
+  # from the latest commit, not whichever finished first.
+  group: validate-submission-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          # Need the merge-base so `git diff` can identify added/modified
+          # submission files. fetch-depth: 0 mirrors the existing
+          # validate-submissions job in ci.yml.
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.14"
+
+      - name: Install synthbench
+        run: pip install -e .
+
+      - name: Find changed submission artifacts
+        id: changed
+        # NUL-delimited list mirrors the format ci.yml::validate-submissions
+        # uses, so filenames containing spaces (e.g. "... t=0.3_...json")
+        # survive argv splitting.
+        run: |
+          set -euo pipefail
+          base_sha="${{ github.event.pull_request.base.sha }}"
+          list=/tmp/synthbench-submission-changes.txt
+          : > "$list"
+          if [[ -n "$base_sha" ]]; then
+            git diff -z --name-only --diff-filter=AM "$base_sha" HEAD -- \
+              'leaderboard-results/**' > "$list" || true
+          fi
+          count=$(tr -cd '\0' < "$list" | wc -c | tr -d ' ')
+          echo "count=$count" >> "$GITHUB_OUTPUT"
+          echo "list=$list"      >> "$GITHUB_OUTPUT"
+          echo "Changed leaderboard-results files: $count"
+          tr '\0' '\n' < "$list"
+
+      - name: Run submission checks
+        id: checks
+        run: |
+          set -euo pipefail
+          mkdir -p .submission-check
+          python scripts/validate-submission-pr.py \
+            --changed-files "${{ steps.changed.outputs.list }}" \
+            --comment-out .submission-check/pr-comment.md \
+            --repo-root .
+
+      - name: Post sticky PR comment
+        # Run even on failure so the comment is the user-facing record of
+        # what blocked the PR. The action handles fork PRs gracefully
+        # (skips when GITHUB_TOKEN lacks pull-requests:write).
+        if: always() && github.event.pull_request.number != ''
+        uses: marocchino/sticky-pull-request-comment@v2
+        with:
+          header: synthbench-validate-submission
+          path: .submission-check/pr-comment.md

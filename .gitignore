@@ -19,9 +19,11 @@ venv/
 
 # SynthBench data & results (downloaded, not committed). Everything under /data
 # is gitignored *except* the question-text registries — those are committed
-# fixtures used by publish.py to rehydrate historical truncated text (sb-x2k).
+# fixtures used by publish.py to rehydrate historical truncated text (sb-x2k) —
+# and the accepted-adapter registry that gates submission PRs (sb-6gw).
 /data/*
 !/data/question-text-registries/
+!/data/accepted_adapters.json
 /results/
 *.json.bak
 
