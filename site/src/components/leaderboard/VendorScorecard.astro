@@ -1,0 +1,263 @@
+---
+// sb-1i6 — disaggregated subgroup scorecard for a single vendor.
+// Buyers reject single-number leaderboard scores (PMF survey n=70). This
+// component renders, per dataset the vendor has runs on:
+//   * overall SPS with 95% CI band
+//   * a question-type matrix (rows: topics) with per-cell SPS and N
+//   * a demographic-subgroup matrix (attribute / group rows) with p_dist,
+//     p_cond, and a coverage flag from n_questions
+// Both matrices are expandable: clicking a row reveals additional metrics
+// (p_dist / p_rank / p_refuse for topics; p_cond for demographics).
+//
+// The component degrades when topic_metrics or demographic_scores are
+// missing — many providers don't yet publish demographic conditioning.
+
+import type {
+  DemographicBreakdown,
+  LeaderboardEntry,
+  TopicMetricBreakdown,
+} from "@/types/leaderboard";
+
+interface Props {
+  entries: LeaderboardEntry[];
+}
+
+const { entries } = Astro.props as Props;
+
+interface TopicRow {
+  topic: string;
+  metric: TopicMetricBreakdown;
+}
+
+interface DemoGroup {
+  attribute: string;
+  rows: DemographicBreakdown[];
+}
+
+interface ScorecardView {
+  entry: LeaderboardEntry;
+  topics: TopicRow[];
+  demos: DemographicBreakdown[];
+  demoGroups: DemoGroup[];
+  halfCi: number | null;
+  ciLabel: string;
+  topicId: string;
+  demoId: string;
+}
+
+function fmt3(value: number | null | undefined): string {
+  return value == null || Number.isNaN(value) ? "—" : value.toFixed(3);
+}
+
+function ciBand(entry: LeaderboardEntry): string {
+  if (entry.ci_lower == null || entry.ci_upper == null) return "";
+  return `[${entry.ci_lower.toFixed(3)}, ${entry.ci_upper.toFixed(3)}]`;
+}
+
+function ciHalfWidth(entry: LeaderboardEntry): number | null {
+  if (entry.ci_lower == null || entry.ci_upper == null) return null;
+  return Math.max(0, (entry.ci_upper - entry.ci_lower) / 2);
+}
+
+function topicRows(entry: LeaderboardEntry): TopicRow[] {
+  if (entry.topic_metrics) {
+    return Object.entries(entry.topic_metrics)
+      .map(([topic, m]) => ({ topic, metric: m as TopicMetricBreakdown }))
+      .sort((a, b) => b.metric.sps - a.metric.sps);
+  }
+  if (entry.topic_scores) {
+    return Object.entries(entry.topic_scores)
+      .map(([topic, sps]) => ({ topic, metric: { sps: sps as number, n: 0 } }))
+      .sort((a, b) => b.metric.sps - a.metric.sps);
+  }
+  return [];
+}
+
+function groupDemographics(demos: DemographicBreakdown[]): DemoGroup[] {
+  const order: string[] = [];
+  const byAttr: Record<string, DemographicBreakdown[]> = {};
+  for (const d of demos) {
+    if (!(d.attribute in byAttr)) {
+      byAttr[d.attribute] = [];
+      order.push(d.attribute);
+    }
+    byAttr[d.attribute].push(d);
+  }
+  return order.map((attribute) => ({ attribute, rows: byAttr[attribute] }));
+}
+
+function coverage(n: number): { label: string; cls: string } {
+  if (n >= 100) return { label: "high", cls: "bg-emerald-500" };
+  if (n >= 50) return { label: "medium", cls: "bg-amber-500" };
+  return { label: "low", cls: "bg-rose-500" };
+}
+
+// Render one card per entry. Sorted by (dataset asc, sps desc) so the most
+// relevant run within each dataset surfaces first.
+const sortedEntries = [...entries].sort((a, b) => {
+  if (a.dataset !== b.dataset) return a.dataset.localeCompare(b.dataset);
+  return b.sps - a.sps;
+});
+
+const cards: ScorecardView[] = sortedEntries.map((entry, idx) => {
+  const demos = entry.demographic_scores ?? [];
+  return {
+    entry,
+    topics: topicRows(entry),
+    demos,
+    demoGroups: groupDemographics(demos),
+    halfCi: ciHalfWidth(entry),
+    ciLabel: ciBand(entry),
+    topicId: `topic-${idx}`,
+    demoId: `demo-${idx}`,
+  };
+});
+
+const anyDemographic = cards.some((c) => c.demos.length > 0);
+---
+
+<section
+  class="vendor-scorecard w-full max-w-5xl mx-auto py-8 px-4 space-y-10"
+  aria-label="Vendor subgroup scorecards"
+>
+  {cards.length === 0 ? (
+    <div class="rounded-lg border border-default bg-surface p-8 text-center text-sm text-muted">
+      No runs for this vendor.
+    </div>
+  ) : (
+    cards.map((card) => (
+      <article
+        class="rounded-lg border border-muted/20 bg-surface/40 dark:bg-surface-dark/40 p-5"
+        aria-label={`${card.entry.dataset} scorecard`}
+      >
+        <header class="mb-4 flex flex-wrap items-baseline justify-between gap-3">
+          <div>
+            <h3 class="text-lg font-semibold">
+              {card.entry.dataset}
+              <span class="ml-2 text-sm font-normal text-muted">{card.entry.framework}</span>
+            </h3>
+            {card.entry.config_id && (
+              <p class="text-xs text-muted font-mono break-all">{card.entry.config_id}</p>
+            )}
+          </div>
+          <div class="text-right">
+            <div class="text-2xl font-mono font-semibold tabular-nums">
+              {fmt3(card.entry.sps)}
+              {card.halfCi != null && card.halfCi > 0 && (
+                <span class="ml-1 text-base font-normal text-muted">
+                  ± {card.halfCi.toFixed(3)}
+                </span>
+              )}
+            </div>
+            <div class="text-xs text-muted">
+              SPS · 95% CI {card.ciLabel} · n = {card.entry.n}
+            </div>
+          </div>
+        </header>
+
+        {card.topics.length > 0 && (
+          <details class="mb-4 group" open>
+            <summary class="cursor-pointer select-none text-sm font-medium hover:text-primary">
+              Question-type breakdown
+              <span class="ml-1 text-xs text-muted">({card.topics.length} topic{card.topics.length === 1 ? "" : "s"})</span>
+            </summary>
+            <div class="mt-3 overflow-x-auto rounded border border-muted/20">
+              <table class="w-full text-xs" id={card.topicId}>
+                <thead>
+                  <tr class="bg-surface dark:bg-surface-dark border-b border-muted/20 text-muted">
+                    <th class="px-3 py-2 text-left font-medium" scope="col">Topic</th>
+                    <th class="px-3 py-2 text-right font-medium" scope="col" title="Survey Parity Score restricted to this topic">SPS</th>
+                    <th class="px-3 py-2 text-right font-medium" scope="col" title="Distributional parity: 1 − mean(JSD)">p_dist</th>
+                    <th class="px-3 py-2 text-right font-medium" scope="col" title="Rank-order parity: (1 + mean(τ)) / 2">p_rank</th>
+                    <th class="px-3 py-2 text-right font-medium" scope="col" title="Refusal calibration: 1 − mean(|R_model − R_human|)">p_refuse</th>
+                    <th class="px-3 py-2 text-right font-medium" scope="col" title="Questions in this topic">N</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {card.topics.map((r) => (
+                    <tr class="border-b border-muted/10 last:border-b-0">
+                      <td class="px-3 py-2">{r.topic}</td>
+                      <td class="px-3 py-2 text-right font-mono">{fmt3(r.metric.sps)}</td>
+                      <td class="px-3 py-2 text-right font-mono text-muted">{fmt3(r.metric.p_dist)}</td>
+                      <td class="px-3 py-2 text-right font-mono text-muted">{fmt3(r.metric.p_rank)}</td>
+                      <td class="px-3 py-2 text-right font-mono text-muted">{fmt3(r.metric.p_refuse)}</td>
+                      <td class="px-3 py-2 text-right font-mono text-muted">{r.metric.n ?? "—"}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </details>
+        )}
+
+        {card.demoGroups.length > 0 ? (
+          <details class="group" open>
+            <summary class="cursor-pointer select-none text-sm font-medium hover:text-primary">
+              Demographic subgroup breakdown
+              <span class="ml-1 text-xs text-muted">({card.demos.length} cell{card.demos.length === 1 ? "" : "s"} · {card.demoGroups.length} attribute{card.demoGroups.length === 1 ? "" : "s"})</span>
+            </summary>
+            <div class="mt-3 overflow-x-auto rounded border border-muted/20">
+              <table class="w-full text-xs" id={card.demoId}>
+                <thead>
+                  <tr class="bg-surface dark:bg-surface-dark border-b border-muted/20 text-muted">
+                    <th class="px-3 py-2 text-left font-medium" scope="col">Attribute</th>
+                    <th class="px-3 py-2 text-left font-medium" scope="col">Group</th>
+                    <th class="px-3 py-2 text-right font-medium" scope="col" title="Distributional parity restricted to this subgroup">p_dist</th>
+                    <th class="px-3 py-2 text-right font-medium" scope="col" title="Conditioning strength: how much p_dist moves vs. the unconditioned baseline">p_cond</th>
+                    <th class="px-3 py-2 text-right font-medium" scope="col" title="Questions answered with this subgroup conditioning">N</th>
+                    <th class="px-3 py-2 text-center font-medium" scope="col" title="Coverage flag derived from N: ≥100 high, 50–99 medium, <50 low">Cov.</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {card.demoGroups.map((group) => (
+                    group.rows.map((d, i) => {
+                      const cov = coverage(d.n_questions);
+                      return (
+                        <tr class="border-b border-muted/10 last:border-b-0">
+                          {i === 0 ? (
+                            <th
+                              rowspan={group.rows.length}
+                              scope="rowgroup"
+                              class="px-3 py-2 text-left font-medium align-top bg-surface/30 dark:bg-surface-dark/30"
+                            >
+                              {group.attribute}
+                            </th>
+                          ) : null}
+                          <td class="px-3 py-2">{d.group}</td>
+                          <td class="px-3 py-2 text-right font-mono">{fmt3(d.p_dist)}</td>
+                          <td class="px-3 py-2 text-right font-mono text-muted">{fmt3(d.p_cond)}</td>
+                          <td class="px-3 py-2 text-right font-mono text-muted">{d.n_questions}</td>
+                          <td class="px-3 py-2 text-center">
+                            <span
+                              class:list={["inline-block w-2 h-2 rounded-full align-middle", cov.cls]}
+                              aria-label={`${cov.label} coverage (${d.n_questions} questions)`}
+                              title={`${cov.label} (${d.n_questions} questions)`}
+                            ></span>
+                          </td>
+                        </tr>
+                      );
+                    })
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </details>
+        ) : (
+          <div class="rounded border border-dashed border-muted/30 p-4 text-xs text-muted">
+            No demographic subgroup breakdown published for this run yet. When
+            conditioned runs land, age / geography / education / party-ID slices
+            appear here with p_dist and coverage.
+          </div>
+        )}
+      </article>
+    ))
+  )}
+
+  {!anyDemographic && cards.length > 0 && (
+    <p class="text-xs text-muted text-center">
+      No demographic conditioning data has been published for this vendor yet. The
+      question-type matrix above shows topic-level parity; subgroup rows fill in
+      once SynthPanel-style conditioned runs land.
+    </p>
+  )}
+</section>

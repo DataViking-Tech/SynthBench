@@ -1,5 +1,8 @@
 import { existsSync, readFileSync } from "node:fs";
 import { resolve } from "node:path";
+import leaderboardRaw from "@/data/leaderboard.json";
+import { vendorSlugMap } from "@/lib/vendor-slug";
+import type { LeaderboardData } from "@/types/leaderboard";
 import type { RunIndex } from "@/types/runs";
 import type { APIRoute } from "astro";
 
@@ -66,6 +69,17 @@ export const GET: APIRoute = ({ site }) => {
   const urls: string[] = [];
   for (const path of STATIC_PATHS) {
     urls.push(`  <url><loc>${xmlEscape(urlFor(path))}</loc></url>`);
+  }
+  // sb-1i6: per-vendor subgroup scorecards. One URL per distinct provider in
+  // leaderboard.json, matching the getStaticPaths source on
+  // `src/pages/leaderboard/[vendor].astro`.
+  const leaderboard = leaderboardRaw as unknown as LeaderboardData;
+  const providers = new Set<string>();
+  for (const e of leaderboard.entries) {
+    if (e.provider) providers.add(e.provider);
+  }
+  for (const slug of vendorSlugMap(providers).keys()) {
+    urls.push(`  <url><loc>${xmlEscape(urlFor(`leaderboard/${slug}/`))}</loc></url>`);
   }
   for (const id of runIds) {
     const loc = urlFor(`run/${encodePathSegment(id)}/`);
