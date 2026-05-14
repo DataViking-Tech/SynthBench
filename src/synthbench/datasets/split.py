@@ -155,9 +155,7 @@ def _threshold(held_out_frac: float) -> int:
     Items whose bucket is strictly less than the threshold are held-out.
     """
     if not 0.0 <= held_out_frac <= 1.0:
-        raise ValueError(
-            f"held_out_frac must be in [0, 1], got {held_out_frac!r}"
-        )
+        raise ValueError(f"held_out_frac must be in [0, 1], got {held_out_frac!r}")
     return int(round(held_out_frac * _BUCKET_MOD))
 
 
