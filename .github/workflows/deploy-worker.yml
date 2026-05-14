@@ -112,7 +112,7 @@ jobs:
           echo "wrangler.toml SUPABASE_URL populated (length=${#SUPABASE_URL_VALUE})."
 
       - name: Deploy Worker
-        uses: cloudflare/wrangler-action@v3
+        uses: cloudflare/wrangler-action@v4
         with:
           apiToken: ${{ env.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ env.CLOUDFLARE_ACCOUNT_ID }}
