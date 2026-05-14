@@ -25,6 +25,12 @@ from pathlib import Path
 import click
 
 from synthbench.adapter import Adapter
+from synthbench.leaderboard_pr import (
+    EXIT_GH_MISSING,
+    GhCommandFailed,
+    GhUnavailable,
+    open_leaderboard_pr,
+)
 
 
 # Follow-up issue numbers — replace once filed against #256.
@@ -34,7 +40,8 @@ TODO_PR_ISSUE = "TBD (leaderboard PR generation)"
 
 # Where vendors should open their submission PR. Pinned here so the stubbed
 # output and the eventual real output agree on the URL shape.
-LEADERBOARD_REPO_URL = "https://github.com/DataViking-Tech/SynthBench"
+LEADERBOARD_REPO = "DataViking-Tech/SynthBench"
+LEADERBOARD_REPO_URL = f"https://github.com/{LEADERBOARD_REPO}"
 LEADERBOARD_PR_URL = f"{LEADERBOARD_REPO_URL}/compare/main...vendor:submission"
 
 
@@ -93,8 +100,7 @@ def _find_adapter_class(module: object) -> type[Adapter]:
 
     if not candidates:
         raise click.ClickException(
-            "adapter module does not export a subclass of "
-            "synthbench.adapter.Adapter"
+            "adapter module does not export a subclass of synthbench.adapter.Adapter"
         )
     if len(candidates) > 1:
         # Prefer one literally named "Adapter" if the vendor re-exported.
@@ -225,6 +231,27 @@ PR target: {LEADERBOARD_PR_URL}
     show_default=True,
     help="Directory to write submission.md + run.json into.",
 )
+@click.option(
+    "--open-pr",
+    "open_pr",
+    is_flag=True,
+    default=False,
+    help=(
+        "After writing artifacts, use the `gh` CLI to fork the leaderboard "
+        "repo into your namespace, push a submission branch, and open a "
+        "PR. Requires `gh` on PATH (exit 4 if missing). SynthBench never "
+        "reads your GitHub credentials — gh uses its own auth context."
+    ),
+)
+@click.option(
+    "--leaderboard-repo",
+    default=LEADERBOARD_REPO,
+    show_default=True,
+    help=(
+        "Upstream leaderboard repo in owner/name form. Override only when "
+        "testing against a fork of the leaderboard itself."
+    ),
+)
 def submit_adapter(
     adapter_path: str,
     vendor: str,
@@ -232,6 +259,8 @@ def submit_adapter(
     api_env_var: str,
     suite: str,
     output_dir: str,
+    open_pr: bool,
+    leaderboard_repo: str,
 ) -> None:
     """Run the SynthBench suite against a vendor adapter and emit a submission.
 
@@ -297,6 +326,22 @@ def submit_adapter(
     click.echo(f"  - {md_path.name}")
     click.echo(f"  - {run_path.name}")
     click.echo("")
+
+    if open_pr:
+        try:
+            pr_url = open_leaderboard_pr(
+                submission_dir=out,
+                leaderboard_repo=leaderboard_repo,
+            )
+        except GhUnavailable as exc:
+            click.echo(f"error: {exc}", err=True)
+            sys.exit(EXIT_GH_MISSING)
+        except GhCommandFailed as exc:
+            click.echo(f"error: {exc}", err=True)
+            sys.exit(1)
+        click.echo(f"opened leaderboard PR: {pr_url}")
+        return
+
     click.echo("next steps (scaffold mode — full pipeline pending):")
     click.echo(f"  open a PR against: {LEADERBOARD_PR_URL}")
     click.echo(
