@@ -117,6 +117,14 @@ def test_submit_adapter_happy_path_writes_artifacts(tmp_path, monkeypatch):
     assert payload["suite"] == "core"
     assert payload["api_env_var"] == "ACME_API_KEY"
 
+    # run_hash must be present and well-formed even in scaffold mode
+    # (sb-1ix). Empty persona_seeds + raw_responses still produce a real
+    # sha256 over the adapter identity + suite manifest.
+    assert isinstance(payload["run_hash"], str)
+    assert len(payload["run_hash"]) == 64
+    int(payload["run_hash"], 16)  # valid hex
+    assert payload["raw_responses"] == []
+
     # submission.md should mention vendor + scaffold disclaimer so the PR
     # reviewer doesn't mistake it for a real leaderboard entry.
     md_text = md.read_text()
@@ -159,3 +167,59 @@ def test_submit_adapter_loads_from_filesystem_path(tmp_path, monkeypatch):
     assert res.exit_code == 0, res.output
     payload = json.loads((out_dir / "run.json").read_text())
     assert payload["adapter"]["name"] == "acme/test"
+
+
+def test_submit_adapter_run_hash_is_deterministic(tmp_path, monkeypatch):
+    """Two scaffold-mode runs with identical inputs MUST emit the same
+    ``run_hash`` — this is the leaderboard's tamper-detection contract
+    surfaced at the CLI layer."""
+    monkeypatch.setenv("ACME_API_KEY", "x")
+
+    def run_into(subdir: str) -> str:
+        out = tmp_path / subdir
+        res = CliRunner().invoke(
+            main,
+            [
+                "submit-adapter",
+                "--adapter",
+                RANDOM_ADAPTER_MODULE,
+                "--vendor",
+                "acme",
+                "--vendor-version",
+                "0.1.0",
+                "--api-env-var",
+                "ACME_API_KEY",
+                "--output-dir",
+                str(out),
+            ],
+        )
+        assert res.exit_code == 0, res.output
+        return json.loads((out / "run.json").read_text())["run_hash"]
+
+    assert run_into("a") == run_into("b")
+
+
+def test_submit_adapter_unknown_suite_exits_2(tmp_path, monkeypatch):
+    """Missing suite manifest is a bad-input error, not a runtime failure
+    — mirrors the exit-2 convention for unimportable adapters."""
+    monkeypatch.setenv("ACME_API_KEY", "x")
+    res = CliRunner().invoke(
+        main,
+        [
+            "submit-adapter",
+            "--adapter",
+            RANDOM_ADAPTER_MODULE,
+            "--vendor",
+            "acme",
+            "--vendor-version",
+            "0.1.0",
+            "--api-env-var",
+            "ACME_API_KEY",
+            "--suite",
+            "this-suite-does-not-exist",
+            "--output-dir",
+            str(tmp_path / "out"),
+        ],
+    )
+    assert res.exit_code == 2, res.output
+    assert "suite manifest not found" in res.output
