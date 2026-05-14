@@ -1,4 +1,5 @@
 ---
+import { heldOutBadgeState, heldOutBadgeTitle } from "@/lib/heldOut";
 import type { LeaderboardData, LeaderboardEntry } from "@/types/leaderboard";
 
 import leaderboardRaw from "@/data/leaderboard.json";
@@ -186,6 +187,12 @@ function hiddenInDefaultView(entry: LeaderboardEntry): boolean {
                     : "Public/private SPS diverge beyond threshold — under review"
                 }>⚠ flagged</span>
               )}
+              {heldOutBadgeState(entry) === "verified" && (
+                <span class="ml-1 text-xs px-1.5 py-0.5 rounded bg-sky-500/10 text-sky-700 dark:text-sky-400" title={heldOutBadgeTitle(entry)}>✓ held-out</span>
+              )}
+              {heldOutBadgeState(entry) === "flagged" && (
+                <span class="ml-1 text-xs px-1.5 py-0.5 rounded bg-rose-500/10 text-rose-700 dark:text-rose-400" title={heldOutBadgeTitle(entry)}>⚠ held-out</span>
+              )}
               {entry.temperature != null && <span class="ml-1 text-xs px-1.5 py-0.5 rounded bg-accent/15 text-accent font-mono"><span class="sr-only">temperature </span>t={entry.temperature}</span>}
               {entry.template && <span class="ml-1 text-xs px-1.5 py-0.5 rounded bg-accent/15 text-accent font-mono"><span class="sr-only">prompt template </span>tpl={entry.template}</span>}
               <span class="block text-xs text-muted">{entry.provider}</span>
@@ -296,6 +303,12 @@ function hiddenInDefaultView(entry: LeaderboardEntry): boolean {
             {entry.is_baseline && <span class="ml-1 text-xs px-1.5 py-0.5 rounded bg-muted/20 text-muted">baseline</span>}
             {!entry.is_baseline && entry.provider.startsWith("SynthPanel") && !entry.is_ensemble && (
               <span class="ml-1 text-xs px-1.5 py-0.5 rounded bg-provider-synthpanel/10 text-provider-synthpanel">conditioned</span>
+            )}
+            {heldOutBadgeState(entry) === "verified" && (
+              <span class="ml-1 text-xs px-1.5 py-0.5 rounded bg-sky-500/10 text-sky-700 dark:text-sky-400" title={heldOutBadgeTitle(entry)}>✓ held-out</span>
+            )}
+            {heldOutBadgeState(entry) === "flagged" && (
+              <span class="ml-1 text-xs px-1.5 py-0.5 rounded bg-rose-500/10 text-rose-700 dark:text-rose-400" title={heldOutBadgeTitle(entry)}>⚠ held-out</span>
             )}
             {entry.temperature != null && <span class="ml-1 text-xs px-1.5 py-0.5 rounded bg-accent/15 text-accent font-mono"><span class="sr-only">temperature </span>t={entry.temperature}</span>}
             {entry.template && <span class="ml-1 text-xs px-1.5 py-0.5 rounded bg-accent/15 text-accent font-mono"><span class="sr-only">prompt template </span>tpl={entry.template}</span>}

@@ -1,0 +1,58 @@
+---
+// Documents the held-out validation split (synthbench.datasets.split,
+// issue #259) surfaced in the leaderboard as the "held-out" trust badge.
+// Sibling to PrivateHoldoutSection — the two split mechanisms are distinct
+// and run at different lifecycle points.
+import { LEADERBOARD_HELD_OUT_DELTA_THRESHOLD } from "@/lib/heldOut";
+---
+
+<section class="w-full max-w-4xl mx-auto py-12" id="held-out-validation">
+  <h2
+    class="text-2xl font-bold tracking-tight text-text dark:text-text-dark mb-2"
+  >
+    Held-out re-evaluation
+  </h2>
+  <p class="text-muted mb-4 max-w-3xl">
+    On <span class="font-mono">pewtech</span> and
+    <span class="font-mono">globalopinionqa</span>, 25% of items are
+    held back from contributors entirely. The headline SPS reported by
+    <span class="font-mono">synthbench run</span> is computed against the
+    public 75% cut; the held-out 25% is invisible to the runner unless the
+    operator sets <span class="font-mono">SYNTHBENCH_HELD_OUT_AUTH</span>
+    and passes <span class="font-mono">--held-out</span> (server use only).
+  </p>
+  <p class="text-muted mb-4 max-w-3xl">
+    A periodic worker re-evaluates published configs against the held-out
+    cut and writes the result back as
+    <span class="font-mono">sps_held_out</span> on each row. The
+    <span class="font-mono">|sps − sps_held_out|</span> delta drives the
+    trust badge on the leaderboard:
+    <span
+      class="mx-1 inline-block text-xs px-1.5 py-0.5 rounded bg-sky-500/10 text-sky-700 dark:text-sky-400"
+      >✓ held-out</span
+    > when the delta is at most {LEADERBOARD_HELD_OUT_DELTA_THRESHOLD}, and
+    <span
+      class="mx-1 inline-block text-xs px-1.5 py-0.5 rounded bg-rose-500/10 text-rose-700 dark:text-rose-400"
+      >⚠ held-out</span
+    > when it exceeds the threshold and the row is under investigation.
+    Rows without a held-out run yet carry no badge.
+  </p>
+  <p class="text-muted mb-4 max-w-3xl">
+    The partition is deterministic — <span class="font-mono"
+      >sha256(item_id + ":" + seed)</span
+    > with a pinned canonical seed — so the same item lands in the same cut
+    across runs, machines, and Python versions. The threshold above is a
+    starting placeholder borrowed from the publish-time cheat-detector
+    (<span class="font-mono">private_holdout.SPS_DIVERGENCE_THRESHOLD</span>);
+    it will be calibrated per-dataset once enough re-eval runs have
+    accumulated.
+  </p>
+  <p class="text-muted max-w-3xl">
+    <strong>How this differs from the private holdout above.</strong> The
+    private holdout split runs <em>once at publish time</em> as a
+    cheat-detector across every holdout-enabled dataset. The held-out
+    re-evaluation runs <em>periodically on the server</em> against a cut
+    that contributors never see — protection against a config that overfits
+    to the public sample over time. Both signals can sit on the same row.
+  </p>
+</section>
