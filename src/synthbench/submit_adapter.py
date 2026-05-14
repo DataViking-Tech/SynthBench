@@ -93,8 +93,7 @@ def _find_adapter_class(module: object) -> type[Adapter]:
 
     if not candidates:
         raise click.ClickException(
-            "adapter module does not export a subclass of "
-            "synthbench.adapter.Adapter"
+            "adapter module does not export a subclass of synthbench.adapter.Adapter"
         )
     if len(candidates) > 1:
         # Prefer one literally named "Adapter" if the vendor re-exported.
