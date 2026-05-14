@@ -35,6 +35,14 @@ def main():
     pass
 
 
+# Vendor adapter-driven submission flow (refs #256). Lives in its own module
+# because it pulls in adapter discovery + artifact rendering that doesn't
+# belong inline with the run/report commands above.
+from synthbench.submit_adapter import submit_adapter as _submit_adapter_cmd  # noqa: E402
+
+main.add_command(_submit_adapter_cmd)
+
+
 @main.command()
 @click.option(
     "--provider",
