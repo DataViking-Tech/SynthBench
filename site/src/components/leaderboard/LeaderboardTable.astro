@@ -2,6 +2,7 @@
 import type { LeaderboardData, LeaderboardEntry } from "@/types/leaderboard";
 
 import leaderboardRaw from "@/data/leaderboard.json";
+import { vendorSlug } from "@/lib/vendor-slug";
 
 const leaderboard = leaderboardRaw as LeaderboardData;
 const entries = leaderboard.entries;
@@ -21,6 +22,13 @@ function formatNormalized(value: number | undefined): string {
 
 function configHref(entry: LeaderboardEntry): string | null {
   return entry.config_id ? `${base}config/${entry.config_id}/` : null;
+}
+
+// sb-1i6: provider name links to the per-vendor subgroup scorecard so buyers
+// can drill from a single SPS row into the age/geography/education matrix.
+function vendorHref(entry: LeaderboardEntry): string | null {
+  const slug = vendorSlug(entry.provider);
+  return slug ? `${base}leaderboard/${slug}/` : null;
 }
 
 function rowAriaLabel(entry: LeaderboardEntry): string {
@@ -188,7 +196,18 @@ function hiddenInDefaultView(entry: LeaderboardEntry): boolean {
               )}
               {entry.temperature != null && <span class="ml-1 text-xs px-1.5 py-0.5 rounded bg-accent/15 text-accent font-mono"><span class="sr-only">temperature </span>t={entry.temperature}</span>}
               {entry.template && <span class="ml-1 text-xs px-1.5 py-0.5 rounded bg-accent/15 text-accent font-mono"><span class="sr-only">prompt template </span>tpl={entry.template}</span>}
-              <span class="block text-xs text-muted">{entry.provider}</span>
+              {(() => {
+                const vhref = vendorHref(entry);
+                return vhref ? (
+                  <a
+                    href={vhref}
+                    class="provider-link block text-xs text-muted hover:text-primary hover:underline"
+                    title={`View ${entry.provider} subgroup scorecard`}
+                  >{entry.provider}</a>
+                ) : (
+                  <span class="block text-xs text-muted">{entry.provider}</span>
+                );
+              })()}
             </td>
             <td class="px-4 py-3">{entry.dataset}</td>
             <td class="px-4 py-3 text-xs text-muted">{entry.framework}</td>
