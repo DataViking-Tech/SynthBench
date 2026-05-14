@@ -1,0 +1,38 @@
+# Example user-config: synthpanel tuned for Midwest healthcare workers.
+# See docs/configs.md for the full schema.
+#
+# Validate locally:
+#   synthbench validate-config templates/user-configs/example-healthcare-northcentral.yaml
+#
+# Submit alongside your benchmark result:
+#   synthbench submit --config templates/user-configs/example-healthcare-northcentral.yaml \
+#                     results/my-run.json
+
+vendor: synthpanel
+vendor_version: "1.4.0"
+config_name: "example-healthcare-northcentral"
+contributor: "@wesley"
+harness_version: "0.1.0"
+
+target_subgroup:
+  description: "Healthcare workers in NC, MN, WI, IA"
+  selector:
+    geography: ["NC", "MN", "WI", "IA"]
+    occupation: ["healthcare"]
+
+packs: ["healthcare-patient", "general-consumer"]
+ensemble_weights: [0.7, 0.3]
+
+extra_prompts:
+  system: |
+    You are responding as a healthcare professional in a Midwest US setting.
+    Reflect realistic concerns about staffing, scheduling, and EHR friction.
+
+decoding:
+  temperature: 0.6
+  top_p: 0.9
+  model: "anthropic/claude-haiku-4-5"
+
+notes: |
+  Example artifact — illustrates the shape of a target-subgroup config.
+  Replace with your own values and re-run the benchmark before submitting.

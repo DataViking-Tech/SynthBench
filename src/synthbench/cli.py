@@ -925,7 +925,29 @@ def _submit_and_maybe_wait(
     is_flag=True,
     help="Print the raw response JSON to stdout (useful for piping).",
 )
-def submit(run_file, api_key, api_url, timeout, json_out):
+@click.option(
+    "--config",
+    "config_file",
+    type=click.Path(exists=True, dir_okay=False),
+    default=None,
+    help=(
+        "Path to a user-config YAML (sb-vgb / GH#257). Validates the artifact "
+        "and stamps it onto the submission so the leaderboard renders a "
+        "{vendor}/{config_name} row instead of bare {vendor}."
+    ),
+)
+@click.option(
+    "--allow-harness-mismatch",
+    is_flag=True,
+    help=(
+        "Submit even if --config pins a different synthbench version. Off by "
+        "default because the leaderboard treats the harness version as part "
+        "of the reproducible-artifact contract."
+    ),
+)
+def submit(
+    run_file, api_key, api_url, timeout, json_out, config_file, allow_harness_mismatch
+):
     """Submit a benchmark result JSON to the SynthBench leaderboard.
 
     Authenticates with a personal API key (sb_<...>) generated at
@@ -938,6 +960,10 @@ def submit(run_file, api_key, api_url, timeout, json_out):
 
         export SYNTHBENCH_API_KEY=sb_xxxx
         synthbench submit results/openrouter_gpt-4o-mini_opinionsqa.json
+
+    Submit with a user-configuration artifact (sb-vgb / GH#257):
+
+        synthbench submit --config configs/healthcare-nc.yaml results/run.json
     """
     from synthbench import submission as sub
 
@@ -947,6 +973,31 @@ def submit(run_file, api_key, api_url, timeout, json_out):
         _echo_submit_error(body)
         sys.exit(1)
 
+    if config_file:
+        from synthbench import user_config as uc
+
+        result = uc.load_and_validate(config_file)
+        if isinstance(result, list):
+            click.echo(f"Config validation failed ({config_file}):", err=True)
+            for err in result:
+                click.echo(f"  - {err}", err=True)
+            sys.exit(2)
+        mismatch = uc.check_harness_version(result)
+        if mismatch is not None:
+            if not allow_harness_mismatch:
+                click.echo(f"Error: {mismatch}", err=True)
+                click.echo(
+                    "  Hint: pass --allow-harness-mismatch to override.", err=True
+                )
+                sys.exit(2)
+            click.echo(f"  ! {mismatch}", err=True)
+        body = uc.attach_to_submission_body(body, result)
+        click.echo(
+            f"  + attaching user_config {result.leaderboard_row_key} "
+            f"(contributor={result.contributor})",
+            err=True,
+        )
+
     _submit_body(
         body=body,
         source_label=path.name,
@@ -955,6 +1006,35 @@ def submit(run_file, api_key, api_url, timeout, json_out):
         timeout=timeout,
         json_out=json_out,
     )
+
+
+@main.command("validate-config")
+@click.argument("config_file", type=click.Path(exists=True, dir_okay=False))
+def validate_config_cmd(config_file):
+    """Validate a user-configuration YAML against the schema (sb-vgb / GH#257).
+
+    Run this before `synthbench submit --config` to surface schema errors
+    locally. Exit code 0 on success, 2 on validation failure.
+
+    Example:
+
+        synthbench validate-config configs/healthcare-northcentral.yaml
+    """
+    from synthbench import user_config as uc
+
+    result = uc.load_and_validate(config_file)
+    if isinstance(result, list):
+        click.echo(f"✗ {config_file}: invalid", err=True)
+        for err in result:
+            click.echo(f"  - {err}", err=True)
+        sys.exit(2)
+    click.echo(f"✓ {config_file}: valid")
+    click.echo(f"  row: {result.leaderboard_row_key}")
+    click.echo(f"  contributor: {result.contributor}")
+    click.echo(f"  harness: {result.harness_version}")
+    mismatch = uc.check_harness_version(result)
+    if mismatch is not None:
+        click.echo(f"  ! {mismatch}", err=True)
 
 
 @main.command()
