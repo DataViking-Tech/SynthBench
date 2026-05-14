@@ -108,6 +108,37 @@ export interface LeaderboardEntry {
    * Absent when the split cannot be computed.
    */
   verification_badge?: "verified" | "flagged";
+
+  /**
+   * SPS recomputed by the server-side held-out re-eval worker against the
+   * held-out cut of `dataset` (see `synthbench.datasets.split`). Distinct
+   * from `sps_private`: the private holdout split runs once at publish
+   * time as a cheat-detector, whereas the held-out re-eval is the
+   * server-driven periodic re-run of the contributor's config against
+   * data they never saw. See docs/held-out.md.
+   */
+  sps_held_out?: number;
+
+  /** |sps − sps_held_out|. Compared against LEADERBOARD_HELD_OUT_DELTA_THRESHOLD. */
+  sps_held_out_delta?: number;
+
+  /**
+   * ISO 8601 timestamp of the last server-side held-out re-eval for this
+   * (config, dataset) pair. Absent when the held-out cron has not yet
+   * re-evaluated this row. Once populated, `held_out_badge` reflects the
+   * verdict.
+   */
+  held_out_last_run?: string;
+
+  /**
+   * Trust badge from the server-side held-out re-eval comparison. Distinct
+   * from `verification_badge` (publish-time cheat-detector). Derived from
+   * `sps_held_out_delta` vs `LEADERBOARD_HELD_OUT_DELTA_THRESHOLD`:
+   *   - "verified" — delta within threshold; held-out and public agree
+   *   - "flagged"  — delta exceeds threshold; under investigation
+   * Absent until the held-out cron has scored this row.
+   */
+  held_out_badge?: "verified" | "flagged";
 }
 
 export interface TopicMetricBreakdown {
