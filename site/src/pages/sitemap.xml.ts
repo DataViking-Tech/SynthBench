@@ -73,7 +73,7 @@ export const GET: APIRoute = ({ site }) => {
   // sb-1i6: per-vendor subgroup scorecards. One URL per distinct provider in
   // leaderboard.json, matching the getStaticPaths source on
   // `src/pages/leaderboard/[vendor].astro`.
-  const leaderboard = leaderboardRaw as LeaderboardData;
+  const leaderboard = leaderboardRaw as unknown as LeaderboardData;
   const providers = new Set<string>();
   for (const e of leaderboard.entries) {
     if (e.provider) providers.add(e.provider);
