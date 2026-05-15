@@ -102,7 +102,7 @@ jobs:
         # apiToken/accountId come from $GITHUB_ENV (sourced from Doppler
         # dataviking-platform/prd in the earlier step); wrangler reads the
         # CLOUDFLARE_API_TOKEN and CLOUDFLARE_ACCOUNT_ID env vars directly.
-        uses: cloudflare/wrangler-action@v3
+        uses: cloudflare/wrangler-action@v4
         with:
           apiToken: ${{ env.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ env.CLOUDFLARE_ACCOUNT_ID }}
