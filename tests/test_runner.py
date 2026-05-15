@@ -644,3 +644,19 @@ async def test_reproducibility_hashes_pass_tier3_strict(mock_dataset, mock_provi
     repro_codes = {i.code for i in issues}
     assert "REPRO_FIELD_EMPTY" not in repro_codes
     assert "REPRO_FIELD_MISSING" not in repro_codes
+
+
+@pytest.mark.asyncio
+async def test_runner_records_per_question_latency(mock_dataset, mock_provider):
+    """Each QuestionResult carries a wall-clock latency measurement (sb-293)."""
+    runner = BenchmarkRunner(
+        dataset=mock_dataset, provider=mock_provider, samples_per_question=2
+    )
+    result = await runner.run(n=3)
+
+    assert len(result.questions) == 3
+    for qr in result.questions:
+        assert qr.latency_seconds is not None
+        assert qr.latency_seconds >= 0.0
+        # Per-question latency cannot exceed the total run elapsed time.
+        assert qr.latency_seconds <= result.elapsed_seconds + 1e-3

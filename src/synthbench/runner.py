@@ -113,6 +113,16 @@ class QuestionResult:
     expose probabilities but no per-sample strings). See ``raw_responses``
     in :mod:`synthbench.validation` for the Tier-3 audit use case.
     """
+    latency_seconds: float | None = None
+    """Wall-clock seconds spent evaluating this question (cost-economics column).
+
+    Captured around the provider call(s) so per-question p50/p95 can be
+    aggregated downstream (sb-293). ``None`` for rows materialized from
+    paths that did not time their work (e.g. fixtures, pre-tracking runs).
+    For batched providers the batch wall-clock is divided evenly across
+    the batch members — an even-split approximation, not per-response
+    instrumentation.
+    """
 
 
 def _aggregate_token_usage(responses: list[Response]) -> dict | None:
@@ -412,6 +422,7 @@ class BenchmarkRunner:
         token_usage: dict | None = None
         raw_sample: dict | None = None
 
+        t0 = time.monotonic()
         if self.provider.supports_distribution:
             dist = await self.provider.get_distribution(
                 question.text,
@@ -447,6 +458,8 @@ class BenchmarkRunner:
             n_samples = total
             n_parse_failures = parse_fails
 
+        latency = time.monotonic() - t0
+
         model_dist = _normalize_model_dist(model_dist, question.options)
         human_refusal_rate = extract_human_refusal_rate(question.human_distribution)
 
@@ -470,6 +483,7 @@ class BenchmarkRunner:
             temporal_year=wave_year(question.survey),
             token_usage=token_usage,
             raw_sample=raw_sample,
+            latency_seconds=round(latency, 4),
         )
 
     async def _run_batched(
@@ -496,13 +510,21 @@ class BenchmarkRunner:
             async with self._semaphore:
                 texts = [q.text for q in batch]
                 opts_list = [q.options for q in batch]
+                t0 = time.monotonic()
                 dists = await self.provider.batch_get_distribution(
                     texts, opts_list, n_samples=self.samples_per_question
                 )
+                # Even-split approximation: batch APIs report a single wall-clock,
+                # so each member is credited 1/batch of the elapsed time. This is
+                # a lower bound on per-question latency under concurrent batching
+                # (the batch hides intra-question variation).
+                per_q_latency = (time.monotonic() - t0) / max(len(batch), 1)
 
                 start_idx = batch_idx * batch_size
                 for j, (q, dist) in enumerate(zip(batch, dists)):
-                    qr = self._build_question_result(q, dist)
+                    qr = self._build_question_result(
+                        q, dist, latency_seconds=per_q_latency
+                    )
                     all_results[start_idx + j] = qr
                     done_count += 1
                     if progress_callback:
@@ -514,7 +536,10 @@ class BenchmarkRunner:
         return [r for r in all_results if r is not None]
 
     def _build_question_result(
-        self, question: Question, dist: Distribution
+        self,
+        question: Question,
+        dist: Distribution,
+        latency_seconds: float | None = None,
     ) -> QuestionResult:
         """Build a QuestionResult from a question and its model distribution."""
         model_dist = dict(zip(question.options, dist.probabilities))
@@ -543,6 +568,9 @@ class BenchmarkRunner:
             human_refusal_rate=human_refusal_rate,
             temporal_year=wave_year(question.survey),
             token_usage=token_usage,
+            latency_seconds=(
+                round(latency_seconds, 4) if latency_seconds is not None else None
+            ),
         )
 
     async def _collect_samples_with_refusals(
