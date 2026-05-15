@@ -25,11 +25,12 @@ from pathlib import Path
 import click
 
 from synthbench.adapter import Adapter
+from synthbench.run_hash import compute_run_hash
+from synthbench.suites import SUITE_DIR
 
 
 # Follow-up issue numbers — replace once filed against #256.
 TODO_EVAL_ISSUE = "TBD (eval pipeline)"
-TODO_HASH_ISSUE = "TBD (run-hash content addressing)"
 TODO_PR_ISSUE = "TBD (leaderboard PR generation)"
 
 # Where vendors should open their submission PR. Pinned here so the stubbed
@@ -107,6 +108,22 @@ def _find_adapter_class(module: object) -> type[Adapter]:
     return candidates[0]
 
 
+def _load_suite_manifest(suite: str) -> dict:
+    """Load ``suites/<suite>.json`` for run-hash input.
+
+    Raises a CLI-friendly error if the suite file is missing so vendors
+    pointing at a non-existent suite get the same exit-2 treatment as
+    other bad inputs."""
+    path = SUITE_DIR / f"{suite}.json"
+    if not path.exists():
+        raise click.ClickException(
+            f"suite manifest not found: {path.name} "
+            f"(looked in {SUITE_DIR}). known suites: "
+            f"{sorted(p.stem for p in SUITE_DIR.glob('*.json'))}"
+        )
+    return json.loads(path.read_text())
+
+
 def _write_placeholder_artifacts(
     output_dir: Path,
     *,
@@ -114,6 +131,7 @@ def _write_placeholder_artifacts(
     vendor: str,
     vendor_version: str,
     suite: str,
+    suite_manifest: dict,
     api_env_var: str,
 ) -> tuple[Path, Path]:
     """Emit the stubbed ``submission.md`` + ``run.json`` for the scaffold path.
@@ -121,26 +139,40 @@ def _write_placeholder_artifacts(
     Returns (submission_md_path, run_json_path). The real pipeline (refs
     #256 follow-ups) replaces both writes with content from an actual
     suite run.
+
+    The ``run_hash`` field is already computed here — even in scaffold
+    mode — because the adapter identity + suite manifest are real
+    inputs. ``persona_seeds`` and ``raw_responses`` are empty until
+    sb-bas wires the eval pipeline; once it does, the same call site
+    just receives non-empty sequences and the hash expands.
     """
     output_dir.mkdir(parents=True, exist_ok=True)
+
+    adapter_identity = {
+        "name": adapter.name,
+        "version": adapter.version,
+        "vendor": vendor,
+        "vendor_version": vendor_version,
+    }
+    run_hash = compute_run_hash(
+        adapter=adapter_identity,
+        suite=suite_manifest,
+        persona_seeds=[],
+        raw_responses=[],
+    )
 
     run_stub = {
         "schema_version": "0.0.0-scaffold",
         "status": "scaffold",
-        "adapter": {
-            "name": adapter.name,
-            "version": adapter.version,
-            "vendor": vendor,
-            "vendor_version": vendor_version,
-        },
+        "adapter": adapter_identity,
         "suite": suite,
         "api_env_var": api_env_var,
-        "run_hash": None,
+        "run_hash": run_hash,
         "scores": None,
         "per_question": [],
+        "raw_responses": [],
         "todo": {
             "eval_pipeline": TODO_EVAL_ISSUE,
-            "run_hash": TODO_HASH_ISSUE,
             "leaderboard_pr": TODO_PR_ISSUE,
         },
     }
@@ -156,7 +188,7 @@ def _write_placeholder_artifacts(
 - **Adapter:** `{adapter.name}` v`{adapter.version}`
 - **Suite:** `{suite}`
 - **API env var:** `{api_env_var}` (presence checked; value never read by SynthBench)
-- **Run hash:** _pending (see {TODO_HASH_ISSUE})_
+- **Run hash:** `{run_hash}`
 
 ## What to do with this file
 
@@ -174,7 +206,6 @@ PR target: {LEADERBOARD_PR_URL}
 ## TODOs tracked against #256
 
 - [ ] Run the `{suite}` suite against the adapter ({TODO_EVAL_ISSUE})
-- [ ] Compute content-addressed run hash ({TODO_HASH_ISSUE})
 - [ ] Auto-generate leaderboard PR body ({TODO_PR_ISSUE})
 """
     md_path = output_dir / "submission.md"
@@ -281,7 +312,15 @@ def submit_adapter(
         )
         sys.exit(2)
 
-    # 4. Write placeholder artifacts. Real eval lands in a follow-up.
+    # 4. Load the suite manifest. A missing suite is a bad input, not a
+    #    runtime failure → exit 2.
+    try:
+        suite_manifest = _load_suite_manifest(suite)
+    except click.ClickException as exc:
+        click.echo(f"error: {exc.message}", err=True)
+        sys.exit(2)
+
+    # 5. Write placeholder artifacts. Real eval lands in a follow-up.
     out = Path(output_dir)
     md_path, run_path = _write_placeholder_artifacts(
         out,
@@ -289,6 +328,7 @@ def submit_adapter(
         vendor=vendor,
         vendor_version=vendor_version,
         suite=suite,
+        suite_manifest=suite_manifest,
         api_env_var=api_env_var,
     )
 
@@ -303,7 +343,4 @@ def submit_adapter(
         f"{LEADERBOARD_REPO_URL}/raw/main/leaderboard/schema.json"
     )
     click.echo("")
-    click.echo(
-        f"TODO (refs #256): eval={TODO_EVAL_ISSUE}, "
-        f"hash={TODO_HASH_ISSUE}, pr={TODO_PR_ISSUE}"
-    )
+    click.echo(f"TODO (refs #256): eval={TODO_EVAL_ISSUE}, pr={TODO_PR_ISSUE}")
