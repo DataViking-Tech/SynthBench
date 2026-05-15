@@ -1,0 +1,75 @@
+{
+  "benchmark_id": "example-fintech-trust-2026q1",
+  "title": "Fintech trust survey, Q1 2026 (example)",
+  "contributor": "@wesley",
+  "description": "Illustrative BYO-benchmark artifact covering consumer trust in fintech products. Replace human_distribution values with your own ground-truth aggregates before submitting.",
+  "domain": "fintech",
+  "harness_version": "0.1.0",
+  "source": {
+    "citation": "DataViking Internal Pilot, 2026-Q1 (example placeholder — replace with real provenance)",
+    "license": "CC-BY-4.0",
+    "url": "https://example.com/fintech-trust-2026q1"
+  },
+  "redistribution_policy": "aggregates_only",
+  "questions": [
+    {
+      "key": "trust_primary_bank",
+      "text": "How much do you trust your primary bank with your personal financial data?",
+      "options": ["A great deal", "Some", "Not much", "Not at all"],
+      "human_distribution": {
+        "A great deal": 0.28,
+        "Some": 0.41,
+        "Not much": 0.21,
+        "Not at all": 0.10
+      },
+      "topic": "trust"
+    },
+    {
+      "key": "trust_neobank",
+      "text": "How much do you trust app-only neobanks (Chime, Revolut, etc.) with your personal financial data?",
+      "options": ["A great deal", "Some", "Not much", "Not at all"],
+      "human_distribution": {
+        "A great deal": 0.09,
+        "Some": 0.32,
+        "Not much": 0.34,
+        "Not at all": 0.25
+      },
+      "topic": "trust"
+    },
+    {
+      "key": "willingness_share_for_lower_rate",
+      "text": "Would you share extra financial data with a lender in exchange for a lower interest rate?",
+      "options": ["Definitely", "Probably", "Probably not", "Definitely not"],
+      "human_distribution": {
+        "Definitely": 0.12,
+        "Probably": 0.27,
+        "Probably not": 0.35,
+        "Definitely not": 0.26
+      },
+      "topic": "data_sharing"
+    },
+    {
+      "key": "concern_data_breach",
+      "text": "How concerned are you about a fintech app being breached and your data leaked?",
+      "options": ["Very concerned", "Somewhat concerned", "Not very concerned", "Not at all concerned"],
+      "human_distribution": {
+        "Very concerned": 0.46,
+        "Somewhat concerned": 0.36,
+        "Not very concerned": 0.13,
+        "Not at all concerned": 0.05
+      },
+      "topic": "security"
+    },
+    {
+      "key": "switched_provider_last_12mo",
+      "text": "In the last 12 months, have you switched primary financial provider?",
+      "options": ["Yes", "No"],
+      "human_distribution": {
+        "Yes": 0.18,
+        "No": 0.82
+      },
+      "topic": "behavior"
+    }
+  ],
+  "notes": "Example artifact — illustrates the shape of a BYO-benchmark submission. Replace distributions with real survey aggregates and update the source block before submitting."
+}

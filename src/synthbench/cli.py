@@ -937,16 +937,35 @@ def _submit_and_maybe_wait(
     ),
 )
 @click.option(
+    "--benchmark",
+    "benchmark_file",
+    type=click.Path(exists=True, dir_okay=False),
+    default=None,
+    help=(
+        "Path to a user-contributed benchmark dataset JSON (sb-7je / Move 6). "
+        "Validates the artifact, hashes the questions block, and stamps it "
+        "onto the submission so the leaderboard renders a new dataset slice. "
+        "Composes with --config."
+    ),
+)
+@click.option(
     "--allow-harness-mismatch",
     is_flag=True,
     help=(
-        "Submit even if --config pins a different synthbench version. Off by "
-        "default because the leaderboard treats the harness version as part "
-        "of the reproducible-artifact contract."
+        "Submit even if --config or --benchmark pins a different synthbench "
+        "version. Off by default because the leaderboard treats the harness "
+        "version as part of the reproducible-artifact contract."
     ),
 )
 def submit(
-    run_file, api_key, api_url, timeout, json_out, config_file, allow_harness_mismatch
+    run_file,
+    api_key,
+    api_url,
+    timeout,
+    json_out,
+    config_file,
+    benchmark_file,
+    allow_harness_mismatch,
 ):
     """Submit a benchmark result JSON to the SynthBench leaderboard.
 
@@ -964,6 +983,10 @@ def submit(
     Submit with a user-configuration artifact (sb-vgb / GH#257):
 
         synthbench submit --config configs/healthcare-nc.yaml results/run.json
+
+    Submit with a community-contributed benchmark dataset (sb-7je / Move 6):
+
+        synthbench submit --benchmark datasets/fintech-trust.json results/run.json
     """
     from synthbench import submission as sub
 
@@ -995,6 +1018,33 @@ def submit(
         click.echo(
             f"  + attaching user_config {result.leaderboard_row_key} "
             f"(contributor={result.contributor})",
+            err=True,
+        )
+
+    if benchmark_file:
+        from synthbench import user_benchmark as ub
+
+        bm = ub.load_and_validate(benchmark_file)
+        if isinstance(bm, list):
+            click.echo(f"Benchmark validation failed ({benchmark_file}):", err=True)
+            for err in bm:
+                click.echo(f"  - {err}", err=True)
+            sys.exit(2)
+        mismatch_b = ub.check_harness_version(bm)
+        if mismatch_b is not None:
+            if not allow_harness_mismatch:
+                click.echo(f"Error: {mismatch_b}", err=True)
+                click.echo(
+                    "  Hint: pass --allow-harness-mismatch to override.", err=True
+                )
+                sys.exit(2)
+            click.echo(f"  ! {mismatch_b}", err=True)
+        bh = ub.compute_benchmark_hash(bm)
+        body = ub.attach_to_submission_body(body, bm)
+        click.echo(
+            f"  + attaching user_benchmark {bm.leaderboard_slice_key} "
+            f"(domain={bm.domain}, questions={bm.n_questions}, "
+            f"hash={bh[:12]}…, contributor={bm.contributor})",
             err=True,
         )
 
@@ -1033,6 +1083,42 @@ def validate_config_cmd(config_file):
     click.echo(f"  contributor: {result.contributor}")
     click.echo(f"  harness: {result.harness_version}")
     mismatch = uc.check_harness_version(result)
+    if mismatch is not None:
+        click.echo(f"  ! {mismatch}", err=True)
+
+
+@main.command("validate-benchmark")
+@click.argument("benchmark_file", type=click.Path(exists=True, dir_okay=False))
+def validate_benchmark_cmd(benchmark_file):
+    """Validate a user-contributed benchmark dataset JSON (sb-7je / Move 6).
+
+    Run this before `synthbench submit --benchmark` to surface schema
+    errors locally — the validator collects every error in one pass so
+    you can fix them all before re-running. Prints the content hash so
+    you can reference the dataset slice in follow-up tooling. Exit code
+    0 on success, 2 on validation failure.
+
+    Example:
+
+        synthbench validate-benchmark datasets/fintech-trust.json
+    """
+    from synthbench import user_benchmark as ub
+
+    result = ub.load_and_validate(benchmark_file)
+    if isinstance(result, list):
+        click.echo(f"✗ {benchmark_file}: invalid", err=True)
+        for err in result:
+            click.echo(f"  - {err}", err=True)
+        sys.exit(2)
+    click.echo(f"✓ {benchmark_file}: valid")
+    click.echo(f"  slice: {result.leaderboard_slice_key}")
+    click.echo(f"  domain: {result.domain}")
+    click.echo(f"  questions: {result.n_questions}")
+    click.echo(f"  redistribution: {result.redistribution_policy}")
+    click.echo(f"  contributor: {result.contributor}")
+    click.echo(f"  harness: {result.harness_version}")
+    click.echo(f"  hash: {ub.compute_benchmark_hash(result)}")
+    mismatch = ub.check_harness_version(result)
     if mismatch is not None:
         click.echo(f"  ! {mismatch}", err=True)
 
