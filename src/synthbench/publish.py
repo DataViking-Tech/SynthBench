@@ -180,10 +180,34 @@ _COST_FIELD_KEYS = (
     "cost_usd",
     "cost_per_100q",
     "cost_per_sps_point",
+    "cost_per_response",
+    "tokens_per_response",
     "is_cost_estimated",
 )
 
 _NULL_COST_FIELDS: dict = {k: None for k in _COST_FIELD_KEYS}
+
+_LATENCY_FIELD_KEYS = ("latency_p50_seconds", "latency_p95_seconds")
+_NULL_LATENCY_FIELDS: dict = {k: None for k in _LATENCY_FIELD_KEYS}
+
+
+def _compute_latency_fields(aggregate: dict) -> dict:
+    """Derive latency_p50_seconds / latency_p95_seconds from the run aggregate.
+
+    The runner records per-question latency and report.py rolls it up into
+    ``aggregate.latency_seconds = {p50, p95, mean, n, source}`` (sb-293).
+    Pre-instrumentation rows (no ``latency_seconds`` block) get nulls so the
+    leaderboard renders ``"—"`` instead of misleading zeros.
+    """
+    block = (aggregate or {}).get("latency_seconds")
+    if not isinstance(block, dict):
+        return dict(_NULL_LATENCY_FIELDS)
+    p50 = block.get("p50")
+    p95 = block.get("p95")
+    return {
+        "latency_p50_seconds": round(float(p50), 4) if p50 is not None else None,
+        "latency_p95_seconds": round(float(p95), 4) if p95 is not None else None,
+    }
 
 
 def _compute_cost_fields(aggregate: dict, config: dict, entry: dict) -> dict:
@@ -204,6 +228,7 @@ def _compute_cost_fields(aggregate: dict, config: dict, entry: dict) -> dict:
 
     input_tokens = int(token_usage.get("input_tokens") or 0)
     output_tokens = int(token_usage.get("output_tokens") or 0)
+    call_count = int(token_usage.get("call_count") or 0)
 
     n = entry.get("n") or aggregate.get("n_questions") or 0
     sps = entry.get("sps") or 0
@@ -228,12 +253,26 @@ def _compute_cost_fields(aggregate: dict, config: dict, entry: dict) -> dict:
 
     cost_per_100q = (cost_usd / n * 100) if n > 0 else None
     cost_per_sps_point = (cost_usd / sps) if sps >= 0.01 else None
+    # "Response" here is one API call to the underlying model. For native
+    # distribution providers (1 call → distribution over options) that's 1
+    # response per question; for sampling providers it's samples_per_question.
+    # call_count is the canonical denominator because it absorbs both shapes.
+    cost_per_response = (cost_usd / call_count) if call_count > 0 else None
+    tokens_per_response = (
+        (input_tokens + output_tokens) / call_count if call_count > 0 else None
+    )
 
     return {
         "cost_usd": round(cost_usd, 6),
         "cost_per_100q": round(cost_per_100q, 6) if cost_per_100q is not None else None,
         "cost_per_sps_point": (
             round(cost_per_sps_point, 6) if cost_per_sps_point is not None else None
+        ),
+        "cost_per_response": (
+            round(cost_per_response, 6) if cost_per_response is not None else None
+        ),
+        "tokens_per_response": (
+            round(tokens_per_response, 2) if tokens_per_response is not None else None
         ),
         "is_cost_estimated": False,
     }
@@ -464,13 +503,18 @@ def _build_entry(
         else:
             n = entry.get("n") or 0
             sps = entry.get("sps") or 0
+            # Ensembles don't have a single token_usage block, so per-response
+            # cost/tokens stay null — they have no single underlying response.
             cost_fields = {
                 "cost_usd": round(ens_cost, 6),
                 "cost_per_100q": round(ens_cost / n * 100, 6) if n > 0 else None,
                 "cost_per_sps_point": round(ens_cost / sps, 6) if sps >= 0.01 else None,
+                "cost_per_response": None,
+                "tokens_per_response": None,
                 "is_cost_estimated": False,
             }
     entry.update(cost_fields)
+    entry.update(_compute_latency_fields(agg))
 
     # Private-holdout verification fields: sps_public / sps_private /
     # delta + a "verified" | "flagged" badge computed off the delta vs. the

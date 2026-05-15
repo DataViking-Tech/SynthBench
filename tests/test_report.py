@@ -88,3 +88,75 @@ def test_to_markdown_contains_scores(sample_result):
     assert "P_dist" in md
     assert "P_rank" in md
     assert "P_refuse" in md
+
+
+# ---------------------------------------------------------------------------
+# Per-question latency aggregation (sb-293)
+# ---------------------------------------------------------------------------
+
+
+def _latency_result(latencies: list[float | None]) -> BenchmarkResult:
+    """Build a minimal BenchmarkResult populated with the given latencies."""
+    questions = [
+        QuestionResult(
+            key=f"Q{i}",
+            text=f"q{i}",
+            options=["A", "B"],
+            human_distribution={"A": 0.5, "B": 0.5},
+            model_distribution={"A": 0.5, "B": 0.5},
+            jsd=0.0,
+            kendall_tau=1.0,
+            parity=1.0,
+            n_samples=1,
+            latency_seconds=lat,
+        )
+        for i, lat in enumerate(latencies)
+    ]
+    return BenchmarkResult(
+        provider_name="test/mock",
+        dataset_name="test",
+        questions=questions,
+        config={},
+        elapsed_seconds=sum(x for x in latencies if x is not None),
+    )
+
+
+def test_latency_aggregate_present_when_all_questions_measured():
+    """All-measured runs surface p50/p95/mean and source='measured'."""
+    result = _latency_result([0.5, 1.0, 1.5, 2.0, 2.5])
+    data = to_json(result)
+    block = data["aggregate"].get("latency_seconds")
+    assert block is not None
+    assert block["source"] == "measured"
+    assert block["n"] == 5
+    assert block["mean"] == pytest.approx(1.5)
+    # Nearest-rank: p50 of 5 ordered samples → index 2 (1.5)
+    assert block["p50"] == pytest.approx(1.5)
+    # p95 of 5 → index 4 (2.5)
+    assert block["p95"] == pytest.approx(2.5)
+
+
+def test_latency_aggregate_partial_when_only_some_measured():
+    """Mixed measurement → source='partial', percentiles over the populated subset."""
+    result = _latency_result([0.5, None, 1.5, None, 2.5])
+    data = to_json(result)
+    block = data["aggregate"]["latency_seconds"]
+    assert block["source"] == "partial"
+    assert block["n"] == 3
+    assert block["p50"] == pytest.approx(1.5)
+
+
+def test_latency_aggregate_absent_when_no_measurements():
+    """Pre-instrumentation runs (no latencies) emit no latency block at all."""
+    result = _latency_result([None, None])
+    data = to_json(result)
+    assert "latency_seconds" not in data["aggregate"]
+
+
+def test_latency_appears_in_per_question_records():
+    """Per-question records carry the latency field when present."""
+    result = _latency_result([0.42, None])
+    data = to_json(result)
+    pq = data["per_question"]
+    assert pq[0]["latency_seconds"] == pytest.approx(0.42)
+    assert "latency_seconds" not in pq[1]

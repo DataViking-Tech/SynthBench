@@ -52,6 +52,27 @@ function formatCost(value: number | null | undefined): string {
   return `$${value.toFixed(2)}`;
 }
 
+// Per-response cost: typical model rates are <$0.01 per call, so widen
+// formatting to fractional cents instead of collapsing to "<$0.01" (sb-293).
+function formatCostPerResponse(value: number | null | undefined): string {
+  if (value == null || Number.isNaN(value)) return "—";
+  if (value === 0) return "$0.0000";
+  if (value > 0 && value < 0.0001) return "<$0.0001";
+  return `$${value.toFixed(4)}`;
+}
+
+function formatTokensPerResponse(value: number | null | undefined): string {
+  if (value == null || Number.isNaN(value)) return "—";
+  if (value >= 1000) return `${Math.round(value).toLocaleString()}`;
+  return value.toFixed(1);
+}
+
+function formatLatency(value: number | null | undefined): string {
+  if (value == null || Number.isNaN(value)) return "—";
+  if (value < 1) return `${(value * 1000).toFixed(0)}ms`;
+  return `${value.toFixed(1)}s`;
+}
+
 interface TopicRow {
   topic: string;
   sps: number;
@@ -133,6 +154,10 @@ function hiddenInDefaultView(entry: LeaderboardEntry): boolean {
           <th class="px-4 py-3 text-right font-semibold" scope="col" aria-sort="none"><button type="button" class="ml-auto flex items-center gap-1 font-semibold hover:text-primary" data-sort="p_refuse">p_refuse <span class="sort-indicator" aria-hidden="true"></span></button></th>
           <th class="px-4 py-3 text-right font-semibold" scope="col" aria-sort="none"><button type="button" class="ml-auto flex items-center gap-1 font-semibold hover:text-primary" data-sort="n">N <span class="sort-indicator" aria-hidden="true"></span></button></th>
           <th class="px-4 py-3 text-right font-semibold" scope="col" aria-sort="none" title="Cost in US dollars to run 100 questions at this config's token usage and the pricing snapshot at publish time. Rows without token usage show —."><button type="button" class="ml-auto flex items-center gap-1 font-semibold hover:text-primary" data-sort="cost_per_100q">$/100Q <span class="sort-indicator" aria-hidden="true"></span></button></th>
+          <th class="px-4 py-3 text-right font-semibold" scope="col" aria-sort="none" title="Average US dollars per API call to the underlying model — cost_usd / call_count. Ensemble rows show — (no single underlying response)."><button type="button" class="ml-auto flex items-center gap-1 font-semibold hover:text-primary" data-sort="cost_per_response">$/resp <span class="sort-indicator" aria-hidden="true"></span></button></th>
+          <th class="px-4 py-3 text-right font-semibold" scope="col" aria-sort="none" title="Average tokens (input + output) per API call. Captures verbosity / prompt size; lower is generally cheaper and faster."><button type="button" class="ml-auto flex items-center gap-1 font-semibold hover:text-primary" data-sort="tokens_per_response">tok/resp <span class="sort-indicator" aria-hidden="true"></span></button></th>
+          <th class="px-4 py-3 text-right font-semibold" scope="col" aria-sort="none" title="Median per-question wall-clock latency (50th percentile). Rows from pre-instrumentation runs show —."><button type="button" class="ml-auto flex items-center gap-1 font-semibold hover:text-primary" data-sort="latency_p50_seconds">p50 lat <span class="sort-indicator" aria-hidden="true"></span></button></th>
+          <th class="px-4 py-3 text-right font-semibold" scope="col" aria-sort="none" title="95th-percentile per-question wall-clock latency. Captures tail latency — what slow questions feel like."><button type="button" class="ml-auto flex items-center gap-1 font-semibold hover:text-primary" data-sort="latency_p95_seconds">p95 lat <span class="sort-indicator" aria-hidden="true"></span></button></th>
           <th class="px-4 py-3 text-right font-semibold" scope="col" aria-sort="none"><button type="button" class="ml-auto flex items-center gap-1 font-semibold hover:text-primary" data-sort="ci">95% CI <span class="sort-indicator" aria-hidden="true"></span></button></th>
         </tr>
       </thead>
@@ -225,12 +250,16 @@ function hiddenInDefaultView(entry: LeaderboardEntry): boolean {
             <td class="px-4 py-3 text-right font-mono">{entry.p_refuse.toFixed(3)}</td>
             <td class="px-4 py-3 text-right font-mono">{entry.n}</td>
             <td class="px-4 py-3 text-right font-mono cost-cell" data-cost-per-100q={entry.cost_per_100q ?? ""}>{formatCost(entry.cost_per_100q)}</td>
+            <td class="px-4 py-3 text-right font-mono cost-per-response-cell" data-cost-per-response={entry.cost_per_response ?? ""}>{formatCostPerResponse(entry.cost_per_response)}</td>
+            <td class="px-4 py-3 text-right font-mono tokens-per-response-cell" data-tokens-per-response={entry.tokens_per_response ?? ""}>{formatTokensPerResponse(entry.tokens_per_response)}</td>
+            <td class="px-4 py-3 text-right font-mono latency-p50-cell" data-latency-p50={entry.latency_p50_seconds ?? ""}>{formatLatency(entry.latency_p50_seconds)}</td>
+            <td class="px-4 py-3 text-right font-mono latency-p95-cell" data-latency-p95={entry.latency_p95_seconds ?? ""}>{formatLatency(entry.latency_p95_seconds)}</td>
             <td class="px-4 py-3 text-right font-mono text-xs">
               [{entry.ci_lower.toFixed(3)}, {entry.ci_upper.toFixed(3)}]
             </td>
           </tr>
           <tr id={detailId} class="detail-row hidden border-b border-muted/10" data-dataset={entry.dataset} data-variant={hiddenInDefaultView(entry) ? "variant" : "best"}>
-            <td colspan="13" class="px-4 py-4 bg-surface/50 dark:bg-surface-dark/50">
+            <td colspan="17" class="px-4 py-4 bg-surface/50 dark:bg-surface-dark/50">
               <div class="space-y-4 text-sm">
                 {(() => {
                   const rows = topicRows(entry);
@@ -345,6 +374,10 @@ function hiddenInDefaultView(entry: LeaderboardEntry): boolean {
           <div><span class="text-muted">p_rank</span> <span class="font-mono">{entry.p_rank.toFixed(3)}</span></div>
           <div><span class="text-muted">p_refuse</span> <span class="font-mono">{entry.p_refuse.toFixed(3)}</span></div>
           <div title="Cost in US dollars to run 100 questions"><span class="text-muted">$/100Q</span> <span class="font-mono cost-cell" data-cost-per-100q={entry.cost_per_100q ?? ""}>{formatCost(entry.cost_per_100q)}</span></div>
+          <div title="USD per API call to the underlying model"><span class="text-muted">$/resp</span> <span class="font-mono">{formatCostPerResponse(entry.cost_per_response)}</span></div>
+          <div title="Average tokens (input + output) per API call"><span class="text-muted">tok/resp</span> <span class="font-mono">{formatTokensPerResponse(entry.tokens_per_response)}</span></div>
+          <div title="Median per-question wall-clock latency"><span class="text-muted">p50 lat</span> <span class="font-mono">{formatLatency(entry.latency_p50_seconds)}</span></div>
+          <div title="95th-percentile per-question wall-clock latency"><span class="text-muted">p95 lat</span> <span class="font-mono">{formatLatency(entry.latency_p95_seconds)}</span></div>
         </div>
         </>
       );

@@ -11,6 +11,33 @@ from synthbench.runner import BenchmarkResult, QuestionResult
 from synthbench.validation import CURRENT_SCHEMA_VERSION
 
 
+def _aggregate_latency(per_q: list[QuestionResult]) -> dict | None:
+    """Compute mean / p50 / p95 of per-question latencies.
+
+    Returns ``None`` when no question carries a measurement. Percentiles use
+    nearest-rank (no interpolation) so a single-question result still yields
+    p50 == p95 == its latency. This block is the data source for the
+    leaderboard's latency columns (sb-293).
+    """
+    samples = [q.latency_seconds for q in per_q if q.latency_seconds is not None]
+    if not samples:
+        return None
+    ordered = sorted(samples)
+    n = len(ordered)
+
+    def _pct(p: float) -> float:
+        idx = max(0, min(n - 1, int(round(p / 100.0 * (n - 1)))))
+        return ordered[idx]
+
+    return {
+        "mean": round(sum(ordered) / n, 4),
+        "p50": round(_pct(50), 4),
+        "p95": round(_pct(95), 4),
+        "n": n,
+        "source": "measured" if n == len(per_q) else "partial",
+    }
+
+
 def _sum_per_question_usage(per_q: list[QuestionResult]) -> dict | None:
     """Sum token_usage across per-question results.
 
@@ -104,6 +131,7 @@ def to_json(result: BenchmarkResult) -> dict:
     )
 
     aggregate_token_usage = _sum_per_question_usage(result.questions)
+    latency_block = _aggregate_latency(result.questions)
 
     return {
         "benchmark": "synthbench",
@@ -142,6 +170,7 @@ def to_json(result: BenchmarkResult) -> dict:
                 else {}
             ),
             **({"token_usage": aggregate_token_usage} if aggregate_token_usage else {}),
+            **({"latency_seconds": latency_block} if latency_block else {}),
         },
         "demographic_breakdown": {
             attr: [
@@ -178,6 +207,11 @@ def to_json(result: BenchmarkResult) -> dict:
                 "human_refusal_rate": round(q.human_refusal_rate, 6),
                 "temporal_year": q.temporal_year,
                 **({"token_usage": q.token_usage} if q.token_usage else {}),
+                **(
+                    {"latency_seconds": q.latency_seconds}
+                    if q.latency_seconds is not None
+                    else {}
+                ),
             }
             for q in result.questions
         ],

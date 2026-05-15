@@ -13,6 +13,7 @@ from synthbench.publish import (
     _build_pricing_snapshot,
     _compute_cost_fields,
     _compute_ensemble_cost,
+    _compute_latency_fields,
     publish_leaderboard_data,
 )
 
@@ -173,6 +174,8 @@ def test_compute_cost_fields(name, aggregate, config, entry, expected):
         "cost_usd",
         "cost_per_100q",
         "cost_per_sps_point",
+        "cost_per_response",
+        "tokens_per_response",
         "is_cost_estimated",
     }
     for k, want in expected.items():
@@ -439,3 +442,123 @@ def test_golden_three_entry_leaderboard(tmp_path: Path):
     # Sanity: not ranking these entries away
     assert {e["dataset"] for e in data["entries"]} == {"subpop"}
     assert by_provider  # at least one entry indexed by display name
+
+
+# ---------------------------------------------------------------------------
+# Per-response economics + latency (sb-293)
+# ---------------------------------------------------------------------------
+
+
+def test_cost_per_response_and_tokens_per_response_from_call_count():
+    """call_count drives both per-response cost and tokens/response."""
+    aggregate = {
+        "n_questions": 100,
+        "token_usage": {
+            "input_tokens": 600_000,
+            "output_tokens": 300_000,
+            "call_count": 300,  # 3 samples/question × 100 q
+            "source": "measured",
+        },
+    }
+    result = _compute_cost_fields(
+        aggregate,
+        {"provider": "raw-anthropic/claude-haiku-4-5"},
+        {"n": 100, "sps": 0.8},
+    )
+    expected_cost = (
+        600_000 * HAIKU.input_cost_per_million + 300_000 * HAIKU.output_cost_per_million
+    ) / 1_000_000
+    assert result["cost_per_response"] == pytest.approx(expected_cost / 300, rel=1e-5)
+    assert result["tokens_per_response"] == pytest.approx(900_000 / 300, rel=1e-5)
+
+
+def test_cost_per_response_null_when_call_count_missing():
+    """No call_count → per-response cost/tokens stay null (denominator unknown)."""
+    aggregate = {
+        "n_questions": 100,
+        "token_usage": {
+            "input_tokens": 600_000,
+            "output_tokens": 300_000,
+            # call_count omitted
+            "source": "measured",
+        },
+    }
+    result = _compute_cost_fields(
+        aggregate,
+        {"provider": "raw-anthropic/claude-haiku-4-5"},
+        {"n": 100, "sps": 0.8},
+    )
+    assert result["cost_per_response"] is None
+    assert result["tokens_per_response"] is None
+    # The aggregate-level cost_usd / cost_per_100q still populate.
+    assert result["cost_usd"] is not None
+
+
+def test_compute_latency_fields_from_aggregate():
+    """latency_seconds block in aggregate flows into p50/p95 entry fields."""
+    aggregate = {
+        "latency_seconds": {
+            "mean": 1.2,
+            "p50": 1.1,
+            "p95": 2.4,
+            "n": 100,
+            "source": "measured",
+        }
+    }
+    result = _compute_latency_fields(aggregate)
+    assert result == {
+        "latency_p50_seconds": pytest.approx(1.1),
+        "latency_p95_seconds": pytest.approx(2.4),
+    }
+
+
+def test_compute_latency_fields_absent_block_returns_nulls():
+    """Pre-instrumentation rows (no latency_seconds block) get nulls, not zeros."""
+    assert _compute_latency_fields({}) == {
+        "latency_p50_seconds": None,
+        "latency_p95_seconds": None,
+    }
+    assert _compute_latency_fields({"latency_seconds": None}) == {
+        "latency_p50_seconds": None,
+        "latency_p95_seconds": None,
+    }
+
+
+def test_publish_surfaces_latency_and_per_response_columns(tmp_path: Path):
+    """End-to-end: a run with token_usage + latency block → entry has all sb-293 fields."""
+    instrumented = _make_run(
+        provider="synthpanel/claude-haiku-4-5",
+        dataset="subpop",
+        sps=0.83,
+        n_questions=200,
+        timestamp="2026-05-14T10:00:00Z",
+        token_usage={
+            "input_tokens": 1_000_000,
+            "output_tokens": 200_000,
+            "call_count": 200,
+            "source": "measured",
+        },
+    )
+    # Splice in the latency aggregate that report.py would emit.
+    instrumented["aggregate"]["latency_seconds"] = {
+        "mean": 0.9,
+        "p50": 0.8,
+        "p95": 1.7,
+        "n": 200,
+        "source": "measured",
+    }
+
+    results_dir = tmp_path / "results"
+    results_dir.mkdir()
+    (results_dir / "haiku.json").write_text(json.dumps(instrumented))
+
+    out_path = tmp_path / "leaderboard.json"
+    publish_leaderboard_data(results_dir, out_path)
+    data = json.loads(out_path.read_text())
+
+    entry = next(e for e in data["entries"] if "haiku" in e["model"].lower())
+    assert entry["cost_per_response"] is not None
+    assert entry["cost_per_response"] > 0
+    assert entry["tokens_per_response"] == pytest.approx(1_200_000 / 200, rel=1e-5)
+    assert entry["latency_p50_seconds"] == pytest.approx(0.8)
+    assert entry["latency_p95_seconds"] == pytest.approx(1.7)

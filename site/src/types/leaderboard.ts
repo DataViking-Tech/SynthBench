@@ -81,6 +81,27 @@ export interface LeaderboardEntry {
   input_tokens?: number | null;
   /** Total output tokens across all LLM calls aggregated into this row. */
   output_tokens?: number | null;
+  /**
+   * USD per API call to the underlying model. ``cost_usd / token_usage.call_count``.
+   * ``null`` for ensembles (no single underlying response), rows missing
+   * token_usage, or unknown-provider rows. See `_compute_cost_fields` in
+   * publish.py (sb-293).
+   */
+  cost_per_response?: number | null;
+  /**
+   * Average tokens (input + output) per API call. ``null`` when token_usage
+   * is unavailable or for ensemble rows. Used as a model-property proxy in
+   * the Pareto leaderboard view.
+   */
+  tokens_per_response?: number | null;
+  /**
+   * Median per-question latency in seconds, computed by report.py over the
+   * runner's per-question timings. ``null`` for pre-instrumentation rows
+   * (sb-293).
+   */
+  latency_p50_seconds?: number | null;
+  /** 95th-percentile per-question latency in seconds; see `latency_p50_seconds`. */
+  latency_p95_seconds?: number | null;
 
   topic_scores?: Record<TopicCategory, number>;
   topic_metrics?: Record<TopicCategory, TopicMetricBreakdown>;
