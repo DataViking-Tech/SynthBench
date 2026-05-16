@@ -1,21 +1,92 @@
-"""Tests for `synthbench submit-adapter` scaffold (refs #256).
+"""Tests for `synthbench submit-adapter` (refs #256, sb-bas).
 
-These exercise the wiring only — the placeholder artifacts written by the
-scaffold are not yet shape-compatible with the eventual leaderboard
-schema; that's tracked in follow-up issues against #256.
+The eval pipeline drives a vendor adapter through the core OpinionsQA
+suite. Tests inject a small in-memory dataset so they don't need the
+CodaLab download.
 """
 
 from __future__ import annotations
 
 import json
 
+import pytest
 from click.testing import CliRunner
 
-from synthbench import leaderboard_pr
+from synthbench import leaderboard_pr, submit_adapter as submit_adapter_mod
 from synthbench.cli import main
+from synthbench.datasets.base import Dataset, Question
 
 
 RANDOM_ADAPTER_MODULE = "synthbench.adapter"  # exports RandomAdapter
+
+
+class _FixtureOpinionsQA(Dataset):
+    """Tiny in-memory stand-in for OpinionsQA, sized for fast CLI tests.
+
+    Three questions whose keys appear in suites/core.json so the runner's
+    suite filter has something to keep, plus one off-suite question to
+    verify the filter actually fires.
+    """
+
+    redistribution_policy = "full"
+    license_url = "https://example.test/license"
+    citation = "Fixture for submit-adapter tests."
+
+    @property
+    def name(self) -> str:
+        return "opinionsqa"
+
+    def load(self, n: int | None = None):
+        qs = [
+            Question(
+                key="ABORTION_W32",
+                text="What is your view on abortion access?",
+                options=["Legal in most cases", "Illegal in most cases"],
+                human_distribution={
+                    "Legal in most cases": 0.6,
+                    "Illegal in most cases": 0.4,
+                },
+                survey="ATP W32",
+            ),
+            Question(
+                key="CLASS_W32",
+                text="Which social class do you identify with?",
+                options=["Lower", "Middle", "Upper"],
+                human_distribution={"Lower": 0.3, "Middle": 0.5, "Upper": 0.2},
+                survey="ATP W32",
+            ),
+            Question(
+                key="CARS1_W27",
+                text="How often do you drive?",
+                options=["Daily", "Weekly", "Rarely", "Never"],
+                human_distribution={
+                    "Daily": 0.5,
+                    "Weekly": 0.25,
+                    "Rarely": 0.15,
+                    "Never": 0.10,
+                },
+                survey="ATP W27",
+            ),
+            Question(
+                key="OFF_SUITE_KEY",
+                text="Should not appear post-filter.",
+                options=["Yes", "No"],
+                human_distribution={"Yes": 0.5, "No": 0.5},
+                survey="ATP W99",
+            ),
+        ]
+        return qs if n is None else qs[:n]
+
+    def info(self) -> dict:
+        return {"name": self.name, "n_questions": 4}
+
+
+@pytest.fixture(autouse=True)
+def _stub_dataset(monkeypatch):
+    """Replace the OpinionsQA loader so submit-adapter tests don't hit CodaLab."""
+    monkeypatch.setattr(
+        submit_adapter_mod, "_build_dataset", lambda: _FixtureOpinionsQA()
+    )
 
 
 def test_submit_adapter_help_exits_zero():
@@ -81,8 +152,8 @@ def test_submit_adapter_missing_env_var_exits_3(tmp_path, monkeypatch):
 
 
 def test_submit_adapter_happy_path_writes_artifacts(tmp_path, monkeypatch):
-    """End-to-end scaffold: RandomAdapter + dummy env var → exit 0 with
-    submission.md + run.json present in --output-dir."""
+    """End-to-end: RandomAdapter + fixture suite → exit 0 with submission.md +
+    run.json present, carrying real scores and raw_responses."""
     monkeypatch.setenv("ACME_API_KEY", "ignored-presence-only")
     out_dir = tmp_path / "submission"
     res = CliRunner().invoke(
@@ -99,6 +170,8 @@ def test_submit_adapter_happy_path_writes_artifacts(tmp_path, monkeypatch):
             "ACME_API_KEY",
             "--output-dir",
             str(out_dir),
+            "--samples",
+            "3",
         ],
     )
     assert res.exit_code == 0, res.output
@@ -108,29 +181,41 @@ def test_submit_adapter_happy_path_writes_artifacts(tmp_path, monkeypatch):
     assert md.exists(), f"submission.md not written; got: {list(out_dir.iterdir())}"
     assert rj.exists(), f"run.json not written; got: {list(out_dir.iterdir())}"
 
-    # run.json must round-trip and carry the vendor identity + scaffold
-    # status, since downstream tooling will key off these.
+    # run.json must round-trip and carry vendor identity + completion status.
     payload = json.loads(rj.read_text())
-    assert payload["status"] == "scaffold"
+    assert payload["status"] == "completed"
     assert payload["adapter"]["vendor"] == "acme"
     assert payload["adapter"]["vendor_version"] == "0.1.0"
     assert payload["adapter"]["name"] == "synthbench/random-adapter"
     assert payload["suite"] == "core"
     assert payload["api_env_var"] == "ACME_API_KEY"
 
-    # run_hash must be present and well-formed even in scaffold mode
-    # (sb-1ix). Empty persona_seeds + raw_responses still produce a real
-    # sha256 over the adapter identity + suite manifest.
+    # run_hash is computed over a real raw_responses list.
     assert isinstance(payload["run_hash"], str)
     assert len(payload["run_hash"]) == 64
     int(payload["run_hash"], 16)  # valid hex
-    assert payload["raw_responses"] == []
 
-    # submission.md should mention vendor + scaffold disclaimer so the PR
-    # reviewer doesn't mistake it for a real leaderboard entry.
+    # The OFF_SUITE_KEY question must be filtered out; the three in-suite
+    # questions remain.
+    assert payload["aggregate"]["n_questions"] == 3
+    keys = {q["key"] for q in payload["per_question"]}
+    assert keys == {"ABORTION_W32", "CLASS_W32", "CARS1_W27"}
+    assert "OFF_SUITE_KEY" not in keys
+
+    # Scores must include the SPS bundle.
+    for required in ("sps", "p_dist", "p_rank", "p_refuse"):
+        assert required in payload["scores"]
+
+    # raw_responses must carry the real transcripts the adapter emitted —
+    # this is what leaderboard CI rebuilds run_hash against.
+    assert isinstance(payload["raw_responses"], list)
+    assert len(payload["raw_responses"]) > 0
+    sample = payload["raw_responses"][0]
+    assert set(sample) >= {"question_key", "persona_id", "raw_text"}
+
     md_text = md.read_text()
     assert "acme" in md_text
-    assert "Scaffold" in md_text
+    assert "sps" in md_text
 
 
 def test_submit_adapter_loads_from_filesystem_path(tmp_path, monkeypatch):
@@ -138,6 +223,8 @@ def test_submit_adapter_loads_from_filesystem_path(tmp_path, monkeypatch):
     dotted import. Verify that path works too."""
     monkeypatch.setenv("ACME_API_KEY", "x")
     adapter_file = tmp_path / "my_adapter.py"
+    # Return "A" so the parser picks the first option for every question;
+    # we just need the file-path import path to work end-to-end.
     adapter_file.write_text(
         "from synthbench.adapter import Adapter\n"
         "class MyAdapter(Adapter):\n"
@@ -146,7 +233,7 @@ def test_submit_adapter_loads_from_filesystem_path(tmp_path, monkeypatch):
         "    @property\n"
         "    def version(self): return '0.0.1'\n"
         "    async def respond(self, *, question, persona, context=None):\n"
-        "        return 'yes'\n"
+        "        return 'A'\n"
     )
     out_dir = tmp_path / "out"
     res = CliRunner().invoke(
@@ -163,6 +250,8 @@ def test_submit_adapter_loads_from_filesystem_path(tmp_path, monkeypatch):
             "ACME_API_KEY",
             "--output-dir",
             str(out_dir),
+            "--samples",
+            "2",
         ],
     )
     assert res.exit_code == 0, res.output
@@ -171,10 +260,25 @@ def test_submit_adapter_loads_from_filesystem_path(tmp_path, monkeypatch):
 
 
 def test_submit_adapter_run_hash_is_deterministic(tmp_path, monkeypatch):
-    """Two scaffold-mode runs with identical inputs MUST emit the same
-    ``run_hash`` — this is the leaderboard's tamper-detection contract
-    surfaced at the CLI layer."""
+    """Two runs of a deterministic adapter against the same fixture suite
+    MUST emit the same ``run_hash`` — the leaderboard's tamper-detection
+    contract surfaced at the CLI layer.
+
+    Uses a deterministic adapter that ignores its input (constant "A")
+    rather than RandomAdapter, whose RNG is seeded per-instance but whose
+    call order can interleave under asyncio.gather."""
     monkeypatch.setenv("ACME_API_KEY", "x")
+    adapter_file = tmp_path / "deterministic.py"
+    adapter_file.write_text(
+        "from synthbench.adapter import Adapter\n"
+        "class MyAdapter(Adapter):\n"
+        "    @property\n"
+        "    def name(self): return 'acme/det'\n"
+        "    @property\n"
+        "    def version(self): return '0.1.0'\n"
+        "    async def respond(self, *, question, persona, context=None):\n"
+        "        return 'A'\n"
+    )
 
     def run_into(subdir: str) -> str:
         out = tmp_path / subdir
@@ -183,7 +287,7 @@ def test_submit_adapter_run_hash_is_deterministic(tmp_path, monkeypatch):
             [
                 "submit-adapter",
                 "--adapter",
-                RANDOM_ADAPTER_MODULE,
+                str(adapter_file),
                 "--vendor",
                 "acme",
                 "--vendor-version",
@@ -192,6 +296,8 @@ def test_submit_adapter_run_hash_is_deterministic(tmp_path, monkeypatch):
                 "ACME_API_KEY",
                 "--output-dir",
                 str(out),
+                "--samples",
+                "2",
             ],
         )
         assert res.exit_code == 0, res.output
