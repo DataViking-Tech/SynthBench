@@ -1,0 +1,164 @@
+name: dataset-gating
+
+# Gates PRs that touch src/synthbench/datasets/** behind a maintainer
+# `dataset-approved` label. See DATASETS.md for the policy this enforces.
+
+on:
+  pull_request_target:
+    types: [opened, reopened, synchronize, labeled, unlabeled]
+
+permissions:
+  contents: read
+  pull-requests: write
+  issues: write
+
+jobs:
+  label-and-comment:
+    name: Label datasets-change & post checklist
+    runs-on: ubuntu-latest
+    if: github.event.action != 'labeled' && github.event.action != 'unlabeled'
+    steps:
+      - name: Detect changes under src/synthbench/datasets/**
+        id: changed
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { owner, repo } = context.repo;
+            const pull_number = context.payload.pull_request.number;
+
+            const files = await github.paginate(
+              github.rest.pulls.listFiles,
+              { owner, repo, pull_number, per_page: 100 }
+            );
+
+            const touched = files
+              .map(f => f.filename)
+              .filter(p => p.startsWith('src/synthbench/datasets/'));
+
+            core.setOutput('touched_count', String(touched.length));
+            core.setOutput('touched_list', touched.join('\n'));
+
+      - name: Apply datasets-change label
+        if: steps.changed.outputs.touched_count != '0'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { owner, repo } = context.repo;
+            const issue_number = context.payload.pull_request.number;
+            await github.rest.issues.addLabels({
+              owner, repo, issue_number,
+              labels: ['datasets-change'],
+            });
+
+      - name: Post sticky proposal-first comment
+        if: steps.changed.outputs.touched_count != '0'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { owner, repo } = context.repo;
+            const issue_number = context.payload.pull_request.number;
+            const marker = '<!-- dataset-gating:sticky -->';
+            const body = [
+              marker,
+              '### Dataset change detected',
+              '',
+              'This PR touches `src/synthbench/datasets/**`. Per',
+              '[`DATASETS.md`](../blob/HEAD/DATASETS.md), dataset additions',
+              'and substantive adapter changes are **gated** behind maintainer',
+              'review.',
+              '',
+              'Before this PR can merge:',
+              '',
+              '- [ ] A `dataset-proposal` issue exists and has been approved',
+              '      (linked above, ideally).',
+              '- [ ] Inclusion criteria are documented in the PR description',
+              '      (representativeness, coverage, license tier, vertical fit,',
+              '      maintenance).',
+              '- [ ] Tests under `tests/` cover the new adapter.',
+              '- [ ] A maintainer applies the `dataset-approved` label.',
+              '',
+              'The `gate` job below will fail until `dataset-approved` is set',
+              'by a maintainer. PR authors cannot self-apply this label —',
+              'the label event is checked against the actor.',
+              '',
+              'Touched files:',
+              '```',
+              `${{ steps.changed.outputs.touched_list }}`,
+              '```',
+            ].join('\n');
+
+            const existing = await github.paginate(
+              github.rest.issues.listComments,
+              { owner, repo, issue_number, per_page: 100 }
+            );
+            const mine = existing.find(c => (c.body || '').includes(marker));
+            if (mine) {
+              await github.rest.issues.updateComment({
+                owner, repo, comment_id: mine.id, body,
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner, repo, issue_number, body,
+              });
+            }
+
+  gate:
+    name: Maintainer approval required
+    runs-on: ubuntu-latest
+    steps:
+      - name: Decide whether gate applies and is satisfied
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { owner, repo } = context.repo;
+            const pull_number = context.payload.pull_request.number;
+
+            // 1. Does this PR touch datasets/**?
+            const files = await github.paginate(
+              github.rest.pulls.listFiles,
+              { owner, repo, pull_number, per_page: 100 }
+            );
+            const touchesDatasets = files.some(f =>
+              f.filename.startsWith('src/synthbench/datasets/')
+            );
+            if (!touchesDatasets) {
+              core.info('No dataset files touched — gate not applicable.');
+              return;
+            }
+
+            // 2. Is the `dataset-approved` label currently applied?
+            const { data: pr } = await github.rest.pulls.get({
+              owner, repo, pull_number,
+            });
+            const approved = (pr.labels || []).some(
+              l => (l.name || '').toLowerCase() === 'dataset-approved'
+            );
+            if (!approved) {
+              core.setFailed(
+                'Dataset change pending maintainer approval. ' +
+                'A maintainer must apply the `dataset-approved` label after ' +
+                'reviewing against DATASETS.md inclusion criteria.'
+              );
+              return;
+            }
+
+            // 3. If the label is on, confirm it was applied by someone other
+            //    than the PR author. We can't fully prevent self-approval at
+            //    the workflow layer (branch protection / CODEOWNERS is the
+            //    real enforcement), but we can fail loudly when the label
+            //    event came from the PR author.
+            if (context.payload.action === 'labeled' &&
+                context.payload.label &&
+                context.payload.label.name === 'dataset-approved') {
+              const labeler = context.payload.sender && context.payload.sender.login;
+              const author = pr.user && pr.user.login;
+              if (labeler && author && labeler === author) {
+                core.setFailed(
+                  `PR author (@${author}) cannot self-apply ` +
+                  '`dataset-approved`. A different maintainer must label.'
+                );
+                return;
+              }
+            }
+
+            core.info('Dataset change approved by maintainer — gate passes.');
