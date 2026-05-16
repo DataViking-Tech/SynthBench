@@ -8,6 +8,9 @@ contributors and focuses on the most common contribution paths.
 - **Bug fixes** in the benchmark harness (`src/synthbench/`).
 - **New providers** or provider improvements (`src/synthbench/providers/`).
 - **Dataset and suite updates** (`src/synthbench/datasets/`, `src/synthbench/suites/`).
+  New datasets are **gated** — see [`DATASETS.md`](DATASETS.md) for
+  inclusion criteria and the proposal-first review workflow before opening
+  a PR that touches `src/synthbench/datasets/`.
 - **Validation and metric improvements** (`src/synthbench/validation.py`, `src/synthbench/metrics/`).
 - **Documentation and examples** (`README.md`, `METHODOLOGY.md`, `SUBMISSIONS.md`, notebooks).
 
@@ -71,5 +74,7 @@ Keep PRs reviewable: smaller and focused beats large and mixed.
 - `README.md` — project entry point and quick start.
 - `CONTRIBUTING.md` — contributor workflow and expectations.
 - `SUBMISSIONS.md` — leaderboard submission contract and validator rules.
+- `DATASETS.md` — dataset inclusion criteria, maintainer review workflow,
+  deprecation policy, and approved-but-not-yet-built roadmap.
 - `METHODOLOGY.md` / `FINDINGS.md` — benchmark framing and experimental results.
 - `DATABASE-MIGRATIONS.md` / `supabase/README.md` — maintainer-oriented DB migration notes.
