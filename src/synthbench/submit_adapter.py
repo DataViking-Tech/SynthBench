@@ -1,29 +1,30 @@
 """`synthbench submit-adapter` — vendor self-submission entry point (refs #256).
 
-This is the **scaffold** implementation. The CLI surface, validation, and
-artifact layout are pinned here so vendors can start integrating; the
-heavy lifting (running the suite, computing the run hash, opening the
-leaderboard PR) is stubbed and tracked in follow-up issues against #256.
+Drives a vendor :class:`~synthbench.adapter.Adapter` through the core
+OpinionsQA suite and emits a submission directory (``submission.md`` +
+``run.json``) suitable for opening a PR against the leaderboard repo.
 
-Naming note: the existing `synthbench submit` posts a pre-computed
-``result.json`` to the hosted API. The new adapter-driven flow is a
-different verb shape (vendor brings code, harness drives evaluation), so
-it lives under ``submit-adapter`` for this scaffold. Final naming is a
-Wesley call — see the PR body for the open question.
+The CLI is the contract: exit 2 = bad inputs, exit 3 = missing API env
+var, exit 0 = success. Vendor CI keys off these codes.
 """
 
 from __future__ import annotations
 
+import asyncio
 import importlib
 import importlib.util
 import inspect
 import json
 import os
+import re
 import sys
+from datetime import datetime, timezone
 from pathlib import Path
+from typing import Any
 
 import click
 
+from synthbench import __version__
 from synthbench.adapter import Adapter
 from synthbench.leaderboard_pr import (
     EXIT_GH_MISSING,
@@ -31,19 +32,214 @@ from synthbench.leaderboard_pr import (
     GhUnavailable,
     open_leaderboard_pr,
 )
+from synthbench.providers.base import PersonaSpec, Provider, Response
 from synthbench.run_hash import compute_run_hash
+from synthbench.runner import BenchmarkRunner, BenchmarkResult
 from synthbench.suites import SUITE_DIR
+from synthbench.validation import CURRENT_SCHEMA_VERSION
 
-
-# Follow-up issue numbers — replace once filed against #256.
-TODO_EVAL_ISSUE = "TBD (eval pipeline)"
-TODO_PR_ISSUE = "TBD (leaderboard PR generation)"
 
 # Where vendors should open their submission PR. Pinned here so the stubbed
 # output and the eventual real output agree on the URL shape.
 LEADERBOARD_REPO = "DataViking-Tech/SynthBench"
 LEADERBOARD_REPO_URL = f"https://github.com/{LEADERBOARD_REPO}"
 LEADERBOARD_PR_URL = f"{LEADERBOARD_REPO_URL}/compare/main...vendor:submission"
+
+# Default samples per question. Matches BenchmarkRunner's default and the
+# CLI `synthbench run` default; vendors can tune via --samples.
+DEFAULT_SAMPLES_PER_QUESTION = 30
+
+_LETTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+
+_ADAPTER_SYSTEM_HINT = (
+    "You are answering a survey. Select the single option that best reflects your view."
+)
+
+_ADAPTER_PROMPT_TEMPLATE = """\
+{system_hint}
+
+Question: {question}
+
+Options:
+{options_block}
+
+Respond with ONLY the letter of your choice (e.g., "A"). Do not explain."""
+
+
+def _build_prompt(question: str, options: list[str]) -> str:
+    """Render the question + options block the adapter receives.
+
+    Mirrors the prompt shape used by the in-tree providers (raw_openai,
+    openrouter, ...) so the leaderboard CI's recompute path sees the same
+    surface across providers and adapters.
+    """
+    options_block = "\n".join(f"({_LETTERS[i]}) {opt}" for i, opt in enumerate(options))
+    return _ADAPTER_PROMPT_TEMPLATE.format(
+        system_hint=_ADAPTER_SYSTEM_HINT,
+        question=question,
+        options_block=options_block,
+    )
+
+
+def _parse_option(text: str, options: list[str]) -> str | None:
+    """Parse a raw adapter response into one of the declared options.
+
+    Tries, in order:
+      1. Leading letter (``A``, ``(A)``) → ``options[index]``.
+      2. Leading number (``1``, ``1.``) → ``options[index-1]`` (1-indexed).
+      3. Substring match against any option text (case-insensitive).
+
+    Returns ``None`` if no rule fires. Callers surface this as a refusal
+    so :class:`BenchmarkRunner` parse-failure metrics stay honest.
+
+    Why a local parser and not the per-provider ``_parse_letter``: those
+    are private duplicates that only handle the letter rule. The adapter
+    surface is more permissive — vendors are told to "return whatever
+    feels native" (a token, a phrase, a number) — so we widen the parser
+    rather than narrow the contract.
+    """
+    if not text:
+        return None
+    stripped = text.strip()
+
+    # 1. Letter form: A-Z (optionally parenthesized) at the start.
+    m = re.match(r"^\(?([A-Za-z])\)?[\s\.\):,-]?", stripped)
+    if m:
+        letter = m.group(1).upper()
+        idx = ord(letter) - ord("A")
+        if 0 <= idx < len(options):
+            return options[idx]
+
+    # 2. Number form: 1-99 at the start (1-indexed).
+    m = re.match(r"^\(?(\d{1,2})\)?[\s\.\):,-]?", stripped)
+    if m:
+        idx = int(m.group(1)) - 1
+        if 0 <= idx < len(options):
+            return options[idx]
+
+    # 3. Substring match against option text. Use the longest matching
+    # option to avoid "yes" winning over "yes, definitely" when both are
+    # offered as choices.
+    text_lower = stripped.lower()
+    best: tuple[int, str] | None = None
+    for opt in options:
+        opt_lower = opt.lower()
+        if not opt_lower:
+            continue
+        if opt_lower in text_lower:
+            if best is None or len(opt_lower) > best[0]:
+                best = (len(opt_lower), opt)
+    if best is not None:
+        return best[1]
+
+    return None
+
+
+def _persona_to_dict(persona: PersonaSpec | None) -> dict[str, Any]:
+    """Project a :class:`PersonaSpec` to the dict shape vendor adapters expect.
+
+    The Adapter contract documents persona as
+    ``{"age": "30-44", "party": "Democrat", ...}`` — i.e. a flat
+    demographics dict — so we pass exactly that. The PersonaSpec's
+    ``attribute``/``group``/``biography`` fields are runner-internal and
+    intentionally not forwarded to the vendor.
+    """
+    if persona is None:
+        return {}
+    return dict(persona.demographics)
+
+
+def _persona_id(persona: PersonaSpec | None) -> str:
+    """Stable per-persona id for ``raw_responses`` rows used by run_hash.
+
+    Unconditioned runs collapse to a single id so the hash is stable
+    across samples (every sample shares the same persona "slot"). When
+    demographic conditioning lands we'll switch this to
+    ``f"{attribute}:{group}"``.
+    """
+    if persona is None or not persona.demographics:
+        return "unconditioned"
+    parts = sorted(f"{k}={v}" for k, v in persona.demographics.items())
+    return ",".join(parts)
+
+
+class AdapterProvider(Provider):
+    """Bridge a vendor :class:`Adapter` into the :class:`Provider` surface.
+
+    Drives ``Adapter.respond`` once per sample, parses the raw string into
+    one of the declared options, and stashes the raw transcripts so the
+    submit pipeline can rebuild the content-addressed ``run_hash``.
+
+    Parse failures surface as ``Response(refusal=True)`` rather than a
+    silently-coerced option, so the runner's refusal-calibration and
+    parse-failure metrics reflect reality.
+    """
+
+    def __init__(self, adapter: Adapter) -> None:
+        self._adapter = adapter
+        # Raw transcripts collected during the run, indexed by
+        # ``question_text`` (the runner doesn't pass question keys through
+        # the Provider surface, so we map text -> key in a post-pass).
+        self._raw_log: list[dict[str, str]] = []
+
+    @property
+    def name(self) -> str:
+        return f"adapter/{self._adapter.name}@{self._adapter.version}"
+
+    @property
+    def prompt_template_source(self) -> str:
+        return _ADAPTER_PROMPT_TEMPLATE.replace("{system_hint}", _ADAPTER_SYSTEM_HINT)
+
+    async def respond(
+        self,
+        question: str,
+        options: list[str],
+        *,
+        persona: PersonaSpec | None = None,
+    ) -> Response:
+        prompt = _build_prompt(question, options)
+        persona_dict = _persona_to_dict(persona)
+        context = {"question_text": question, "options": list(options)}
+
+        try:
+            raw = await self._adapter.respond(
+                question=prompt, persona=persona_dict, context=context
+            )
+        except Exception as exc:  # noqa: BLE001 — surface vendor errors as refusals
+            # The vendor's adapter raised mid-run. Don't tank the whole
+            # suite — count this sample as a refusal so the runner's
+            # refusal-calibration metric reflects the failure.
+            self._raw_log.append(
+                {
+                    "question_text": question,
+                    "persona_id": _persona_id(persona),
+                    "raw_text": f"<adapter exception: {type(exc).__name__}: {exc}>",
+                }
+            )
+            return Response(
+                selected_option="",
+                raw_text="",
+                metadata={"adapter_error": f"{type(exc).__name__}: {exc}"},
+                refusal=True,
+            )
+
+        raw_text = raw if isinstance(raw, str) else str(raw)
+        self._raw_log.append(
+            {
+                "question_text": question,
+                "persona_id": _persona_id(persona),
+                "raw_text": raw_text,
+            }
+        )
+        selected = _parse_option(raw_text, options)
+        if selected is None:
+            return Response(
+                selected_option="",
+                raw_text=raw_text,
+                metadata={"parse_failure": True},
+                refusal=True,
+            )
+        return Response(selected_option=selected, raw_text=raw_text)
 
 
 def _load_adapter_module(adapter_path: str) -> object:
@@ -131,8 +327,119 @@ def _load_suite_manifest(suite: str) -> dict:
     return json.loads(path.read_text())
 
 
-def _write_placeholder_artifacts(
-    output_dir: Path,
+def _build_dataset():
+    """Construct the OpinionsQA dataset used by the adapter eval.
+
+    Factored into its own helper so tests can monkeypatch a small in-memory
+    fixture in place of the real CodaLab-backed loader (which would
+    otherwise require a downloaded cache).
+    """
+    from synthbench.datasets.opinionsqa import OpinionsQADataset
+
+    return OpinionsQADataset()
+
+
+async def _run_eval(
+    *,
+    adapter: Adapter,
+    suite_manifest: dict,
+    samples_per_question: int,
+    concurrency: int,
+) -> tuple[BenchmarkResult, AdapterProvider]:
+    """Drive ``adapter`` through the suite via :class:`BenchmarkRunner`.
+
+    Returns the populated :class:`BenchmarkResult` plus the
+    :class:`AdapterProvider` so the caller can recover the raw transcripts
+    for run-hash computation.
+    """
+    provider = AdapterProvider(adapter)
+    dataset = _build_dataset()
+    runner = BenchmarkRunner(
+        dataset=dataset,
+        provider=provider,
+        samples_per_question=samples_per_question,
+        concurrency=concurrency,
+    )
+    result = await runner.run(question_keys=list(suite_manifest["keys"]))
+    return result, provider
+
+
+def _question_text_to_key(result: BenchmarkResult) -> dict[str, str]:
+    """Map question text → question key from a populated benchmark result.
+
+    Used to attribute the AdapterProvider's text-indexed raw log back to
+    the suite key set so :func:`compute_run_hash` sees stable identifiers.
+    """
+    return {q.text: q.key for q in result.questions}
+
+
+def _build_raw_responses_for_hash(
+    provider: AdapterProvider, text_to_key: dict[str, str]
+) -> list[dict[str, str]]:
+    """Collect ``{question_key, persona_id, raw_text}`` rows for run_hash.
+
+    Drops log entries whose question text didn't make it into the result
+    (e.g. dataset keys absent from the suite filter) — those samples were
+    never scored, so they shouldn't contribute to the content hash.
+    """
+    rows: list[dict[str, str]] = []
+    for entry in provider._raw_log:
+        key = text_to_key.get(entry["question_text"])
+        if key is None:
+            continue
+        rows.append(
+            {
+                "question_key": key,
+                "persona_id": entry["persona_id"],
+                "raw_text": entry["raw_text"],
+            }
+        )
+    return rows
+
+
+def _build_scores(result: BenchmarkResult) -> dict[str, float]:
+    """Flatten SPS components into a JSON-friendly scores dict."""
+    scores: dict[str, float] = {
+        "sps": round(result.sps, 6),
+        "p_dist": round(result.p_dist, 6),
+        "p_rank": round(result.p_rank, 6),
+        "p_refuse": round(result.p_refuse, 6),
+        "mean_jsd": round(result.mean_jsd, 6),
+        "mean_kendall_tau": round(result.mean_kendall_tau, 6),
+    }
+    if result.p_sub is not None:
+        scores["p_sub"] = round(result.p_sub, 6)
+    if result.p_cond is not None:
+        scores["p_cond"] = round(result.p_cond, 6)
+    return scores
+
+
+def _build_per_question(result: BenchmarkResult) -> list[dict[str, Any]]:
+    """Project per-question results to the shape vendors / leaderboard CI parse."""
+    rows: list[dict[str, Any]] = []
+    for q in result.questions:
+        row: dict[str, Any] = {
+            "key": q.key,
+            "options": q.options,
+            "human_distribution": {
+                k: round(v, 4) for k, v in q.human_distribution.items()
+            },
+            "model_distribution": {
+                k: round(v, 4) for k, v in q.model_distribution.items()
+            },
+            "jsd": round(q.jsd, 6),
+            "kendall_tau": round(q.kendall_tau, 6),
+            "parity": round(q.parity, 6),
+            "n_samples": q.n_samples,
+            "n_parse_failures": q.n_parse_failures,
+            "model_refusal_rate": round(q.model_refusal_rate, 6),
+            "human_refusal_rate": round(q.human_refusal_rate, 6),
+        }
+        rows.append(row)
+    return rows
+
+
+def _build_run_payload(
     *,
     adapter: Adapter,
     vendor: str,
@@ -140,83 +447,106 @@ def _write_placeholder_artifacts(
     suite: str,
     suite_manifest: dict,
     api_env_var: str,
-) -> tuple[Path, Path]:
-    """Emit the stubbed ``submission.md`` + ``run.json`` for the scaffold path.
+    result: BenchmarkResult,
+    provider: AdapterProvider,
+) -> dict[str, Any]:
+    """Assemble the full ``run.json`` payload from the populated result.
 
-    Returns (submission_md_path, run_json_path). The real pipeline (refs
-    #256 follow-ups) replaces both writes with content from an actual
-    suite run.
-
-    The ``run_hash`` field is already computed here — even in scaffold
-    mode — because the adapter identity + suite manifest are real
-    inputs. ``persona_seeds`` and ``raw_responses`` are empty until
-    sb-bas wires the eval pipeline; once it does, the same call site
-    just receives non-empty sequences and the hash expands.
+    The shape intentionally overlaps with :func:`synthbench.report.to_json`
+    so the leaderboard PR template (rendered by
+    :mod:`synthbench.leaderboard_pr`) and Tier-3 validators can parse
+    either format without branching.
     """
-    output_dir.mkdir(parents=True, exist_ok=True)
-
     adapter_identity = {
         "name": adapter.name,
         "version": adapter.version,
         "vendor": vendor,
         "vendor_version": vendor_version,
     }
+    text_to_key = _question_text_to_key(result)
+    raw_responses = _build_raw_responses_for_hash(provider, text_to_key)
+
     run_hash = compute_run_hash(
         adapter=adapter_identity,
         suite=suite_manifest,
         persona_seeds=[],
-        raw_responses=[],
+        raw_responses=raw_responses,
     )
 
-    run_stub = {
-        "schema_version": "0.0.0-scaffold",
-        "status": "scaffold",
+    return {
+        "benchmark": "synthbench",
+        "schema_version": CURRENT_SCHEMA_VERSION,
+        "version": __version__,
+        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "status": "completed",
         "adapter": adapter_identity,
         "suite": suite,
         "api_env_var": api_env_var,
         "run_hash": run_hash,
-        "scores": None,
-        "per_question": [],
-        "raw_responses": [],
-        "todo": {
-            "eval_pipeline": TODO_EVAL_ISSUE,
-            "leaderboard_pr": TODO_PR_ISSUE,
+        "config": {
+            "dataset": result.dataset_name,
+            "provider": result.provider_name,
+            "samples_per_question": result.config.get("samples_per_question"),
+            "n_evaluated": result.config.get("n_evaluated"),
+            "question_set_hash": result.q_set_hash,
         },
+        "reproducibility": {
+            "model_revision_hash": result.config.get("model_revision_hash", ""),
+            "prompt_template_hash": result.config.get("prompt_template_hash", ""),
+            "framework_version": __version__,
+            "submitted_at": datetime.now(timezone.utc).isoformat(),
+        },
+        "scores": _build_scores(result),
+        "aggregate": {
+            "mean_jsd": round(result.mean_jsd, 6),
+            "median_jsd": round(result.median_jsd, 6),
+            "mean_kendall_tau": round(result.mean_kendall_tau, 6),
+            "composite_parity": round(result.composite_parity, 6),
+            "n_questions": len(result.questions),
+            "elapsed_seconds": round(result.elapsed_seconds, 2),
+            "n_parse_failures": result.total_parse_failures,
+        },
+        "per_question": _build_per_question(result),
+        "raw_responses": raw_responses,
     }
-    run_path = output_dir / "run.json"
-    run_path.write_text(json.dumps(run_stub, indent=2) + "\n")
 
-    md = f"""# SynthBench submission — {vendor} ({vendor_version})
 
-> **Scaffold output.** This submission was produced by `synthbench
-> submit-adapter` in scaffold mode (refs #256). The full evaluation
-> pipeline is not yet wired up.
+def _render_submission_md(payload: dict[str, Any]) -> str:
+    """Render the human-readable submission summary written next to run.json."""
+    adapter = payload["adapter"]
+    scores = payload["scores"]
+    score_lines = "\n".join(f"- **{k}:** {v}" for k, v in sorted(scores.items()))
+    return f"""# SynthBench submission — {adapter["vendor"]} ({adapter["vendor_version"]})
 
-- **Adapter:** `{adapter.name}` v`{adapter.version}`
-- **Suite:** `{suite}`
-- **API env var:** `{api_env_var}` (presence checked; value never read by SynthBench)
-- **Run hash:** `{run_hash}`
+- **Adapter:** `{adapter["name"]}` v`{adapter["version"]}`
+- **Suite:** `{payload["suite"]}`
+- **API env var:** `{payload["api_env_var"]}` (presence checked; value never read by SynthBench)
+- **Run hash:** `{payload["run_hash"]}`
+- **Questions evaluated:** {payload["aggregate"]["n_questions"]}
+- **Samples per question:** {payload["config"]["samples_per_question"]}
+- **Elapsed:** {payload["aggregate"]["elapsed_seconds"]}s
 
-## What to do with this file
+## Scores
 
-Once the follow-up issues land, this file will contain the leaderboard
-row + scoring summary. For now, you can open a PR to verify the path
-shape works end-to-end:
+{score_lines}
+
+## Open the PR
 
 ```sh
-# Stubbed verification — real curl command emitted by the full pipeline.
 curl -fsSL {LEADERBOARD_REPO_URL}/raw/main/leaderboard/schema.json | head
 ```
 
 PR target: {LEADERBOARD_PR_URL}
-
-## TODOs tracked against #256
-
-- [ ] Run the `{suite}` suite against the adapter ({TODO_EVAL_ISSUE})
-- [ ] Auto-generate leaderboard PR body ({TODO_PR_ISSUE})
 """
+
+
+def _write_artifacts(output_dir: Path, payload: dict[str, Any]) -> tuple[Path, Path]:
+    """Persist ``submission.md`` + ``run.json`` from a populated payload."""
+    output_dir.mkdir(parents=True, exist_ok=True)
+    run_path = output_dir / "run.json"
+    run_path.write_text(json.dumps(payload, indent=2) + "\n")
     md_path = output_dir / "submission.md"
-    md_path.write_text(md)
+    md_path.write_text(_render_submission_md(payload))
     return md_path, run_path
 
 
@@ -256,6 +586,20 @@ PR target: {LEADERBOARD_PR_URL}
     help="Suite to evaluate against. Only 'core' is supported today.",
 )
 @click.option(
+    "--samples",
+    type=int,
+    default=DEFAULT_SAMPLES_PER_QUESTION,
+    show_default=True,
+    help="Samples per question.",
+)
+@click.option(
+    "--concurrency",
+    type=int,
+    default=10,
+    show_default=True,
+    help="Concurrent adapter calls. Lower if the vendor API rate-limits.",
+)
+@click.option(
     "--output-dir",
     type=click.Path(file_okay=False),
     default="./synthbench-submission/",
@@ -289,15 +633,13 @@ def submit_adapter(
     vendor_version: str,
     api_env_var: str,
     suite: str,
+    samples: int,
+    concurrency: int,
     output_dir: str,
     open_pr: bool,
     leaderboard_repo: str,
 ) -> None:
     """Run the SynthBench suite against a vendor adapter and emit a submission.
-
-    Scaffold-only: this command currently validates inputs and writes
-    placeholder artifacts. The full evaluation + leaderboard PR pipeline
-    is tracked in follow-ups to #256.
 
     Example:
 
@@ -350,21 +692,39 @@ def submit_adapter(
         click.echo(f"error: {exc.message}", err=True)
         sys.exit(2)
 
-    # 5. Write placeholder artifacts. Real eval lands in a follow-up.
-    out = Path(output_dir)
-    md_path, run_path = _write_placeholder_artifacts(
-        out,
+    # 5. Drive the adapter through the suite.
+    click.echo(f"running suite '{suite}' against {adapter.name}...")
+    result, provider = asyncio.run(
+        _run_eval(
+            adapter=adapter,
+            suite_manifest=suite_manifest,
+            samples_per_question=samples,
+            concurrency=concurrency,
+        )
+    )
+
+    payload = _build_run_payload(
         adapter=adapter,
         vendor=vendor,
         vendor_version=vendor_version,
         suite=suite,
         suite_manifest=suite_manifest,
         api_env_var=api_env_var,
+        result=result,
+        provider=provider,
     )
 
-    click.echo(f"wrote scaffold submission to: {out}")
+    out = Path(output_dir)
+    md_path, run_path = _write_artifacts(out, payload)
+
+    click.echo(f"wrote submission to: {out}")
     click.echo(f"  - {md_path.name}")
     click.echo(f"  - {run_path.name}")
+    click.echo(
+        f"  SPS={payload['scores']['sps']} "
+        f"P_dist={payload['scores']['p_dist']} "
+        f"P_rank={payload['scores']['p_rank']}"
+    )
     click.echo("")
 
     if open_pr:
@@ -382,11 +742,8 @@ def submit_adapter(
         click.echo(f"opened leaderboard PR: {pr_url}")
         return
 
-    click.echo("next steps (scaffold mode — full pipeline pending):")
-    click.echo(f"  open a PR against: {LEADERBOARD_PR_URL}")
+    click.echo(f"next: open a PR against {LEADERBOARD_PR_URL}")
     click.echo(
-        f"  verify with:        curl -fsSL "
+        f"verify with: curl -fsSL "
         f"{LEADERBOARD_REPO_URL}/raw/main/leaderboard/schema.json"
     )
-    click.echo("")
-    click.echo(f"TODO (refs #256): eval={TODO_EVAL_ISSUE}, pr={TODO_PR_ISSUE}")
