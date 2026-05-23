@@ -205,6 +205,72 @@ def parse_provider(provider: str) -> ParsedConfig:
     )
 
 
+def _runnable_model_slug(head: str) -> str:
+    """Build an OpenRouter-runnable ``<vendor>/<model>`` slug from a raw path.
+
+    Unlike :func:`parse_provider`'s ``base_provider`` (which canonicalizes
+    vendors for dedup — ``meta-llama`` → ``meta``), this preserves the on-path
+    vendor verbatim for gateway routes so the slug stays a valid OpenRouter
+    model id, and keeps the model segment verbatim (version dates intact) so it
+    can be piped straight to the gateway:
+
+        openrouter/google/gemini-2.5-flash-lite          → google/gemini-2.5-flash-lite
+        openrouter/meta-llama/llama-3.3-70b-instruct      → meta-llama/llama-3.3-70b-instruct
+        synthpanel/openrouter/anthropic/claude-haiku-4-5  → anthropic/claude-haiku-4-5
+        synthpanel/gemini-2.5-flash-lite                  → google/gemini-2.5-flash-lite
+        raw-anthropic/claude-haiku-4-5-20251001           → anthropic/claude-haiku-4-5-20251001
+        raw-gemini/gemini-2.5-flash-lite                  → google/gemini-2.5-flash-lite
+        ensemble/3-model-blend                            → 3-model-blend
+        random-baseline                                   → random-baseline
+    """
+    head = head.strip()
+    if not head:
+        return "unknown"
+    if head.endswith(BASELINE_SUFFIX) and "/" not in head:
+        return head
+
+    parts = head.split("/")
+    # Drop a leading runner segment that isn't part of the model id.
+    if parts and parts[0] in ("synthpanel", "ensemble"):
+        parts = parts[1:]
+    # Drop an OpenRouter gateway hop — the remaining segments ARE the slug.
+    if parts and parts[0] == "openrouter":
+        parts = parts[1:]
+
+    if parts and parts[0].startswith("raw-"):
+        # Direct vendor API (e.g. raw-gemini/...): map to the OpenRouter author.
+        raw_vendor = parts[0][len("raw-") :]
+        parts = [_normalize_base_vendor(raw_vendor) or raw_vendor, *parts[1:]]
+    elif len(parts) == 1:
+        # Bare model with no vendor segment — infer the OpenRouter author so the
+        # slug is pipeable (e.g. gemini-2.5-flash-lite → google/...).
+        vendor = _infer_vendor_from_model(parts[0])
+        if vendor:
+            parts = [vendor, *parts]
+
+    return "/".join(p for p in parts if p) or head
+
+
+def runnable_ids(provider: str) -> tuple[str, str]:
+    """Derive machine-runnable ``(provider_id, model_id)`` from a provider string.
+
+    These are the runnable counterparts to the human-facing display labels:
+
+    - ``provider_id`` — the execution framework/runner taxonomy from
+      :func:`parse_provider` (``raw`` / ``synthpanel`` / ``ensemble`` /
+      ``baseline``). Tells a consumer whether a score reflects a raw model, the
+      SynthPanel product layer, an ensemble, or a statistical baseline.
+    - ``model_id`` — an OpenRouter-runnable ``<vendor>/<model>`` slug a consumer
+      can pipe straight to the gateway without parsing display names. See
+      :func:`_runnable_model_slug` for the exact derivation per shape.
+
+    Hyperparameter knobs (``t=``, ``tpl=``, ``profile=``) are stripped.
+    """
+    head, _ = _split_provider_and_knobs(provider)
+    framework, _base, _model = _parse_path(head)
+    return framework, _runnable_model_slug(head)
+
+
 _SLUG_UNSAFE = re.compile(r"[^a-z0-9.\-]+")
 
 

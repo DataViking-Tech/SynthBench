@@ -388,13 +388,14 @@ def _build_entry(
     results_by_provider_ds: dict[tuple[str, str], dict] | None = None,
 ) -> dict:
     """Build a leaderboard entry from a result dict."""
-    from synthbench.config_id import build_config_id
+    from synthbench.config_id import build_config_id, runnable_ids
     from synthbench.leaderboard import display_provider_name, provider_framework
 
     cfg = r.get("config", {})
     provider_raw = cfg.get("provider", "unknown")
     provider_name = display_provider_name(provider_raw)
     framework = provider_framework(provider_raw)
+    provider_id, model_id = runnable_ids(provider_raw)
     scores = r.get("scores", {})
     agg = r.get("aggregate", {})
     ci = agg.get("per_metric_ci", {}).get("sps", [0, 0])
@@ -432,6 +433,12 @@ def _build_entry(
         "config_id": config_id,
         "provider": provider_name,
         "model": provider_name,
+        # Runnable IDs (sb-7ly): machine-parseable counterparts to the display
+        # labels above. provider_id = framework/runner; model_id = OpenRouter-
+        # runnable <vendor>/<model> slug so consumers can pipe to the gateway
+        # without parsing display names. See config_id.runnable_ids.
+        "provider_id": provider_id,
+        "model_id": model_id,
         "dataset": cfg.get("dataset", "unknown"),
         "framework": framework,
         "sps": round(scores.get("sps", 0), 6),
