@@ -81,16 +81,7 @@ export async function fetchTieredJson<T>(
   const { base, gatedApiBase } = getRuntimeConfig();
   const cleanPath = path.replace(/^\//, "");
 
-  if (tier === "gated") {
-    if (!gatedApiBase) {
-      return {
-        ok: false,
-        gated: false,
-        tier,
-        status: 0,
-        message: "Gated data origin is not configured (set PUBLIC_GATED_API_BASE).",
-      };
-    }
+  if (tier === "gated" && gatedApiBase) {
     const headers = await buildAuthHeaders();
     const url = `${gatedApiBase}/data/${cleanPath}`;
     let res: Response;
@@ -131,6 +122,11 @@ export async function fetchTieredJson<T>(
   }
 
   // full / unknown → static Pages origin.
+  // Gated tiers also land here when `PUBLIC_GATED_API_BASE` is not set, which
+  // is the local-dev and CI default: there is no Worker proxy in front of the
+  // static `public/data/` artifacts, so we serve them directly. Production
+  // deployments MUST configure `PUBLIC_GATED_API_BASE` to engage the gate
+  // (the Worker layer is what actually enforces auth on gated data).
   const url = `${base}/data/${cleanPath}`;
   let res: Response;
   try {
