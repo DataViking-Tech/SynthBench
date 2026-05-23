@@ -19,6 +19,21 @@ export interface LeaderboardEntry {
   config_id?: string;
   provider: string;
   model: string;
+  /**
+   * Machine-runnable execution-layer ID: "raw" | "synthpanel" | "ensemble" |
+   * "baseline". Unlike `provider`/`model` (display labels), this is stable and
+   * parseable — it tells a consumer whether a score reflects a raw model, the
+   * SynthPanel product layer, an ensemble, or a statistical baseline. Emitted
+   * by publish.py via synthbench.config_id.runnable_ids (sb-7ly).
+   */
+  provider_id?: string;
+  /**
+   * Machine-runnable model identifier — an OpenRouter ``<vendor>/<model>`` slug
+   * (e.g. "google/gemini-2.5-flash-lite", "meta-llama/llama-3.3-70b-instruct")
+   * a consumer can pipe straight to the gateway without parsing display names.
+   * Version dates are preserved. See runnable_ids in config_id.py (sb-7ly).
+   */
+  model_id?: string;
   dataset: string;
   framework: string;
 
