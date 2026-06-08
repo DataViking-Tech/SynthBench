@@ -52,7 +52,7 @@ jobs:
         run: npm ci
 
       - name: Install Doppler CLI
-        uses: dopplerhq/cli-action@v4
+        uses: dopplerhq/cli-action@4819d808ab99e5cde19a0637a16536a4038fad73 # v4
 
       # Shared Cloudflare creds live in dataviking-platform/prd (sb-vkz). The
       # token must carry Worker Scripts:Edit + Workers Routes:Edit — the
@@ -112,7 +112,7 @@ jobs:
           echo "wrangler.toml SUPABASE_URL populated (length=${#SUPABASE_URL_VALUE})."
 
       - name: Deploy Worker
-        uses: cloudflare/wrangler-action@v4
+        uses: cloudflare/wrangler-action@ebbaa1584979971c8614a24965b4405ff95890e0 # v4
         with:
           apiToken: ${{ env.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ env.CLOUDFLARE_ACCOUNT_ID }}
