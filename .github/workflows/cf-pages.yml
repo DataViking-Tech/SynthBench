@@ -44,7 +44,7 @@ jobs:
       - run: pip install -e .[r2]
 
       - name: Install Doppler CLI
-        uses: dopplerhq/cli-action@v4
+        uses: dopplerhq/cli-action@4819d808ab99e5cde19a0637a16536a4038fad73 # v4
 
       # sb-vkz doppler-reorg: pull shared Cloudflare/R2 creds from the
       # dataviking-platform/prd project (read-only DOPPLER_PLATFORM_TOKEN)
@@ -102,7 +102,7 @@ jobs:
         # apiToken/accountId come from $GITHUB_ENV (sourced from Doppler
         # dataviking-platform/prd in the earlier step); wrangler reads the
         # CLOUDFLARE_API_TOKEN and CLOUDFLARE_ACCOUNT_ID env vars directly.
-        uses: cloudflare/wrangler-action@v4
+        uses: cloudflare/wrangler-action@ebbaa1584979971c8614a24965b4405ff95890e0 # v4
         with:
           apiToken: ${{ env.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ env.CLOUDFLARE_ACCOUNT_ID }}
