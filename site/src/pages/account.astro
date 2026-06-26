@@ -148,9 +148,14 @@ const setupHref = `${base}account/setup/`;
           If you lose it, generate a new one and revoke the old.
         </p>
         <div class="mt-4 flex items-stretch gap-2">
+          <!-- ph-no-capture: the one-time plaintext API key is written into this
+               element at runtime. The class redacts it from PostHog session
+               replay (replay does not mask non-input text by default) and
+               excludes it from autocapture, so generated keys are never sent
+               to PostHog. -->
           <code
             data-api-key-modal-value
-            class="flex-1 select-all overflow-x-auto rounded border border-muted/40 bg-bg/40 px-3 py-2 font-mono text-sm text-text dark:text-text-dark"
+            class="ph-no-capture flex-1 select-all overflow-x-auto rounded border border-muted/40 bg-bg/40 px-3 py-2 font-mono text-sm text-text dark:text-text-dark"
           >sb_…</code>
           <button
             type="button"
