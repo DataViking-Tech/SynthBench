@@ -127,7 +127,43 @@ export async function signInWithProvider(
 export async function signOut(): Promise<{ error: AuthError | null }> {
   if (!isAuthConfigured()) return { error: null };
   const { error } = await getSupabaseClient().auth.signOut();
+  // Drop the identified PostHog person so post-logout activity reverts to an
+  // anonymous distinct_id (and, under identified_only, stops emitting a person).
+  resetAnalyticsIdentity();
   return { error };
+}
+
+// PostHog identity bridge ----------------------------------------------------
+//
+// The PostHog snippet (components/shared/Analytics.astro) installs a global
+// `window.posthog`. These helpers are no-ops when it is absent (preview/CI
+// builds, ad-blockers) so auth never depends on analytics loading.
+//
+// Identity model: we identify with the stable Supabase `user.id` (consistent
+// across this user's sessions/devices on synthbench.org) and attach `email`
+// as a person property. Because the DataViking properties are still separate
+// PostHog projects, `email` is the join key for cross-site analysis — the
+// canonical identifier each project shares for the same human.
+
+interface AnalyticsGlobal {
+  identify?: (distinctId: string, props?: Record<string, unknown>) => void;
+  reset?: () => void;
+}
+
+function getAnalytics(): AnalyticsGlobal | undefined {
+  if (typeof window === "undefined") return undefined;
+  return (window as unknown as { posthog?: AnalyticsGlobal }).posthog;
+}
+
+export function identifyToAnalytics(user: Pick<User, "id" | "email">): void {
+  const ph = getAnalytics();
+  if (!ph || typeof ph.identify !== "function") return;
+  ph.identify(user.id, user.email ? { email: user.email } : undefined);
+}
+
+export function resetAnalyticsIdentity(): void {
+  const ph = getAnalytics();
+  if (ph && typeof ph.reset === "function") ph.reset();
 }
 
 export async function getProfile(userId: string): Promise<UserProfile | null> {

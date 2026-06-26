@@ -117,5 +117,28 @@ const ldArray = Array.isArray(ld) ? ld : [ld];
     </main>
 
     <Footer />
+
+    <!-- sb-xsite: bridge a signed-in Supabase session to a PostHog identified
+         person, so cross-site analysis can join properties on the user's
+         stable id + email. Gated on a cheap localStorage probe so anonymous
+         visitors never pull supabase-js into the bundle (perf budget). -->
+    <script>
+      function hasStoredSession(): boolean {
+        try {
+          for (let i = 0; i < localStorage.length; i++) {
+            const k = localStorage.key(i);
+            if (k && /^sb-.*-auth-token$/.test(k)) return true;
+          }
+        } catch {
+          // localStorage unavailable (private mode / blocked) — treat as anon.
+        }
+        return false;
+      }
+      if (hasStoredSession()) {
+        import("@/lib/analyticsIdentity")
+          .then((m) => m.initAnalyticsIdentity())
+          .catch((err) => console.warn("[analytics] identity bootstrap failed", err));
+      }
+    </script>
   </body>
 </html>
