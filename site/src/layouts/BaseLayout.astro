@@ -1,4 +1,5 @@
 ---
+import Analytics from "@/components/shared/Analytics.astro";
 import Footer from "@/components/shared/Footer.astro";
 import Nav from "@/components/shared/Nav.astro";
 import "@/styles/global.css";
@@ -73,6 +74,7 @@ const ldArray = Array.isArray(ld) ? ld : [ld];
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <Analytics />
     <title>{title}</title>
     <link rel="icon" type="image/svg+xml" href={`${base}favicon.svg`} />
     <meta name="description" content={description} />
