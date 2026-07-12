@@ -10,7 +10,7 @@ from synthbench.providers.base import PersonaSpec, Provider, Response
 class RandomBaselineProvider(Provider):
     """Select a random option with uniform probability. Floor baseline."""
 
-    def __init__(self, seed: int = 42, **kwargs):
+    def __init__(self, seed: int = 42):
         self._rng = random.Random(seed)
 
     @property

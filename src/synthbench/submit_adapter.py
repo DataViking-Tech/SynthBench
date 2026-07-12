@@ -32,6 +32,7 @@ from synthbench.leaderboard_pr import (
     GhUnavailable,
     open_leaderboard_pr,
 )
+from synthbench.providers._parsing import parse_option_response
 from synthbench.providers.base import PersonaSpec, Provider, Response
 from synthbench.run_hash import compute_run_hash
 from synthbench.runner import BenchmarkRunner, BenchmarkResult
@@ -85,52 +86,50 @@ def _parse_option(text: str, options: list[str]) -> str | None:
     """Parse a raw adapter response into one of the declared options.
 
     Tries, in order:
-      1. Leading letter (``A``, ``(A)``) → ``options[index]``.
-      2. Leading number (``1``, ``1.``) → ``options[index-1]`` (1-indexed).
-      3. Substring match against any option text (case-insensitive).
+      1. Exact (normalized) match against an option's full text.
+      2. Leading letter (``A``, ``(A)``, ``A.``) → ``options[index]`` —
+         only when the letter is a standalone token, so an echoed option
+         text like ``"Better"`` can never be misread as letter ``B``.
+      3. Leading number (``1``, ``1.``) → ``options[index-1]`` (1-indexed),
+         with the same standalone-token requirement.
+      4. Word-boundary containment against option text, longest option
+         first (so ``"Disagree"`` never matches ``"Agree"``).
 
     Returns ``None`` if no rule fires. Callers surface this as a refusal
     so :class:`BenchmarkRunner` parse-failure metrics stay honest.
 
-    Why a local parser and not the per-provider ``_parse_letter``: those
-    are private duplicates that only handle the letter rule. The adapter
-    surface is more permissive — vendors are told to "return whatever
-    feels native" (a token, a phrase, a number) — so we widen the parser
-    rather than narrow the contract.
+    Why a local parser and not the shared provider parser alone: the
+    adapter surface is more permissive — vendors are told to "return
+    whatever feels native" (a token, a phrase, a number) — so we add the
+    numeric rule on top of the shared matching primitives.
     """
     if not text:
         return None
     stripped = text.strip()
 
-    # 1. Letter form: A-Z (optionally parenthesized) at the start.
-    m = re.match(r"^\(?([A-Za-z])\)?[\s\.\):,-]?", stripped)
+    # 1./2. Exact echo of an option text, or a standalone option letter —
+    # both handled by the shared parser (anchored, word-boundary-safe).
+    parsed = parse_option_response(stripped, options)
+    if parsed.option is not None:
+        return parsed.option
+
+    # 2b. Letter followed by an explicit delimiter and explanation text
+    # ("A. because...", "(B): since..."). The delimiter requirement keeps
+    # "Better" (option-text echo) and "A story about..." (prose) from being
+    # misread as letters.
+    m = re.match(r"^\(?([A-Za-z])[.):,]\s", stripped)
     if m:
-        letter = m.group(1).upper()
-        idx = ord(letter) - ord("A")
+        idx = ord(m.group(1).upper()) - ord("A")
         if 0 <= idx < len(options):
             return options[idx]
 
-    # 2. Number form: 1-99 at the start (1-indexed).
-    m = re.match(r"^\(?(\d{1,2})\)?[\s\.\):,-]?", stripped)
+    # 3. Number form: 1-99 at the start (1-indexed). The digit(s) must be a
+    # standalone token — "2024 was a good year" is not a vote for option 20.
+    m = re.match(r"^\(?(\d{1,2})\)?(?=$|[\s.):,-])", stripped)
     if m:
         idx = int(m.group(1)) - 1
         if 0 <= idx < len(options):
             return options[idx]
-
-    # 3. Substring match against option text. Use the longest matching
-    # option to avoid "yes" winning over "yes, definitely" when both are
-    # offered as choices.
-    text_lower = stripped.lower()
-    best: tuple[int, str] | None = None
-    for opt in options:
-        opt_lower = opt.lower()
-        if not opt_lower:
-            continue
-        if opt_lower in text_lower:
-            if best is None or len(opt_lower) > best[0]:
-                best = (len(opt_lower), opt)
-    if best is not None:
-        return best[1]
 
     return None
 

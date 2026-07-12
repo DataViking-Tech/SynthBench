@@ -431,8 +431,15 @@ class BenchmarkRunner:
             )
             model_dist = dict(zip(question.options, dist.probabilities))
             model_refusal_rate = dist.refusal_probability
-            n_samples = dist.n_samples or self.samples_per_question
-            n_parse_failures = 0
+            # 0 must stay 0 — coercing falsy n_samples back to
+            # samples_per_question hid failed batches behind a fabricated
+            # sample count (P1-8).
+            n_samples = (
+                dist.n_samples
+                if dist.n_samples is not None
+                else self.samples_per_question
+            )
+            n_parse_failures = dist.n_parse_failures
             if dist.metadata:
                 token_usage = dist.metadata.get("usage")
                 sampled = dist.metadata.get("raw_sample")
@@ -545,7 +552,10 @@ class BenchmarkRunner:
         model_dist = dict(zip(question.options, dist.probabilities))
         model_dist = _normalize_model_dist(model_dist, question.options)
         model_refusal_rate = dist.refusal_probability
-        n_samples = dist.n_samples or self.samples_per_question
+        # 0 must stay 0 — see _evaluate_question.
+        n_samples = (
+            dist.n_samples if dist.n_samples is not None else self.samples_per_question
+        )
         token_usage = dist.metadata.get("usage") if dist.metadata else None
 
         human_refusal_rate = extract_human_refusal_rate(question.human_distribution)
@@ -563,7 +573,7 @@ class BenchmarkRunner:
             kendall_tau=tau,
             parity=par,
             n_samples=n_samples,
-            n_parse_failures=0,
+            n_parse_failures=dist.n_parse_failures,
             model_refusal_rate=model_refusal_rate,
             human_refusal_rate=human_refusal_rate,
             temporal_year=wave_year(question.survey),
@@ -595,9 +605,16 @@ class BenchmarkRunner:
         tasks = [_one_sample() for _ in range(self.samples_per_question)]
         results = await asyncio.gather(*tasks)
 
-        selected = [r.selected_option for r in results if not r.refusal]
-        refusals = sum(1 for r in results if r.refusal)
         valid_options = set(question.options)
+        # Parse failures (selected_option is None or not a declared option)
+        # carry no signal — exclude them from the selections so they can't
+        # skew the distribution or its denominator.
+        selected = [
+            r.selected_option
+            for r in results
+            if not r.refusal and r.selected_option in valid_options
+        ]
+        refusals = sum(1 for r in results if r.refusal)
         parse_failures = sum(
             1
             for r in results

@@ -96,6 +96,8 @@ class TestComputeUniformityMetrics:
             "n_uniform_questions": 20,
             "uniform_fraction": 1.0,
             "refusal_rate": 0.0,
+            "n_zero_sample_questions": 0,
+            "zero_sample_fraction": 0.0,
         }
 
     def test_healthy_run(self):

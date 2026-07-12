@@ -24,7 +24,6 @@ class PopulationAverageBaselineProvider(Provider):
         data_dir: str | None = None,
         dataset: str = "opinionsqa",
         seed: int = 42,
-        **kwargs,
     ):
         self._rng = random.Random(seed)
         # Load dataset and build text -> distribution lookup

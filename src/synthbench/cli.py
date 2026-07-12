@@ -15,17 +15,75 @@ from synthbench import __version__
 # fallback constant don't need a second import path.
 from synthbench.submission import DEFAULT_API_URL
 
-# Model aliases for convenience
+# Model aliases for convenience.
+#
+# These must be REAL, currently-served model IDs — a chimeric or retired ID
+# either hard-errors at request time or silently benchmarks a different
+# model than the leaderboard row claims.
 MODEL_ALIASES = {
     "haiku": "claude-haiku-4-5-20251001",
-    "sonnet": "claude-sonnet-4-5-20241022",
-    "opus": "claude-opus-4-0-20250514",
+    # Real Sonnet 4.5 snapshot (the previous "-20241022" suffix belonged to
+    # a different, retired model — the combination never existed).
+    "sonnet": "claude-sonnet-4-5-20250929",
+    # Real Opus 4 ID has no "-0-" infix.
+    "opus": "claude-opus-4-20250514",
     "gpt-4o": "gpt-4o",
     "gpt-4o-mini": "gpt-4o-mini",
-    "gemini-flash": "gemini-2.5-flash-preview-05-20",
+    # GA Gemini 2.5 IDs (the "-preview-*" snapshots are retired).
+    "gemini-flash": "gemini-2.5-flash",
     "gemini-flash-lite": "gemini-2.5-flash-lite",
-    "gemini-pro": "gemini-2.5-pro-preview-05-06",
+    "gemini-pro": "gemini-2.5-pro",
 }
+
+# Providers whose constructor accepts a model identifier / temperature.
+_MODEL_PROVIDERS = frozenset(
+    {"raw-anthropic", "raw-openai", "raw-gemini", "openrouter", "ollama", "synthpanel"}
+)
+
+
+def _provider_kwargs(
+    provider_name,
+    *,
+    model=None,
+    url=None,
+    temperature=None,
+    prompt_template=None,
+):
+    """Build constructor kwargs appropriate for *provider_name*.
+
+    Provider constructors no longer swallow unknown kwargs, so the CLI must
+    only pass options each provider actually supports — and must hard-error
+    (instead of silently ignoring) when the user passes an option the
+    selected provider cannot honour. A silently dropped --temperature is
+    exactly how leaderboard rows ended up labeled with temperatures that
+    never applied.
+    """
+    kwargs = {}
+    if provider_name in _MODEL_PROVIDERS and model is not None:
+        kwargs["model"] = model
+    if url is not None:
+        if provider_name == "http":
+            kwargs["url"] = url
+        elif provider_name == "ollama":
+            kwargs["base_url"] = url
+        else:
+            raise click.UsageError(
+                f"--url is not supported by provider '{provider_name}' "
+                "(only http and ollama)."
+            )
+    if temperature is not None:
+        if provider_name not in _MODEL_PROVIDERS:
+            raise click.UsageError(
+                f"--temperature is not supported by provider '{provider_name}'."
+            )
+        kwargs["temperature"] = temperature
+    if prompt_template is not None:
+        if provider_name != "synthpanel":
+            raise click.UsageError(
+                "--prompt-template is only supported by the synthpanel provider."
+            )
+        kwargs["prompt_template"] = prompt_template
+    return kwargs
 
 
 @click.group()
@@ -393,13 +451,13 @@ async def _run_async(
             demographics = None
 
     # Load provider
-    provider_kwargs = {"model": resolved_model}
-    if url:
-        provider_kwargs["url"] = url
-    if temperature is not None:
-        provider_kwargs["temperature"] = temperature
-    if prompt_template is not None:
-        provider_kwargs["prompt_template"] = prompt_template
+    provider_kwargs = _provider_kwargs(
+        provider_name,
+        model=resolved_model,
+        url=url,
+        temperature=temperature,
+        prompt_template=prompt_template,
+    )
     try:
         prov = load_provider(provider_name, **provider_kwargs)
     except KeyError as e:
@@ -1126,9 +1184,7 @@ async def _replicate_async(
         ds_kwargs["data_dir"] = data_dir
     ds = DATASETS[dataset_name](**ds_kwargs)
 
-    provider_kwargs = {"model": resolved_model}
-    if url:
-        provider_kwargs["url"] = url
+    provider_kwargs = _provider_kwargs(provider_name, model=resolved_model, url=url)
     try:
         prov = load_provider(provider_name, **provider_kwargs)
     except (KeyError, ImportError) as e:
@@ -1426,11 +1482,9 @@ def suite(
     resolved_model = MODEL_ALIASES.get(model, model)
 
     # Resolve the provider name for matching
-    provider_kwargs = {"model": resolved_model}
-    if url:
-        provider_kwargs["url"] = url
-    if temperature is not None:
-        provider_kwargs["temperature"] = temperature
+    provider_kwargs = _provider_kwargs(
+        provider, model=resolved_model, url=url, temperature=temperature
+    )
     try:
         prov = load_provider(provider, **provider_kwargs)
         resolved_provider = prov.name
@@ -1892,9 +1946,7 @@ async def _contamination_async(
 
     resolved_model = MODEL_ALIASES.get(model, model)
 
-    provider_kwargs = {"model": resolved_model}
-    if url:
-        provider_kwargs["url"] = url
+    provider_kwargs = _provider_kwargs(provider_name, model=resolved_model, url=url)
     try:
         prov = load_provider(provider_name, **provider_kwargs)
     except (KeyError, ImportError) as e:
@@ -2033,9 +2085,7 @@ async def _contamination_deident_async(
 
     resolved_model = MODEL_ALIASES.get(model, model)
 
-    provider_kwargs = {"model": resolved_model}
-    if url:
-        provider_kwargs["url"] = url
+    provider_kwargs = _provider_kwargs(provider_name, model=resolved_model, url=url)
     try:
         prov = load_provider(provider_name, **provider_kwargs)
     except (KeyError, ImportError) as e:

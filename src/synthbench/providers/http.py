@@ -6,6 +6,7 @@ from dataclasses import asdict
 
 import httpx
 
+from synthbench.providers._retry import call_with_retries
 from synthbench.providers.base import Distribution, PersonaSpec, Provider, Response
 
 
@@ -20,7 +21,7 @@ class HttpProvider(Provider):
         Distribution:    {"probabilities": [float, ...]}
     """
 
-    def __init__(self, url: str, headers: dict[str, str] | None = None, **kwargs):
+    def __init__(self, url: str, headers: dict[str, str] | None = None):
         self._url = url
         self._client = httpx.AsyncClient(
             headers=headers or {},
@@ -50,19 +51,21 @@ class HttpProvider(Provider):
         persona: PersonaSpec | None = None,
     ) -> Response:
         body = self._build_body(question, options, persona)
-        resp = await self._client.post(self._url, json=body)
-        resp.raise_for_status()
+        resp = await call_with_retries(lambda: self._post(body))
         data = resp.json()
 
-        selected = data.get("selected_option", "")
-        if selected not in options:
-            # Try to match
+        selected = data.get("selected_option")
+        if selected not in options and isinstance(selected, str):
+            # Try a case-insensitive match; otherwise it's a parse failure —
+            # never silently substitute options[0].
             for opt in options:
                 if opt.lower() == selected.lower():
                     selected = opt
                     break
             else:
-                selected = options[0]
+                selected = None
+        elif selected not in options:
+            selected = None
 
         return Response(
             selected_option=selected,
@@ -70,6 +73,11 @@ class HttpProvider(Provider):
             metadata=data.get("metadata"),
             refusal=data.get("refusal", False),
         )
+
+    async def _post(self, body: dict) -> httpx.Response:
+        resp = await self._client.post(self._url, json=body)
+        resp.raise_for_status()
+        return resp
 
     async def get_distribution(
         self,
@@ -80,8 +88,7 @@ class HttpProvider(Provider):
         n_samples: int | None = None,
     ) -> Distribution:
         body = self._build_body(question, options, persona)
-        resp = await self._client.post(self._url, json=body)
-        resp.raise_for_status()
+        resp = await call_with_retries(lambda: self._post(body))
         data = resp.json()
 
         if "probabilities" in data:
