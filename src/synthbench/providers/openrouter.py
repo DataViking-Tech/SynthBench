@@ -7,8 +7,9 @@ Uses the openai SDK against the OpenRouter-compatible endpoint.
 from __future__ import annotations
 
 import os
-import re
 
+from synthbench.providers._parsing import parse_option_response
+from synthbench.providers._retry import call_with_retries
 from synthbench.providers.base import (
     PersonaSpec,
     Provider,
@@ -38,30 +39,10 @@ def _build_prompt(question: str, options: list[str]) -> str:
     return _PROMPT_TEMPLATE.format(question=question, options_block=options_block)
 
 
-def _parse_letter(text: str, options: list[str]) -> str | None:
-    """Extract the selected option from model response."""
-    text = text.strip()
-
-    # Try to match a single letter
-    match = re.match(r"^\(?([A-Z])\)?", text.upper())
-    if match:
-        idx = ord(match.group(1)) - ord("A")
-        if 0 <= idx < len(options):
-            return options[idx]
-
-    # Try to match option text directly
-    text_lower = text.lower()
-    for opt in options:
-        if opt.lower() in text_lower:
-            return opt
-
-    return None
-
-
 class OpenRouterProvider(Provider):
     """Call models via OpenRouter with no persona framing."""
 
-    def __init__(self, model: str = "openai/gpt-4o-mini", **kwargs):
+    def __init__(self, model: str = "openai/gpt-4o-mini", temperature: float = 1.0):
         try:
             import openai
         except ImportError:
@@ -78,6 +59,7 @@ class OpenRouterProvider(Provider):
             )
 
         self._model = model
+        self._temperature = temperature
         self._client = openai.AsyncOpenAI(
             api_key=api_key,
             base_url=_OPENROUTER_BASE_URL,
@@ -97,21 +79,20 @@ class OpenRouterProvider(Provider):
         prompt = _build_prompt(question, options)
         system = build_persona_system_prompt(_SYSTEM, persona)
 
-        resp = await self._client.chat.completions.create(
-            model=self._model,
-            max_tokens=8,
-            temperature=1.0,
-            messages=[
-                {"role": "system", "content": system},
-                {"role": "user", "content": prompt},
-            ],
+        resp = await call_with_retries(
+            lambda: self._client.chat.completions.create(
+                model=self._model,
+                max_tokens=8,
+                temperature=self._temperature,
+                messages=[
+                    {"role": "system", "content": system},
+                    {"role": "user", "content": prompt},
+                ],
+            )
         )
 
         raw_text = resp.choices[0].message.content or ""
-        selected = _parse_letter(raw_text, options)
-
-        if selected is None:
-            selected = options[0]
+        parsed = parse_option_response(raw_text, options)
 
         usage = None
         if getattr(resp, "usage", None) is not None:
@@ -121,8 +102,9 @@ class OpenRouterProvider(Provider):
             }
 
         return Response(
-            selected_option=selected,
+            selected_option=parsed.option,
             raw_text=raw_text,
+            refusal=parsed.refusal,
             metadata={
                 "model": self._model,
                 "finish_reason": resp.choices[0].finish_reason,

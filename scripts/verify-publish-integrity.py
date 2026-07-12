@@ -6,6 +6,14 @@ Astro build. Guards against stale / path-polluted publish artifacts (sb-4zy)
 by asserting every entry carries a `config_id` and every referenced config
 has a matching rollup file on disk.
 
+Also acts as the license-gating backstop: FAILS if any artifact under the
+local publish output (run/, config/, question/) belongs to a dataset whose
+redistribution policy is not ``full``. Gated-tier data (Pew ATP,
+CC-BY-NC-SA sources, …) must only ever ship to the authenticated R2 origin;
+its presence in the local static output means the build would publish
+license-restricted per-question ``human_distribution`` data to a public,
+unauthenticated origin.
+
 Exits non-zero on first violation. Paths are CLI flags so this can be reused
 from CI and local dev.
 """
@@ -80,6 +88,26 @@ def check_runs_index(path: Path) -> tuple[set[str], dict[str, str]]:
     return config_ids, config_to_dataset
 
 
+def _policy_by_name() -> dict[str, str] | None:
+    """Map dataset base name → redistribution policy, or None if unresolvable.
+
+    Prefers the installed synthbench package; falls back to importing from
+    the repo's ``src/`` tree so the gating backstop still runs from a bare
+    checkout. Returns None only when neither import path works.
+    """
+    try:
+        from synthbench.datasets.policy import all_policies
+    except ImportError:
+        src = Path(__file__).resolve().parent.parent / "src"
+        if str(src) not in sys.path:
+            sys.path.insert(0, str(src))
+        try:
+            from synthbench.datasets.policy import all_policies
+        except ImportError:
+            return None
+    return {p.name: p.redistribution_policy for p in all_policies()}
+
+
 def _gated_datasets() -> set[str]:
     """Names of datasets whose rollups ship to R2 instead of local disk.
 
@@ -87,11 +115,80 @@ def _gated_datasets() -> set[str]:
     from this script's runtime — in that case all configs are checked
     locally, which matches the legacy behavior.
     """
-    try:
-        from synthbench.datasets.policy import all_policies
-    except ImportError:
+    policies = _policy_by_name()
+    if policies is None:
         return set()
-    return {p.name for p in all_policies() if p.redistribution_policy != "full"}
+    return {name for name, policy in policies.items() if policy != "full"}
+
+
+def _dataset_base(dataset_name: str) -> str:
+    """Strip ``(filter)`` suffixes, mirroring synthbench.datasets.policy."""
+    return dataset_name.split(" ", 1)[0].strip()
+
+
+def check_no_gated_artifacts_local(
+    run_dir: Path,
+    config_dir: Path,
+    question_dir: Path,
+) -> None:
+    """FAIL if any local publish artifact belongs to a non-``full`` dataset.
+
+    This is the backstop against shipping license-restricted per-question
+    data (``human_distribution``) from the public static origin: only
+    ``full``-tier datasets may have per-run/per-config/per-question JSON in
+    the local output. ``gated`` artifacts belong in R2 behind the Worker
+    proxy; ``aggregates_only``/``citation_only`` artifacts must not exist
+    anywhere.
+    """
+    policies = _policy_by_name()
+    if policies is None:
+        sys.exit(
+            "FAIL: cannot resolve dataset redistribution policies (synthbench "
+            "not importable) — the gated-artifact backstop cannot run. Install "
+            "the package (`pip install -e .`) and re-run."
+        )
+
+    def _is_full(dataset_name: str) -> bool:
+        # Unknown datasets default to aggregates_only in the policy module,
+        # so treat anything unregistered as a violation too (conservative).
+        return policies.get(_dataset_base(dataset_name)) == "full"
+
+    violations: list[str] = []
+
+    for artifact_dir in (run_dir, config_dir):
+        if not artifact_dir.is_dir():
+            continue
+        for path in sorted(artifact_dir.glob("*.json")):
+            try:
+                with path.open() as f:
+                    payload = json.load(f)
+            except (OSError, json.JSONDecodeError):
+                violations.append(f"{path} (unreadable/invalid JSON)")
+                continue
+            dataset = ""
+            if isinstance(payload, dict):
+                dataset = payload.get("dataset") or ""
+            if not dataset or not _is_full(dataset):
+                violations.append(f"{path} (dataset={dataset or 'unknown'!r})")
+
+    if question_dir.is_dir():
+        for sub in sorted(question_dir.iterdir()):
+            if not sub.is_dir():
+                continue
+            if not _is_full(sub.name):
+                n = len(list(sub.glob("*.json")))
+                violations.append(f"{sub}/ ({n} file(s), dataset={sub.name!r})")
+
+    if violations:
+        sample = violations[:5]
+        sys.exit(
+            f"FAIL: {len(violations)} artifact(s) from non-'full' "
+            "(gated/suppressed) datasets found in the LOCAL publish output. "
+            "These must ship to the authenticated R2 origin, never the public "
+            "static site — deploying them leaks license-restricted "
+            "human_distribution data. Re-run publish with R2 credentials "
+            f"configured. Examples: {sample}"
+        )
 
 
 def check_config_files(
@@ -138,11 +235,22 @@ def main() -> int:
         type=Path,
         default=Path("site/public/data/config"),
     )
+    parser.add_argument(
+        "--run-dir",
+        type=Path,
+        default=Path("site/public/data/run"),
+    )
+    parser.add_argument(
+        "--question-dir",
+        type=Path,
+        default=Path("site/public/data/question"),
+    )
     args = parser.parse_args()
 
     leaderboard_ids = check_leaderboard(args.leaderboard)
     runs_ids, config_to_dataset = check_runs_index(args.runs_index)
     check_config_files(args.config_dir, runs_ids, config_to_dataset)
+    check_no_gated_artifacts_local(args.run_dir, args.config_dir, args.question_dir)
 
     # Every config_id appearing on the leaderboard must also have a rollup
     # file — this is what the /run/[id] and /config/[id] routes hydrate from.
@@ -156,7 +264,8 @@ def main() -> int:
 
     print(
         f"OK: leaderboard={len(leaderboard_ids)} configs, "
-        f"runs-index={len(runs_ids)} configs, all config_ids present."
+        f"runs-index={len(runs_ids)} configs, all config_ids present, "
+        "no gated artifacts in the local publish output."
     )
     return 0
 

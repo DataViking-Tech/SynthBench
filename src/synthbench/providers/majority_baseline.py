@@ -8,7 +8,7 @@ from synthbench.providers.base import PersonaSpec, Provider, Response
 class MajorityBaselineProvider(Provider):
     """Always select the first option. Naive baseline."""
 
-    def __init__(self, **kwargs):
+    def __init__(self):
         pass
 
     @property

@@ -60,12 +60,20 @@ jobs:
         # Gated-tier per-question/run/config JSONs upload to R2 when the four
         # R2_* vars are present (sb-sjs). R2 access creds come from Doppler
         # dataviking-platform/prd via $GITHUB_ENV (sb-vkz); R2_BUCKET stays
-        # on the synthbench repo secret (product-specific). Without them the
-        # step falls back to local writes, preserving the pre-gate behavior
-        # so the site keeps building until the Worker proxy (sb-cf4) ships.
+        # on the synthbench repo secret (product-specific).
+        # SYNTHBENCH_PUBLISH_STRICT=1 makes gating fail closed: if the R2
+        # uploader is not configured, the build FAILS here instead of
+        # deploying without gated data. Gated artifacts are never written to
+        # site/public/data/ — the old local-write fallback shipped
+        # license-restricted human_distribution data to the public origin.
         run: synthbench publish-runs --results-dir leaderboard-results --output-dir site/public/data
         env:
           R2_BUCKET: ${{ secrets.R2_BUCKET }}
+          SYNTHBENCH_PUBLISH_STRICT: "1"
+
+      # Backstop for the same invariant: fails if any gated-dataset artifact
+      # is present under the local publish output (see the gated-artifact
+      # check in scripts/verify-publish-integrity.py, next step).
 
       - name: Verify publish integrity (sb-4zy)
         run: python3 scripts/verify-publish-integrity.py

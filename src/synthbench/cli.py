@@ -15,17 +15,75 @@ from synthbench import __version__
 # fallback constant don't need a second import path.
 from synthbench.submission import DEFAULT_API_URL
 
-# Model aliases for convenience
+# Model aliases for convenience.
+#
+# These must be REAL, currently-served model IDs — a chimeric or retired ID
+# either hard-errors at request time or silently benchmarks a different
+# model than the leaderboard row claims.
 MODEL_ALIASES = {
     "haiku": "claude-haiku-4-5-20251001",
-    "sonnet": "claude-sonnet-4-5-20241022",
-    "opus": "claude-opus-4-0-20250514",
+    # Real Sonnet 4.5 snapshot (the previous "-20241022" suffix belonged to
+    # a different, retired model — the combination never existed).
+    "sonnet": "claude-sonnet-4-5-20250929",
+    # Real Opus 4 ID has no "-0-" infix.
+    "opus": "claude-opus-4-20250514",
     "gpt-4o": "gpt-4o",
     "gpt-4o-mini": "gpt-4o-mini",
-    "gemini-flash": "gemini-2.5-flash-preview-05-20",
+    # GA Gemini 2.5 IDs (the "-preview-*" snapshots are retired).
+    "gemini-flash": "gemini-2.5-flash",
     "gemini-flash-lite": "gemini-2.5-flash-lite",
-    "gemini-pro": "gemini-2.5-pro-preview-05-06",
+    "gemini-pro": "gemini-2.5-pro",
 }
+
+# Providers whose constructor accepts a model identifier / temperature.
+_MODEL_PROVIDERS = frozenset(
+    {"raw-anthropic", "raw-openai", "raw-gemini", "openrouter", "ollama", "synthpanel"}
+)
+
+
+def _provider_kwargs(
+    provider_name,
+    *,
+    model=None,
+    url=None,
+    temperature=None,
+    prompt_template=None,
+):
+    """Build constructor kwargs appropriate for *provider_name*.
+
+    Provider constructors no longer swallow unknown kwargs, so the CLI must
+    only pass options each provider actually supports — and must hard-error
+    (instead of silently ignoring) when the user passes an option the
+    selected provider cannot honour. A silently dropped --temperature is
+    exactly how leaderboard rows ended up labeled with temperatures that
+    never applied.
+    """
+    kwargs = {}
+    if provider_name in _MODEL_PROVIDERS and model is not None:
+        kwargs["model"] = model
+    if url is not None:
+        if provider_name == "http":
+            kwargs["url"] = url
+        elif provider_name == "ollama":
+            kwargs["base_url"] = url
+        else:
+            raise click.UsageError(
+                f"--url is not supported by provider '{provider_name}' "
+                "(only http and ollama)."
+            )
+    if temperature is not None:
+        if provider_name not in _MODEL_PROVIDERS:
+            raise click.UsageError(
+                f"--temperature is not supported by provider '{provider_name}'."
+            )
+        kwargs["temperature"] = temperature
+    if prompt_template is not None:
+        if provider_name != "synthpanel":
+            raise click.UsageError(
+                "--prompt-template is only supported by the synthpanel provider."
+            )
+        kwargs["prompt_template"] = prompt_template
+    return kwargs
 
 
 @click.group()
@@ -393,13 +451,13 @@ async def _run_async(
             demographics = None
 
     # Load provider
-    provider_kwargs = {"model": resolved_model}
-    if url:
-        provider_kwargs["url"] = url
-    if temperature is not None:
-        provider_kwargs["temperature"] = temperature
-    if prompt_template is not None:
-        provider_kwargs["prompt_template"] = prompt_template
+    provider_kwargs = _provider_kwargs(
+        provider_name,
+        model=resolved_model,
+        url=url,
+        temperature=temperature,
+        prompt_template=prompt_template,
+    )
     try:
         prov = load_provider(provider_name, **provider_kwargs)
     except KeyError as e:
@@ -1126,9 +1184,7 @@ async def _replicate_async(
         ds_kwargs["data_dir"] = data_dir
     ds = DATASETS[dataset_name](**ds_kwargs)
 
-    provider_kwargs = {"model": resolved_model}
-    if url:
-        provider_kwargs["url"] = url
+    provider_kwargs = _provider_kwargs(provider_name, model=resolved_model, url=url)
     try:
         prov = load_provider(provider_name, **provider_kwargs)
     except (KeyError, ImportError) as e:
@@ -1426,11 +1482,9 @@ def suite(
     resolved_model = MODEL_ALIASES.get(model, model)
 
     # Resolve the provider name for matching
-    provider_kwargs = {"model": resolved_model}
-    if url:
-        provider_kwargs["url"] = url
-    if temperature is not None:
-        provider_kwargs["temperature"] = temperature
+    provider_kwargs = _provider_kwargs(
+        provider, model=resolved_model, url=url, temperature=temperature
+    )
     try:
         prov = load_provider(provider, **provider_kwargs)
         resolved_provider = prov.name
@@ -1892,9 +1946,7 @@ async def _contamination_async(
 
     resolved_model = MODEL_ALIASES.get(model, model)
 
-    provider_kwargs = {"model": resolved_model}
-    if url:
-        provider_kwargs["url"] = url
+    provider_kwargs = _provider_kwargs(provider_name, model=resolved_model, url=url)
     try:
         prov = load_provider(provider_name, **provider_kwargs)
     except (KeyError, ImportError) as e:
@@ -2033,9 +2085,7 @@ async def _contamination_deident_async(
 
     resolved_model = MODEL_ALIASES.get(model, model)
 
-    provider_kwargs = {"model": resolved_model}
-    if url:
-        provider_kwargs["url"] = url
+    provider_kwargs = _provider_kwargs(provider_name, model=resolved_model, url=url)
     try:
         prov = load_provider(provider_name, **provider_kwargs)
     except (KeyError, ImportError) as e:
@@ -2136,17 +2186,49 @@ def publish_data(results_dir, output):
 
 
 def _resolve_r2_uploader(no_r2: bool):
-    """Return an R2Uploader (or None for local-only mode).
+    """Return an R2Uploader (or None when R2 is unavailable/disabled).
 
-    Auto-detects R2 credentials in the environment. ``--no-r2`` forces
-    local writes regardless of env vars — useful for local dev and for
-    debugging publish output without round-tripping to R2.
+    Auto-detects R2 credentials in the environment. ``--no-r2`` disables
+    uploads regardless of env vars. Without an uploader, gated-tier
+    artifacts are SKIPPED at publish time — they are never written to the
+    local static output (fail closed; the local output ships to a public
+    origin with no auth in front of it).
     """
     from synthbench.r2_upload import R2Uploader, env_has_r2_config
 
     if no_r2 or not env_has_r2_config():
         return None
     return R2Uploader.from_env()
+
+
+def _warn_gated_skips(n_skipped: int) -> None:
+    """Print the prominent fail-closed warning for skipped gated artifacts."""
+    if not n_skipped:
+        return
+    click.echo(
+        f"WARNING: {n_skipped} gated artifact(s) skipped — R2 uploader not "
+        "configured; gated data will be unavailable until credentials are "
+        "provided (R2_ACCOUNT_ID/R2_ACCESS_KEY_ID/R2_SECRET_ACCESS_KEY/"
+        "R2_BUCKET) and the publish is re-run. Gated artifacts are never "
+        "written to the local static output. Pass --strict-gating (or set "
+        "SYNTHBENCH_PUBLISH_STRICT=1) to fail instead of skipping.",
+        err=True,
+    )
+
+
+_STRICT_GATING_OPTION = click.option(
+    "--strict-gating",
+    is_flag=True,
+    default=False,
+    envvar="SYNTHBENCH_PUBLISH_STRICT",
+    show_envvar=True,
+    help=(
+        "Fail (exit 1) instead of skipping when gated-tier artifacts have no "
+        "R2 uploader configured. CI deploys set SYNTHBENCH_PUBLISH_STRICT=1 "
+        "so a missing R2 configuration fails the build loudly instead of "
+        "deploying without gated data."
+    ),
+)
 
 
 @main.command("publish-runs")
@@ -2172,13 +2254,16 @@ def _resolve_r2_uploader(no_r2: bool):
     is_flag=True,
     default=False,
     help=(
-        "Force local writes for gated datasets even when R2 env vars are set. "
-        "Default behavior uploads gated-tier per-run/config/question JSONs to "
-        "Cloudflare R2 when R2_ACCOUNT_ID/R2_ACCESS_KEY_ID/R2_SECRET_ACCESS_KEY/"
-        "R2_BUCKET are all present, falling back to local writes otherwise (sb-sjs)."
+        "Disable R2 uploads even when R2 env vars are set. Gated-tier "
+        "per-run/config/question JSONs are then SKIPPED — they are never "
+        "written to the local static output (fail closed). Default behavior "
+        "uploads gated artifacts to Cloudflare R2 when R2_ACCOUNT_ID/"
+        "R2_ACCESS_KEY_ID/R2_SECRET_ACCESS_KEY/R2_BUCKET are all present "
+        "(sb-sjs)."
     ),
 )
-def publish_runs_cmd(results_dir, output_dir, no_r2):
+@_STRICT_GATING_OPTION
+def publish_runs_cmd(results_dir, output_dir, no_r2, strict_gating):
     """Emit run-explorer artifacts (runs-index, per-config, per-run JSON).
 
     Also emits per-question rollups under ``<output-dir>/question/`` for the
@@ -2198,6 +2283,7 @@ def publish_runs_cmd(results_dir, output_dir, no_r2):
             output_dir=Path(output_dir),
             version=__version__,
             r2_uploader=r2_uploader,
+            strict_gating=strict_gating,
         )
         sink = (
             f"R2 bucket {r2_uploader.bucket} (gated) + {output_dir} (public)"
@@ -2213,6 +2299,7 @@ def publish_runs_cmd(results_dir, output_dir, no_r2):
             output_dir=Path(output_dir),
             version=__version__,
             r2_uploader=r2_uploader,
+            strict_gating=strict_gating,
         )
         click.echo(
             f"Question explorer data exported: {q_counts['questions']} questions "
@@ -2223,6 +2310,9 @@ def publish_runs_cmd(results_dir, output_dir, no_r2):
                 f"R2 upload summary: {r2_uploader.object_count} objects to "
                 f"{r2_uploader.bucket}"
             )
+        _warn_gated_skips(
+            counts.get("gated_skipped", 0) + q_counts.get("gated_skipped", 0)
+        )
     except ValueError as e:
         click.echo(str(e), err=True)
         sys.exit(1)
@@ -2375,11 +2465,13 @@ def scan_invalid(results_dir, json_output, quarantine):
     is_flag=True,
     default=False,
     help=(
-        "Force local writes for gated datasets even when R2 env vars are set "
-        "(sb-sjs). See `synthbench publish-runs --help` for details."
+        "Disable R2 uploads even when R2 env vars are set. Gated-tier "
+        "artifacts are then SKIPPED, never written locally (fail closed; "
+        "sb-sjs). See `synthbench publish-runs --help` for details."
     ),
 )
-def publish_questions_cmd(results_dir, output_dir, no_r2):
+@_STRICT_GATING_OPTION
+def publish_questions_cmd(results_dir, output_dir, no_r2, strict_gating):
     """Emit per-question rollups for the /question explorer view (sb-eiv).
 
     Example:
@@ -2394,6 +2486,7 @@ def publish_questions_cmd(results_dir, output_dir, no_r2):
             output_dir=Path(output_dir),
             version=__version__,
             r2_uploader=r2_uploader,
+            strict_gating=strict_gating,
         )
         sink = (
             f"R2 bucket {r2_uploader.bucket} (gated) + {output_dir} (public)"
@@ -2409,6 +2502,7 @@ def publish_questions_cmd(results_dir, output_dir, no_r2):
                 f"R2 upload summary: {r2_uploader.object_count} objects to "
                 f"{r2_uploader.bucket}"
             )
+        _warn_gated_skips(counts.get("gated_skipped", 0))
     except ValueError as e:
         click.echo(str(e), err=True)
         sys.exit(1)

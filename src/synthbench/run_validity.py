@@ -54,6 +54,14 @@ REFUSAL_RATE_THRESHOLD = 0.05
 # "uniform garbage" from "coincidentally flat but real" signal. Skip silently.
 MIN_QUESTIONS_FOR_VALIDITY = 10
 
+# A question with n_samples == 0 produced no usable signal at all (failed
+# batch, all-parse-failure, provider outage) — its published distribution is
+# fabricated by construction. Any such question flags in the metrics; a run
+# is invalid when more than this fraction of its questions have zero
+# samples. 10% tolerates the odd transient failure on a long run while
+# rejecting runs whose distributions are substantially fabricated.
+ZERO_SAMPLE_FRACTION_THRESHOLD = 0.1
+
 
 def uniformity_score(dist: Mapping[str, float] | None) -> float:
     """Return the maximum absolute deviation from perfect uniformity.
@@ -104,12 +112,19 @@ def compute_uniformity_metrics(
     * ``uniform_fraction``: ratio in ``[0, 1]`` (``0.0`` if n_questions == 0)
     * ``refusal_rate``: mean per-question ``model_refusal_rate`` (``0.0`` if
       missing or empty)
+    * ``n_zero_sample_questions``: count with an explicit ``n_samples == 0``
+      (no usable signal — the published distribution is fabricated).
+      Questions without an ``n_samples`` field (pre-tracking runs) are not
+      counted.
+    * ``zero_sample_fraction``: ratio in ``[0, 1]`` (``0.0`` if
+      n_questions == 0)
 
     Pure function: no I/O, no mutation of ``data``.
     """
     pq = _per_question(data)
     n_questions = len(pq)
     n_uniform = 0
+    n_zero_samples = 0
     refusals: list[float] = []
     for q in pq:
         if not isinstance(q, Mapping):
@@ -120,15 +135,21 @@ def compute_uniformity_metrics(
         r = q.get("model_refusal_rate")
         if isinstance(r, (int, float)):
             refusals.append(float(r))
+        ns = q.get("n_samples")
+        if isinstance(ns, int) and not isinstance(ns, bool) and ns == 0:
+            n_zero_samples += 1
 
     uniform_fraction = (n_uniform / n_questions) if n_questions else 0.0
     refusal_rate = (sum(refusals) / len(refusals)) if refusals else 0.0
+    zero_sample_fraction = (n_zero_samples / n_questions) if n_questions else 0.0
 
     return {
         "n_questions": n_questions,
         "n_uniform_questions": n_uniform,
         "uniform_fraction": uniform_fraction,
         "refusal_rate": refusal_rate,
+        "n_zero_sample_questions": n_zero_samples,
+        "zero_sample_fraction": zero_sample_fraction,
     }
 
 
@@ -139,6 +160,7 @@ def is_invalid_run(
     uniform_fraction_threshold: float = UNIFORM_FRACTION_THRESHOLD,
     refusal_rate_threshold: float = REFUSAL_RATE_THRESHOLD,
     min_questions: int = MIN_QUESTIONS_FOR_VALIDITY,
+    zero_sample_fraction_threshold: float = ZERO_SAMPLE_FRACTION_THRESHOLD,
 ) -> tuple[bool, str, dict]:
     """Classify a single run as invalid (API-failure garbage) or valid.
 
@@ -147,13 +169,18 @@ def is_invalid_run(
     :func:`compute_uniformity_metrics` (always present, useful for
     downstream reporting even on valid runs).
 
-    A run is flagged invalid when ALL of the following hold:
+    A run is flagged invalid when ``n_questions >= min_questions`` and
+    EITHER of the following holds:
 
-    1. ``n_questions >= min_questions`` (skip trivially small runs)
-    2. ``uniform_fraction > uniform_fraction_threshold`` — the bulk of
-       questions are perfectly uniform
-    3. ``refusal_rate <= refusal_rate_threshold`` — the uniformity is not
-       explained by legitimate refusals
+    A. Zero-sample check: more than ``zero_sample_fraction_threshold`` of
+       questions report an explicit ``n_samples == 0`` — those
+       distributions were published without a single usable sample.
+
+    B. Uniform-garbage check (both conditions):
+       1. ``uniform_fraction >= uniform_fraction_threshold`` — the bulk of
+          questions are perfectly uniform
+       2. ``refusal_rate <= refusal_rate_threshold`` — the uniformity is
+          not explained by legitimate refusals
 
     Any other state is treated as valid: low-uniformity runs, runs with
     genuine refusal patterns, and runs too small to evaluate all pass
@@ -163,6 +190,14 @@ def is_invalid_run(
     n = metrics["n_questions"]
     if n < min_questions:
         return False, "", metrics
+
+    if metrics["zero_sample_fraction"] > zero_sample_fraction_threshold:
+        reason = (
+            f"zero-sample: {metrics['n_zero_sample_questions']}/{n} questions "
+            f"({metrics['zero_sample_fraction']:.1%}) have n_samples == 0 — "
+            "their distributions carry no signal"
+        )
+        return True, reason, metrics
 
     if metrics["uniform_fraction"] < uniform_fraction_threshold:
         return False, "", metrics

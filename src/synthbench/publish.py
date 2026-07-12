@@ -6,6 +6,7 @@ import json
 import logging
 import math
 import re
+from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import TYPE_CHECKING
@@ -1755,20 +1756,68 @@ def _write_minified(path: Path, payload: dict) -> None:
         json.dump(payload, f, separators=(",", ":"), sort_keys=False)
 
 
-def _routes_to_r2(dataset: str | None, r2_uploader: "R2Uploader | None") -> bool:
-    """Whether a per-dataset artifact should ship to R2 instead of local disk.
+def _routes_to_r2(dataset: str | None) -> bool:
+    """Whether a per-dataset artifact must ship to R2 instead of local disk.
 
     Only the ``gated`` tier (sb-sj6) serves from R2. ``full`` continues to
     land in ``site/public/data/`` for the static-site Pages origin;
     ``aggregates_only`` and ``citation_only`` emit no per-question/run/
     config artifact at all — callers must short-circuit on
     :attr:`DatasetPolicy.suppress_per_question` before reaching this
-    helper. Returns False when no uploader is configured (local-only
-    mode) or when the dataset is unknown.
+    helper. Returns False when the dataset is unknown.
+
+    Routing is a property of the dataset's license policy alone — it does
+    NOT depend on whether an uploader happens to be configured. A gated
+    artifact with no uploader is skipped (fail closed), never written to
+    the local static output.
     """
-    if r2_uploader is None or dataset is None:
+    if dataset is None:
         return False
     return policy_for(dataset).serves_from_r2
+
+
+class GatedPublishError(ValueError):
+    """A gated-tier artifact could not be published in strict mode.
+
+    Raised when strict gating is enabled and a dataset whose
+    ``redistribution_policy`` routes to R2 has no uploader configured.
+    Subclasses :class:`ValueError` so the publish CLI's existing error
+    handling surfaces the message and exits non-zero.
+    """
+
+
+@dataclass
+class GatedSkipLog:
+    """Tracks gated artifacts that were skipped because R2 is unconfigured.
+
+    License-restricted (``gated``) artifacts must never land in the local
+    static output — that origin is served publicly without auth. When no
+    R2 uploader is available the publish step either skips the artifact
+    (default: degrade gracefully, gated data is unavailable until
+    credentials are provided and the publish re-runs) or hard-fails
+    (``strict=True``, used by CI deploys so a missing R2 configuration
+    fails the build loudly instead of silently shipping without gated
+    data).
+    """
+
+    strict: bool = False
+    keys: list[str] = field(default_factory=list)
+
+    def record(self, relative_key: str, dataset: str) -> None:
+        if self.strict:
+            raise GatedPublishError(
+                f"Gated artifact {relative_key!r} (dataset {dataset!r}) has no "
+                "R2 uploader configured and strict gating is enabled. Gated "
+                "artifacts are never written to the local static output. "
+                "Configure R2_ACCOUNT_ID/R2_ACCESS_KEY_ID/R2_SECRET_ACCESS_KEY/"
+                "R2_BUCKET, or drop --strict-gating / SYNTHBENCH_PUBLISH_STRICT "
+                "to skip gated artifacts instead."
+            )
+        self.keys.append(relative_key)
+
+    @property
+    def count(self) -> int:
+        return len(self.keys)
 
 
 def _emit_artifact(
@@ -1778,16 +1827,26 @@ def _emit_artifact(
     *,
     dataset: str | None,
     r2_uploader: "R2Uploader | None",
+    gated_skips: GatedSkipLog | None = None,
 ) -> None:
     """Route a single publish artifact to R2 or local disk per dataset policy.
 
     ``relative_key`` is interpreted both as a path under ``output_dir`` for
     local writes and as the R2 object key for uploads, so the two surfaces
     stay in lock-step (the Worker proxy looks up the same path).
+
+    Gated-tier artifacts are fail-closed: when no uploader is configured
+    they are recorded on ``gated_skips`` (or silently dropped if no log is
+    supplied) and NEVER written under ``output_dir`` — the local output is
+    the public static origin, and writing license-restricted data there is
+    exactly the leak this routing exists to prevent.
     """
-    if _routes_to_r2(dataset, r2_uploader):
-        # mypy: r2_uploader is not None here (proved by _routes_to_r2).
-        assert r2_uploader is not None
+    if _routes_to_r2(dataset):
+        if r2_uploader is None:
+            if gated_skips is not None:
+                # Raises GatedPublishError in strict mode.
+                gated_skips.record(relative_key, dataset or "unknown")
+            return
         r2_uploader.put_json(relative_key, payload)
         return
     _write_minified(output_dir / relative_key, payload)
@@ -1799,6 +1858,7 @@ def publish_runs(
     version: str = "0.1.0",
     *,
     r2_uploader: "R2Uploader | None" = None,
+    strict_gating: bool = False,
 ) -> dict[str, int]:
     """Emit the three run-explorer artifact families.
 
@@ -1809,7 +1869,11 @@ def publish_runs(
       site; the Pages origin serves them without auth.
     - ``gated`` — artifacts ship to Cloudflare R2 (requires
       ``r2_uploader``); the Worker proxy fronts the bucket with Supabase
-      JWT validation so only signed-in visitors can reach them.
+      JWT validation so only signed-in visitors can reach them. When no
+      uploader is configured these artifacts are SKIPPED, never written
+      locally (fail closed — the local output is the public static
+      origin). With ``strict_gating=True`` the first such artifact raises
+      :class:`GatedPublishError` instead.
     - ``aggregates_only`` / ``citation_only`` — no per-run / per-config
       artifact emitted. The catalog row in ``runs-index.json`` still
       appears so the leaderboard renders, but drill-down pages have no
@@ -1829,9 +1893,12 @@ def publish_runs(
             ``r2://<bucket>/config/<config-id>.json``
             ``r2://<bucket>/run/<run-id>.json``
 
-    Returns a dict of counts: {"runs": N, "configs": M}. Counts reflect
-    the index entries, not the number of per-run/per-config artifacts
-    actually emitted (suppressed datasets still contribute to the index).
+    Returns a dict of counts: {"runs": N, "configs": M, "gated_skipped": K}.
+    ``runs``/``configs`` reflect the index entries, not the number of
+    per-run/per-config artifacts actually emitted (suppressed datasets
+    still contribute to the index). ``gated_skipped`` counts gated
+    artifacts dropped because no R2 uploader was configured — callers
+    should surface a prominent warning when it is non-zero.
     """
     from synthbench.config_id import build_config_id
     from synthbench.leaderboard import display_provider_name, provider_framework
@@ -1852,6 +1919,8 @@ def publish_runs(
         shutil.rmtree(config_dir)
     run_dir.mkdir(parents=True, exist_ok=True)
     config_dir.mkdir(parents=True, exist_ok=True)
+
+    gated_skips = GatedSkipLog(strict=strict_gating)
 
     json_files = sorted(results_dir.glob("*.json"))
     if not json_files:
@@ -1947,6 +2016,7 @@ def publish_runs(
                 run_detail,
                 dataset=dataset,
                 r2_uploader=r2_uploader,
+                gated_skips=gated_skips,
             )
 
         # Recomputed metrics (P0-4) override the submitted aggregate block;
@@ -2016,6 +2086,7 @@ def publish_runs(
             rollup,
             dataset=meta["dataset"],
             r2_uploader=r2_uploader,
+            gated_skips=gated_skips,
         )
 
     # Sort index for stable output: dataset, then SPS desc, then timestamp.
@@ -2036,7 +2107,11 @@ def publish_runs(
     }
     _write_minified(output_dir / "runs-index.json", index_payload)
 
-    return {"runs": len(index_entries), "configs": len(grouped)}
+    return {
+        "runs": len(index_entries),
+        "configs": len(grouped),
+        "gated_skipped": gated_skips.count,
+    }
 
 
 # ---------------------------------------------------------------------------
@@ -2382,6 +2457,7 @@ def publish_questions(
     version: str = "0.1.0",
     *,
     r2_uploader: "R2Uploader | None" = None,
+    strict_gating: bool = False,
 ) -> dict[str, int]:
     """Emit per-question rollups for the question-explorer view.
 
@@ -2394,7 +2470,10 @@ def publish_questions(
     :class:`DatasetPolicy` (sb-sj6): ``full`` lands on disk for the static
     site, ``gated`` ships to Cloudflare R2 (requires ``r2_uploader``), and
     ``aggregates_only`` / ``citation_only`` emit no per-question artifact
-    at all.
+    at all. Gated artifacts with no uploader configured are SKIPPED, never
+    written locally (fail closed — the local output is the public static
+    origin); with ``strict_gating=True`` the first such artifact raises
+    :class:`GatedPublishError` instead.
 
     Artifacts written:
         ``full`` datasets:
@@ -2404,7 +2483,10 @@ def publish_questions(
             ``r2://<bucket>/question/<dataset>/<sanitized-key>.json``
             ``r2://<bucket>/question/<dataset>/index.json``
 
-    Returns counts: ``{"questions": N, "datasets": M}``.
+    Returns counts: ``{"questions": N, "datasets": M, "gated_skipped": K}``.
+    ``gated_skipped`` counts gated artifacts dropped because no R2
+    uploader was configured — callers should surface a prominent warning
+    when it is non-zero.
     """
     import shutil
 
@@ -2416,6 +2498,8 @@ def publish_questions(
     if question_root.exists():
         shutil.rmtree(question_root)
     question_root.mkdir(parents=True, exist_ok=True)
+
+    gated_skips = GatedSkipLog(strict=strict_gating)
 
     text_registry = _load_question_text_registry(results_dir.parent)
 
@@ -2478,6 +2562,7 @@ def publish_questions(
             payload,
             dataset=dataset,
             r2_uploader=r2_uploader,
+            gated_skips=gated_skips,
         )
         by_dataset_index.setdefault(dataset, []).append(
             _build_question_index_entry(payload)
@@ -2509,6 +2594,7 @@ def publish_questions(
             index_payload,
             dataset=dataset,
             r2_uploader=r2_uploader,
+            gated_skips=gated_skips,
         )
 
     # Always emit a gated-routes manifest locally so the Astro SSG build can
@@ -2524,4 +2610,8 @@ def publish_questions(
     }
     _write_minified(output_dir / "gated-routes.json", gated_routes_payload)
 
-    return {"questions": n_questions, "datasets": len(by_dataset_index)}
+    return {
+        "questions": n_questions,
+        "datasets": len(by_dataset_index),
+        "gated_skipped": gated_skips.count,
+    }
