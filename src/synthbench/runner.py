@@ -306,10 +306,35 @@ class BenchmarkResult:
         r = bootstrap_ci(refuse_diffs, _mean, seed=44)
         cis["p_refuse"] = (round(1.0 - r.ci_upper, 6), round(1.0 - r.ci_lower, 6))
 
-        # SPS CI from per-question parity scores
-        parity_vals = [q.parity for q in self.questions]
-        r = bootstrap_ci(parity_vals, _mean, seed=45)
-        cis["sps"] = (round(r.ci_lower, 6), round(r.ci_upper, 6))
+        # SPS CI — resample questions and recompute the full composite per
+        # resample. Previously this bootstrapped per-question `parity` (the
+        # legacy 2-metric blend), which produced an interval on a *different*
+        # metric that routinely excluded the SPS point estimate (P2-4).
+        #
+        # P_dist, P_rank, and P_refuse are each the mean of a per-question
+        # contribution, so the resampled composite is an affine function of
+        # the mean per-question contribution below; fixed components
+        # (p_sub / p_cond, which don't vary under question resampling)
+        # shift and rescale the interval deterministically. BCa intervals
+        # are equivariant under monotone transforms, so transforming the
+        # bounds equals bootstrapping the full composite directly.
+        contrib = [
+            (
+                (1.0 - q.jsd)
+                + (1.0 + q.kendall_tau) / 2.0
+                + (1.0 - abs(q.model_refusal_rate - q.human_refusal_rate))
+            )
+            / 3.0
+            for q in self.questions
+        ]
+        fixed = [v for v in (self.p_sub, self.p_cond) if v is not None]
+        n_components = 3 + len(fixed)
+        shift = sum(fixed)
+        r = bootstrap_ci(contrib, _mean, seed=45)
+        cis["sps"] = (
+            round((3.0 * r.ci_lower + shift) / n_components, 6),
+            round((3.0 * r.ci_upper + shift) / n_components, 6),
+        )
 
         return cis
 

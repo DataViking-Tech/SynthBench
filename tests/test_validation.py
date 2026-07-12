@@ -814,6 +814,12 @@ class TestSbA613Regression:
         p_dist = 1.0 - mean_jsd
         p_rank = (1.0 + mean_tau) / 2.0
         composite = 0.5 * p_dist + 0.5 * p_rank
+        # p_refuse must reconcile with the per-question refusal rates now
+        # that tier 2 recomputes it (P0-4). The pre-fix fixture hardcoded
+        # 1.0, which its own rows contradict.
+        p_refuse = 1.0 - sum(
+            abs(q["model_refusal_rate"] - q["human_refusal_rate"]) for q in rows
+        ) / len(rows)
 
         return {
             "benchmark": "synthbench",
@@ -829,7 +835,7 @@ class TestSbA613Regression:
                 "sps": composite,
                 "p_dist": p_dist,
                 "p_rank": p_rank,
-                "p_refuse": 1.0,
+                "p_refuse": p_refuse,
             },
             "aggregate": {
                 "mean_jsd": mean_jsd,

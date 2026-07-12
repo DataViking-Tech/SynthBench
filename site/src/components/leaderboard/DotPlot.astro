@@ -14,7 +14,11 @@ for (const entry of leaderboard.entries) {
     modelMap.set(key, entry);
   }
 }
-const models = [...modelMap.values()].sort((a, b) => a.sps - b.sps);
+// CI bounds are nullable (absence = unknown, never zero); these charts
+// exist to draw the interval, so rows without one are omitted.
+const models = [...modelMap.values()]
+  .filter((m) => m.ci_lower != null && m.ci_upper != null)
+  .sort((a, b) => a.sps - b.sps);
 
 // JSON-safe payload for the client script. The chart option (which contains
 // `renderItem` / tooltip formatter functions) is built inside the script,
