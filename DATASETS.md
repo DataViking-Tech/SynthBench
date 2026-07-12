@@ -65,6 +65,14 @@ The dataset must declare one of the four redistribution tiers in
 The cited license text must support the chosen tier. "I think it's fine" is
 not a defense; if the policy is unclear, default to `aggregates_only`.
 
+Gating is fail-closed at publish time: `gated` artifacts ship only to the
+authenticated R2 origin and are never written to the local static output.
+If the publish step runs without R2 credentials, gated artifacts are
+skipped with a warning (or the publish fails outright under
+`--strict-gating` / `SYNTHBENCH_PUBLISH_STRICT=1`, which CI deploys set),
+and `scripts/verify-publish-integrity.py` fails the build if any non-`full`
+artifact is found under `site/public/data/`.
+
 ### 4. Vertical / use-case fit
 
 Round-2 PMF (2026-05-14) flagged the leaderboard as too narrow on general

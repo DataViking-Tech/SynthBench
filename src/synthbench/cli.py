@@ -2136,17 +2136,49 @@ def publish_data(results_dir, output):
 
 
 def _resolve_r2_uploader(no_r2: bool):
-    """Return an R2Uploader (or None for local-only mode).
+    """Return an R2Uploader (or None when R2 is unavailable/disabled).
 
-    Auto-detects R2 credentials in the environment. ``--no-r2`` forces
-    local writes regardless of env vars — useful for local dev and for
-    debugging publish output without round-tripping to R2.
+    Auto-detects R2 credentials in the environment. ``--no-r2`` disables
+    uploads regardless of env vars. Without an uploader, gated-tier
+    artifacts are SKIPPED at publish time — they are never written to the
+    local static output (fail closed; the local output ships to a public
+    origin with no auth in front of it).
     """
     from synthbench.r2_upload import R2Uploader, env_has_r2_config
 
     if no_r2 or not env_has_r2_config():
         return None
     return R2Uploader.from_env()
+
+
+def _warn_gated_skips(n_skipped: int) -> None:
+    """Print the prominent fail-closed warning for skipped gated artifacts."""
+    if not n_skipped:
+        return
+    click.echo(
+        f"WARNING: {n_skipped} gated artifact(s) skipped — R2 uploader not "
+        "configured; gated data will be unavailable until credentials are "
+        "provided (R2_ACCOUNT_ID/R2_ACCESS_KEY_ID/R2_SECRET_ACCESS_KEY/"
+        "R2_BUCKET) and the publish is re-run. Gated artifacts are never "
+        "written to the local static output. Pass --strict-gating (or set "
+        "SYNTHBENCH_PUBLISH_STRICT=1) to fail instead of skipping.",
+        err=True,
+    )
+
+
+_STRICT_GATING_OPTION = click.option(
+    "--strict-gating",
+    is_flag=True,
+    default=False,
+    envvar="SYNTHBENCH_PUBLISH_STRICT",
+    show_envvar=True,
+    help=(
+        "Fail (exit 1) instead of skipping when gated-tier artifacts have no "
+        "R2 uploader configured. CI deploys set SYNTHBENCH_PUBLISH_STRICT=1 "
+        "so a missing R2 configuration fails the build loudly instead of "
+        "deploying without gated data."
+    ),
+)
 
 
 @main.command("publish-runs")
@@ -2172,13 +2204,16 @@ def _resolve_r2_uploader(no_r2: bool):
     is_flag=True,
     default=False,
     help=(
-        "Force local writes for gated datasets even when R2 env vars are set. "
-        "Default behavior uploads gated-tier per-run/config/question JSONs to "
-        "Cloudflare R2 when R2_ACCOUNT_ID/R2_ACCESS_KEY_ID/R2_SECRET_ACCESS_KEY/"
-        "R2_BUCKET are all present, falling back to local writes otherwise (sb-sjs)."
+        "Disable R2 uploads even when R2 env vars are set. Gated-tier "
+        "per-run/config/question JSONs are then SKIPPED — they are never "
+        "written to the local static output (fail closed). Default behavior "
+        "uploads gated artifacts to Cloudflare R2 when R2_ACCOUNT_ID/"
+        "R2_ACCESS_KEY_ID/R2_SECRET_ACCESS_KEY/R2_BUCKET are all present "
+        "(sb-sjs)."
     ),
 )
-def publish_runs_cmd(results_dir, output_dir, no_r2):
+@_STRICT_GATING_OPTION
+def publish_runs_cmd(results_dir, output_dir, no_r2, strict_gating):
     """Emit run-explorer artifacts (runs-index, per-config, per-run JSON).
 
     Also emits per-question rollups under ``<output-dir>/question/`` for the
@@ -2198,6 +2233,7 @@ def publish_runs_cmd(results_dir, output_dir, no_r2):
             output_dir=Path(output_dir),
             version=__version__,
             r2_uploader=r2_uploader,
+            strict_gating=strict_gating,
         )
         sink = (
             f"R2 bucket {r2_uploader.bucket} (gated) + {output_dir} (public)"
@@ -2213,6 +2249,7 @@ def publish_runs_cmd(results_dir, output_dir, no_r2):
             output_dir=Path(output_dir),
             version=__version__,
             r2_uploader=r2_uploader,
+            strict_gating=strict_gating,
         )
         click.echo(
             f"Question explorer data exported: {q_counts['questions']} questions "
@@ -2223,6 +2260,9 @@ def publish_runs_cmd(results_dir, output_dir, no_r2):
                 f"R2 upload summary: {r2_uploader.object_count} objects to "
                 f"{r2_uploader.bucket}"
             )
+        _warn_gated_skips(
+            counts.get("gated_skipped", 0) + q_counts.get("gated_skipped", 0)
+        )
     except ValueError as e:
         click.echo(str(e), err=True)
         sys.exit(1)
@@ -2375,11 +2415,13 @@ def scan_invalid(results_dir, json_output, quarantine):
     is_flag=True,
     default=False,
     help=(
-        "Force local writes for gated datasets even when R2 env vars are set "
-        "(sb-sjs). See `synthbench publish-runs --help` for details."
+        "Disable R2 uploads even when R2 env vars are set. Gated-tier "
+        "artifacts are then SKIPPED, never written locally (fail closed; "
+        "sb-sjs). See `synthbench publish-runs --help` for details."
     ),
 )
-def publish_questions_cmd(results_dir, output_dir, no_r2):
+@_STRICT_GATING_OPTION
+def publish_questions_cmd(results_dir, output_dir, no_r2, strict_gating):
     """Emit per-question rollups for the /question explorer view (sb-eiv).
 
     Example:
@@ -2394,6 +2436,7 @@ def publish_questions_cmd(results_dir, output_dir, no_r2):
             output_dir=Path(output_dir),
             version=__version__,
             r2_uploader=r2_uploader,
+            strict_gating=strict_gating,
         )
         sink = (
             f"R2 bucket {r2_uploader.bucket} (gated) + {output_dir} (public)"
@@ -2409,6 +2452,7 @@ def publish_questions_cmd(results_dir, output_dir, no_r2):
                 f"R2 upload summary: {r2_uploader.object_count} objects to "
                 f"{r2_uploader.bucket}"
             )
+        _warn_gated_skips(counts.get("gated_skipped", 0))
     except ValueError as e:
         click.echo(str(e), err=True)
         sys.exit(1)

@@ -635,7 +635,7 @@ def test_publish_questions_writes_expected_layout(tmp_path):
     out_dir = tmp_path / "site_data"
     counts = publish_questions(results_dir, out_dir)
 
-    assert counts == {"questions": 2, "datasets": 1}
+    assert counts == {"questions": 2, "datasets": 1, "gated_skipped": 0}
 
     # Per-question file exists and parses.
     q1_path = out_dir / "question" / "ntia" / "Q1.json"

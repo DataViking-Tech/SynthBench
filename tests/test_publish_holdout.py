@@ -186,14 +186,27 @@ class TestRunDetailHoldoutSplit:
         assert "holdout_split" not in detail
 
 
+class _FakeS3Client:
+    """Records put_object calls so gated uploads can be asserted on."""
+
+    def __init__(self):
+        self.calls: list[dict] = []
+
+    def put_object(self, *, Bucket: str, Key: str, Body: bytes, ContentType: str):
+        self.calls.append({"Bucket": Bucket, "Key": Key, "Body": Body})
+        return {"ETag": "fake"}
+
+
 class TestQuestionPageSuppression:
     def test_private_keys_get_no_question_page(self, tmp_path):
-        """Per-question artifacts (site/public/data/question/<dataset>/<key>.json)
-        are not emitted for private holdout keys.
+        """Per-question artifacts are not emitted for private holdout keys.
 
         Uses a ``gated`` dataset (subpop) — the post-sb-sj6 ``aggregates_only``
         tier suppresses per-question emission entirely, which would mask the
-        holdout-specific suppression this test is meant to verify.
+        holdout-specific suppression this test is meant to verify. Gated
+        artifacts route to R2 (never to local disk — without an uploader
+        they are skipped entirely, fail closed), so the assertions run
+        against a fake R2 client's recorded uploads.
         """
         pub_keys, priv_keys = _find_keys_by_partition("subpop", 3, 2)
         all_keys = pub_keys + priv_keys
@@ -236,23 +249,42 @@ class TestQuestionPageSuppression:
         }
         (results_dir / "run_one.json").write_text(json.dumps(run))
 
-        output_dir = tmp_path / "out"
-        publish_questions(results_dir, output_dir)
+        from synthbench.publish import _safe_question_key
+        from synthbench.r2_upload import R2Config, R2Uploader
 
-        question_dir = output_dir / "question" / "subpop"
-        assert question_dir.is_dir()
-        files = {p.stem for p in question_dir.glob("*.json") if p.stem != "index"}
+        client = _FakeS3Client()
+        uploader = R2Uploader(
+            R2Config(
+                account_id="acct",
+                access_key_id="ak",
+                secret_access_key="sk",
+                bucket="synthbench-data-test",
+            ),
+            client=client,
+        )
+
+        output_dir = tmp_path / "out"
+        publish_questions(results_dir, output_dir, r2_uploader=uploader)
+
+        # Gated dataset: nothing lands locally (fail closed).
+        assert not (output_dir / "question" / "subpop").exists()
+
+        uploaded = {
+            c["Key"].removeprefix("question/subpop/").removesuffix(".json")
+            for c in client.calls
+            if c["Key"].startswith("question/subpop/") and c["Key"] != "index"
+        }
+        uploaded.discard("index")
         # Public keys produce pages; private keys do not.
         for k in pub_keys:
-            from synthbench.publish import _safe_question_key
-
-            assert _safe_question_key(k) in files
+            assert _safe_question_key(k) in uploaded
         for k in priv_keys:
-            from synthbench.publish import _safe_question_key
+            assert _safe_question_key(k) not in uploaded
 
-            assert _safe_question_key(k) not in files
-
-        index = json.loads((question_dir / "index.json").read_text())
+        index_body = next(
+            c["Body"] for c in client.calls if c["Key"] == "question/subpop/index.json"
+        )
+        index = json.loads(index_body)
         index_keys = {entry["key"] for entry in index["questions"]}
         for k in priv_keys:
             assert k not in index_keys

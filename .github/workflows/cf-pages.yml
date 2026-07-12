@@ -65,10 +65,18 @@ jobs:
         run: synthbench publish-data --results-dir leaderboard-results --output site/src/data/leaderboard.json
 
       - name: Generate run explorer artifacts
+        # SYNTHBENCH_PUBLISH_STRICT=1 makes gating fail closed: if the R2
+        # uploader is not configured, the build FAILS here instead of
+        # deploying without gated data. Gated artifacts are never written to
+        # site/public/data/ — the old local-write fallback shipped
+        # license-restricted human_distribution data to the public origin.
         run: synthbench publish-runs --results-dir leaderboard-results --output-dir site/public/data
         env:
           R2_BUCKET: ${{ secrets.R2_BUCKET }}
+          SYNTHBENCH_PUBLISH_STRICT: "1"
 
+      # Also re-checks that no gated-dataset artifact is present under the
+      # local publish output (license-gating backstop).
       - name: Verify publish integrity (sb-4zy)
         run: python3 scripts/verify-publish-integrity.py
 
