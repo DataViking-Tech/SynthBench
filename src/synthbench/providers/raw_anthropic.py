@@ -2,8 +2,8 @@
 
 from __future__ import annotations
 
-import re
-
+from synthbench.providers._parsing import parse_option_response
+from synthbench.providers._retry import call_with_retries
 from synthbench.providers.base import (
     PersonaSpec,
     Provider,
@@ -31,30 +31,14 @@ def _build_prompt(question: str, options: list[str]) -> str:
     return _PROMPT_TEMPLATE.format(question=question, options_block=options_block)
 
 
-def _parse_letter(text: str, options: list[str]) -> str | None:
-    """Extract the selected option from model response."""
-    text = text.strip()
-
-    # Try to match a single letter
-    match = re.match(r"^\(?([A-Z])\)?", text.upper())
-    if match:
-        idx = ord(match.group(1)) - ord("A")
-        if 0 <= idx < len(options):
-            return options[idx]
-
-    # Try to match option text directly
-    text_lower = text.lower()
-    for opt in options:
-        if opt.lower() in text_lower:
-            return opt
-
-    return None
-
-
 class RawAnthropicProvider(Provider):
     """Call Claude directly with no persona framing."""
 
-    def __init__(self, model: str = "claude-haiku-4-5-20251001", **kwargs):
+    def __init__(
+        self,
+        model: str = "claude-haiku-4-5-20251001",
+        temperature: float = 1.0,  # Sample, don't argmax
+    ):
         try:
             import anthropic
         except ImportError:
@@ -63,6 +47,7 @@ class RawAnthropicProvider(Provider):
                 "pip install 'synthbench[anthropic]'"
             )
         self._model = model
+        self._temperature = temperature
         self._client = anthropic.AsyncAnthropic()
 
     @property
@@ -79,20 +64,18 @@ class RawAnthropicProvider(Provider):
         prompt = _build_prompt(question, options)
         system = build_persona_system_prompt(_SYSTEM, persona)
 
-        message = await self._client.messages.create(
-            model=self._model,
-            max_tokens=8,
-            temperature=1.0,  # Sample, don't argmax
-            system=system,
-            messages=[{"role": "user", "content": prompt}],
+        message = await call_with_retries(
+            lambda: self._client.messages.create(
+                model=self._model,
+                max_tokens=8,
+                temperature=self._temperature,
+                system=system,
+                messages=[{"role": "user", "content": prompt}],
+            )
         )
 
         raw_text = message.content[0].text if message.content else ""
-        selected = _parse_letter(raw_text, options)
-
-        if selected is None:
-            # Fallback: pick first option (will show up as noise in metrics)
-            selected = options[0]
+        parsed = parse_option_response(raw_text, options)
 
         usage = None
         if getattr(message, "usage", None) is not None:
@@ -102,8 +85,9 @@ class RawAnthropicProvider(Provider):
             }
 
         return Response(
-            selected_option=selected,
+            selected_option=parsed.option,
             raw_text=raw_text,
+            refusal=parsed.refusal,
             metadata={
                 "model": self._model,
                 "stop_reason": message.stop_reason,

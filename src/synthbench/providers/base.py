@@ -28,13 +28,36 @@ class Distribution:
     method: str = "sampling"
     n_samples: int | None = None
     metadata: dict | None = None
+    n_parse_failures: int = 0
+    """Samples whose response could not be mapped to any option.
+
+    Parse failures are excluded from ``probabilities`` and from
+    ``n_samples`` — they are reported here so the runner can surface a
+    real ``n_parse_failures`` instead of silently folding failures into
+    the distribution.
+    """
+
+
+class ProviderError(RuntimeError):
+    """Infrastructure failure while querying a provider.
+
+    Raised (after bounded retries) instead of fabricating a response or
+    publishing a uniform distribution. Distinct from a refusal, which is a
+    legitimate model behaviour tracked via ``Response.refusal``.
+    """
 
 
 @dataclass
 class Response:
-    """A single response from a provider."""
+    """A single response from a provider.
 
-    selected_option: str
+    ``selected_option`` is ``None`` when the raw response could not be
+    parsed into any of the offered options (a parse failure). Providers
+    must NOT substitute a default option — the runner counts these as
+    parse failures and excludes them from the distribution.
+    """
+
+    selected_option: str | None
     raw_text: str = ""
     metadata: dict | None = None
     refusal: bool = False
@@ -94,10 +117,22 @@ class Provider(ABC):
         ]
         results = await asyncio.gather(*tasks)
 
+        valid_options = set(options)
         refusals = sum(1 for r in results if r.refusal)
-        responses = [r.selected_option for r in results if not r.refusal]
+        responses = [
+            r.selected_option
+            for r in results
+            if not r.refusal and r.selected_option in valid_options
+        ]
+        parse_failures = sum(
+            1
+            for r in results
+            if not r.refusal and r.selected_option not in valid_options
+        )
 
-        total = len(results)
+        # Parse failures carry no signal about the answer distribution —
+        # exclude them from both the numerator and the denominator.
+        total = len(responses) + refusals
         counts = Counter(responses)
         probs = [counts.get(opt, 0) / max(total, 1) for opt in options]
         refusal_prob = refusals / max(total, 1)
@@ -107,6 +142,7 @@ class Provider(ABC):
             refusal_probability=refusal_prob,
             method="sampling",
             n_samples=total,
+            n_parse_failures=parse_failures,
         )
 
     @property

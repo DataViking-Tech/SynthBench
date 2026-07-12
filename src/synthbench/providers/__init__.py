@@ -1,4 +1,10 @@
-from synthbench.providers.base import Distribution, PersonaSpec, Provider, Response
+from synthbench.providers.base import (
+    Distribution,
+    PersonaSpec,
+    Provider,
+    ProviderError,
+    Response,
+)
 
 PROVIDERS: dict[str, str] = {
     "raw-anthropic": "synthbench.providers.raw_anthropic:RawAnthropicProvider",
@@ -30,6 +36,7 @@ __all__ = [
     "Distribution",
     "PersonaSpec",
     "Provider",
+    "ProviderError",
     "Response",
     "PROVIDERS",
     "load_provider",

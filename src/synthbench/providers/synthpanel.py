@@ -9,7 +9,6 @@ from __future__ import annotations
 
 import asyncio
 import json
-import re
 import shutil
 import tempfile
 from collections import Counter
@@ -17,7 +16,15 @@ from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 from typing import Any
 
-from synthbench.providers.base import Distribution, PersonaSpec, Provider, Response
+from synthbench.providers._parsing import parse_option_response
+from synthbench.providers._retry import call_with_retries
+from synthbench.providers.base import (
+    Distribution,
+    PersonaSpec,
+    Provider,
+    ProviderError,
+    Response,
+)
 
 _LETTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 
@@ -31,24 +38,6 @@ try:
     _HAS_SYNTH_PANEL_API = True
 except (ImportError, TypeError):
     _HAS_SYNTH_PANEL_API = False
-
-
-def _parse_letter(text: str, options: list[str]) -> str | None:
-    """Extract the selected option from response text."""
-    text = text.strip()
-
-    match = re.match(r"^\(?([A-Z])\)?", text.upper())
-    if match:
-        idx = ord(match.group(1)) - ord("A")
-        if 0 <= idx < len(options):
-            return options[idx]
-
-    text_lower = text.lower()
-    for opt in options:
-        if str(opt).lower() in text_lower:
-            return opt
-
-    return None
 
 
 def _yaml_escape(text: str) -> str:
@@ -204,7 +193,6 @@ class SynthPanelProvider(Provider):
         profile: str | None = None,
         prompt_template: str | None = None,
         synthpanel_path: str | None = None,
-        **kwargs,
     ):
         self._model = model
         self._temperature = temperature
@@ -303,18 +291,17 @@ class SynthPanelProvider(Provider):
         )
 
         loop = asyncio.get_running_loop()
-        response = await loop.run_in_executor(
-            self._executor, self._client.send, request
+        response = await call_with_retries(
+            lambda: loop.run_in_executor(self._executor, self._client.send, request)
         )
 
         raw_text = response.text
-        selected = _parse_letter(raw_text, options)
-        if selected is None:
-            selected = options[0]
+        parsed = parse_option_response(raw_text, options)
 
         return Response(
-            selected_option=selected,
+            selected_option=parsed.option,
             raw_text=raw_text,
+            refusal=parsed.refusal,
             metadata={
                 "model": response.model,
                 "usage": {
@@ -379,7 +366,14 @@ class SynthPanelProvider(Provider):
         persona: PersonaSpec | None,
         n_samples: int | None,
     ) -> Distribution:
-        """Concurrent direct API calls — no subprocess overhead."""
+        """Concurrent direct API calls — no subprocess overhead.
+
+        Per-sample transport failures are retried with backoff; a sample
+        that still fails is counted as an infrastructure error — never a
+        refusal, never a fabricated vote. If every sample fails on infra,
+        the whole call raises so the run fails loudly instead of publishing
+        a fabricated distribution.
+        """
         effective_samples = n_samples if n_samples is not None else 30
         system = _build_system_prompt(persona)
         user_text = _build_question_text(question, options)
@@ -393,54 +387,69 @@ class SynthPanelProvider(Provider):
         )
 
         loop = asyncio.get_running_loop()
-        futures = [
-            loop.run_in_executor(self._executor, self._client.send, request)
-            for _ in range(effective_samples)
-        ]
-        results = await asyncio.gather(*futures, return_exceptions=True)
+
+        def _one_call():
+            return call_with_retries(
+                lambda: loop.run_in_executor(self._executor, self._client.send, request)
+            )
+
+        results = await asyncio.gather(
+            *(_one_call() for _ in range(effective_samples)), return_exceptions=True
+        )
 
         responses: list[str] = []
         refusals = 0
+        parse_failures = 0
+        infra_errors: list[BaseException] = []
         input_tokens_total = 0
         output_tokens_total = 0
         usage_calls = 0
         for result in results:
-            if isinstance(result, Exception):
-                refusals += 1
+            if isinstance(result, BaseException):
+                infra_errors.append(result)
                 continue
             raw_text = result.text
-            selected = _parse_letter(raw_text, options)
-            if selected is None:
+            parsed = parse_option_response(raw_text, options)
+            if parsed.refusal:
                 refusals += 1
+            elif parsed.option is None:
+                parse_failures += 1
             else:
-                responses.append(selected)
+                responses.append(parsed.option)
             usage = getattr(result, "usage", None)
             if usage is not None:
                 input_tokens_total += getattr(usage, "input_tokens", 0) or 0
                 output_tokens_total += getattr(usage, "output_tokens", 0) or 0
                 usage_calls += 1
 
+        if infra_errors and not responses and not refusals and not parse_failures:
+            raise ProviderError(
+                f"synthpanel API: all {len(infra_errors)} samples failed with "
+                f"infrastructure errors (last: {infra_errors[-1]!r})"
+            ) from infra_errors[-1]
+
         total = len(responses) + refusals
         counts = Counter(responses)
         probs = [counts.get(opt, 0) / max(total, 1) for opt in options]
         refusal_prob = refusals / max(total, 1)
 
-        metadata: dict | None = None
+        metadata: dict = {}
         if usage_calls > 0:
-            metadata = {
-                "usage": {
-                    "input_tokens": input_tokens_total,
-                    "output_tokens": output_tokens_total,
-                    "call_count": usage_calls,
-                }
+            metadata["usage"] = {
+                "input_tokens": input_tokens_total,
+                "output_tokens": output_tokens_total,
+                "call_count": usage_calls,
             }
+        if infra_errors:
+            metadata["n_infra_errors"] = len(infra_errors)
 
         return Distribution(
             probabilities=probs,
             refusal_probability=refusal_prob,
             method="sampling",
             n_samples=total,
-            metadata=metadata,
+            n_parse_failures=parse_failures,
+            metadata=metadata or None,
         )
 
     # ── CLI fallback path ────────────────────────────────────────
@@ -646,12 +655,13 @@ class SynthPanelProvider(Provider):
             cmd.extend(["--prompt-template", self._prompt_template])
         return cmd
 
-    async def _run_cli(
-        self, inst_path: str, pers_path: str, options: list[str]
-    ) -> Response:
-        """Execute synthpanel CLI and parse the JSON output."""
-        cmd = self._build_cmd(inst_path, pers_path)
+    async def _run_subprocess(self, cmd: list[str]) -> dict:
+        """Run the synthpanel CLI and return its parsed JSON output.
 
+        A non-zero exit or unparseable output is an infrastructure failure
+        of the pipeline under benchmark — raise instead of fabricating a
+        response or a uniform distribution.
+        """
         proc = await asyncio.create_subprocess_exec(
             *cmd,
             stdout=asyncio.subprocess.PIPE,
@@ -663,26 +673,23 @@ class SynthPanelProvider(Provider):
         raw_stderr = stderr.decode().strip()
 
         if proc.returncode != 0:
-            return Response(
-                selected_option=options[0],
-                raw_text="",
-                metadata={
-                    "error": f"synthpanel exited {proc.returncode}: {raw_stderr}",
-                    "model": self._model,
-                },
+            raise ProviderError(
+                f"synthpanel exited {proc.returncode}: {raw_stderr[:500]}"
             )
 
         try:
-            data = json.loads(raw_stdout)
-        except json.JSONDecodeError:
-            return Response(
-                selected_option=options[0],
-                raw_text=raw_stdout,
-                metadata={
-                    "error": "failed to parse synthpanel JSON output",
-                    "model": self._model,
-                },
-            )
+            return json.loads(raw_stdout)
+        except json.JSONDecodeError as exc:
+            raise ProviderError(
+                f"failed to parse synthpanel JSON output: {raw_stdout[:200]!r}"
+            ) from exc
+
+    async def _run_cli(
+        self, inst_path: str, pers_path: str, options: list[str]
+    ) -> Response:
+        """Execute synthpanel CLI and parse the JSON output."""
+        cmd = self._build_cmd(inst_path, pers_path)
+        data = await self._run_subprocess(cmd)
 
         # Extract the panelist response text
         raw_text = ""
@@ -691,9 +698,7 @@ class SynthPanelProvider(Provider):
         except (KeyError, IndexError):
             pass
 
-        selected = _parse_letter(raw_text, options)
-        if selected is None:
-            selected = options[0]
+        parsed = parse_option_response(raw_text, options)
 
         # Gather metadata from synthpanel output
         panelist_result = {}
@@ -713,8 +718,9 @@ class SynthPanelProvider(Provider):
             metadata["panelist_error"] = panelist_result["error"]
 
         return Response(
-            selected_option=selected,
+            selected_option=parsed.option,
             raw_text=raw_text,
+            refusal=parsed.refusal,
             metadata=metadata,
         )
 
@@ -727,47 +733,24 @@ class SynthPanelProvider(Provider):
     ) -> Distribution:
         """Run a batch of personas and build a distribution."""
         cmd = self._build_cmd(inst_path, pers_path)
-
-        proc = await asyncio.create_subprocess_exec(
-            *cmd,
-            stdout=asyncio.subprocess.PIPE,
-            stderr=asyncio.subprocess.PIPE,
-        )
-        stdout, stderr = await proc.communicate()
-
-        raw_stdout = stdout.decode().strip()
-
-        if proc.returncode != 0:
-            n = len(options)
-            return Distribution(
-                probabilities=[1.0 / n] * n,
-                method="sampling",
-                n_samples=0,
-            )
-
-        try:
-            data = json.loads(raw_stdout)
-        except json.JSONDecodeError:
-            n = len(options)
-            return Distribution(
-                probabilities=[1.0 / n] * n,
-                method="sampling",
-                n_samples=0,
-            )
+        data = await self._run_subprocess(cmd)
 
         # Extract all panelist responses from the batch
         responses: list[str] = []
         refusals = 0
+        parse_failures = 0
         try:
             results = data["rounds"][0]["results"]
             for result in results:
                 for resp in result.get("responses", []):
                     raw_text = resp.get("response", "")
-                    selected = _parse_letter(raw_text, options)
-                    if selected is None:
+                    parsed = parse_option_response(raw_text, options)
+                    if parsed.refusal:
                         refusals += 1
+                    elif parsed.option is None:
+                        parse_failures += 1
                     else:
-                        responses.append(selected)
+                        responses.append(parsed.option)
         except (KeyError, IndexError):
             pass
 
@@ -781,6 +764,7 @@ class SynthPanelProvider(Provider):
             refusal_probability=refusal_prob,
             method="sampling",
             n_samples=total,
+            n_parse_failures=parse_failures,
         )
 
     async def _run_multi_cli(
@@ -788,45 +772,9 @@ class SynthPanelProvider(Provider):
     ) -> list[Response]:
         """Execute synthpanel with a multi-question instrument (single persona)."""
         cmd = self._build_cmd(inst_path, pers_path)
-
-        proc = await asyncio.create_subprocess_exec(
-            *cmd,
-            stdout=asyncio.subprocess.PIPE,
-            stderr=asyncio.subprocess.PIPE,
-        )
-        stdout, stderr = await proc.communicate()
-        raw_stdout = stdout.decode().strip()
-        raw_stderr = stderr.decode().strip()
+        data = await self._run_subprocess(cmd)
 
         n_questions = len(options_list)
-
-        if proc.returncode != 0:
-            return [
-                Response(
-                    selected_option=opts[0],
-                    raw_text="",
-                    metadata={
-                        "error": f"synthpanel exited {proc.returncode}: {raw_stderr}",
-                        "model": self._model,
-                    },
-                )
-                for opts in options_list
-            ]
-
-        try:
-            data = json.loads(raw_stdout)
-        except json.JSONDecodeError:
-            return [
-                Response(
-                    selected_option=opts[0],
-                    raw_text=raw_stdout,
-                    metadata={
-                        "error": "failed to parse synthpanel JSON output",
-                        "model": self._model,
-                    },
-                )
-                for opts in options_list
-            ]
 
         # Extract per-question responses from the single persona result
         responses: list[Response] = []
@@ -839,20 +787,20 @@ class SynthPanelProvider(Provider):
             opts = options_list[q_idx]
             if q_idx < len(persona_responses):
                 raw_text = persona_responses[q_idx].get("response", "")
-                selected = _parse_letter(raw_text, opts)
-                if selected is None:
-                    selected = opts[0]
+                parsed = parse_option_response(raw_text, opts)
                 responses.append(
                     Response(
-                        selected_option=selected,
+                        selected_option=parsed.option,
                         raw_text=raw_text,
+                        refusal=parsed.refusal,
                         metadata={"model": data.get("model", self._model)},
                     )
                 )
             else:
+                # Missing response — a parse failure, not a vote for opts[0].
                 responses.append(
                     Response(
-                        selected_option=opts[0],
+                        selected_option=None,
                         raw_text="",
                         metadata={
                             "error": "no response for question",
@@ -872,42 +820,14 @@ class SynthPanelProvider(Provider):
     ) -> list[Distribution]:
         """Run multi-question instrument with N personas, return per-Q distributions."""
         cmd = self._build_cmd(inst_path, pers_path)
-
-        proc = await asyncio.create_subprocess_exec(
-            *cmd,
-            stdout=asyncio.subprocess.PIPE,
-            stderr=asyncio.subprocess.PIPE,
-        )
-        stdout, stderr = await proc.communicate()
-        raw_stdout = stdout.decode().strip()
+        data = await self._run_subprocess(cmd)
 
         n_questions = len(options_list)
-
-        if proc.returncode != 0:
-            return [
-                Distribution(
-                    probabilities=[1.0 / len(opts)] * len(opts),
-                    method="sampling",
-                    n_samples=0,
-                )
-                for opts in options_list
-            ]
-
-        try:
-            data = json.loads(raw_stdout)
-        except json.JSONDecodeError:
-            return [
-                Distribution(
-                    probabilities=[1.0 / len(opts)] * len(opts),
-                    method="sampling",
-                    n_samples=0,
-                )
-                for opts in options_list
-            ]
 
         # Collect per-question responses across all personas
         per_q_selected: list[list[str]] = [[] for _ in range(n_questions)]
         per_q_refusals: list[int] = [0] * n_questions
+        per_q_parse_failures: list[int] = [0] * n_questions
 
         try:
             results = data["rounds"][0]["results"]
@@ -916,13 +836,15 @@ class SynthPanelProvider(Provider):
                 for q_idx in range(n_questions):
                     if q_idx < len(persona_responses):
                         raw_text = persona_responses[q_idx].get("response", "")
-                        selected = _parse_letter(raw_text, options_list[q_idx])
-                        if selected is None:
+                        parsed = parse_option_response(raw_text, options_list[q_idx])
+                        if parsed.refusal:
                             per_q_refusals[q_idx] += 1
+                        elif parsed.option is None:
+                            per_q_parse_failures[q_idx] += 1
                         else:
-                            per_q_selected[q_idx].append(selected)
+                            per_q_selected[q_idx].append(parsed.option)
                     else:
-                        per_q_refusals[q_idx] += 1
+                        per_q_parse_failures[q_idx] += 1
         except (KeyError, IndexError):
             pass
 
@@ -942,6 +864,7 @@ class SynthPanelProvider(Provider):
                     refusal_probability=refusal_prob,
                     method="sampling",
                     n_samples=total,
+                    n_parse_failures=per_q_parse_failures[q_idx],
                 )
             )
 

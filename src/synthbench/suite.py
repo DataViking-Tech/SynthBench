@@ -152,7 +152,7 @@ async def run_suite(
     import click
 
     from synthbench import report
-    from synthbench.cli import MODEL_ALIASES
+    from synthbench.cli import MODEL_ALIASES, _provider_kwargs
     from synthbench.datasets import DATASETS
     from synthbench.providers import load_provider
     from synthbench.runner import BenchmarkRunner
@@ -161,11 +161,9 @@ async def run_suite(
     resolved_model = MODEL_ALIASES.get(model, model)
 
     # Build provider once
-    provider_kwargs = {"model": resolved_model}
-    if url:
-        provider_kwargs["url"] = url
-    if temperature is not None:
-        provider_kwargs["temperature"] = temperature
+    provider_kwargs = _provider_kwargs(
+        provider_name, model=resolved_model, url=url, temperature=temperature
+    )
     prov = load_provider(provider_name, **provider_kwargs)
 
     # Check existing results for gap detection
