@@ -121,12 +121,22 @@ export async function fetchTieredJson<T>(
     return { ok: true, data, tier };
   }
 
+  // Gated tier with no Worker proxy configured (local-dev / CI / any preview
+  // build without `PUBLIC_GATED_API_BASE`): the per-question artifact is never
+  // written to the static origin (publish fails closed on gated data), so a
+  // local fetch would 404. Surface the sign-in gate directly — the data is
+  // definitionally unavailable without the authenticated Worker.
+  if (tier === "gated") {
+    return {
+      ok: false,
+      gated: true,
+      tier: "gated",
+      status: 0,
+      message: "Sign in to view per-question data for this dataset.",
+    };
+  }
+
   // full / unknown → static Pages origin.
-  // Gated tiers also land here when `PUBLIC_GATED_API_BASE` is not set, which
-  // is the local-dev and CI default: there is no Worker proxy in front of the
-  // static `public/data/` artifacts, so we serve them directly. Production
-  // deployments MUST configure `PUBLIC_GATED_API_BASE` to engage the gate
-  // (the Worker layer is what actually enforces auth on gated data).
   const url = `${base}/data/${cleanPath}`;
   let res: Response;
   try {
