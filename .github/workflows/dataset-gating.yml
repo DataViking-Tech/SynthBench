@@ -20,7 +20,7 @@ jobs:
     steps:
       - name: Detect changes under src/synthbench/datasets/**
         id: changed
-        uses: actions/github-script@v7
+        uses: actions/github-script@v9
         with:
           script: |
             const { owner, repo } = context.repo;
@@ -40,7 +40,7 @@ jobs:
 
       - name: Apply datasets-change label
         if: steps.changed.outputs.touched_count != '0'
-        uses: actions/github-script@v7
+        uses: actions/github-script@v9
         with:
           script: |
             const { owner, repo } = context.repo;
@@ -52,7 +52,7 @@ jobs:
 
       - name: Post sticky proposal-first comment
         if: steps.changed.outputs.touched_count != '0'
-        uses: actions/github-script@v7
+        uses: actions/github-script@v9
         with:
           script: |
             const { owner, repo } = context.repo;
@@ -107,7 +107,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Decide whether gate applies and is satisfied
-        uses: actions/github-script@v7
+        uses: actions/github-script@v9
         with:
           script: |
             const { owner, repo } = context.repo;
