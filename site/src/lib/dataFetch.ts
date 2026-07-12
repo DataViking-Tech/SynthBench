@@ -170,7 +170,7 @@ export function renderSignInGate(
     typeof window !== "undefined" ? window.location.pathname + window.location.search : "";
   const signInHref = `${accountHref}?next=${encodeURIComponent(nextPath)}`;
   container.innerHTML = `
-    <div class="rounded-lg border border-muted/30 bg-muted/5 p-5 text-sm">
+    <div data-signin-gate class="rounded-lg border border-muted/30 bg-muted/5 p-5 text-sm">
       <strong class="block mb-1">Sign in to view per-question distributions</strong>
       <p class="text-muted">${escapeHtml(message)}</p>
       <div class="mt-3">
