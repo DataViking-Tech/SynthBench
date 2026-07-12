@@ -113,7 +113,7 @@ def test_publish_questions_routes_gated_dataset_to_r2(tmp_path: Path):
     uploader, client = _uploader()
     counts = publish_questions(results_dir, out_dir, r2_uploader=uploader)
 
-    assert counts == {"questions": 1, "datasets": 1}
+    assert counts == {"questions": 1, "datasets": 1, "gated_skipped": 0}
     # No per-question file on disk for the gated dataset — it lives in R2.
     assert not (out_dir / "question" / "subpop" / "Q1.json").exists()
     assert not (out_dir / "question" / "subpop" / "index.json").exists()
@@ -156,7 +156,7 @@ def test_publish_questions_keeps_full_dataset_on_disk_with_uploader(tmp_path: Pa
     uploader, client = _uploader()
     counts = publish_questions(results_dir, out_dir, r2_uploader=uploader)
 
-    assert counts == {"questions": 1, "datasets": 1}
+    assert counts == {"questions": 1, "datasets": 1, "gated_skipped": 0}
     assert (out_dir / "question" / "ntia" / "NQ1.json").exists()
     assert (out_dir / "question" / "ntia" / "index.json").exists()
     assert client.calls == []
@@ -184,14 +184,16 @@ def test_publish_questions_aggregates_only_emits_nothing_per_question(tmp_path: 
     uploader, client = _uploader()
     counts = publish_questions(results_dir, out_dir, r2_uploader=uploader)
 
-    assert counts == {"questions": 0, "datasets": 0}
+    assert counts == {"questions": 0, "datasets": 0, "gated_skipped": 0}
     assert not (out_dir / "question" / "aggr_only_fixture" / "Q1.json").exists()
     assert client.calls == []
 
 
-def test_publish_questions_without_uploader_writes_gated_locally(tmp_path: Path):
-    """Debug mode: without an uploader, gated-tier artifacts fall back to
-    local disk so operators can inspect publish output end-to-end."""
+def test_publish_questions_without_uploader_skips_gated(tmp_path: Path):
+    """Fail closed: without an uploader, gated-tier artifacts are SKIPPED —
+    never written to the local output, which ships to the public static
+    origin. The skip is surfaced via the ``gated_skipped`` count so the CLI
+    can warn prominently."""
     results_dir = tmp_path / "raw"
     results_dir.mkdir()
     (results_dir / "gated_run.json").write_text(
@@ -205,8 +207,14 @@ def test_publish_questions_without_uploader_writes_gated_locally(tmp_path: Path)
     out_dir = tmp_path / "site_data"
     counts = publish_questions(results_dir, out_dir, r2_uploader=None)
 
-    assert counts == {"questions": 1, "datasets": 1}
-    assert (out_dir / "question" / "subpop" / "Q1.json").exists()
+    # Q1.json + the subpop index.json are both withheld.
+    assert counts == {"questions": 1, "datasets": 1, "gated_skipped": 2}
+    assert not (out_dir / "question" / "subpop").exists()
+    # The gated-routes manifest still enumerates the key so the Astro SSG
+    # can prerender the auth-gated shell page; the payload stays absent
+    # until a publish runs with R2 credentials.
+    routes = json.loads((out_dir / "gated-routes.json").read_text())
+    assert routes["datasets"].get("subpop") == ["Q1"]
 
 
 # -- publish_runs routing ---------------------------------------------------

@@ -41,7 +41,12 @@ const ROUTES: Route[] = [
   {
     label: "run-detail",
     path: `run/${SAMPLE_RUN_ID}/`,
-    readySelector: "#per-question-tbody tr.pq-row",
+    // The sample run is a gated dataset; with license-gating enforced, its
+    // per-question payload is served only from the authenticated R2 origin,
+    // which is unreachable in CI. The page then correctly renders the
+    // sign-in gate instead of the per-question table. Accept either so this
+    // stays valid for gated runs (gate) and any future full-tier run (rows).
+    readySelector: "#per-question-tbody tr.pq-row, [data-signin-gate]",
     settleMs: 2000,
     capture: "viewport",
   },
