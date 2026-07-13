@@ -28,7 +28,10 @@ import type { APIRoute } from "astro";
 //
 // Docs: docs/leaderboard-json-api.md
 
-const API_VERSION = "1.0.0";
+// 1.1.0 (P0-4 / P2-4 fix): every score is recomputed from per-question
+// data at publish time; ci_lower / ci_upper are now a genuine bootstrap CI
+// on the recomputed sps and are `null` (not [0, 0]) when unavailable.
+const API_VERSION = "1.1.0";
 const CONTRACT_URL =
   "https://github.com/DataViking-Tech/SynthBench/blob/main/docs/leaderboard-json-api.md";
 

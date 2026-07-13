@@ -79,8 +79,16 @@ Always present on every row:
 | `p_dist` / `p_rank` / `p_refuse` | float | SPS sub-metrics. |
 | `jsd` | float | Jensen–Shannon divergence to human distribution. |
 | `n` | int | Number of questions evaluated. |
-| `ci_lower` / `ci_upper` | float | Bootstrap CI on `sps`. |
+| `ci_lower` / `ci_upper` | float \| null | 95% bootstrap CI on `sps` — questions are resampled with replacement and the full SPS composite is recomputed per resample. `null` when a CI cannot be computed (fewer than 5 scored questions); treat `null` as unknown, never zero. |
 | `is_baseline` / `is_ensemble` | bool | Row category flags. |
+
+**Integrity note.** Every score above (`sps`, `p_dist`, `p_rank`,
+`p_refuse`, `jsd`, `tau`, `n`, and the CI bounds) is **recomputed from the
+run's per-question distributions at publish time**. Submitter-supplied
+aggregate blocks are never republished, and rank order is derived from the
+recomputed `sps`. (`p_cond` / `p_sub` are the exception: they come from
+demographic-conditioned sampling that is not serialized per question, so
+they are passed through from the submission after bounds validation.)
 
 ### Optional entry fields
 
@@ -98,6 +106,11 @@ Present when the underlying data supports them. Consumers MUST treat absence as
 
 ## Stability contract
 
+- **1.1.0**: `ci_lower` / `ci_upper` are now a genuine question-resampling
+  bootstrap CI on the recomputed `sps` and are `null` when unavailable
+  (previously a CI of the 2-metric parity composite was mislabelled as the
+  SPS CI, and missing CIs degraded to `[0, 0]`). Consumers doing arithmetic
+  on the CI bounds must null-check first.
 - `api.version` is **semver**.
   - **Major** bump → renamed or removed documented field. Pin and test.
   - **Minor** bump → new optional field, new entries, new datasets. Safe.

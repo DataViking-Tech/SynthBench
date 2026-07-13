@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import logging
 import math
 import re
 from dataclasses import dataclass, field
@@ -15,6 +16,117 @@ from synthbench.run_validity import is_invalid_run, run_identity
 
 if TYPE_CHECKING:
     from synthbench.r2_upload import R2Uploader
+
+logger = logging.getLogger(__name__)
+
+# Tolerance for the submitted-vs-recomputed SPS divergence warning. Mirrors
+# the tier-2 validator's aggregate tolerance so publish and validate agree
+# on what counts as "the submitter's number doesn't reconcile".
+_SPS_DIVERGENCE_WARN_TOLERANCE = 1e-2
+
+# Private cache key attached to loaded result dicts so the recomputed view
+# is derived once per run per publish pass. Never serialized: every emitted
+# artifact is built from explicit field lists.
+_RECOMPUTED_KEY = "_synthbench_recomputed_view"
+
+
+def _effective_n(result: dict) -> int:
+    """Number of evaluated questions, derived defensively.
+
+    Prefers ``config.n_evaluated`` when it is a positive int, else falls back
+    to the per-question row count. Ensemble results historically shipped
+    without ``n_evaluated`` and published as ``n: 0`` — rank-1 rows "scored
+    on zero questions" — so the row count is the safety net.
+    """
+    cfg = result.get("config") or {}
+    n = cfg.get("n_evaluated")
+    if isinstance(n, int) and not isinstance(n, bool) and n > 0:
+        return n
+    per_question = result.get("per_question")
+    return len(per_question) if isinstance(per_question, list) else 0
+
+
+def _recomputed_view(result: dict, source: str | None = None) -> dict:
+    """Recompute every publishable score from the run's per-question rows.
+
+    The publish pipeline never trusts submitter-supplied aggregates (P0-4):
+    ranking, displayed scores, and confidence intervals all come from this
+    view. Submitted ``scores`` / ``aggregate`` blocks are only consulted for
+    fields that cannot be derived from ``per_question`` (``p_sub`` /
+    ``p_cond``, operational metadata like token usage and latency).
+
+    Returns ``{"scores": {...}, "aggregate": {...}, "per_metric_ci": {...}}``.
+    ``per_metric_ci`` is ``{}`` when a CI cannot be computed (absence means
+    unknown — consumers must never see a degraded ``[0, 0]``). When a run
+    carries no usable per-question rows, all recomputed scores are absent and
+    the run publishes with zeroed scores rather than the submitted claims.
+
+    Logs a warning when the submitted ``scores.sps`` diverges from the
+    recomputed value beyond tolerance; the recomputed number is published
+    regardless.
+    """
+    cached = result.get(_RECOMPUTED_KEY)
+    if isinstance(cached, dict):
+        return cached
+
+    from synthbench.recompute import bootstrap_metric_cis, recompute_aggregates
+
+    per_question = result.get("per_question") or []
+    submitted_scores = result.get("scores") or {}
+    rec = recompute_aggregates(per_question, extended_scores=submitted_scores)
+
+    if rec is None:
+        view: dict = {"scores": {}, "aggregate": {}, "per_metric_ci": {}}
+        result[_RECOMPUTED_KEY] = view
+        return view
+
+    scores: dict = {
+        "sps": rec.sps,
+        "p_dist": rec.p_dist,
+        "p_rank": rec.p_rank,
+    }
+    if rec.p_refuse is not None:
+        scores["p_refuse"] = rec.p_refuse
+    # p_sub / p_cond are not derivable from per_question rows; pass through
+    # the (tier-1 bounds-checked) submitted values that already entered the
+    # recomputed composite via recompute_aggregates.
+    for key in ("p_sub", "p_cond"):
+        if key in rec.components:
+            scores[key] = rec.components[key]
+
+    aggregate = {
+        "mean_jsd": rec.mean_jsd,
+        "median_jsd": rec.median_jsd,
+        "mean_kendall_tau": rec.mean_kendall_tau,
+        "composite_parity": rec.parity_two,
+        "n_questions": rec.n_questions,
+    }
+
+    submitted_sps = submitted_scores.get("sps")
+    if (
+        isinstance(submitted_sps, (int, float))
+        and not isinstance(submitted_sps, bool)
+        and abs(float(submitted_sps) - rec.sps) > _SPS_DIVERGENCE_WARN_TOLERANCE
+    ):
+        label = source or (result.get("config") or {}).get("provider", "<unknown>")
+        logger.warning(
+            "%s: submitted scores.sps=%.6f diverges from recomputed %.6f "
+            "(delta=%.6f); publishing the recomputed value",
+            label,
+            float(submitted_sps),
+            rec.sps,
+            abs(float(submitted_sps) - rec.sps),
+        )
+
+    view = {
+        "scores": scores,
+        "aggregate": aggregate,
+        "per_metric_ci": bootstrap_metric_cis(
+            per_question, extended_scores=submitted_scores
+        ),
+    }
+    result[_RECOMPUTED_KEY] = view
+    return view
 
 
 def _partition_valid_runs(
@@ -70,12 +182,12 @@ def _dedup_results(results: list[dict]) -> list[dict]:
         cfg = r.get("config", {})
         provider = cfg.get("provider", "unknown")
         dataset = cfg.get("dataset", "unknown")
-        n_eval = cfg.get("n_evaluated", 0)
+        n_eval = _effective_n(r)
         name = display_provider_name(provider)
         fw = provider_framework(provider)
         key = (name, fw, dataset)
         existing = best.get(key)
-        if existing is None or n_eval > existing["config"].get("n_evaluated", 0):
+        if existing is None or n_eval > _effective_n(existing):
             best[key] = r
         # Collect demographic data from all runs
         demo = r.get("demographic_breakdown", {})
@@ -397,9 +509,13 @@ def _build_entry(
     provider_name = display_provider_name(provider_raw)
     framework = provider_framework(provider_raw)
     provider_id, model_id = runnable_ids(provider_raw)
-    scores = r.get("scores", {})
+    # Never trust submitter-supplied aggregates (P0-4): every score below is
+    # recomputed from the per-question rows. The submitted `aggregate` block
+    # is only read for operational metadata (token usage, latency).
+    view = _recomputed_view(r)
+    scores = view["scores"]
+    rec_agg = view["aggregate"]
     agg = r.get("aggregate", {})
-    ci = agg.get("per_metric_ci", {}).get("sps", [0, 0])
 
     is_baseline = framework == "baseline"
     is_ensemble = "ensemble" in provider_raw.lower()
@@ -414,20 +530,13 @@ def _build_entry(
         question_set_hash=cfg.get("question_set_hash"),
     )
 
-    ci_lower = round(ci[0], 6) if len(ci) >= 2 else 0
-    ci_upper = round(ci[1], 6) if len(ci) >= 2 else 0
-
-    # Ensembles are deterministic arithmetic — the original per_metric_ci
-    # collapses to [0, 0]. Recover a real CI by bootstrapping per-question
-    # parity scores (Efron 1979).
-    if is_ensemble and ci_lower == 0 and ci_upper == 0:
-        from synthbench.baselines import ensemble_bootstrap_ci
-
-        per_question = r.get("per_question", [])
-        if per_question:
-            lo, hi = ensemble_bootstrap_ci(per_question, metric_key="parity")
-            ci_lower = round(lo, 6)
-            ci_upper = round(hi, 6)
+    # CI on SPS, recomputed at publish time: resample questions, recompute
+    # the full composite per resample (P2-4 fix — the stored per_metric_ci
+    # of legacy files is the CI of the 2-metric parity, a different metric).
+    # None (JSON null) when unavailable: absence means unknown, never [0, 0].
+    sps_ci = view["per_metric_ci"].get("sps")
+    ci_lower = sps_ci[0] if sps_ci else None
+    ci_upper = sps_ci[1] if sps_ci else None
 
     entry: dict = {
         "rank": rank,
@@ -446,9 +555,9 @@ def _build_entry(
         "p_dist": round(scores.get("p_dist", 0), 6),
         "p_rank": round(scores.get("p_rank", 0), 6),
         "p_refuse": round(scores.get("p_refuse", 0), 6),
-        "jsd": round(agg.get("mean_jsd", 0), 6),
-        "tau": round(agg.get("mean_kendall_tau", 0), 6),
-        "n": cfg.get("n_evaluated", 0),
+        "jsd": round(rec_agg.get("mean_jsd", 0), 6),
+        "tau": round(rec_agg.get("mean_kendall_tau", 0), 6),
+        "n": _effective_n(r),
         "ci_lower": ci_lower,
         "ci_upper": ci_upper,
         "is_baseline": is_baseline,
@@ -1122,6 +1231,12 @@ def publish_leaderboard_data(
             f"an empty leaderboard."
         )
 
+    # Recompute all scores up front (P0-4): warms the per-run cache with the
+    # run_id attached so submitted-vs-recomputed SPS divergence warnings name
+    # the offending file, and guarantees ranking below uses recomputed values.
+    for run_id, data in valid_pairs:
+        _recomputed_view(data, source=run_id)
+
     deduped = _dedup_results(results)
 
     # Index by (provider_string, dataset) so ensemble cost can resolve its
@@ -1147,7 +1262,12 @@ def publish_leaderboard_data(
         ds_results = [
             r for r in deduped if r.get("config", {}).get("dataset", "unknown") == ds
         ]
-        ds_results.sort(key=lambda r: r.get("scores", {}).get("sps", 0), reverse=True)
+        # Rank by the RECOMPUTED SPS — submitted aggregates are ignored
+        # entirely (P0-4: a hand-edited scores.sps must not buy a rank).
+        ds_results.sort(
+            key=lambda r: _recomputed_view(r)["scores"].get("sps", 0.0),
+            reverse=True,
+        )
         for rank, r in enumerate(ds_results, 1):
             entries.append(_build_entry(r, rank, results_by_provider_ds))
 
@@ -1428,7 +1548,10 @@ def _build_index_entry(
         "temperature": cfg.get("temperature"),
         "template": _tpl_name(cfg.get("prompt_template")),
         "samples_per_question": cfg.get("samples_per_question"),
-        "n_questions": cfg.get("n_evaluated", agg.get("n_questions", 0)),
+        # `or` (not dict-default) so ensemble rows whose config never carried
+        # n_evaluated fall through to the recomputed per-question count
+        # instead of publishing n=0.
+        "n_questions": cfg.get("n_evaluated") or agg.get("n_questions", 0),
         "n_topics": n_topics,
         "sps": _round_or_none(scores.get("sps")),
         "p_dist": _round_or_none(scores.get("p_dist")),
@@ -1453,13 +1576,25 @@ def _build_run_detail(
     timestamp: str | None,
 ) -> dict:
     cfg = result.get("config", {}) or {}
-    scores = result.get("scores", {}) or {}
+    # Recomputed from per-question rows (P0-4) — submitted scores/aggregate
+    # metrics are never republished. The submitted aggregate block is only
+    # read for operational metadata (elapsed_seconds, n_parse_failures).
+    view = _recomputed_view(result, source=run_id)
+    scores = view["scores"]
+    rec_agg = view["aggregate"]
     agg = result.get("aggregate", {}) or {}
     per_question = result.get("per_question", []) or []
     demo = result.get("demographic_breakdown", {}) or {}
     temporal = result.get("temporal_breakdown", {}) or {}
     dataset_name = cfg.get("dataset", "unknown")
     policy = policy_for(dataset_name)
+
+    # Question-resampling bootstrap CIs, recomputed at publish time (P2-4:
+    # the stored per_metric_ci of legacy files labelled a 2-metric parity
+    # CI as the SPS CI). None when unavailable — never a degraded [0, 0].
+    per_metric_ci = {
+        metric: list(bounds) for metric, bounds in view["per_metric_ci"].items()
+    } or None
 
     detail = {
         "run_id": run_id,
@@ -1479,7 +1614,7 @@ def _build_run_detail(
         "template": _tpl_name(cfg.get("prompt_template")),
         "samples_per_question": cfg.get("samples_per_question"),
         "n_requested": cfg.get("n_requested"),
-        "n_evaluated": cfg.get("n_evaluated"),
+        "n_evaluated": cfg.get("n_evaluated") or rec_agg.get("n_questions"),
         "question_set_hash": cfg.get("question_set_hash"),
         "topic_filter": cfg.get("topic_filter"),
         "parse_failure_rate": cfg.get("parse_failure_rate"),
@@ -1490,13 +1625,13 @@ def _build_run_detail(
             "p_refuse": _round_or_none(scores.get("p_refuse")),
         },
         "aggregate": {
-            "mean_jsd": _round_or_none(agg.get("mean_jsd")),
-            "median_jsd": _round_or_none(agg.get("median_jsd")),
-            "mean_kendall_tau": _round_or_none(agg.get("mean_kendall_tau")),
-            "composite_parity": _round_or_none(agg.get("composite_parity")),
-            "n_questions": agg.get("n_questions"),
+            "mean_jsd": _round_or_none(rec_agg.get("mean_jsd")),
+            "median_jsd": _round_or_none(rec_agg.get("median_jsd")),
+            "mean_kendall_tau": _round_or_none(rec_agg.get("mean_kendall_tau")),
+            "composite_parity": _round_or_none(rec_agg.get("composite_parity")),
+            "n_questions": rec_agg.get("n_questions"),
             "elapsed_seconds": _round_or_none(agg.get("elapsed_seconds"), places=3),
-            "per_metric_ci": agg.get("per_metric_ci"),
+            "per_metric_ci": per_metric_ci,
             "n_parse_failures": agg.get("n_parse_failures"),
         },
         "per_question": _augment_per_question(
@@ -1566,7 +1701,8 @@ def _build_config_rollup(
                 "p_refuse": _round_or_none(scores.get("p_refuse")),
                 "jsd": _round_or_none(agg.get("mean_jsd")),
                 "tau": _round_or_none(agg.get("mean_kendall_tau")),
-                "n_questions": r["config"].get("n_evaluated", 0),
+                "n_questions": r["config"].get("n_evaluated")
+                or agg.get("n_questions", 0),
             }
         )
         if scores.get("sps") is not None:
@@ -1883,8 +2019,12 @@ def publish_runs(
                 gated_skips=gated_skips,
             )
 
-        agg = result.get("aggregate", {}) or {}
-        scores = result.get("scores", {}) or {}
+        # Recomputed metrics (P0-4) override the submitted aggregate block;
+        # the submitted block still contributes operational metadata only
+        # (elapsed_seconds, token_usage, latency).
+        view = _recomputed_view(result, source=run_id)
+        agg = {**(result.get("aggregate", {}) or {}), **view["aggregate"]}
+        scores = view["scores"]
 
         index_entries.append(
             _build_index_entry(

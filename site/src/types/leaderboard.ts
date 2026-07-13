@@ -60,8 +60,14 @@ export interface LeaderboardEntry {
   temperature?: number;
   template?: string;
 
-  ci_lower: number;
-  ci_upper: number;
+  /**
+   * 95% bootstrap CI on the recomputed `sps` (questions resampled with
+   * replacement, full SPS composite recomputed per resample). `null` when
+   * a CI cannot be computed (fewer than 5 scored questions) — treat null
+   * as unknown, never zero.
+   */
+  ci_lower: number | null;
+  ci_upper: number | null;
 
   is_baseline: boolean;
   is_ensemble: boolean;

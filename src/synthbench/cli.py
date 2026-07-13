@@ -2665,6 +2665,10 @@ def ensemble(files, output, weights):
                 for i, (f, sp) in enumerate(zip(files, source_providers))
             ],
             "n_common_questions": len(common_keys),
+            # The blend is evaluated on exactly the common-question
+            # intersection. Without this, publish renders ensemble rows as
+            # "scored on zero questions" (n: 0).
+            "n_evaluated": len(common_keys),
         },
         "scores": {
             "sps": sps,
@@ -2809,6 +2813,7 @@ def validate(
             {
                 "source": r.source,
                 "ok": r.ok and (not strict or not r.warnings),
+                "metadata": r.metadata,
                 "issues": [
                     {
                         "code": i.code,

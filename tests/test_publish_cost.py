@@ -305,6 +305,37 @@ def test_build_pricing_snapshot_shape_and_rates():
 # ---------------------------------------------------------------------------
 
 
+def _pq_rows(n: int, sps: float) -> list[dict]:
+    """Constant-metric per-question rows whose recomputed composite == sps.
+
+    publish no longer trusts submitted aggregates (P0-4): the leaderboard
+    sps is recomputed from per-question rows, so this golden fixture must
+    carry rows that actually reconcile to the target score (the pre-fix
+    fixture shipped ``per_question: []`` and relied on the submitted
+    ``scores.sps`` being republished verbatim). With tau=0.5 and a zero
+    refusal diff, the 3-metric composite reduces to (2.75 - jsd) / 3, so
+    jsd = 2.75 - 3·sps hits the target exactly.
+    """
+    jsd = 2.75 - 3.0 * sps
+    assert 0.0 <= jsd <= 1.0, "target sps out of range for constant-row fixture"
+    return [
+        {
+            "key": f"Q{i:03d}",
+            "text": f"question {i}",
+            "options": ["A", "B", "C"],
+            "human_distribution": {"A": 0.6, "B": 0.3, "C": 0.1},
+            "model_distribution": {"A": 0.5, "B": 0.35, "C": 0.15},
+            "jsd": jsd,
+            "kendall_tau": 0.5,
+            "parity": (1.0 - jsd + 0.75) / 2.0,
+            "n_samples": 5,
+            "model_refusal_rate": 0.02,
+            "human_refusal_rate": 0.02,
+        }
+        for i in range(n)
+    ]
+
+
 def _make_run(
     *,
     provider: str,
@@ -323,9 +354,10 @@ def _make_run(
     }
     if ensemble_sources:
         config["ensemble_sources"] = ensemble_sources
+    jsd = 2.75 - 3.0 * sps
     aggregate: dict = {
-        "mean_jsd": 0.1,
-        "median_jsd": 0.1,
+        "mean_jsd": jsd,
+        "median_jsd": jsd,
         "mean_kendall_tau": 0.5,
         "composite_parity": sps,
         "n_questions": n_questions,
@@ -342,12 +374,12 @@ def _make_run(
         "config": config,
         "scores": {
             "sps": sps,
-            "p_dist": 0.9,
+            "p_dist": 1.0 - jsd,
             "p_rank": 0.75,
             "p_refuse": 1.0,
         },
         "aggregate": aggregate,
-        "per_question": [],
+        "per_question": _pq_rows(n_questions, sps),
         "demographic_breakdown": {},
     }
 

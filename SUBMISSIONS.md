@@ -72,27 +72,46 @@ recomputes the metrics and compares them to what you reported:
 - **Per-question JSD and Kendall's tau** — recomputed from
   `human_distribution` / `model_distribution`; mismatches above `1e-2`
   fail.
-- **Aggregate mean JSD, mean tau, composite parity** — recomputed from
-  `per_question`; mismatches above `1e-2` fail. `composite_parity`
-  may be reported as either the 2-metric blend
-  (`0.5 · (1 - JSD) + 0.5 · (1 + τ)/2`) or the SPS mean over available
-  components; both are accepted so long as one of them matches.
-- **`scores.p_dist` and `scores.p_rank`** — recomputed and checked
-  against `aggregate` and the per-question data.
+- **Aggregate mean JSD and mean tau** — recomputed from `per_question`;
+  mismatches above `1e-2` fail.
+- **`scores.sps`** — recomputed from `per_question` and required to match
+  under exactly ONE of the two documented composite conventions:
+  the **SPS mean** over available components (`p_dist`, `p_rank`,
+  `p_refuse`, plus `p_cond` / `p_sub` on conditioned runs), or the legacy
+  **2-metric blend** (`0.5 · (1 - JSD) + 0.5 · (1 + τ)/2`). A `scores.sps`
+  matching neither is an ERROR. The matched convention is recorded in the
+  validation report (`sps convention: sps` / `parity-2`, and
+  `metadata.sps_convention` in `--json` output).
+- **`aggregate.composite_parity`** — must be internally consistent with
+  the convention identified for `scores.sps`: the canonical 2-metric
+  blend is always accepted, but the SPS-mean value is only accepted when
+  `scores.sps` itself follows (or is absent and thus consistent with) the
+  SPS convention. Reporting "whichever value is higher" fails.
+- **`scores.p_dist`, `scores.p_rank`, and `scores.p_refuse`** —
+  recomputed and checked against the per-question data. `p_refuse` is
+  derived from the per-question `model_refusal_rate` /
+  `human_refusal_rate` columns; when those columns are absent a reported
+  `p_refuse` is flagged as unverifiable (warning).
 
-This is where fabricated submissions fail hardest: claiming a
-composite_parity of `0.95` while shipping distributions that actually
-yield `0.55` is caught at this step, regardless of how internally
-self-consistent the rest of the file looks.
+This is where fabricated submissions fail hardest: claiming an `sps` of
+`0.95` while shipping distributions that actually yield `0.55` is caught
+at this step, regardless of how internally self-consistent the rest of
+the file looks. The published leaderboard additionally recomputes every
+score from `per_question` at publish time and ranks by the recomputed
+value, so submitted aggregates are never trusted even if a stale file
+predates these checks.
 
-### Tier 3 — Statistical integrity + reproducibility metadata (opt-in CI)
+### Tier 3 — Statistical integrity + reproducibility metadata (always in CI)
 
 Tier 3 adds cheap anomaly detection on the per-question data the
 submitter already supplies, plus two new schema blocks that enable
 out-of-band audits. Issues in this tier are emitted as **warnings by
-default** — pass `--strict --tier3` at the CLI to fail the run on any
-warning, which is what the `validate-submissions` CI gate does for new
-leaderboard PRs.
+default** — pass `--strict` in addition to `--tier3` at the CLI to fail
+the run on any warning. The `validate-submissions` CI gate runs
+`synthbench validate --tier3 --peers leaderboard-results` on every new
+leaderboard PR: tier-1/2 errors block the merge, and tier-3 anomaly
+warnings surface in the CI log for the reviewer to adjudicate before
+approving.
 
 Enable locally with:
 

@@ -255,7 +255,9 @@ function hiddenInDefaultView(entry: LeaderboardEntry): boolean {
             <td class="px-4 py-3 text-right font-mono latency-p50-cell" data-latency-p50={entry.latency_p50_seconds ?? ""}>{formatLatency(entry.latency_p50_seconds)}</td>
             <td class="px-4 py-3 text-right font-mono latency-p95-cell" data-latency-p95={entry.latency_p95_seconds ?? ""}>{formatLatency(entry.latency_p95_seconds)}</td>
             <td class="px-4 py-3 text-right font-mono text-xs">
-              [{entry.ci_lower.toFixed(3)}, {entry.ci_upper.toFixed(3)}]
+              {entry.ci_lower != null && entry.ci_upper != null
+                ? `[${entry.ci_lower.toFixed(3)}, ${entry.ci_upper.toFixed(3)}]`
+                : "\u2014"}
             </td>
           </tr>
           <tr id={detailId} class="detail-row hidden border-b border-muted/10" data-dataset={entry.dataset} data-variant={hiddenInDefaultView(entry) ? "variant" : "best"}>
@@ -519,8 +521,17 @@ function hiddenInDefaultView(entry: LeaderboardEntry): boolean {
           let aVal: number | null | undefined;
           let bVal: number | null | undefined;
           if (sortKey === "ci") {
-            aVal = aData.ci_upper - aData.ci_lower;
-            bVal = bData.ci_upper - bData.ci_lower;
+            // ci bounds are nullable (absence = unknown); a null bound
+            // makes the width null so the row sinks with the other
+            // missing-value rows below.
+            aVal =
+              aData.ci_upper != null && aData.ci_lower != null
+                ? aData.ci_upper - aData.ci_lower
+                : null;
+            bVal =
+              bData.ci_upper != null && bData.ci_lower != null
+                ? bData.ci_upper - bData.ci_lower
+                : null;
           } else {
             aVal = aData[sortKey];
             bVal = bData[sortKey];

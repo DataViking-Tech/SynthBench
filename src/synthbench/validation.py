@@ -21,10 +21,8 @@ from enum import Enum
 from pathlib import Path
 from typing import Any, Iterable, Mapping
 
-from synthbench.metrics.composite import synthbench_parity_score
 from synthbench.metrics.distributional import jensen_shannon_divergence
 from synthbench.metrics.ranking import kendall_tau_b
-from synthbench.metrics.refusal import refusal_calibration
 from synthbench.private_holdout import (
     HOLDOUT_MOD,
     SPS_DIVERGENCE_THRESHOLD,
@@ -32,6 +30,11 @@ from synthbench.private_holdout import (
     holdout_fraction,
     is_holdout_enabled,
     is_private_holdout,
+)
+from synthbench.recompute import (
+    SPS_CONVENTION_PARITY2,
+    SPS_CONVENTION_SPS,
+    recompute_aggregates,
 )
 from synthbench.stats import question_set_hash
 
@@ -129,6 +132,10 @@ class ValidationReport:
 
     source: str = ""
     issues: list[Issue] = field(default_factory=list)
+    metadata: dict = field(default_factory=dict)
+    """Non-issue findings, e.g. ``sps_convention`` — which documented
+    composite convention the submitted ``scores.sps`` matched (``"sps"``
+    or ``"parity-2"``, see SUBMISSIONS.md)."""
 
     @property
     def errors(self) -> list[Issue]:
@@ -147,11 +154,15 @@ class ValidationReport:
 
     def format(self) -> str:
         header = f"Validation report: {self.source}"
-        if not self.issues:
-            return f"{header}\n  OK — no issues."
         lines = [header]
-        for issue in self.issues:
-            lines.append(f"  {issue.format()}")
+        if not self.issues:
+            lines.append("  OK — no issues.")
+        else:
+            for issue in self.issues:
+                lines.append(f"  {issue.format()}")
+        convention = self.metadata.get("sps_convention")
+        if convention:
+            lines.append(f"  sps convention: {convention}")
         return "\n".join(lines)
 
 
@@ -828,8 +839,26 @@ def _validate_per_question_metrics(data: Mapping[str, Any]) -> list[Issue]:
     return issues
 
 
-def _validate_aggregate_recomputation(data: Mapping[str, Any]) -> list[Issue]:
-    """Recompute mean JSD, mean tau, composite_parity, SPS components.
+def _validate_aggregate_recomputation(
+    data: Mapping[str, Any],
+) -> tuple[list[Issue], str | None]:
+    """Recompute mean JSD, mean tau, composite_parity, and every SPS score.
+
+    All aggregates are recomputed from the per-question rows (see
+    :mod:`synthbench.recompute`); the submitted values are only ever
+    *compared* against the recomputation, never trusted (P0-4).
+
+    ``scores.sps`` must match the recomputed value under exactly one of the
+    two documented composite conventions (SUBMISSIONS.md): the full SPS mean
+    over available components, or the legacy 2-metric parity blend. Once the
+    convention is identified, ``aggregate.composite_parity`` must be
+    internally consistent with it — a file cannot claim one convention for
+    ``sps`` and cherry-pick whichever value is higher for
+    ``composite_parity``.
+
+    Returns ``(issues, sps_convention)`` where ``sps_convention`` names the
+    convention the submitted ``scores.sps`` matched (``None`` when ``sps``
+    is absent or matched neither).
 
     The tolerance here is looser than per-question because published
     files round to 6 decimals, which compounds over hundreds of terms.
@@ -839,28 +868,17 @@ def _validate_aggregate_recomputation(data: Mapping[str, Any]) -> list[Issue]:
     aggregate = data.get("aggregate") or {}
     scores = data.get("scores") or {}
     per_question = data.get("per_question") or []
-    if not isinstance(per_question, list) or not per_question:
-        return issues
 
-    jsd_vals = [q.get("jsd") for q in per_question if isinstance(q, dict)]
-    tau_vals = [q.get("kendall_tau") for q in per_question if isinstance(q, dict)]
-    jsd_vals = [float(v) for v in jsd_vals if _is_number(v)]
-    tau_vals = [float(v) for v in tau_vals if _is_number(v)]
-    if not jsd_vals or not tau_vals or len(jsd_vals) != len(tau_vals):
-        return issues
-
-    n = len(jsd_vals)
-    recomputed_mean_jsd = sum(jsd_vals) / n
-    recomputed_mean_tau = sum(tau_vals) / n
-    recomputed_p_dist = 1.0 - recomputed_mean_jsd
-    recomputed_p_rank = (1.0 + recomputed_mean_tau) / 2.0
+    rec = recompute_aggregates(per_question, extended_scores=scores)
+    if rec is None:
+        return issues, None
 
     reported_mean_jsd = aggregate.get("mean_jsd")
     reported_mean_tau = aggregate.get("mean_kendall_tau")
     reported_composite = aggregate.get("composite_parity")
 
     if _is_number(reported_mean_jsd) and not _close(
-        float(reported_mean_jsd), recomputed_mean_jsd, AGGREGATE_RECOMPUTE_TOLERANCE
+        float(reported_mean_jsd), rec.mean_jsd, AGGREGATE_RECOMPUTE_TOLERANCE
     ):
         issues.append(
             Issue(
@@ -868,13 +886,13 @@ def _validate_aggregate_recomputation(data: Mapping[str, Any]) -> list[Issue]:
                 severity=Severity.ERROR,
                 message=(
                     f"aggregate.mean_jsd={reported_mean_jsd} does not match "
-                    f"recomputed {recomputed_mean_jsd:.6f}"
+                    f"recomputed {rec.mean_jsd:.6f}"
                 ),
                 path="aggregate.mean_jsd",
             )
         )
     if _is_number(reported_mean_tau) and not _close(
-        float(reported_mean_tau), recomputed_mean_tau, AGGREGATE_RECOMPUTE_TOLERANCE
+        float(reported_mean_tau), rec.mean_kendall_tau, AGGREGATE_RECOMPUTE_TOLERANCE
     ):
         issues.append(
             Issue(
@@ -882,64 +900,92 @@ def _validate_aggregate_recomputation(data: Mapping[str, Any]) -> list[Issue]:
                 severity=Severity.ERROR,
                 message=(
                     f"aggregate.mean_kendall_tau={reported_mean_tau} does not "
-                    f"match recomputed {recomputed_mean_tau:.6f}"
+                    f"match recomputed {rec.mean_kendall_tau:.6f}"
                 ),
                 path="aggregate.mean_kendall_tau",
             )
         )
 
-    # composite_parity is equivalent to either (a) a two-metric parity blend
-    # of JSD + tau, or (b) the full SPS mean. We accept either convention
-    # because the code base has historically used both.
-    parity_two = 0.5 * recomputed_p_dist + 0.5 * recomputed_p_rank
+    # scores.sps — must equal the recomputed composite under ONE of the two
+    # documented conventions. A hand-edited sps that matches neither is a
+    # hard failure regardless of how self-consistent the rest of the file is.
+    convention: str | None = None
+    reported_sps = scores.get("sps")
+    if _is_number(reported_sps):
+        reported = float(reported_sps)
+        if _close(reported, rec.sps, AGGREGATE_RECOMPUTE_TOLERANCE):
+            convention = SPS_CONVENTION_SPS
+        elif _close(reported, rec.parity_two, AGGREGATE_RECOMPUTE_TOLERANCE):
+            convention = SPS_CONVENTION_PARITY2
+        else:
+            issues.append(
+                Issue(
+                    code="SCORES_SPS",
+                    severity=Severity.ERROR,
+                    message=(
+                        f"scores.sps={reported} matches neither the recomputed "
+                        f"SPS mean ({rec.sps:.6f}, components "
+                        f"{sorted(rec.components)}) nor the 2-metric blend "
+                        f"({rec.parity_two:.6f})"
+                    ),
+                    path="scores.sps",
+                )
+            )
+
+    # aggregate.composite_parity — accept the canonical 2-metric blend, or
+    # the SPS mean *only when* scores.sps itself was identified as (or is
+    # absent and thus consistent with) the SPS convention. This blocks the
+    # "whichever is higher" pick: a file whose sps matched the 2-metric
+    # blend cannot also report the (different) SPS mean as composite_parity.
     if _is_number(reported_composite):
         reported = float(reported_composite)
-        sps_components: dict[str, float] = {
-            "p_dist": recomputed_p_dist,
-            "p_rank": recomputed_p_rank,
-        }
-        refuse_vals: list[float] = []
-        human_refuse_vals: list[float] = []
-        for q in per_question:
-            if not isinstance(q, dict):
-                continue
-            m = q.get("model_refusal_rate")
-            h = q.get("human_refusal_rate")
-            if _is_number(m) and _is_number(h):
-                refuse_vals.append(float(m))
-                human_refuse_vals.append(float(h))
-        if refuse_vals and len(refuse_vals) == len(human_refuse_vals):
-            sps_components["p_refuse"] = refusal_calibration(
-                refuse_vals, human_refuse_vals
-            )
-        parity_sps = synthbench_parity_score(sps_components)
-
+        allowed: dict[str, float] = {"2-metric blend": rec.parity_two}
+        if convention != SPS_CONVENTION_PARITY2:
+            allowed["SPS mean"] = rec.sps
         if not any(
             _close(reported, candidate, AGGREGATE_RECOMPUTE_TOLERANCE)
-            for candidate in (parity_two, parity_sps)
+            for candidate in allowed.values()
         ):
             issues.append(
                 Issue(
                     code="AGG_COMPOSITE",
                     severity=Severity.ERROR,
                     message=(
-                        f"aggregate.composite_parity={reported} matches neither "
-                        f"the 2-metric blend ({parity_two:.6f}) nor the SPS "
-                        f"mean ({parity_sps:.6f})"
+                        f"aggregate.composite_parity={reported} matches none "
+                        f"of the accepted recomputed values: "
+                        + ", ".join(
+                            f"{name} ({value:.6f})" for name, value in allowed.items()
+                        )
                     ),
                     path="aggregate.composite_parity",
                 )
             )
 
-    # scores.p_dist / p_rank cross-check
-    for key, expected in (
-        ("p_dist", recomputed_p_dist),
-        ("p_rank", recomputed_p_rank),
-    ):
+    # scores.p_dist / p_rank / p_refuse cross-check against recomputation.
+    sub_checks: list[tuple[str, float | None]] = [
+        ("p_dist", rec.p_dist),
+        ("p_rank", rec.p_rank),
+        ("p_refuse", rec.p_refuse),
+    ]
+    for key, expected in sub_checks:
         reported = scores.get(key)
-        if _is_number(reported) and not _close(
-            float(reported), expected, AGGREGATE_RECOMPUTE_TOLERANCE
-        ):
+        if not _is_number(reported):
+            continue
+        if expected is None:
+            issues.append(
+                Issue(
+                    code="SCORES_UNVERIFIABLE",
+                    severity=Severity.WARNING,
+                    message=(
+                        f"scores.{key}={reported} cannot be recomputed — "
+                        "per-question rows carry no "
+                        "model_refusal_rate/human_refusal_rate data"
+                    ),
+                    path=f"scores.{key}",
+                )
+            )
+            continue
+        if not _close(float(reported), expected, AGGREGATE_RECOMPUTE_TOLERANCE):
             issues.append(
                 Issue(
                     code="SCORES_SUB",
@@ -951,7 +997,7 @@ def _validate_aggregate_recomputation(data: Mapping[str, Any]) -> list[Issue]:
                     path=f"scores.{key}",
                 )
             )
-    return issues
+    return issues, convention
 
 
 # ---------------------------------------------------------------------------
@@ -1294,7 +1340,10 @@ def validate_submission(
 
     if tier2 and not report.errors and isinstance(data, dict):
         report.extend(_validate_per_question_metrics(data))
-        report.extend(_validate_aggregate_recomputation(data))
+        agg_issues, sps_convention = _validate_aggregate_recomputation(data)
+        report.extend(agg_issues)
+        if sps_convention is not None:
+            report.metadata["sps_convention"] = sps_convention
 
     if tier3 and isinstance(data, dict):
         # Import here to avoid a module-load cycle: anomaly.py imports

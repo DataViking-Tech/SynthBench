@@ -94,7 +94,14 @@ jobs:
           tr '\0' '\n' < "$list"
       - name: Validate new submissions
         if: steps.changed.outputs.count != '0'
-        run: xargs -0 -a /tmp/synthbench-changed-files.txt synthbench validate
+        # Tier 1+2 errors (including the recomputed-SPS check) block the
+        # merge; --tier3 additionally runs the statistical anomaly detectors
+        # with the existing leaderboard as the peer pool for the cross-run
+        # outlier check, so reviewers see anomaly warnings in the CI log
+        # before approving a submission PR.
+        run: |
+          xargs -0 -a /tmp/synthbench-changed-files.txt \
+            synthbench validate --tier3 --peers leaderboard-results
 
   worker-data-proxy:
     # sb-io1: Cloudflare Worker that gates R2 reads on a valid Supabase JWT.
