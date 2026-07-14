@@ -82,6 +82,8 @@ class _S3Client(Protocol):
         self, *, Bucket: str, Key: str, Body: bytes, ContentType: str
     ) -> object: ...
 
+    def get_object(self, *, Bucket: str, Key: str) -> Mapping: ...
+
 
 def _build_default_client(config: R2Config) -> _S3Client:
     try:
@@ -147,6 +149,25 @@ class R2Uploader:
             ContentType="application/json",
         )
         self._object_count += 1
+
+    def get_json(self, key: str) -> object | None:
+        """Fetch and decode a JSON object from the bucket.
+
+        Returns ``None`` when the key does not exist. Used by the canonical
+        human-distribution rehydration path (issue #308) — the artifact
+        lives in the same gated bucket the publish step uploads to.
+        """
+        try:
+            resp = self._client.get_object(
+                Bucket=self._config.bucket, Key=key.lstrip("/")
+            )
+        except Exception as exc:  # boto3 raises botocore ClientError subclasses
+            code = getattr(exc, "response", {}).get("Error", {}).get("Code", "")
+            if code in ("NoSuchKey", "404"):
+                return None
+            raise
+        body = resp["Body"].read()
+        return json.loads(body.decode("utf-8"))
 
 
 __all__ = [

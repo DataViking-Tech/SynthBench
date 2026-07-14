@@ -21,6 +21,13 @@ public leaderboard.
 3. **GitHub PR (power-user path).** Fork the repo, drop your file in
    `leaderboard-results/`, open a PR. The same validators that guard the
    web upload also run in the `validate-submissions` CI gate.
+   **Gated datasets:** run
+   `python scripts/strip-gated-distributions.py leaderboard-results/<your-file>.json`
+   before committing — committed result files must not carry per-question
+   `human_distribution` for license-gated datasets (opinionsqa, subpop,
+   globalopinionqa, …; see
+   [Gated datasets and `human_distribution`](#gated-datasets-and-human_distribution)),
+   and CI rejects files that do.
 
 ## The short version
 
@@ -100,6 +107,49 @@ the file looks. The published leaderboard additionally recomputes every
 score from `per_question` at publish time and ranks by the recomputed
 value, so submitted aggregates are never trusted even if a stale file
 predates these checks.
+
+In **trusted contexts** (the server-side submission pipeline and any run
+with `--rehydrate-canonical`), the per-question recompute goes one step
+further: your submitted `human_distribution` values are *replaced* with the
+canonical ones from the dataset registry before the metrics are recomputed.
+A submission whose metrics only reconcile against a doctored copy of the
+answer key fails here even though it is internally self-consistent.
+
+## Gated datasets and `human_distribution`
+
+Some datasets (opinionsqa, subpop, globalopinionqa — Pew ATP /
+CC-BY-NC-SA sources) carry redistribution restrictions: their per-question
+`human_distribution` must not be republished from the public git repo
+(issue #308).
+
+What this means in practice:
+
+- **Your submission is unchanged.** `synthbench run` still embeds
+  `human_distribution` in the result JSON — the client needs it to compute
+  metrics, and the validators use it for tier-1/2 checks at submission
+  time.
+- **The committed copy is stripped.** Before a validated submission is
+  committed to `leaderboard-results/`, the pipeline runs
+  `scripts/strip-gated-distributions.py`, which removes
+  `human_distribution` from every per-question row of gated-dataset files
+  and stamps a top-level `"stripped_fields": ["human_distribution"]`
+  marker. Everything else — `model_distribution`, `jsd`, `kendall_tau`,
+  `parity`, `human_refusal_rate` (a derived scalar) — is preserved. PR
+  submitters run the script themselves before committing.
+- **Validation degrades explicitly, never silently.** `synthbench
+  validate` on a stripped file runs every check that doesn't need the
+  human distributions and emits a `RECOMPUTE_SKIPPED_NO_DISTRIBUTION`
+  warning for the per-question JSD/tau recompute it could not perform.
+  With `--rehydrate-canonical` (used by the server-side pipeline, which
+  has access to the canonical registry) the full recompute runs against
+  the canonical distributions instead.
+- **Publish rehydrates.** The publish pipeline restores the distributions
+  from the canonical registry (`synthbench.human_distributions`) when
+  emitting gated artifacts to the authenticated R2 origin; CI deploys fail
+  loudly if the canonical source is unavailable.
+- The marker is only honored for datasets whose redistribution policy is
+  actually `gated` — adding it to a full-tier submission does not exempt
+  you from any check.
 
 ### Tier 3 — Statistical integrity + reproducibility metadata (always in CI)
 
@@ -401,6 +451,13 @@ across edge nodes.
 | `REPRO_MISSING` / `REPRO_FIELD_*` (warning, tier 3) | Missing `reproducibility` block or field. | Populate `seed`, `model_revision_hash`, `prompt_template_hash`, `framework_version`, `submitted_at`. |
 
 ## Changelog
+
+**2026-07-13** — Gated `human_distribution` stripped from committed
+results (issue #308). New `stripped_fields` marker, new
+`RECOMPUTE_SKIPPED_NO_DISTRIBUTION` warning, new
+`synthbench validate --rehydrate-canonical` flag, and
+`scripts/strip-gated-distributions.py` runs before every
+`leaderboard-results/` commit.
 
 **2026-04-15** — Tier 3 added. New schema fields
 `raw_responses` and `reproducibility` are warnings when missing so

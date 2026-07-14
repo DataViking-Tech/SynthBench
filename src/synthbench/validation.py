@@ -92,6 +92,32 @@ RAW_RESPONSES_V2_GRADUATED_CODES = frozenset(
     {"RAW_RESPONSES_MISSING", "RAW_RESPONSES_MODE"}
 )
 
+# Marker set by scripts/strip-gated-distributions.py on committed result
+# files whose gated-dataset ``human_distribution`` rows were removed before
+# commit (issue #308). Only honored when the file's dataset policy really
+# is ``gated`` — a submitter cannot dodge tier-2 recompute on a full-tier
+# dataset by hand-adding the marker.
+STRIPPED_FIELDS_KEY = "stripped_fields"
+
+
+def is_stripped_gated(data: Mapping[str, Any]) -> bool:
+    """True when this file legitimately carries no ``human_distribution``.
+
+    Requires both the strip marker AND a ``gated`` redistribution policy for
+    the file's dataset.
+    """
+    if not isinstance(data, Mapping):
+        return False
+    stripped = data.get(STRIPPED_FIELDS_KEY)
+    if not isinstance(stripped, list) or "human_distribution" not in stripped:
+        return False
+    dataset = (data.get("config") or {}).get("dataset")
+    if not isinstance(dataset, str) or not dataset:
+        return False
+    from synthbench.datasets.policy import policy_for
+
+    return policy_for(dataset).redistribution_policy == "gated"
+
 
 def _schema_version(data: Mapping[str, Any]) -> int:
     """Return the submission's declared schema_version (default v1)."""
@@ -231,7 +257,13 @@ def _check_type(
 
 
 def _validate_schema(data: Any) -> list[Issue]:
-    """Check the top-level shape and required fields of a submission."""
+    """Check the top-level shape and required fields of a submission.
+
+    Files stripped of gated ``human_distribution`` data (see
+    :func:`is_stripped_gated`) have that per-question requirement waived —
+    the strip is a deliberate license-compliance transform, not a schema
+    violation.
+    """
 
     issues: list[Issue] = []
 
@@ -312,6 +344,11 @@ def _validate_schema(data: Any) -> list[Issue]:
         )
 
     per_question = data.get("per_question")
+    required_per_question: tuple[str, ...] = REQUIRED_PER_QUESTION
+    if is_stripped_gated(data):
+        required_per_question = tuple(
+            k for k in REQUIRED_PER_QUESTION if k != "human_distribution"
+        )
     if per_question is None:
         pass  # already reported above
     elif not isinstance(per_question, list):
@@ -335,7 +372,7 @@ def _validate_schema(data: Any) -> list[Issue]:
                     )
                 )
                 continue
-            for key in REQUIRED_PER_QUESTION:
+            for key in required_per_question:
                 if key not in q:
                     issues.append(
                         Issue(
@@ -788,13 +825,25 @@ def _recompute_per_question(q: Mapping[str, Any]) -> tuple[float, float]:
     )
 
 
-def _validate_per_question_metrics(data: Mapping[str, Any]) -> list[Issue]:
-    """Recompute each question's JSD / tau and compare to reported values."""
+def _validate_per_question_metrics(
+    data: Mapping[str, Any],
+) -> tuple[list[Issue], int]:
+    """Recompute each question's JSD / tau and compare to reported values.
+
+    Rows carrying no ``human_distribution`` (stripped gated files without a
+    canonical source) cannot be recomputed; they are counted and returned as
+    the second element so the orchestrator can surface a single explicit
+    WARNING instead of silently passing.
+    """
 
     issues: list[Issue] = []
+    n_skipped_no_human = 0
     per_question = data.get("per_question") or []
     for idx, q in enumerate(per_question):
         if not isinstance(q, dict):
+            continue
+        if not q.get("human_distribution"):
+            n_skipped_no_human += 1
             continue
         reported_jsd = q.get("jsd")
         reported_tau = q.get("kendall_tau")
@@ -836,7 +885,7 @@ def _validate_per_question_metrics(data: Mapping[str, Any]) -> list[Issue]:
                     path=f"per_question[{idx}].kendall_tau",
                 )
             )
-    return issues
+    return issues, n_skipped_no_human
 
 
 def _validate_aggregate_recomputation(
@@ -1295,6 +1344,33 @@ def _validate_reproducibility_metadata(data: Mapping[str, Any]) -> list[Issue]:
 # ---------------------------------------------------------------------------
 
 
+def _with_canonical_distributions(
+    data: Mapping[str, Any],
+    canonical: Mapping[str, Mapping[str, float]],
+) -> dict:
+    """Return a copy of ``data`` whose rows carry canonical distributions.
+
+    Every per-question row whose key exists in ``canonical`` gets its
+    ``human_distribution`` REPLACED with the canonical value — including
+    rows that already carried one. In trusted contexts this is an integrity
+    upgrade: metrics are recomputed against the canonical answer key, never
+    against a submitter-supplied copy of it. Rows are shallow-copied so the
+    caller's object is untouched.
+    """
+    out = dict(data)
+    rows = []
+    for q in data.get("per_question") or []:
+        if isinstance(q, dict):
+            q = dict(q)
+            key = q.get("key")
+            dist = canonical.get(key) if isinstance(key, str) else None
+            if dist:
+                q["human_distribution"] = dict(dist)
+        rows.append(q)
+    out["per_question"] = rows
+    return out
+
+
 def validate_submission(
     data: Any,
     *,
@@ -1304,6 +1380,7 @@ def validate_submission(
     tier2: bool = True,
     tier3: bool = False,
     peers: Iterable[Mapping[str, Any]] = (),
+    canonical_distributions: Mapping[str, Mapping[str, float]] | None = None,
 ) -> ValidationReport:
     """Run the configured tiers of validation against a submission.
 
@@ -1322,6 +1399,15 @@ def validate_submission(
             CLI to fail the run on any warning.
         peers: Optional iterable of peer submission dicts used by the
             peer-distribution outlier detector. Ignored outside tier 3.
+        canonical_distributions: Optional ``{question_key: distribution}``
+            map from the canonical registry
+            (:mod:`synthbench.human_distributions`). When supplied, tier-2
+            per-question recompute runs against these distributions instead
+            of any submitter-supplied copies — required for stripped gated
+            files (issue #308) and an integrity upgrade everywhere else.
+            When absent and the file is a stripped gated file, the
+            distribution-dependent recompute is SKIPPED with an explicit
+            warning rather than silently passing.
     """
 
     report = ValidationReport(source=source)
@@ -1339,8 +1425,36 @@ def validate_submission(
         report.extend(_validate_private_holdout(mapping))
 
     if tier2 and not report.errors and isinstance(data, dict):
-        report.extend(_validate_per_question_metrics(data))
-        agg_issues, sps_convention = _validate_aggregate_recomputation(data)
+        recompute_data: dict = data
+        if canonical_distributions is not None:
+            recompute_data = _with_canonical_distributions(
+                data, canonical_distributions
+            )
+            report.metadata["recompute_source"] = "canonical"
+        per_q_issues, n_skipped = _validate_per_question_metrics(recompute_data)
+        report.extend(per_q_issues)
+        if n_skipped:
+            report.issues.append(
+                Issue(
+                    code="RECOMPUTE_SKIPPED_NO_DISTRIBUTION",
+                    severity=Severity.WARNING,
+                    message=(
+                        f"{n_skipped} per-question row(s) carry no "
+                        "human_distribution"
+                        + (
+                            " (gated dataset, stripped file)"
+                            if is_stripped_gated(data)
+                            else ""
+                        )
+                        + " and no canonical distribution was available — "
+                        "per-question JSD/tau recompute was SKIPPED for those "
+                        "rows, not passed. Supply canonical distributions "
+                        "(see synthbench.human_distributions) to verify them."
+                    ),
+                    path="per_question",
+                )
+            )
+        agg_issues, sps_convention = _validate_aggregate_recomputation(recompute_data)
         report.extend(agg_issues)
         if sps_convention is not None:
             report.metadata["sps_convention"] = sps_convention
@@ -1369,6 +1483,7 @@ def validate_file(
     tier2: bool = True,
     tier3: bool = False,
     peers: Iterable[Mapping[str, Any]] = (),
+    canonical_distributions: Mapping[str, Mapping[str, float]] | None = None,
 ) -> ValidationReport:
     """Load a JSON file and validate it. Errors are wrapped as report issues."""
 
@@ -1405,4 +1520,5 @@ def validate_file(
         tier2=tier2,
         tier3=tier3,
         peers=peers,
+        canonical_distributions=canonical_distributions,
     )

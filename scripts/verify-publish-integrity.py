@@ -191,6 +191,57 @@ def check_no_gated_artifacts_local(
         )
 
 
+def check_no_gated_distributions_committed(results_dir: Path) -> None:
+    """FAIL if committed result files carry gated ``human_distribution`` data.
+
+    Source-of-truth guard for issue #308: committed
+    ``leaderboard-results/*.json`` files must be stripped of per-question
+    ``human_distribution`` for every gated dataset (Pew ATP / CC-BY-NC-SA
+    sources) — the publish pipeline rehydrates from the canonical registry
+    instead. This backstop keeps the data from creeping back in via new
+    submissions or manual edits.
+    """
+    if not results_dir.is_dir():
+        return  # nothing committed to guard (e.g. bespoke invocations)
+
+    policies = _policy_by_name()
+    if policies is None:
+        sys.exit(
+            "FAIL: cannot resolve dataset redistribution policies (synthbench "
+            "not importable) — the committed-results gating guard cannot run. "
+            "Install the package (`pip install -e .`) and re-run."
+        )
+
+    violations: list[str] = []
+    for path in sorted(results_dir.glob("*.json")):
+        try:
+            with path.open() as f:
+                data = json.load(f)
+        except (OSError, json.JSONDecodeError):
+            continue
+        if not isinstance(data, dict) or data.get("benchmark") != "synthbench":
+            continue
+        dataset = (data.get("config") or {}).get("dataset") or ""
+        if policies.get(_dataset_base(dataset)) != "gated":
+            continue
+        n = sum(
+            1
+            for q in data.get("per_question") or []
+            if isinstance(q, dict) and "human_distribution" in q
+        )
+        if n:
+            violations.append(f"{path} ({n} row(s), dataset={dataset!r})")
+
+    if violations:
+        sample = violations[:5]
+        sys.exit(
+            f"FAIL: {len(violations)} committed result file(s) in {results_dir} "
+            "carry per-question human_distribution for a gated dataset. Run "
+            "scripts/strip-gated-distributions.py and re-commit. "
+            f"Examples: {sample}"
+        )
+
+
 def check_config_files(
     config_dir: Path,
     referenced: set[str],
@@ -245,12 +296,19 @@ def main() -> int:
         type=Path,
         default=Path("site/public/data/question"),
     )
+    parser.add_argument(
+        "--results-dir",
+        type=Path,
+        default=Path("leaderboard-results"),
+        help="Committed source result files to check for gated distributions.",
+    )
     args = parser.parse_args()
 
     leaderboard_ids = check_leaderboard(args.leaderboard)
     runs_ids, config_to_dataset = check_runs_index(args.runs_index)
     check_config_files(args.config_dir, runs_ids, config_to_dataset)
     check_no_gated_artifacts_local(args.run_dir, args.config_dir, args.question_dir)
+    check_no_gated_distributions_committed(args.results_dir)
 
     # Every config_id appearing on the leaderboard must also have a rollup
     # file — this is what the /run/[id] and /config/[id] routes hydrate from.
@@ -265,7 +323,8 @@ def main() -> int:
     print(
         f"OK: leaderboard={len(leaderboard_ids)} configs, "
         f"runs-index={len(runs_ids)} configs, all config_ids present, "
-        "no gated artifacts in the local publish output."
+        "no gated artifacts in the local publish output, no gated "
+        "human_distribution in committed results."
     )
     return 0
 
