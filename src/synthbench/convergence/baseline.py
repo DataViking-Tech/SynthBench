@@ -23,6 +23,13 @@ Policy:
 The return shape is fixed by ``docs/convergence-analysis.md`` — synthpanel
 attaches ``human_distribution`` to every matching question's
 ``calibration`` sub-object and computes JSD with its own local metric.
+
+For datasets whose policy permits redistributing the question wording
+(``full`` / ``citation_only``), the payload additionally carries
+``question_text`` and ``options`` so synthpanel can present the *real*
+survey item to its panel instead of fabricating a placeholder prompt.
+These fields are additive; ``human_distribution`` remains the only
+load-bearing key.
 """
 
 from __future__ import annotations
@@ -70,6 +77,13 @@ def load_convergence_baseline(
         ``dataset``, ``question_key``, ``human_distribution``,
         ``redistribution_policy``, ``license_url``, ``citation``.
 
+        When the dataset policy permits redistributing question text
+        (``full`` / ``citation_only``), two additive keys are also
+        present: ``question_text`` (the survey item's wording) and
+        ``options`` (the ordered answer labels, aligned with the keys of
+        ``human_distribution``). Callers must treat both as optional —
+        older payloads and policy-withholding datasets omit them.
+
     Raises:
         BaselineGatedError: dataset tier is ``gated`` — authenticated
             access required.
@@ -109,7 +123,7 @@ def load_convergence_baseline(
 
     question = _resolve_question(adapter_cls(), question_key)
 
-    return {
+    payload: dict[str, Any] = {
         "dataset": policy.name,
         "question_key": question.key,
         "human_distribution": dict(question.human_distribution),
@@ -117,6 +131,19 @@ def load_convergence_baseline(
         "license_url": policy.license_url,
         "citation": policy.citation,
     }
+
+    # Additive, policy-gated metadata: the survey item's wording and its
+    # answer labels. synthpanel's calibration panel needs the real question
+    # text (rather than a fabricated placeholder) and needs option labels that
+    # line up with the ``human_distribution`` keys so its pick_one extraction
+    # aligns with ground truth. Only surfaced where the redistribution policy
+    # permits distributing question text (``full`` / ``citation_only``); this
+    # is a strictly narrower disclosure than ``human_distribution``.
+    if policy.allows_question_text:
+        payload["question_text"] = question.text
+        payload["options"] = list(question.options)
+
+    return payload
 
 
 def _resolve_question(dataset, question_key: str):

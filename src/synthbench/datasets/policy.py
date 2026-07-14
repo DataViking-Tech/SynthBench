@@ -63,6 +63,28 @@ class DatasetPolicy:
         """
         return self.redistribution_policy == "gated"
 
+    @property
+    def allows_question_text(self) -> bool:
+        """True if the question **text** and option labels may be redistributed.
+
+        This governs metadata (the wording of the survey item and its answer
+        labels), which is a strictly narrower disclosure than the per-question
+        ``human_distribution``:
+
+        * ``full`` — unambiguously public license; text and options are safe.
+        * ``citation_only`` — by definition, *only* metadata (question text,
+          options) is public; the response distributions are withheld.
+        * ``gated`` — conservatively withheld. Even though the wording alone is
+          often less sensitive than the per-respondent data, the in-process
+          loader cannot vend the gated ``human_distribution`` anyway, so it
+          surfaces no gated metadata without the controlled-access path.
+        * ``aggregates_only`` — no per-question artifact of any kind ships.
+
+        Consumed by :func:`synthbench.load_convergence_baseline` to decide
+        whether to attach ``question_text``/``options`` to its return payload.
+        """
+        return self.redistribution_policy in ("full", "citation_only")
+
 
 _DEFAULT_POLICY = DatasetPolicy(
     name="unknown",

@@ -118,6 +118,60 @@ def test_full_tier_gss_returns_documented_payload(gss_with_data):
     assert payload["citation"]
 
 
+def test_full_tier_gss_includes_question_text_and_options(gss_with_data):
+    """sb-qtext: full-tier payloads carry the real question wording + labels.
+
+    synthpanel's calibration panel must present the *real* survey item rather
+    than fabricate a placeholder, and its pick_one labels must line up with
+    the ``human_distribution`` keys.
+    """
+    payload = load_convergence_baseline(dataset="gss", question_key="GSS_SPKATH")
+    assert payload["question_text"] == "Allow atheist to speak?"
+    assert payload["options"] == ["Yes", "No"]
+    # Options are aligned with the human_distribution keys (same strings), so
+    # synthpanel's derived pick_one schema maps 1:1 onto ground truth.
+    assert set(payload["options"]) == set(payload["human_distribution"].keys())
+
+
+def test_full_tier_payload_stays_backward_compatible(gss_with_data):
+    """The six original keys are unchanged; new fields are strictly additive."""
+    payload = load_convergence_baseline(dataset="gss", question_key="GSS_SPKATH")
+    for key in (
+        "dataset",
+        "question_key",
+        "human_distribution",
+        "redistribution_policy",
+        "license_url",
+        "citation",
+    ):
+        assert key in payload, key
+
+
+def test_full_tier_ntia_includes_question_text_and_options(monkeypatch):
+    """sb-qtext: NTIA (the other full-tier dataset) also surfaces text+options.
+
+    NTIA needs on-disk survey data to ``load()``; patch it with a synthetic
+    Question so the test stays hermetic while exercising the real loader +
+    policy path.
+    """
+    from synthbench.datasets.base import Question
+    from synthbench.datasets.ntia import NTIADataset
+
+    synthetic = Question(
+        key="NTIA_USE",
+        text="Do you use the internet?",
+        options=["Yes", "No"],
+        human_distribution={"Yes": 0.8, "No": 0.2},
+    )
+    monkeypatch.setattr(NTIADataset, "load", lambda self, n=None: [synthetic])
+
+    payload = load_convergence_baseline(dataset="ntia", question_key="NTIA_USE")
+    assert payload["dataset"] == "ntia"
+    assert payload["redistribution_policy"] == "full"
+    assert payload["question_text"] == "Do you use the internet?"
+    assert payload["options"] == ["Yes", "No"]
+
+
 def test_full_tier_accepts_bare_question_id(gss_with_data):
     """synthpanel may pass the upstream id (``SPKATH``) without the
     ``GSS_`` prefix — the loader resolves either form."""

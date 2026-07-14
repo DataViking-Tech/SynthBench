@@ -192,12 +192,14 @@ shaped like:
 
 ```json
 {
-  "dataset": "opinionsqa",
-  "question_key": "ABANY",
-  "human_distribution": {"Yes": 0.62, "No": 0.38},
-  "redistribution_policy": "gated",
+  "dataset": "gss",
+  "question_key": "GSS_HAPPY",
+  "human_distribution": {"Very happy": 0.31, "Pretty happy": 0.56, "Not too happy": 0.13},
+  "redistribution_policy": "full",
   "license_url": "...",
-  "citation": "..."
+  "citation": "...",
+  "question_text": "Taken all together, how would you say things are these days …",
+  "options": ["Very happy", "Pretty happy", "Not too happy"]
 }
 ```
 
@@ -209,15 +211,34 @@ against the model's cumulative distribution using synthpanel's own local JSD
 redistribution / license / citation fields are informational and carried
 through into the synthpanel run metadata.
 
+`question_text` and `options` are **additive, policy-gated** fields (added in
+`sb-qtext`):
+
+* `question_text` — the verbatim survey-item wording.
+* `options` — the ordered answer labels. These are aligned with the keys of
+  `human_distribution` (same strings), so synthpanel can present the real
+  answer choices to its panel and derive a `pick_one` schema whose labels
+  match ground truth.
+
+They appear **only** when the dataset policy permits redistributing question
+text — i.e. `full` (e.g. `gss`, `ntia`) and `citation_only`. For `gated`
+datasets the loader still raises `BaselineGatedError` before returning any
+payload, so no gated question wording is surfaced from the in-process loader.
+Consumers must treat both keys as optional: an older synthbench (pre-`sb-qtext`)
+or a policy-withholding dataset omits them entirely; the payload is otherwise
+unchanged, so this is backward-compatible.
+
 ### Status
 
 The loader is exported as `synthbench.load_convergence_baseline` (also
 importable from `synthbench.convergence`) as of `sb-ham8`. Tier handling:
 
-* `full` datasets (`gss`, `ntia`) return the documented payload directly.
+* `full` datasets (`gss`, `ntia`) return the documented payload directly,
+  including the additive `question_text` and `options` fields.
 * `gated` datasets raise `BaselineGatedError` — serving those baselines
   requires hitting the authenticated R2 origin with credentials, which is
-  out of scope for the in-process loader.
+  out of scope for the in-process loader. No gated question wording is
+  surfaced from this loader.
 * `aggregates_only` / `citation_only` / unknown datasets raise
   `BaselineUnavailable` — synthbench has no per-question redistribution
   rights for them.
