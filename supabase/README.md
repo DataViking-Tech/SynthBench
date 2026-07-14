@@ -11,6 +11,9 @@ For contributor workflow expectations, see
 - `20260415065540_harden_touch_updated_at.sql` — legacy reconciliation stub.
 - `20260415190844_submissions.sql` — submissions table and policies.
 - `20260415190854_api_keys.sql` — API keys table and policies.
+- `20260713190000_api_keys_update_column_guard.sql` — BEFORE UPDATE trigger
+  restricting api_keys updates to a one-way `revoked_at` flip (column-level
+  immutability the RLS UPDATE policy can't express).
 
 ## Notes
 

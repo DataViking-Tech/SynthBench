@@ -28,6 +28,12 @@ export type ValidateResult = ValidateOk | ValidateErr;
 
 const SUM_TOLERANCE = 5e-3;
 
+// Allowed characters for submitter-controlled display metadata (provider /
+// model / framework / dataset). Unicode letters + digits + whitespace + the
+// punctuation that appears in real model slugs. Notably excludes `< > " ' &`
+// `{ } =` and control characters — the vectors for HTML/script injection.
+const SAFE_META_RE = /^[\p{L}\p{N}\s._\-/:@()+,#]*$/u;
+
 /**
  * Tier-1 schema + bounds + sums check. Returns structural metadata on
  * success so the caller can record `model_name`/`dataset`/`framework` in
@@ -82,6 +88,20 @@ export function validateTier1(raw: unknown): ValidateResult {
   const meanTau = aggregate.mean_tau;
   if (meanTau != null && !inRange(meanTau, -1, 1)) {
     return fail('"aggregate.mean_tau" must be in [-1, 1]');
+  }
+
+  // Defense-in-depth against stored XSS. provider / model / framework are
+  // submitter-controlled display strings that later land in the site's DOM
+  // (e.g. /explore innerHTML). The frontend escapes them, but we also reject
+  // markup/control characters at ingest so a crafted value never reaches the
+  // published catalog in the first place. The allowlist is deliberately
+  // generous — Unicode letters + digits + common punctuation — so real model
+  // names like "google/gemini-2.5-flash-lite" or "SynthPanel (3-model)" pass.
+  for (const field of ["model", "provider", "framework", "dataset"] as const) {
+    const value = config[field];
+    if (typeof value === "string" && !SAFE_META_RE.test(value)) {
+      return fail(`"config.${field}" contains characters outside the allowed set`);
+    }
   }
 
   // Per-question distribution sanity. We only check a cheap structural

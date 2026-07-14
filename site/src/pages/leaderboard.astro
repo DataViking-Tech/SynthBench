@@ -14,6 +14,20 @@ import type { LeaderboardData } from "@/types/leaderboard";
 
 const leaderboard = leaderboardRaw as LeaderboardData;
 const datasets = leaderboard.datasets;
+
+const rawBase = import.meta.env.BASE_URL || "/";
+const base = rawBase.endsWith("/") ? rawBase : `${rawBase}/`;
+
+// Provenance line (credibility: freshness + how many runs the board is built
+// from, and how many the run-validity filter excluded). generated_at /
+// synthbench_version come straight from `synthbench publish-data`.
+const generatedAt = leaderboard.generated_at ? new Date(leaderboard.generated_at) : null;
+const generatedAtLabel =
+  generatedAt && !Number.isNaN(generatedAt.getTime())
+    ? `${generatedAt.toISOString().slice(0, 16).replace("T", " ")} UTC`
+    : null;
+const nEntries = leaderboard.entries.length;
+const nExcluded = leaderboard.excluded_runs?.length ?? 0;
 ---
 
 <BaseLayout title="Leaderboard - SynthBench">
@@ -26,6 +40,35 @@ const datasets = leaderboard.datasets;
       <strong class="text-text dark:text-text-dark">Survey Parity Score (SPS)</strong>
       measures how closely AI-generated survey responses match real human
       opinion distributions. <span class="font-mono">1.0</span> = perfect match.
+    </p>
+    <p class="mt-4 text-xs text-muted max-w-2xl mx-auto" data-provenance>
+      {nEntries} ranked config{nEntries === 1 ? "" : "s"}
+      {
+        nExcluded > 0 && (
+          <>
+            {" · "}
+            <a
+              href={`${base}methodology#run-validity`}
+              class="underline decoration-dotted hover:text-primary"
+              >{nExcluded} run{nExcluded === 1 ? "" : "s"} excluded</a
+            >
+          </>
+        )
+      }
+      {
+        generatedAtLabel && (
+          <>
+            {" · generated "}
+            <span data-vrt-mask>{generatedAtLabel}</span>
+          </>
+        )
+      }
+      {leaderboard.synthbench_version && ` · synthbench v${leaderboard.synthbench_version}`}
+      {" · "}
+      <a
+        href={`${base}data/leaderboard.json`}
+        class="underline decoration-dotted hover:text-primary">JSON API</a
+      >
     </p>
   </div>
 

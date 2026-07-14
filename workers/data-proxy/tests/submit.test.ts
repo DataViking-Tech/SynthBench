@@ -124,6 +124,52 @@ describe("validateTier1", () => {
     const res = validateTier1(baseSubmission({ aggregate: { n_questions: 2 } }));
     expect(res.ok).toBe(true);
   });
+
+  // Stored-XSS defense-in-depth: markup/control characters in submitter-
+  // controlled display metadata are rejected at ingest so they never reach
+  // the published catalog (the site also escapes on render).
+  it("rejects a <script> payload in config.provider", () => {
+    const res = validateTier1(
+      baseSubmission({
+        config: {
+          model: "gpt-5",
+          provider: "<img src=x onerror=alert(1)>",
+          dataset: "globalopinionqa",
+          framework: "native",
+        },
+      }),
+    );
+    expect(res.ok).toBe(false);
+    if (!res.ok) expect(res.error).toMatch(/config\.provider.*allowed set/);
+  });
+
+  it("rejects angle brackets in config.model and config.framework", () => {
+    for (const field of ["model", "framework"] as const) {
+      const config: Record<string, unknown> = {
+        model: "gpt-5",
+        provider: "openai",
+        dataset: "globalopinionqa",
+        framework: "native",
+      };
+      config[field] = "x<script>";
+      const res = validateTier1(baseSubmission({ config }));
+      expect(res.ok).toBe(false);
+    }
+  });
+
+  it("accepts real-world model slugs with slashes, dots, and parens", () => {
+    const res = validateTier1(
+      baseSubmission({
+        config: {
+          model: "google/gemini-2.5-flash-lite",
+          provider: "SynthPanel Ensemble (3-model)",
+          dataset: "globalopinionqa",
+          framework: "meta-llama/llama-3.3-70b-instruct",
+        },
+      }),
+    );
+    expect(res.ok).toBe(true);
+  });
 });
 
 describe("stagingKeyFor", () => {

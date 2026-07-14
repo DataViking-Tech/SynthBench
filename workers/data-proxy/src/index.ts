@@ -19,7 +19,13 @@
 // Common plumbing (CORS allowlist, JWT verification, Supabase audit writer)
 // is shared across both. Every branch has a matching unit test in tests/.
 
-import { type ApiKeyConfig, authenticateApiKey, isApiKey, touchLastUsed } from "./apiKey";
+import {
+  type ApiKeyConfig,
+  authenticateApiKey,
+  checkUserRateLimit,
+  isApiKey,
+  touchLastUsed,
+} from "./apiKey";
 import { type AuditConfig, clientIpFor, writeAuditLog } from "./audit";
 import { parseBearer, verifySupabaseJwt } from "./auth";
 import { corsHeadersFor, parseAllowedOrigins, preflightResponse } from "./cors";
@@ -349,6 +355,21 @@ async function handleSubmit(
   const tier1 = validateTier1(parsed);
   if (!tier1.ok) {
     return jsonResponse({ error: tier1.error }, 400, cors);
+  }
+
+  // Rate limit the browser/JWT path per user (api-key uploads are already
+  // limited per-key inside authenticateApiKey). Run it here — after cheap
+  // structural rejections (413/400) and before the expensive R2 write + GH
+  // Actions dispatch — so malformed requests never cost a DB round-trip and a
+  // signed-in user can't spam workflow dispatches past the 60/hr ceiling.
+  if (apiKeyId === null) {
+    const rateLimit = await checkUserRateLimit(userId, {
+      supabaseUrl: env.SUPABASE_URL,
+      serviceRoleKey: env.SUPABASE_SERVICE_ROLE_KEY,
+    });
+    if (!rateLimit.ok) {
+      return jsonResponse({ error: rateLimit.reason }, rateLimit.status, cors);
+    }
   }
 
   const key = stagingKeyFor(userId);

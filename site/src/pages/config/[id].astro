@@ -1,5 +1,5 @@
 ---
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import BaseLayout from "@/layouts/BaseLayout.astro";
@@ -8,6 +8,12 @@ import type { RunIndex } from "@/types/runs";
 export async function getStaticPaths() {
   const here = dirname(fileURLToPath(import.meta.url));
   const indexPath = resolve(here, "../../../public/data/runs-index.json");
+  // Mirror run/[id].astro: a fresh clone / CI ordering where `synthbench
+  // publish-runs` hasn't populated public/data/ yet must build cleanly (no
+  // config routes) rather than crash getStaticPaths with ENOENT.
+  if (!existsSync(indexPath)) {
+    return [];
+  }
   const index = JSON.parse(readFileSync(indexPath, "utf-8")) as RunIndex;
   // First run encountered per config_id owns the dataset binding. Config
   // ids are dataset-scoped (config_id includes the dataset name), so every
