@@ -274,35 +274,39 @@ jobs:
       - name: Install Doppler CLI
         if: steps.vrt_gate.outputs.run == 'true'
         uses: dopplerhq/cli-action@4819d808ab99e5cde19a0637a16536a4038fad73 # v4
-      - name: Load cross-repo App credentials from dataviking-platform
+      - name: Load TF App credentials from dataviking-platform
         if: steps.vrt_gate.outputs.run == 'true'
         # Same Doppler sourcing pattern as pages.yml / cf-pages.yml (sb-vkz):
         # shared org creds live in dataviking-platform/prd, read via the
         # read-only DOPPLER_PLATFORM_TOKEN. The PEM is multiline, so mask
         # line-by-line (::add-mask:: only matches whole single-line values).
+        # The TF GitHub App is used (NOT DV_CROSS_REPO_APP): verified
+        # 2026-07-14 via the App API that the TF App is installed org-wide
+        # (repository_selection=all, includes synthbench) with
+        # contents: write, while the DV cross-repo App has contents: read
+        # and is only installed on the mtg-* repos.
         env:
           DOPPLER_TOKEN: ${{ secrets.DOPPLER_PLATFORM_TOKEN }}
         run: |
           set -euo pipefail
-          for name in DV_CROSS_REPO_APP_ID DV_CROSS_REPO_APP_PRIVATE_KEY; do
+          for name in TF_GITHUB_APP_ID TF_GITHUB_APP_PEM_FILE; do
             value=$(doppler secrets get "$name" --project dataviking-platform --config prd --plain)
             while IFS= read -r line; do
               [[ -n "$line" ]] && echo "::add-mask::$line"
             done <<< "$value"
             printf '%s<<__DVP_EOF__\n%s\n__DVP_EOF__\n' "$name" "$value" >> "$GITHUB_ENV"
           done
-      - name: Mint cross-repo App token
+      - name: Mint App token
         # Pushing with this token (instead of GITHUB_TOKEN) makes the
         # baseline commit fire `pull_request: synchronize`, so CI re-runs on
         # the new HEAD automatically. Same pattern as SynthPanel's
-        # auto-tag.yml release-bot push. Requires the DV cross-repo App to be
-        # installed on this repo with contents: write.
+        # auto-tag.yml release-bot push.
         if: steps.vrt_gate.outputs.run == 'true'
         id: app_token
         uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
         with:
-          app-id: ${{ env.DV_CROSS_REPO_APP_ID }}
-          private-key: ${{ env.DV_CROSS_REPO_APP_PRIVATE_KEY }}
+          app-id: ${{ env.TF_GITHUB_APP_ID }}
+          private-key: ${{ env.TF_GITHUB_APP_PEM_FILE }}
       - name: Update baselines (label-triggered)
         if: steps.vrt_gate.outputs.run == 'true'
         working-directory: site
