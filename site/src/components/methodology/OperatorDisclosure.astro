@@ -1,0 +1,80 @@
+---
+// Operator disclosure (#316). SynthBench is run by the company that also
+// ships SynthPanel, and SynthPanel-branded entries appear on the
+// leaderboard. Panel testing with skeptical-executive personas showed this
+// is the first credibility question serious readers ask, so we answer it
+// affirmatively instead of leaving it to be discovered. Keep this factual:
+// no marketing gloss, just the relationship and the mechanisms that keep
+// the ranking honest despite it.
+
+const mitigations = [
+  {
+    title: "Every score is recomputed, not trusted",
+    body: "The leaderboard never republishes a submitted aggregate. At publish time, every row's SPS is recomputed from its per-question distributions by open-source code (synthbench/publish.py) — including our own entries. A hand-edited score cannot buy a rank.",
+  },
+  {
+    title: "Open code, public data",
+    body: "The scoring code, the publish pipeline, the per-question artifacts, and the human reference distributions (minus the private holdout) are all public. Anyone can re-derive the entire leaderboard from the committed run files and check it against what we publish.",
+  },
+  {
+    title: "Third-party submissions run the identical pipeline",
+    body: "External submissions pass through exactly the same validation, recomputation, run-validity filtering, and dedup logic as DataViking's own runs. There is no separate path, and the pipeline is in the open repository where a divergence would be visible.",
+  },
+  {
+    title: "Private holdout applies to us too",
+    body: "The verified/flagged badge compares each row's public-subset score against a 20% private holdout. SynthPanel-branded rows are scored against the same hidden answer key as everyone else — and some of them are currently flagged, which we publish rather than suppress.",
+  },
+  {
+    title: "Unflattering results stay published",
+    body: "Excluded runs are listed with reasons in the published data, ensemble caveats name our own defective constituent runs, and baseline floors are tracked in CI. The transparency mechanisms do not carve out exceptions for the operator's product.",
+  },
+];
+---
+
+<section class="w-full max-w-4xl mx-auto py-12 scroll-mt-24" id="operator-disclosure">
+  <h2
+    class="text-2xl font-bold tracking-tight text-text dark:text-text-dark mb-2"
+  >
+    Who runs this
+  </h2>
+  <p class="text-muted mb-4 max-w-3xl">
+    SynthBench is built and operated by <strong class="text-text dark:text-text-dark">DataViking</strong>,
+    the company that also makes
+    <a
+      href="https://github.com/DataViking-Tech/SynthPanel"
+      class="text-primary dark:text-primary-light hover:underline"
+      target="_blank"
+      rel="noopener noreferrer"
+    >SynthPanel</a>, a synthetic-survey product. SynthPanel-branded entries
+    on the leaderboard are the operator's own product being scored on the
+    operator's own benchmark. That is a real conflict of interest, and you
+    should not have to take our word that the ranking is fair.
+  </p>
+  <p class="text-muted mb-6 max-w-3xl">
+    You don't have to. The benchmark is designed so that the operator has no
+    mechanical advantage:
+  </p>
+
+  <div class="space-y-4">
+    {
+      mitigations.map((m) => (
+        <div class="rounded-lg border border-muted/20 bg-surface p-5 dark:bg-surface-dark">
+          <h3 class="text-base font-semibold text-text dark:text-text-dark mb-1">
+            {m.title}
+          </h3>
+          <p class="text-sm text-muted">{m.body}</p>
+        </div>
+      ))
+    }
+  </div>
+
+  <p class="text-muted mt-6 max-w-3xl text-sm">
+    If you find a place where these mechanisms fall short, please
+    <a
+      href="https://github.com/DataViking-Tech/synthbench/issues"
+      class="text-primary dark:text-primary-light hover:underline"
+      target="_blank"
+      rel="noopener noreferrer"
+    > open an issue</a> — the honest-broker property is the product.
+  </p>
+</section>
