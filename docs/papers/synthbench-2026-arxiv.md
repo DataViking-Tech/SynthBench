@@ -1,5 +1,39 @@
 # SynthBench: An Open Benchmark for Distributional and Steerability Fidelity of Synthetic Survey Respondents
 
+> ## ⚠ Errata (2026-07-13) — several numbers below are superseded
+>
+> This preprint draft (v1, 2026-05-14) predates the score recompute.
+> The publish pipeline now recomputes all published scores from
+> per-question rows (#305), and the quantitative findings are regenerated
+> from committed artifacts with a CI drift guard (#309). **Current numbers
+> live in [`FINDINGS.md`](../../FINDINGS.md) and on the live leaderboard —
+> treat the figures below as historical.** Specifically superseded:
+>
+> - **OpinionsQA 3-model ensemble SPS 0.836 → 0.877** (recomputed full
+>   composite; the draft's 0.836 was the retired 2-metric convention).
+> - **SubPOP 3-model ensemble SPS 0.796 → 0.879.** The blend additionally
+>   includes a constituent run
+>   (`subpop_synthpanel_claude-haiku-4-5-20251001_20260411_073013`) that the
+>   run-validity filter now excludes as uniform-distribution garbage, so
+>   even the recomputed score understates a clean re-blend.
+> - **GlobalOpinionQA 3-model ensemble SPS 0.747 (rank 7) → 0.813 (rank 1).**
+> - **"Republican conditioning 2.4× stronger than Democrat" → 2.2×**
+>   (mean P_cond 0.073 vs 0.033 across committed replications).
+> - **The "SPS 0.900" optimal-temperature ensemble** was computed under the
+>   retired 2-metric composite from blend files never committed to
+>   `leaderboard-results/`; superseded by the recomputed default-temperature
+>   ensemble scores.
+> - **Ensemble gain "+5–7 pts, consistent across all 3 datasets"** is
+>   comparison-set dependent; against the best single leaderboard entry at
+>   matched question count it is +2.7 to +5.8 pts per dataset.
+> - **"Core" suite size: 300 questions → 200** (`suites/core.json` defines
+>   200 questions).
+> - **"Five-replication trials"** overstates the committed replication
+>   count — the artifacts carry `run_count: 2` for those configurations.
+>
+> Editorial rewrite of the body text is the maintainer's follow-up
+> (#258 / Move 3); this banner only flags what changed.
+
 **Authors:** DataViking-Tech (corresponding: wesley@dataviking.tech)
 **Version:** Preprint v1 — 2026-05-14
 **Suggested arXiv category:** cs.CL (primary), cs.HC (secondary), stat.AP (secondary)

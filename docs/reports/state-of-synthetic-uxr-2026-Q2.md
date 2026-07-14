@@ -1,5 +1,40 @@
 # The State of Synthetic UXR — 2026 Q2
 
+> ## ⚠ Errata (2026-07-13) — several numbers below are superseded
+>
+> This report is a frozen 2026-04-15 leaderboard snapshot.
+> The publish pipeline now recomputes all published scores from
+> per-question rows (#305), and the quantitative findings are regenerated
+> from committed artifacts with a CI drift guard (#309). **Current numbers
+> live in [`FINDINGS.md`](../../FINDINGS.md) and on the live leaderboard —
+> treat the figures below as historical.** Specifically superseded:
+>
+> - **OpinionsQA 3-model ensemble SPS 0.835 → 0.877** (recomputed full
+>   composite). The "5-replication mean" caption is also wrong — the
+>   committed artifacts carry `run_count: 2` for that configuration.
+> - **SubPOP 3-model ensemble SPS 0.833 → 0.879.** The blend additionally
+>   includes a constituent run
+>   (`subpop_synthpanel_claude-haiku-4-5-20251001_20260411_073013`) that the
+>   run-validity filter now excludes as uniform-distribution garbage, so
+>   even the recomputed score understates a clean re-blend.
+> - **GlobalOpinionQA 3-model ensemble SPS 0.747 (rank 7) → 0.813 (rank 1).**
+> - **"Republican conditioning 2.4× stronger than Democrat" → 2.2×**
+>   (mean P_cond 0.073 vs 0.033 across committed replications).
+> - **The "SPS 0.900" optimal-temperature ensemble** was computed under the
+>   retired 2-metric composite from blend files never committed to
+>   `leaderboard-results/`; superseded by the recomputed default-temperature
+>   ensemble scores.
+> - **Ensemble gain "+5–7 pts, consistent across all 3 datasets"** is
+>   comparison-set dependent; against the best single leaderboard entry at
+>   matched question count it is +2.7 to +5.8 pts per dataset.
+> - **Baseline anchors "Random ~0.31" / "Majority-Class ~0.45"** were
+>   METHODOLOGY's hypothetical illustrations, not measurements. Measured
+>   floors on the current SPS scale: random baseline 0.71–0.76 and majority
+>   baseline 0.67–0.71 per dataset (see `docs/baseline-floors-log.md`).
+>
+> Editorial rewrite of the body text is the maintainer's follow-up
+> (#258 / Move 3); this banner only flags what changed.
+
 **A quarterly report from SynthBench**
 
 | | |
