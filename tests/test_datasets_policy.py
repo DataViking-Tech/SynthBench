@@ -183,15 +183,37 @@ def test_dataset_policy_suppress_flags():
     assert p_full.suppress_human_distribution is False
     assert p_full.suppress_per_question is False
     assert p_full.serves_from_r2 is False
+    assert p_full.allows_question_text is True
 
     assert p_gated.suppress_human_distribution is False
     assert p_gated.suppress_per_question is False
     assert p_gated.serves_from_r2 is True
+    assert p_gated.allows_question_text is False
 
     assert p_aggr.suppress_human_distribution is True
     assert p_aggr.suppress_per_question is True
     assert p_aggr.serves_from_r2 is False
+    assert p_aggr.allows_question_text is False
 
     assert p_cite.suppress_human_distribution is True
     assert p_cite.suppress_per_question is True
     assert p_cite.serves_from_r2 is False
+    # citation_only: response distributions are withheld, but question
+    # *text* + options are, by definition, the public metadata.
+    assert p_cite.allows_question_text is True
+
+
+def test_allows_question_text_matches_tier():
+    """``allows_question_text`` is True only for tiers cleared to redistribute
+    the survey wording (``full`` / ``citation_only``)."""
+    tiers = {
+        "full": True,
+        "citation_only": True,
+        "gated": False,
+        "aggregates_only": False,
+    }
+    for tier, expected in tiers.items():
+        p = DatasetPolicy(
+            name="n", redistribution_policy=tier, license_url=None, citation=None
+        )
+        assert p.allows_question_text is expected, tier
