@@ -106,6 +106,20 @@ jobs:
           npx tsc --noEmit
           npm run build
 
+      # Make-or-break guard: the gated-data edge guard is an advanced-mode
+      # Pages Function (site/public/_worker.js → site/dist/_worker.js). Wrangler
+      # only bundles it when it sits at the root of the deployed directory. If
+      # Astro ever stops copying it, gated /data artifacts would silently 404
+      # (and Always-Online would keep serving the stale 200) instead of
+      # returning a fresh no-store 403. Fail the deploy rather than ship without
+      # the guard.
+      - name: Verify gated-data edge guard is bundled
+        working-directory: site
+        run: |
+          test -f dist/_worker.js || { echo "FAIL: dist/_worker.js missing — refusing to deploy without the gated-data edge guard"; exit 1; }
+          test -f dist/_routes.json || { echo "FAIL: dist/_routes.json missing — edge guard routing would be unscoped"; exit 1; }
+          echo "Edge guard present: dist/_worker.js + dist/_routes.json"
+
       - name: Publish to Cloudflare Pages
         # apiToken/accountId come from $GITHUB_ENV (sourced from Doppler
         # dataviking-platform/prd in the earlier step); wrangler reads the
