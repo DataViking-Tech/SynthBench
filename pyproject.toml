@@ -55,17 +55,17 @@ synthbench = "synthbench.cli:main"
 [tool.setuptools.packages.find]
 where = ["src"]
 
-# Held-out validation data (issue #259) is intentionally NOT included in
-# the wheel. The raw Pew ATP / GlobalOpinionQA item values are downloaded
-# at runtime by the dataset adapters into the user's data directory, never
-# from the package install. The held-out / public partition is a logical
-# filter over those loaded items (see ``synthbench.datasets.split``), and
-# the held-out *answer keys* live server-side and are only accessible to
-# the periodic re-eval worker via the ``SYNTHBENCH_HELD_OUT_AUTH`` shared
-# secret. We therefore deliberately leave ``[tool.setuptools.package-data]``
-# unset for synthbench — the only files shipped are the Python sources
-# resolved by ``packages.find``. Adding raw data globs here would break
-# the held-out integrity model. See ``docs/held-out.md``.
+# Holdout answer-key data (issue #259) is intentionally NOT included in
+# the wheel. Raw upstream survey items are downloaded at runtime by the
+# dataset adapters into the user's data directory, never from the package
+# install. The public / private-holdout partition is a logical filter over
+# question keys (see ``synthbench.private_holdout``), and the canonical
+# private *answer key* (per-question human distributions) lives only in
+# the gated R2 origin + credentialed maintainer caches. We therefore
+# deliberately leave ``[tool.setuptools.package-data]`` unset for
+# synthbench — the only files shipped are the Python sources resolved by
+# ``packages.find``. Adding raw data globs here would break the holdout
+# integrity model. See ``docs/held-out.md``.
 
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
