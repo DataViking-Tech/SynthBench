@@ -1,6 +1,6 @@
 ---
-// Documents the 80/20 private-holdout split enforced by
-// `synthbench.private_holdout` and surfaced in the leaderboard as the
+// Documents the per-dataset private-holdout split (20–40% private) enforced
+// by `synthbench.private_holdout` and surfaced in the leaderboard as the
 // "verified" / "flagged" verification badge.
 ---
 
@@ -11,17 +11,20 @@
     Private holdout split
   </h2>
   <p class="text-muted mb-4 max-w-3xl">
-    Every holdout-enabled dataset is partitioned deterministically into an
-    80% public subset and a 20% private subset. Per-question human
+    Every holdout-enabled dataset is partitioned deterministically into a
+    public subset and a private subset. The private fraction is per-dataset,
+    sized to preserve statistical power: 20% for large datasets (OpinionsQA,
+    WVS, GSS), 30% for medium ones (SubPOP, GlobalOpinionQA), and 40% for
+    small ones (Michigan, NTIA, Eurobarometer). Per-question human
     distributions for the private subset are suppressed from every public
-    artifact — the site, the run-detail JSON, and the question-explorer
-    pages — so a submitter can't reverse-engineer the private answer key by
-    reading public files.
+    SynthBench artifact — the site, the run-detail JSON, and the
+    question-explorer pages — so a submitter can't recover the private
+    answer key by reading our published files.
   </p>
   <p class="text-muted mb-4 max-w-3xl">
     Submissions must include results for every question, public and
     private. We (the SynthBench maintainers) score the private subset
-    locally against the hidden distribution and publish the resulting
+    locally against the withheld answer key and publish the resulting
     <span class="font-mono">sps_private</span> alongside
     <span class="font-mono">sps_public</span>. Rows whose public/private
     SPS delta stays within a tolerance of 0.05 earn a
@@ -35,17 +38,34 @@
     > for review.
   </p>
   <p class="text-muted mb-4 max-w-3xl">
-    The partition is derived from a SHA-256 hash of <span class="font-mono"
-      >dataset_name + ":" + question_key</span
+    The partition is derived from an unsalted SHA-256 hash of <span
+      class="font-mono">dataset_name + ":" + question_key</span
     >. That makes it stable across runs, machines, and Python versions
-    without needing a seed file. We do not publish which questions land in
-    the private subset — doing so would defeat the anti-fabrication
-    property.
+    without needing a seed file. It also means <strong
+      >which questions are private is not a secret</strong
+    >: the hash is public code, run artifacts carry explicit
+    <span class="font-mono">is_holdout</span> flags, and anyone can compute
+    any question's membership. That is deliberate and Kaggle-like — what is
+    withheld is the private subset's <em>answer key</em> (the per-question
+    human distributions), not the list of held-out questions.
+  </p>
+  <p class="text-muted mb-4 max-w-3xl">
+    <strong>Honest limits.</strong> The source surveys behind these datasets
+    are publicly downloadable upstream, and our open-source adapters will
+    rebuild the full per-question distributions — private subset included —
+    for anyone willing to run them. A determined actor can therefore
+    reconstruct the private targets. The holdout is a fabrication detector
+    and a deterrent against casual overfitting, not cryptographic secrecy:
+    it raises the effort bar from "copy our published JSON" to "reprocess
+    the upstream source". A genuinely un-memorizable holdout would require
+    newly fielded human data on a rotation cadence — a data-acquisition
+    program scoped separately from this mechanism.
   </p>
   <p class="text-muted max-w-3xl">
     <strong>Why bother.</strong> Two independent motivations converge on
     the same mechanism. First, future LLMs may train on SynthBench itself;
-    holding out 20% slows that recursion. Second (and more important after
+    holding out 20–40% per dataset slows that recursion. Second (and more
+    important after
     the public flip): once per-question human distributions are visible,
     a bad actor could fabricate a submission JSON that exactly matches
     them. The private subset is a cheap cheating detector — a fabricator
@@ -60,7 +80,7 @@
     <p class="text-muted mb-4">
       Every leaderboard row on a holdout-enabled dataset carries one of two
       badges, computed at publish time by comparing the row's SPS on the
-      public 80% against its SPS on the private 20%
+      public subset against its SPS on the private subset
       (<span class="font-mono">|sps_public − sps_private|</span>, the
       published <span class="font-mono">sps_public_private_delta</span>):
     </p>

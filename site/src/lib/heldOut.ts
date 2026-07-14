@@ -1,18 +1,20 @@
 /**
- * Held-out re-eval client helpers.
+ * Held-out re-eval client helpers — RESERVED plumbing (issue #259).
  *
- * The held-out validation split (issue #259, foundation in PR #264) hides
- * 25% of the items in pewtech / globalopinionqa from contributors. A
- * server-side cron periodically re-evaluates published configs against the
- * held-out cut and writes the result back onto the leaderboard row as
- * `sps_held_out` + `sps_held_out_delta`. The badge ("verified" / "flagged")
- * is derived from the delta against the threshold below.
+ * These fields (`sps_held_out`, `sps_held_out_delta`, `held_out_badge`,
+ * `held_out_last_run`) were sketched for a periodic server-side re-eval
+ * cron. No pipeline currently populates them, and no leaderboard entry
+ * carries them today: submission-time server-side scoring against the
+ * canonical private-holdout answer key (`synthbench.private_holdout` +
+ * `verification_badge`) largely supersedes the cron for the fabrication
+ * threat model. Whether a periodic re-eval is still wanted (it would only
+ * add value against post-submission drift/contamination) is an open design
+ * decision — see the #259 close-out audit. The badge renders nothing while
+ * the fields are absent, so keeping the plumbing is harmless.
  *
- * The threshold is a placeholder borrowed from
+ * The threshold is borrowed from
  * `synthbench.private_holdout.SPS_DIVERGENCE_THRESHOLD` — the publish-time
- * cheat-detector uses the same magnitude. Once the held-out cron has run
- * for long enough to characterise honest-submission noise (sb-ejk), this
- * becomes a per-dataset table calibrated empirically.
+ * cheat-detector uses the same magnitude.
  */
 
 import type { LeaderboardEntry } from "@/types/leaderboard";

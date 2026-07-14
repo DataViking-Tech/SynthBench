@@ -10,7 +10,7 @@ uses whatever auth context it already has on the vendor's machine.
 
 The body template is inlined as ``PR_BODY_TEMPLATE`` rather than shipped as
 package data: ``[tool.setuptools.package-data]`` is intentionally unset
-for the synthbench package (see pyproject.toml — held-out integrity model
+for the synthbench package (see pyproject.toml — private-holdout integrity model
 in #259), so any new on-disk asset would either be skipped from the wheel
 or force loosening that contract.
 """

@@ -262,18 +262,6 @@ main.add_command(_submit_adapter_cmd)
     show_default=True,
     help="With --wait: give up after this many seconds and exit 2.",
 )
-# sb-259: held-out validation split. Default behaviour evaluates the
-# *public* cut (preserving current shipped-score semantics — see migration
-# note in docs/held-out.md); --held-out flips the filter to score only the
-# held-out items. The env-var gate is enforced here so a CI job missing the
-# secret fails fast before any provider calls are made.
-@click.option(
-    "--held-out",
-    "held_out",
-    is_flag=True,
-    help="Evaluate against the held-out validation cut only. Requires the "
-    "SYNTHBENCH_HELD_OUT_AUTH env var to be set (see issue #259).",
-)
 def run(
     provider,
     model,
@@ -301,7 +289,6 @@ def run(
     submit_timeout,
     poll_interval,
     poll_timeout,
-    held_out,
 ):
     """Run a benchmark evaluation.
 
@@ -339,22 +326,6 @@ def run(
         )
         sys.exit(2)
 
-    # sb-259: held-out evaluation is gated by SYNTHBENCH_HELD_OUT_AUTH. We
-    # enforce the gate here — *before* loading the provider or the dataset
-    # — so a CI job missing the secret fails in <100ms with a clear
-    # message, rather than burning API budget then crashing.
-    if held_out:
-        from synthbench.datasets.split import (
-            HeldOutAuthError,
-            require_held_out_auth,
-        )
-
-        try:
-            require_held_out_auth()
-        except HeldOutAuthError as exc:
-            click.echo(f"Error: {exc}", err=True)
-            sys.exit(2)
-
     asyncio.run(
         _run_async(
             provider,
@@ -382,7 +353,6 @@ def run(
             submit_timeout=submit_timeout,
             poll_interval=poll_interval,
             poll_timeout=poll_timeout,
-            held_out=held_out,
         )
     )
 
@@ -414,7 +384,6 @@ async def _run_async(
     submit_timeout: int = 60,
     poll_interval: float = 10.0,
     poll_timeout: float = 900.0,
-    held_out: bool = False,
 ):
     from synthbench.datasets import DATASETS
     from synthbench.providers import load_provider
@@ -485,58 +454,6 @@ async def _run_async(
             question_keys = [k for k in question_keys if k in topic_set]
         else:
             question_keys = topic_keys
-
-    # sb-259: held-out / public partition. Applied only to the datasets in
-    # ``HELD_OUT_ENABLED_DATASETS`` so we don't retroactively change scores
-    # for the other datasets shipped on the leaderboard. The filter is
-    # implemented as an intersection on ``question_keys`` so it composes
-    # cleanly with --suite and --topic.
-    from synthbench.datasets.split import (
-        DEFAULT_HELD_OUT_FRAC,
-        DEFAULT_HELD_OUT_SEED,
-        is_held_out,
-        is_held_out_enabled_dataset,
-    )
-
-    if is_held_out_enabled_dataset(dataset_name):
-        # We need to enumerate the dataset's keys to compute the partition
-        # before the runner loads + samples. ds.load() is cheap (file read +
-        # parse, no provider calls), and BenchmarkRunner.run() will reload
-        # under the hood — that's the current contract, see runner.py line
-        # ~371. The double-load is negligible vs. the per-question API
-        # cost. (Follow-up: thread the partition through the runner so the
-        # second load isn't needed.)
-        all_keys = [q.key for q in ds.load()]
-        if held_out:
-            cut_keys = [
-                k
-                for k in all_keys
-                if is_held_out(
-                    k,
-                    seed=DEFAULT_HELD_OUT_SEED,
-                    held_out_frac=DEFAULT_HELD_OUT_FRAC,
-                )
-            ]
-            cut_label = "held-out"
-        else:
-            cut_keys = [
-                k
-                for k in all_keys
-                if not is_held_out(
-                    k,
-                    seed=DEFAULT_HELD_OUT_SEED,
-                    held_out_frac=DEFAULT_HELD_OUT_FRAC,
-                )
-            ]
-            cut_label = "public"
-        if question_keys is not None:
-            cut_set = set(cut_keys)
-            question_keys = [k for k in question_keys if k in cut_set]
-        else:
-            question_keys = cut_keys
-        click.echo(
-            f"  Held-out filter: {cut_label} cut ({len(question_keys)}/{len(all_keys)} questions)"
-        )
 
     # Run benchmark
     runner = BenchmarkRunner(

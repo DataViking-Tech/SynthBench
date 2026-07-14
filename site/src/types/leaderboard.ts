@@ -160,12 +160,12 @@ export interface LeaderboardEntry {
   verification_badge?: "verified" | "flagged";
 
   /**
-   * SPS recomputed by the server-side held-out re-eval worker against the
-   * held-out cut of `dataset` (see `synthbench.datasets.split`). Distinct
-   * from `sps_private`: the private holdout split runs once at publish
-   * time as a cheat-detector, whereas the held-out re-eval is the
-   * server-driven periodic re-run of the contributor's config against
-   * data they never saw. See docs/held-out.md.
+   * RESERVED — SPS from a possible future periodic server-side re-eval of
+   * this config against the private holdout cut. No pipeline populates
+   * this field today; whether the re-eval cron is still wanted is an open
+   * design decision (submission-time server-side scoring largely
+   * supersedes it — see docs/held-out.md § History). Distinct from
+   * `sps_private`, which is computed at publish time for every entry.
    */
   sps_held_out?: number;
 
@@ -173,20 +173,19 @@ export interface LeaderboardEntry {
   sps_held_out_delta?: number;
 
   /**
-   * ISO 8601 timestamp of the last server-side held-out re-eval for this
-   * (config, dataset) pair. Absent when the held-out cron has not yet
-   * re-evaluated this row. Once populated, `held_out_badge` reflects the
-   * verdict.
+   * RESERVED — ISO 8601 timestamp of the last periodic held-out re-eval
+   * for this (config, dataset) pair. No pipeline populates this today.
    */
   held_out_last_run?: string;
 
   /**
-   * Trust badge from the server-side held-out re-eval comparison. Distinct
-   * from `verification_badge` (publish-time cheat-detector). Derived from
-   * `sps_held_out_delta` vs `LEADERBOARD_HELD_OUT_DELTA_THRESHOLD`:
+   * RESERVED — trust badge from the periodic held-out re-eval comparison.
+   * Distinct from `verification_badge` (publish-time cheat-detector).
+   * Derived from `sps_held_out_delta` vs
+   * `LEADERBOARD_HELD_OUT_DELTA_THRESHOLD`:
    *   - "verified" — delta within threshold; held-out and public agree
    *   - "flagged"  — delta exceeds threshold; under investigation
-   * Absent until the held-out cron has scored this row.
+   * Absent on every current entry — no re-eval job exists yet.
    */
   held_out_badge?: "verified" | "flagged";
 }
