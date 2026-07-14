@@ -30,7 +30,7 @@ asymmetries in how LLMs represent different demographic groups.
 |---------|---------------------|-------------------|-----------------|
 | globalopinionqa (n=100) | **0.813** | 0.786 (SynthPanel (GPT-4o-mini), product) | 0.710 (n=10) |
 | opinionsqa (n=684) | **0.877** | 0.829 (Gemini 2.5 Flash, raw) | 0.763 (n=684) |
-| subpop (n=200) | **0.879** | 0.821 (SynthPanel (Gemini Flash Lite), product) | 0.757 (n=200) |
+| subpop (n=200) | **0.831** | 0.821 (SynthPanel (Gemini Flash Lite), product) | 0.757 (n=200) |
 <!-- END GENERATED: headline -->
 
 Note on interpretation: SPS is a composite parity score, not a
@@ -206,11 +206,9 @@ three runs costs roughly 3× a single-model run.
 |---------|-------------------|-------------|-------------|-----------------|
 | globalopinionqa (100q) | 0.786 (SynthPanel (GPT-4o-mini), product) | **0.813** | **+2.7 pts** | 0.710 (n=10) |
 | opinionsqa (684q) | 0.829 (Gemini 2.5 Flash, raw) | **0.877** | **+4.8 pts** | 0.763 (n=684) |
-| subpop (200q) | 0.821 (SynthPanel (Gemini Flash Lite), product) | **0.879** | **+5.8 pts** | 0.757 (n=200) |
+| subpop (200q) | 0.821 (SynthPanel (Gemini Flash Lite), product) | **0.831** | **+1.0 pts** | 0.757 (n=200) |
 
 Comparison set: best_single = highest recomputed-SPS non-ensemble, non-baseline leaderboard row (raw or product framework) evaluated on at least as many questions as the ensemble, after per-(model, framework, dataset) dedup; random_baseline = recomputed SPS of the random-baseline run for the same dataset (n in random_baseline_n).
-
-> **Caveat**: The subpop ensemble blends constituent run 'subpop_synthpanel_claude-haiku-4-5-20251001_20260411_073013', which the run-validity filter excludes from the leaderboard as uniform-distribution garbage. The blended per-question rows still include its (uniform) distributions, so the published ensemble score for subpop understates a clean re-blend.
 <!-- END GENERATED: ensemble -->
 
 ### Key Findings
@@ -291,7 +289,7 @@ more temperature — it just adds noise.
 <!-- BEGIN GENERATED: levers -->
 | Lever | Effect size (SPS pts) | Cost | Status |
 |-------|----------------------|------|--------|
-| **Ensemble blending** | +2.7–5.8 | zero | done |
+| **Ensemble blending** | +1.0–4.8 | zero | done |
 | **Per-model optimal temperature** | +0.8–4.5 | low | actionable |
 | **Demographic conditioning** | +1.9–7.3 | moderate | scientific |
 | **Persona template** | 'current' template already optimal (+11.0 pts over the best alternative); no further gain available from this lever. | zero | done |
