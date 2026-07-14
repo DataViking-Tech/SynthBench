@@ -12,6 +12,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING
 
 from synthbench.datasets.policy import DatasetPolicy, all_policies, policy_for
+from synthbench.findings import PRODUCT_TO_RAW_DISPLAY as _PRODUCT_TO_RAW_DISPLAY
 from synthbench.run_validity import is_invalid_run, run_identity
 
 if TYPE_CHECKING:
@@ -748,204 +749,18 @@ def _build_entry(
     return entry
 
 
-def _build_findings() -> dict:
-    """Build pre-computed findings data from FINDINGS.md experiment results."""
-    return {
-        "temperature_sweep": [
-            # Experiment A: Claude Haiku 4.5
-            {
-                "model": "Claude Haiku 4.5",
-                "temperature": 0.3,
-                "sps": 0.843,
-                "std": 0.003,
-            },
-            {
-                "model": "Claude Haiku 4.5",
-                "temperature": 0.5,
-                "sps": 0.845,
-                "std": 0.002,
-            },
-            {
-                "model": "Claude Haiku 4.5",
-                "temperature": 0.7,
-                "sps": 0.847,
-                "std": 0.003,
-            },
-            {
-                "model": "Claude Haiku 4.5",
-                "temperature": 0.85,
-                "sps": 0.849,
-                "std": 0.002,
-            },
-            {
-                "model": "Claude Haiku 4.5",
-                "temperature": 1.0,
-                "sps": 0.850,
-                "std": 0.001,
-            },
-            # Experiment A: Gemini Flash Lite
-            {
-                "model": "Gemini Flash Lite",
-                "temperature": 0.3,
-                "sps": 0.819,
-                "std": 0.004,
-            },
-            {
-                "model": "Gemini Flash Lite",
-                "temperature": 0.5,
-                "sps": 0.831,
-                "std": 0.003,
-            },
-            {
-                "model": "Gemini Flash Lite",
-                "temperature": 0.7,
-                "sps": 0.842,
-                "std": 0.003,
-            },
-            {
-                "model": "Gemini Flash Lite",
-                "temperature": 0.85,
-                "sps": 0.850,
-                "std": 0.002,
-            },
-            {
-                "model": "Gemini Flash Lite",
-                "temperature": 1.0,
-                "sps": 0.856,
-                "std": 0.003,
-            },
-            # Experiment D: Gemini extended temperature
-            {
-                "model": "Gemini Flash Lite",
-                "temperature": 1.2,
-                "sps": 0.856,
-                "std": 0.002,
-            },
-            {
-                "model": "Gemini Flash Lite",
-                "temperature": 1.5,
-                "sps": 0.858,
-                "std": 0.003,
-            },
-            {
-                "model": "Gemini Flash Lite",
-                "temperature": 1.8,
-                "sps": 0.857,
-                "std": 0.002,
-            },
-            {
-                "model": "Gemini Flash Lite",
-                "temperature": 2.0,
-                "sps": 0.864,
-                "std": 0.002,
-            },
-            # Experiment A: GPT-4o-mini
-            {"model": "GPT-4o-mini", "temperature": 0.3, "sps": 0.817, "std": 0.004},
-            {"model": "GPT-4o-mini", "temperature": 0.5, "sps": 0.820, "std": 0.003},
-            {"model": "GPT-4o-mini", "temperature": 0.7, "sps": 0.823, "std": 0.003},
-            {"model": "GPT-4o-mini", "temperature": 0.85, "sps": 0.826, "std": 0.002},
-            {"model": "GPT-4o-mini", "temperature": 1.0, "sps": 0.829, "std": 0.002},
-        ],
-        "ensemble_comparison": [
-            {
-                "dataset": "opinionsqa",
-                "best_single_model": "Claude Haiku 4.5",
-                "best_single_sps": 0.766,
-                "ensemble_sps": 0.836,
-                "improvement": 0.070,
-            },
-            {
-                "dataset": "subpop",
-                "best_single_model": "Gemini Flash Lite",
-                "best_single_sps": 0.744,
-                "ensemble_sps": 0.796,
-                "improvement": 0.052,
-            },
-            {
-                "dataset": "globalopinionqa",
-                "best_single_model": "GPT-4o-mini",
-                "best_single_sps": 0.692,
-                "ensemble_sps": 0.747,
-                "improvement": 0.056,
-            },
-        ],
-        "conditioning_results": [
-            {
-                "attribute": "POLPARTY",
-                "group": "Republican",
-                "p_dist": 0.666,
-                "p_cond": 0.073,
-                "p_cond_std": 0.004,
-                "n_replications": 4,
-            },
-            {
-                "attribute": "POLPARTY",
-                "group": "Democrat",
-                "p_dist": 0.644,
-                "p_cond": 0.033,
-                "p_cond_std": 0.005,
-                "n_replications": 4,
-            },
-            {
-                "attribute": "INCOME",
-                "group": "$100K+",
-                "p_dist": 0.673,
-                "p_cond": 0.031,
-                "n_replications": 2,
-            },
-            {
-                "attribute": "INCOME",
-                "group": "<$30K",
-                "p_dist": 0.603,
-                "p_cond": 0.020,
-                "n_replications": 2,
-            },
-            {
-                "attribute": "EDUCATION",
-                "group": "College graduate",
-                "p_dist": 0.641,
-                "p_cond": 0.036,
-                "n_replications": 1,
-            },
-            {
-                "attribute": "EDUCATION",
-                "group": "Less than HS",
-                "p_dist": 0.597,
-                "p_cond": 0.038,
-                "n_replications": 1,
-            },
-        ],
-        "lever_hierarchy": [
-            {
-                "name": "Ensemble blending",
-                "effect_min": 5.0,
-                "effect_max": 7.0,
-                "cost": "zero",
-                "status": "done",
-            },
-            {
-                "name": "Per-model optimal temperature",
-                "effect_min": 0.0,
-                "effect_max": 4.5,
-                "cost": "low",
-                "status": "actionable",
-            },
-            {
-                "name": "Demographic conditioning",
-                "effect_min": 2.0,
-                "effect_max": 7.0,
-                "cost": "moderate",
-                "status": "scientific",
-            },
-            {
-                "name": "Persona template",
-                "effect_min": 0.0,
-                "effect_max": 0.0,
-                "cost": "zero",
-                "status": "done",
-            },
-        ],
-    }
+def _build_findings(results: list[dict], excluded_runs: list[dict]) -> dict:
+    """Compute the findings block from the loaded run pool (#309).
+
+    Delegates to :mod:`synthbench.findings` — every number is derived from
+    the recomputed per-question rows of the valid runs, with non-derivable
+    numbers carried as documented asserted constants. ``excluded_runs`` are
+    the validity-filtered records so ensemble caveats can flag blends built
+    on excluded constituents.
+    """
+    from synthbench.findings import build_findings
+
+    return build_findings(results, {e["run_id"] for e in excluded_runs})
 
 
 def _load_opinionsqa_human_distributions() -> list[dict]:
@@ -1067,19 +882,9 @@ def _build_baselines(results: list[dict], datasets: list[str]) -> dict:
     return out
 
 
-# Display-name map: product entries → underlying raw-LLM display name.
-# Used by _annotate_normalized_sps so a SynthPanel row can look up its
-# corresponding "just prompt the model" baseline SPS for the same dataset.
-# Kept as a small explicit map (rather than string parsing) because the
-# product display names omit the vendor prefix ("Haiku 4.5" vs "Claude
-# Haiku 4.5") and a typo-tolerant match would silently bind the wrong row.
-_PRODUCT_TO_RAW_DISPLAY: dict[str, str] = {
-    "SynthPanel (Haiku 4.5)": "Claude Haiku 4.5",
-    "SynthPanel (Sonnet 4)": "Claude Sonnet 4",
-    "SynthPanel (GPT-4o-mini)": "GPT-4o-mini",
-    "SynthPanel (GPT-4o)": "GPT-4o",
-    "SynthPanel (Gemini Flash Lite)": "Gemini Flash Lite",
-}
+# Display-name map for product->raw rows lives in synthbench.findings
+# (shared with the findings block computation); imported at module top as
+# _PRODUCT_TO_RAW_DISPLAY for _annotate_normalized_sps below.
 
 
 def _annotate_normalized_sps(entries: list[dict], baselines: dict) -> None:
@@ -1389,7 +1194,7 @@ def publish_leaderboard_data(
         "datasets": datasets,
         "entries": entries,
         "convergence": convergence,
-        "findings": _build_findings(),
+        "findings": _build_findings(results, excluded_runs),
         "baselines": baselines,
         "cross_provider_concordance": cross_provider_concordance,
         "pricing_snapshot": _build_pricing_snapshot(),

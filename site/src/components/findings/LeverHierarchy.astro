@@ -86,13 +86,17 @@ const chartOption = {
 };
 
 const hasData = levers.length > 0;
+const ensembleLever = levers.find((l) => l.name === "Ensemble blending");
+const ensembleRange = ensembleLever
+  ? `+${ensembleLever.effect_min}–${ensembleLever.effect_max}`
+  : "up to +6";
 ---
 
 <section class="w-full max-w-4xl mx-auto py-8">
   <h2 class="text-2xl font-bold text-center mb-2">What Matters Most</h2>
   <p class="text-center text-sm text-muted mb-6">
     Effect size of each optimization lever, sorted by maximum impact.
-    Ensemble blending delivers +5-7 SPS points at zero additional cost.
+    Ensemble blending delivers {ensembleRange} SPS points at zero additional cost.
   </p>
   {hasData ? (
     <Chart

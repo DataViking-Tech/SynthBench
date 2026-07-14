@@ -254,11 +254,29 @@ export interface ReplicateRun {
   p_rank: number;
 }
 
+/**
+ * Findings block — computed at publish time from leaderboard-results/
+ * per-question rows (synthbench.findings, #309). A CI drift guard
+ * (tests/test_findings_drift.py) keeps this in lockstep with the artifacts.
+ */
 export interface FindingsData {
+  /** Composite convention every SPS value in this block uses ("sps"). */
+  sps_convention: string;
+  /** Provenance note for the whole block. */
+  generated_from: string;
   temperature_sweep: TemperatureSweepPoint[];
   ensemble_comparison: EnsembleComparison[];
   conditioning_results: ConditioningResult[];
+  /** Measured attributes beyond the charted POLPARTY/INCOME/EDUCATION set. */
+  conditioning_extended?: ConditioningResult[];
+  template_comparison?: TemplateComparisonRow[];
   lever_hierarchy: Lever[];
+  /** Human-readable definition of each finding's comparison set. */
+  comparison_sets?: Record<string, string>;
+  /** Numbers not derivable from committed artifacts, with provenance. */
+  asserted_constants?: AssertedConstant[];
+  /** Data-quality caveats (e.g. ensembles blending excluded constituents). */
+  caveats?: string[];
 }
 
 export interface TemperatureSweepPoint {
@@ -266,23 +284,48 @@ export interface TemperatureSweepPoint {
   temperature: number;
   sps: number;
   std?: number;
+  /** Replications aggregated into this cell. */
+  n_runs?: number;
+  dataset?: string;
 }
 
 export interface EnsembleComparison {
   dataset: string;
   best_single_model: string;
+  /** Framework of the best single row ("raw" or "product"). */
+  best_single_framework?: string;
   best_single_sps: number;
   ensemble_sps: number;
   improvement: number;
+  /** Question count the ensemble (and comparison set) was evaluated on. */
+  n_questions?: number;
+  /** Random-baseline SPS on the same dataset/scale, for anchoring. */
+  random_baseline_sps?: number;
+  random_baseline_n?: number;
 }
 
 export interface ConditioningResult {
   attribute: string;
   group: string;
+  /** Original SubPOP group label when `group` is a shortened display form. */
+  group_raw?: string;
   p_dist: number;
   p_cond: number;
   p_cond_std?: number;
   n_replications: number;
+}
+
+export interface TemplateComparisonRow {
+  template: string;
+  sps: number;
+  std?: number;
+  n_runs: number;
+}
+
+export interface AssertedConstant {
+  name: string;
+  value: string;
+  source: string;
 }
 
 export interface Lever {
@@ -291,6 +334,8 @@ export interface Lever {
   effect_max: number;
   cost: "zero" | "low" | "moderate" | "high";
   status: "done" | "actionable" | "scientific";
+  /** Optional qualifier (e.g. why a zero-range lever is still "done"). */
+  note?: string;
 }
 
 export interface ConvergencePoint {

@@ -85,13 +85,19 @@ const chartOption = {
 };
 
 const hasData = ensembleData.length > 0;
+const improvementsPts = ensembleData.map((d) => d.improvement * 100);
+const gainRange = hasData
+  ? `+${Math.min(...improvementsPts).toFixed(1)} to +${Math.max(...improvementsPts).toFixed(1)}`
+  : "";
+const comparisonSet = leaderboard.findings.comparison_sets?.ensemble_comparison ?? "";
 ---
 
 <section class="w-full max-w-4xl mx-auto py-8">
   <h2 class="text-2xl font-bold text-center mb-2">The Biggest Lever: Ensemble Blending</h2>
   <p class="text-center text-sm text-muted mb-6">
-    For each dataset, ensemble blending of 3 models outperforms the best single model
-    by +5.2 to +7.0 SPS points. Zero additional API cost — just arithmetic.
+    For each dataset, ensemble blending of 3 models outperforms the best single
+    leaderboard entry at matched question count by {gainRange} SPS points.
+    Zero additional API cost — just arithmetic.
   </p>
   {hasData ? (
     <Chart
@@ -104,5 +110,10 @@ const hasData = ensembleData.length > 0;
     <div class="text-center text-muted py-12 border border-muted/20 rounded-lg">
       Ensemble comparison data not yet available.
     </div>
+  )}
+  {comparisonSet && (
+    <p class="text-xs text-muted text-center mt-2 max-w-2xl mx-auto">
+      Comparison set: {comparisonSet}
+    </p>
   )}
 </section>
