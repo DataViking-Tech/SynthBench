@@ -129,7 +129,37 @@ def _agg(input_tokens: int | None = None, output_tokens: int | None = None) -> d
             },
         ),
         (
-            "absent_token_usage_nulls",
+            # #316: rows without token_usage fall back to the documented
+            # samples×questions×per-call-constant estimate, marked estimated.
+            "absent_token_usage_estimates",
+            _agg(),  # no token_usage key
+            {
+                "provider": "raw-anthropic/claude-haiku-4-5",
+                "samples_per_question": 5,
+                "n_evaluated": 100,
+            },
+            {"n": 100, "sps": 0.85},
+            {
+                "cost_usd": 500
+                * (
+                    124 * HAIKU.input_cost_per_million
+                    + 4 * HAIKU.output_cost_per_million
+                )
+                / 1_000_000,
+                "cost_per_100q": 500
+                * (
+                    124 * HAIKU.input_cost_per_million
+                    + 4 * HAIKU.output_cost_per_million
+                )
+                / 1_000_000,
+                "tokens_per_response": None,
+                "is_cost_estimated": True,
+            },
+        ),
+        (
+            # #316: no token_usage AND no samples_per_question/n_evaluated —
+            # nothing to estimate from, stays null.
+            "absent_token_usage_and_config_nulls",
             _agg(),  # no token_usage key
             {"provider": "raw-anthropic/claude-haiku-4-5"},
             {"n": 100, "sps": 0.85},
@@ -138,6 +168,20 @@ def _agg(input_tokens: int | None = None, output_tokens: int | None = None) -> d
                 "cost_per_100q": None,
                 "cost_per_sps_point": None,
                 "is_cost_estimated": None,
+            },
+        ),
+        (
+            # #316: baselines make zero model calls — true $0.00, not an
+            # estimate, even without token_usage.
+            "baseline_no_token_usage_zero_cost",
+            _agg(),  # no token_usage key
+            {"provider": "random-baseline"},
+            {"n": 100, "sps": 0.5, "is_baseline": True},
+            {
+                "cost_usd": 0.0,
+                "cost_per_100q": 0.0,
+                "cost_per_sps_point": 0.0,
+                "is_cost_estimated": False,
             },
         ),
         (
@@ -224,8 +268,10 @@ def test_compute_ensemble_cost_sums_all_constituents():
             {"provider": "raw-anthropic/claude-opus-4-6", "weight": 1 / 3},
         ],
     }
-    cost = _compute_ensemble_cost(config, results_by_pds)
-    assert cost is not None
+    result = _compute_ensemble_cost(config, results_by_pds)
+    assert result is not None
+    cost, is_estimated = result
+    assert is_estimated is False  # every constituent had measured usage
     expected = (
         (HAIKU.input_cost_per_million + 0.5 * HAIKU.output_cost_per_million)
         + (SONNET.input_cost_per_million + 0.5 * SONNET.output_cost_per_million)
@@ -239,7 +285,8 @@ def test_compute_ensemble_cost_sums_all_constituents():
 
 def test_compute_ensemble_cost_missing_constituent_returns_none():
     haiku = _constituent("synthpanel/claude-haiku-4-5", "subpop", 1_000_000, 500_000)
-    # opus exists, but sonnet's token_usage is missing
+    # opus exists, but sonnet's token_usage is missing AND its config lacks
+    # samples_per_question/n_evaluated, so the #316 estimate can't run either.
     sonnet_no_usage = {
         "config": {"provider": "synthpanel/claude-sonnet-4", "dataset": "subpop"},
         "aggregate": {"n_questions": 100},  # no token_usage
@@ -263,6 +310,42 @@ def test_compute_ensemble_cost_missing_constituent_returns_none():
 
 def test_compute_ensemble_cost_no_sources_returns_none():
     assert _compute_ensemble_cost({"dataset": "subpop"}, {}) is None
+
+
+def test_compute_ensemble_cost_estimates_unmeasured_constituent():
+    """#316: a constituent without token_usage contributes the documented
+    samples×questions×per-call-constant estimate and flips is_estimated."""
+    haiku = _constituent("synthpanel/claude-haiku-4-5", "subpop", 1_000_000, 500_000)
+    sonnet_estimable = {
+        "config": {
+            "provider": "synthpanel/claude-sonnet-4",
+            "dataset": "subpop",
+            "samples_per_question": 5,
+            "n_evaluated": 100,
+        },
+        "aggregate": {"n_questions": 100},  # no token_usage
+    }
+    results_by_pds = {
+        ("synthpanel/claude-haiku-4-5", "subpop"): haiku,
+        ("synthpanel/claude-sonnet-4", "subpop"): sonnet_estimable,
+    }
+    config = {
+        "dataset": "subpop",
+        "ensemble_sources": [
+            {"provider": "synthpanel/claude-haiku-4-5", "weight": 0.5},
+            {"provider": "synthpanel/claude-sonnet-4", "weight": 0.5},
+        ],
+    }
+    result = _compute_ensemble_cost(config, results_by_pds)
+    assert result is not None
+    cost, is_estimated = result
+    assert is_estimated is True
+    expected = (
+        HAIKU.input_cost_per_million + 0.5 * HAIKU.output_cost_per_million
+    ) + 500 * (
+        124 * SONNET.input_cost_per_million + 4 * SONNET.output_cost_per_million
+    ) / 1_000_000
+    assert cost == pytest.approx(expected, rel=1e-5)
 
 
 # ---------------------------------------------------------------------------
@@ -459,17 +542,35 @@ def test_golden_three_entry_leaderboard(tmp_path: Path):
     )
     assert haiku_entry["is_cost_estimated"] is False
 
-    # Gemini row (no token_usage) — all cost fields null.
+    # Gemini row (no token_usage) — #316 estimate from config
+    # (samples_per_question=5 × n_evaluated=200 = 1000 calls at the
+    # documented per-call token constants), clearly marked estimated.
+    FLASH_LITE = synth_panel_cost.GEMINI_FLASH_LITE_PRICING
+    expected_gemini_cost = (
+        1000
+        * (
+            124 * FLASH_LITE.input_cost_per_million
+            + 4 * FLASH_LITE.output_cost_per_million
+        )
+        / 1_000_000
+    )
     gemini_entry = next(e for e in data["entries"] if "gemini" in e["model"].lower())
-    assert gemini_entry["cost_usd"] is None
-    assert gemini_entry["cost_per_100q"] is None
-    assert gemini_entry["cost_per_sps_point"] is None
-    assert gemini_entry["is_cost_estimated"] is None
+    assert gemini_entry["cost_usd"] == pytest.approx(expected_gemini_cost, rel=1e-5)
+    assert gemini_entry["cost_per_100q"] == pytest.approx(
+        expected_gemini_cost / 200 * 100, rel=1e-5
+    )
+    assert gemini_entry["is_cost_estimated"] is True
+    # The estimation constant must never masquerade as a measurement.
+    assert gemini_entry["tokens_per_response"] is None
 
-    # Ensemble row — gemini constituent has no usage → ensemble cost null.
+    # Ensemble row — haiku constituent measured + gemini constituent
+    # estimated → summed cost, marked estimated.
     ensemble_entry = next(e for e in data["entries"] if e["is_ensemble"])
-    assert ensemble_entry["cost_usd"] is None
-    assert ensemble_entry["cost_per_100q"] is None
+    assert ensemble_entry["cost_usd"] == pytest.approx(
+        expected_haiku_cost + expected_gemini_cost, rel=1e-5
+    )
+    assert ensemble_entry["is_cost_estimated"] is True
+    assert ensemble_entry["cost_per_response"] is None
 
     # Sanity: not ranking these entries away
     assert {e["dataset"] for e in data["entries"]} == {"subpop"}

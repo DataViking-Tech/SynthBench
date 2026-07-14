@@ -37,8 +37,9 @@ Fortune-500 AI platform teams, a dense contingent of infra/eval vendors.
 3. **Can I reproduce it?** — `pip install`, deterministic partition by SHA-256 of
    question key, bootstrap seed 42, pricing snapshot serialized into leaderboard.json.
    SynthBench nails this.
-4. **Does it tell me something actionable?** — ensemble-blending gives +6-7 SPS for
-   *zero additional API cost*. That is a tweet-sized practitioner takeaway and
+4. **Does it tell me something actionable?** — ensemble-blending gives +6-7 SPS with
+   *no new model calls beyond the constituent runs* (though a 3-model blend costs
+   ~3× a single run to produce). That is a tweet-sized practitioner takeaway and
    probably the single most magnetic finding on the site for this audience.
 5. **Is the evaluator itself honest?** — null-agent floors tracked in CI, run-validity
    filters for silent API failures, cost reported as `null` rather than imputed for
@@ -215,9 +216,10 @@ bar on the home hero. Note the gap: SPS 0.83 vs 0.31 random floor.
 
 **[0:30 – 1:00] The finding that makes them lean in.**
 Scroll to the "Key Findings" cards. Read the first one aloud: *"Blend three
-models with equal weight, you gain 6–7 SPS points. Zero additional API cost.
-This is the single biggest lever in the benchmark — and it is just arithmetic
-on responses you already paid for."* Click through to Findings → Ensemble
+models with equal weight, you gain 6–7 SPS points. No new model calls beyond
+the runs you already made — the blend is arithmetic on responses you already
+paid for, though producing all three runs costs about 3× a single model."*
+Click through to Findings → Ensemble
 section for one beat. *"If you only remember one thing: ensemble before you
 fine-tune."*
 

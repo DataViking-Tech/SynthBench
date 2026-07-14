@@ -132,6 +132,15 @@ function topicRows(entry: LeaderboardEntry): TopicRow[] {
 //   * run_count < 3      (fewer than 3 replicates for this exact row)
 //   * dataset_coverage_count < 2  (config only tested on one dataset)
 // Falls back to in-JS grouping when publish.py hasn't emitted the fields.
+// #316: no published run has ever carried latency instrumentation, so the
+// p50/p95 columns rendered as a wall of "—". Collapse them entirely while
+// every row is null; they reappear automatically once a run publishes a
+// latency_seconds block.
+const hasLatencyData = entries.some(
+  (e) => e.latency_p50_seconds != null || e.latency_p95_seconds != null,
+);
+const detailColSpan = hasLatencyData ? 17 : 15;
+
 const configCoverageFallback = new Map<string, Set<string>>();
 for (const entry of entries) {
   const key = `${entry.model}::t=${entry.temperature ?? ""}::tpl=${entry.template ?? ""}`;
@@ -182,11 +191,15 @@ function hiddenInDefaultView(entry: LeaderboardEntry): boolean {
           <th class="px-4 py-3 text-right font-semibold" scope="col" aria-sort="none"><button type="button" class="ml-auto flex items-center gap-1 font-semibold hover:text-primary" data-sort="p_rank">p_rank <span class="sort-indicator" aria-hidden="true"></span></button></th>
           <th class="px-4 py-3 text-right font-semibold" scope="col" aria-sort="none"><button type="button" class="ml-auto flex items-center gap-1 font-semibold hover:text-primary" data-sort="p_refuse">p_refuse <span class="sort-indicator" aria-hidden="true"></span></button></th>
           <th class="px-4 py-3 text-right font-semibold" scope="col" aria-sort="none"><button type="button" class="ml-auto flex items-center gap-1 font-semibold hover:text-primary" data-sort="n">N <span class="sort-indicator" aria-hidden="true"></span></button></th>
-          <th class="px-4 py-3 text-right font-semibold" scope="col" aria-sort="none" title="Cost in US dollars to run 100 questions at this config's token usage and the pricing snapshot at publish time. Rows without token usage show —."><button type="button" class="ml-auto flex items-center gap-1 font-semibold hover:text-primary" data-sort="cost_per_100q">$/100Q <span class="sort-indicator" aria-hidden="true"></span></button></th>
+          <th class="px-4 py-3 text-right font-semibold" scope="col" aria-sort="none" title="Cost in US dollars to run 100 questions at this config's token usage and the pricing snapshot at publish time. Values prefixed ~ are estimates (samples × questions × average per-call tokens) for runs published before token capture landed."><button type="button" class="ml-auto flex items-center gap-1 font-semibold hover:text-primary" data-sort="cost_per_100q">$/100Q <span class="sort-indicator" aria-hidden="true"></span></button></th>
           <th class="px-4 py-3 text-right font-semibold" scope="col" aria-sort="none" title="Average US dollars per API call to the underlying model — cost_usd / call_count. Ensemble rows show — (no single underlying response)."><button type="button" class="ml-auto flex items-center gap-1 font-semibold hover:text-primary" data-sort="cost_per_response">$/resp <span class="sort-indicator" aria-hidden="true"></span></button></th>
           <th class="px-4 py-3 text-right font-semibold" scope="col" aria-sort="none" title="Average tokens (input + output) per API call. Captures verbosity / prompt size; lower is generally cheaper and faster."><button type="button" class="ml-auto flex items-center gap-1 font-semibold hover:text-primary" data-sort="tokens_per_response">tok/resp <span class="sort-indicator" aria-hidden="true"></span></button></th>
-          <th class="px-4 py-3 text-right font-semibold" scope="col" aria-sort="none" title="Median per-question wall-clock latency (50th percentile). Rows from pre-instrumentation runs show —."><button type="button" class="ml-auto flex items-center gap-1 font-semibold hover:text-primary" data-sort="latency_p50_seconds">p50 lat <span class="sort-indicator" aria-hidden="true"></span></button></th>
-          <th class="px-4 py-3 text-right font-semibold" scope="col" aria-sort="none" title="95th-percentile per-question wall-clock latency. Captures tail latency — what slow questions feel like."><button type="button" class="ml-auto flex items-center gap-1 font-semibold hover:text-primary" data-sort="latency_p95_seconds">p95 lat <span class="sort-indicator" aria-hidden="true"></span></button></th>
+          {hasLatencyData && (
+            <>
+              <th class="px-4 py-3 text-right font-semibold" scope="col" aria-sort="none" title="Median per-question wall-clock latency (50th percentile). Rows from pre-instrumentation runs show —."><button type="button" class="ml-auto flex items-center gap-1 font-semibold hover:text-primary" data-sort="latency_p50_seconds">p50 lat <span class="sort-indicator" aria-hidden="true"></span></button></th>
+              <th class="px-4 py-3 text-right font-semibold" scope="col" aria-sort="none" title="95th-percentile per-question wall-clock latency. Captures tail latency — what slow questions feel like."><button type="button" class="ml-auto flex items-center gap-1 font-semibold hover:text-primary" data-sort="latency_p95_seconds">p95 lat <span class="sort-indicator" aria-hidden="true"></span></button></th>
+            </>
+          )}
           <th class="px-4 py-3 text-right font-semibold" scope="col" aria-sort="none"><button type="button" class="ml-auto flex items-center gap-1 font-semibold hover:text-primary" data-sort="ci">95% CI <span class="sort-indicator" aria-hidden="true"></span></button></th>
         </tr>
       </thead>
@@ -236,18 +249,25 @@ function hiddenInDefaultView(entry: LeaderboardEntry): boolean {
                 <span class="ml-1 text-xs px-1.5 py-0.5 rounded bg-provider-synthpanel/10 text-provider-synthpanel" title={entry.provider}>conditioned</span>
               )}
               {entry.verification_badge === "verified" && (
-                <span class="ml-1 text-xs px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-700 dark:text-emerald-400" title={
+                <a href={`${base}methodology/#verification-badges`} class="ml-1 text-xs px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 hover:underline" title={
                   entry.sps_public != null && entry.sps_private != null
-                    ? `Public SPS ${entry.sps_public.toFixed(3)} vs private SPS ${entry.sps_private.toFixed(3)} — delta within threshold`
-                    : "Private holdout scores agree — within divergence threshold"
-                }>✓ verified</span>
+                    ? `Public SPS ${entry.sps_public.toFixed(3)} vs private SPS ${entry.sps_private.toFixed(3)} — delta within the 0.05 divergence threshold. Select for details.`
+                    : "Private holdout scores agree — within the 0.05 divergence threshold. Select for details."
+                }>✓ verified</a>
               )}
               {entry.verification_badge === "flagged" && (
-                <span class="ml-1 text-xs px-1.5 py-0.5 rounded bg-amber-500/10 text-amber-700 dark:text-amber-400" title={
-                  entry.sps_public != null && entry.sps_private != null
-                    ? `Public SPS ${entry.sps_public.toFixed(3)} vs private SPS ${entry.sps_private.toFixed(3)} — delta exceeds threshold, under review`
-                    : "Public/private SPS diverge beyond threshold — under review"
-                }>⚠ flagged</span>
+                <span class="ml-1 inline-flex items-baseline gap-1">
+                  <span class="text-xs px-1.5 py-0.5 rounded bg-amber-500/10 text-amber-700 dark:text-amber-400" title={
+                    entry.sps_public != null && entry.sps_private != null
+                      ? `Public SPS ${entry.sps_public.toFixed(3)} vs private SPS ${entry.sps_private.toFixed(3)} — divergence exceeds the 0.05 threshold, so this score is held for review. Not proof of cheating; treat with caution.`
+                      : "Public/private SPS diverge beyond the 0.05 threshold, so this score is held for review. Not proof of cheating; treat with caution."
+                  }>⚠ flagged</span>
+                  <a
+                    href={`${base}methodology/#verification-badges`}
+                    class="text-xs text-muted hover:text-primary underline decoration-dotted underline-offset-2"
+                    aria-label={`What does the flagged badge mean for ${entry.model} on ${entry.dataset}?`}
+                  >what does this mean?</a>
+                </span>
               )}
               {heldOutBadgeState(entry) === "verified" && (
                 <span class="ml-1 text-xs px-1.5 py-0.5 rounded bg-sky-500/10 text-sky-700 dark:text-sky-400" title={heldOutBadgeTitle(entry)}>✓ held-out</span>
@@ -281,8 +301,12 @@ function hiddenInDefaultView(entry: LeaderboardEntry): boolean {
             <td class="px-4 py-3 text-right font-mono cost-cell" data-cost-per-100q={entry.cost_per_100q ?? ""}>{formatCost(entry.cost_per_100q, entry.is_cost_estimated)}</td>
             <td class="px-4 py-3 text-right font-mono cost-per-response-cell" data-cost-per-response={entry.cost_per_response ?? ""}>{formatCostPerResponse(entry.cost_per_response, entry.is_cost_estimated)}</td>
             <td class="px-4 py-3 text-right font-mono tokens-per-response-cell" data-tokens-per-response={entry.tokens_per_response ?? ""}>{formatTokensPerResponse(entry.tokens_per_response)}</td>
-            <td class="px-4 py-3 text-right font-mono latency-p50-cell" data-latency-p50={entry.latency_p50_seconds ?? ""}>{formatLatency(entry.latency_p50_seconds)}</td>
-            <td class="px-4 py-3 text-right font-mono latency-p95-cell" data-latency-p95={entry.latency_p95_seconds ?? ""}>{formatLatency(entry.latency_p95_seconds)}</td>
+            {hasLatencyData && (
+              <>
+                <td class="px-4 py-3 text-right font-mono latency-p50-cell" data-latency-p50={entry.latency_p50_seconds ?? ""}>{formatLatency(entry.latency_p50_seconds)}</td>
+                <td class="px-4 py-3 text-right font-mono latency-p95-cell" data-latency-p95={entry.latency_p95_seconds ?? ""}>{formatLatency(entry.latency_p95_seconds)}</td>
+              </>
+            )}
             <td class="px-4 py-3 text-right font-mono text-xs">
               {entry.ci_lower != null && entry.ci_upper != null
                 ? `[${entry.ci_lower.toFixed(3)}, ${entry.ci_upper.toFixed(3)}]`
@@ -290,7 +314,7 @@ function hiddenInDefaultView(entry: LeaderboardEntry): boolean {
             </td>
           </tr>
           <tr id={detailId} class="detail-row hidden border-b border-muted/10" data-dataset={entry.dataset} data-variant={hiddenInDefaultView(entry) ? "variant" : "best"}>
-            <td colspan="17" class="px-4 py-4 bg-surface/50 dark:bg-surface-dark/50">
+            <td colspan={detailColSpan} class="px-4 py-4 bg-surface/50 dark:bg-surface-dark/50">
               <div class="space-y-4 text-sm">
                 {(() => {
                   const rows = topicRows(entry);
@@ -428,8 +452,12 @@ function hiddenInDefaultView(entry: LeaderboardEntry): boolean {
           <div title="Cost in US dollars to run 100 questions"><span class="text-muted">$/100Q</span> <span class="font-mono cost-cell" data-cost-per-100q={entry.cost_per_100q ?? ""}>{formatCost(entry.cost_per_100q, entry.is_cost_estimated)}</span></div>
           <div title="USD per API call to the underlying model"><span class="text-muted">$/resp</span> <span class="font-mono">{formatCostPerResponse(entry.cost_per_response, entry.is_cost_estimated)}</span></div>
           <div title="Average tokens (input + output) per API call"><span class="text-muted">tok/resp</span> <span class="font-mono">{formatTokensPerResponse(entry.tokens_per_response)}</span></div>
-          <div title="Median per-question wall-clock latency"><span class="text-muted">p50 lat</span> <span class="font-mono">{formatLatency(entry.latency_p50_seconds)}</span></div>
-          <div title="95th-percentile per-question wall-clock latency"><span class="text-muted">p95 lat</span> <span class="font-mono">{formatLatency(entry.latency_p95_seconds)}</span></div>
+          {hasLatencyData && (
+            <>
+              <div title="Median per-question wall-clock latency"><span class="text-muted">p50 lat</span> <span class="font-mono">{formatLatency(entry.latency_p50_seconds)}</span></div>
+              <div title="95th-percentile per-question wall-clock latency"><span class="text-muted">p95 lat</span> <span class="font-mono">{formatLatency(entry.latency_p95_seconds)}</span></div>
+            </>
+          )}
         </div>
         </>
       );

@@ -304,6 +304,31 @@ _NULL_COST_FIELDS: dict = {k: None for k in _COST_FIELD_KEYS}
 _LATENCY_FIELD_KEYS = ("latency_p50_seconds", "latency_p95_seconds")
 _NULL_LATENCY_FIELDS: dict = {k: None for k in _LATENCY_FIELD_KEYS}
 
+# Estimated per-call token usage for pre-instrumentation runs (#316). Only
+# one run in the historical pool carries measured token_usage, which left the
+# cost columns null on ~34/35 leaderboard rows — the single most-demanded
+# missing datum in buyer-panel testing. For runs without token_usage we
+# estimate:
+#
+#     call_count   = samples_per_question × n_evaluated
+#     input_tokens = call_count × ESTIMATED_INPUT_TOKENS_PER_CALL
+#     output_tokens = call_count × ESTIMATED_OUTPUT_TOKENS_PER_CALL
+#
+# The per-call constants are anchored to the only measured run in the pool
+# (claude-sonnet-4.6 on globalopinionqa, 2026-04-19: 186,360 input + 6,340
+# output tokens over 1,500 calls ≈ 124 input / 4 output tokens per call).
+# Every cost derived this way is published with ``is_cost_estimated: true``
+# and rendered with a leading "~" on the site (#310). tokens_per_response is
+# deliberately left null on estimated rows so the estimation constant is
+# never presented as a measurement.
+ESTIMATED_INPUT_TOKENS_PER_CALL = 124
+ESTIMATED_OUTPUT_TOKENS_PER_CALL = 4
+
+# Baseline frameworks synthesize distributions locally and make zero model
+# calls, so their cost is a true $0.00 — measured by construction, not
+# estimated and not missing.
+_ZERO_CALL_PROVIDERS = frozenset({"random-baseline", "majority-baseline"})
+
 
 def _compute_latency_fields(aggregate: dict) -> dict:
     """Derive latency_p50_seconds / latency_p95_seconds from the run aggregate.
@@ -324,21 +349,91 @@ def _compute_latency_fields(aggregate: dict) -> dict:
     }
 
 
+def _estimate_cost_fields(config: dict, entry: dict) -> dict:
+    """Estimated-cost fallback for runs without measured token_usage (#316).
+
+    * Baseline rows (zero model calls) get a true ``$0.00`` with
+      ``is_cost_estimated: False`` — that cost is exact by construction.
+    * Priced model rows get ``call_count = samples_per_question ×
+      n_evaluated`` multiplied by the documented per-call token constants,
+      published with ``is_cost_estimated: True`` (rendered "~" on the site).
+      ``tokens_per_response`` stays null so the estimation constant is never
+      presented as a measurement.
+    * Unpriced providers (``ollama/*``, unknown models) and rows missing
+      ``samples_per_question`` / ``n_evaluated`` stay null.
+    """
+    provider = (config or {}).get("provider") or ""
+    n = entry.get("n") or (config or {}).get("n_evaluated") or 0
+    sps = entry.get("sps") or 0
+
+    if entry.get("is_baseline") or provider in _ZERO_CALL_PROVIDERS:
+        return {
+            "cost_usd": 0.0,
+            "cost_per_100q": 0.0 if n > 0 else None,
+            "cost_per_sps_point": 0.0 if sps >= 0.01 else None,
+            "cost_per_response": None,
+            "tokens_per_response": None,
+            "is_cost_estimated": False,
+        }
+
+    if not provider:
+        return dict(_NULL_COST_FIELDS)
+    try:
+        from synth_panel.cost import lookup_pricing_by_provider
+    except ImportError:
+        return dict(_NULL_COST_FIELDS)
+    pricing, _ = lookup_pricing_by_provider(provider)
+    if pricing is None:
+        return dict(_NULL_COST_FIELDS)
+
+    spq = (config or {}).get("samples_per_question")
+    n_eval = (config or {}).get("n_evaluated")
+    if not spq or not n_eval:
+        return dict(_NULL_COST_FIELDS)
+
+    call_count = int(spq) * int(n_eval)
+    cost_usd = (
+        call_count
+        * (
+            ESTIMATED_INPUT_TOKENS_PER_CALL * pricing.input_cost_per_million
+            + ESTIMATED_OUTPUT_TOKENS_PER_CALL * pricing.output_cost_per_million
+        )
+        / 1_000_000
+    )
+    cost_per_100q = (cost_usd / n * 100) if n > 0 else None
+    cost_per_sps_point = (cost_usd / sps) if sps >= 0.01 else None
+    cost_per_response = cost_usd / call_count if call_count > 0 else None
+
+    return {
+        "cost_usd": round(cost_usd, 6),
+        "cost_per_100q": round(cost_per_100q, 6) if cost_per_100q is not None else None,
+        "cost_per_sps_point": (
+            round(cost_per_sps_point, 6) if cost_per_sps_point is not None else None
+        ),
+        "cost_per_response": (
+            round(cost_per_response, 6) if cost_per_response is not None else None
+        ),
+        "tokens_per_response": None,
+        "is_cost_estimated": True,
+    }
+
+
 def _compute_cost_fields(aggregate: dict, config: dict, entry: dict) -> dict:
     """Derive cost_usd, cost_per_100q, cost_per_sps_point, is_cost_estimated.
 
-    Returns a dict with all four keys; values are ``None`` whenever token usage
-    or pricing is unavailable. ``cost_per_sps_point`` is also ``None`` when SPS
-    is below 0.01 (avoid divide-by-near-zero amplification).
+    Returns a dict with all four keys; values are ``None`` whenever pricing is
+    unavailable. ``cost_per_sps_point`` is also ``None`` when SPS is below
+    0.01 (avoid divide-by-near-zero amplification).
 
     Self-hosted (``ollama/*``) and unknown-provider rows produce nulls.
     Rows whose token_usage records zero tokens emit ``$0.00`` even when the
     provider has no priced equivalent (baselines): zero × any rate is zero,
-    so we report measured-zero rather than missing-data.
+    so we report measured-zero rather than missing-data. Rows without any
+    token_usage fall back to :func:`_estimate_cost_fields` (#316).
     """
     token_usage = (aggregate or {}).get("token_usage")
     if not isinstance(token_usage, dict):
-        return dict(_NULL_COST_FIELDS)
+        return _estimate_cost_fields(config, entry)
 
     input_tokens = int(token_usage.get("input_tokens") or 0)
     output_tokens = int(token_usage.get("output_tokens") or 0)
@@ -395,10 +490,16 @@ def _compute_cost_fields(aggregate: dict, config: dict, entry: dict) -> dict:
 def _compute_ensemble_cost(
     config: dict,
     results_by_provider_ds: dict[tuple[str, str], dict],
-) -> float | None:
+) -> tuple[float, bool] | None:
     """Sum cost_usd across constituent runs listed in ``config.ensemble_sources``.
 
-    Returns ``None`` if any constituent has no token_usage or unresolved pricing.
+    Returns ``(total_cost, is_estimated)``. Constituents with measured
+    token_usage contribute their measured cost; constituents without it
+    contribute the #316 estimate (samples_per_question × n_evaluated ×
+    per-call token constants), which flips ``is_estimated`` to True for the
+    whole ensemble. Returns ``None`` if any constituent is missing from the
+    pool, has unresolved pricing, or (when estimating) lacks the config
+    fields the estimate needs.
     """
     sources = (config or {}).get("ensemble_sources")
     if not sources:
@@ -411,6 +512,7 @@ def _compute_ensemble_cost(
 
     dataset = (config or {}).get("dataset", "unknown")
     total = 0.0
+    any_estimated = False
     for src in sources:
         provider = src.get("provider")
         if not provider:
@@ -418,19 +520,28 @@ def _compute_ensemble_cost(
         constituent = results_by_provider_ds.get((provider, dataset))
         if constituent is None:
             return None
-        usage = constituent.get("aggregate", {}).get("token_usage")
-        if not isinstance(usage, dict):
-            return None
         pricing, _ = lookup_pricing_by_provider(provider)
         if pricing is None:
             return None
-        in_tok = int(usage.get("input_tokens") or 0)
-        out_tok = int(usage.get("output_tokens") or 0)
+        usage = constituent.get("aggregate", {}).get("token_usage")
+        if isinstance(usage, dict):
+            in_tok = int(usage.get("input_tokens") or 0)
+            out_tok = int(usage.get("output_tokens") or 0)
+        else:
+            c_cfg = constituent.get("config", {}) or {}
+            spq = c_cfg.get("samples_per_question")
+            n_eval = c_cfg.get("n_evaluated")
+            if not spq or not n_eval:
+                return None
+            call_count = int(spq) * int(n_eval)
+            in_tok = call_count * ESTIMATED_INPUT_TOKENS_PER_CALL
+            out_tok = call_count * ESTIMATED_OUTPUT_TOKENS_PER_CALL
+            any_estimated = True
         total += (
             in_tok * pricing.input_cost_per_million
             + out_tok * pricing.output_cost_per_million
         ) / 1_000_000
-    return round(total, 6)
+    return round(total, 6), any_estimated
 
 
 def _build_pricing_snapshot() -> dict:
@@ -704,10 +815,11 @@ def _build_entry(
 
     cost_fields = _compute_cost_fields(agg, cfg, entry)
     if is_ensemble:
-        ens_cost = _compute_ensemble_cost(cfg, results_by_provider_ds or {})
-        if ens_cost is None:
+        ens = _compute_ensemble_cost(cfg, results_by_provider_ds or {})
+        if ens is None:
             cost_fields = dict(_NULL_COST_FIELDS)
         else:
+            ens_cost, ens_estimated = ens
             n = entry.get("n") or 0
             sps = entry.get("sps") or 0
             # Ensembles don't have a single token_usage block, so per-response
@@ -718,7 +830,7 @@ def _build_entry(
                 "cost_per_sps_point": round(ens_cost / sps, 6) if sps >= 0.01 else None,
                 "cost_per_response": None,
                 "tokens_per_response": None,
-                "is_cost_estimated": False,
+                "is_cost_estimated": ens_estimated,
             }
     entry.update(cost_fields)
     entry.update(_compute_latency_fields(agg))
@@ -1142,6 +1254,18 @@ def publish_leaderboard_data(
         cfg_r = r.get("config", {})
         key = (cfg_r.get("provider", ""), cfg_r.get("dataset", "unknown"))
         results_by_provider_ds[key] = r
+
+    # Gap-fill from the FULL load (including validity-excluded runs) so
+    # ensemble cost can still price a blend whose constituent was filtered
+    # off the leaderboard (#316): the subpop ensemble blends a run excluded
+    # as uniform-distribution garbage, but that run still cost real money
+    # and its distributions are still inside the published blend. Valid
+    # deduped runs always win; excluded runs only fill missing keys, and
+    # they contribute cost fields only (never scores).
+    for _run_id, r in loaded:
+        cfg_r = r.get("config", {})
+        key = (cfg_r.get("provider", ""), cfg_r.get("dataset", "unknown"))
+        results_by_provider_ds.setdefault(key, r)
 
     # Collect all datasets
     datasets_set: set[str] = set()

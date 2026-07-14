@@ -34,14 +34,14 @@ const sections: CostSection[] = [
   {
     id: "ensemble-cost",
     title: "Ensemble cost",
-    body: "An ensemble run's cost is the sum of its constituent runs' costs. If every constituent has a tracked cost, the ensemble's cost_usd is the sum; if any constituent is null (self-hosted or unknown), the ensemble's cost_usd is null rather than a partial total.",
-    note: "This mirrors how ensembles aggregate elsewhere on the site: a composite number is only emitted when every input to that number is known.",
+    body: "An ensemble run's cost is the sum of its constituent runs' costs. Constituents with measured token usage contribute measured cost; constituents without it contribute the pre-tracking estimate, which marks the whole ensemble is_cost_estimated. If any constituent cannot be priced at all (self-hosted or unknown), the ensemble's cost_usd is null rather than a partial total.",
+    note: "This mirrors how ensembles aggregate elsewhere on the site: a composite number is only emitted when every input to that number is known — measured or clearly marked as estimated.",
   },
   {
     id: "pre-tracking-rows",
-    title: "Pre-tracking runs",
-    body: "Runs produced before per-call token capture landed in the runner have no usage metadata and therefore cost_usd is null. We do not backfill an estimate; the dash in the $/100Q column tells readers honestly that the number was never measured for that row.",
-    note: "A run's cost can only be recovered by re-running it on the current runner. Raw run JSONs are append-only.",
+    title: "Pre-tracking runs (estimated cost)",
+    body: "Runs produced before per-call token capture landed in the runner have no usage metadata. For those rows we publish an estimate rather than a dash: call count is reconstructed as samples_per_question × questions evaluated, multiplied by per-call token constants (124 input / 4 output tokens per call) anchored to the pool's measured run, then priced from the same snapshot as measured rows. Every such value carries is_cost_estimated: true and renders with a leading ~ on the leaderboard.",
+    note: "Estimates never masquerade as measurements: tokens_per_response stays null on estimated rows, the ~ prefix marks every derived dollar figure, and a re-run on the current runner replaces the estimate with measured usage. Baseline rows (random/majority) make zero model calls, so their $0.00 is exact, not estimated.",
   },
 ];
 ---

@@ -97,7 +97,9 @@ const comparisonSet = leaderboard.findings.comparison_sets?.ensemble_comparison 
   <p class="text-center text-sm text-muted mb-6">
     For each dataset, ensemble blending of 3 models outperforms the best single
     leaderboard entry at matched question count by {gainRange} SPS points.
-    Zero additional API cost — just arithmetic.
+    The blend itself is arithmetic — no new model calls beyond the three
+    constituent runs — but producing all three costs roughly 3× a
+    single-model run.
   </p>
   {hasData ? (
     <Chart

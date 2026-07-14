@@ -52,4 +52,53 @@
     has no signal on the hidden keys, so their public and private SPS
     diverge sharply.
   </p>
+
+  <div id="verification-badges" class="mt-8 max-w-3xl scroll-mt-24">
+    <h3 class="text-lg font-semibold text-text dark:text-text-dark mb-2">
+      Reading the verified / flagged badges
+    </h3>
+    <p class="text-muted mb-4">
+      Every leaderboard row on a holdout-enabled dataset carries one of two
+      badges, computed at publish time by comparing the row's SPS on the
+      public 80% against its SPS on the private 20%
+      (<span class="font-mono">|sps_public − sps_private|</span>, the
+      published <span class="font-mono">sps_public_private_delta</span>):
+    </p>
+    <ul class="text-muted mb-4 space-y-3 list-none pl-0">
+      <li>
+        <span
+          class="mr-1 inline-block text-xs px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-700 dark:text-emerald-400"
+          >✓ verified</span
+        > — the public and private scores agree to within the divergence
+        threshold of 0.05 SPS. This is the expected behavior of an honest
+        run: typical honest-submission deltas we've observed are below
+        0.02.
+      </li>
+      <li>
+        <span
+          class="mr-1 inline-block text-xs px-1.5 py-0.5 rounded bg-amber-500/10 text-amber-700 dark:text-amber-400"
+          >⚠ flagged</span
+        > — the public/private divergence exceeded the 0.05 threshold, so
+        the row is held for review.
+      </li>
+    </ul>
+    <p class="text-muted mb-4">
+      <strong>What a flag means — and doesn't.</strong> A flag is a
+      statistical anomaly detector, not proof of cheating. A large
+      divergence is what fabrication looks like (a fabricator can match
+      the public answer key but has no signal on the hidden one), but it
+      can also arise from overfitting to the public subset or, on datasets
+      with a small private subset, from ordinary sampling noise
+      concentrated in a handful of questions. Treat a flagged score with
+      caution — prefer the row's <span class="font-mono">sps_private</span>
+      when deciding how much to trust it — rather than reading the flag as
+      an accusation against the submitter.
+    </p>
+    <p class="text-muted">
+      The threshold is deliberately loose (0.05, versus typical honest
+      deltas under 0.02) so that normal run-to-run noise does not flag
+      honest submissions. Both scores and the delta are published on each
+      row, so you can apply a stricter or looser standard yourself.
+    </p>
+  </div>
 </section>

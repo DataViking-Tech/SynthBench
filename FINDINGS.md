@@ -195,8 +195,9 @@ High-income conditioning is **1.5× stronger** than low-income.
 **Question**: Does averaging response distributions across multiple models beat any single model?
 
 **Method**: Per-question distribution blending of Haiku + Gemini Flash Lite
-+ GPT-4o-mini results. Pure arithmetic on existing data — zero additional
-API cost.
++ GPT-4o-mini results. The blend itself is pure arithmetic on existing data —
+no new model calls beyond the three constituent runs — but producing all
+three runs costs roughly 3× a single-model run.
 
 ### Results
 
