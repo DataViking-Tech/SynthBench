@@ -127,6 +127,14 @@ export interface LeaderboardEntry {
   topic_scores?: Record<TopicCategory, number>;
   topic_metrics?: Record<TopicCategory, TopicMetricBreakdown>;
   demographic_scores?: DemographicBreakdown[];
+  /**
+   * Structured per-dimension demographic subgroup scorecard (issue #255,
+   * API 1.2.0). Emitted by publish.py on every entry: explicit `null` means
+   * the entry has no demographic-conditioned runs (nothing measured); an
+   * object means at least one dimension was measured. Prefer this over the
+   * flat legacy `demographic_scores` array.
+   */
+  demographic_scorecard?: DemographicScorecard | null;
   replicates?: ReplicateRun[];
 
   /**
@@ -197,6 +205,46 @@ export interface DemographicBreakdown {
   p_dist: number;
   p_cond: number;
   n_questions: number;
+}
+
+/** One subgroup cell of the demographic scorecard. */
+export interface DemographicScorecardGroup {
+  /** Subgroup value, e.g. "Northeast". */
+  group: string;
+  /** Subgroup p_dist (distributional parity), [0, 1]. */
+  score: number;
+  /**
+   * 95% CI bounds on `score`. Currently always `null` — the source
+   * demographic_breakdown blocks carry only point estimates. The keys are
+   * stable so consumers can null-check once subgroup bootstrap CIs land.
+   * Treat `null` as unknown, never zero.
+   */
+  ci_lower: number | null;
+  ci_upper: number | null;
+  /** Questions answered under this subgroup conditioning. */
+  n: number;
+  /** Conditioning strength vs. the unconditioned baseline (optional). */
+  p_cond?: number;
+}
+
+/** One measured demographic dimension (attribute) with its subgroup cells. */
+export interface DemographicScorecardDimension {
+  /** Raw SubPOP attribute code, e.g. "CREGION". */
+  attribute: string;
+  /** Human-readable dimension name, e.g. "Geography (US Census region)". */
+  label: string;
+  groups: DemographicScorecardGroup[];
+}
+
+/**
+ * Structured demographic subgroup scorecard for one leaderboard entry
+ * (issue #255). Only dimensions a run actually measured appear — absence of
+ * a dimension means "not yet measured", never zero.
+ */
+export interface DemographicScorecard {
+  /** Dataset the subgroup scores came from (e.g. "subpop"). */
+  dataset: string;
+  dimensions: DemographicScorecardDimension[];
 }
 
 export interface ReplicateRun {

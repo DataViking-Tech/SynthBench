@@ -100,12 +100,61 @@ Present when the underlying data supports them. Consumers MUST treat absence as
 `cost_usd`, `cost_per_100q`, `cost_per_sps_point`, `is_cost_estimated`,
 `input_tokens`, `output_tokens`, `cost_per_response`, `tokens_per_response`,
 `latency_p50_seconds`, `latency_p95_seconds`, `topic_scores`,
-`topic_metrics`, `demographic_scores`, `replicates`, `sps_public`,
-`sps_private`, `sps_public_private_delta`, `verification_badge`,
-`sps_held_out`, `sps_held_out_delta`, `held_out_last_run`, ...
+`topic_metrics`, `demographic_scores`, `demographic_scorecard`, `replicates`,
+`sps_public`, `sps_private`, `sps_public_private_delta`,
+`verification_badge`, `sps_held_out`, `sps_held_out_delta`,
+`held_out_last_run`, ...
+
+### `demographic_scorecard` (since 1.2.0)
+
+Structured per-dimension subgroup scorecard for demographic-conditioned runs
+(issue [#255](https://github.com/DataViking-Tech/SynthBench/issues/255)).
+Present on **every** entry — an explicit `null` means the entry has no
+demographic-conditioned runs (nothing measured), an object means at least one
+dimension was measured:
+
+```jsonc
+"demographic_scorecard": {
+  "dataset": "subpop",              // dataset the subgroup scores came from
+  "dimensions": [
+    {
+      "attribute": "CREGION",       // raw SubPOP attribute code
+      "label": "Geography (US Census region)",  // human-readable dimension name
+      "groups": [
+        {
+          "group": "Northeast",     // subgroup value
+          "score": 0.622784,        // subgroup p_dist (distributional parity)
+          "ci_lower": null,         // 95% CI bounds — null until subgroup-level
+          "ci_upper": null,         //   bootstrap CIs are computable (point
+                                    //   estimates only today); null = unknown
+          "n": 100,                 // questions answered under this conditioning
+          "p_cond": 0.018402        // conditioning strength (optional)
+        }
+      ]
+    }
+  ]
+}
+```
+
+Data honesty notes:
+
+- Dimensions appear only when a run actually measured them. Today the only
+  populated dimensions come from SubPOP conditioned runs (geography,
+  education, income, party, race, religion, sex). Age is **not yet
+  measured** for any vendor — consumers must not infer it from absence.
+- `ci_lower` / `ci_upper` are emitted as explicit `null` because the source
+  `demographic_breakdown` blocks carry only point estimates. The keys exist
+  so the shape is stable when subgroup bootstrap CIs land; treat `null` as
+  unknown, never zero.
+- The flat legacy `demographic_scores` array carries the same cells
+  (attribute/group/p_dist/p_cond/n_questions) and remains for backward
+  compatibility; new consumers should prefer `demographic_scorecard`.
 
 ## Stability contract
 
+- **1.2.0**: new optional `entries[].demographic_scorecard` block (see above).
+  Emitted as explicit `null` when an entry has no demographic-conditioned
+  runs. Additive — existing consumers are unaffected.
 - **1.1.0**: `ci_lower` / `ci_upper` are now a genuine question-resampling
   bootstrap CI on the recomputed `sps` and are `null` when unavailable
   (previously a CI of the 2-metric parity composite was mislabelled as the

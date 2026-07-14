@@ -93,4 +93,27 @@ const slug = vendorSlug(provider);
       ← Back to leaderboard
     </a>
   </div>
+
+  <script
+    is:inline
+    define:vars={{
+      vendor: provider,
+      vendorSlugValue: slug,
+      hasDemographicData: entries.some(
+        (e) => e.demographic_scorecard != null || (e.demographic_scores?.length ?? 0) > 0,
+      ),
+    }}
+  >
+    // Issue #255 leading indicator: count sessions that open a per-vendor
+    // disaggregated scorecard. Piggybacks on the site-wide PostHog snippet
+    // (Analytics.astro); on non-production hostnames init never runs, so
+    // `capture` is undefined and this is a no-op.
+    if (window.posthog && typeof window.posthog.capture === "function") {
+      window.posthog.capture("vendor_scorecard_viewed", {
+        vendor: vendor,
+        vendor_slug: vendorSlugValue,
+        has_demographic_data: hasDemographicData,
+      });
+    }
+  </script>
 </BaseLayout>
