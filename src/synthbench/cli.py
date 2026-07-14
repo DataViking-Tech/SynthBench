@@ -2550,9 +2550,18 @@ def ensemble(files, output, weights):
                 w[i] * qs[i]["model_distribution"].get(opt, 0.0) for i in range(len(qs))
             )
 
+        # Round distributions FIRST, then compute metrics from the rounded
+        # values — the file publishes rounded distributions, and the
+        # validator recomputes metrics from what is published. Metrics from
+        # unrounded values can flip Kendall-tau tie handling when two
+        # blended options round to the same 4-dp value (PER_Q_TAU errors on
+        # an otherwise-correct blend).
+        human_rounded = {k: round(v, 4) for k, v in human_dist.items()}
+        blended_rounded = {k: round(v, 4) for k, v in blended.items()}
+
         # Recompute metrics
-        jsd = jensen_shannon_divergence(human_dist, blended)
-        tau = kendall_tau_b(human_dist, blended)
+        jsd = jensen_shannon_divergence(human_rounded, blended_rounded)
+        tau = kendall_tau_b(human_rounded, blended_rounded)
         parity = parity_score(jsd, tau)
 
         per_question.append(
@@ -2560,8 +2569,8 @@ def ensemble(files, output, weights):
                 "key": key,
                 "text": ref_q.get("text", ""),
                 "options": ref_q.get("options", []),
-                "human_distribution": {k: round(v, 4) for k, v in human_dist.items()},
-                "model_distribution": {k: round(v, 4) for k, v in blended.items()},
+                "human_distribution": human_rounded,
+                "model_distribution": blended_rounded,
                 "jsd": round(jsd, 6),
                 "kendall_tau": round(tau, 6),
                 "parity": round(parity, 6),
