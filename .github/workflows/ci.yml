@@ -154,6 +154,9 @@ jobs:
       - name: Biome lint
         working-directory: site
         run: npx biome check .
+      - name: Test Pages Functions (gated-data edge guard)
+        working-directory: site
+        run: npm run test:functions
       - name: Build site
         working-directory: site
         run: npm run build
@@ -165,6 +168,12 @@ jobs:
           test -f dist/index.html || { echo "FAIL: dist/index.html missing"; exit 1; }
           test -d dist/_astro || { echo "FAIL: dist/_astro/ directory missing"; exit 1; }
           test -f dist/favicon.svg || { echo "FAIL: dist/favicon.svg missing"; exit 1; }
+          # Gated-data edge guard (advanced-mode Pages Function) MUST ship in the
+          # deploy root, or gated /data artifacts would 404-then-Always-Online
+          # instead of returning a fresh no-store 403. Fail the build if Astro
+          # ever stops copying these from site/public/.
+          test -f dist/_worker.js || { echo "FAIL: dist/_worker.js missing — gated-data edge guard would NOT deploy"; exit 1; }
+          test -f dist/_routes.json || { echo "FAIL: dist/_routes.json missing — edge guard routing would be unscoped"; exit 1; }
           echo "Deployment artifact verified:"
           ls -la dist/
           echo "---"
