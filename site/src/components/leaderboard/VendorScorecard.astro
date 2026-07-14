@@ -13,7 +13,7 @@
 // missing — many providers don't yet publish demographic conditioning.
 
 import type {
-  DemographicBreakdown,
+  DemographicScorecardDimension,
   LeaderboardEntry,
   TopicMetricBreakdown,
 } from "@/types/leaderboard";
@@ -24,25 +24,87 @@ interface Props {
 
 const { entries } = Astro.props as Props;
 
+const rawBase = import.meta.env.BASE_URL || "/";
+const base = rawBase.endsWith("/") ? rawBase : `${rawBase}/`;
+const submitHref = `${base}submit/`;
+
 interface TopicRow {
   topic: string;
   metric: TopicMetricBreakdown;
 }
 
-interface DemoGroup {
-  attribute: string;
-  rows: DemographicBreakdown[];
-}
-
 interface ScorecardView {
   entry: LeaderboardEntry;
   topics: TopicRow[];
-  demos: DemographicBreakdown[];
-  demoGroups: DemoGroup[];
+  dimensions: DemographicScorecardDimension[];
+  cellCount: number;
+  missingDimensions: string[];
   halfCi: number | null;
   ciLabel: string;
   topicId: string;
   demoId: string;
+}
+
+// Fallback labels for entries that predate the structured
+// `demographic_scorecard` block (legacy flat `demographic_scores` only).
+// Mirrors _DEMOGRAPHIC_DIMENSION_LABELS in src/synthbench/publish.py.
+const DIMENSION_LABELS: Record<string, string> = {
+  AGE: "Age",
+  CREGION: "Geography (US Census region)",
+  EDUCATION: "Education",
+  SEX: "Sex",
+  RACE: "Race / ethnicity",
+  INCOME: "Income",
+  POLPARTY: "Political party",
+  POLIDEOLOGY: "Political ideology",
+  RELIG: "Religion",
+  RELIGATTEND: "Religious attendance",
+};
+
+// The issue-#255 canonical matrix dimensions we track coverage against.
+// Question-type is covered by the topic matrix above; these are the
+// demographic axes. Only dimensions with real measured data render scores —
+// the rest get an explicit "Not yet measured" state, never fabricated cells.
+const CANONICAL_DIMENSIONS: { attribute: string; label: string }[] = [
+  { attribute: "AGE", label: "Age" },
+  { attribute: "CREGION", label: "Geography" },
+  { attribute: "EDUCATION", label: "Education" },
+];
+
+// Prefer the structured scorecard; fall back to grouping the legacy flat
+// demographic_scores list so older payloads still render.
+function scorecardDimensions(entry: LeaderboardEntry): DemographicScorecardDimension[] {
+  if (entry.demographic_scorecard) return entry.demographic_scorecard.dimensions;
+  const demos = entry.demographic_scores ?? [];
+  const order: string[] = [];
+  const byAttr: Record<string, DemographicScorecardDimension> = {};
+  for (const d of demos) {
+    if (!(d.attribute in byAttr)) {
+      byAttr[d.attribute] = {
+        attribute: d.attribute,
+        label: DIMENSION_LABELS[d.attribute] ?? d.attribute,
+        groups: [],
+      };
+      order.push(d.attribute);
+    }
+    byAttr[d.attribute].groups.push({
+      group: d.group,
+      score: d.p_dist,
+      ci_lower: null,
+      ci_upper: null,
+      n: d.n_questions,
+      p_cond: d.p_cond,
+    });
+  }
+  return order.sort().map((attr) => byAttr[attr]);
+}
+
+// Color gradient for score cells: red (0) → amber → green (1), rendered as a
+// translucent background so it works in both light and dark themes.
+function scoreGradient(score: number): string {
+  const clamped = Math.max(0, Math.min(1, score));
+  const hue = Math.round(clamped * 140);
+  return `background-color: hsl(${hue} 75% 45% / 0.22)`;
 }
 
 function fmt3(value: number | null | undefined): string {
@@ -73,19 +135,6 @@ function topicRows(entry: LeaderboardEntry): TopicRow[] {
   return [];
 }
 
-function groupDemographics(demos: DemographicBreakdown[]): DemoGroup[] {
-  const order: string[] = [];
-  const byAttr: Record<string, DemographicBreakdown[]> = {};
-  for (const d of demos) {
-    if (!(d.attribute in byAttr)) {
-      byAttr[d.attribute] = [];
-      order.push(d.attribute);
-    }
-    byAttr[d.attribute].push(d);
-  }
-  return order.map((attribute) => ({ attribute, rows: byAttr[attribute] }));
-}
-
 function coverage(n: number): { label: string; cls: string } {
   if (n >= 100) return { label: "high", cls: "bg-emerald-500" };
   if (n >= 50) return { label: "medium", cls: "bg-amber-500" };
@@ -100,12 +149,16 @@ const sortedEntries = [...entries].sort((a, b) => {
 });
 
 const cards: ScorecardView[] = sortedEntries.map((entry, idx) => {
-  const demos = entry.demographic_scores ?? [];
+  const dimensions = scorecardDimensions(entry);
+  const measured = new Set(dimensions.map((d) => d.attribute));
   return {
     entry,
     topics: topicRows(entry),
-    demos,
-    demoGroups: groupDemographics(demos),
+    dimensions,
+    cellCount: dimensions.reduce((acc, d) => acc + d.groups.length, 0),
+    missingDimensions: CANONICAL_DIMENSIONS.filter((c) => !measured.has(c.attribute)).map(
+      (c) => c.label,
+    ),
     halfCi: ciHalfWidth(entry),
     ciLabel: ciBand(entry),
     topicId: `topic-${idx}`,
@@ -113,7 +166,7 @@ const cards: ScorecardView[] = sortedEntries.map((entry, idx) => {
   };
 });
 
-const anyDemographic = cards.some((c) => c.demos.length > 0);
+const anyDemographic = cards.some((c) => c.dimensions.length > 0);
 ---
 
 <section
@@ -190,63 +243,92 @@ const anyDemographic = cards.some((c) => c.demos.length > 0);
           </details>
         )}
 
-        {card.demoGroups.length > 0 ? (
-          <details class="group" open>
-            <summary class="cursor-pointer select-none text-sm font-medium hover:text-primary">
-              Demographic subgroup breakdown
-              <span class="ml-1 text-xs text-muted">({card.demos.length} cell{card.demos.length === 1 ? "" : "s"} · {card.demoGroups.length} attribute{card.demoGroups.length === 1 ? "" : "s"})</span>
-            </summary>
-            <div class="mt-3 overflow-x-auto rounded border border-muted/20">
-              <table class="w-full text-xs" id={card.demoId}>
-                <thead>
-                  <tr class="bg-surface dark:bg-surface-dark border-b border-muted/20 text-muted">
-                    <th class="px-3 py-2 text-left font-medium" scope="col">Attribute</th>
-                    <th class="px-3 py-2 text-left font-medium" scope="col">Group</th>
-                    <th class="px-3 py-2 text-right font-medium" scope="col" title="Distributional parity restricted to this subgroup">p_dist</th>
-                    <th class="px-3 py-2 text-right font-medium" scope="col" title="Conditioning strength: how much p_dist moves vs. the unconditioned baseline">p_cond</th>
-                    <th class="px-3 py-2 text-right font-medium" scope="col" title="Questions answered with this subgroup conditioning">N</th>
-                    <th class="px-3 py-2 text-center font-medium" scope="col" title="Coverage flag derived from N: ≥100 high, 50–99 medium, <50 low">Cov.</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {card.demoGroups.map((group) => (
-                    group.rows.map((d, i) => {
-                      const cov = coverage(d.n_questions);
-                      return (
-                        <tr class="border-b border-muted/10 last:border-b-0">
-                          {i === 0 ? (
-                            <th
-                              rowspan={group.rows.length}
-                              scope="rowgroup"
-                              class="px-3 py-2 text-left font-medium align-top bg-surface/30 dark:bg-surface-dark/30"
-                            >
-                              {group.attribute}
-                            </th>
-                          ) : null}
-                          <td class="px-3 py-2">{d.group}</td>
-                          <td class="px-3 py-2 text-right font-mono">{fmt3(d.p_dist)}</td>
-                          <td class="px-3 py-2 text-right font-mono text-muted">{fmt3(d.p_cond)}</td>
-                          <td class="px-3 py-2 text-right font-mono text-muted">{d.n_questions}</td>
-                          <td class="px-3 py-2 text-center">
-                            <span
-                              class:list={["inline-block w-2 h-2 rounded-full align-middle", cov.cls]}
-                              aria-label={`${cov.label} coverage (${d.n_questions} questions)`}
-                              title={`${cov.label} (${d.n_questions} questions)`}
-                            ></span>
-                          </td>
-                        </tr>
-                      );
-                    })
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </details>
+        {card.dimensions.length > 0 ? (
+          <>
+            <details class="group scorecard-demo-details" open data-dataset={card.entry.dataset}>
+              <summary class="cursor-pointer select-none text-sm font-medium hover:text-primary">
+                Demographic subgroup scorecard
+                <span class="ml-1 text-xs text-muted">({card.cellCount} cell{card.cellCount === 1 ? "" : "s"} · {card.dimensions.length} dimension{card.dimensions.length === 1 ? "" : "s"})</span>
+              </summary>
+              <div class="mt-3 overflow-x-auto rounded border border-muted/20">
+                <table class="w-full text-xs" id={card.demoId}>
+                  <thead>
+                    <tr class="bg-surface dark:bg-surface-dark border-b border-muted/20 text-muted">
+                      <th class="px-3 py-2 text-left font-medium" scope="col">Dimension</th>
+                      <th class="px-3 py-2 text-left font-medium" scope="col">Subgroup</th>
+                      <th class="px-3 py-2 text-right font-medium" scope="col" title="Subgroup score: distributional parity (p_dist) restricted to this subgroup">Score</th>
+                      <th class="px-3 py-2 text-right font-medium" scope="col" title="95% CI on the subgroup score. — means not yet computable (point estimates only today); treat as unknown, never zero.">95% CI</th>
+                      <th class="px-3 py-2 text-right font-medium" scope="col" title="Conditioning strength: how much the score moves vs. the unconditioned baseline">p_cond</th>
+                      <th class="px-3 py-2 text-right font-medium" scope="col" title="Questions answered with this subgroup conditioning">N</th>
+                      <th class="px-3 py-2 text-center font-medium" scope="col" title="Coverage flag derived from N: ≥100 high, 50–99 medium, <50 low">Cov.</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {card.dimensions.map((dim) => (
+                      dim.groups.map((g, i) => {
+                        const cov = coverage(g.n);
+                        return (
+                          <tr class="border-b border-muted/10 last:border-b-0">
+                            {i === 0 ? (
+                              <th
+                                rowspan={dim.groups.length}
+                                scope="rowgroup"
+                                class="px-3 py-2 text-left font-medium align-top bg-surface/30 dark:bg-surface-dark/30"
+                                title={dim.attribute}
+                              >
+                                {dim.label}
+                              </th>
+                            ) : null}
+                            <td class="px-3 py-2">{g.group}</td>
+                            <td class="px-3 py-2 text-right font-mono" style={scoreGradient(g.score)}>{fmt3(g.score)}</td>
+                            <td class="px-3 py-2 text-right font-mono text-muted">
+                              {g.ci_lower != null && g.ci_upper != null
+                                ? `[${g.ci_lower.toFixed(3)}, ${g.ci_upper.toFixed(3)}]`
+                                : "—"}
+                            </td>
+                            <td class="px-3 py-2 text-right font-mono text-muted">{fmt3(g.p_cond)}</td>
+                            <td class="px-3 py-2 text-right font-mono text-muted">{g.n}</td>
+                            <td class="px-3 py-2 text-center">
+                              <span
+                                class:list={["inline-block w-2 h-2 rounded-full align-middle", cov.cls]}
+                                aria-label={`${cov.label} coverage (${g.n} questions)`}
+                                title={`${cov.label} (${g.n} questions)`}
+                              ></span>
+                            </td>
+                          </tr>
+                        );
+                      })
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </details>
+            {card.missingDimensions.length > 0 && (
+              <div class="mt-3 rounded border border-dashed border-amber-500/40 bg-amber-500/5 p-3 text-xs">
+                <span class="font-medium">Not yet measured:</span>{" "}
+                this vendor has no demographic-conditioned runs for{" "}
+                {card.missingDimensions.join(", ")}.{" "}
+                <a href={submitHref} class="text-primary hover:underline">
+                  Submit a conditioned run
+                </a>{" "}
+                to fill in the missing dimension{card.missingDimensions.length === 1 ? "" : "s"}.
+              </div>
+            )}
+          </>
         ) : (
-          <div class="rounded border border-dashed border-muted/30 p-4 text-xs text-muted">
-            No demographic subgroup breakdown published for this run yet. When
-            conditioned runs land, age / geography / education / party-ID slices
-            appear here with p_dist and coverage.
+          <div class="rounded border border-dashed border-amber-500/40 bg-amber-500/5 p-4 text-sm">
+            <p class="font-medium">Not yet measured</p>
+            <p class="mt-1 text-xs text-muted">
+              This vendor has no demographic-conditioned runs for age, geography,
+              education, or any other subgroup dimension on {card.entry.dataset}.
+              No cells are fabricated — scores appear here only when a
+              conditioned run actually measured them.
+            </p>
+            <p class="mt-2 text-xs">
+              <a href={submitHref} class="text-primary hover:underline">
+                How to submit a demographic-conditioned run →
+              </a>
+            </p>
           </div>
         )}
       </article>
@@ -261,3 +343,30 @@ const anyDemographic = cards.some((c) => c.demos.length > 0);
     </p>
   )}
 </section>
+
+<script>
+  // Expansion instrumentation (issue #255 leading indicator): fire a PostHog
+  // event when a visitor toggles a demographic scorecard section open. Uses
+  // the site-wide PostHog snippet (Analytics.astro) — on non-production
+  // hostnames posthog.init never runs, so `capture` is undefined and the
+  // optional chain makes this a no-op. No new dependencies.
+  type PostHogLike = {
+    capture?: (event: string, properties?: Record<string, unknown>) => void;
+  };
+  function phCapture(event: string, properties: Record<string, unknown>): void {
+    const ph = (window as { posthog?: PostHogLike }).posthog;
+    ph?.capture?.(event, properties);
+  }
+
+  for (const details of document.querySelectorAll<HTMLDetailsElement>(
+    ".scorecard-demo-details",
+  )) {
+    details.addEventListener("toggle", () => {
+      if (!details.open) return;
+      phCapture("vendor_scorecard_demographics_expanded", {
+        dataset: details.dataset.dataset ?? null,
+        path: window.location.pathname,
+      });
+    });
+  }
+</script>

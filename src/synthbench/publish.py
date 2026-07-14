@@ -495,6 +495,90 @@ def _build_pricing_snapshot() -> dict:
     }
 
 
+# Human-readable labels for SubPOP demographic attribute codes. Fallback for
+# unknown codes is title-casing the raw attribute so new dimensions degrade
+# gracefully instead of erroring or hiding data.
+_DEMOGRAPHIC_DIMENSION_LABELS: dict[str, str] = {
+    "AGE": "Age",
+    "CREGION": "Geography (US Census region)",
+    "EDUCATION": "Education",
+    "SEX": "Sex",
+    "RACE": "Race / ethnicity",
+    "INCOME": "Income",
+    "POLPARTY": "Political party",
+    "POLIDEOLOGY": "Political ideology",
+    "RELIG": "Religion",
+    "RELIGATTEND": "Religious attendance",
+    "CITIZEN": "Citizenship",
+    "MARITAL": "Marital status",
+}
+
+
+def _demographic_dimension_label(attribute: str) -> str:
+    return _DEMOGRAPHIC_DIMENSION_LABELS.get(
+        attribute, attribute.replace("_", " ").title()
+    )
+
+
+def _build_demographic_scorecard(r: dict) -> dict | None:
+    """Build the structured ``demographic_scorecard`` block for one entry.
+
+    Groups the run's ``demographic_breakdown`` (SubPOP conditioned runs) by
+    attribute and exposes, per subgroup: the score (subgroup ``p_dist``),
+    a CI when computable, the question count, and the source dataset.
+
+    Returns ``None`` when the run carries no demographic breakdown — the
+    entry publishes ``"demographic_scorecard": null`` so API consumers can
+    distinguish "not measured" from "field not supported" (issue #255).
+
+    CI note: today's ``demographic_breakdown`` blocks carry only point
+    estimates (no per-question subgroup rows), so ``ci_lower`` /
+    ``ci_upper`` are ``null``. The keys are emitted anyway so the shape is
+    stable once subgroup-level bootstrap CIs land; consumers must treat
+    ``null`` as unknown, never zero.
+    """
+    demo_breakdown = r.get("demographic_breakdown") or {}
+    if not isinstance(demo_breakdown, dict):
+        return None
+
+    dataset = (r.get("config") or {}).get("dataset", "unknown")
+    dimensions: list[dict] = []
+    for attr in sorted(demo_breakdown):
+        groups = demo_breakdown[attr]
+        if not isinstance(groups, list) or not groups:
+            continue
+        rows: list[dict] = []
+        for g in groups:
+            if not isinstance(g, dict):
+                continue
+            score = g.get("p_dist")
+            if score is None:
+                continue
+            row: dict = {
+                "group": g.get("group", ""),
+                "score": round(float(score), 6),
+                "ci_lower": None,
+                "ci_upper": None,
+                "n": g.get("n_questions", 0),
+            }
+            p_cond = g.get("p_cond")
+            if p_cond is not None:
+                row["p_cond"] = round(float(p_cond), 6)
+            rows.append(row)
+        if rows:
+            dimensions.append(
+                {
+                    "attribute": attr,
+                    "label": _demographic_dimension_label(attr),
+                    "groups": rows,
+                }
+            )
+
+    if not dimensions:
+        return None
+    return {"dataset": dataset, "dimensions": dimensions}
+
+
 def _build_entry(
     r: dict,
     rank: int,
@@ -611,6 +695,11 @@ def _build_entry(
                     )
         if flat_demographics:
             entry["demographic_scores"] = flat_demographics
+
+    # Structured per-dimension scorecard (issue #255). Explicit null (never
+    # absent) so API consumers can rely on the key: null = this entry has no
+    # demographic-conditioned runs, object = at least one dimension measured.
+    entry["demographic_scorecard"] = _build_demographic_scorecard(r)
 
     cost_fields = _compute_cost_fields(agg, cfg, entry)
     if is_ensemble:

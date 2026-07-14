@@ -90,6 +90,27 @@ interface TopicRow {
   n?: number;
 }
 
+// Issue #255: compact demographic summary for the expandable detail row.
+// Only rendered when the entry actually carries measured subgroup data —
+// links through to the per-vendor scorecard where the full matrix lives.
+function demographicSummary(
+  entry: LeaderboardEntry,
+): { cells: number; dimensions: string[] } | null {
+  const card = entry.demographic_scorecard;
+  if (card && card.dimensions.length > 0) {
+    return {
+      cells: card.dimensions.reduce((acc, d) => acc + d.groups.length, 0),
+      dimensions: card.dimensions.map((d) => d.label),
+    };
+  }
+  const demos = entry.demographic_scores ?? [];
+  if (demos.length === 0) return null;
+  return {
+    cells: demos.length,
+    dimensions: [...new Set(demos.map((d) => d.attribute))],
+  };
+}
+
 function topicRows(entry: LeaderboardEntry): TopicRow[] {
   if (entry.topic_metrics) {
     return Object.entries(entry.topic_metrics)
@@ -315,6 +336,27 @@ function hiddenInDefaultView(entry: LeaderboardEntry): boolean {
                     </div>
                   );
                 })()}
+                {(() => {
+                  const summary = demographicSummary(entry);
+                  if (!summary) return null;
+                  const vhref = vendorHref(entry);
+                  return (
+                    <div class="text-xs text-muted">
+                      <span class="font-semibold text-[color:inherit]">Demographic subgroups:</span>{" "}
+                      {summary.cells} cell{summary.cells === 1 ? "" : "s"} across{" "}
+                      {summary.dimensions.length} dimension{summary.dimensions.length === 1 ? "" : "s"}{" "}
+                      ({summary.dimensions.join(", ")}).
+                      {vhref && (
+                        <>
+                          {" "}
+                          <a href={vhref} class="text-primary hover:underline">
+                            View full scorecard →
+                          </a>
+                        </>
+                      )}
+                    </div>
+                  );
+                })()}
                 {entry.replicates && entry.replicates.length > 0 && (
                   <div>
                     <h3 class="font-semibold mb-2">Replicates</h3>
@@ -422,6 +464,18 @@ function hiddenInDefaultView(entry: LeaderboardEntry): boolean {
     if (status) status.textContent = message;
   }
 
+  // Issue #255 leading indicator: track the share of sessions that expand a
+  // leaderboard row into the disaggregated detail view. Uses the site-wide
+  // PostHog snippet (Analytics.astro); on non-production hostnames init never
+  // runs, so `capture` is undefined and the optional chain no-ops.
+  type PostHogLike = {
+    capture?: (event: string, properties?: Record<string, unknown>) => void;
+  };
+  function phCapture(event: string, properties: Record<string, unknown>): void {
+    const ph = (window as { posthog?: PostHogLike }).posthog;
+    ph?.capture?.(event, properties);
+  }
+
   function initLeaderboard() {
     const table = document.getElementById("leaderboard-table");
     if (!table) return;
@@ -444,6 +498,29 @@ function hiddenInDefaultView(entry: LeaderboardEntry): boolean {
         detail.classList.toggle("hidden", !next);
         const icon = btn.querySelector(".chevron-icon") as HTMLElement | null;
         if (icon) icon.style.transform = next ? "rotate(90deg)" : "";
+        if (next) {
+          // Fire only on expand, with light row identifiers (no full entry
+          // payload) so the event stays cheap and non-sensitive.
+          let model: string | null = null;
+          let dataset: string | null = null;
+          let hasDemographics = false;
+          try {
+            const row = btn.closest("tr");
+            const entry = JSON.parse(row?.dataset.entry ?? "{}");
+            model = entry.model ?? null;
+            dataset = entry.dataset ?? null;
+            hasDemographics =
+              entry.demographic_scorecard != null ||
+              (entry.demographic_scores?.length ?? 0) > 0;
+          } catch {
+            // Malformed data-entry — still record the expansion.
+          }
+          phCapture("leaderboard_row_expanded", {
+            model,
+            dataset,
+            has_demographic_data: hasDemographics,
+          });
+        }
       });
     }
 
