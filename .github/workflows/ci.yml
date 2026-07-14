@@ -4,6 +4,18 @@ on:
   push:
     branches: [main]
   pull_request:
+    # `labeled` is included so applying the `vrt-baseline-update` label starts
+    # a run immediately — no extra push needed (#311). When `types` is present
+    # the defaults must be listed explicitly.
+    types: [opened, synchronize, reopened, labeled]
+
+# Adding `labeled` means any label application starts a full CI run on the
+# same SHA as a possibly in-flight run. Dedupe per-PR so label adds (and the
+# baseline commit's synchronize event) supersede rather than stack. Pushes to
+# main never cancel each other — the group is keyed on the unique SHA there.
+concurrency:
+  group: ci-${{ github.event.pull_request.number || github.sha }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
   lint:
@@ -182,18 +194,34 @@ jobs:
   visual:
     # Smoke VRT (sb-o3b): runs in Ubuntu. Baselines live under
     # __screenshots__/desktop-chromium/ and are generated in CI, not on
-    # dev machines. Use the `vrt-baseline-update` PR label to regenerate
-    # baselines and commit them back to the PR branch automatically.
+    # dev machines. Apply the `vrt-baseline-update` PR label to regenerate
+    # baselines and commit them back to the PR branch automatically (#311):
+    #   1. The `labeled` event starts a run immediately.
+    #   2. The run regenerates baselines, removes the label, and pushes the
+    #      commit AS the org `DV cross-repo` GitHub App (token minted from
+    #      Doppler dataviking-platform/prd creds). Unlike GITHUB_TOKEN
+    #      pushes, an App-token push fires `pull_request: synchronize`, so
+    #      CI re-runs on the new HEAD and the required checks land there —
+    #      no manual label-remove + empty-commit dance.
+    #   3. The follow-up run is a plain compare-mode run (label already
+    #      removed). If label removal ever fails, the follow-up run
+    #      regenerates to a no-op diff, commits nothing, and proceeds to the
+    #      compare-mode test — a commit-message guard below is the final
+    #      backstop against a regen/push loop.
     runs-on: ubuntu-latest
     permissions:
       contents: write
+      # Needed to remove the vrt-baseline-update label after committing.
+      pull-requests: write
     steps:
       - uses: actions/checkout@v6
         with:
-          # Writable checkout so the label-triggered update step can commit
-          # new baselines back to the PR branch. Falls back to push refs for
-          # non-PR events. Cross-repo PRs from forks will skip the commit
-          # step (GITHUB_TOKEN is not writable to forks).
+          # Branch checkout (not the merge ref) so the label-triggered update
+          # step can commit new baselines back to the PR branch. Falls back
+          # to push refs for non-PR events. The baseline push itself uses the
+          # cross-repo App token (see the commit step) — GITHUB_TOKEN pushes
+          # don't re-trigger CI. Fork PRs skip the regen flow entirely
+          # (same-repo guard in the vrt_gate step).
           ref: ${{ github.event.pull_request.head.ref || github.ref }}
           repository: ${{ github.event.pull_request.head.repo.full_name || github.repository }}
           token: ${{ secrets.GITHUB_TOKEN }}
@@ -223,23 +251,96 @@ jobs:
       - name: Build site
         working-directory: site
         run: npm run build
+      - name: Decide whether to regenerate baselines
+        id: vrt_gate
+        # Same-repo guard: fork PRs have no secrets and can't be pushed to,
+        # so the regen flow is skipped entirely (see site/e2e/README.md).
+        # Loop backstop: if HEAD is already a baseline-update bot commit,
+        # never regenerate again — even if the label somehow survived
+        # removal AND regen were non-deterministic, the chain stops here.
+        if: >-
+          github.event_name == 'pull_request' &&
+          contains(github.event.pull_request.labels.*.name, 'vrt-baseline-update') &&
+          github.event.pull_request.head.repo.full_name == github.repository
+        run: |
+          set -euo pipefail
+          last_subject=$(git log -1 --pretty=%s)
+          if [[ "$last_subject" == "chore(vrt): update baselines via vrt-baseline-update label" ]]; then
+            echo "HEAD is already a baseline-update commit — skipping regen, running compare-mode only."
+            echo "run=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "run=true" >> "$GITHUB_OUTPUT"
+          fi
+      - name: Install Doppler CLI
+        if: steps.vrt_gate.outputs.run == 'true'
+        uses: dopplerhq/cli-action@4819d808ab99e5cde19a0637a16536a4038fad73 # v4
+      - name: Load TF App credentials from dataviking-platform
+        if: steps.vrt_gate.outputs.run == 'true'
+        # Same Doppler sourcing pattern as pages.yml / cf-pages.yml (sb-vkz):
+        # shared org creds live in dataviking-platform/prd, read via the
+        # read-only DOPPLER_PLATFORM_TOKEN. The PEM is multiline, so mask
+        # line-by-line (::add-mask:: only matches whole single-line values).
+        # The TF GitHub App is used (NOT DV_CROSS_REPO_APP): verified
+        # 2026-07-14 via the App API that the TF App is installed org-wide
+        # (repository_selection=all, includes synthbench) with
+        # contents: write, while the DV cross-repo App has contents: read
+        # and is only installed on the mtg-* repos.
+        env:
+          DOPPLER_TOKEN: ${{ secrets.DOPPLER_PLATFORM_TOKEN }}
+        run: |
+          set -euo pipefail
+          for name in TF_GITHUB_APP_ID TF_GITHUB_APP_PEM_FILE; do
+            value=$(doppler secrets get "$name" --project dataviking-platform --config prd --plain)
+            while IFS= read -r line; do
+              [[ -n "$line" ]] && echo "::add-mask::$line"
+            done <<< "$value"
+            printf '%s<<__DVP_EOF__\n%s\n__DVP_EOF__\n' "$name" "$value" >> "$GITHUB_ENV"
+          done
+      - name: Mint App token
+        # Pushing with this token (instead of GITHUB_TOKEN) makes the
+        # baseline commit fire `pull_request: synchronize`, so CI re-runs on
+        # the new HEAD automatically. Same pattern as SynthPanel's
+        # auto-tag.yml release-bot push.
+        if: steps.vrt_gate.outputs.run == 'true'
+        id: app_token
+        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
+        with:
+          app-id: ${{ env.TF_GITHUB_APP_ID }}
+          private-key: ${{ env.TF_GITHUB_APP_PEM_FILE }}
       - name: Update baselines (label-triggered)
-        if: github.event_name == 'pull_request' && contains(github.event.pull_request.labels.*.name, 'vrt-baseline-update')
+        if: steps.vrt_gate.outputs.run == 'true'
         working-directory: site
         env:
           CI: "true"
         run: npx playwright test --config=e2e/playwright.config.ts --update-snapshots=all smoke.visual
       - name: Commit updated baselines
-        if: github.event_name == 'pull_request' && contains(github.event.pull_request.labels.*.name, 'vrt-baseline-update')
+        if: steps.vrt_gate.outputs.run == 'true'
+        env:
+          # Via env (not inline ${{ }}) so the token never lands in command
+          # echo; create-github-app-token also registers it as masked.
+          APP_TOKEN: ${{ steps.app_token.outputs.token }}
+          GH_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          HEAD_REF: ${{ github.event.pull_request.head.ref }}
         run: |
+          set -euo pipefail
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add site/e2e/visual/__screenshots__/
+          # Remove the label BEFORE pushing so the synchronize event payload
+          # of the follow-up run no longer carries it — that run is then a
+          # plain compare-mode run. Removal is best-effort: if it fails, the
+          # follow-up run regenerates to a no-op diff and commits nothing
+          # (and the HEAD-commit guard in vrt_gate is the hard backstop).
+          gh pr edit "$PR_NUMBER" --remove-label vrt-baseline-update \
+            || echo "::warning::Could not remove vrt-baseline-update label; follow-up run will no-op the regen."
           if git diff --cached --quiet; then
             echo "No baseline changes to commit."
           else
             git commit -m "chore(vrt): update baselines via vrt-baseline-update label"
-            git push
+            # Push AS the cross-repo App so the new HEAD re-triggers CI
+            # (GITHUB_TOKEN pushes do not start workflow runs).
+            git push "https://x-access-token:${APP_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" "HEAD:${HEAD_REF}"
           fi
       - name: Run visual regression tests
         working-directory: site

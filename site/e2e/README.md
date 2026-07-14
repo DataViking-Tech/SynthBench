@@ -67,26 +67,35 @@ When an intentional visual change lands (new section, restyle, etc.), the
 baselines need to be regenerated. **Do this via CI, not locally.**
 
 1. Push your branch and open a PR.
-2. Add the `vrt-baseline-update` label to the PR.
-3. The `visual` job runs Playwright with `--update-snapshots`, commits the
-   new baselines to your PR branch as `github-actions[bot]`, then re-runs
-   VRT in compare mode to verify stability.
-4. Remove the label (optional — it's a no-op once baselines match).
-5. Because the update commit is a new commit on the PR branch, a **second
+2. Add the `vrt-baseline-update` label to the PR. Applying the label starts
+   a CI run immediately (the workflow listens for the `labeled` event) — no
+   extra push needed.
+3. The `visual` job runs Playwright with `--update-snapshots`, removes the
+   label, and pushes the new baselines to your PR branch as the org
+   cross-repo GitHub App. Because the push is made with an App token (not
+   `GITHUB_TOKEN`), it fires a fresh CI run on the new HEAD, so the
+   required checks land on the commit you'll actually merge. The whole flow
+   is hands-off (#311).
+4. Because the update commit is a new commit on the PR branch, a **second
    reviewer approval** is conventionally required before merge. This catches
    accidental visual regressions hidden behind a baseline bump.
 
 Notes:
 
-- Cross-repo PRs from forks cannot commit baselines back (the CI
-  `GITHUB_TOKEN` is not writable to forks). Maintainers: push to a
+- Cross-repo PRs from forks skip the regen flow entirely (fork PRs get no
+  secrets and their branches aren't pushable). Maintainers: push to a
   same-repo branch and re-label, or run the update on a maintainer branch
   and cherry-pick.
 - The update step writes to
   `site/e2e/visual/__screenshots__/smoke.visual.spec.ts/desktop-chromium/`.
-- `GITHUB_TOKEN` pushes do not re-trigger CI (this is a GitHub restriction),
-  which is why the workflow re-runs VRT inline within the same job rather
-  than relying on a second push-triggered run.
+- `GITHUB_TOKEN` pushes do not re-trigger CI (this is a GitHub restriction).
+  That is exactly why the baseline commit is pushed with an App token; the
+  same job still re-runs VRT inline in compare mode as an immediate sanity
+  check.
+- Loop safety: the label is removed before the push, so the follow-up run
+  is a plain compare-mode run. If label removal ever fails, the follow-up
+  regen produces a no-op diff and commits nothing; and a run whose HEAD is
+  already a baseline-update bot commit never regenerates again.
 
 ### When to apply the `vrt-baseline-update` label
 
