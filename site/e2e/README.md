@@ -163,3 +163,5 @@ regressions. The smoke suite trades breadth for reliability: if the home
 page, leaderboard, and run-detail all render correctly in dark theme, the
 rest of the site almost certainly does too. When coverage gaps bite, add a
 targeted spec rather than re-expanding the matrix.
+
+<!-- Both CI bot actors (dataviking-infra-terraform[bot], github-actions[bot]) are seeded as repo contributors via rebase-merged authored commits so the first-time-contributor workflow-approval gate never holds VRT-flow runs. See issue #311. -->
