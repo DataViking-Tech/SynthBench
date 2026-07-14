@@ -324,8 +324,8 @@ jobs:
           HEAD_REF: ${{ github.event.pull_request.head.ref }}
         run: |
           set -euo pipefail
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git config user.name "dataviking-infra-terraform[bot]"
+          git config user.email "274205567+dataviking-infra-terraform[bot]@users.noreply.github.com"
           git add site/e2e/visual/__screenshots__/
           # Remove the label BEFORE pushing so the synchronize event payload
           # of the follow-up run no longer carries it — that run is then a
