@@ -73,6 +73,30 @@ skipped with a warning (or the publish fails outright under
 and `scripts/verify-publish-integrity.py` fails the build if any non-`full`
 artifact is found under `site/public/data/`.
 
+**Gated data is also never committed to the repo** (issue #308). Committed
+`leaderboard-results/*.json` files for gated datasets are stripped of
+per-question `human_distribution` (marker: top-level
+`"stripped_fields": ["human_distribution"]`) — see
+`scripts/strip-gated-distributions.py`, which the submission pipeline runs
+before every commit and `scripts/verify-publish-integrity.py` +
+`tests/test_strip_gated_guard.py` enforce in CI. The publish pipeline
+rehydrates the distributions from the **canonical registry**
+(`src/synthbench/human_distributions.py`): a local per-dataset artifact
+(`~/.synthbench/human-distributions/<dataset>.json` or
+`$SYNTHBENCH_HUMAN_DISTRIBUTIONS_DIR`), the gated R2 object
+`human-distributions/<dataset>.json` (what CI deploys use), or the dataset
+adapter's own cache. Maintainers regenerate the canonical artifacts from
+the true upstream data with:
+
+```bash
+python scripts/generate-canonical-distributions.py            # local artifacts
+python scripts/generate-canonical-distributions.py --upload   # + gated R2
+```
+
+Run the `--upload` form after adding a gated dataset or refreshing a wave —
+strict CI deploys fail loudly when a stripped gated dataset has no
+canonical source to rehydrate from.
+
 ### 4. Vertical / use-case fit
 
 Round-2 PMF (2026-05-14) flagged the leaderboard as too narrow on general

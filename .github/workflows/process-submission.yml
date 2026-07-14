@@ -139,6 +139,11 @@ jobs:
 
       - name: Validate submission (tier 1 + 2 + 3, strict)
         id: validate
+        env:
+          # Gated data bucket — lets --rehydrate-canonical fetch the canonical
+          # human-distribution artifacts (issue #308) so tier-2 recompute runs
+          # against the canonical answer key, not the submitter's copy of it.
+          R2_BUCKET: ${{ secrets.R2_BUCKET }}
         run: |
           set -euo pipefail
           # Capture exit code AND the JSON report so we can store a
@@ -147,6 +152,7 @@ jobs:
           synthbench validate \
             --tier3 \
             --peers leaderboard-results/ \
+            --rehydrate-canonical \
             --strict \
             --json \
             .submission/candidate.json > .submission/report.json 2> .submission/report.err
@@ -204,6 +210,10 @@ jobs:
           dest="leaderboard-results/${SLUG}.json"
           mkdir -p leaderboard-results
           cp .submission/candidate.json "$dest"
+          # Never commit license-restricted per-question human_distribution
+          # data for gated datasets to the public repo (issue #308). The
+          # publish pipeline rehydrates from the canonical registry.
+          python scripts/strip-gated-distributions.py "$dest"
           git config user.name "synthbench-submit-bot"
           git config user.email "submit-bot@synthbench.org"
           git add "$dest"

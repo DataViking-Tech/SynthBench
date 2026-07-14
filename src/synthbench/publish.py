@@ -1576,6 +1576,82 @@ def _rehydrate_question_text(result: dict, registry: dict[str, dict[str, str]]) 
             q["text"] = full
 
 
+def _rehydrate_human_distributions(
+    result: dict,
+    *,
+    strict: bool,
+    warned_datasets: set[str],
+) -> None:
+    """Rehydrate stripped ``human_distribution`` rows from the canonical source.
+
+    Committed ``leaderboard-results/*.json`` files carry no
+    ``human_distribution`` for gated datasets (issue #308) — the field is
+    stripped before commit and restored here, at publish time, from the
+    canonical registry (:mod:`synthbench.human_distributions`). This is the
+    distribution analogue of :func:`_rehydrate_question_text`, with one
+    upgrade: the values come from the canonical dataset artifact, never from
+    a submitter's copy.
+
+    Only called on the gated emission path (an R2 uploader is configured —
+    without one the gated artifacts are skipped entirely and there is
+    nothing to rehydrate for). No-op when every row already carries a
+    distribution or when the dataset is not gated.
+
+    When rows remain without a distribution (no canonical source available,
+    or keys missing from it): ``strict=True`` raises
+    :class:`GatedPublishError` so CI deploys fail loudly instead of shipping
+    gated artifacts with silently-absent human data; otherwise a warning is
+    logged once per dataset.
+    """
+    from synthbench.human_distributions import (
+        load_canonical_distributions,
+        rehydrate_per_question,
+    )
+
+    cfg = result.get("config") or {}
+    dataset = cfg.get("dataset") or ""
+    if not dataset or not policy_for(dataset).serves_from_r2:
+        return
+    per_question = result.get("per_question") or []
+    if not any(
+        isinstance(q, dict) and not q.get("human_distribution") for q in per_question
+    ):
+        return
+
+    canonical = load_canonical_distributions(dataset)
+    missing = (
+        rehydrate_per_question(per_question, canonical)
+        if canonical is not None
+        else sum(
+            1
+            for q in per_question
+            if isinstance(q, dict) and not q.get("human_distribution")
+        )
+    )
+    if not missing:
+        return
+    if strict:
+        raise GatedPublishError(
+            f"{missing} per-question row(s) for gated dataset {dataset!r} have "
+            "no human_distribution and the canonical registry could not supply "
+            "them. Provide a canonical source — a local artifact under "
+            "$SYNTHBENCH_HUMAN_DISTRIBUTIONS_DIR / ~/.synthbench/human-distributions, "
+            "the R2 object human-distributions/<dataset>.json, or the dataset "
+            "adapter's cache (see scripts/generate-canonical-distributions.py) — "
+            "or drop strict gating to publish these artifacts without human "
+            "distributions."
+        )
+    if dataset not in warned_datasets:
+        warned_datasets.add(dataset)
+        logger.warning(
+            "gated dataset %s: %d per-question row(s) missing human_distribution "
+            "and no canonical source available — gated artifacts will ship "
+            "without human distributions",
+            dataset,
+            missing,
+        )
+
+
 def _compute_variance_summary(sps_values: list[float]) -> dict:
     nums = [float(v) for v in sps_values if v is not None]
     if not nums:
@@ -2042,8 +2118,18 @@ def publish_runs(
         (jf, rid, data) for (jf, rid, data) in pre_loaded if not is_invalid_run(data)[0]
     ]
 
+    # Committed result files carry no human_distribution for gated datasets
+    # (issue #308). Rehydrate from the canonical registry before emitting
+    # gated artifacts — only relevant when an uploader is configured, since
+    # gated artifacts are otherwise skipped entirely (fail closed).
+    rehydrate_warned: set[str] = set()
+
     for jf, _run_id_early, result in valid_triples:
         _rehydrate_question_text(result, text_registry)
+        if r2_uploader is not None:
+            _rehydrate_human_distributions(
+                result, strict=strict_gating, warned_datasets=rehydrate_warned
+            )
 
         cfg = result.get("config", {}) or {}
         provider_raw = cfg.get("provider", "unknown")
@@ -2591,6 +2677,7 @@ def publish_questions(
     gated_skips = GatedSkipLog(strict=strict_gating)
 
     text_registry = _load_question_text_registry(results_dir.parent)
+    rehydrate_warned: set[str] = set()
 
     json_files = sorted(results_dir.glob("*.json"))
     loaded: list[tuple[str, dict]] = []
@@ -2603,6 +2690,10 @@ def publish_questions(
         if data.get("benchmark") != "synthbench":
             continue
         _rehydrate_question_text(data, text_registry)
+        if r2_uploader is not None:
+            _rehydrate_human_distributions(
+                data, strict=strict_gating, warned_datasets=rehydrate_warned
+            )
         loaded.append((_run_id_from_path(jf), data))
 
     if not loaded:

@@ -672,7 +672,9 @@ def report(json_file):
             key=q["key"],
             text=q["text"],
             options=q["options"],
-            human_distribution=q["human_distribution"],
+            # Committed gated files are stripped of human_distribution
+            # (issue #308); the regenerated markdown degrades gracefully.
+            human_distribution=q.get("human_distribution") or {},
             model_distribution=q["model_distribution"],
             jsd=q["jsd"],
             kendall_tau=q["kendall_tau"],
@@ -2579,14 +2581,46 @@ def ensemble(files, output, weights):
         f"Ensembling {len(files)} results over {len(common_keys)} common questions"
     )
 
+    # Committed gated-dataset result files are stripped of human_distribution
+    # (issue #308); rehydrate from the canonical registry so blends can still
+    # be computed from committed inputs. Fresh (unstripped) run outputs skip
+    # this entirely.
+    ensemble_dataset = datasets[0].get("config", {}).get("dataset", "unknown")
+    canonical_dists: dict = {}
+    if any(
+        not q.get("human_distribution")
+        for pq in per_q_maps
+        for q in (pq[k] for k in common_keys)
+    ):
+        from synthbench.human_distributions import load_canonical_distributions
+
+        canonical_dists = load_canonical_distributions(ensemble_dataset) or {}
+        if not canonical_dists:
+            click.echo(
+                f"Error: input files are missing human_distribution (stripped "
+                f"gated data) and no canonical distribution source is "
+                f"available for dataset {ensemble_dataset!r}. See "
+                f"scripts/generate-canonical-distributions.py.",
+                err=True,
+            )
+            sys.exit(1)
+
     # Blend distributions and recompute metrics
     per_question = []
     for key in common_keys:
         qs = [pq[key] for pq in per_q_maps]
         ref_q = qs[0]
 
-        # Human distribution — take from first file (should be identical)
-        human_dist = ref_q["human_distribution"]
+        # Human distribution — canonical when the committed input was
+        # stripped; otherwise from the first file (should be identical).
+        human_dist = ref_q.get("human_distribution") or canonical_dists.get(key)
+        if not human_dist:
+            click.echo(
+                f"Error: no human_distribution available for question "
+                f"{key!r} (not in canonical registry).",
+                err=True,
+            )
+            sys.exit(1)
 
         # Blend model distributions with weights
         all_option_keys = set()
@@ -2740,6 +2774,20 @@ def ensemble(files, output, weights):
     help="Treat warnings as errors (exit non-zero).",
 )
 @click.option(
+    "--rehydrate-canonical",
+    is_flag=True,
+    default=False,
+    help=(
+        "Recompute tier-2 metrics against the CANONICAL per-question human "
+        "distributions (local artifact, gated R2 object, or dataset adapter "
+        "cache — see synthbench.human_distributions) instead of any "
+        "submitter-supplied copies. Required to fully validate committed "
+        "gated-dataset files, which are stripped of human_distribution "
+        "(issue #308); without it those files validate with an explicit "
+        "RECOMPUTE_SKIPPED_NO_DISTRIBUTION warning."
+    ),
+)
+@click.option(
     "--json",
     "json_output",
     is_flag=True,
@@ -2752,6 +2800,7 @@ def validate(
     tier3,
     peers_dir,
     strict,
+    rehydrate_canonical,
     json_output,
 ):
     """Validate one or more submission result JSONs against the integrity rules.
@@ -2794,6 +2843,30 @@ def validate(
             except (OSError, json.JSONDecodeError):
                 continue
 
+    def _canonical_for(target: Path):
+        """Resolve canonical distributions for a file's dataset (or None)."""
+        if not rehydrate_canonical:
+            return None
+        from synthbench.human_distributions import load_canonical_distributions
+
+        try:
+            dataset = (
+                json.loads(Path(target).read_text()).get("config", {}) or {}
+            ).get("dataset")
+        except (OSError, json.JSONDecodeError):
+            return None
+        if not dataset:
+            return None
+        canonical = load_canonical_distributions(dataset)
+        if canonical is None:
+            click.echo(
+                f"WARNING: --rehydrate-canonical: no canonical distribution "
+                f"source available for dataset {dataset!r} "
+                f"({target}) — falling back to submitted distributions.",
+                err=True,
+            )
+        return canonical
+
     for target in targets:
         report = validate_file(
             target,
@@ -2801,6 +2874,7 @@ def validate(
             tier2=not skip_recompute,
             tier3=tier3,
             peers=peer_data,
+            canonical_distributions=_canonical_for(target),
         )
         reports.append(report)
         has_errors = bool(report.errors)
