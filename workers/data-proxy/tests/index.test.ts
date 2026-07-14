@@ -506,6 +506,82 @@ describe("/submit route (sb-me0f)", () => {
     expect(body.warning).toMatch(/dispatch failed/);
   });
 
+  // JWT-path rate limit (browser submissions). Each accepted submission stages
+  // to R2 + dispatches a GH Actions run, so the JWT path must respect the same
+  // 60/hr ceiling as api-key uploads (keyed on user_id, api_key_id is null).
+  it("rate-limits the JWT path with 429 at the ceiling and stages nothing", async () => {
+    const { env, ctx, fetchMock, submissionPuts } = makeHarness();
+    fetchMock.mockImplementation(async (url: string | URL) => {
+      const u = String(url);
+      // The per-user count query (api_key_id=is.null) reports the user at the
+      // hourly ceiling → the submission is rejected before any write.
+      if (u.includes("/rest/v1/submissions") && u.includes("api_key_id=is.null")) {
+        return new Response("[]", { status: 200, headers: { "Content-Range": "*/60" } });
+      }
+      return new Response(null, { status: 500 });
+    });
+    const token = await signToken({ sub: "user-heavy" });
+    const res = await worker.fetch(
+      new Request(`${WORKER_ORIGIN}/submit`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: validSubmissionJson(),
+      }),
+      env,
+      ctx,
+    );
+    expect(res.status).toBe(429);
+    const body = (await res.json()) as { error: string };
+    expect(body.error).toMatch(/rate limit exceeded/);
+    // Amplification blocked: nothing staged to R2, no workflow dispatched.
+    expect(submissionPuts).toHaveLength(0);
+    const calls = fetchMock.mock.calls.map((c) => String(c[0]));
+    expect(calls.some((u) => u.includes("api.github.com"))).toBe(false);
+  });
+
+  it("allows the JWT path below the ceiling (count query keyed on api_key_id is null)", async () => {
+    const { env, ctx, fetchMock } = makeHarness();
+    let countQueried = false;
+    fetchMock.mockImplementation(async (url: string | URL, init?: RequestInit) => {
+      const u = String(url);
+      const method = (init?.method ?? "GET").toUpperCase();
+      if (
+        u.includes("/rest/v1/submissions") &&
+        method === "GET" &&
+        u.includes("api_key_id=is.null")
+      ) {
+        countQueried = true;
+        return new Response("[]", { status: 200, headers: { "Content-Range": "*/2" } });
+      }
+      if (u.includes("/rest/v1/submissions") && method === "POST") {
+        return new Response(
+          JSON.stringify([{ id: 7, submitted_at: "2026-04-15T09:00:00Z", status: "validating" }]),
+          { status: 201 },
+        );
+      }
+      if (u.includes("api.github.com")) return new Response(null, { status: 204 });
+      return new Response(null, { status: 500 });
+    });
+    const token = await signToken({ sub: "user-light" });
+    const res = await worker.fetch(
+      new Request(`${WORKER_ORIGIN}/submit`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: validSubmissionJson(),
+      }),
+      env,
+      ctx,
+    );
+    expect(res.status).toBe(202);
+    expect(countQueried).toBe(true);
+  });
+
   it("returns 502 when Supabase insert fails", async () => {
     const { env, ctx, fetchMock } = makeHarness();
     fetchMock.mockImplementation(async () => new Response("down", { status: 503 }));

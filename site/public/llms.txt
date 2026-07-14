@@ -1,0 +1,29 @@
+# SynthBench
+
+> Open benchmark for synthetic survey respondent quality. SynthBench measures
+> how closely AI-generated survey responses match real human opinion
+> distributions, reported as the Survey Parity Score (SPS; 1.0 = perfect match)
+> across the GlobalOpinionQA, OpinionsQA, and SubPOP datasets.
+
+The live leaderboard is published as a stable, CORS-open JSON API — prefer it
+over scraping the HTML site. Every score is recomputed from per-question data
+at publish time, with bootstrap confidence intervals.
+
+## Data / API
+
+- [Leaderboard JSON API](https://synthbench.org/data/leaderboard.json): Live rankings for every model/framework/dataset config. Stable semver contract (`api.version`), `generated_at` freshness timestamp, per-row SPS + CIs + cost/latency. `Content-Type: application/json`, `Access-Control-Allow-Origin: *`.
+- [Leaderboard JSON API contract](https://github.com/DataViking-Tech/SynthBench/blob/main/docs/leaderboard-json-api.md): Field-by-field response schema, versioning policy, and consumer guidance.
+- [Sitemap](https://synthbench.org/sitemap.xml): All indexable pages.
+
+## Site
+
+- [Leaderboard](https://synthbench.org/leaderboard): Full rankings across all datasets and models, sortable, with per-config detail.
+- [Explore](https://synthbench.org/explore): Every benchmark run grouped by framework and base model; pick two to compare.
+- [Compare](https://synthbench.org/compare): Side-by-side diff of two configs or runs, highlighting the questions where they disagree most.
+- [Methodology](https://synthbench.org/methodology): SPS definition, metrics, datasets, baselines, run-validity filtering, and anti-gaming protocol.
+- [Findings](https://synthbench.org/findings): Headline results — ensemble, temperature, and conditioning effects.
+
+## Optional
+
+- [GitHub repository](https://github.com/DataViking-Tech/SynthBench): Source, submission workflow (`SUBMISSIONS.md`), and the benchmark harness.
+- [Submit results](https://synthbench.org/submit): Web upload, CLI, or PR-based leaderboard submission paths.

@@ -249,6 +249,19 @@ if (!hasRunsIndex && import.meta.env.PROD) {
     return value == null ? "—" : value.toFixed(3);
   }
 
+  // Framework / provider / model strings originate from submitted result files
+  // (config.provider / config.model / framework), so they are attacker-
+  // influenced once a submission is published into runs-index.json. Escape
+  // before any innerHTML interpolation to close the stored-XSS vector.
+  function escapeHtml(s: unknown): string {
+    return String(s ?? "")
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#39;");
+  }
+
   function meanOf(values: (number | null)[]): number | null {
     const nums = values.filter((v): v is number => typeof v === "number" && !Number.isNaN(v));
     if (nums.length === 0) return null;
@@ -532,7 +545,7 @@ if (!hasRunsIndex && import.meta.env.PROD) {
       fwHeader.innerHTML = `
         <span class="flex items-center gap-2">
           <span aria-hidden="true" class="text-muted">▸</span>
-          <span>${framework}</span>
+          <span>${escapeHtml(framework)}</span>
           <span class="text-xs text-muted">· ${nGroups} ${state.collapseReplicates ? "configs" : "runs"} · ${nReps} run${nReps === 1 ? "" : "s"}</span>
         </span>
       `;
@@ -576,7 +589,7 @@ if (!hasRunsIndex && import.meta.env.PROD) {
         bmHeader.innerHTML = `
           <span class="flex items-center gap-2">
             <span aria-hidden="true" class="text-muted">${bmCollapsed ? "▸" : "▾"}</span>
-            <span>${baseModel}</span>
+            <span>${escapeHtml(baseModel)}</span>
             <span class="text-xs text-muted">· ${groups.length} config${groups.length === 1 ? "" : "s"}</span>
           </span>
         `;

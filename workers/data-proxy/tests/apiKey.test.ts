@@ -10,8 +10,10 @@ import {
   type ApiKeyConfig,
   RATE_LIMIT_PER_HOUR,
   authenticateApiKey,
+  checkUserRateLimit,
   constantTimeEqual,
   countRecentSubmissions,
+  countRecentUserSubmissions,
   isApiKey,
   lookupApiKey,
   lookupPrefix,
@@ -341,6 +343,71 @@ describe("countRecentSubmissions", () => {
     );
     const n = await countRecentSubmissions(7, new Date(), baseConfig({ fetchImpl: fetchMock }));
     expect(n).toBe(3);
+  });
+});
+
+describe("countRecentUserSubmissions", () => {
+  it("queries by user_id with api_key_id is null and the since window", async () => {
+    const calls: string[] = [];
+    const fetchMock = vi.fn(async (url: string | URL) => {
+      calls.push(String(url));
+      return new Response("[]", { status: 200, headers: { "Content-Range": "0-4/5" } });
+    });
+    const n = await countRecentUserSubmissions(
+      "user-abc",
+      new Date("2026-04-15T11:00:00Z"),
+      baseConfig({ fetchImpl: fetchMock }),
+    );
+    expect(n).toBe(5);
+    const url = calls[0] ?? "";
+    expect(url).toContain("/rest/v1/submissions");
+    expect(url).toContain("user_id=eq.user-abc");
+    // Only browser/JWT uploads (api_key_id null) count on this path.
+    expect(url).toContain("api_key_id=is.null");
+    expect(url).toContain("submitted_at=gte.2026-04-15T11%3A00%3A00.000Z");
+  });
+
+  it("falls back to body length when no header is set", async () => {
+    const fetchMock = vi.fn(async () => new Response(JSON.stringify([{}, {}]), { status: 200 }));
+    const n = await countRecentUserSubmissions(
+      "u",
+      new Date(),
+      baseConfig({ fetchImpl: fetchMock }),
+    );
+    expect(n).toBe(2);
+  });
+});
+
+describe("checkUserRateLimit", () => {
+  it("passes below the ceiling", async () => {
+    const fetchMock = vi.fn(
+      async () => new Response("[]", { status: 200, headers: { "Content-Range": "*/3" } }),
+    );
+    const res = await checkUserRateLimit("user-abc", baseConfig({ fetchImpl: fetchMock }));
+    expect(res.ok).toBe(true);
+  });
+
+  it("returns 429 at or above the ceiling", async () => {
+    const fetchMock = vi.fn(
+      async () =>
+        new Response("[]", {
+          status: 200,
+          headers: { "Content-Range": `*/${RATE_LIMIT_PER_HOUR}` },
+        }),
+    );
+    const res = await checkUserRateLimit("user-abc", baseConfig({ fetchImpl: fetchMock }));
+    expect(res.ok).toBe(false);
+    if (res.ok) throw new Error("expected rate-limit rejection");
+    expect(res.status).toBe(429);
+    expect(res.reason).toMatch(/rate limit exceeded/);
+  });
+
+  it("returns 502 when the count query fails", async () => {
+    const fetchMock = vi.fn(async () => new Response("down", { status: 503 }));
+    const res = await checkUserRateLimit("user-abc", baseConfig({ fetchImpl: fetchMock }));
+    expect(res.ok).toBe(false);
+    if (res.ok) throw new Error("expected failure");
+    expect(res.status).toBe(502);
   });
 });
 

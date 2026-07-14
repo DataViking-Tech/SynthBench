@@ -141,9 +141,22 @@ const exploreUrl = `${base}/explore`;
     PerQuestionRow,
     ReplicateRecord,
     RunDetail,
+    RunIndex,
   } from "@/types/runs";
+  import type { DatasetPolicyEntry } from "@/types/leaderboard";
 
   type Mode = "config" | "run";
+
+  // Loaded once in main() before any subject loader runs. Routes gated-tier
+  // config/run fetches through the Worker proxy with a Supabase JWT.
+  type DataFetchModule = typeof import("@/lib/dataFetch");
+  let dataFetch: DataFetchModule;
+
+  // A subject either loads, or its dataset is gated and the viewer isn't
+  // authorized — in which case we swap the whole comparison for a sign-in gate.
+  type LoadResult =
+    | { ok: true; subject: Subject }
+    | { ok: false; gated: true; datasetLabel: string };
 
   interface CiRange {
     low: number;
@@ -339,9 +352,33 @@ const exploreUrl = `${base}/explore`;
     return (await res.json()) as T;
   }
 
-  async function loadConfigSubject(id: string, label: string): Promise<Subject> {
-    const configUrl = `${state.base}/data/config/${encodeURIComponent(id)}.json`;
-    const cfg = await fetchJson<ConfigRollup>(configUrl, `Config ${label}`);
+  /** Tier-aware fetch of an artifact under the data root. Returns the parsed
+   *  JSON, or a `gated` sentinel the caller turns into a sign-in gate. Any
+   *  other failure throws (surfaced in the generic error box). */
+  async function tieredJson<T>(
+    path: string,
+    tier: ReturnType<DataFetchModule["lookupDatasetTier"]>,
+    label: string,
+  ): Promise<{ ok: true; data: T } | { ok: false; gated: true }> {
+    const res = await dataFetch.fetchTieredJson<T>(path, tier);
+    if (res.ok) return { ok: true, data: res.data };
+    if (res.gated) return { ok: false, gated: true };
+    throw new Error(`${label}: ${res.message}`);
+  }
+
+  async function loadConfigSubject(
+    id: string,
+    label: string,
+    dataset: string,
+    tier: ReturnType<DataFetchModule["lookupDatasetTier"]>,
+  ): Promise<LoadResult> {
+    const cfgRes = await tieredJson<ConfigRollup>(
+      `config/${encodeURIComponent(id)}.json`,
+      tier,
+      `Config ${label}`,
+    );
+    if (!cfgRes.ok) return { ok: false, gated: true, datasetLabel: dataset };
+    const cfg = cfgRes.data;
     const n = cfg.n_replicates ?? cfg.variance_summary?.n_replicates ?? cfg.replicates?.length ?? 0;
     const metrics: SubjectMetrics = {
       sps: {
@@ -359,36 +396,54 @@ const exploreUrl = `${base}/explore`;
     };
 
     // Per-question detail is only available at the run level. Pick the first
-    // replicate as a representative run; warn the user in a note.
+    // replicate as a representative run; warn the user in a note. The run is
+    // the same dataset as the config, so it shares the resolved tier.
     let perQuestion: PerQuestionRow[] = [];
     let representativeRunId: string | null = null;
     const reps = (cfg.replicates ?? []) as ReplicateRecord[];
     if (reps.length > 0) {
       const rep = reps[0];
       representativeRunId = rep.run_id;
-      const runUrl = `${state.base}/data/run/${encodeURIComponent(rep.run_id)}.json`;
       try {
-        const run = await fetchJson<RunDetail>(runUrl, `Representative run for ${label}`);
-        perQuestion = run.per_question ?? [];
+        const runRes = await tieredJson<RunDetail>(
+          `run/${encodeURIComponent(rep.run_id)}.json`,
+          tier,
+          `Representative run for ${label}`,
+        );
+        // Soft-fail on gated/missing — the metric tiles from the config rollup
+        // still render; only the flipped-questions table needs the run detail.
+        if (runRes.ok) perQuestion = runRes.data.per_question ?? [];
       } catch (err) {
-        // Soft-fail — we still have metric tiles from the config rollup.
         console.warn(`Could not load representative run for ${label}:`, err);
       }
     }
 
     return {
-      id,
-      title: cfg.display_name || cfg.model || id,
-      detailUrl: `${state.base}/config/${encodeURIComponent(id)}`,
-      metrics,
-      perQuestion,
-      representativeRunId,
+      ok: true,
+      subject: {
+        id,
+        title: cfg.display_name || cfg.model || id,
+        detailUrl: `${state.base}/config/${encodeURIComponent(id)}`,
+        metrics,
+        perQuestion,
+        representativeRunId,
+      },
     };
   }
 
-  async function loadRunSubject(id: string, label: string): Promise<Subject> {
-    const runUrl = `${state.base}/data/run/${encodeURIComponent(id)}.json`;
-    const run = await fetchJson<RunDetail>(runUrl, `Run ${label}`);
+  async function loadRunSubject(
+    id: string,
+    label: string,
+    dataset: string,
+    tier: ReturnType<DataFetchModule["lookupDatasetTier"]>,
+  ): Promise<LoadResult> {
+    const runRes = await tieredJson<RunDetail>(
+      `run/${encodeURIComponent(id)}.json`,
+      tier,
+      `Run ${label}`,
+    );
+    if (!runRes.ok) return { ok: false, gated: true, datasetLabel: dataset };
+    const run = runRes.data;
     const ci = run.aggregate?.per_metric_ci ?? null;
     const metrics: SubjectMetrics = {
       sps: {
@@ -405,13 +460,50 @@ const exploreUrl = `${base}/explore`;
       },
     };
     return {
-      id,
-      title: run.display_name || run.model || id,
-      detailUrl: `${state.base}/run/${encodeURIComponent(id)}`,
-      metrics,
-      perQuestion: run.per_question ?? [],
-      representativeRunId: id,
+      ok: true,
+      subject: {
+        id,
+        title: run.display_name || run.model || id,
+        detailUrl: `${state.base}/run/${encodeURIComponent(id)}`,
+        metrics,
+        perQuestion: run.per_question ?? [],
+        representativeRunId: id,
+      },
     };
+  }
+
+  /** Resolve each subject id → its dataset name. Config ids and run ids are
+   *  both keys in the runs-index catalog (a tier-less public artifact), so we
+   *  can look up the dataset without touching gated config/run JSON first. */
+  async function resolveDatasetsById(mode: Mode): Promise<Map<string, string>> {
+    const byId = new Map<string, string>();
+    try {
+      const idx = await fetchJson<RunIndex>(
+        `${state.base}/data/runs-index.json`,
+        "runs index",
+      );
+      for (const r of idx.runs) {
+        const key = mode === "config" ? r.config_id : r.run_id;
+        if (key && !byId.has(key)) byId.set(key, r.dataset ?? "");
+      }
+    } catch (err) {
+      // Index unavailable → leave the map empty. Tiers resolve to "unknown",
+      // which fetches from the static origin (correct for full-tier data).
+      console.warn("Could not load runs-index for tier resolution:", err);
+    }
+    return byId;
+  }
+
+  /** Swap the comparison UI for an inline sign-in gate when a subject's
+   *  dataset is gated and the viewer isn't authorized. Mirrors run/[id].astro. */
+  function renderCompareGate(datasetLabel: string): void {
+    const metricsWrap = document.getElementById("compare-metrics-wrap");
+    const metrics = document.getElementById("compare-metrics");
+    metricsWrap?.classList.remove("hidden");
+    if (metrics) dataFetch.renderSignInGate(metrics, { datasetLabel: datasetLabel || null });
+    // Leave the flipped-questions table hidden — there is nothing to show
+    // until the viewer signs in and the Worker serves the gated artifacts.
+    document.getElementById("compare-flipped-wrap")?.classList.add("hidden");
   }
 
   function renderSubjectChip(
@@ -756,8 +848,33 @@ const exploreUrl = `${base}/explore`;
     if (badge) badge.textContent = state.mode;
 
     try {
+      // Resolve each subject's dataset + redistribution tier BEFORE fetching
+      // config/run JSON, so gated datasets route through the Worker proxy with
+      // a Supabase JWT instead of 404-ing against the static origin (which no
+      // longer carries gated per-config/run artifacts).
+      dataFetch = await import("@/lib/dataFetch");
+      const [policies, datasetById] = await Promise.all([
+        loadDatasetPolicies(),
+        resolveDatasetsById(state.mode),
+      ]);
+      const datasetA = datasetById.get(state.aId) ?? "";
+      const datasetB = datasetById.get(state.bId) ?? "";
+      const tierA = dataFetch.lookupDatasetTier(datasetA, policies);
+      const tierB = dataFetch.lookupDatasetTier(datasetB, policies);
+
       const loader = state.mode === "config" ? loadConfigSubject : loadRunSubject;
-      const [a, b] = await Promise.all([loader(state.aId, "A"), loader(state.bId, "B")]);
+      const [ra, rb] = await Promise.all([
+        loader(state.aId, "A", datasetA, tierA),
+        loader(state.bId, "B", datasetB, tierB),
+      ]);
+
+      if (!ra.ok || !rb.ok) {
+        const gatedLabel = !ra.ok ? ra.datasetLabel : !rb.ok ? rb.datasetLabel : "";
+        renderCompareGate(gatedLabel);
+        return;
+      }
+      const a = ra.subject;
+      const b = rb.subject;
 
       let warnA: string | undefined;
       if (state.mode === "config") {
@@ -776,6 +893,22 @@ const exploreUrl = `${base}/explore`;
       wireInteractions();
     } catch (err) {
       showError(err instanceof Error ? err.message : String(err));
+    }
+  }
+
+  /** Load the dataset policy manifest shipped in leaderboard.json (a tier-less
+   *  public artifact). Returns null when unavailable → tiers resolve to
+   *  "unknown" (static-origin fetch), the right default for full-tier data. */
+  async function loadDatasetPolicies(): Promise<DatasetPolicyEntry[] | null> {
+    try {
+      const lb = await fetchJson<{ dataset_policies?: DatasetPolicyEntry[] }>(
+        `${state.base}/data/leaderboard.json`,
+        "leaderboard policies",
+      );
+      return lb.dataset_policies ?? null;
+    } catch (err) {
+      console.warn("Could not load dataset policies for tier resolution:", err);
+      return null;
     }
   }
 

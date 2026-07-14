@@ -24,7 +24,7 @@ const KEY_BODY_LEN = 32;
 const KEY_TOTAL_LEN = KEY_PREFIX.length + KEY_BODY_LEN;
 const LOOKUP_PREFIX_LEN = 8;
 export const RATE_LIMIT_PER_HOUR = 60;
-const RATE_LIMIT_WINDOW_MS = 60 * 60 * 1000;
+export const RATE_LIMIT_WINDOW_MS = 60 * 60 * 1000;
 
 export type ApiKeyScope = "read" | "submit" | "both";
 
@@ -233,7 +233,34 @@ export async function countRecentSubmissions(
   url.searchParams.set("api_key_id", `eq.${apiKeyId}`);
   url.searchParams.set("submitted_at", `gte.${since.toISOString()}`);
   url.searchParams.set("select", "id");
+  return countViaContentRange(url, config);
+}
 
+/**
+ * Count browser/JWT submissions for a user in the last hour — the rows the
+ * api-key path never touches (`api_key_id is null`). Backs the per-user rate
+ * limit on the JWT `/submit` path so browser uploads can't bypass the ceiling
+ * that api-key uploads already respect.
+ */
+export async function countRecentUserSubmissions(
+  userId: string,
+  since: Date,
+  config: ApiKeyConfig,
+): Promise<number> {
+  const url = new URL(`${config.supabaseUrl.replace(/\/+$/, "")}/rest/v1/submissions`);
+  url.searchParams.set("user_id", `eq.${userId}`);
+  // Only browser/JWT uploads count here; api-key uploads are limited per-key.
+  url.searchParams.set("api_key_id", "is.null");
+  url.searchParams.set("submitted_at", `gte.${since.toISOString()}`);
+  url.searchParams.set("select", "id");
+  return countViaContentRange(url, config);
+}
+
+/**
+ * Shared PostgREST exact-count read. Uses the `Content-Range` header total so
+ * we never materialize rows; falls back to the returned array length.
+ */
+async function countViaContentRange(url: URL, config: ApiKeyConfig): Promise<number> {
   const doFetch = config.fetchImpl ?? fetch;
   const res = await doFetch(url.toString(), {
     method: "GET",
@@ -260,6 +287,39 @@ export async function countRecentSubmissions(
   // larger than our 60/hr ceiling so this stays accurate in practice.
   const rows = (await res.json()) as unknown[];
   return Array.isArray(rows) ? rows.length : 0;
+}
+
+/** Result of a per-user rate-limit check on the JWT `/submit` path. */
+export type UserRateLimitResult = { ok: true } | { ok: false; status: 429 | 502; reason: string };
+
+/**
+ * Enforce the per-user hourly submission ceiling for the browser/JWT path.
+ * Mirrors the api-key rate limit in {@link authenticateApiKey}, keyed on
+ * `user_id` with `api_key_id is null`. Each accepted submission stages to R2
+ * and dispatches a GitHub Actions workflow, so an unlimited JWT path is a
+ * resource-amplification vector — this closes it.
+ */
+export async function checkUserRateLimit(
+  userId: string,
+  config: ApiKeyConfig,
+): Promise<UserRateLimitResult> {
+  const now = (config.now ?? (() => new Date()))();
+  const limit = config.rateLimitPerHour ?? RATE_LIMIT_PER_HOUR;
+  let recentCount: number;
+  try {
+    const since = new Date(now.getTime() - RATE_LIMIT_WINDOW_MS);
+    recentCount = await countRecentUserSubmissions(userId, since, config);
+  } catch (err) {
+    return { ok: false, status: 502, reason: `rate-limit check failed: ${(err as Error).message}` };
+  }
+  if (recentCount >= limit) {
+    return {
+      ok: false,
+      status: 429,
+      reason: `rate limit exceeded: ${limit} submissions/hour`,
+    };
+  }
+  return { ok: true };
 }
 
 /**
