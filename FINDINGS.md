@@ -134,32 +134,32 @@ t=0.85, 100 questions, 15–30 samples.
 
 | Group | P_dist | P_cond | Replications |
 |-------|--------|--------|--------------|
-| Republican | 0.666 | **0.073 ± 0.004** | 4 |
-| Democrat | 0.644 | **0.033 ± 0.005** | 4 |
+| Republican | 0.680 | **0.099 ± 0.035** | 9 |
+| Democrat | 0.657 | **0.043 ± 0.023** | 9 |
 
 #### INCOME
 
 | Group | P_dist | P_cond | Replications |
 |-------|--------|--------|--------------|
-| $100K+ | 0.674 | **0.030 ± 0.004** | 3 |
-| <$30K | 0.596 | **0.019 ± 0.003** | 3 |
+| <$30K | 0.632 | **0.054 ± 0.033** | 8 |
+| $100K+ | 0.673 | **0.041 ± 0.025** | 8 |
 
 #### EDUCATION
 
 | Group | P_dist | P_cond | Replications |
 |-------|--------|--------|--------------|
-| Less than HS | 0.597 | **0.038** | 1 |
-| College graduate | 0.641 | **0.036** | 1 |
+| Less than HS | 0.642 | **0.081 ± 0.041** | 6 |
+| College graduate | 0.676 | **0.042 ± 0.026** | 6 |
 
-Republican conditioning is **2.2× stronger** than Democrat (mean P_cond across replications).
-High-income conditioning is **1.5× stronger** than low-income.
+Republican conditioning is **2.3× stronger** than Democrat (mean P_cond across replications).
+High-income conditioning is **1.3× stronger** than low-income.
 
 #### Other measured attributes
 
 | Attribute | Group | P_dist | P_cond | Replications |
 |-----------|-------|--------|--------|--------------|
-| CREGION | South | 0.641 | 0.039 ± 0.005 | 2 |
-| CREGION | Northeast | 0.628 | 0.021 ± 0.004 | 2 |
+| CREGION | South | 0.651 | 0.055 ± 0.018 | 7 |
+| CREGION | Northeast | 0.657 | 0.045 ± 0.029 | 7 |
 | RACE | White | 0.785 | 0.141 ± 0.030 | 3 |
 | RACE | Hispanic | 0.605 | 0.034 ± 0.005 | 3 |
 | RACE | Asian | 0.637 | 0.025 ± 0.005 | 3 |
@@ -169,8 +169,8 @@ High-income conditioning is **1.5× stronger** than low-income.
 | RELIG | Hindu | 0.806 | 0.129 | 1 |
 | RELIG | Jewish | 0.774 | 0.127 | 1 |
 | RELIG | Atheist | 0.738 | 0.095 | 1 |
-| SEX | Male | 0.647 | 0.055 | 1 |
-| SEX | Female | 0.617 | 0.027 | 1 |
+| SEX | Female | 0.645 | 0.049 ± 0.036 | 6 |
+| SEX | Male | 0.665 | 0.048 ± 0.031 | 6 |
 <!-- END GENERATED: conditioning -->
 
 ### Key Findings
@@ -291,7 +291,7 @@ more temperature — it just adds noise.
 |-------|----------------------|------|--------|
 | **Ensemble blending** | +1.0–4.8 | zero | done |
 | **Per-model optimal temperature** | +0.8–4.5 | low | actionable |
-| **Demographic conditioning** | +1.9–7.3 | moderate | scientific |
+| **Demographic conditioning** | +4.1–9.9 | moderate | scientific |
 | **Persona template** | 'current' template already optimal (+11.0 pts over the best alternative); no further gain available from this lever. | zero | done |
 <!-- END GENERATED: levers -->
 
