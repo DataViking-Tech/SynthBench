@@ -41,6 +41,7 @@ PRODUCT_TO_RAW_DISPLAY: dict[str, str] = {
     "SynthPanel (GPT-4o-mini)": "GPT-4o-mini",
     "SynthPanel (GPT-4o)": "GPT-4o",
     "SynthPanel (Gemini Flash Lite)": "Gemini Flash Lite",
+    "SynthPanel (Llama 3.3 70B)": "Llama 3.3 70B",
 }
 
 # Short display labels for demographic groups whose raw SubPOP labels are
