@@ -1,7 +1,12 @@
 {
-  "generated_at": "2026-07-15T23:03:13.082426+00:00",
+  "generated_at": "2026-07-15T23:23:35.495908+00:00",
   "synthbench_version": "0.1.0",
-  "datasets": ["globalopinionqa", "gss", "opinionsqa", "subpop"],
+  "datasets": [
+    "globalopinionqa",
+    "gss",
+    "opinionsqa",
+    "subpop"
+  ],
   "entries": [
     {
       "rank": 1,
@@ -184,7 +189,7 @@
       "cost_usd": 0.063,
       "cost_per_100q": 0.063,
       "cost_per_sps_point": 0.080129,
-      "cost_per_response": 2.1e-5,
+      "cost_per_response": 2.1e-05,
       "tokens_per_response": null,
       "is_cost_estimated": true,
       "latency_p50_seconds": null,
@@ -282,7 +287,7 @@
       "cost_usd": 0.0708,
       "cost_per_100q": 0.0708,
       "cost_per_sps_point": 0.091897,
-      "cost_per_response": 4.7e-5,
+      "cost_per_response": 4.7e-05,
       "tokens_per_response": null,
       "is_cost_estimated": true,
       "latency_p50_seconds": null,
@@ -292,7 +297,7 @@
       "sps_public_private_delta": 0.063323,
       "verification_badge": "flagged",
       "normalized_sps": 0.0,
-      "run_count": 1,
+      "run_count": 2,
       "dataset_coverage_count": 4
     },
     {
@@ -380,7 +385,7 @@
       "cost_usd": 0.02052,
       "cost_per_100q": 0.02052,
       "cost_per_sps_point": 0.026918,
-      "cost_per_response": 1.4e-5,
+      "cost_per_response": 1.4e-05,
       "tokens_per_response": null,
       "is_cost_estimated": true,
       "latency_p50_seconds": null,
@@ -390,7 +395,7 @@
       "sps_public_private_delta": 0.005817,
       "verification_badge": "verified",
       "normalized_sps": 0.0,
-      "run_count": 1,
+      "run_count": 2,
       "dataset_coverage_count": 3
     },
     {
@@ -478,7 +483,7 @@
       "cost_usd": 0.042,
       "cost_per_100q": 0.042,
       "cost_per_sps_point": 0.055147,
-      "cost_per_response": 1.4e-5,
+      "cost_per_response": 1.4e-05,
       "tokens_per_response": null,
       "is_cost_estimated": true,
       "latency_p50_seconds": null,
@@ -487,11 +492,102 @@
       "sps_private": 0.577772,
       "sps_public_private_delta": 0.099697,
       "verification_badge": "flagged",
+      "normalized_sps": 0.001496,
       "run_count": 2,
       "dataset_coverage_count": 3
     },
     {
       "rank": 6,
+      "config_id": "raw--gemini-2.5-flash-lite--tdefault--tplcurrent--ddafa278",
+      "provider": "Gemini Flash Lite",
+      "model": "Gemini Flash Lite",
+      "provider_id": "raw",
+      "model_id": "google/gemini-2.5-flash-lite",
+      "dataset": "globalopinionqa",
+      "framework": "raw",
+      "sps": 0.761248,
+      "p_dist": 0.683525,
+      "p_rank": 0.621542,
+      "p_refuse": 0.978678,
+      "jsd": 0.316475,
+      "tau": 0.243084,
+      "n": 100,
+      "ci_lower": 0.728876,
+      "ci_upper": 0.79213,
+      "is_baseline": false,
+      "is_ensemble": false,
+      "samples_per_question": 15,
+      "topic_scores": {
+        "Economy & Work": 0.73008,
+        "General Attitudes": 0.593527,
+        "Health & Science": 0.887379,
+        "International Relations & Security": 0.664932,
+        "Politics & Governance": 0.63086,
+        "Trust & Wellbeing": 0.489945
+      },
+      "topic_metrics": {
+        "Economy & Work": {
+          "sps": 0.73008,
+          "n": 3,
+          "p_dist": 0.793493,
+          "p_rank": 0.666667,
+          "p_refuse": 0.948618
+        },
+        "General Attitudes": {
+          "sps": 0.593527,
+          "n": 4,
+          "p_dist": 0.789233,
+          "p_rank": 0.397822,
+          "p_refuse": 1.0
+        },
+        "Health & Science": {
+          "sps": 0.887379,
+          "n": 1,
+          "p_dist": 0.774759,
+          "p_rank": 1.0,
+          "p_refuse": 1.0
+        },
+        "International Relations & Security": {
+          "sps": 0.664932,
+          "n": 60,
+          "p_dist": 0.689126,
+          "p_rank": 0.640737,
+          "p_refuse": 0.986158
+        },
+        "Politics & Governance": {
+          "sps": 0.63086,
+          "n": 30,
+          "p_dist": 0.659298,
+          "p_rank": 0.602421,
+          "p_refuse": 0.961749
+        },
+        "Trust & Wellbeing": {
+          "sps": 0.489945,
+          "n": 2,
+          "p_dist": 0.456883,
+          "p_rank": 0.523008,
+          "p_refuse": 1.0
+        }
+      },
+      "demographic_scorecard": null,
+      "cost_usd": 0.017308,
+      "cost_per_100q": 0.017308,
+      "cost_per_sps_point": 0.022737,
+      "cost_per_response": 1.2e-05,
+      "tokens_per_response": 112.13,
+      "is_cost_estimated": false,
+      "latency_p50_seconds": 0.6102,
+      "latency_p95_seconds": 1.4021,
+      "sps_public": 0.661939,
+      "sps_private": 0.619186,
+      "sps_public_private_delta": 0.042753,
+      "verification_badge": "verified",
+      "normalized_sps": 0.0,
+      "run_count": 1,
+      "dataset_coverage_count": 3
+    },
+    {
+      "rank": 7,
       "config_id": "raw--gpt-4o-mini--tdefault--tplcurrent--a75c2c4a",
       "provider": "GPT-4o-mini",
       "model": "GPT-4o-mini",
@@ -575,7 +671,7 @@
       "cost_usd": 0.0315,
       "cost_per_100q": 0.0315,
       "cost_per_sps_point": 0.04204,
-      "cost_per_response": 2.1e-5,
+      "cost_per_response": 2.1e-05,
       "tokens_per_response": null,
       "is_cost_estimated": true,
       "latency_p50_seconds": null,
@@ -585,11 +681,101 @@
       "sps_public_private_delta": 0.004503,
       "verification_badge": "verified",
       "normalized_sps": 0.0,
+      "run_count": 2,
+      "dataset_coverage_count": 3
+    },
+    {
+      "rank": 8,
+      "config_id": "synthpanel--llama-3.3-70b-instruct--tdefault--tplcurrent--4520a502",
+      "provider": "SynthPanel (Llama 3.3 70B)",
+      "model": "SynthPanel (Llama 3.3 70B)",
+      "provider_id": "synthpanel",
+      "model_id": "meta-llama/llama-3.3-70b-instruct",
+      "dataset": "globalopinionqa",
+      "framework": "product",
+      "sps": 0.745187,
+      "p_dist": 0.648804,
+      "p_rank": 0.684633,
+      "p_refuse": 0.902123,
+      "jsd": 0.351196,
+      "tau": 0.369266,
+      "n": 100,
+      "ci_lower": 0.709816,
+      "ci_upper": 0.777411,
+      "is_baseline": false,
+      "is_ensemble": false,
+      "samples_per_question": 15,
+      "topic_scores": {
+        "Economy & Work": 0.70297,
+        "General Attitudes": 0.588027,
+        "Health & Science": 0.887379,
+        "International Relations & Security": 0.668674,
+        "Politics & Governance": 0.661415,
+        "Trust & Wellbeing": 0.6803
+      },
+      "topic_metrics": {
+        "Economy & Work": {
+          "sps": 0.70297,
+          "n": 3,
+          "p_dist": 0.769857,
+          "p_rank": 0.636083,
+          "p_refuse": 0.948618
+        },
+        "General Attitudes": {
+          "sps": 0.588027,
+          "n": 4,
+          "p_dist": 0.712665,
+          "p_rank": 0.463388,
+          "p_refuse": 0.983333
+        },
+        "Health & Science": {
+          "sps": 0.887379,
+          "n": 1,
+          "p_dist": 0.774759,
+          "p_rank": 1.0,
+          "p_refuse": 1.0
+        },
+        "International Relations & Security": {
+          "sps": 0.668674,
+          "n": 60,
+          "p_dist": 0.652741,
+          "p_rank": 0.684607,
+          "p_refuse": 0.90591
+        },
+        "Politics & Governance": {
+          "sps": 0.661415,
+          "n": 30,
+          "p_dist": 0.619887,
+          "p_rank": 0.702942,
+          "p_refuse": 0.887064
+        },
+        "Trust & Wellbeing": {
+          "sps": 0.6803,
+          "n": 2,
+          "p_dist": 0.592198,
+          "p_rank": 0.768401,
+          "p_refuse": 0.733333
+        }
+      },
+      "demographic_scorecard": null,
+      "cost_usd": 0.039254,
+      "cost_per_100q": 0.039254,
+      "cost_per_sps_point": 0.052676,
+      "cost_per_response": 2.6e-05,
+      "tokens_per_response": 178.62,
+      "is_cost_estimated": false,
+      "latency_p50_seconds": 13.7587,
+      "latency_p95_seconds": 26.5763,
+      "sps_public": 0.659478,
+      "sps_private": 0.692391,
+      "sps_public_private_delta": 0.032913,
+      "verification_badge": "verified",
+      "normalized_sps": 0.0,
       "run_count": 1,
       "dataset_coverage_count": 3
     },
     {
-      "rank": 7,
+      "rank": 9,
       "config_id": "raw--claude-sonnet-4.6--tdefault--tplcurrent--94105f12",
       "provider": "Claude Sonnet 4.6",
       "model": "Claude Sonnet 4.6",
@@ -679,7 +865,7 @@
       "dataset_coverage_count": 1
     },
     {
-      "rank": 8,
+      "rank": 10,
       "config_id": "raw--claude-haiku-4-5--tdefault--tplcurrent--662866a7",
       "provider": "Claude Haiku 4.5",
       "model": "Claude Haiku 4.5",
@@ -773,11 +959,11 @@
       "sps_public_private_delta": 0.065762,
       "verification_badge": "flagged",
       "normalized_sps": 0.0,
-      "run_count": 1,
+      "run_count": 2,
       "dataset_coverage_count": 3
     },
     {
-      "rank": 9,
+      "rank": 11,
       "config_id": "synthpanel--claude-haiku-4-5--tdefault--tplcurrent--49fbdb2d",
       "provider": "SynthPanel (Haiku 4.5)",
       "model": "SynthPanel (Haiku 4.5)",
@@ -875,7 +1061,7 @@
       "dataset_coverage_count": 4
     },
     {
-      "rank": 10,
+      "rank": 12,
       "config_id": "baseline--random-baseline--tdefault--tplcurrent--d6b76ef5",
       "provider": "Random Baseline",
       "model": "Random Baseline",
@@ -948,7 +1134,7 @@
       "dataset_coverage_count": 4
     },
     {
-      "rank": 11,
+      "rank": 13,
       "config_id": "baseline--majority-baseline--tdefault--tplcurrent--e36ac49c",
       "provider": "Majority Baseline",
       "model": "Majority Baseline",
@@ -1129,7 +1315,7 @@
       "cost_usd": 0.080309,
       "cost_per_100q": 0.107078,
       "cost_per_sps_point": 0.101739,
-      "cost_per_response": 3.6e-5,
+      "cost_per_response": 3.6e-05,
       "tokens_per_response": 111.45,
       "is_cost_estimated": false,
       "latency_p50_seconds": 1.2907,
@@ -1564,7 +1750,7 @@
       "cost_usd": 1.61424,
       "cost_per_100q": 0.236,
       "cost_per_sps_point": 1.946716,
-      "cost_per_response": 4.7e-5,
+      "cost_per_response": 4.7e-05,
       "tokens_per_response": null,
       "is_cost_estimated": true,
       "latency_p50_seconds": null,
@@ -1930,7 +2116,7 @@
       "cost_usd": 0.7182,
       "cost_per_100q": 0.105,
       "cost_per_sps_point": 0.873153,
-      "cost_per_response": 2.1e-5,
+      "cost_per_response": 2.1e-05,
       "tokens_per_response": null,
       "is_cost_estimated": true,
       "latency_p50_seconds": null,
@@ -2052,7 +2238,7 @@
       "cost_usd": 0.467856,
       "cost_per_100q": 0.0684,
       "cost_per_sps_point": 0.571267,
-      "cost_per_response": 1.4e-5,
+      "cost_per_response": 1.4e-05,
       "tokens_per_response": null,
       "is_cost_estimated": true,
       "latency_p50_seconds": null,
@@ -2174,7 +2360,7 @@
       "cost_usd": 0.4788,
       "cost_per_100q": 0.07,
       "cost_per_sps_point": 0.586736,
-      "cost_per_response": 1.4e-5,
+      "cost_per_response": 1.4e-05,
       "tokens_per_response": null,
       "is_cost_estimated": true,
       "latency_p50_seconds": null,
@@ -2540,7 +2726,7 @@
       "cost_usd": 0.7182,
       "cost_per_100q": 0.105,
       "cost_per_sps_point": 0.883919,
-      "cost_per_response": 2.1e-5,
+      "cost_per_response": 2.1e-05,
       "tokens_per_response": null,
       "is_cost_estimated": true,
       "latency_p50_seconds": null,
@@ -2555,6 +2741,120 @@
     },
     {
       "rank": 11,
+      "config_id": "synthpanel--llama-3.3-70b-instruct--tdefault--tplcurrent--482313b7",
+      "provider": "SynthPanel (Llama 3.3 70B)",
+      "model": "SynthPanel (Llama 3.3 70B)",
+      "provider_id": "synthpanel",
+      "model_id": "meta-llama/llama-3.3-70b-instruct",
+      "dataset": "opinionsqa",
+      "framework": "product",
+      "sps": 0.790932,
+      "p_dist": 0.695436,
+      "p_rank": 0.742542,
+      "p_refuse": 0.934818,
+      "jsd": 0.304564,
+      "tau": 0.485083,
+      "n": 100,
+      "ci_lower": 0.76908,
+      "ci_upper": 0.810045,
+      "is_baseline": false,
+      "is_ensemble": false,
+      "samples_per_question": 15,
+      "topic_scores": {
+        "Economy & Work": 0.754739,
+        "General Attitudes": 0.682187,
+        "Health & Science": 0.80584,
+        "International Relations & Security": 0.708304,
+        "Media & Information": 0.700836,
+        "Politics & Governance": 0.575965,
+        "Social Values & Religion": 0.762341,
+        "Technology & Digital Life": 0.761361,
+        "Trust & Wellbeing": 0.742682
+      },
+      "topic_metrics": {
+        "Economy & Work": {
+          "sps": 0.754739,
+          "n": 21,
+          "p_dist": 0.719856,
+          "p_rank": 0.789623,
+          "p_refuse": 0.911437
+        },
+        "General Attitudes": {
+          "sps": 0.682187,
+          "n": 35,
+          "p_dist": 0.648579,
+          "p_rank": 0.715795,
+          "p_refuse": 0.95388
+        },
+        "Health & Science": {
+          "sps": 0.80584,
+          "n": 1,
+          "p_dist": 0.758127,
+          "p_rank": 0.853554,
+          "p_refuse": 0.935972
+        },
+        "International Relations & Security": {
+          "sps": 0.708304,
+          "n": 20,
+          "p_dist": 0.716195,
+          "p_rank": 0.700414,
+          "p_refuse": 0.905228
+        },
+        "Media & Information": {
+          "sps": 0.700836,
+          "n": 2,
+          "p_dist": 0.743559,
+          "p_rank": 0.658114,
+          "p_refuse": 0.968741
+        },
+        "Politics & Governance": {
+          "sps": 0.575965,
+          "n": 1,
+          "p_dist": 0.493817,
+          "p_rank": 0.658114,
+          "p_refuse": 0.670365
+        },
+        "Social Values & Religion": {
+          "sps": 0.762341,
+          "n": 15,
+          "p_dist": 0.742231,
+          "p_rank": 0.78245,
+          "p_refuse": 0.963662
+        },
+        "Technology & Digital Life": {
+          "sps": 0.761361,
+          "n": 4,
+          "p_dist": 0.715205,
+          "p_rank": 0.807517,
+          "p_refuse": 0.994871
+        },
+        "Trust & Wellbeing": {
+          "sps": 0.742682,
+          "n": 1,
+          "p_dist": 0.669135,
+          "p_rank": 0.816228,
+          "p_refuse": 0.873036
+        }
+      },
+      "demographic_scorecard": null,
+      "cost_usd": 0.0358,
+      "cost_per_100q": 0.0358,
+      "cost_per_sps_point": 0.045263,
+      "cost_per_response": 2.4e-05,
+      "tokens_per_response": 164.52,
+      "is_cost_estimated": false,
+      "latency_p50_seconds": 11.3475,
+      "latency_p95_seconds": 17.887,
+      "sps_public": 0.712898,
+      "sps_private": 0.739379,
+      "sps_public_private_delta": 0.02648,
+      "verification_badge": "verified",
+      "normalized_sps": 0.0,
+      "run_count": 1,
+      "dataset_coverage_count": 3
+    },
+    {
+      "rank": 12,
       "config_id": "raw--claude-sonnet-4--tdefault--tplcurrent--482c42c7",
       "provider": "Claude Sonnet 4",
       "model": "Claude Sonnet 4",
@@ -2676,7 +2976,7 @@
       "dataset_coverage_count": 1
     },
     {
-      "rank": 12,
+      "rank": 13,
       "config_id": "baseline--random-baseline--tdefault--tplcurrent--971f8ad1",
       "provider": "Random Baseline",
       "model": "Random Baseline",
@@ -2797,7 +3097,7 @@
       "dataset_coverage_count": 4
     },
     {
-      "rank": 13,
+      "rank": 14,
       "config_id": "raw--gemini-2.5-flash-lite--tdefault--tplcurrent--bdb40b06",
       "provider": "Gemini Flash Lite",
       "model": "Gemini Flash Lite",
@@ -2881,7 +3181,7 @@
       "cost_usd": 0.042,
       "cost_per_100q": 0.042,
       "cost_per_sps_point": 0.056923,
-      "cost_per_response": 1.4e-5,
+      "cost_per_response": 1.4e-05,
       "tokens_per_response": null,
       "is_cost_estimated": true,
       "latency_p50_seconds": null,
@@ -2892,10 +3192,10 @@
       "verification_badge": "verified",
       "normalized_sps": 0.0,
       "run_count": 2,
-      "dataset_coverage_count": 1
+      "dataset_coverage_count": 3
     },
     {
-      "rank": 14,
+      "rank": 15,
       "config_id": "baseline--majority-baseline--tdefault--tplcurrent--04e61fe9",
       "provider": "Majority Baseline",
       "model": "Majority Baseline",
@@ -3422,7 +3722,7 @@
       "cost_usd": 0.084,
       "cost_per_100q": 0.042,
       "cost_per_sps_point": 0.102315,
-      "cost_per_response": 1.4e-5,
+      "cost_per_response": 1.4e-05,
       "tokens_per_response": null,
       "is_cost_estimated": true,
       "latency_p50_seconds": null,
@@ -3431,6 +3731,7 @@
       "sps_private": 0.748118,
       "sps_public_private_delta": 0.00602,
       "verification_badge": "verified",
+      "normalized_sps": 0.204002,
       "run_count": 3,
       "dataset_coverage_count": 3
     },
@@ -4168,7 +4469,7 @@
       "cost_usd": 0.08208,
       "cost_per_100q": 0.04104,
       "cost_per_sps_point": 0.103179,
-      "cost_per_response": 1.4e-5,
+      "cost_per_response": 1.4e-05,
       "tokens_per_response": null,
       "is_cost_estimated": true,
       "latency_p50_seconds": null,
@@ -4468,7 +4769,7 @@
       "cost_usd": 0.126,
       "cost_per_100q": 0.063,
       "cost_per_sps_point": 0.160147,
-      "cost_per_response": 2.1e-5,
+      "cost_per_response": 2.1e-05,
       "tokens_per_response": null,
       "is_cost_estimated": true,
       "latency_p50_seconds": null,
@@ -4760,7 +5061,7 @@
       "cost_usd": 0.0708,
       "cost_per_100q": 0.0708,
       "cost_per_sps_point": 0.090471,
-      "cost_per_response": 4.7e-5,
+      "cost_per_response": 4.7e-05,
       "tokens_per_response": null,
       "is_cost_estimated": true,
       "latency_p50_seconds": null,
@@ -4775,6 +5076,234 @@
     },
     {
       "rank": 7,
+      "config_id": "raw--gemini-2.5-flash-lite--tdefault--tplcurrent--46e46626",
+      "provider": "Gemini Flash Lite",
+      "model": "Gemini Flash Lite",
+      "provider_id": "raw",
+      "model_id": "google/gemini-2.5-flash-lite",
+      "dataset": "subpop",
+      "framework": "raw",
+      "sps": 0.776309,
+      "p_dist": 0.652958,
+      "p_rank": 0.696687,
+      "p_refuse": 0.979281,
+      "jsd": 0.347042,
+      "tau": 0.393374,
+      "n": 100,
+      "ci_lower": 0.746024,
+      "ci_upper": 0.803424,
+      "is_baseline": false,
+      "is_ensemble": false,
+      "samples_per_question": 15,
+      "topic_scores": {
+        "Economy & Work": 0.678098,
+        "General Attitudes": 0.682392,
+        "Health & Science": 0.692718,
+        "Identity & Demographics": 0.845662,
+        "International Relations & Security": 0.7295,
+        "Media & Information": 0.6038,
+        "Politics & Governance": 0.602432,
+        "Social Values & Religion": 0.605304,
+        "Technology & Digital Life": 0.735318
+      },
+      "topic_metrics": {
+        "Economy & Work": {
+          "sps": 0.678098,
+          "n": 13,
+          "p_dist": 0.629398,
+          "p_rank": 0.726799,
+          "p_refuse": 0.99193
+        },
+        "General Attitudes": {
+          "sps": 0.682392,
+          "n": 17,
+          "p_dist": 0.693366,
+          "p_rank": 0.671419,
+          "p_refuse": 0.931716
+        },
+        "Health & Science": {
+          "sps": 0.692718,
+          "n": 6,
+          "p_dist": 0.641181,
+          "p_rank": 0.744256,
+          "p_refuse": 0.994244
+        },
+        "Identity & Demographics": {
+          "sps": 0.845662,
+          "n": 1,
+          "p_dist": 0.837771,
+          "p_rank": 0.853554,
+          "p_refuse": 0.994858
+        },
+        "International Relations & Security": {
+          "sps": 0.7295,
+          "n": 15,
+          "p_dist": 0.711794,
+          "p_rank": 0.747206,
+          "p_refuse": 0.990671
+        },
+        "Media & Information": {
+          "sps": 0.6038,
+          "n": 1,
+          "p_dist": 0.5785,
+          "p_rank": 0.6291,
+          "p_refuse": 0.977544
+        },
+        "Politics & Governance": {
+          "sps": 0.602432,
+          "n": 4,
+          "p_dist": 0.584647,
+          "p_rank": 0.620217,
+          "p_refuse": 0.98068
+        },
+        "Social Values & Religion": {
+          "sps": 0.605304,
+          "n": 27,
+          "p_dist": 0.58707,
+          "p_rank": 0.623538,
+          "p_refuse": 0.984578
+        },
+        "Technology & Digital Life": {
+          "sps": 0.735318,
+          "n": 16,
+          "p_dist": 0.699793,
+          "p_rank": 0.770843,
+          "p_refuse": 0.993099
+        }
+      },
+      "demographic_scorecard": null,
+      "cost_usd": 0.016446,
+      "cost_per_100q": 0.016446,
+      "cost_per_sps_point": 0.021185,
+      "cost_per_response": 1.1e-05,
+      "tokens_per_response": 106.62,
+      "is_cost_estimated": false,
+      "latency_p50_seconds": 0.5617,
+      "latency_p95_seconds": 0.8425,
+      "sps_public": 0.64772,
+      "sps_private": 0.744514,
+      "sps_public_private_delta": 0.096794,
+      "verification_badge": "flagged",
+      "normalized_sps": 0.0,
+      "run_count": 1,
+      "dataset_coverage_count": 3
+    },
+    {
+      "rank": 8,
+      "config_id": "synthpanel--llama-3.3-70b-instruct--tdefault--tplcurrent--9d6e5c2c",
+      "provider": "SynthPanel (Llama 3.3 70B)",
+      "model": "SynthPanel (Llama 3.3 70B)",
+      "provider_id": "synthpanel",
+      "model_id": "meta-llama/llama-3.3-70b-instruct",
+      "dataset": "subpop",
+      "framework": "product",
+      "sps": 0.776128,
+      "p_dist": 0.637393,
+      "p_rank": 0.735174,
+      "p_refuse": 0.955818,
+      "jsd": 0.362607,
+      "tau": 0.470348,
+      "n": 100,
+      "ci_lower": 0.754211,
+      "ci_upper": 0.79593,
+      "is_baseline": false,
+      "is_ensemble": false,
+      "samples_per_question": 15,
+      "topic_scores": {
+        "Economy & Work": 0.676431,
+        "General Attitudes": 0.607722,
+        "Health & Science": 0.722003,
+        "Identity & Demographics": 0.505814,
+        "International Relations & Security": 0.702203,
+        "Media & Information": 0.50468,
+        "Politics & Governance": 0.772118,
+        "Social Values & Religion": 0.689715,
+        "Technology & Digital Life": 0.744822
+      },
+      "topic_metrics": {
+        "Economy & Work": {
+          "sps": 0.676431,
+          "n": 13,
+          "p_dist": 0.628634,
+          "p_rank": 0.724227,
+          "p_refuse": 0.96226
+        },
+        "General Attitudes": {
+          "sps": 0.607722,
+          "n": 17,
+          "p_dist": 0.592449,
+          "p_rank": 0.622995,
+          "p_refuse": 0.924292
+        },
+        "Health & Science": {
+          "sps": 0.722003,
+          "n": 6,
+          "p_dist": 0.68003,
+          "p_rank": 0.763975,
+          "p_refuse": 0.973386
+        },
+        "Identity & Demographics": {
+          "sps": 0.505814,
+          "n": 1,
+          "p_dist": 0.393776,
+          "p_rank": 0.617851,
+          "p_refuse": 0.994858
+        },
+        "International Relations & Security": {
+          "sps": 0.702203,
+          "n": 15,
+          "p_dist": 0.649443,
+          "p_rank": 0.754963,
+          "p_refuse": 0.982468
+        },
+        "Media & Information": {
+          "sps": 0.50468,
+          "n": 1,
+          "p_dist": 0.466327,
+          "p_rank": 0.543033,
+          "p_refuse": 0.977544
+        },
+        "Politics & Governance": {
+          "sps": 0.772118,
+          "n": 4,
+          "p_dist": 0.716245,
+          "p_rank": 0.82799,
+          "p_refuse": 0.98068
+        },
+        "Social Values & Religion": {
+          "sps": 0.689715,
+          "n": 27,
+          "p_dist": 0.614428,
+          "p_rank": 0.765002,
+          "p_refuse": 0.961806
+        },
+        "Technology & Digital Life": {
+          "sps": 0.744822,
+          "n": 16,
+          "p_dist": 0.709935,
+          "p_rank": 0.77971,
+          "p_refuse": 0.932387
+        }
+      },
+      "demographic_scorecard": null,
+      "cost_usd": 0.0355,
+      "cost_per_100q": 0.0355,
+      "cost_per_sps_point": 0.04574,
+      "cost_per_response": 2.4e-05,
+      "tokens_per_response": 166.04,
+      "is_cost_estimated": false,
+      "latency_p50_seconds": 9.3675,
+      "latency_p95_seconds": 18.7843,
+      "sps_public": 0.689315,
+      "sps_private": 0.678488,
+      "sps_public_private_delta": 0.010828,
+      "verification_badge": "verified",
+      "normalized_sps": 0.0,
+      "run_count": 1,
+      "dataset_coverage_count": 3
+    },
+    {
+      "rank": 9,
       "config_id": "raw--gpt-4o-mini--tdefault--tplcurrent--4dba4f5c",
       "provider": "GPT-4o-mini",
       "model": "GPT-4o-mini",
@@ -5052,7 +5581,7 @@
       "cost_usd": 0.0315,
       "cost_per_100q": 0.0315,
       "cost_per_sps_point": 0.040902,
-      "cost_per_response": 2.1e-5,
+      "cost_per_response": 2.1e-05,
       "tokens_per_response": null,
       "is_cost_estimated": true,
       "latency_p50_seconds": null,
@@ -5066,7 +5595,7 @@
       "dataset_coverage_count": 3
     },
     {
-      "rank": 8,
+      "rank": 10,
       "config_id": "raw--claude-haiku-4-5--tdefault--tplcurrent--5fc84438",
       "provider": "Claude Haiku 4.5",
       "model": "Claude Haiku 4.5",
@@ -5176,11 +5705,11 @@
       "sps_public_private_delta": 0.048215,
       "verification_badge": "verified",
       "normalized_sps": 0.0,
-      "run_count": 1,
+      "run_count": 2,
       "dataset_coverage_count": 3
     },
     {
-      "rank": 9,
+      "rank": 11,
       "config_id": "baseline--random-baseline--tdefault--tplcurrent--c53167f6",
       "provider": "Random Baseline",
       "model": "Random Baseline",
@@ -5293,7 +5822,7 @@
       "dataset_coverage_count": 4
     },
     {
-      "rank": 10,
+      "rank": 12,
       "config_id": "baseline--majority-baseline--tdefault--tplcurrent--bd8273b6",
       "provider": "Majority Baseline",
       "model": "Majority Baseline",
@@ -5482,6 +6011,18 @@
     {
       "model": "openrouter/anthropic/claude-haiku-4-5",
       "dataset": "opinionsqa",
+      "rep_count": 15,
+      "sps": 0.6438
+    },
+    {
+      "model": "openrouter/anthropic/claude-haiku-4-5",
+      "dataset": "opinionsqa",
+      "rep_count": 15,
+      "sps": 0.648
+    },
+    {
+      "model": "openrouter/anthropic/claude-haiku-4-5",
+      "dataset": "opinionsqa",
       "rep_count": 30,
       "sps": 0.7432
     },
@@ -5591,6 +6132,12 @@
       "model": "openrouter/google/gemini-2.5-flash",
       "dataset": "opinionsqa",
       "rep_count": 15,
+      "sps": 0.6357
+    },
+    {
+      "model": "openrouter/google/gemini-2.5-flash",
+      "dataset": "opinionsqa",
+      "rep_count": 15,
       "sps": 0.6839
     },
     {
@@ -5634,6 +6181,12 @@
       "dataset": "opinionsqa",
       "rep_count": 15,
       "sps": 0.6536
+    },
+    {
+      "model": "openrouter/meta-llama/llama-3.3-70b-instruct",
+      "dataset": "opinionsqa",
+      "rep_count": 15,
+      "sps": 0.6645
     },
     {
       "model": "openrouter/meta-llama/llama-3.3-70b-instruct",
@@ -5730,6 +6283,12 @@
       "dataset": "opinionsqa",
       "rep_count": 15,
       "sps": 0.6407
+    },
+    {
+      "model": "openrouter/openai/gpt-4o-mini",
+      "dataset": "opinionsqa",
+      "rep_count": 15,
+      "sps": 0.6483
     },
     {
       "model": "openrouter/openai/gpt-4o-mini",
@@ -24648,17 +25207,61 @@
         "Claude Sonnet 4.6",
         "GPT-4o-mini",
         "Gemini 2.5 Flash",
+        "Gemini Flash Lite",
         "Llama 3.3 70B"
       ],
       "matrix": [
-        [0.0, 0.335683, 0.27869, 0.269583, 0.311335],
-        [0.335683, 0.0, 0.324039, 0.326184, 0.275544],
-        [0.27869, 0.324039, 0.0, 0.277088, 0.21221],
-        [0.269583, 0.326184, 0.277088, 0.0, 0.282885],
-        [0.311335, 0.275544, 0.21221, 0.282885, 0.0]
+        [
+          0.0,
+          0.335683,
+          0.27869,
+          0.269583,
+          0.294958,
+          0.311335
+        ],
+        [
+          0.335683,
+          0.0,
+          0.324039,
+          0.326184,
+          0.314417,
+          0.275544
+        ],
+        [
+          0.27869,
+          0.324039,
+          0.0,
+          0.277088,
+          0.261902,
+          0.21221
+        ],
+        [
+          0.269583,
+          0.326184,
+          0.277088,
+          0.0,
+          0.187054,
+          0.282885
+        ],
+        [
+          0.294958,
+          0.314417,
+          0.261902,
+          0.187054,
+          0.0,
+          0.293885
+        ],
+        [
+          0.311335,
+          0.275544,
+          0.21221,
+          0.282885,
+          0.293885,
+          0.0
+        ]
       ],
-      "mean_cross_model_jsd": 0.289324,
-      "mean_human_jsd": 0.370146
+      "mean_cross_model_jsd": 0.28303,
+      "mean_human_jsd": 0.3612
     },
     "opinionsqa": {
       "models": [
@@ -24671,31 +25274,124 @@
         "Llama 3.3 70B"
       ],
       "matrix": [
-        [0.0, 0.254674, 0.29902, 0.303531, 0.297094, 0.309816, 0.273953],
-        [0.254674, 0.0, 0.336434, 0.402281, 0.354759, 0.403376, 0.379415],
-        [0.29902, 0.336434, 0.0, 0.161905, 0.219506, 0.228906, 0.229255],
-        [0.303531, 0.402281, 0.161905, 0.0, 0.219523, 0.195565, 0.204973],
-        [0.297094, 0.354759, 0.219506, 0.219523, 0.0, 0.218144, 0.254065],
-        [0.309816, 0.403376, 0.228906, 0.195565, 0.218144, 0.0, 0.342674],
-        [0.273953, 0.379415, 0.229255, 0.204973, 0.254065, 0.342674, 0.0]
+        [
+          0.0,
+          0.254674,
+          0.29902,
+          0.303531,
+          0.297094,
+          0.309816,
+          0.273953
+        ],
+        [
+          0.254674,
+          0.0,
+          0.336434,
+          0.402281,
+          0.354759,
+          0.403376,
+          0.379415
+        ],
+        [
+          0.29902,
+          0.336434,
+          0.0,
+          0.161905,
+          0.219506,
+          0.228906,
+          0.229255
+        ],
+        [
+          0.303531,
+          0.402281,
+          0.161905,
+          0.0,
+          0.219523,
+          0.195565,
+          0.204973
+        ],
+        [
+          0.297094,
+          0.354759,
+          0.219506,
+          0.219523,
+          0.0,
+          0.218144,
+          0.254065
+        ],
+        [
+          0.309816,
+          0.403376,
+          0.228906,
+          0.195565,
+          0.218144,
+          0.0,
+          0.342674
+        ],
+        [
+          0.273953,
+          0.379415,
+          0.229255,
+          0.204973,
+          0.254065,
+          0.342674,
+          0.0
+        ]
       ],
       "mean_cross_model_jsd": 0.280422,
       "mean_human_jsd": 0.297788
     },
     "subpop": {
-      "models": ["Claude Haiku 4.5", "GPT-4o-mini", "Gemini 2.5 Flash", "Llama 3.3 70B"],
-      "matrix": [
-        [0.0, 0.381428, 0.24479, 0.303028],
-        [0.381428, 0.0, 0.330614, 0.31692],
-        [0.24479, 0.330614, 0.0, 0.30062],
-        [0.303028, 0.31692, 0.30062, 0.0]
+      "models": [
+        "Claude Haiku 4.5",
+        "GPT-4o-mini",
+        "Gemini 2.5 Flash",
+        "Gemini Flash Lite",
+        "Llama 3.3 70B"
       ],
-      "mean_cross_model_jsd": 0.3129,
-      "mean_human_jsd": 0.357738
+      "matrix": [
+        [
+          0.0,
+          0.381428,
+          0.24479,
+          0.26794,
+          0.303028
+        ],
+        [
+          0.381428,
+          0.0,
+          0.330614,
+          0.291416,
+          0.31692
+        ],
+        [
+          0.24479,
+          0.330614,
+          0.0,
+          0.186912,
+          0.30062
+        ],
+        [
+          0.26794,
+          0.291416,
+          0.186912,
+          0.0,
+          0.360195
+        ],
+        [
+          0.303028,
+          0.31692,
+          0.30062,
+          0.360195,
+          0.0
+        ]
+      ],
+      "mean_cross_model_jsd": 0.298386,
+      "mean_human_jsd": 0.355599
     }
   },
   "pricing_snapshot": {
-    "generated_at": "2026-07-15T23:03:13.084987+00:00",
+    "generated_at": "2026-07-15T23:23:35.500321+00:00",
     "synth_panel_version": "1.5.7",
     "snapshot_date": "2026-05-10",
     "rates": {
