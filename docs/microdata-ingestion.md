@@ -57,6 +57,13 @@ them entirely.
 
 ## GSS setup
 
+> **Aggregate ground truth** (what `synthbench run --dataset gss` needs) is
+> built by [`scripts/ingest-gss.py`](../scripts/ingest-gss.py), which
+> downloads a NORC single-year STATA release and writes
+> `~/.synthbench/data/gss/raw/gss_aggregated.csv` plus the adapter cache.
+> The section below covers the separate per-respondent **microdata** path
+> used by the convergence pipeline.
+
 GSS microdata is publicly downloadable from NORC. The adapter expects a
 **long-form CSV** at:
 
