@@ -590,24 +590,34 @@ class TestRawResponsesValidator:
         assert any(i.code == "RAW_RESPONSES_EMPTY" for i in report.warnings)
 
     def test_mode_mismatch_warns(self, clean_submission):
-        """Selected option whose probability is well below the top and
-        outside sample-count noise must be flagged. Q_B has
-        ``model_distribution = {A:0.6, B:0.3, C:0.1}`` with n_samples=10
-        so the sampling-noise tolerance is ~0.316; picking ``C`` (gap
-        0.5) sits clearly outside that envelope."""
+        """A selected option that carries less than one sample's worth of
+        probability mass cannot have been drawn from the reported
+        distribution and must be flagged. Q_B has ``model_distribution =
+        {A:0.6, B:0.3, C:0.1}`` with n_samples=10; ``D`` is absent from
+        the distribution entirely — a clear arithmetic mismatch."""
         sub = _with_raw_and_repro(clean_submission)
-        sub["raw_responses"][1]["selected_option"] = "C"
+        sub["raw_responses"][1]["selected_option"] = "D"
         report = validate_submission(sub, tier3=True)
         assert any(i.code == "RAW_RESPONSES_MODE" for i in report.warnings)
 
     def test_mode_within_sampling_noise_not_flagged(self, clean_submission):
-        """A raw sample that picked the second option on a distribution
-        where the gap is within sampling noise must not trip
-        RAW_RESPONSES_MODE (sb-a613). Q_B's 0.6/0.3/0.1 split at
-        n_samples=10 puts ``B`` at a gap of 0.3, just inside the
-        ~1/sqrt(10) ≈ 0.316 tolerance band."""
+        """A raw sample that picked a minority option present in the
+        distribution must not trip RAW_RESPONSES_MODE (sb-a613): the
+        recorded sample is one stochastic draw, so any option carrying
+        at least ~1/n_samples of mass is legitimate. Q_B's 0.6/0.3/0.1
+        split at n_samples=10 makes ``B`` (0.3 >= 1/10) a valid draw."""
         sub = _with_raw_and_repro(clean_submission)
         sub["raw_responses"][1]["selected_option"] = "B"
+        report = validate_submission(sub, tier3=True)
+        assert not any(i.code == "RAW_RESPONSES_MODE" for i in report.warnings)
+
+    def test_mode_minority_pick_at_sample_floor_not_flagged(self, clean_submission):
+        """Even the lowest-mass option (C at 0.1 == 1/n_samples) is a
+        legitimate recorded draw — the runner preserves the FIRST
+        non-refusal sample, not the modal one, so exactly one count of
+        mass suffices (the shape that failed honest v2 subpop runs)."""
+        sub = _with_raw_and_repro(clean_submission)
+        sub["raw_responses"][1]["selected_option"] = "C"
         report = validate_submission(sub, tier3=True)
         assert not any(i.code == "RAW_RESPONSES_MODE" for i in report.warnings)
 
@@ -912,9 +922,10 @@ class TestSchemaVersionGraduation:
         """v2 submissions whose raw sample disagrees with model_distribution fail."""
         sub = _with_raw_and_repro(clean_submission)
         sub["schema_version"] = 2
-        # Q_B's distribution is {A:0.6, B:0.3, C:0.1}; pick "C" so the gap
-        # exceeds sample-noise tolerance and RAW_RESPONSES_MODE fires.
-        sub["raw_responses"][1]["selected_option"] = "C"
+        # Q_B's distribution is {A:0.6, B:0.3, C:0.1}; pick "D" (absent
+        # from the distribution — below one sample's worth of mass) so
+        # RAW_RESPONSES_MODE fires.
+        sub["raw_responses"][1]["selected_option"] = "D"
         report = validate_submission(sub, tier3=True)
         error_codes = {i.code for i in report.errors}
         assert "RAW_RESPONSES_MODE" in error_codes
@@ -930,7 +941,7 @@ class TestSchemaVersionGraduation:
     def test_v1_mode_desync_stays_warning(self, clean_submission):
         """A v1 submission with mode desync still only warns."""
         sub = _with_raw_and_repro(clean_submission)
-        sub["raw_responses"][1]["selected_option"] = "C"
+        sub["raw_responses"][1]["selected_option"] = "D"
         report = validate_submission(sub, tier3=True)
         assert report.ok, "v1 mode desync must NOT fail the run"
         assert any(i.code == "RAW_RESPONSES_MODE" for i in report.warnings)
