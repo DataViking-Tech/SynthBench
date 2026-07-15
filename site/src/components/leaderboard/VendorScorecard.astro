@@ -12,9 +12,11 @@
 // The component degrades when topic_metrics or demographic_scores are
 // missing — many providers don't yet publish demographic conditioning.
 
+import leaderboardRaw from "@/data/leaderboard.json";
 import type {
   DemographicScorecardDimension,
   LeaderboardEntry,
+  SynthBenchData,
   TopicMetricBreakdown,
 } from "@/types/leaderboard";
 
@@ -23,6 +25,25 @@ interface Props {
 }
 
 const { entries } = Astro.props as Props;
+
+// Ground-truth provenance per dataset (panel review: expert readers missed
+// that cells are scored against REAL human subgroup answers, not against a
+// model of the subgroup). Wire the citation from dataset_policies so the
+// statement stays in sync with `synthbench publish-data` output.
+const datasetCitations = new Map<string, string | null>(
+  ((leaderboardRaw as unknown as SynthBenchData).dataset_policies ?? []).map((p) => [
+    p.name,
+    p.citation,
+  ]),
+);
+
+// Below this n, a subgroup cell is rendered de-emphasized (no color grade,
+// explicit "low n" tag) instead of visually claiming the same rigor as
+// high-n cells. 30 mirrors the dataset-inclusion floor in DATASETS.md
+// ("≥ 30 respondents minimum — anything smaller makes the human distribution
+// itself noisier than the model signal"), and it cleanly separates the
+// current data (cells are n=20 or n=100).
+const LOW_N_THRESHOLD = 30;
 
 const rawBase = import.meta.env.BASE_URL || "/";
 const base = rawBase.endsWith("/") ? rawBase : `${rawBase}/`;
@@ -167,12 +188,66 @@ const cards: ScorecardView[] = sortedEntries.map((entry, idx) => {
 });
 
 const anyDemographic = cards.some((c) => c.dimensions.length > 0);
+
+// Ground-truth sources actually present on this page, for the statement box.
+const sourceLines = Array.from(new Set(cards.map((c) => c.entry.dataset)))
+  .sort()
+  .map((ds) => ({ dataset: ds, citation: datasetCitations.get(ds) ?? null }));
 ---
 
 <section
   class="vendor-scorecard w-full max-w-5xl mx-auto py-8 px-4 space-y-10"
   aria-label="Vendor subgroup scorecards"
 >
+  {cards.length > 0 && (
+    <div
+      class="rounded-lg border border-primary/30 bg-primary/5 p-4 text-sm"
+      data-ground-truth-statement
+    >
+      <p class="font-semibold">What each cell measures</p>
+      <p class="mt-1">
+        Each cell compares this vendor's synthetic responses against{" "}
+        <strong>real human respondents in that demographic subgroup</strong> —
+        published survey ground truth, not a model's guess about the subgroup.
+        Higher = closer to how that real subgroup actually answered.
+      </p>
+      <p class="mt-2 text-xs text-muted">
+        Demographic conditioning here is not stereotyping: every conditioned
+        score is checked against what real subgroup members said, not against
+        assumptions about them — and where the vendor's output diverges from
+        the real subgroup, the score drops.
+      </p>
+      {sourceLines.length > 0 && (
+        <ul class="mt-2 text-xs text-muted">
+          {sourceLines.map((s) => (
+            <li>
+              <span class="font-mono">{s.dataset}</span>
+              {s.citation ? <> — ground truth: {s.citation}</> : null}
+            </li>
+          ))}
+        </ul>
+      )}
+      <div class="mt-3 border-t border-muted/20 pt-2 text-xs text-muted space-y-1">
+        <p>
+          <span class="font-medium text-text dark:text-text-dark">Low-n cells:</span>{" "}
+          cells with n &lt; {LOW_N_THRESHOLD} are shown muted and tagged{" "}
+          <em>low n — suggestive only</em> instead of color-graded; they are
+          reported for transparency, not as findings.
+        </p>
+        <p>
+          <span class="font-medium text-text dark:text-text-dark">CIs:</span>{" "}
+          "no CI — single run" marks point estimates from a single run with no
+          confidence interval yet; treat the uncertainty as unknown, never zero.
+        </p>
+        <p>
+          <span class="font-medium text-text dark:text-text-dark">Multiple comparisons:</span>{" "}
+          with this many subgroup cells, a few extreme cells are expected by
+          chance alone — read patterns across a dimension, not single cells.
+        </p>
+      </div>
+    </div>
+  )}
+
   {cards.length === 0 ? (
     <div class="rounded-lg border border-default bg-surface p-8 text-center text-sm text-muted">
       No runs for this vendor.
@@ -257,7 +332,7 @@ const anyDemographic = cards.some((c) => c.dimensions.length > 0);
                       <th class="px-3 py-2 text-left font-medium" scope="col">Dimension</th>
                       <th class="px-3 py-2 text-left font-medium" scope="col">Subgroup</th>
                       <th class="px-3 py-2 text-right font-medium" scope="col" title="Subgroup score: distributional parity (p_dist) restricted to this subgroup">Score</th>
-                      <th class="px-3 py-2 text-right font-medium" scope="col" title="95% CI on the subgroup score. — means not yet computable (point estimates only today); treat as unknown, never zero.">95% CI</th>
+                      <th class="px-3 py-2 text-right font-medium" scope="col" title="95% CI on the subgroup score. 'no CI — single run' means only a point estimate exists today; treat the uncertainty as unknown, never zero.">95% CI</th>
                       <th class="px-3 py-2 text-right font-medium" scope="col" title="Conditioning strength: how much the score moves vs. the unconditioned baseline">p_cond</th>
                       <th class="px-3 py-2 text-right font-medium" scope="col" title="Questions answered with this subgroup conditioning">N</th>
                       <th class="px-3 py-2 text-center font-medium" scope="col" title="Coverage flag derived from N: ≥100 high, 50–99 medium, <50 low">Cov.</th>
@@ -267,6 +342,7 @@ const anyDemographic = cards.some((c) => c.dimensions.length > 0);
                     {card.dimensions.map((dim) => (
                       dim.groups.map((g, i) => {
                         const cov = coverage(g.n);
+                        const lowN = g.n < LOW_N_THRESHOLD;
                         return (
                           <tr class="border-b border-muted/10 last:border-b-0">
                             {i === 0 ? (
@@ -280,11 +356,30 @@ const anyDemographic = cards.some((c) => c.dimensions.length > 0);
                               </th>
                             ) : null}
                             <td class="px-3 py-2">{g.group}</td>
-                            <td class="px-3 py-2 text-right font-mono" style={scoreGradient(g.score)}>{fmt3(g.score)}</td>
+                            {lowN ? (
+                              <td
+                                class="px-3 py-2 text-right font-mono text-muted"
+                                title={`Only ${g.n} questions under this conditioning — below the n=${LOW_N_THRESHOLD} display threshold, so this cell is not color-graded. Suggestive only.`}
+                              >
+                                {fmt3(g.score)}
+                                <span class="ml-1 inline-block rounded bg-muted/15 px-1 py-0.5 font-sans text-[10px] uppercase tracking-wide align-middle whitespace-nowrap">
+                                  low n — suggestive only
+                                </span>
+                              </td>
+                            ) : (
+                              <td class="px-3 py-2 text-right font-mono" style={scoreGradient(g.score)}>{fmt3(g.score)}</td>
+                            )}
                             <td class="px-3 py-2 text-right font-mono text-muted">
-                              {g.ci_lower != null && g.ci_upper != null
-                                ? `[${g.ci_lower.toFixed(3)}, ${g.ci_upper.toFixed(3)}]`
-                                : "—"}
+                              {g.ci_lower != null && g.ci_upper != null ? (
+                                `[${g.ci_lower.toFixed(3)}, ${g.ci_upper.toFixed(3)}]`
+                              ) : (
+                                <span
+                                  class="font-sans italic whitespace-nowrap"
+                                  title="No confidence interval yet — this is a point estimate from a single run. Treat the uncertainty as unknown, never zero."
+                                >
+                                  no CI — single run
+                                </span>
+                              )}
                             </td>
                             <td class="px-3 py-2 text-right font-mono text-muted">{fmt3(g.p_cond)}</td>
                             <td class="px-3 py-2 text-right font-mono text-muted">{g.n}</td>

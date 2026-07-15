@@ -28,6 +28,18 @@ const generatedAtLabel =
     : null;
 const nEntries = leaderboard.entries.length;
 const nExcluded = leaderboard.excluded_runs?.length ?? 0;
+
+// "Reproduce this yourself" (executive-panel residual: "open code" is not the
+// same as "someone verified it" in a buyer's head — one-command replication
+// is the honest bridge). Command verified against the actual CLI: the PyPI
+// name `synthbench` belongs to an unrelated project, so install from the
+// repo; `[subpop]` pulls the HF datasets extra the subpop adapter needs.
+const reproduceCommands = [
+  'pip install "synthbench[subpop] @ git+https://github.com/DataViking-Tech/SynthBench.git"',
+  "synthbench run --provider <yours> --dataset subpop --samples 30",
+  "synthbench validate results/<your-run>.json",
+  "synthbench compare results/<your-run>.json <any-published-run>.json",
+].join("\n");
 ---
 
 <BaseLayout title="Leaderboard - SynthBench">
@@ -70,6 +82,59 @@ const nExcluded = leaderboard.excluded_runs?.length ?? 0;
         class="underline decoration-dotted hover:text-primary">JSON API</a
       >
     </p>
+
+    <div
+      class="mt-6 mx-auto max-w-3xl rounded-lg border border-primary/30 bg-primary/5 p-4 text-left"
+      data-reproduce-box
+    >
+      <p class="text-sm font-semibold">Reproduce this yourself</p>
+      <p class="mt-1 text-sm text-muted">
+        Every number on this page is recomputed from per-question data at
+        publish; the scoring code and public-tier data are open.
+        <strong class="text-text dark:text-text-dark">Don't trust us — re-run it:</strong>
+      </p>
+      <div class="relative mt-3">
+        <pre
+          class="rounded border border-muted/20 bg-surface dark:bg-surface-dark p-3 pr-12 text-xs font-mono overflow-x-auto"><code>{reproduceCommands}</code></pre>
+        <button
+          type="button"
+          id="copy-reproduce"
+          class="absolute top-2 right-2 rounded-md p-1.5 text-muted hover:text-text dark:hover:text-text-dark"
+          aria-label="Copy commands"
+          data-commands={reproduceCommands}
+        >
+          <svg
+            class="size-4"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke-width="1.5"
+            stroke="currentColor"
+            aria-hidden="true"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="M15.666 3.888A2.25 2.25 0 0013.5 2.25h-3c-1.03 0-1.9.693-2.166 1.638m7.332 0c.055.194.084.4.084.612v0a.75.75 0 01-.75.75H9.75a.75.75 0 01-.75-.75v0c0-.212.03-.418.084-.612m7.332 0c.646.049 1.288.11 1.927.184 1.1.128 1.907 1.077 1.907 2.185V19.5a2.25 2.25 0 01-2.25 2.25H6.75A2.25 2.25 0 014.5 19.5V6.257c0-1.108.806-2.057 1.907-2.185a48.208 48.208 0 011.927-.184"
+            ></path>
+          </svg>
+        </button>
+      </div>
+      <p class="mt-2 text-xs text-muted">
+        <code>run</code> benchmarks your provider against the same public
+        ground truth, <code>validate</code> re-checks the artifact against the
+        integrity rules, and <code>compare</code> runs a paired bootstrap
+        significance test against any published run. Machine-readable data:{" "}
+        <a
+          href={`${base}data/leaderboard.json`}
+          class="underline decoration-dotted hover:text-primary">JSON API</a
+        >
+        {" · "}
+        <a
+          href="https://github.com/DataViking-Tech/SynthBench/blob/main/docs/leaderboard-json-api.md"
+          class="underline decoration-dotted hover:text-primary">API contract</a
+        >
+      </p>
+    </div>
   </div>
 
   <div class="w-full max-w-5xl mx-auto px-4 space-y-4">
@@ -87,3 +152,16 @@ const nExcluded = leaderboard.excluded_runs?.length ?? 0;
     <WhiskerPlot />
   </div>
 </BaseLayout>
+
+<script>
+  const copyBtn = document.getElementById("copy-reproduce");
+  if (copyBtn) {
+    copyBtn.addEventListener("click", () => {
+      const text = copyBtn.dataset.commands ?? "";
+      navigator.clipboard.writeText(text).then(() => {
+        copyBtn.setAttribute("aria-label", "Copied!");
+        setTimeout(() => copyBtn.setAttribute("aria-label", "Copy commands"), 2000);
+      });
+    });
+  }
+</script>

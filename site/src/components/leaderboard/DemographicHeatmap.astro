@@ -118,10 +118,18 @@ const defaultAttribute = heatmaps[0]?.attribute ?? "";
 
 <section class="w-full max-w-5xl mx-auto py-8 px-4">
   <h2 class="text-2xl font-bold text-center mb-2">Demographic Parity Heatmap</h2>
-  <p class="text-center text-sm text-muted mb-6 max-w-3xl mx-auto">
+  <p class="text-center text-sm text-muted mb-2 max-w-3xl mx-auto">
     Models × demographic groups, colored by <code class="text-xs">p_dist</code> (distribution
     similarity — higher = closer match to the conditioned subpopulation). Use the selector to
     drill into a specific attribute.
+  </p>
+  <p class="text-center text-sm mb-6 max-w-3xl mx-auto" data-ground-truth-statement>
+    Each cell compares a model's synthetic responses against{" "}
+    <strong>real human respondents in that demographic subgroup</strong> (e.g.
+    SubPOP / Pew American Trends Panel ground truth). Higher = closer to how
+    that real subgroup actually answered — conditioning is scored against what
+    real subgroup members said, not against assumptions, and where a model
+    diverges from the real subgroup its score drops.
   </p>
 
   {hasAnyData ? (
@@ -159,6 +167,12 @@ const defaultAttribute = heatmaps[0]?.attribute ?? "";
         <span class="inline-block w-2 h-2 rounded-full bg-emerald-500 align-middle ml-2 mr-1"></span>high (≥100)
         <span class="inline-block w-2 h-2 rounded-full bg-amber-500 align-middle ml-3 mr-1"></span>medium (50–99)
         <span class="inline-block w-2 h-2 rounded-full bg-rose-500 align-middle ml-3 mr-1"></span>low (&lt;50)
+      </p>
+      <p class="mt-2 text-xs text-muted text-center max-w-3xl mx-auto">
+        Cells with n &lt; 30 are suggestive only — too few questions to carry a
+        color-graded conclusion. And with this many cells, a few extremes are
+        expected by chance alone: read patterns across an attribute, not
+        single cells.
       </p>
     </>
   ) : (
@@ -199,7 +213,8 @@ const defaultAttribute = heatmaps[0]?.attribute ?? "";
   function coverageLabel(n: number): { text: string; color: string } {
     if (n >= 100) return { text: "high", color: "#10b981" };
     if (n >= 50) return { text: "medium", color: "#f59e0b" };
-    return { text: "low", color: "#f43f5e" };
+    if (n >= 30) return { text: "low", color: "#f43f5e" };
+    return { text: "low n — suggestive only", color: "#f43f5e" };
   }
 
   function buildOption(heatmap: AttributeHeatmap, isDark: boolean) {
