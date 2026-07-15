@@ -1186,37 +1186,44 @@ def _validate_raw_responses(data: Mapping[str, Any]) -> list[Issue]:
                 )
             )
 
-        # Mode-agreement: the selected option must be plausibly sampled
-        # given the reported model_distribution. At s=n_samples the
-        # argmax is only reliable when it leads by more than binomial
-        # sampling noise — roughly 1/sqrt(s). A distribution like
-        # {A:6/15, B:5/15, C:4/15} has top={A} but any of B or C is a
-        # legitimate raw sample (sb-a613). Flag only when the selected
-        # option's probability is substantially below the top, accounting
-        # for sample-count resolution. Any option that didn't appear in
-        # the distribution at all is still a clear arithmetic mismatch.
+        # Sample-consistency: the recorded raw sample is ONE stochastic draw
+        # (the runner preserves the first non-refusal sample as the audit
+        # trail — see BenchmarkRunner._collect_samples_with_refusals), so
+        # *any* option that actually received samples is a legitimate value
+        # no matter how far below the mode it sits. The earlier gap-vs-top
+        # heuristic (sb-a613) guaranteed false positives at typical sample
+        # counts: at s=15 a fair share of questions record a first draw more
+        # than 1/sqrt(15) below the top, so an honest 100-question v2 run
+        # failed validation almost surely once RAW_RESPONSES_MODE graduated
+        # to ERROR (sb-88fw). The sound invariant is arithmetic: a recorded
+        # sample contributes at least one count, so its option must carry at
+        # least ~1/n_samples of the distribution's mass. Anything below that
+        # (or absent entirely) cannot have been drawn from the reported
+        # distribution and is flagged.
         dist = model_dist_by_key.get(key)
         if dist is not None and isinstance(selected, str) and dist:
             numeric_items = [
                 (opt, float(val)) for opt, val in dist.items() if _is_number(val)
             ]
             if numeric_items:
-                top = max(p for _, p in numeric_items)
                 selected_p: float | None = next(
                     (p for opt, p in numeric_items if opt == selected), None
                 )
                 n_samp = n_samples_by_key.get(key)
                 if n_samp and n_samp > 0:
-                    tolerance = 1.0 / math.sqrt(n_samp)
+                    min_plausible = 1.0 / n_samp
                 else:
-                    # Unknown / missing n_samples: use a generous default
-                    # equivalent to s=16. Keeps the check firing on
-                    # large, clearly-fabricated gaps without requiring
-                    # every submission to carry n_samples.
-                    tolerance = 0.25
+                    # Unknown / missing n_samples: assume a generous s=100
+                    # so the check still catches options with essentially
+                    # zero mass without requiring every submission to
+                    # carry n_samples.
+                    min_plausible = 0.01
 
-                if selected_p is None or (top - selected_p) > tolerance + 1e-6:
-                    top_opts = {opt for opt, p in numeric_items if abs(p - top) <= 1e-6}
+                # 1e-3 slack: published distributions round probabilities
+                # (e.g. 1/11 stored as 0.0909), which must not read as
+                # "below one count". A fabricated option sits at 0 or is
+                # absent — far outside this slack.
+                if selected_p is None or selected_p + 1e-3 < min_plausible:
                     issues.append(
                         Issue(
                             code="RAW_RESPONSES_MODE",
@@ -1224,9 +1231,10 @@ def _validate_raw_responses(data: Mapping[str, Any]) -> list[Issue]:
                             message=(
                                 f"selected_option {selected!r} probability "
                                 f"{selected_p if selected_p is not None else 'absent'} "
-                                f"is more than {tolerance:.3f} below top "
-                                f"{top:.4f} (top set {sorted(top_opts)}) in "
-                                f"model_distribution for {key}"
+                                f"is below one sample's worth of mass "
+                                f"({min_plausible:.4f}) in model_distribution "
+                                f"for {key} — the recorded sample cannot have "
+                                f"been drawn from the reported distribution"
                             ),
                             path=f"raw_responses[{idx}].selected_option",
                         )
