@@ -1,7 +1,7 @@
 {
-  "generated_at": "2026-07-14T23:58:54.967577+00:00",
+  "generated_at": "2026-07-15T23:03:13.082426+00:00",
   "synthbench_version": "0.1.0",
-  "datasets": ["globalopinionqa", "opinionsqa", "subpop"],
+  "datasets": ["globalopinionqa", "gss", "opinionsqa", "subpop"],
   "entries": [
     {
       "rank": 1,
@@ -293,7 +293,7 @@
       "verification_badge": "flagged",
       "normalized_sps": 0.0,
       "run_count": 1,
-      "dataset_coverage_count": 3
+      "dataset_coverage_count": 4
     },
     {
       "rank": 4,
@@ -872,7 +872,7 @@
       "verification_badge": "verified",
       "normalized_sps": 0.0,
       "run_count": 3,
-      "dataset_coverage_count": 3
+      "dataset_coverage_count": 4
     },
     {
       "rank": 10,
@@ -945,7 +945,7 @@
       "sps_public_private_delta": 0.052287,
       "verification_badge": "flagged",
       "run_count": 1,
-      "dataset_coverage_count": 3
+      "dataset_coverage_count": 4
     },
     {
       "rank": 11,
@@ -1043,6 +1043,297 @@
       "verification_badge": "verified",
       "run_count": 1,
       "dataset_coverage_count": 3
+    },
+    {
+      "rank": 1,
+      "config_id": "raw--gemini-2.5-flash--tdefault--tplcurrent--2d09bedc",
+      "provider": "Gemini 2.5 Flash",
+      "model": "Gemini 2.5 Flash",
+      "provider_id": "raw",
+      "model_id": "google/gemini-2.5-flash",
+      "dataset": "gss",
+      "framework": "raw",
+      "sps": 0.789363,
+      "p_dist": 0.699322,
+      "p_rank": 0.69716,
+      "p_refuse": 0.971606,
+      "jsd": 0.300678,
+      "tau": 0.394319,
+      "n": 75,
+      "ci_lower": 0.759702,
+      "ci_upper": 0.816261,
+      "is_baseline": false,
+      "is_ensemble": false,
+      "samples_per_question": 30,
+      "topic_scores": {
+        "Economy & Work": 0.690078,
+        "General Attitudes": 0.651467,
+        "Health & Science": 0.883422,
+        "International Relations & Security": 0.652706,
+        "Politics & Governance": 0.771624,
+        "Social Values & Religion": 0.77963,
+        "Trust & Wellbeing": 0.642503
+      },
+      "topic_metrics": {
+        "Economy & Work": {
+          "sps": 0.690078,
+          "n": 4,
+          "p_dist": 0.661755,
+          "p_rank": 0.718401,
+          "p_refuse": 0.981009
+        },
+        "General Attitudes": {
+          "sps": 0.651467,
+          "n": 10,
+          "p_dist": 0.582447,
+          "p_rank": 0.720488,
+          "p_refuse": 0.960041
+        },
+        "Health & Science": {
+          "sps": 0.883422,
+          "n": 2,
+          "p_dist": 0.858595,
+          "p_rank": 0.908249,
+          "p_refuse": 0.967101
+        },
+        "International Relations & Security": {
+          "sps": 0.652706,
+          "n": 33,
+          "p_dist": 0.696953,
+          "p_rank": 0.608459,
+          "p_refuse": 0.973605
+        },
+        "Politics & Governance": {
+          "sps": 0.771624,
+          "n": 9,
+          "p_dist": 0.765827,
+          "p_rank": 0.777422,
+          "p_refuse": 0.975233
+        },
+        "Social Values & Religion": {
+          "sps": 0.77963,
+          "n": 14,
+          "p_dist": 0.738258,
+          "p_rank": 0.821001,
+          "p_refuse": 0.975114
+        },
+        "Trust & Wellbeing": {
+          "sps": 0.642503,
+          "n": 3,
+          "p_dist": 0.677656,
+          "p_rank": 0.607349,
+          "p_refuse": 0.951376
+        }
+      },
+      "demographic_scorecard": null,
+      "cost_usd": 0.080309,
+      "cost_per_100q": 0.107078,
+      "cost_per_sps_point": 0.101739,
+      "cost_per_response": 3.6e-5,
+      "tokens_per_response": 111.45,
+      "is_cost_estimated": false,
+      "latency_p50_seconds": 1.2907,
+      "latency_p95_seconds": 2.909,
+      "sps_public": 0.69957,
+      "sps_private": 0.692925,
+      "sps_public_private_delta": 0.006645,
+      "verification_badge": "verified",
+      "run_count": 1,
+      "dataset_coverage_count": 4
+    },
+    {
+      "rank": 2,
+      "config_id": "baseline--random-baseline--tdefault--tplcurrent--2ad2dd26",
+      "provider": "Random Baseline",
+      "model": "Random Baseline",
+      "provider_id": "baseline",
+      "model_id": "random-baseline",
+      "dataset": "gss",
+      "framework": "baseline",
+      "sps": 0.73538,
+      "p_dist": 0.816904,
+      "p_rank": 0.417184,
+      "p_refuse": 0.972051,
+      "jsd": 0.183096,
+      "tau": -0.165631,
+      "n": 75,
+      "ci_lower": 0.7155,
+      "ci_upper": 0.755649,
+      "is_baseline": true,
+      "is_ensemble": false,
+      "samples_per_question": 30,
+      "topic_scores": {
+        "Economy & Work": 0.626707,
+        "General Attitudes": 0.589832,
+        "Health & Science": 0.692258,
+        "International Relations & Security": 0.637276,
+        "Politics & Governance": 0.598582,
+        "Social Values & Religion": 0.584102,
+        "Trust & Wellbeing": 0.631294
+      },
+      "topic_metrics": {
+        "Economy & Work": {
+          "sps": 0.626707,
+          "n": 4,
+          "p_dist": 0.804031,
+          "p_rank": 0.449382,
+          "p_refuse": 0.981009
+        },
+        "General Attitudes": {
+          "sps": 0.589832,
+          "n": 10,
+          "p_dist": 0.828118,
+          "p_rank": 0.351546,
+          "p_refuse": 0.960041
+        },
+        "Health & Science": {
+          "sps": 0.692258,
+          "n": 2,
+          "p_dist": 0.801183,
+          "p_rank": 0.583333,
+          "p_refuse": 0.967101
+        },
+        "International Relations & Security": {
+          "sps": 0.637276,
+          "n": 33,
+          "p_dist": 0.829033,
+          "p_rank": 0.44552,
+          "p_refuse": 0.973605
+        },
+        "Politics & Governance": {
+          "sps": 0.598582,
+          "n": 9,
+          "p_dist": 0.798491,
+          "p_rank": 0.398673,
+          "p_refuse": 0.975233
+        },
+        "Social Values & Religion": {
+          "sps": 0.584102,
+          "n": 14,
+          "p_dist": 0.796667,
+          "p_rank": 0.371537,
+          "p_refuse": 0.977495
+        },
+        "Trust & Wellbeing": {
+          "sps": 0.631294,
+          "n": 3,
+          "p_dist": 0.823446,
+          "p_rank": 0.439142,
+          "p_refuse": 0.951376
+        }
+      },
+      "demographic_scorecard": null,
+      "cost_usd": 0.0,
+      "cost_per_100q": 0.0,
+      "cost_per_sps_point": 0.0,
+      "cost_per_response": null,
+      "tokens_per_response": null,
+      "is_cost_estimated": false,
+      "latency_p50_seconds": 0.0001,
+      "latency_p95_seconds": 0.0002,
+      "sps_public": 0.62967,
+      "sps_private": 0.56654,
+      "sps_public_private_delta": 0.06313,
+      "verification_badge": "flagged",
+      "run_count": 1,
+      "dataset_coverage_count": 4
+    },
+    {
+      "rank": 3,
+      "config_id": "synthpanel--claude-haiku-4-5--tdefault--tplcurrent--776efb01",
+      "provider": "SynthPanel (Haiku 4.5)",
+      "model": "SynthPanel (Haiku 4.5)",
+      "provider_id": "synthpanel",
+      "model_id": "anthropic/claude-haiku-4-5",
+      "dataset": "gss",
+      "framework": "product",
+      "sps": 0.709263,
+      "p_dist": 0.731949,
+      "p_rank": 0.719347,
+      "p_refuse": 0.676491,
+      "jsd": 0.268051,
+      "tau": 0.438695,
+      "n": 75,
+      "ci_lower": 0.666005,
+      "ci_upper": 0.74864,
+      "is_baseline": false,
+      "is_ensemble": false,
+      "samples_per_question": 30,
+      "topic_scores": {
+        "Economy & Work": 0.748948,
+        "General Attitudes": 0.692397,
+        "Health & Science": 0.516738,
+        "International Relations & Security": 0.754893,
+        "Politics & Governance": 0.713289,
+        "Social Values & Religion": 0.736006,
+        "Trust & Wellbeing": 0.611732
+      },
+      "topic_metrics": {
+        "Economy & Work": {
+          "sps": 0.748948,
+          "n": 4,
+          "p_dist": 0.735278,
+          "p_rank": 0.762619,
+          "p_refuse": 0.715411
+        },
+        "General Attitudes": {
+          "sps": 0.692397,
+          "n": 10,
+          "p_dist": 0.694181,
+          "p_rank": 0.690614,
+          "p_refuse": 0.697332
+        },
+        "Health & Science": {
+          "sps": 0.516738,
+          "n": 2,
+          "p_dist": 0.533477,
+          "p_rank": 0.5,
+          "p_refuse": 0.749567
+        },
+        "International Relations & Security": {
+          "sps": 0.754893,
+          "n": 33,
+          "p_dist": 0.743916,
+          "p_rank": 0.765871,
+          "p_refuse": 0.686719
+        },
+        "Politics & Governance": {
+          "sps": 0.713289,
+          "n": 9,
+          "p_dist": 0.782261,
+          "p_rank": 0.644318,
+          "p_refuse": 0.561804
+        },
+        "Social Values & Religion": {
+          "sps": 0.736006,
+          "n": 14,
+          "p_dist": 0.737557,
+          "p_rank": 0.734454,
+          "p_refuse": 0.700399
+        },
+        "Trust & Wellbeing": {
+          "sps": 0.611732,
+          "n": 3,
+          "p_dist": 0.676973,
+          "p_rank": 0.546492,
+          "p_refuse": 0.626402
+        }
+      },
+      "demographic_scorecard": null,
+      "cost_usd": 1.67708,
+      "cost_per_100q": 2.236107,
+      "cost_per_sps_point": 2.364539,
+      "cost_per_response": 0.000745,
+      "tokens_per_response": 259.08,
+      "is_cost_estimated": false,
+      "latency_p50_seconds": 24.8979,
+      "latency_p95_seconds": 94.3863,
+      "sps_public": 0.736854,
+      "sps_private": 0.680825,
+      "sps_public_private_delta": 0.056029,
+      "verification_badge": "flagged",
+      "run_count": 1,
+      "dataset_coverage_count": 4
     },
     {
       "rank": 1,
@@ -1284,7 +1575,7 @@
       "verification_badge": "verified",
       "normalized_sps": 0.0,
       "run_count": 3,
-      "dataset_coverage_count": 3
+      "dataset_coverage_count": 4
     },
     {
       "rank": 3,
@@ -1528,7 +1819,7 @@
       "verification_badge": "verified",
       "normalized_sps": 0.07409,
       "run_count": 15,
-      "dataset_coverage_count": 3
+      "dataset_coverage_count": 4
     },
     {
       "rank": 5,
@@ -2503,7 +2794,7 @@
       "sps_public_private_delta": 0.019515,
       "verification_badge": "verified",
       "run_count": 15,
-      "dataset_coverage_count": 3
+      "dataset_coverage_count": 4
     },
     {
       "rank": 13,
@@ -3588,7 +3879,7 @@
       "verification_badge": "verified",
       "normalized_sps": 0.179548,
       "run_count": 4,
-      "dataset_coverage_count": 3
+      "dataset_coverage_count": 4
     },
     {
       "rank": 4,
@@ -4480,7 +4771,7 @@
       "verification_badge": "verified",
       "normalized_sps": 0.0,
       "run_count": 2,
-      "dataset_coverage_count": 3
+      "dataset_coverage_count": 4
     },
     {
       "rank": 7,
@@ -4999,7 +5290,7 @@
       "sps_public_private_delta": 0.007889,
       "verification_badge": "verified",
       "run_count": 1,
-      "dataset_coverage_count": 3
+      "dataset_coverage_count": 4
     },
     {
       "rank": 10,
@@ -5311,6 +5602,12 @@
     {
       "model": "openrouter/google/gemini-2.5-flash",
       "dataset": "opinionsqa",
+      "rep_count": 30,
+      "sps": 0.6982
+    },
+    {
+      "model": "openrouter/google/gemini-2.5-flash",
+      "dataset": "opinionsqa",
       "rep_count": 50,
       "sps": 0.7306
     },
@@ -5583,6 +5880,12 @@
       "dataset": "opinionsqa",
       "rep_count": 30,
       "sps": 0.6446
+    },
+    {
+      "model": "synthpanel/openrouter/anthropic/claude-haiku-4-5",
+      "dataset": "opinionsqa",
+      "rep_count": 30,
+      "sps": 0.7256
     },
     {
       "model": "synthpanel/openrouter/anthropic/claude-haiku-4-5",
@@ -24392,7 +24695,7 @@
     }
   },
   "pricing_snapshot": {
-    "generated_at": "2026-07-14T23:58:54.970996+00:00",
+    "generated_at": "2026-07-15T23:03:13.084987+00:00",
     "synth_panel_version": "1.5.7",
     "snapshot_date": "2026-05-10",
     "rates": {
