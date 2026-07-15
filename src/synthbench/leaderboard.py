@@ -49,6 +49,10 @@ MODEL_MAP: dict[str, tuple[str, str]] = {
         "SynthPanel (Sonnet 4)",
         "product",
     ),
+    "synthpanel/openrouter/meta-llama/llama-3.3-70b-instruct": (
+        "SynthPanel (Llama 3.3 70B)",
+        "product",
+    ),
     "synthpanel/gpt-4o-mini": ("SynthPanel (GPT-4o-mini)", "product"),
     # Ensemble
     "ensemble/3-model-blend": ("SynthPanel Ensemble (3-model)", "product"),
