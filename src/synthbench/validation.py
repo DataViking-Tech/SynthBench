@@ -238,6 +238,12 @@ REQUIRED_PER_QUESTION = (
     "kendall_tau",
 )
 
+# Allowed values for the optional ``config.effort`` reasoning-effort tag.
+# Kept in sync with synthbench.providers.base.EFFORT_LEVELS — duplicated
+# here (rather than imported) so tier-1 validation stays importable without
+# pulling in provider modules.
+ALLOWED_EFFORT_LEVELS = frozenset({"low", "medium", "high"})
+
 
 def _is_number(x: Any) -> bool:
     return isinstance(x, (int, float)) and not isinstance(x, bool)
@@ -311,6 +317,24 @@ def _validate_schema(data: Any) -> list[Issue]:
                         path=f"config.{key}",
                     )
                 )
+        # Optional reasoning-effort tag: absent = provider default (valid);
+        # when present it must be one of the known levels. An unknown value
+        # would flow into config_id hashing and leaderboard display as
+        # unverifiable metadata, so reject it at the schema gate.
+        effort = config.get("effort")
+        if effort is not None and effort not in ALLOWED_EFFORT_LEVELS:
+            issues.append(
+                Issue(
+                    code="SCHEMA_ENUM",
+                    severity=Severity.ERROR,
+                    message=(
+                        f"config.effort must be one of "
+                        f"{sorted(ALLOWED_EFFORT_LEVELS)} when present "
+                        f"(got {effort!r})"
+                    ),
+                    path="config.effort",
+                )
+            )
     elif config is not None:
         issues.append(
             Issue(

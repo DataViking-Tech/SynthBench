@@ -79,6 +79,7 @@ const base = rawBase.endsWith("/") ? rawBase : `${rawBase}/`;
         <div><dt class="text-muted">Display name</dt><dd data-field="display_name">—</dd></div>
         <div><dt class="text-muted">Dataset</dt><dd data-field="dataset">—</dd></div>
         <div><dt class="text-muted">Temperature</dt><dd data-field="temperature">—</dd></div>
+        <div><dt class="text-muted">Reasoning effort</dt><dd data-field="effort">—</dd></div>
         <div><dt class="text-muted">Template</dt><dd data-field="template">—</dd></div>
         <div><dt class="text-muted">Samples / question</dt><dd data-field="samples_per_question">—</dd></div>
         <div><dt class="text-muted">First replicate</dt><dd data-field="first_replicate">—</dd></div>
@@ -244,6 +245,7 @@ const base = rawBase.endsWith("/") ? rawBase : `${rawBase}/`;
     setField(card, "display_name", data.display_name || "—");
     setField(card, "dataset", data.dataset || "—");
     setField(card, "temperature", data.temperature === null ? "—" : String(data.temperature));
+    setField(card, "effort", data.effort ?? "—");
     setField(card, "template", data.template || "—");
     setField(
       card,

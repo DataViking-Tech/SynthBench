@@ -101,6 +101,10 @@ const questionBaseUrl = `${base}/question/${encodePathSegment(entry.dataset)}`;
           <dd class="font-mono">{entry.temperature ?? "default"}</dd>
         </div>
         <div>
+          <dt class="text-xs text-muted">Reasoning effort</dt>
+          <dd class="font-mono">{entry.effort ?? "default"}</dd>
+        </div>
+        <div>
           <dt class="text-xs text-muted">Template</dt>
           <dd class="font-mono">{entry.template ?? "current"}</dd>
         </div>

@@ -3,8 +3,9 @@
 Turns raw provider strings like
 ``synthpanel/openrouter/anthropic/claude-haiku-4-5 t=0.85 tpl=current``
 into a structured record (framework / base_provider / model / knobs) and a
-stable slug ``framework--model--t<temp>--tpl<name>--<hash8>`` suitable for
-use as a URL path segment.
+stable slug ``framework--model--t<temp>--tpl<name>[--eff<level>]--<hash8>``
+suitable for use as a URL path segment (the ``eff`` segment appears only
+when the run set a reasoning-effort level).
 
 Hash collisions are unlikely but protected against by including every
 distinguishing field (dataset, samples_per_question, question_set_hash,
@@ -307,12 +308,25 @@ def _hash_canonical(payload: dict[str, Any]) -> str:
     return hashlib.sha256(serialized.encode("utf-8")).hexdigest()[:8]
 
 
+def _format_effort(effort: str | None) -> str:
+    """Render the reasoning-effort portion of the slug.
+
+    ``'high' → 'effhigh'``. Returns ``""`` when effort is absent — the
+    segment is omitted entirely so pre-effort config_ids keep their exact
+    historical slug shape (and hash, see :func:`build_config_id`).
+    """
+    if not effort:
+        return ""
+    return f"eff{_slugify(str(effort))}"
+
+
 def build_config_id(
     provider: str,
     *,
     dataset: str | None = None,
     temperature: float | None = None,
     template: str | None = None,
+    effort: str | None = None,
     samples_per_question: int | None = None,
     question_set_hash: str | None = None,
     extra_knobs: dict[str, Any] | None = None,
@@ -322,6 +336,10 @@ def build_config_id(
     Accepts structured fields extracted from the result file's ``config``
     block. Values passed explicitly override knobs parsed from the provider
     string (e.g. ``t=0.85`` vs the real ``config.temperature``).
+
+    ``effort`` (reasoning effort: low/medium/high) is additive-only: when
+    absent it contributes nothing to the hash payload or the slug, so every
+    config_id minted before the effort dimension existed is unchanged.
     """
     parsed = parse_provider(provider)
     canon_model = canonical_model(parsed.model)
@@ -345,12 +363,20 @@ def build_config_id(
         except ValueError:
             temp_val = parsed.knobs["t"]
 
+    # Reasoning effort: prefer explicit config value over knob string.
+    # Absent effort adds NO knob — pre-effort runs must hash identically.
+    effort_val: str | None = effort
+    if effort_val is None and "effort" in parsed.knobs:
+        effort_val = parsed.knobs["effort"]
+
     # Canonicalize the full knob map for the hash
     canonical_knobs: dict[str, Any] = dict(parsed.knobs)
     if temp_val is not None:
         canonical_knobs["t"] = temp_val
     if tpl_norm is not None:
         canonical_knobs["tpl"] = tpl_norm
+    if effort_val is not None:
+        canonical_knobs["effort"] = effort_val
     if extra_knobs:
         canonical_knobs.update(extra_knobs)
 
@@ -373,8 +399,13 @@ def build_config_id(
     slug_framework = _slugify(parsed.framework)
     temp_part = _format_temperature(temp_val)
     tpl_part = _format_template(tpl_norm)
+    effort_part = _format_effort(effort_val)
 
-    slug = f"{slug_framework}--{slug_model}--{temp_part}--{tpl_part}--{hash8}"
+    parts = [slug_framework, slug_model, temp_part, tpl_part]
+    if effort_part:
+        parts.append(effort_part)
+    parts.append(hash8)
+    slug = "--".join(parts)
 
     # Refresh parsed.knobs to include normalized t/tpl for downstream callers
     resolved_knobs: dict[str, str] = dict(parsed.knobs)
@@ -382,6 +413,8 @@ def build_config_id(
         resolved_knobs["t"] = str(temp_val)
     if tpl_norm is not None:
         resolved_knobs["tpl"] = tpl_norm
+    if effort_val is not None:
+        resolved_knobs["effort"] = effort_val
 
     return slug, ParsedConfig(
         framework=parsed.framework,

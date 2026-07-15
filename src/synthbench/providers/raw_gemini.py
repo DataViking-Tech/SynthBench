@@ -15,6 +15,7 @@ from synthbench.providers.base import (
     Provider,
     Response,
     build_persona_system_prompt,
+    validate_effort,
 )
 
 _LETTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
@@ -33,6 +34,15 @@ Respond with ONLY the letter of your choice (e.g., "A"). Do not explain."""
 
 _GEMINI_BASE_URL = "https://generativelanguage.googleapis.com/v1beta/openai/"
 
+# Answer-token ceiling when a reasoning-effort level is set. Gemini's
+# OpenAI-compat layer maps `reasoning_effort` to a native thinkingConfig
+# (low → thinkingBudget=1024, medium → 8192, high → 24576 on Gemini 2.5;
+# thinking_level low/medium/high on Gemini 3+). Thinking tokens are budgeted
+# separately from the visible answer, but the 8-token ceiling is still
+# raised defensively so a thinking-enabled response is never truncated into
+# a parse failure by our own cap.
+_EFFORT_MAX_TOKENS = 2048
+
 
 def _build_prompt(question: str, options: list[str]) -> str:
     options_block = "\n".join(f"({_LETTERS[i]}) {opt}" for i, opt in enumerate(options))
@@ -45,7 +55,12 @@ class RawGeminiProvider(Provider):
     Uses the OpenAI-compatible endpoint so we need only the openai SDK.
     """
 
-    def __init__(self, model: str = "gemini-2.5-flash-lite", temperature: float = 1.0):
+    def __init__(
+        self,
+        model: str = "gemini-2.5-flash-lite",
+        temperature: float = 1.0,
+        effort: str | None = None,
+    ):
         try:
             import openai
         except ImportError:
@@ -63,6 +78,7 @@ class RawGeminiProvider(Provider):
 
         self._model = model
         self._temperature = temperature
+        self._effort = validate_effort(effort, "raw-gemini")
         self._client = openai.AsyncOpenAI(
             api_key=gemini_key,
             base_url=_GEMINI_BASE_URL,
@@ -82,16 +98,26 @@ class RawGeminiProvider(Provider):
         prompt = _build_prompt(question, options)
         system = build_persona_system_prompt(_SYSTEM, persona)
 
+        request_kwargs: dict = {
+            "model": self._model,
+            "max_tokens": 8,
+            "temperature": self._temperature,
+            "messages": [
+                {"role": "system", "content": system},
+                {"role": "user", "content": prompt},
+            ],
+        }
+        if self._effort is not None:
+            # Google's OpenAI-compat layer converts reasoning_effort into a
+            # native thinkingConfig (see _EFFORT_MAX_TOKENS note). Sent via
+            # extra_body so it reaches the request JSON regardless of openai
+            # SDK version. Non-thinking Gemini models reject it with a 400
+            # that surfaces (after bounded retries) as a ProviderError.
+            request_kwargs["max_tokens"] = _EFFORT_MAX_TOKENS
+            request_kwargs["extra_body"] = {"reasoning_effort": self._effort}
+
         resp = await call_with_retries(
-            lambda: self._client.chat.completions.create(
-                model=self._model,
-                max_tokens=8,
-                temperature=self._temperature,
-                messages=[
-                    {"role": "system", "content": system},
-                    {"role": "user", "content": prompt},
-                ],
-            )
+            lambda: self._client.chat.completions.create(**request_kwargs)
         )
 
         raw_text = resp.choices[0].message.content or ""

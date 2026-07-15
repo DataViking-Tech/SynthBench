@@ -206,6 +206,7 @@ if (!hasRunsIndex && import.meta.env.PROD) {
     display_name: string;
     dataset: string;
     temperature: number | null;
+    effort: string | null;
     template: string | null;
     samples_per_question: number | null;
     n_questions: number;
@@ -286,6 +287,7 @@ if (!hasRunsIndex && import.meta.env.PROD) {
         display_name: head.display_name,
         dataset: head.dataset,
         temperature: head.temperature,
+        effort: head.effort,
         template: head.template,
         samples_per_question: head.samples_per_question,
         n_questions: head.n_questions,
@@ -507,6 +509,7 @@ if (!hasRunsIndex && import.meta.env.PROD) {
           display_name: r.display_name,
           dataset: r.dataset,
           temperature: r.temperature,
+          effort: r.effort,
           template: r.template,
           samples_per_question: r.samples_per_question,
           n_questions: r.n_questions,
@@ -663,6 +666,13 @@ if (!hasRunsIndex && import.meta.env.PROD) {
             tTag.className = "rounded bg-muted/10 text-xs text-muted px-1.5 py-0.5 font-mono";
             tTag.textContent = `t=${g.temperature}`;
             tags.appendChild(tTag);
+          }
+          if (g.effort != null) {
+            const effTag = document.createElement("span");
+            effTag.className = "rounded bg-muted/10 text-xs text-muted px-1.5 py-0.5 font-mono";
+            effTag.textContent = `effort=${g.effort}`;
+            effTag.title = `reasoning effort: ${g.effort}`;
+            tags.appendChild(effTag);
           }
           // "current" is the default template; show only non-default ones.
           if (g.template && g.template !== "current") {
