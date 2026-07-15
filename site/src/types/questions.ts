@@ -23,6 +23,8 @@ export interface QuestionModelResponse {
   refusal_rate: number | null;
   run_id: string;
   temperature?: number | null;
+  /** Reasoning-effort level ("low" | "medium" | "high"); absent = provider default. */
+  effort?: string | null;
   template?: string | null;
 }
 

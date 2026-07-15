@@ -169,7 +169,13 @@ def _policy_to_dict(policy: DatasetPolicy) -> dict:
 
 
 def _dedup_results(results: list[dict]) -> list[dict]:
-    """De-duplicate results: keep the run with the most n_evaluated per (display_name, framework, dataset).
+    """De-duplicate results: keep the run with the most n_evaluated per (display_name, framework, dataset, effort).
+
+    ``effort`` participates in the key so a "Sonnet (high)" run never
+    collapses into the same leaderboard row as the effort-absent run of the
+    same model — distinguishing those rows is the whole point of the effort
+    dimension. Pre-effort runs all carry effort=None and group exactly as
+    before.
 
     Also merges demographic_breakdown data from all runs sharing the same key
     into the winning entry, since conditioned runs may have fewer n_evaluated
@@ -177,8 +183,8 @@ def _dedup_results(results: list[dict]) -> list[dict]:
     """
     from synthbench.leaderboard import display_provider_name, provider_framework
 
-    best: dict[tuple[str, str, str], dict] = {}
-    all_demographics: dict[tuple[str, str, str], dict[str, list]] = {}
+    best: dict[tuple[str, str, str, str | None], dict] = {}
+    all_demographics: dict[tuple[str, str, str, str | None], dict[str, list]] = {}
     for r in results:
         cfg = r.get("config", {})
         provider = cfg.get("provider", "unknown")
@@ -186,7 +192,7 @@ def _dedup_results(results: list[dict]) -> list[dict]:
         n_eval = _effective_n(r)
         name = display_provider_name(provider)
         fw = provider_framework(provider)
-        key = (name, fw, dataset)
+        key = (name, fw, dataset, cfg.get("effort"))
         existing = best.get(key)
         if existing is None or n_eval > _effective_n(existing):
             best[key] = r
@@ -722,6 +728,7 @@ def _build_entry(
         dataset=cfg.get("dataset", "unknown"),
         temperature=cfg.get("temperature"),
         template=tpl_stem,
+        effort=cfg.get("effort"),
         samples_per_question=cfg.get("samples_per_question"),
         question_set_hash=cfg.get("question_set_hash"),
     )
@@ -775,6 +782,9 @@ def _build_entry(
     temp = cfg.get("temperature")
     if temp is not None:
         entry["temperature"] = temp
+    effort = cfg.get("effort")
+    if effort is not None:
+        entry["effort"] = effort
     tpl = cfg.get("prompt_template")
     if tpl:
         entry["template"] = Path(tpl).stem
@@ -1157,13 +1167,13 @@ def _annotate_run_counts(entries: list[dict], all_results: list[dict]) -> None:
     """Add ``run_count`` and ``dataset_coverage_count`` to leaderboard entries.
 
     ``run_count`` is the number of raw result files whose config matches this
-    entry's (model, framework, dataset, temperature, template) tuple — i.e.
-    replicates aggregated into the winning row.
+    entry's (model, framework, dataset, temperature, template, effort) tuple
+    — i.e. replicates aggregated into the winning row.
 
     ``dataset_coverage_count`` is the number of distinct datasets this entry's
-    (model, framework, temperature, template) config has runs on. Together
-    these let the site's default view hide under-replicated configs without
-    re-grouping in JS.
+    (model, framework, temperature, template, effort) config has runs on.
+    Together these let the site's default view hide under-replicated configs
+    without re-grouping in JS.
     """
     from synthbench.leaderboard import display_provider_name, provider_framework
 
@@ -1178,10 +1188,11 @@ def _annotate_run_counts(entries: list[dict], all_results: list[dict]) -> None:
         dataset = cfg.get("dataset", "unknown")
         temp = cfg.get("temperature")
         tpl_stem = _tpl_name(cfg.get("prompt_template"))
+        effort = cfg.get("effort")
 
-        run_key = (name, fw, dataset, temp, tpl_stem)
+        run_key = (name, fw, dataset, temp, tpl_stem, effort)
         run_counts[run_key] = run_counts.get(run_key, 0) + 1
-        cov_key = (name, fw, temp, tpl_stem)
+        cov_key = (name, fw, temp, tpl_stem, effort)
         datasets_per_config.setdefault(cov_key, set()).add(dataset)
 
     for e in entries:
@@ -1191,12 +1202,14 @@ def _annotate_run_counts(entries: list[dict], all_results: list[dict]) -> None:
             e.get("dataset"),
             e.get("temperature"),
             e.get("template"),
+            e.get("effort"),
         )
         cov_key = (
             e.get("model"),
             e.get("framework"),
             e.get("temperature"),
             e.get("template"),
+            e.get("effort"),
         )
         e["run_count"] = run_counts.get(run_key, 0)
         e["dataset_coverage_count"] = len(datasets_per_config.get(cov_key, set()))
@@ -1640,6 +1653,7 @@ def _build_index_entry(
         "display_name": display_name,
         "dataset": cfg.get("dataset", "unknown"),
         "temperature": cfg.get("temperature"),
+        "effort": cfg.get("effort"),
         "template": _tpl_name(cfg.get("prompt_template")),
         "samples_per_question": cfg.get("samples_per_question"),
         # `or` (not dict-default) so ensemble rows whose config never carried
@@ -1705,6 +1719,7 @@ def _build_run_detail(
         "dataset": dataset_name,
         "dataset_policy": _policy_to_dict(policy),
         "temperature": cfg.get("temperature"),
+        "effort": cfg.get("effort"),
         "template": _tpl_name(cfg.get("prompt_template")),
         "samples_per_question": cfg.get("samples_per_question"),
         "n_requested": cfg.get("n_requested"),
@@ -1818,6 +1833,7 @@ def _build_config_rollup(
         "display_name": display_name,
         "dataset": dataset,
         "temperature": sample_cfg.get("temperature"),
+        "effort": sample_cfg.get("effort"),
         "template": _tpl_name(sample_cfg.get("prompt_template")),
         "samples_per_question": sample_cfg.get("samples_per_question"),
         "is_baseline": is_baseline,
@@ -2065,6 +2081,7 @@ def publish_runs(
         dataset = cfg.get("dataset", "unknown")
         temperature = cfg.get("temperature")
         template = _tpl_name(cfg.get("prompt_template"))
+        effort = cfg.get("effort")
         samples = cfg.get("samples_per_question")
         qset = cfg.get("question_set_hash")
 
@@ -2073,6 +2090,7 @@ def publish_runs(
             dataset=dataset,
             temperature=temperature,
             template=template,
+            effort=effort,
             samples_per_question=samples,
             question_set_hash=qset,
         )
@@ -2287,9 +2305,10 @@ def _collect_question_rollups(
     """Group per-question rows across all result files by (dataset, key).
 
     Input: list of ``(run_id, raw_result_json)`` tuples. Deduplicates each
-    ``(dataset, key, framework, display_name)`` by keeping the row with the
-    largest ``n_samples`` — this mirrors the leaderboard dedup policy so a
-    model with multiple replicates contributes its best-sampled run.
+    ``(dataset, key, framework, display_name, effort)`` by keeping the row
+    with the largest ``n_samples`` — this mirrors the leaderboard dedup
+    policy (effort included, None for pre-effort runs) so a model with
+    multiple replicates contributes its best-sampled run.
 
     Output: ``{(dataset, key): {question, options, human_*, model_responses,
     aggregated_responses}}``. ``model_responses`` is the cross-model sample
@@ -2303,12 +2322,12 @@ def _collect_question_rollups(
 
     # (dataset, key) → rollup skeleton (question text, options, human dist)
     rollups: dict[tuple[str, str], dict] = {}
-    # (dataset, key, framework, display_name) → best response candidate
-    # (cross-model trendslop bucket).
-    best_by_key: dict[tuple[str, str, str, str], dict] = {}
+    # (dataset, key, framework, display_name, effort) → best response
+    # candidate (cross-model trendslop bucket).
+    best_by_key: dict[tuple[str, str, str, str, str | None], dict] = {}
     # Parallel bucket for ensemble entries, keyed the same way so replicates
     # dedup on n_samples.
-    best_aggregated_by_key: dict[tuple[str, str, str, str], dict] = {}
+    best_aggregated_by_key: dict[tuple[str, str, str, str, str | None], dict] = {}
 
     for run_id, data in results:
         cfg = data.get("config", {}) or {}
@@ -2338,6 +2357,7 @@ def _collect_question_rollups(
             dataset=dataset,
             temperature=cfg.get("temperature"),
             template=tpl_stem,
+            effort=cfg.get("effort"),
             samples_per_question=cfg.get("samples_per_question"),
             question_set_hash=cfg.get("question_set_hash"),
         )
@@ -2376,15 +2396,16 @@ def _collect_question_rollups(
                 "refusal_rate": _round_or_none(q.get("model_refusal_rate")),
                 "run_id": run_id,
                 "temperature": cfg.get("temperature"),
+                "effort": cfg.get("effort"),
                 "template": tpl_stem,
             }
-            bucket_key = (dataset, key, framework, display_name)
+            bucket_key = (dataset, key, framework, display_name, cfg.get("effort"))
             target = best_aggregated_by_key if is_ensemble else best_by_key
             prev = target.get(bucket_key)
             if prev is None or candidate["n_samples"] > prev["n_samples"]:
                 target[bucket_key] = candidate
 
-    for (dataset, key, _framework, _display), response in best_by_key.items():
+    for (dataset, key, _framework, _display, _effort), response in best_by_key.items():
         rollup = rollups.get((dataset, key))
         if rollup is None:
             continue
@@ -2395,6 +2416,7 @@ def _collect_question_rollups(
         key,
         _framework,
         _display,
+        _effort,
     ), response in best_aggregated_by_key.items():
         rollup = rollups.get((dataset, key))
         if rollup is None:
@@ -2406,7 +2428,7 @@ def _collect_question_rollups(
 
 def _emit_response(r: dict) -> dict:
     """Shape a single response for emission (drops bookkeeping fields)."""
-    return {
+    out = {
         "config_id": r["config_id"],
         "model": r["model"],
         "framework": r["framework"],
@@ -2419,6 +2441,11 @@ def _emit_response(r: dict) -> dict:
         "temperature": r.get("temperature"),
         "template": r.get("template"),
     }
+    # Additive: only present on effort-tagged runs so pre-effort question
+    # artifacts re-emit byte-identically.
+    if r.get("effort") is not None:
+        out["effort"] = r["effort"]
+    return out
 
 
 def _finalize_question_payload(rollup: dict) -> dict:

@@ -58,6 +58,13 @@ export interface LeaderboardEntry {
   n: number;
   samples_per_question?: number;
   temperature?: number;
+  /**
+   * Reasoning-effort level ("low" | "medium" | "high") threaded to the
+   * provider's native reasoning knob. Absent = provider default reasoning
+   * behaviour (all pre-effort rows). Treat absence as unknown/default,
+   * never as "low".
+   */
+  effort?: string;
   template?: string;
 
   /**

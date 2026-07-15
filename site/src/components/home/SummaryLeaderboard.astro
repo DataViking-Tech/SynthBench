@@ -94,6 +94,11 @@ for (const ds of leaderboard.datasets) {
                     t={entry.temperature}
                   </span>
                 )}
+                {entry.effort != null && (
+                  <span class="ml-1 text-xs px-1.5 py-0.5 rounded bg-accent/15 text-accent font-mono" title={`reasoning effort=${entry.effort}`}>
+                    effort={entry.effort}
+                  </span>
+                )}
                 {entry.template && (
                   <span class="ml-1 text-xs px-1.5 py-0.5 rounded bg-accent/15 text-accent font-mono" title={`prompt template=${entry.template}`}>
                     tpl={entry.template}

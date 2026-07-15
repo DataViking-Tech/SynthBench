@@ -35,6 +35,7 @@ function vendorHref(entry: LeaderboardEntry): string | null {
 function rowAriaLabel(entry: LeaderboardEntry): string {
   const parts = [entry.model, entry.dataset, `SPS ${entry.sps.toFixed(3)}`];
   if (entry.temperature != null) parts.push(`t=${entry.temperature}`);
+  if (entry.effort != null) parts.push(`effort=${entry.effort}`);
   if (entry.template) parts.push(`tpl=${entry.template}`);
   return `View configuration details for ${parts.join(", ")}`;
 }
@@ -126,9 +127,9 @@ function topicRows(entry: LeaderboardEntry): TopicRow[] {
 }
 
 // Default view hides under-replicated variant configs. A "variant" is any
-// (model, temperature, template) triple that overrides temperature or
-// template — stability matters more for these because they're easy to
-// over-fit. Hide when either:
+// (model, temperature, template, effort) tuple that overrides temperature,
+// template, or reasoning effort — stability matters more for these because
+// they're easy to over-fit. Hide when either:
 //   * run_count < 3      (fewer than 3 replicates for this exact row)
 //   * dataset_coverage_count < 2  (config only tested on one dataset)
 // Falls back to in-JS grouping when publish.py hasn't emitted the fields.
@@ -141,16 +142,20 @@ const hasLatencyData = entries.some(
 );
 const detailColSpan = hasLatencyData ? 17 : 15;
 
+function variantKey(entry: LeaderboardEntry): string {
+  return `${entry.model}::t=${entry.temperature ?? ""}::tpl=${entry.template ?? ""}::eff=${entry.effort ?? ""}`;
+}
+
 const configCoverageFallback = new Map<string, Set<string>>();
 for (const entry of entries) {
-  const key = `${entry.model}::t=${entry.temperature ?? ""}::tpl=${entry.template ?? ""}`;
+  const key = variantKey(entry);
   const set = configCoverageFallback.get(key) ?? new Set<string>();
   set.add(entry.dataset);
   configCoverageFallback.set(key, set);
 }
 
 function hiddenInDefaultView(entry: LeaderboardEntry): boolean {
-  const isVariant = entry.temperature != null || entry.template != null;
+  const isVariant = entry.temperature != null || entry.template != null || entry.effort != null;
   if (!isVariant) return false;
 
   const runCount = entry.run_count;
@@ -158,8 +163,7 @@ function hiddenInDefaultView(entry: LeaderboardEntry): boolean {
 
   let coverage = entry.dataset_coverage_count;
   if (coverage == null) {
-    const key = `${entry.model}::t=${entry.temperature ?? ""}::tpl=${entry.template ?? ""}`;
-    coverage = configCoverageFallback.get(key)?.size ?? 0;
+    coverage = configCoverageFallback.get(variantKey(entry))?.size ?? 0;
   }
   return coverage < 2;
 }
@@ -276,6 +280,7 @@ function hiddenInDefaultView(entry: LeaderboardEntry): boolean {
                 <span class="ml-1 text-xs px-1.5 py-0.5 rounded bg-rose-500/10 text-rose-700 dark:text-rose-400" title={heldOutBadgeTitle(entry)}>⚠ held-out</span>
               )}
               {entry.temperature != null && <span class="ml-1 text-xs px-1.5 py-0.5 rounded bg-accent/15 text-accent font-mono"><span class="sr-only">temperature </span>t={entry.temperature}</span>}
+              {entry.effort != null && <span class="ml-1 text-xs px-1.5 py-0.5 rounded bg-accent/15 text-accent font-mono" title={`reasoning effort: ${entry.effort}`}><span class="sr-only">reasoning effort </span>effort={entry.effort}</span>}
               {entry.template && <span class="ml-1 text-xs px-1.5 py-0.5 rounded bg-accent/15 text-accent font-mono"><span class="sr-only">prompt template </span>tpl={entry.template}</span>}
               {(() => {
                 const vhref = vendorHref(entry);
@@ -435,6 +440,7 @@ function hiddenInDefaultView(entry: LeaderboardEntry): boolean {
               <span class="ml-1 text-xs px-1.5 py-0.5 rounded bg-rose-500/10 text-rose-700 dark:text-rose-400" title={heldOutBadgeTitle(entry)}>⚠ held-out</span>
             )}
             {entry.temperature != null && <span class="ml-1 text-xs px-1.5 py-0.5 rounded bg-accent/15 text-accent font-mono"><span class="sr-only">temperature </span>t={entry.temperature}</span>}
+            {entry.effort != null && <span class="ml-1 text-xs px-1.5 py-0.5 rounded bg-accent/15 text-accent font-mono" title={`reasoning effort: ${entry.effort}`}><span class="sr-only">reasoning effort </span>effort={entry.effort}</span>}
             {entry.template && <span class="ml-1 text-xs px-1.5 py-0.5 rounded bg-accent/15 text-accent font-mono"><span class="sr-only">prompt template </span>tpl={entry.template}</span>}
           </div>
           <div class="text-right">

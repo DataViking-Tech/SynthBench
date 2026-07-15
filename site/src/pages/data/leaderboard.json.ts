@@ -34,7 +34,11 @@ import type { APIRoute } from "astro";
 // 1.2.0 (issue #255): additive `entries[].demographic_scorecard` block —
 // structured per-dimension subgroup scores from demographic-conditioned
 // runs; explicit `null` on entries without demographic data.
-const API_VERSION = "1.2.0";
+// 1.3.0: additive optional `entries[].effort` field — reasoning-effort
+// level ("low" | "medium" | "high") threaded to the provider's native
+// reasoning knob. Absent on every pre-effort row; absence means provider
+// default reasoning behaviour, never "low".
+const API_VERSION = "1.3.0";
 const CONTRACT_URL =
   "https://github.com/DataViking-Tech/SynthBench/blob/main/docs/leaderboard-json-api.md";
 

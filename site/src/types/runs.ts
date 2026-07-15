@@ -36,6 +36,8 @@ export interface RunIndexEntry {
   display_name: string;
   dataset: Dataset;
   temperature: number | null;
+  /** Reasoning-effort level ("low" | "medium" | "high"); null = provider default. */
+  effort: string | null;
   template: string | null;
   samples_per_question: number | null;
   n_questions: number;
@@ -92,6 +94,8 @@ export interface ConfigRollup {
   display_name: string;
   dataset: Dataset;
   temperature: number | null;
+  /** Reasoning-effort level ("low" | "medium" | "high"); null = provider default. */
+  effort: string | null;
   template: string | null;
   samples_per_question: number | null;
   is_baseline: boolean;
@@ -176,6 +180,8 @@ export interface RunDetail {
   dataset: Dataset;
   dataset_policy?: DatasetPolicyInfo;
   temperature: number | null;
+  /** Reasoning-effort level ("low" | "medium" | "high"); null = provider default. */
+  effort: string | null;
   template: string | null;
   samples_per_question: number | null;
   n_requested: number | null;

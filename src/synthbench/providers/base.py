@@ -7,6 +7,27 @@ from abc import ABC, abstractmethod
 from collections import Counter
 from dataclasses import dataclass
 
+# Reasoning-effort levels accepted by --effort. Kept deliberately small:
+# every supported provider maps these three tiers onto its own native
+# reasoning knob (see each provider's _EFFORT_* table), so a leaderboard
+# row tagged "high" means the same qualitative thing across vendors.
+EFFORT_LEVELS = ("low", "medium", "high")
+
+
+def validate_effort(effort: str | None, provider_label: str) -> str | None:
+    """Validate a reasoning-effort level at provider construction time.
+
+    Returns the value unchanged when valid (or None). Raises ``ValueError``
+    for unknown levels — never silently coerce, or the run's config would
+    claim an effort that was not actually applied.
+    """
+    if effort is not None and effort not in EFFORT_LEVELS:
+        raise ValueError(
+            f"{provider_label}: unknown effort level {effort!r} "
+            f"(expected one of {', '.join(EFFORT_LEVELS)})"
+        )
+    return effort
+
 
 @dataclass
 class PersonaSpec:

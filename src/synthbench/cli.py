@@ -40,6 +40,16 @@ _MODEL_PROVIDERS = frozenset(
     {"raw-anthropic", "raw-openai", "raw-gemini", "openrouter", "ollama", "synthpanel"}
 )
 
+# Providers that can actually honour a reasoning-effort level. Everything
+# else must hard-error on --effort (mirroring the --temperature strictness
+# below): a leaderboard row tagged "high effort" for a provider that never
+# threaded the knob would be untrue metadata.
+_EFFORT_PROVIDERS = frozenset(
+    {"raw-anthropic", "raw-openai", "raw-gemini", "openrouter"}
+)
+
+EFFORT_CHOICES = ("low", "medium", "high")
+
 
 def _provider_kwargs(
     provider_name,
@@ -48,6 +58,7 @@ def _provider_kwargs(
     url=None,
     temperature=None,
     prompt_template=None,
+    effort=None,
 ):
     """Build constructor kwargs appropriate for *provider_name*.
 
@@ -83,6 +94,22 @@ def _provider_kwargs(
                 "--prompt-template is only supported by the synthpanel provider."
             )
         kwargs["prompt_template"] = prompt_template
+    if effort is not None:
+        if provider_name == "synthpanel":
+            raise click.UsageError(
+                "--effort is not supported by provider 'synthpanel': the "
+                "synthpanel CLI does not yet expose a reasoning-effort knob, "
+                "so the run could not actually honour it. Once synthpanel "
+                "grows one, wire it through here rather than tagging runs "
+                "with metadata that never applied."
+            )
+        if provider_name not in _EFFORT_PROVIDERS:
+            raise click.UsageError(
+                f"--effort is not supported by provider '{provider_name}' "
+                "(no reasoning control to thread it to; supported: "
+                f"{', '.join(sorted(_EFFORT_PROVIDERS))})."
+            )
+        kwargs["effort"] = effort
     return kwargs
 
 
@@ -202,6 +229,14 @@ main.add_command(_submit_adapter_cmd)
     help="Sampling temperature to pass to the provider (e.g., 0.7, 1.0).",
 )
 @click.option(
+    "--effort",
+    type=click.Choice(list(EFFORT_CHOICES)),
+    default=None,
+    help="Reasoning effort level for reasoning-capable models (low, medium, "
+    "high). Absent = provider default, and the run is stamped as "
+    "effort-absent. Errors on providers with no reasoning control.",
+)
+@click.option(
     "--prompt-template",
     type=click.Path(exists=True),
     default=None,
@@ -280,6 +315,7 @@ def run(
     full_evaluation,
     country,
     temperature,
+    effort,
     prompt_template,
     submit_after,
     wait,
@@ -344,6 +380,7 @@ def run(
             demo_list,
             country,
             temperature,
+            effort,
             prompt_template,
             submit_after=submit_after,
             wait=wait,
@@ -374,6 +411,7 @@ async def _run_async(
     demographics=None,
     country=None,
     temperature=None,
+    effort=None,
     prompt_template=None,
     *,
     submit_after: bool = False,
@@ -426,6 +464,7 @@ async def _run_async(
         url=url,
         temperature=temperature,
         prompt_template=prompt_template,
+        effort=effort,
     )
     try:
         prov = load_provider(provider_name, **provider_kwargs)
@@ -435,6 +474,12 @@ async def _run_async(
     except ImportError as e:
         click.echo(str(e), err=True)
         sys.exit(1)
+    except ValueError as e:
+        # Provider constructors raise ValueError for knob combinations they
+        # cannot honour (e.g. --effort with a custom --temperature on
+        # reasoning models). Surface cleanly instead of a traceback.
+        click.echo(f"Error: {e}", err=True)
+        sys.exit(2)
 
     # Load suite if specified
     question_keys = None
@@ -471,6 +516,8 @@ async def _run_async(
     click.echo(f"  Dataset:  {ds.name}")
     click.echo(f"  Questions: {suite_label}")
     click.echo(f"  Samples/q: {samples}")
+    if effort:
+        click.echo(f"  Effort:   {effort}")
     if demographics:
         click.echo(f"  Demographics: {', '.join(demographics)}")
     click.echo()
@@ -503,6 +550,12 @@ async def _run_async(
         result.config["topic"] = topic
     if temperature is not None:
         result.config["temperature"] = temperature
+    # Stamped only when the knob was actually threaded to the provider —
+    # an absent key means "provider default reasoning behaviour", and
+    # effort-absent runs hash to the same config_id as before the effort
+    # dimension existed.
+    if effort is not None:
+        result.config["effort"] = effort
     if prompt_template is not None:
         result.config["prompt_template"] = prompt_template
 

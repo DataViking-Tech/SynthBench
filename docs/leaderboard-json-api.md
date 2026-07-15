@@ -95,7 +95,7 @@ they are passed through from the submission after bounds validation.)
 Present when the underlying data supports them. Consumers MUST treat absence as
 "unknown" — never zero/default.
 
-`config_id`, `samples_per_question`, `temperature`, `template`,
+`config_id`, `samples_per_question`, `temperature`, `effort`, `template`,
 `normalized_sps`, `p_cond`, `p_sub`, `run_count`, `dataset_coverage_count`,
 `cost_usd`, `cost_per_100q`, `cost_per_sps_point`, `is_cost_estimated`,
 `input_tokens`, `output_tokens`, `cost_per_response`, `tokens_per_response`,
@@ -104,6 +104,21 @@ Present when the underlying data supports them. Consumers MUST treat absence as
 `sps_public`, `sps_private`, `sps_public_private_delta`,
 `verification_badge`, `sps_held_out`, `sps_held_out_delta`,
 `held_out_last_run`, ...
+
+### `effort` (since 1.3.0)
+
+Reasoning-effort level for the run: `"low"`, `"medium"`, or `"high"`.
+Set when the run was executed with `synthbench run --effort <level>`, which
+threads the level to the provider's native reasoning control (OpenRouter's
+unified `reasoning.effort`, Anthropic extended-thinking budgets, OpenAI
+`reasoning_effort`, Gemini `thinkingConfig`). The provider-specific
+budget mapping is documented in `src/synthbench/providers/`.
+
+Absent on every row benchmarked without the flag (including all rows
+published before 1.3.0): absence means "provider default reasoning
+behaviour" — consumers MUST NOT interpret it as `"low"`. Two rows for the
+same model that differ only in `effort` are distinct configurations with
+distinct `config_id`s.
 
 ### `demographic_scorecard` (since 1.2.0)
 
@@ -152,6 +167,11 @@ Data honesty notes:
 
 ## Stability contract
 
+- **1.3.0**: new optional `entries[].effort` field (see above) — reasoning-
+  effort level threaded to the provider. Additive; absent on all existing
+  rows, so existing consumers are unaffected. Effort-absent rows keep their
+  historical `config_id`s (the hash input is unchanged when effort is not
+  set).
 - **1.2.0**: new optional `entries[].demographic_scorecard` block (see above).
   Emitted as explicit `null` when an entry has no demographic-conditioned
   runs. Additive — existing consumers are unaffected.

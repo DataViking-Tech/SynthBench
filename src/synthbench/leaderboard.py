@@ -68,12 +68,15 @@ def _parse_provider_base(provider: str) -> str:
 
 
 def _extract_hyperparams(result: dict) -> dict[str, object]:
-    """Extract temperature, template, and other hyperparams from a result."""
+    """Extract temperature, effort, template, and other hyperparams from a result."""
     cfg = result.get("config", {})
     hp: dict[str, object] = {}
     temp = cfg.get("temperature")
     if temp is not None:
         hp["temperature"] = temp
+    effort = cfg.get("effort")
+    if effort is not None:
+        hp["effort"] = effort
     tpl = cfg.get("prompt_template")
     if tpl:
         from pathlib import Path
@@ -83,9 +86,10 @@ def _extract_hyperparams(result: dict) -> dict[str, object]:
 
 
 def _config_key(result: dict) -> tuple:
-    """Build a grouping key: (display_name, framework, dataset, temperature, template).
+    """Build a grouping key: (display_name, framework, dataset, temperature, template, effort).
 
-    Results with the same key are replications to be aggregated.
+    Results with the same key are replications to be aggregated. ``effort``
+    is None for every pre-effort run, so those keys group exactly as before.
     """
     cfg = result.get("config", {})
     provider = _parse_provider_base(cfg.get("provider", "unknown"))
@@ -99,7 +103,7 @@ def _config_key(result: dict) -> tuple:
         from pathlib import Path
 
         tpl_name = Path(tpl).stem
-    return (name, fw, dataset, temp, tpl_name)
+    return (name, fw, dataset, temp, tpl_name, cfg.get("effort"))
 
 
 def _canonicalize_provider_model_segment(provider: str) -> str:
@@ -306,6 +310,8 @@ def _result_entry(r: dict, rank: int) -> dict:
     # Hyperparameters
     if "temperature" in hp:
         entry["temperature"] = hp["temperature"]
+    if "effort" in hp:
+        entry["effort"] = hp["effort"]
     if "template" in hp:
         entry["template"] = hp["template"]
     # Per-metric SPS components from CI data
@@ -379,6 +385,7 @@ def _format_leaderboard_md(
     show_samples: bool = False,
     show_baselines: bool = False,
     show_hyperparams: bool = False,
+    show_effort: bool = False,
     show_aggregation: bool = False,
 ) -> str:
     """Format leaderboard entries as markdown table."""
@@ -397,9 +404,14 @@ def _format_leaderboard_md(
         baseline_cols = " vs Random | vs Majority |"
         baseline_seps = "-----------|-------------|"
 
-    # Build header with optional hyperparameter columns
+    # Build header with optional hyperparameter columns. The Effort column
+    # only appears when at least one entry carries a reasoning-effort level,
+    # so effort-free leaderboards render byte-identically to before.
     hp_cols = " Temp | Template |" if show_hyperparams else ""
     hp_seps = "------|----------|" if show_hyperparams else ""
+    if show_effort:
+        hp_cols = " Temp | Effort | Template |" if show_hyperparams else " Effort |"
+        hp_seps = "------|--------|----------|" if show_hyperparams else "--------|"
     agg_cols = " ± Std | Runs |" if show_aggregation else ""
     agg_seps = "-------|------|" if show_aggregation else ""
 
@@ -425,11 +437,17 @@ def _format_leaderboard_md(
             f" {e.get('samples_per_question', '--')} |" if show_samples else ""
         )
         hp_str = ""
-        if show_hyperparams:
+        if show_hyperparams or show_effort:
             temp = e.get("temperature")
             temp_str = f"{temp}" if temp is not None else "default"
             tpl = e.get("template", "—")
-            hp_str = f" {temp_str} | {tpl} |"
+            effort_str = e.get("effort") or "default"
+            if show_hyperparams and show_effort:
+                hp_str = f" {temp_str} | {effort_str} | {tpl} |"
+            elif show_hyperparams:
+                hp_str = f" {temp_str} | {tpl} |"
+            else:
+                hp_str = f" {effort_str} |"
 
         agg_str = ""
         if show_aggregation:
@@ -646,6 +664,7 @@ def build_leaderboard(
         e.get("temperature") is not None or e.get("template") is not None
         for e in summary_entries
     )
+    has_effort = any(e.get("effort") is not None for e in summary_entries)
     has_multi_runs = any(e.get("n_runs", 1) > 1 for e in summary_entries)
 
     if show_all:
@@ -657,6 +676,7 @@ def build_leaderboard(
             show_samples=True,
             show_baselines=bool(baseline_scores),
             show_hyperparams=has_hyperparams,
+            show_effort=has_effort,
         )
     else:
         md = _format_leaderboard_md(
@@ -665,6 +685,7 @@ def build_leaderboard(
             topic_scores=topic_scores,
             show_baselines=bool(baseline_scores),
             show_hyperparams=has_hyperparams,
+            show_effort=has_effort,
             show_aggregation=has_multi_runs,
         )
 

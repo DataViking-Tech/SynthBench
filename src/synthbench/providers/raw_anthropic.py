@@ -9,7 +9,21 @@ from synthbench.providers.base import (
     Provider,
     Response,
     build_persona_system_prompt,
+    validate_effort,
 )
+
+# Reasoning-effort → extended-thinking budget (tokens).
+#
+# Anthropic has no named effort levels; extended thinking takes an explicit
+# `budget_tokens`. These tiers are SynthBench's canonical mapping and are
+# mirrored by the OpenRouter provider's max_tokens ceilings so a Claude
+# model reached via the gateway derives the same budgets (low=0.2*10240,
+# medium=0.5*16384, high=0.8*30720). Anthropic's minimum budget is 1024.
+_EFFORT_BUDGET_TOKENS = {"low": 2048, "medium": 8192, "high": 24576}
+
+# Headroom on top of the thinking budget for the final visible answer
+# (a single option letter). max_tokens must exceed budget_tokens.
+_EFFORT_ANSWER_HEADROOM = 64
 
 _LETTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 
@@ -38,6 +52,7 @@ class RawAnthropicProvider(Provider):
         self,
         model: str = "claude-haiku-4-5-20251001",
         temperature: float = 1.0,  # Sample, don't argmax
+        effort: str | None = None,
     ):
         try:
             import anthropic
@@ -45,6 +60,17 @@ class RawAnthropicProvider(Provider):
             raise ImportError(
                 "anthropic package required. Install with: "
                 "pip install 'synthbench[anthropic]'"
+            )
+        self._effort = validate_effort(effort, "raw-anthropic")
+        if self._effort is not None and temperature != 1.0:
+            # The Messages API only accepts temperature=1 while extended
+            # thinking is enabled. Refuse up front rather than let every
+            # request 400 — and never silently drop either knob, or the
+            # run's config would claim settings that were not applied.
+            raise ValueError(
+                "raw-anthropic: --effort enables extended thinking, which "
+                "requires temperature=1. Drop --temperature (the default is "
+                f"1.0) or remove --effort (got temperature={temperature})."
             )
         self._model = model
         self._temperature = temperature
@@ -64,17 +90,41 @@ class RawAnthropicProvider(Provider):
         prompt = _build_prompt(question, options)
         system = build_persona_system_prompt(_SYSTEM, persona)
 
+        request_kwargs: dict = {
+            "model": self._model,
+            "max_tokens": 8,
+            "temperature": self._temperature,
+            "system": system,
+            "messages": [{"role": "user", "content": prompt}],
+        }
+        if self._effort is not None:
+            # Extended thinking. Thinking tokens count against max_tokens,
+            # so the ceiling is budget + a small answer allowance. Models
+            # without extended-thinking support reject the `thinking` block
+            # with a 400 that surfaces (after bounded retries) as a
+            # ProviderError — a loud failure, never a silently untagged run.
+            budget = _EFFORT_BUDGET_TOKENS[self._effort]
+            request_kwargs["thinking"] = {
+                "type": "enabled",
+                "budget_tokens": budget,
+            }
+            request_kwargs["max_tokens"] = budget + _EFFORT_ANSWER_HEADROOM
+
         message = await call_with_retries(
-            lambda: self._client.messages.create(
-                model=self._model,
-                max_tokens=8,
-                temperature=self._temperature,
-                system=system,
-                messages=[{"role": "user", "content": prompt}],
-            )
+            lambda: self._client.messages.create(**request_kwargs)
         )
 
-        raw_text = message.content[0].text if message.content else ""
+        # With extended thinking the content list leads with thinking
+        # block(s); the answer is the first text block. Without thinking the
+        # first block IS the text block, so this is a no-op for plain runs.
+        raw_text = next(
+            (
+                block.text
+                for block in (message.content or [])
+                if getattr(block, "type", "text") == "text"
+            ),
+            "",
+        )
         parsed = parse_option_response(raw_text, options)
 
         usage = None
