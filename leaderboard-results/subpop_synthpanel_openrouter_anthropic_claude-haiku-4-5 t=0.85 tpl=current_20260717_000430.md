@@ -3,33 +3,33 @@
 **Provider:** synthpanel/openrouter/anthropic/claude-haiku-4-5 t=0.85 tpl=current
 **Dataset:** subpop (100 questions)
 **Samples per question:** 30
-**Elapsed:** 266.5s
+**Elapsed:** 96.2s
 
 ## SynthBench Parity Score (SPS)
 
-**SPS: 0.7038 [0.6118, 0.6951]** (from 3 metrics)
+**SPS: 0.7711 [0.7447, 0.7933]** (from 3 metrics)
 
 | Metric | Score | |
 |--------|------:|---|
-| P_dist  Distributional | 0.6561 [0.6082, 0.6978] | ███████░░░ |
-| P_rank  Rank-Order | 0.6552 [0.6038, 0.7000] | ███████░░░ |
-| P_refuse Refusal Cal. | 0.8000 [0.7319, 0.8563] | ████████░░ |
+| P_dist  Distributional | 0.6830 [0.6485, 0.7163] | ███████░░░ |
+| P_rank  Rank-Order | 0.6502 [0.5984, 0.6925] | ███████░░░ |
+| P_refuse Refusal Cal. | 0.9799 [0.9394, 0.9903] | ██████████ |
 
 ## Raw Metrics
 
 | Metric | Value |
 |--------|-------|
-| Mean JSD | 0.3439 |
-| Median JSD | 0.2882 |
-| Mean Kendall's tau | 0.3104 |
-| Composite Parity (legacy) | 0.6557 |
+| Mean JSD | 0.3170 |
+| Median JSD | 0.2924 |
+| Mean Kendall's tau | 0.3005 |
+| Composite Parity (legacy) | 0.6666 |
 
 ## vs Baselines
 
 | Baseline | Score | Delta | % |
 |----------|------:|------:|--:|
-| majority-baseline | 0.5620 | +0.0937 | +17% |
-| random-baseline | 0.6495 | +0.0061 | +1% |
+| majority-baseline | 0.5620 | +0.1047 | +19% |
+| random-baseline | 0.6495 | +0.0171 | +3% |
 
 ## What These Scores Mean
 
@@ -44,18 +44,18 @@
 
 | Question | JSD | tau |
 |----------|-----|-----|
-| Do you think whether a relative attended the school should b... | 0.0112 | 1.0000 |
 | Did you refuse to answer the previous question?... | 0.0149 | 0.8165 |
-| Have there been times in the past 12 months when you did not... | 0.0420 | 0.9129 |
-| Do you think there are situations when abortion should be le... | 0.0546 | 1.0000 |
-| Do you think gender should be a major factor, minor factor, ... | 0.0728 | 0.9129 |
+| Over the next 20 years, how much impact do you think the use... | 0.0185 | 0.5270 |
+| Do you think abortion should be legal or illegal in the situ... | 0.0670 | 0.6667 |
+| Do you think whether a relative attended the school should b... | 0.0729 | 0.6667 |
+| Do you think abortion should be legal or illegal in the situ... | 0.0753 | 0.9129 |
 
 ## Worst Matches (highest JSD)
 
 | Question | JSD | tau |
 |----------|-----|-----|
-| If a doctor or provider performed an abortion in a situation... | 1.0000 | 0.0000 |
-| If a doctor or provider performed an abortion in a situation... | 1.0000 | 0.0000 |
-| Thinking about policies around abortion in this country, in ... | 1.0000 | 0.0000 |
-| As you may know, the Supreme Court’s decision found that the... | 1.0000 | 0.0000 |
-| Please choose the statement that comes closer to your own vi... | 1.0000 | 0.0000 |
+| How important is your religion in shaping your views about a... | 0.5848 | 0.0000 |
+| Thinking about policies around abortion in this country, in ... | 0.6930 | 0.1155 |
+| Do you personally know someone (such as a close friend, fami... | 0.7727 | -1.0000 |
+| In the news you are receiving about the Biden administration... | 0.9102 | -0.8165 |
+| Please choose the statement that comes closer to your own vi... | 0.9582 | -0.8165 |

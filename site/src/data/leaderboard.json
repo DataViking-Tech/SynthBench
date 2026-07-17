@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-07-17T05:08:34.971698+00:00",
+  "generated_at": "2026-07-17T05:31:00.530564+00:00",
   "synthbench_version": "0.1.0",
   "datasets": ["globalopinionqa", "gss", "opinionsqa", "subpop"],
   "entries": [
@@ -5413,6 +5413,122 @@
     },
     {
       "rank": 9,
+      "config_id": "synthpanel--claude-haiku-4-5--t0.85--tplcurrent--b8092537",
+      "provider": "SynthPanel (Haiku 4.5)",
+      "model": "SynthPanel (Haiku 4.5)",
+      "provider_id": "synthpanel",
+      "model_id": "anthropic/claude-haiku-4-5",
+      "dataset": "subpop",
+      "framework": "product",
+      "sps": 0.771075,
+      "p_dist": 0.683046,
+      "p_rank": 0.650248,
+      "p_refuse": 0.979931,
+      "jsd": 0.316954,
+      "tau": 0.300496,
+      "n": 100,
+      "ci_lower": 0.745825,
+      "ci_upper": 0.796283,
+      "is_baseline": false,
+      "is_ensemble": false,
+      "samples_per_question": 30,
+      "temperature": 0.85,
+      "template": "current",
+      "topic_scores": {
+        "Economy & Work": 0.713853,
+        "General Attitudes": 0.583703,
+        "Health & Science": 0.730767,
+        "Identity & Demographics": 0.538868,
+        "International Relations & Security": 0.667544,
+        "Media & Information": 0.547182,
+        "Politics & Governance": 0.535222,
+        "Social Values & Religion": 0.657524,
+        "Technology & Digital Life": 0.755237
+      },
+      "topic_metrics": {
+        "Economy & Work": {
+          "sps": 0.713853,
+          "n": 13,
+          "p_dist": 0.698673,
+          "p_rank": 0.729032,
+          "p_refuse": 0.99193
+        },
+        "General Attitudes": {
+          "sps": 0.583703,
+          "n": 17,
+          "p_dist": 0.656053,
+          "p_rank": 0.511353,
+          "p_refuse": 0.935537
+        },
+        "Health & Science": {
+          "sps": 0.730767,
+          "n": 6,
+          "p_dist": 0.80141,
+          "p_rank": 0.660125,
+          "p_refuse": 0.994244
+        },
+        "Identity & Demographics": {
+          "sps": 0.538868,
+          "n": 1,
+          "p_dist": 0.486448,
+          "p_rank": 0.591287,
+          "p_refuse": 0.994858
+        },
+        "International Relations & Security": {
+          "sps": 0.667544,
+          "n": 15,
+          "p_dist": 0.687845,
+          "p_rank": 0.647244,
+          "p_refuse": 0.990671
+        },
+        "Media & Information": {
+          "sps": 0.547182,
+          "n": 1,
+          "p_dist": 0.551331,
+          "p_rank": 0.543033,
+          "p_refuse": 0.977544
+        },
+        "Politics & Governance": {
+          "sps": 0.535222,
+          "n": 4,
+          "p_dist": 0.587162,
+          "p_rank": 0.483283,
+          "p_refuse": 0.98068
+        },
+        "Social Values & Religion": {
+          "sps": 0.657524,
+          "n": 27,
+          "p_dist": 0.655901,
+          "p_rank": 0.659147,
+          "p_refuse": 0.984578
+        },
+        "Technology & Digital Life": {
+          "sps": 0.755237,
+          "n": 16,
+          "p_dist": 0.740441,
+          "p_rank": 0.770033,
+          "p_refuse": 0.993099
+        }
+      },
+      "demographic_scorecard": null,
+      "cost_usd": 0.432,
+      "cost_per_100q": 0.432,
+      "cost_per_sps_point": 0.560257,
+      "cost_per_response": 0.000144,
+      "tokens_per_response": null,
+      "is_cost_estimated": true,
+      "latency_p50_seconds": 8.0217,
+      "latency_p95_seconds": 9.6137,
+      "sps_public": 0.673672,
+      "sps_private": 0.648583,
+      "sps_public_private_delta": 0.025089,
+      "verification_badge": "verified",
+      "normalized_sps": 0.012135,
+      "run_count": 1,
+      "dataset_coverage_count": 1
+    },
+    {
+      "rank": 10,
       "config_id": "raw--gpt-4o-mini--tdefault--tplcurrent--4dba4f5c",
       "provider": "GPT-4o-mini",
       "model": "GPT-4o-mini",
@@ -5704,7 +5820,7 @@
       "dataset_coverage_count": 3
     },
     {
-      "rank": 10,
+      "rank": 11,
       "config_id": "raw--claude-haiku-4-5--tdefault--tplcurrent--5fc84438",
       "provider": "Claude Haiku 4.5",
       "model": "Claude Haiku 4.5",
@@ -5818,7 +5934,7 @@
       "dataset_coverage_count": 3
     },
     {
-      "rank": 11,
+      "rank": 12,
       "config_id": "baseline--random-baseline--tdefault--tplcurrent--c53167f6",
       "provider": "Random Baseline",
       "model": "Random Baseline",
@@ -5929,114 +6045,6 @@
       "verification_badge": "verified",
       "run_count": 1,
       "dataset_coverage_count": 4
-    },
-    {
-      "rank": 12,
-      "config_id": "synthpanel--claude-haiku-4-5--t0.85--tplcurrent--b8092537",
-      "provider": "SynthPanel (Haiku 4.5)",
-      "model": "SynthPanel (Haiku 4.5)",
-      "provider_id": "synthpanel",
-      "model_id": "anthropic/claude-haiku-4-5",
-      "dataset": "subpop",
-      "framework": "product",
-      "sps": 0.703774,
-      "p_dist": 0.656104,
-      "p_rank": 0.655217,
-      "p_refuse": 0.800002,
-      "jsd": 0.343896,
-      "tau": 0.310435,
-      "n": 100,
-      "ci_lower": 0.660619,
-      "ci_upper": 0.744378,
-      "is_baseline": false,
-      "is_ensemble": false,
-      "samples_per_question": 30,
-      "temperature": 0.85,
-      "template": "current",
-      "topic_scores": {
-        "Economy & Work": 0.754112,
-        "General Attitudes": 0.615216,
-        "Health & Science": 0.642423,
-        "Identity & Demographics": 0.539878,
-        "International Relations & Security": 0.659833,
-        "Politics & Governance": 0.44557,
-        "Social Values & Religion": 0.627302,
-        "Technology & Digital Life": 0.720324
-      },
-      "topic_metrics": {
-        "Economy & Work": {
-          "sps": 0.754112,
-          "n": 9,
-          "p_dist": 0.722505,
-          "p_rank": 0.785719,
-          "p_refuse": 0.957555
-        },
-        "General Attitudes": {
-          "sps": 0.615216,
-          "n": 18,
-          "p_dist": 0.658591,
-          "p_rank": 0.57184,
-          "p_refuse": 0.729201
-        },
-        "Health & Science": {
-          "sps": 0.642423,
-          "n": 5,
-          "p_dist": 0.520622,
-          "p_rank": 0.764224,
-          "p_refuse": 0.463796
-        },
-        "Identity & Demographics": {
-          "sps": 0.539878,
-          "n": 1,
-          "p_dist": 0.488468,
-          "p_rank": 0.591287,
-          "p_refuse": 0.838475
-        },
-        "International Relations & Security": {
-          "sps": 0.659833,
-          "n": 10,
-          "p_dist": 0.676495,
-          "p_rank": 0.643172,
-          "p_refuse": 0.693841
-        },
-        "Politics & Governance": {
-          "sps": 0.44557,
-          "n": 4,
-          "p_dist": 0.381504,
-          "p_rank": 0.509635,
-          "p_refuse": 0.560986
-        },
-        "Social Values & Religion": {
-          "sps": 0.627302,
-          "n": 28,
-          "p_dist": 0.633454,
-          "p_rank": 0.62115,
-          "p_refuse": 0.768042
-        },
-        "Technology & Digital Life": {
-          "sps": 0.720324,
-          "n": 25,
-          "p_dist": 0.725357,
-          "p_rank": 0.715291,
-          "p_refuse": 0.976463
-        }
-      },
-      "demographic_scorecard": null,
-      "cost_usd": 0.432,
-      "cost_per_100q": 0.432,
-      "cost_per_sps_point": 0.613833,
-      "cost_per_response": 0.000144,
-      "tokens_per_response": null,
-      "is_cost_estimated": true,
-      "latency_p50_seconds": null,
-      "latency_p95_seconds": null,
-      "sps_public": 0.657557,
-      "sps_private": 0.650783,
-      "sps_public_private_delta": 0.006774,
-      "verification_badge": "verified",
-      "normalized_sps": 0.0,
-      "run_count": 2,
-      "dataset_coverage_count": 1
     },
     {
       "rank": 13,
@@ -7865,9 +7873,8 @@
     "template_comparison": [
       {
         "template": "current",
-        "sps": 0.690325,
-        "n_runs": 2,
-        "std": 0.019021
+        "sps": 0.771075,
+        "n_runs": 1
       },
       {
         "template": "minimal",
@@ -8118,7 +8125,7 @@
         "effect_max": 0.0,
         "cost": "zero",
         "status": "done",
-        "note": "'current' template already optimal (+11.0 pts over the best alternative); no further gain available from this lever."
+        "note": "'current' template already optimal (+19.0 pts over the best alternative); no further gain available from this lever."
       }
     ],
     "comparison_sets": {
@@ -26112,7 +26119,7 @@
     }
   },
   "pricing_snapshot": {
-    "generated_at": "2026-07-17T05:08:34.987626+00:00",
+    "generated_at": "2026-07-17T05:31:00.543773+00:00",
     "synth_panel_version": "1.5.7",
     "snapshot_date": "2026-05-10",
     "rates": {

@@ -278,7 +278,13 @@ class SynthPanelProvider(Provider):
         self._profile = profile
         self._prompt_template = prompt_template
         self._elicitation = elicitation
-        self._use_api = _HAS_SYNTH_PANEL_API
+        # The direct API path builds its own persona/system prompt and has
+        # no seam for a synthpanel --prompt-template override; only the CLI
+        # honours it. Route template-override runs through the CLI so the
+        # knob is actually applied — a row tagged ``tpl=<name>`` whose
+        # requests never saw the template would be untrue leaderboard
+        # metadata (same rationale as the CLI's --temperature strictness).
+        self._use_api = _HAS_SYNTH_PANEL_API and prompt_template is None
         self._client: Any = None
         self._executor: ThreadPoolExecutor | None = None
 
