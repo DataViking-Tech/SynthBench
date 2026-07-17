@@ -133,6 +133,56 @@ def render_template(f: dict) -> str:
     return "\n".join(lines)
 
 
+_ELICITATION_METRIC_LABELS = (
+    ("sps", "SPS"),
+    ("p_dist", "P_dist"),
+    ("p_rank", "P_rank"),
+    ("p_refuse", "P_refuse"),
+)
+
+
+def render_elicitation(f: dict) -> str:
+    pairs = f.get("elicitation_comparison") or []
+    if not pairs:
+        return "_No matched natural-vs-structured elicitation pair available._"
+    out: list[str] = []
+    for r in pairs:
+        detector = (
+            f", refusal detector v{r['refusal_detector_version']}"
+            if r.get("refusal_detector_version") is not None
+            else ""
+        )
+        out += [
+            f"**{r['model']}** ({r['framework']}) on {r['dataset']} — "
+            f"n={r['n_questions']} questions × {r['samples_per_question']} "
+            f"samples per arm{detector}; the arms differ only in "
+            f"elicitation mode:",
+            "",
+            "| Metric | Natural | Structured | Δ (structured − natural) |",
+            "|--------|---------|------------|--------------------------|",
+        ]
+        for metric, label in _ELICITATION_METRIC_LABELS:
+            if metric in r["natural"] and metric in r["structured"]:
+                out.append(
+                    f"| {label} | {_fmt(r['natural'][metric])} | "
+                    f"{_fmt(r['structured'][metric])} | "
+                    f"**{_pts(r['delta'][metric])} pts** |"
+                )
+        if (
+            "parse_failure_rate" in r["natural"]
+            and "parse_failure_rate" in r["structured"]
+        ):
+            out.append(
+                f"| Parse failures | "
+                f"{r['natural']['parse_failure_rate'] * 100:.1f}% | "
+                f"{r['structured']['parse_failure_rate'] * 100:.1f}% | "
+                f"{_pts(r['delta']['parse_failure_rate'])} pts |"
+            )
+        out.append("")
+    out.append(f"Comparison set: {f['comparison_sets']['elicitation_comparison']}")
+    return "\n".join(out)
+
+
 def _conditioning_table(rows: list[dict]) -> list[str]:
     lines = [
         "| Group | P_dist | P_cond | Replications |",
@@ -313,6 +363,7 @@ RENDERERS = {
     "headline": render_headline,
     "temperature": render_temperature,
     "template": render_template,
+    "elicitation": render_elicitation,
     "conditioning": render_conditioning,
     "ensemble": render_ensemble,
     "extended-temperature": render_extended_temperature,

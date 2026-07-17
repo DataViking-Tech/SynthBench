@@ -146,6 +146,38 @@ def _effective_n(result: dict) -> int:
     return impl(result)
 
 
+def _run_components(result: dict) -> dict[str, float] | None:
+    """Recomputed score components (sps/p_dist/p_rank/p_refuse) for one run.
+
+    Same scoring path as :func:`_run_sps` but returns every component the
+    elicitation comparison publishes, not just the composite. ``p_refuse``
+    is omitted when the run carries no refusal data.
+    """
+    from synthbench.publish import _RECOMPUTED_KEY
+
+    cached = result.get(_RECOMPUTED_KEY)
+    if isinstance(cached, dict):
+        scores = cached.get("scores") or {}
+    else:
+        from synthbench.recompute import recompute_aggregates
+
+        rec = recompute_aggregates(
+            result.get("per_question") or [],
+            extended_scores=result.get("scores") or {},
+        )
+        if rec is None:
+            return None
+        scores = {"sps": rec.sps, "p_dist": rec.p_dist, "p_rank": rec.p_rank}
+        if rec.p_refuse is not None:
+            scores["p_refuse"] = rec.p_refuse
+    out = {
+        k: float(v)
+        for k, v in scores.items()
+        if k in ("sps", "p_dist", "p_rank", "p_refuse") and isinstance(v, (int, float))
+    }
+    return out if "sps" in out else None
+
+
 def load_valid_results(results_dir: Path) -> tuple[list[dict], set[str]]:
     """Load SynthBench result files, split into (valid_results, excluded_run_ids).
 
@@ -331,6 +363,127 @@ def _build_ensemble_comparison(
                     f"{dataset} understates a clean re-blend."
                 )
     return rows, caveats
+
+
+# Score components the elicitation comparison publishes per arm; deltas are
+# structured − natural, computed from the rounded per-arm values so the
+# published arithmetic is exact.
+_ELICITATION_METRICS = ("sps", "p_dist", "p_rank", "p_refuse", "parse_failure_rate")
+
+# Provider-string variant suffix (`` tpl=<stem>``) stripped when matching an
+# elicitation-variant run back to its natural-elicitation counterpart.
+_TPL_SUFFIX_RE = re.compile(r"\s+tpl=\S+")
+
+
+def _parse_failure_rate(result: dict) -> float | None:
+    """Parse-failure rate for a run, preferring the recorded config value.
+
+    Falls back to ``aggregate.n_parse_failures / (n_questions * samples)``
+    when the config predates the recorded rate.
+    """
+    cfg = result.get("config") or {}
+    rate = cfg.get("parse_failure_rate")
+    if isinstance(rate, (int, float)) and not isinstance(rate, bool):
+        return float(rate)
+    agg = result.get("aggregate") or {}
+    failures = agg.get("n_parse_failures")
+    samples = cfg.get("samples_per_question")
+    n = _effective_n(result)
+    if isinstance(failures, int) and isinstance(samples, int) and n > 0 and samples > 0:
+        return failures / (n * samples)
+    return None
+
+
+def _elicitation_arm(result: dict) -> dict | None:
+    """Recomputed per-arm metrics dict for one elicitation-comparison run."""
+    components = _run_components(result)
+    if components is None:
+        return None
+    arm = {k: round(v, 6) for k, v in components.items()}
+    rate = _parse_failure_rate(result)
+    if rate is not None:
+        arm["parse_failure_rate"] = round(rate, 6)
+    return arm
+
+
+def _build_elicitation_comparison(results: list[dict]) -> list[dict]:
+    """Matched-pair comparison: natural roleplay vs schema-forced elicitation.
+
+    Pairs a run whose config carries an explicit ``elicitation`` mode (the
+    ``tpl=structured`` template variant, #328) with the natural-elicitation
+    run of the *identical* configuration — same base provider, dataset,
+    samples_per_question, question_set_hash, temperature, and effort — so
+    the only difference between the arms is the elicitation surface. Pairs
+    where either arm is missing (or scored on a different question count)
+    are simply not emitted.
+    """
+    from synthbench.leaderboard import display_provider_name, provider_framework
+    from synthbench.publish import _dedup_results, _tpl_name
+
+    def identity(cfg: dict) -> tuple:
+        return (
+            _TPL_SUFFIX_RE.sub("", cfg.get("provider", "")),
+            cfg.get("dataset", "unknown"),
+            cfg.get("samples_per_question"),
+            cfg.get("question_set_hash"),
+            cfg.get("temperature"),
+            cfg.get("effort"),
+        )
+
+    natural_by_identity: dict[tuple, dict] = {}
+    variant_runs: list[dict] = []
+    for r in _dedup_results(results):
+        cfg = r.get("config") or {}
+        elicitation = cfg.get("elicitation")
+        if isinstance(elicitation, str) and elicitation != "natural":
+            variant_runs.append(r)
+        elif _tpl_name(cfg.get("prompt_template")) is None:
+            natural_by_identity[identity(cfg)] = r
+
+    rows: list[dict] = []
+    for variant in variant_runs:
+        v_cfg = variant.get("config") or {}
+        natural = natural_by_identity.get(identity(v_cfg))
+        if natural is None:
+            continue
+        if _effective_n(natural) != _effective_n(variant):
+            continue
+        natural_arm = _elicitation_arm(natural)
+        variant_arm = _elicitation_arm(variant)
+        if natural_arm is None or variant_arm is None:
+            continue
+
+        n_cfg = natural.get("config") or {}
+        detector_versions = {
+            n_cfg.get("refusal_detector_version"),
+            v_cfg.get("refusal_detector_version"),
+        }
+        provider = n_cfg.get("provider", "")
+        rows.append(
+            {
+                "model": display_provider_name(provider),
+                "framework": provider_framework(provider),
+                "dataset": v_cfg.get("dataset", "unknown"),
+                "elicitation": v_cfg.get("elicitation"),
+                "template": _tpl_name(v_cfg.get("prompt_template")),
+                "n_questions": _effective_n(variant),
+                "samples_per_question": v_cfg.get("samples_per_question"),
+                "refusal_detector_version": (
+                    detector_versions.pop() if len(detector_versions) == 1 else None
+                ),
+                "natural": natural_arm,
+                "structured": variant_arm,
+                # structured − natural, from the rounded per-arm values so
+                # the published delta arithmetic is exact.
+                "delta": {
+                    m: round(variant_arm[m] - natural_arm[m], 6)
+                    for m in _ELICITATION_METRICS
+                    if m in variant_arm and m in natural_arm
+                },
+            }
+        )
+    rows.sort(key=lambda row: (row["dataset"], row["model"]))
+    return rows
 
 
 # Option labels that constitute an EXPLICIT nonresponse when selected —
@@ -616,6 +769,7 @@ def build_findings(
 
     temperature_sweep = _build_temperature_sweep(results)
     template_comparison = _build_template_comparison(results)
+    elicitation_comparison = _build_elicitation_comparison(results)
     ensemble_comparison, caveats = _build_ensemble_comparison(results, excluded_run_ids)
     conditioning_results, conditioning_extended = _build_conditioning(results)
     nonresponse_fidelity = _build_nonresponse_fidelity(results)
@@ -652,6 +806,16 @@ def build_findings(
             "SubPOP persona-template variant runs (Haiku 4.5, t=0.85, 100 "
             "questions); mean/std of recomputed SPS across n_runs."
         ),
+        "elicitation_comparison": (
+            "Matched pairs of deduped runs differing only in elicitation "
+            "mode: a run whose config carries an explicit elicitation "
+            "template variant (e.g. tpl=structured, schema-forced capture) "
+            "vs the natural-elicitation run of the identical configuration "
+            "(same base provider, dataset, samples_per_question, "
+            "question_set_hash, temperature, effort, and question count). "
+            "All scores recomputed from per-question rows; deltas are "
+            "structured minus natural."
+        ),
         "nonresponse_fidelity": (
             "Per deduped non-baseline run whose committed per-question rows "
             "still carry human_distribution (full-tier datasets; gated files "
@@ -669,6 +833,7 @@ def build_findings(
         "conditioning_results": conditioning_results,
         "conditioning_extended": conditioning_extended,
         "template_comparison": template_comparison,
+        "elicitation_comparison": elicitation_comparison,
         "nonresponse_fidelity": nonresponse_fidelity,
         "sensitive_topic_sidestepping": sensitive_topic_sidestepping,
         "lever_hierarchy": lever_hierarchy,

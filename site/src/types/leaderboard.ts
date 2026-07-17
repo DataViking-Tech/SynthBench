@@ -276,6 +276,8 @@ export interface FindingsData {
   /** Measured attributes beyond the charted POLPARTY/INCOME/EDUCATION set. */
   conditioning_extended?: ConditioningResult[];
   template_comparison?: TemplateComparisonRow[];
+  /** Matched pairs: natural roleplay vs schema-forced elicitation (#328). */
+  elicitation_comparison?: ElicitationComparisonRow[];
   lever_hierarchy: Lever[];
   /** Per-run explicit-nonresponse (DK-option + refusal) mass vs humans. */
   nonresponse_fidelity?: NonresponseFidelityRow[];
@@ -354,6 +356,37 @@ export interface ConditioningResult {
   p_cond: number;
   p_cond_std?: number;
   n_replications: number;
+}
+
+/** Recomputed score components for one arm of an elicitation pair. */
+export interface ElicitationArm {
+  sps: number;
+  p_dist: number;
+  p_rank: number;
+  p_refuse?: number;
+  parse_failure_rate?: number;
+}
+
+/**
+ * One matched pair differing only in elicitation mode: natural roleplay
+ * vs a schema-forced template variant (config identity otherwise equal).
+ * Deltas are structured minus natural, from the rounded per-arm values.
+ */
+export interface ElicitationComparisonRow {
+  model: string;
+  framework: string;
+  dataset: string;
+  /** Elicitation mode of the variant arm (e.g. "structured"). */
+  elicitation: string | null;
+  /** Template stem the variant arm is labeled with on the leaderboard. */
+  template: string | null;
+  n_questions: number;
+  samples_per_question: number | null;
+  /** Shared refusal-detector version; null when the arms disagree. */
+  refusal_detector_version: number | null;
+  natural: ElicitationArm;
+  structured: ElicitationArm;
+  delta: Partial<ElicitationArm>;
 }
 
 export interface TemplateComparisonRow {

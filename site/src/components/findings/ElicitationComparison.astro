@@ -1,0 +1,81 @@
+---
+import type { LeaderboardData } from "@/types/leaderboard";
+
+import leaderboardRaw from "@/data/leaderboard.json";
+
+const leaderboard = leaderboardRaw as LeaderboardData;
+const pairs = leaderboard.findings.elicitation_comparison ?? [];
+
+const fmt = (v: number | undefined) => (v === undefined ? "—" : v.toFixed(3));
+const pct = (v: number | undefined) => (v === undefined ? "—" : `${(v * 100).toFixed(1)}%`);
+const pts = (v: number | undefined) =>
+  v === undefined ? "—" : `${v >= 0 ? "+" : ""}${(v * 100).toFixed(1)} pts`;
+
+const metrics = [
+  { key: "sps", label: "SPS" },
+  { key: "p_dist", label: "P_dist" },
+  { key: "p_rank", label: "P_rank" },
+  { key: "p_refuse", label: "P_refuse" },
+] as const;
+
+const hasData = pairs.length > 0;
+---
+
+<section class="w-full max-w-4xl mx-auto py-8">
+  <h2 class="text-2xl font-bold text-center mb-2">Elicitation Mode: Natural vs Schema-Forced</h2>
+  <p class="text-center text-sm text-muted mb-6 max-w-2xl mx-auto">
+    Schema-forced structured capture eliminates parse failures entirely, but
+    it costs distributional fidelity — natural in-character elicitation is
+    load-bearing for human-likeness. Matched pairs differ only in
+    elicitation mode; all scores recomputed from committed per-question rows.
+  </p>
+  {hasData ? (
+    pairs.map((r) => (
+      <div class="mb-6">
+        <p class="text-sm text-muted mb-3">
+          {r.model} ({r.framework}) on {r.dataset} — {r.n_questions} questions
+          × {r.samples_per_question} samples per arm{r.refusal_detector_version != null
+            ? `, refusal detector v${r.refusal_detector_version}`
+            : ""}.
+        </p>
+        <div class="overflow-x-auto">
+          <table class="w-full text-sm border-collapse">
+            <thead>
+              <tr class="border-b border-muted/30 text-left">
+                <th class="py-2 pr-4">Metric</th>
+                <th class="py-2 pr-4 text-right">Natural</th>
+                <th class="py-2 pr-4 text-right">Structured</th>
+                <th class="py-2 text-right">Δ (structured − natural)</th>
+              </tr>
+            </thead>
+            <tbody>
+              {metrics.map((m) => (
+                <tr class="border-b border-muted/10">
+                  <td class="py-2 pr-4">{m.label}</td>
+                  <td class="py-2 pr-4 text-right">{fmt(r.natural[m.key])}</td>
+                  <td class="py-2 pr-4 text-right">{fmt(r.structured[m.key])}</td>
+                  <td class="py-2 text-right font-semibold">{pts(r.delta[m.key])}</td>
+                </tr>
+              ))}
+              <tr class="border-b border-muted/10">
+                <td class="py-2 pr-4">Parse failures</td>
+                <td class="py-2 pr-4 text-right">{pct(r.natural.parse_failure_rate)}</td>
+                <td class="py-2 pr-4 text-right">{pct(r.structured.parse_failure_rate)}</td>
+                <td class="py-2 text-right font-semibold">{pts(r.delta.parse_failure_rate)}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    ))
+  ) : (
+    <div class="text-center text-muted py-12 border border-muted/20 rounded-lg">
+      No matched natural-vs-structured elicitation pair available yet.
+    </div>
+  )}
+  <p class="text-xs text-muted mt-2 max-w-2xl mx-auto text-center">
+    Caveat: a single model × single dataset × one matched pair so far — a
+    suggestive first datapoint, not a general law. More pairs are needed
+    before treating the fidelity cost as systematic.
+  </p>
+</section>
