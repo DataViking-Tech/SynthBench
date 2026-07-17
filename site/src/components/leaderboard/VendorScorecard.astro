@@ -156,6 +156,15 @@ function topicRows(entry: LeaderboardEntry): TopicRow[] {
   return [];
 }
 
+// Round-4 review defect #8: topic scores were rendered to 3 decimals on N as
+// low as 2. Known-N topic rows below this threshold are muted and tagged with
+// the same "low n — suggestive only" convention as demographic cells. Rows
+// with unknown N (legacy topic_scores payloads carry n=0) are left untagged.
+const TOPIC_LOW_N_THRESHOLD = 10;
+function isLowNTopic(r: TopicRow): boolean {
+  return r.metric.n != null && r.metric.n > 0 && r.metric.n < TOPIC_LOW_N_THRESHOLD;
+}
+
 function coverage(n: number): { label: string; cls: string } {
   if (n >= 100) return { label: "high", cls: "bg-emerald-500" };
   if (n >= 50) return { label: "medium", cls: "bg-amber-500" };
@@ -313,8 +322,15 @@ const sourceLines = Array.from(new Set(cards.map((c) => c.entry.dataset)))
                 </thead>
                 <tbody>
                   {card.topics.map((r) => (
-                    <tr class="border-b border-muted/10 last:border-b-0">
-                      <td class="px-3 py-2">{r.topic}</td>
+                    <tr class:list={["border-b border-muted/10 last:border-b-0", isLowNTopic(r) && "opacity-50"]}>
+                      <td class="px-3 py-2">
+                        {r.topic}
+                        {isLowNTopic(r) && (
+                          <span class="ml-1 inline-block rounded bg-muted/15 px-1 py-0.5 text-[10px] uppercase tracking-wide align-middle whitespace-nowrap text-muted" title={`Only ${r.metric.n} questions in this topic — below the N=${TOPIC_LOW_N_THRESHOLD} display threshold. Suggestive only.`}>
+                            low n — suggestive only
+                          </span>
+                        )}
+                      </td>
                       <td class="px-3 py-2 text-right font-mono">{fmt3(r.metric.sps)}</td>
                       <td class="px-3 py-2 text-right font-mono text-muted">{fmt3(r.metric.p_dist)}</td>
                       <td class="px-3 py-2 text-right font-mono text-muted">{fmt3(r.metric.p_rank)}</td>
@@ -325,6 +341,13 @@ const sourceLines = Array.from(new Set(cards.map((c) => c.entry.dataset)))
                 </tbody>
               </table>
             </div>
+            {card.topics.some(isLowNTopic) && (
+              <p class="mt-1 text-[11px] text-muted">
+                Topics with N &lt; {TOPIC_LOW_N_THRESHOLD} are muted and tagged
+                "low n — suggestive only": too few questions for a stable
+                3-decimal score.
+              </p>
+            )}
           </details>
         )}
 

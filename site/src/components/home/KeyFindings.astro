@@ -7,13 +7,12 @@ const leaderboard = leaderboardRaw as LeaderboardData;
 const { findings } = leaderboard;
 
 // Card 1: Ensemble Advantage
-// Compute the average improvement across datasets
-const ensembleAvgImprovement =
-  findings.ensemble_comparison.reduce((sum, e) => sum + e.improvement, 0) /
-  findings.ensemble_comparison.length;
-const ensemblePoints = `+${Math.round(ensembleAvgImprovement * 100)}-${Math.round(
-  Math.max(...findings.ensemble_comparison.map((e) => e.improvement)) * 100,
-)} SPS points`;
+// Same min–max range as the findings page (EnsembleGain.astro), derived from
+// the same computed findings block: improvement × 100 = SPS points.
+const improvementsPts = findings.ensemble_comparison.map((e) => e.improvement * 100);
+const ensemblePoints = `+${Math.min(...improvementsPts).toFixed(1)} to +${Math.max(
+  ...improvementsPts,
+).toFixed(1)} SPS points`;
 
 // Card 2: Income Persona Asymmetry (lead non-political asymmetry)
 // $100K+ vs <$30K p_cond ratio

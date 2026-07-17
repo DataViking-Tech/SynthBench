@@ -17,11 +17,17 @@ given (provider, dataset) — mirroring the leaderboard's own display logic
 submission must beat to appear non-trivial, and so it is what the CI gate
 enforces.
 
-## Current canonical floors (sb-lhoh initial snapshot, 2026-04-18)
+## Current canonical floors (2026-07-17)
+
+The globalopinionqa random baseline was regenerated at n=100 (matching the
+n=100 model runs; the original n=10 run was under-sampled and understated
+the floor). The n=10 run (`globalopinionqa_random-baseline_20260410_202817.json`,
+SPS 0.7097) was removed from `leaderboard-results/`; this log entry and git
+history preserve it.
 
 | Provider          | Dataset         | Canonical SPS | n_evaluated | Source file                                                 |
 | ----------------- | --------------- | ------------- | ----------- | ----------------------------------------------------------- |
-| random-baseline   | globalopinionqa | 0.7097        |          10 | `globalopinionqa_random-baseline_20260410_202817.json`      |
+| random-baseline   | globalopinionqa | 0.7740        |         100 | `globalopinionqa_random-baseline_20260716_235916.json`      |
 | random-baseline   | opinionsqa      | 0.7629        |         684 | `opinionsqa_random-baseline_20260410_220040.json`           |
 | random-baseline   | subpop          | 0.7575        |         200 | `subpop_random-baseline_20260411_044250.json`               |
 | majority-baseline | globalopinionqa | 0.6896        |         100 | `globalopinionqa_majority-baseline_20260412_015334.json`    |
@@ -42,7 +48,7 @@ The Berkeley target of 0.70 for `random-baseline` is tighter than the
 current empirical hard ceiling. SynthBench's composite parity weights
 `p_refuse` (the agreement on DK/Refused rates), where a uniform-random
 null agent naturally lands near the human refusal rate — pushing
-`random-baseline` SPS to ~0.71–0.76 across production-scale runs. This
+`random-baseline` SPS to ~0.75–0.78 across production-scale runs. This
 is a property of the scoring protocol, not a bug, but the gap between
 0.70 and the observed ~0.76 is the ledger of how much headroom the
 scoring function "donates" to an agent that does nothing. Closing that

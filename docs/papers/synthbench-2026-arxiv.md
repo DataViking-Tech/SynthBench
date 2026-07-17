@@ -212,7 +212,7 @@ underlying methodology *useful* to a buyer.
 
 ---
 
-## 3. The SynthBench Parity Score (SPS)
+## 3. The Survey Parity Score (SPS)
 
 ### 3.1 Composite definition
 

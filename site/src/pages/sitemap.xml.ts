@@ -17,6 +17,7 @@ import type { APIRoute } from "astro";
 const STATIC_PATHS = [
   "",
   "compare/",
+  "datasets/",
   "explore/",
   "findings/",
   "leaderboard/",

@@ -1,28 +1,35 @@
 # SynthBench Score Card
 
 **Provider:** random-baseline
-**Dataset:** globalopinionqa (10 questions)
-**Samples per question:** 5
+**Dataset:** globalopinionqa (100 questions)
+**Samples per question:** 30
 **Elapsed:** 0.1s
 
 ## SynthBench Parity Score (SPS)
 
-**SPS: 0.7097 [0.4807, 0.6798]** (from 3 metrics)
+**SPS: 0.7740 [0.7530, 0.7958]** (from 3 metrics)
 
 | Metric | Score | |
 |--------|------:|---|
-| P_dist  Distributional | 0.7468 [0.6426, 0.8225] | ███████░░░ |
-| P_rank  Rank-Order | 0.3991 [0.2403, 0.5407] | ████░░░░░░ |
-| P_refuse Refusal Cal. | 0.9832 [0.9639, 0.9948] | ██████████ |
+| P_dist  Distributional | 0.8904 [0.8704, 0.9078] | █████████░ |
+| P_rank  Rank-Order | 0.4519 [0.3954, 0.5047] | █████░░░░░ |
+| P_refuse Refusal Cal. | 0.9797 [0.9684, 0.9862] | ██████████ |
 
 ## Raw Metrics
 
 | Metric | Value |
 |--------|-------|
-| Mean JSD | 0.2532 |
-| Median JSD | 0.1760 |
-| Mean Kendall's tau | -0.2019 |
-| Composite Parity (legacy) | 0.5729 |
+| Mean JSD | 0.1096 |
+| Median JSD | 0.0845 |
+| Mean Kendall's tau | -0.0962 |
+| Composite Parity (legacy) | 0.6712 |
+
+## vs Baselines
+
+| Baseline | Score | Delta | % |
+|----------|------:|------:|--:|
+| majority-baseline | 0.5620 | +0.1092 | +19% |
+| random-baseline | 0.6495 | +0.0216 | +3% |
 
 ## What These Scores Mean
 
@@ -37,18 +44,18 @@
 
 | Question | JSD | tau |
 |----------|-----|-----|
-| Please tell me how worried you are about each of the followi... | 0.1177 | 0.5477 |
-| Please tell me if you approve or disapprove of the way Prime... | 0.1277 | 0.3333 |
-| Please tell me which of the following is closest to your own... | 0.1297 | -1.0000 |
-| When it comes to Germany’s decision-making in the European U... | 0.1462 | 0.1826 |
-| In your opinion, how strong a sense of Islamic identity do M... | 0.1593 | -0.7071 |
+| Overall, was the break-up of Czechoslovakia into two indepen... | 0.0000 | 0.0000 |
+| Do you know someone who went to the U.S., but returned to yo... | 0.0003 | 0.0000 |
+| Which of these characteristics do you associate with people ... | 0.0016 | 0.0000 |
+| In your opinion, has the European Union provided too much fi... | 0.0021 | 0.8165 |
+| I am going to read you the same list.  Does...you can openly... | 0.0041 | 1.0000 |
 
 ## Worst Matches (highest JSD)
 
 | Question | JSD | tau |
 |----------|-----|-----|
-| Do you think China will replace the U.S. as the world's lead... | 0.1926 | 0.1826 |
-| And thinking about some political leaders and organizations ... | 0.3202 | -0.5477 |
-| Which statement comes closer to your own views, even if neit... | 0.3759 | 0.0348 |
-| Now I am going to read you a list of things that may be prob... | 0.4450 | -0.5976 |
-| Please tell me if you have a very favorable, somewhat favora... | 0.5175 | -0.4472 |
+| On another topic, had you heard that President Barack Obama'... | 0.3264 | -1.0000 |
+| Please tell me if you have a very favorable, somewhat favora... | 0.3340 | -0.5270 |
+| I'm going to read you a list of issues that human rights org... | 0.3359 | -0.3162 |
+| How important is it to have the following things in our coun... | 0.3717 | -0.3162 |
+| (Now I am going to read you a list of things that may be pro... | 0.4534 | -0.4000 |

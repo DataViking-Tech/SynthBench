@@ -45,6 +45,15 @@ const bibtex = `@software{synthbench2026,
 
   <DatasetCards />
 
+  <p class="w-full max-w-4xl mx-auto -mt-6 pb-6 text-sm text-muted">
+    These dataset cards also live on the standalone{" "}
+    <a
+      href={`${import.meta.env.BASE_URL?.replace(/\/?$/, "/") ?? "/"}datasets/`}
+      class="text-primary dark:text-primary-light underline underline-offset-2 hover:no-underline"
+      >datasets page</a
+    >.
+  </p>
+
   <DatasetPolicyTable />
 
   <PrivateHoldoutSection />

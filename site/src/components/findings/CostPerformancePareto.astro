@@ -83,8 +83,11 @@ const chartOption = {
     trigger: "item" as const,
     // String formatter token {b} resolves to the point's pre-built caption
     // (see seriesData above). Function formatters are unavailable because
-    // Chart.astro JSON-serializes the option into a data-attribute.
-    formatter: "<div style='font-size:13px'>{b}</div>",
+    // Chart.astro JSON-serializes the option into a data-attribute. Keep this
+    // free of HTML: raw `<`/`>` inside the serialized attribute survive
+    // Astro's escaping and make naive text-extractors dump the JSON config
+    // into the page text (round-4 review defect #5).
+    formatter: "{b}",
   },
   grid: { left: 60, right: 30, top: 30, bottom: 50, containLabel: true },
   xAxis: {

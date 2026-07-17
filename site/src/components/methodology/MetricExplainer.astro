@@ -113,19 +113,31 @@ const zones = [
     The <strong class="text-text dark:text-text-dark"
       >Survey Parity Score (SPS)</strong
     > measures how closely AI-generated survey responses match real human opinion
-    distributions&mdash;<span class="font-mono">1.0</span> is a perfect match. It
-    is the equal-weighted average of five sub-metrics (six in later phases), each
-    capturing a distinct dimension of synthetic-respondent quality on a
-    0&ndash;1 scale.
+    distributions&mdash;<span class="font-mono">1.0</span> is a perfect match.
+    Phase 1 defines five sub-metrics (six in later phases), each capturing a
+    distinct dimension of synthetic-respondent quality on a 0&ndash;1 scale.
+    SPS is the <strong class="text-text dark:text-text-dark">equal-weighted mean
+    of the metrics that are computable for a run</strong>: when a metric cannot
+    be computed for a given run, it is excluded and the remaining metrics are
+    reweighted to sum to 1.0.
   </p>
 
   <!-- Composite formula -->
   <div
-    class="rounded-lg border border-muted/20 bg-surface p-4 mb-10 font-mono text-sm text-text dark:bg-surface-dark dark:text-text-dark overflow-x-auto"
+    class="rounded-lg border border-muted/20 bg-surface p-4 mb-4 font-mono text-sm text-text dark:bg-surface-dark dark:text-text-dark overflow-x-auto"
   >
-    SPS = 0.2 &times; P_dist + 0.2 &times; P_rank + 0.2 &times; P_cond + 0.2
-    &times; P_sub + 0.2 &times; P_refuse
+    SPS = mean(available metrics) &mdash; 0.2 &times; each of P_dist, P_rank,
+    P_cond, P_sub, P_refuse when all five are computable
   </div>
+  <p class="text-sm text-muted mb-10 max-w-2xl">
+    <strong class="text-text dark:text-text-dark">What current leaderboard
+    scores include:</strong> Phase-1 leaderboard entries are scored on
+    <span class="font-mono">P_dist</span>, <span class="font-mono">P_rank</span>,
+    and <span class="font-mono">P_refuse</span> (each weighted ⅓).
+    <span class="font-mono">P_cond</span> and <span class="font-mono">P_sub</span>
+    are measured and reported separately in the per-vendor demographic
+    scorecards; they are not folded into leaderboard SPS today.
+  </p>
 
   <div class="space-y-6">
     {

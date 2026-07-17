@@ -30,11 +30,11 @@ benchmark also functions as a bias auditing tool, quantifying systematic
 asymmetries in how LLMs represent different demographic groups.
 
 <!-- BEGIN GENERATED: headline -->
-**Metric convention**: all SPS values below use the `sps` composite (equal-weighted mean of all available components), recomputed from per-question rows at publish time (#305). Random baselines score 0.710/0.763/0.757 on this scale (globalopinionqa, opinionsqa, subpop) — read every headline against that floor, not against 0.
+**Metric convention**: all SPS values below use the `sps` composite (equal-weighted mean of all available components), recomputed from per-question rows at publish time (#305). Random baselines score 0.774/0.763/0.757 on this scale (globalopinionqa, opinionsqa, subpop) — read every headline against that floor, not against 0.
 
 | Dataset | 3-model ensemble SPS | Best single model | Random baseline |
 |---------|---------------------|-------------------|-----------------|
-| globalopinionqa (n=100) | **0.813** | 0.786 (SynthPanel (GPT-4o-mini), product) | 0.710 (n=10) |
+| globalopinionqa (n=100) | **0.813** | 0.786 (SynthPanel (GPT-4o-mini), product) | 0.774 (n=100) |
 | opinionsqa (n=684) | **0.877** | 0.829 (Gemini 2.5 Flash, raw) | 0.763 (n=684) |
 | subpop (n=200) | **0.858** | 0.821 (SynthPanel (Gemini Flash Lite), product) | 0.757 (n=200) |
 <!-- END GENERATED: headline -->
@@ -252,7 +252,7 @@ three runs costs roughly 3× a single-model run.
 <!-- BEGIN GENERATED: ensemble -->
 | Dataset | Best single model | Equal blend | Improvement | Random baseline |
 |---------|-------------------|-------------|-------------|-----------------|
-| globalopinionqa (100q) | 0.786 (SynthPanel (GPT-4o-mini), product) | **0.813** | **+2.7 pts** | 0.710 (n=10) |
+| globalopinionqa (100q) | 0.786 (SynthPanel (GPT-4o-mini), product) | **0.813** | **+2.7 pts** | 0.774 (n=100) |
 | opinionsqa (684q) | 0.829 (Gemini 2.5 Flash, raw) | **0.877** | **+4.8 pts** | 0.763 (n=684) |
 | subpop (200q) | 0.821 (SynthPanel (Gemini Flash Lite), product) | **0.858** | **+3.7 pts** | 0.757 (n=200) |
 

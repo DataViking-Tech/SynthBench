@@ -30,6 +30,15 @@ const {
   renderer = "svg",
 } = Astro.props;
 
+// Astro escapes quotes in attribute values but NOT `<` / `>`. A raw `<` in
+// the serialized option (e.g. an HTML tooltip formatter) makes tag-stripping
+// text extractors treat the rest of the attribute as page text, leaking the
+// JSON config mid-sentence. Encode angle brackets as JSON unicode escapes —
+// byte-for-byte valid JSON, identical after JSON.parse.
+const serializedOption = JSON.stringify(option)
+  .replaceAll("<", "\\u003c")
+  .replaceAll(">", "\\u003e");
+
 const chartId = `chart-${Math.random().toString(36).slice(2, 9)}`;
 const titleId = `${chartId}-title`;
 const descId = `${chartId}-desc`;
@@ -48,7 +57,7 @@ const tableId = `${chartId}-table`;
     role="img"
     aria-labelledby={titleId}
     aria-describedby={description ? descId : undefined}
-    data-option={JSON.stringify(option)}
+    data-option={serializedOption}
     data-theme={theme}
     data-renderer={renderer}
   ></div>

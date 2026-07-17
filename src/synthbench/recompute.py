@@ -8,7 +8,7 @@ metrics rather than from the submitted ``scores`` / ``aggregate`` blocks.
 Two composite conventions exist in the wild (see SUBMISSIONS.md):
 
 * ``parity-2`` — the legacy 2-metric blend ``0.5·P_dist + 0.5·P_rank``.
-* ``sps`` — the SynthBench Parity Score: equal-weighted mean of every
+* ``sps`` — the Survey Parity Score: equal-weighted mean of every
   available component (P_dist, P_rank, P_refuse, plus P_cond / P_sub on
   conditioned runs).
 

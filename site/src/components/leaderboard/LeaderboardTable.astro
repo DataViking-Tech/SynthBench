@@ -14,10 +14,13 @@ const base = rawBase.endsWith("/") ? rawBase : `${rawBase}/`;
 // Range % = (SPS − raw-LLM baseline) / (Human Ceiling − raw-LLM baseline).
 // For a row that IS its own raw-LLM baseline the formula is structurally 0,
 // which reads as "no useful range above baseline" — misleading. Render
-// "baseline" instead so the relationship is explicit.
-function formatNormalized(value: number | undefined): string {
+// "baseline" instead so the relationship is explicit. Product rows whose
+// value was clamped to 0 (publish.py clamps negatives) sit at or below their
+// raw baseline — render "≤0%", not "baseline" (round-4 review defect #7).
+function formatNormalized(entry: LeaderboardEntry): string {
+  const value = entry.normalized_sps;
   if (value == null || Number.isNaN(value)) return "—";
-  if (value === 0) return "baseline";
+  if (value === 0) return entry.framework === "raw" ? "baseline" : "≤0%";
   return `${Math.round(value * 100)}%`;
 }
 
@@ -124,6 +127,15 @@ function topicRows(entry: LeaderboardEntry): TopicRow[] {
       .sort((a, b) => b.sps - a.sps);
   }
   return [];
+}
+
+// Round-4 review defect #8: 3-decimal topic scores were shown on N as low
+// as 2. Rows with a known N below this threshold stay visible but are muted
+// and tagged, mirroring the vendor scorecard's low-n convention. Rows whose
+// N is unknown (legacy topic_scores payloads) are left untagged.
+const TOPIC_LOW_N_THRESHOLD = 10;
+function isLowNTopic(r: TopicRow): boolean {
+  return r.n != null && r.n < TOPIC_LOW_N_THRESHOLD;
 }
 
 // Default view hides under-replicated variant configs. A "variant" is any
@@ -303,7 +315,7 @@ function hiddenInDefaultView(entry: LeaderboardEntry): boolean {
             <td class="px-4 py-3">{entry.dataset}</td>
             <td class="px-4 py-3 text-xs text-muted">{entry.framework}</td>
             <td class="px-4 py-3 text-right font-mono">{entry.sps.toFixed(3)}</td>
-            <td class="px-4 py-3 text-right font-mono text-muted" title={entry.normalized_sps != null ? "(SPS − raw-LLM baseline) / (Human Ceiling − raw-LLM baseline)" : "No raw-LLM baseline available for this row"}>{formatNormalized(entry.normalized_sps)}</td>
+            <td class="px-4 py-3 text-right font-mono text-muted" title={entry.normalized_sps != null ? "(SPS − raw-LLM baseline) / (Human Ceiling − raw-LLM baseline)" : "No raw-LLM baseline available for this row"}>{formatNormalized(entry)}</td>
             <td class="px-4 py-3 text-right font-mono">{entry.p_dist.toFixed(3)}</td>
             <td class="px-4 py-3 text-right font-mono">{entry.p_rank.toFixed(3)}</td>
             <td class="px-4 py-3 text-right font-mono">{entry.p_refuse.toFixed(3)}</td>
@@ -351,8 +363,15 @@ function hiddenInDefaultView(entry: LeaderboardEntry): boolean {
                           </thead>
                           <tbody>
                             {rows.map((r) => (
-                              <tr class="border-b border-muted/10 last:border-b-0">
-                                <td class="px-3 py-1.5">{r.topic}</td>
+                              <tr class:list={["border-b border-muted/10 last:border-b-0", isLowNTopic(r) && "opacity-50"]}>
+                                <td class="px-3 py-1.5">
+                                  {r.topic}
+                                  {isLowNTopic(r) && (
+                                    <span class="ml-1 inline-block rounded bg-muted/15 px-1 py-0.5 text-[10px] uppercase tracking-wide align-middle whitespace-nowrap text-muted" title={`Only ${r.n} questions in this topic — below the N=${TOPIC_LOW_N_THRESHOLD} display threshold. Suggestive only.`}>
+                                      low n — suggestive only
+                                    </span>
+                                  )}
+                                </td>
                                 <td class="px-3 py-1.5 text-right font-mono">{r.sps.toFixed(3)}</td>
                                 {hasFull && (
                                   <>
@@ -367,6 +386,13 @@ function hiddenInDefaultView(entry: LeaderboardEntry): boolean {
                           </tbody>
                         </table>
                       </div>
+                      {rows.some(isLowNTopic) && (
+                        <p class="mt-1 text-[11px] text-muted">
+                          Topics with N &lt; {TOPIC_LOW_N_THRESHOLD} are muted and tagged
+                          "low n — suggestive only": too few questions for a stable
+                          3-decimal score.
+                        </p>
+                      )}
                     </div>
                   );
                 })()}
@@ -465,7 +491,7 @@ function hiddenInDefaultView(entry: LeaderboardEntry): boolean {
           <div class="text-right">
             <span class="text-lg font-mono font-bold">{entry.sps.toFixed(3)}</span>
             {entry.normalized_sps != null && (
-              <span class="ml-1 text-xs font-mono text-muted" title="(SPS − raw-LLM baseline) / (Human Ceiling − raw-LLM baseline)">{formatNormalized(entry.normalized_sps)}</span>
+              <span class="ml-1 text-xs font-mono text-muted" title="(SPS − raw-LLM baseline) / (Human Ceiling − raw-LLM baseline)">{formatNormalized(entry)}</span>
             )}
           </div>
         </div>
@@ -525,8 +551,9 @@ function hiddenInDefaultView(entry: LeaderboardEntry): boolean {
       <span class="font-mono">~</span> = estimated cost (run published before token capture;
       samples × questions × average per-call tokens) · <span class="font-mono">—</span> = not
       measured for this row · <span class="font-mono">Range %</span> = (SPS − raw-LLM baseline)
-      / (Human Ceiling − raw-LLM baseline), shown only when a raw-LLM baseline exists;
-      "baseline" marks the raw-LLM row itself.
+      / (Human Ceiling − raw-LLM baseline), shown only when a raw-LLM baseline and a
+      human-ceiling estimate exist for the row's dataset; "baseline" marks the raw-LLM
+      row itself, and "≤0%" marks rows scoring at or below their raw-LLM baseline.
     </p>
     <p>
       <span class="font-mono">$/100Q</span> = US dollars per 100 questions at the pricing

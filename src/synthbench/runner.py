@@ -269,7 +269,7 @@ class BenchmarkResult:
 
     @property
     def sps(self) -> float:
-        """SynthBench Parity Score — equal-weighted mean of available metrics."""
+        """Survey Parity Score (SPS) — equal-weighted mean of available metrics."""
         return synthbench_parity_score(self.sps_components)
 
     @property
