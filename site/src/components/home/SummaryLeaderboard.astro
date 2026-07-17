@@ -8,8 +8,12 @@ const leaderboard = leaderboardRaw as LeaderboardData;
 const rawBase = import.meta.env.BASE_URL || "/";
 const base = rawBase.endsWith("/") ? rawBase : `${rawBase}/`;
 
-function formatNormalized(value: number | undefined): string {
+// Mirrors LeaderboardTable.astro: "baseline" for the raw-LLM reference row
+// itself, "≤0%" for rows clamped at/below their raw baseline.
+function formatNormalized(entry: LeaderboardEntry): string {
+  const value = entry.normalized_sps;
   if (value == null || Number.isNaN(value)) return "—";
+  if (value === 0) return entry.framework === "raw" ? "baseline" : "≤0%";
   return `${Math.round(value * 100)}%`;
 }
 
@@ -89,6 +93,17 @@ for (const ds of leaderboard.datasets) {
                     conditioned
                   </span>
                 )}
+                {entry.verification_badge === "flagged" && (
+                  <span class="ml-1 inline-flex items-baseline gap-1 flex-wrap">
+                    <span class="text-xs px-1.5 py-0.5 rounded bg-amber-500/10 text-amber-700 dark:text-amber-400">⚠ flagged</span>
+                    <span class="text-xs text-muted">
+                      (public/holdout SPS gap
+                      {entry.sps_public != null && entry.sps_private != null
+                        ? ` ${Math.abs(entry.sps_public - entry.sps_private).toFixed(3)}`
+                        : ""}{" "}&gt; 0.05 — held for review)
+                    </span>
+                  </span>
+                )}
                 {entry.temperature != null && (
                   <span class="ml-1 text-xs px-1.5 py-0.5 rounded bg-accent/15 text-accent font-mono" title={`temperature=${entry.temperature}`}>
                     t={entry.temperature}
@@ -110,7 +125,7 @@ for (const ds of leaderboard.datasets) {
                 {entry.sps.toFixed(3)}
               </td>
               <td class="px-4 py-3 text-right font-mono text-muted" title={entry.normalized_sps != null ? "(SPS − raw-LLM baseline) / (Human Ceiling − raw-LLM baseline)" : "No raw-LLM baseline available for this row"}>
-                {formatNormalized(entry.normalized_sps)}
+                {formatNormalized(entry)}
               </td>
               <td class="px-4 py-3 text-right font-mono">
                 {entry.p_dist.toFixed(3)}
@@ -130,9 +145,12 @@ for (const ds of leaderboard.datasets) {
        live only in a hover tooltip, invisible to text extraction. -->
   <p class="mt-3 text-xs text-muted text-center max-w-3xl mx-auto">
     <span class="font-mono">Range %</span> = (SPS − raw-LLM baseline) / (Human Ceiling −
-    raw-LLM baseline) · <span class="font-mono">—</span> = no raw-LLM baseline available
-    for that row · badges name the provider/config variant (ensemble, conditioned,
-    t=temperature, effort, tpl=prompt template).
+    raw-LLM baseline) · <span class="font-mono">—</span> = no raw-LLM baseline or human
+    ceiling available for that row · <span class="font-mono">baseline</span> = the raw-LLM
+    reference row itself · <span class="font-mono">≤0%</span> = at or below the raw-LLM
+    baseline · <span class="font-mono">⚠ flagged</span> = public/holdout SPS divergence
+    exceeds 0.05, held for review · other badges name the provider/config variant
+    (ensemble, conditioned, t=temperature, effort, tpl=prompt template).
   </p>
 
   <p class="mt-4 text-center flex flex-wrap items-center justify-center gap-x-6 gap-y-2">

@@ -40,7 +40,7 @@ def synthbench_parity_score(
     metrics: dict[str, float],
     weights: dict[str, float] | None = None,
 ) -> float:
-    """Compute the SynthBench Parity Score (SPS) from available component metrics.
+    """Compute the Survey Parity Score (SPS) from available component metrics.
 
     Equal-weighted mean of available metrics (0.20 each in Phase 1 when all 5
     are present). When a metric can't be computed, it is excluded and the

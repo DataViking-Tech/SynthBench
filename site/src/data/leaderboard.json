@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-07-17T00:28:21.786548+00:00",
+  "generated_at": "2026-07-17T05:08:34.971698+00:00",
   "synthbench_version": "0.1.0",
   "datasets": ["globalopinionqa", "gss", "opinionsqa", "subpop"],
   "entries": [
@@ -199,6 +199,95 @@
     },
     {
       "rank": 3,
+      "config_id": "baseline--random-baseline--tdefault--tplcurrent--8855add7",
+      "provider": "Random Baseline",
+      "model": "Random Baseline",
+      "provider_id": "baseline",
+      "model_id": "random-baseline",
+      "dataset": "globalopinionqa",
+      "framework": "baseline",
+      "sps": 0.774017,
+      "p_dist": 0.890422,
+      "p_rank": 0.451897,
+      "p_refuse": 0.979733,
+      "jsd": 0.109578,
+      "tau": -0.096206,
+      "n": 100,
+      "ci_lower": 0.750824,
+      "ci_upper": 0.796537,
+      "is_baseline": true,
+      "is_ensemble": false,
+      "samples_per_question": 30,
+      "topic_scores": {
+        "Economy & Work": 0.590987,
+        "General Attitudes": 0.695287,
+        "Health & Science": 0.477336,
+        "International Relations & Security": 0.674342,
+        "Politics & Governance": 0.676634,
+        "Trust & Wellbeing": 0.662484
+      },
+      "topic_metrics": {
+        "Economy & Work": {
+          "sps": 0.590987,
+          "n": 3,
+          "p_dist": 0.904196,
+          "p_rank": 0.277778,
+          "p_refuse": 0.948618
+        },
+        "General Attitudes": {
+          "sps": 0.695287,
+          "n": 4,
+          "p_dist": 0.947108,
+          "p_rank": 0.443465,
+          "p_refuse": 1.0
+        },
+        "Health & Science": {
+          "sps": 0.477336,
+          "n": 1,
+          "p_dist": 0.954672,
+          "p_rank": 0.0,
+          "p_refuse": 1.0
+        },
+        "International Relations & Security": {
+          "sps": 0.674342,
+          "n": 60,
+          "p_dist": 0.88431,
+          "p_rank": 0.464374,
+          "p_refuse": 0.987269
+        },
+        "Politics & Governance": {
+          "sps": 0.676634,
+          "n": 30,
+          "p_dist": 0.892548,
+          "p_rank": 0.460719,
+          "p_refuse": 0.963043
+        },
+        "Trust & Wellbeing": {
+          "sps": 0.662484,
+          "n": 2,
+          "p_dist": 0.87573,
+          "p_rank": 0.449239,
+          "p_refuse": 1.0
+        }
+      },
+      "demographic_scorecard": null,
+      "cost_usd": 0.0,
+      "cost_per_100q": 0.0,
+      "cost_per_sps_point": 0.0,
+      "cost_per_response": null,
+      "tokens_per_response": null,
+      "is_cost_estimated": false,
+      "latency_p50_seconds": 0.0001,
+      "latency_p95_seconds": 0.0002,
+      "sps_public": 0.664643,
+      "sps_private": 0.694263,
+      "sps_public_private_delta": 0.02962,
+      "verification_badge": "verified",
+      "run_count": 1,
+      "dataset_coverage_count": 4
+    },
+    {
+      "rank": 4,
       "config_id": "raw--gemini-2.5-flash--tdefault--tplcurrent--d5695573",
       "provider": "Gemini 2.5 Flash",
       "model": "Gemini 2.5 Flash",
@@ -296,7 +385,7 @@
       "dataset_coverage_count": 4
     },
     {
-      "rank": 4,
+      "rank": 5,
       "config_id": "raw--llama-3.3-70b-instruct--tdefault--tplcurrent--f2748030",
       "provider": "Llama 3.3 70B",
       "model": "Llama 3.3 70B",
@@ -394,7 +483,7 @@
       "dataset_coverage_count": 3
     },
     {
-      "rank": 5,
+      "rank": 6,
       "config_id": "synthpanel--gemini-2.5-flash-lite--tdefault--tplcurrent--ca4dfebb",
       "provider": "SynthPanel (Gemini Flash Lite)",
       "model": "SynthPanel (Gemini Flash Lite)",
@@ -492,7 +581,7 @@
       "dataset_coverage_count": 3
     },
     {
-      "rank": 6,
+      "rank": 7,
       "config_id": "raw--gemini-2.5-flash-lite--tdefault--tplcurrent--ddafa278",
       "provider": "Gemini Flash Lite",
       "model": "Gemini Flash Lite",
@@ -582,7 +671,7 @@
       "dataset_coverage_count": 3
     },
     {
-      "rank": 7,
+      "rank": 8,
       "config_id": "raw--gpt-4o-mini--tdefault--tplcurrent--a75c2c4a",
       "provider": "GPT-4o-mini",
       "model": "GPT-4o-mini",
@@ -680,7 +769,7 @@
       "dataset_coverage_count": 3
     },
     {
-      "rank": 8,
+      "rank": 9,
       "config_id": "synthpanel--llama-3.3-70b-instruct--tdefault--tplcurrent--4520a502",
       "provider": "SynthPanel (Llama 3.3 70B)",
       "model": "SynthPanel (Llama 3.3 70B)",
@@ -770,7 +859,7 @@
       "dataset_coverage_count": 3
     },
     {
-      "rank": 9,
+      "rank": 10,
       "config_id": "raw--claude-sonnet-4.6--tdefault--tplcurrent--94105f12",
       "provider": "Claude Sonnet 4.6",
       "model": "Claude Sonnet 4.6",
@@ -860,7 +949,7 @@
       "dataset_coverage_count": 1
     },
     {
-      "rank": 10,
+      "rank": 11,
       "config_id": "raw--claude-haiku-4-5--tdefault--tplcurrent--662866a7",
       "provider": "Claude Haiku 4.5",
       "model": "Claude Haiku 4.5",
@@ -958,7 +1047,7 @@
       "dataset_coverage_count": 3
     },
     {
-      "rank": 11,
+      "rank": 12,
       "config_id": "synthpanel--claude-haiku-4-5--tdefault--tplcurrent--49fbdb2d",
       "provider": "SynthPanel (Haiku 4.5)",
       "model": "SynthPanel (Haiku 4.5)",
@@ -1053,79 +1142,6 @@
       "verification_badge": "verified",
       "normalized_sps": 0.0,
       "run_count": 3,
-      "dataset_coverage_count": 4
-    },
-    {
-      "rank": 12,
-      "config_id": "baseline--random-baseline--tdefault--tplcurrent--d6b76ef5",
-      "provider": "Random Baseline",
-      "model": "Random Baseline",
-      "provider_id": "baseline",
-      "model_id": "random-baseline",
-      "dataset": "globalopinionqa",
-      "framework": "baseline",
-      "sps": 0.709683,
-      "p_dist": 0.746806,
-      "p_rank": 0.399065,
-      "p_refuse": 0.983178,
-      "jsd": 0.253194,
-      "tau": -0.20187,
-      "n": 10,
-      "ci_lower": 0.646474,
-      "ci_upper": 0.774428,
-      "is_baseline": true,
-      "is_ensemble": false,
-      "samples_per_question": 5,
-      "topic_scores": {
-        "General Attitudes": 0.435147,
-        "International Relations & Security": 0.615386,
-        "Politics & Governance": 0.611233,
-        "Trust & Wellbeing": 0.379427
-      },
-      "topic_metrics": {
-        "General Attitudes": {
-          "sps": 0.435147,
-          "n": 1,
-          "p_dist": 0.870295,
-          "p_rank": 0.0,
-          "p_refuse": 1.0
-        },
-        "International Relations & Security": {
-          "sps": 0.615386,
-          "n": 6,
-          "p_dist": 0.760529,
-          "p_rank": 0.470242,
-          "p_refuse": 0.988514
-        },
-        "Politics & Governance": {
-          "sps": 0.611233,
-          "n": 2,
-          "p_dist": 0.776062,
-          "p_rank": 0.446403,
-          "p_refuse": 0.965346
-        },
-        "Trust & Wellbeing": {
-          "sps": 0.379427,
-          "n": 1,
-          "p_dist": 0.48246,
-          "p_rank": 0.276393,
-          "p_refuse": 0.97
-        }
-      },
-      "demographic_scorecard": null,
-      "cost_usd": 0.0,
-      "cost_per_100q": 0.0,
-      "cost_per_sps_point": 0.0,
-      "cost_per_response": null,
-      "tokens_per_response": null,
-      "is_cost_estimated": false,
-      "latency_p50_seconds": null,
-      "latency_p95_seconds": null,
-      "sps_public": 0.59385,
-      "sps_private": 0.541563,
-      "sps_public_private_delta": 0.052287,
-      "verification_badge": "flagged",
-      "run_count": 1,
       "dataset_coverage_count": 4
     },
     {
@@ -7558,8 +7574,8 @@
         "ensemble_sps": 0.81346,
         "improvement": 0.027231,
         "n_questions": 100,
-        "random_baseline_sps": 0.709683,
-        "random_baseline_n": 10
+        "random_baseline_sps": 0.774017,
+        "random_baseline_n": 100
       },
       {
         "dataset": "opinionsqa",
@@ -8137,7 +8153,7 @@
       },
       {
         "name": "ensemble_signed_error_correlation",
-        "value": "pairwise Pearson r of constituents' per-option signed residuals (model probability − human probability) on the ensemble common question sets: globalopinionqa 0.27–0.44, opinionsqa 0.36–0.38, subpop 0.36–0.42 — all pairs moderately positively correlated",
+        "value": "pairwise Pearson r of constituents' per-option signed residuals (model probability \u2212 human probability) on the ensemble common question sets: globalopinionqa 0.27\u20130.44, opinionsqa 0.36\u20130.38, subpop 0.36\u20130.42 \u2014 all pairs moderately positively correlated",
         "source": "Computed 2026-07-16 from the committed constituents' per-question model_distribution rows plus canonical human-distribution rehydration (synthbench.human_distributions); committed gated artifacts strip human_distribution (#308), so the signed residuals are not derivable from public artifacts alone. The JSD-based correlations in ensemble_error_correlation ARE derivable and are recomputed by the drift guard."
       },
       {
@@ -8232,7 +8248,7 @@
               "wave": "ATP W36",
               "year": 2019,
               "attribute": "POLPARTY_RACE",
-              "group": "Democrat × Refused",
+              "group": "Democrat \u00d7 Refused",
               "n_questions": 9,
               "ceiling": {
                 "mean": 0.818357,
@@ -8262,7 +8278,7 @@
               "wave": "ATP W36",
               "year": 2019,
               "attribute": "POLPARTY_RACE",
-              "group": "Refused × White",
+              "group": "Refused \u00d7 White",
               "n_questions": 9,
               "ceiling": {
                 "mean": 0.832648,
@@ -8277,7 +8293,7 @@
               "wave": "ATP W29",
               "year": 2017,
               "attribute": "POLPARTY_RACE",
-              "group": "Refused × White",
+              "group": "Refused \u00d7 White",
               "n_questions": 30,
               "ceiling": {
                 "mean": 0.833961,
@@ -8292,7 +8308,7 @@
               "wave": "ATP W27",
               "year": 2017,
               "attribute": "POLPARTY_RACE",
-              "group": "Republican × Black",
+              "group": "Republican \u00d7 Black",
               "n_questions": 47,
               "ceiling": {
                 "mean": 0.8375,
@@ -8915,7 +8931,7 @@
               "wave": "ATP W26",
               "year": 2017,
               "attribute": "POLPARTY_SEX",
-              "group": "Democrat × Female",
+              "group": "Democrat \u00d7 Female",
               "n_questions": 22,
               "ceiling": {
                 "mean": 0.997323,
@@ -8930,7 +8946,7 @@
               "wave": "ATP W26",
               "year": 2017,
               "attribute": "POLPARTY_SEX",
-              "group": "Democrat × Male",
+              "group": "Democrat \u00d7 Male",
               "n_questions": 22,
               "ceiling": {
                 "mean": 0.996675,
@@ -8945,7 +8961,7 @@
               "wave": "ATP W26",
               "year": 2017,
               "attribute": "POLPARTY_SEX",
-              "group": "Independent × Female",
+              "group": "Independent \u00d7 Female",
               "n_questions": 22,
               "ceiling": {
                 "mean": 0.995758,
@@ -8960,7 +8976,7 @@
               "wave": "ATP W26",
               "year": 2017,
               "attribute": "POLPARTY_SEX",
-              "group": "Independent × Male",
+              "group": "Independent \u00d7 Male",
               "n_questions": 22,
               "ceiling": {
                 "mean": 0.996869,
@@ -8975,7 +8991,7 @@
               "wave": "ATP W26",
               "year": 2017,
               "attribute": "POLPARTY_SEX",
-              "group": "Other × Female",
+              "group": "Other \u00d7 Female",
               "n_questions": 22,
               "ceiling": {
                 "mean": 0.986982,
@@ -8990,7 +9006,7 @@
               "wave": "ATP W26",
               "year": 2017,
               "attribute": "POLPARTY_SEX",
-              "group": "Other × Male",
+              "group": "Other \u00d7 Male",
               "n_questions": 22,
               "ceiling": {
                 "mean": 0.99081,
@@ -9005,7 +9021,7 @@
               "wave": "ATP W26",
               "year": 2017,
               "attribute": "POLPARTY_SEX",
-              "group": "Refused × Female",
+              "group": "Refused \u00d7 Female",
               "n_questions": 22,
               "ceiling": {
                 "mean": 0.90944,
@@ -9020,7 +9036,7 @@
               "wave": "ATP W26",
               "year": 2017,
               "attribute": "POLPARTY_SEX",
-              "group": "Republican × Female",
+              "group": "Republican \u00d7 Female",
               "n_questions": 22,
               "ceiling": {
                 "mean": 0.995884,
@@ -9035,7 +9051,7 @@
               "wave": "ATP W26",
               "year": 2017,
               "attribute": "POLPARTY_SEX",
-              "group": "Republican × Male",
+              "group": "Republican \u00d7 Male",
               "n_questions": 22,
               "ceiling": {
                 "mean": 0.995677,
@@ -9050,7 +9066,7 @@
               "wave": "ATP W26",
               "year": 2017,
               "attribute": "POLPARTY_SEX",
-              "group": "marginals × Democrat",
+              "group": "marginals \u00d7 Democrat",
               "n_questions": 22,
               "ceiling": {
                 "mean": 0.99844,
@@ -9065,7 +9081,7 @@
               "wave": "ATP W26",
               "year": 2017,
               "attribute": "POLPARTY_SEX",
-              "group": "marginals × Female",
+              "group": "marginals \u00d7 Female",
               "n_questions": 22,
               "ceiling": {
                 "mean": 0.998932,
@@ -9080,7 +9096,7 @@
               "wave": "ATP W26",
               "year": 2017,
               "attribute": "POLPARTY_SEX",
-              "group": "marginals × Independent",
+              "group": "marginals \u00d7 Independent",
               "n_questions": 22,
               "ceiling": {
                 "mean": 0.998028,
@@ -9095,7 +9111,7 @@
               "wave": "ATP W26",
               "year": 2017,
               "attribute": "POLPARTY_SEX",
-              "group": "marginals × Male",
+              "group": "marginals \u00d7 Male",
               "n_questions": 22,
               "ceiling": {
                 "mean": 0.998901,
@@ -9110,7 +9126,7 @@
               "wave": "ATP W26",
               "year": 2017,
               "attribute": "POLPARTY_SEX",
-              "group": "marginals × Other",
+              "group": "marginals \u00d7 Other",
               "n_questions": 22,
               "ceiling": {
                 "mean": 0.994037,
@@ -9125,7 +9141,7 @@
               "wave": "ATP W26",
               "year": 2017,
               "attribute": "POLPARTY_SEX",
-              "group": "marginals × Refused",
+              "group": "marginals \u00d7 Refused",
               "n_questions": 22,
               "ceiling": {
                 "mean": 0.930107,
@@ -9140,7 +9156,7 @@
               "wave": "ATP W26",
               "year": 2017,
               "attribute": "POLPARTY_SEX",
-              "group": "marginals × Republican",
+              "group": "marginals \u00d7 Republican",
               "n_questions": 22,
               "ceiling": {
                 "mean": 0.997874,
@@ -9155,7 +9171,7 @@
               "wave": "ATP W26",
               "year": 2017,
               "attribute": "POLPARTY_RACE",
-              "group": "Democrat × Asian",
+              "group": "Democrat \u00d7 Asian",
               "n_questions": 22,
               "ceiling": {
                 "mean": 0.965757,
@@ -9170,7 +9186,7 @@
               "wave": "ATP W26",
               "year": 2017,
               "attribute": "POLPARTY_RACE",
-              "group": "Democrat × Black",
+              "group": "Democrat \u00d7 Black",
               "n_questions": 22,
               "ceiling": {
                 "mean": 0.991744,
@@ -9185,7 +9201,7 @@
               "wave": "ATP W26",
               "year": 2017,
               "attribute": "POLPARTY_RACE",
-              "group": "Democrat × Hispanic",
+              "group": "Democrat \u00d7 Hispanic",
               "n_questions": 22,
               "ceiling": {
                 "mean": 0.978946,
@@ -9200,7 +9216,7 @@
               "wave": "ATP W26",
               "year": 2017,
               "attribute": "POLPARTY_RACE",
-              "group": "Democrat × Mixed Race",
+              "group": "Democrat \u00d7 Mixed Race",
               "n_questions": 22,
               "ceiling": {
                 "mean": 0.952693,
@@ -9215,7 +9231,7 @@
               "wave": "ATP W26",
               "year": 2017,
               "attribute": "POLPARTY_RACE",
-              "group": "Democrat × Other",
+              "group": "Democrat \u00d7 Other",
               "n_questions": 22,
               "ceiling": {
                 "mean": 0.89935,
@@ -9230,7 +9246,7 @@
               "wave": "ATP W26",
               "year": 2017,
               "attribute": "POLPARTY_RACE",
-              "group": "Democrat × White",
+              "group": "Democrat \u00d7 White",
               "n_questions": 22,
               "ceiling": {
                 "mean": 0.99786,
@@ -9245,7 +9261,7 @@
               "wave": "ATP W26",
               "year": 2017,
               "attribute": "POLPARTY_RACE",
-              "group": "Independent × Asian",
+              "group": "Independent \u00d7 Asian",
               "n_questions": 22,
               "ceiling": {
                 "mean": 0.9601,
@@ -9260,7 +9276,7 @@
               "wave": "ATP W26",
               "year": 2017,
               "attribute": "POLPARTY_RACE",
-              "group": "Independent × Black",
+              "group": "Independent \u00d7 Black",
               "n_questions": 22,
               "ceiling": {
                 "mean": 0.975871,
@@ -9275,7 +9291,7 @@
               "wave": "ATP W26",
               "year": 2017,
               "attribute": "POLPARTY_RACE",
-              "group": "Independent × Hispanic",
+              "group": "Independent \u00d7 Hispanic",
               "n_questions": 22,
               "ceiling": {
                 "mean": 0.955684,
@@ -9290,7 +9306,7 @@
               "wave": "ATP W26",
               "year": 2017,
               "attribute": "POLPARTY_RACE",
-              "group": "Independent × Mixed Race",
+              "group": "Independent \u00d7 Mixed Race",
               "n_questions": 22,
               "ceiling": {
                 "mean": 0.964209,
@@ -9305,7 +9321,7 @@
               "wave": "ATP W26",
               "year": 2017,
               "attribute": "POLPARTY_RACE",
-              "group": "Independent × Other",
+              "group": "Independent \u00d7 Other",
               "n_questions": 22,
               "ceiling": {
                 "mean": 0.901655,
@@ -9320,7 +9336,7 @@
               "wave": "ATP W26",
               "year": 2017,
               "attribute": "POLPARTY_RACE",
-              "group": "Independent × Refused",
+              "group": "Independent \u00d7 Refused",
               "n_questions": 22,
               "ceiling": {
                 "mean": 0.928372,
@@ -9335,7 +9351,7 @@
               "wave": "ATP W26",
               "year": 2017,
               "attribute": "POLPARTY_RACE",
-              "group": "Independent × White",
+              "group": "Independent \u00d7 White",
               "n_questions": 22,
               "ceiling": {
                 "mean": 0.997614,
@@ -9350,7 +9366,7 @@
               "wave": "ATP W26",
               "year": 2017,
               "attribute": "POLPARTY_RACE",
-              "group": "Other × Black",
+              "group": "Other \u00d7 Black",
               "n_questions": 22,
               "ceiling": {
                 "mean": 0.948515,
@@ -9365,7 +9381,7 @@
               "wave": "ATP W26",
               "year": 2017,
               "attribute": "POLPARTY_RACE",
-              "group": "Other × Hispanic",
+              "group": "Other \u00d7 Hispanic",
               "n_questions": 22,
               "ceiling": {
                 "mean": 0.889383,
@@ -9380,7 +9396,7 @@
               "wave": "ATP W26",
               "year": 2017,
               "attribute": "POLPARTY_RACE",
-              "group": "Other × Mixed Race",
+              "group": "Other \u00d7 Mixed Race",
               "n_questions": 22,
               "ceiling": {
                 "mean": 0.901903,
@@ -9395,7 +9411,7 @@
               "wave": "ATP W26",
               "year": 2017,
               "attribute": "POLPARTY_RACE",
-              "group": "Other × Refused",
+              "group": "Other \u00d7 Refused",
               "n_questions": 22,
               "ceiling": {
                 "mean": 0.865206,
@@ -9410,7 +9426,7 @@
               "wave": "ATP W26",
               "year": 2017,
               "attribute": "POLPARTY_RACE",
-              "group": "Other × White",
+              "group": "Other \u00d7 White",
               "n_questions": 22,
               "ceiling": {
                 "mean": 0.99314,
@@ -9425,7 +9441,7 @@
               "wave": "ATP W26",
               "year": 2017,
               "attribute": "POLPARTY_RACE",
-              "group": "Refused × White",
+              "group": "Refused \u00d7 White",
               "n_questions": 22,
               "ceiling": {
                 "mean": 0.931229,
@@ -9440,7 +9456,7 @@
               "wave": "ATP W26",
               "year": 2017,
               "attribute": "POLPARTY_RACE",
-              "group": "Republican × Asian",
+              "group": "Republican \u00d7 Asian",
               "n_questions": 22,
               "ceiling": {
                 "mean": 0.885219,
@@ -9455,7 +9471,7 @@
               "wave": "ATP W26",
               "year": 2017,
               "attribute": "POLPARTY_RACE",
-              "group": "Republican × Black",
+              "group": "Republican \u00d7 Black",
               "n_questions": 22,
               "ceiling": {
                 "mean": 0.890996,
@@ -9470,7 +9486,7 @@
               "wave": "ATP W26",
               "year": 2017,
               "attribute": "POLPARTY_RACE",
-              "group": "Republican × Hispanic",
+              "group": "Republican \u00d7 Hispanic",
               "n_questions": 22,
               "ceiling": {
                 "mean": 0.917059,
@@ -9485,7 +9501,7 @@
               "wave": "ATP W26",
               "year": 2017,
               "attribute": "POLPARTY_RACE",
-              "group": "Republican × Mixed Race",
+              "group": "Republican \u00d7 Mixed Race",
               "n_questions": 22,
               "ceiling": {
                 "mean": 0.894035,
@@ -9500,7 +9516,7 @@
               "wave": "ATP W26",
               "year": 2017,
               "attribute": "POLPARTY_RACE",
-              "group": "Republican × White",
+              "group": "Republican \u00d7 White",
               "n_questions": 22,
               "ceiling": {
                 "mean": 0.99773,
@@ -9515,7 +9531,7 @@
               "wave": "ATP W26",
               "year": 2017,
               "attribute": "POLPARTY_RACE",
-              "group": "marginals × Asian",
+              "group": "marginals \u00d7 Asian",
               "n_questions": 22,
               "ceiling": {
                 "mean": 0.982014,
@@ -9530,7 +9546,7 @@
               "wave": "ATP W26",
               "year": 2017,
               "attribute": "POLPARTY_RACE",
-              "group": "marginals × Black",
+              "group": "marginals \u00d7 Black",
               "n_questions": 22,
               "ceiling": {
                 "mean": 0.993324,
@@ -9545,7 +9561,7 @@
               "wave": "ATP W26",
               "year": 2017,
               "attribute": "POLPARTY_RACE",
-              "group": "marginals × Democrat",
+              "group": "marginals \u00d7 Democrat",
               "n_questions": 22,
               "ceiling": {
                 "mean": 0.99844,
@@ -9560,7 +9576,7 @@
               "wave": "ATP W26",
               "year": 2017,
               "attribute": "POLPARTY_RACE",
-              "group": "marginals × Hispanic",
+              "group": "marginals \u00d7 Hispanic",
               "n_questions": 22,
               "ceiling": {
                 "mean": 0.985429,
@@ -9575,7 +9591,7 @@
               "wave": "ATP W26",
               "year": 2017,
               "attribute": "POLPARTY_RACE",
-              "group": "marginals × Independent",
+              "group": "marginals \u00d7 Independent",
               "n_questions": 22,
               "ceiling": {
                 "mean": 0.998028,
@@ -9590,7 +9606,7 @@
               "wave": "ATP W26",
               "year": 2017,
               "attribute": "POLPARTY_RACE",
-              "group": "marginals × Mixed Race",
+              "group": "marginals \u00d7 Mixed Race",
               "n_questions": 22,
               "ceiling": {
                 "mean": 0.983821,
@@ -9605,7 +9621,7 @@
               "wave": "ATP W26",
               "year": 2017,
               "attribute": "POLPARTY_RACE",
-              "group": "marginals × Other",
+              "group": "marginals \u00d7 Other",
               "n_questions": 22,
               "ceiling": {
                 "mean": 0.948978,
@@ -9620,7 +9636,7 @@
               "wave": "ATP W26",
               "year": 2017,
               "attribute": "POLPARTY_RACE",
-              "group": "marginals × Refused",
+              "group": "marginals \u00d7 Refused",
               "n_questions": 22,
               "ceiling": {
                 "mean": 0.963215,
@@ -9635,7 +9651,7 @@
               "wave": "ATP W26",
               "year": 2017,
               "attribute": "POLPARTY_RACE",
-              "group": "marginals × Republican",
+              "group": "marginals \u00d7 Republican",
               "n_questions": 22,
               "ceiling": {
                 "mean": 0.997874,
@@ -9650,7 +9666,7 @@
               "wave": "ATP W26",
               "year": 2017,
               "attribute": "POLPARTY_RACE",
-              "group": "marginals × White",
+              "group": "marginals \u00d7 White",
               "n_questions": 22,
               "ceiling": {
                 "mean": 0.999334,
@@ -9665,7 +9681,7 @@
               "wave": "ATP W26",
               "year": 2017,
               "attribute": "RACE_SEX",
-              "group": "Asian × Female",
+              "group": "Asian \u00d7 Female",
               "n_questions": 22,
               "ceiling": {
                 "mean": 0.963065,
@@ -9680,7 +9696,7 @@
               "wave": "ATP W26",
               "year": 2017,
               "attribute": "RACE_SEX",
-              "group": "Asian × Male",
+              "group": "Asian \u00d7 Male",
               "n_questions": 22,
               "ceiling": {
                 "mean": 0.970423,
@@ -9695,7 +9711,7 @@
               "wave": "ATP W26",
               "year": 2017,
               "attribute": "RACE_SEX",
-              "group": "Black × Female",
+              "group": "Black \u00d7 Female",
               "n_questions": 22,
               "ceiling": {
                 "mean": 0.987614,
@@ -9710,7 +9726,7 @@
               "wave": "ATP W26",
               "year": 2017,
               "attribute": "RACE_SEX",
-              "group": "Black × Male",
+              "group": "Black \u00d7 Male",
               "n_questions": 22,
               "ceiling": {
                 "mean": 0.986842,
@@ -9725,7 +9741,7 @@
               "wave": "ATP W26",
               "year": 2017,
               "attribute": "RACE_SEX",
-              "group": "Hispanic × Female",
+              "group": "Hispanic \u00d7 Female",
               "n_questions": 22,
               "ceiling": {
                 "mean": 0.967793,
@@ -9740,7 +9756,7 @@
               "wave": "ATP W26",
               "year": 2017,
               "attribute": "RACE_SEX",
-              "group": "Hispanic × Male",
+              "group": "Hispanic \u00d7 Male",
               "n_questions": 22,
               "ceiling": {
                 "mean": 0.979771,
@@ -9755,7 +9771,7 @@
               "wave": "ATP W26",
               "year": 2017,
               "attribute": "RACE_SEX",
-              "group": "Mixed Race × Female",
+              "group": "Mixed Race \u00d7 Female",
               "n_questions": 22,
               "ceiling": {
                 "mean": 0.972485,
@@ -9770,7 +9786,7 @@
               "wave": "ATP W26",
               "year": 2017,
               "attribute": "RACE_SEX",
-              "group": "Mixed Race × Male",
+              "group": "Mixed Race \u00d7 Male",
               "n_questions": 22,
               "ceiling": {
                 "mean": 0.965833,
@@ -9785,7 +9801,7 @@
               "wave": "ATP W26",
               "year": 2017,
               "attribute": "RACE_SEX",
-              "group": "Other × Female",
+              "group": "Other \u00d7 Female",
               "n_questions": 22,
               "ceiling": {
                 "mean": 0.917496,
@@ -9800,7 +9816,7 @@
               "wave": "ATP W26",
               "year": 2017,
               "attribute": "RACE_SEX",
-              "group": "Other × Male",
+              "group": "Other \u00d7 Male",
               "n_questions": 22,
               "ceiling": {
                 "mean": 0.910149,
@@ -9815,7 +9831,7 @@
               "wave": "ATP W26",
               "year": 2017,
               "attribute": "RACE_SEX",
-              "group": "Refused × Female",
+              "group": "Refused \u00d7 Female",
               "n_questions": 22,
               "ceiling": {
                 "mean": 0.911544,
@@ -9830,7 +9846,7 @@
               "wave": "ATP W26",
               "year": 2017,
               "attribute": "RACE_SEX",
-              "group": "Refused × Male",
+              "group": "Refused \u00d7 Male",
               "n_questions": 22,
               "ceiling": {
                 "mean": 0.945407,
@@ -9845,7 +9861,7 @@
               "wave": "ATP W26",
               "year": 2017,
               "attribute": "RACE_SEX",
-              "group": "White × Female",
+              "group": "White \u00d7 Female",
               "n_questions": 22,
               "ceiling": {
                 "mean": 0.998663,
@@ -9860,7 +9876,7 @@
               "wave": "ATP W26",
               "year": 2017,
               "attribute": "RACE_SEX",
-              "group": "White × Male",
+              "group": "White \u00d7 Male",
               "n_questions": 22,
               "ceiling": {
                 "mean": 0.998606,
@@ -9875,7 +9891,7 @@
               "wave": "ATP W26",
               "year": 2017,
               "attribute": "RACE_SEX",
-              "group": "marginals × Asian",
+              "group": "marginals \u00d7 Asian",
               "n_questions": 22,
               "ceiling": {
                 "mean": 0.982014,
@@ -9890,7 +9906,7 @@
               "wave": "ATP W26",
               "year": 2017,
               "attribute": "RACE_SEX",
-              "group": "marginals × Black",
+              "group": "marginals \u00d7 Black",
               "n_questions": 22,
               "ceiling": {
                 "mean": 0.993324,
@@ -9905,7 +9921,7 @@
               "wave": "ATP W26",
               "year": 2017,
               "attribute": "RACE_SEX",
-              "group": "marginals × Female",
+              "group": "marginals \u00d7 Female",
               "n_questions": 22,
               "ceiling": {
                 "mean": 0.998932,
@@ -9920,7 +9936,7 @@
               "wave": "ATP W26",
               "year": 2017,
               "attribute": "RACE_SEX",
-              "group": "marginals × Hispanic",
+              "group": "marginals \u00d7 Hispanic",
               "n_questions": 22,
               "ceiling": {
                 "mean": 0.985429,
@@ -9935,7 +9951,7 @@
               "wave": "ATP W26",
               "year": 2017,
               "attribute": "RACE_SEX",
-              "group": "marginals × Male",
+              "group": "marginals \u00d7 Male",
               "n_questions": 22,
               "ceiling": {
                 "mean": 0.998901,
@@ -9950,7 +9966,7 @@
               "wave": "ATP W26",
               "year": 2017,
               "attribute": "RACE_SEX",
-              "group": "marginals × Mixed Race",
+              "group": "marginals \u00d7 Mixed Race",
               "n_questions": 22,
               "ceiling": {
                 "mean": 0.983821,
@@ -9965,7 +9981,7 @@
               "wave": "ATP W26",
               "year": 2017,
               "attribute": "RACE_SEX",
-              "group": "marginals × Other",
+              "group": "marginals \u00d7 Other",
               "n_questions": 22,
               "ceiling": {
                 "mean": 0.948978,
@@ -9980,7 +9996,7 @@
               "wave": "ATP W26",
               "year": 2017,
               "attribute": "RACE_SEX",
-              "group": "marginals × Refused",
+              "group": "marginals \u00d7 Refused",
               "n_questions": 22,
               "ceiling": {
                 "mean": 0.963215,
@@ -9995,7 +10011,7 @@
               "wave": "ATP W26",
               "year": 2017,
               "attribute": "RACE_SEX",
-              "group": "marginals × White",
+              "group": "marginals \u00d7 White",
               "n_questions": 22,
               "ceiling": {
                 "mean": 0.999334,
@@ -10610,7 +10626,7 @@
               "wave": "ATP W27",
               "year": 2017,
               "attribute": "POLPARTY_SEX",
-              "group": "Democrat × Female",
+              "group": "Democrat \u00d7 Female",
               "n_questions": 47,
               "ceiling": {
                 "mean": 0.997155,
@@ -10625,7 +10641,7 @@
               "wave": "ATP W27",
               "year": 2017,
               "attribute": "POLPARTY_SEX",
-              "group": "Democrat × Male",
+              "group": "Democrat \u00d7 Male",
               "n_questions": 47,
               "ceiling": {
                 "mean": 0.996202,
@@ -10640,7 +10656,7 @@
               "wave": "ATP W27",
               "year": 2017,
               "attribute": "POLPARTY_SEX",
-              "group": "Independent × Female",
+              "group": "Independent \u00d7 Female",
               "n_questions": 47,
               "ceiling": {
                 "mean": 0.995222,
@@ -10655,7 +10671,7 @@
               "wave": "ATP W27",
               "year": 2017,
               "attribute": "POLPARTY_SEX",
-              "group": "Independent × Male",
+              "group": "Independent \u00d7 Male",
               "n_questions": 47,
               "ceiling": {
                 "mean": 0.996437,
@@ -10670,7 +10686,7 @@
               "wave": "ATP W27",
               "year": 2017,
               "attribute": "POLPARTY_SEX",
-              "group": "Other × Female",
+              "group": "Other \u00d7 Female",
               "n_questions": 47,
               "ceiling": {
                 "mean": 0.987934,
@@ -10685,7 +10701,7 @@
               "wave": "ATP W27",
               "year": 2017,
               "attribute": "POLPARTY_SEX",
-              "group": "Other × Male",
+              "group": "Other \u00d7 Male",
               "n_questions": 47,
               "ceiling": {
                 "mean": 0.99002,
@@ -10700,7 +10716,7 @@
               "wave": "ATP W27",
               "year": 2017,
               "attribute": "POLPARTY_SEX",
-              "group": "Refused × Female",
+              "group": "Refused \u00d7 Female",
               "n_questions": 47,
               "ceiling": {
                 "mean": 0.885807,
@@ -10715,7 +10731,7 @@
               "wave": "ATP W27",
               "year": 2017,
               "attribute": "POLPARTY_SEX",
-              "group": "Republican × Female",
+              "group": "Republican \u00d7 Female",
               "n_questions": 47,
               "ceiling": {
                 "mean": 0.99568,
@@ -10730,7 +10746,7 @@
               "wave": "ATP W27",
               "year": 2017,
               "attribute": "POLPARTY_SEX",
-              "group": "Republican × Male",
+              "group": "Republican \u00d7 Male",
               "n_questions": 47,
               "ceiling": {
                 "mean": 0.99583,
@@ -10745,7 +10761,7 @@
               "wave": "ATP W27",
               "year": 2017,
               "attribute": "POLPARTY_SEX",
-              "group": "marginals × Democrat",
+              "group": "marginals \u00d7 Democrat",
               "n_questions": 47,
               "ceiling": {
                 "mean": 0.998346,
@@ -10760,7 +10776,7 @@
               "wave": "ATP W27",
               "year": 2017,
               "attribute": "POLPARTY_SEX",
-              "group": "marginals × Female",
+              "group": "marginals \u00d7 Female",
               "n_questions": 47,
               "ceiling": {
                 "mean": 0.99885,
@@ -10775,7 +10791,7 @@
               "wave": "ATP W27",
               "year": 2017,
               "attribute": "POLPARTY_SEX",
-              "group": "marginals × Independent",
+              "group": "marginals \u00d7 Independent",
               "n_questions": 47,
               "ceiling": {
                 "mean": 0.997933,
@@ -10790,7 +10806,7 @@
               "wave": "ATP W27",
               "year": 2017,
               "attribute": "POLPARTY_SEX",
-              "group": "marginals × Male",
+              "group": "marginals \u00d7 Male",
               "n_questions": 47,
               "ceiling": {
                 "mean": 0.998812,
@@ -10805,7 +10821,7 @@
               "wave": "ATP W27",
               "year": 2017,
               "attribute": "POLPARTY_SEX",
-              "group": "marginals × Other",
+              "group": "marginals \u00d7 Other",
               "n_questions": 47,
               "ceiling": {
                 "mean": 0.994083,
@@ -10820,7 +10836,7 @@
               "wave": "ATP W27",
               "year": 2017,
               "attribute": "POLPARTY_SEX",
-              "group": "marginals × Refused",
+              "group": "marginals \u00d7 Refused",
               "n_questions": 47,
               "ceiling": {
                 "mean": 0.919916,
@@ -10835,7 +10851,7 @@
               "wave": "ATP W27",
               "year": 2017,
               "attribute": "POLPARTY_SEX",
-              "group": "marginals × Republican",
+              "group": "marginals \u00d7 Republican",
               "n_questions": 47,
               "ceiling": {
                 "mean": 0.997774,
@@ -10850,7 +10866,7 @@
               "wave": "ATP W27",
               "year": 2017,
               "attribute": "POLPARTY_RACE",
-              "group": "Democrat × Asian",
+              "group": "Democrat \u00d7 Asian",
               "n_questions": 47,
               "ceiling": {
                 "mean": 0.958812,
@@ -10865,7 +10881,7 @@
               "wave": "ATP W27",
               "year": 2017,
               "attribute": "POLPARTY_RACE",
-              "group": "Democrat × Black",
+              "group": "Democrat \u00d7 Black",
               "n_questions": 47,
               "ceiling": {
                 "mean": 0.990812,
@@ -10880,7 +10896,7 @@
               "wave": "ATP W27",
               "year": 2017,
               "attribute": "POLPARTY_RACE",
-              "group": "Democrat × Hispanic",
+              "group": "Democrat \u00d7 Hispanic",
               "n_questions": 47,
               "ceiling": {
                 "mean": 0.972543,
@@ -10895,7 +10911,7 @@
               "wave": "ATP W27",
               "year": 2017,
               "attribute": "POLPARTY_RACE",
-              "group": "Democrat × Mixed Race",
+              "group": "Democrat \u00d7 Mixed Race",
               "n_questions": 47,
               "ceiling": {
                 "mean": 0.944041,
@@ -10910,7 +10926,7 @@
               "wave": "ATP W27",
               "year": 2017,
               "attribute": "POLPARTY_RACE",
-              "group": "Democrat × Other",
+              "group": "Democrat \u00d7 Other",
               "n_questions": 47,
               "ceiling": {
                 "mean": 0.853881,
@@ -10925,7 +10941,7 @@
               "wave": "ATP W27",
               "year": 2017,
               "attribute": "POLPARTY_RACE",
-              "group": "Democrat × White",
+              "group": "Democrat \u00d7 White",
               "n_questions": 47,
               "ceiling": {
                 "mean": 0.997755,
@@ -10940,7 +10956,7 @@
               "wave": "ATP W27",
               "year": 2017,
               "attribute": "POLPARTY_RACE",
-              "group": "Independent × Asian",
+              "group": "Independent \u00d7 Asian",
               "n_questions": 47,
               "ceiling": {
                 "mean": 0.943127,
@@ -10955,7 +10971,7 @@
               "wave": "ATP W27",
               "year": 2017,
               "attribute": "POLPARTY_RACE",
-              "group": "Independent × Black",
+              "group": "Independent \u00d7 Black",
               "n_questions": 47,
               "ceiling": {
                 "mean": 0.974116,
@@ -10970,7 +10986,7 @@
               "wave": "ATP W27",
               "year": 2017,
               "attribute": "POLPARTY_RACE",
-              "group": "Independent × Hispanic",
+              "group": "Independent \u00d7 Hispanic",
               "n_questions": 47,
               "ceiling": {
                 "mean": 0.948242,
@@ -10985,7 +11001,7 @@
               "wave": "ATP W27",
               "year": 2017,
               "attribute": "POLPARTY_RACE",
-              "group": "Independent × Mixed Race",
+              "group": "Independent \u00d7 Mixed Race",
               "n_questions": 47,
               "ceiling": {
                 "mean": 0.96192,
@@ -11000,7 +11016,7 @@
               "wave": "ATP W27",
               "year": 2017,
               "attribute": "POLPARTY_RACE",
-              "group": "Independent × Other",
+              "group": "Independent \u00d7 Other",
               "n_questions": 47,
               "ceiling": {
                 "mean": 0.887896,
@@ -11015,7 +11031,7 @@
               "wave": "ATP W27",
               "year": 2017,
               "attribute": "POLPARTY_RACE",
-              "group": "Independent × Refused",
+              "group": "Independent \u00d7 Refused",
               "n_questions": 47,
               "ceiling": {
                 "mean": 0.920875,
@@ -11030,7 +11046,7 @@
               "wave": "ATP W27",
               "year": 2017,
               "attribute": "POLPARTY_RACE",
-              "group": "Independent × White",
+              "group": "Independent \u00d7 White",
               "n_questions": 47,
               "ceiling": {
                 "mean": 0.997428,
@@ -11045,7 +11061,7 @@
               "wave": "ATP W27",
               "year": 2017,
               "attribute": "POLPARTY_RACE",
-              "group": "Other × Black",
+              "group": "Other \u00d7 Black",
               "n_questions": 47,
               "ceiling": {
                 "mean": 0.937394,
@@ -11060,7 +11076,7 @@
               "wave": "ATP W27",
               "year": 2017,
               "attribute": "POLPARTY_RACE",
-              "group": "Other × Hispanic",
+              "group": "Other \u00d7 Hispanic",
               "n_questions": 47,
               "ceiling": {
                 "mean": 0.891426,
@@ -11075,7 +11091,7 @@
               "wave": "ATP W27",
               "year": 2017,
               "attribute": "POLPARTY_RACE",
-              "group": "Other × Mixed Race",
+              "group": "Other \u00d7 Mixed Race",
               "n_questions": 47,
               "ceiling": {
                 "mean": 0.883046,
@@ -11090,7 +11106,7 @@
               "wave": "ATP W27",
               "year": 2017,
               "attribute": "POLPARTY_RACE",
-              "group": "Other × Refused",
+              "group": "Other \u00d7 Refused",
               "n_questions": 47,
               "ceiling": {
                 "mean": 0.850733,
@@ -11105,7 +11121,7 @@
               "wave": "ATP W27",
               "year": 2017,
               "attribute": "POLPARTY_RACE",
-              "group": "Other × White",
+              "group": "Other \u00d7 White",
               "n_questions": 47,
               "ceiling": {
                 "mean": 0.992364,
@@ -11120,7 +11136,7 @@
               "wave": "ATP W27",
               "year": 2017,
               "attribute": "POLPARTY_RACE",
-              "group": "Refused × White",
+              "group": "Refused \u00d7 White",
               "n_questions": 47,
               "ceiling": {
                 "mean": 0.912665,
@@ -11135,7 +11151,7 @@
               "wave": "ATP W27",
               "year": 2017,
               "attribute": "POLPARTY_RACE",
-              "group": "Republican × Asian",
+              "group": "Republican \u00d7 Asian",
               "n_questions": 47,
               "ceiling": {
                 "mean": 0.889243,
@@ -11150,7 +11166,7 @@
               "wave": "ATP W27",
               "year": 2017,
               "attribute": "POLPARTY_RACE",
-              "group": "Republican × Black",
+              "group": "Republican \u00d7 Black",
               "n_questions": 47,
               "ceiling": {
                 "mean": 0.8375,
@@ -11165,7 +11181,7 @@
               "wave": "ATP W27",
               "year": 2017,
               "attribute": "POLPARTY_RACE",
-              "group": "Republican × Hispanic",
+              "group": "Republican \u00d7 Hispanic",
               "n_questions": 47,
               "ceiling": {
                 "mean": 0.901971,
@@ -11180,7 +11196,7 @@
               "wave": "ATP W27",
               "year": 2017,
               "attribute": "POLPARTY_RACE",
-              "group": "Republican × Mixed Race",
+              "group": "Republican \u00d7 Mixed Race",
               "n_questions": 47,
               "ceiling": {
                 "mean": 0.885337,
@@ -11195,7 +11211,7 @@
               "wave": "ATP W27",
               "year": 2017,
               "attribute": "POLPARTY_RACE",
-              "group": "Republican × White",
+              "group": "Republican \u00d7 White",
               "n_questions": 47,
               "ceiling": {
                 "mean": 0.997626,
@@ -11210,7 +11226,7 @@
               "wave": "ATP W27",
               "year": 2017,
               "attribute": "POLPARTY_RACE",
-              "group": "marginals × Asian",
+              "group": "marginals \u00d7 Asian",
               "n_questions": 47,
               "ceiling": {
                 "mean": 0.979877,
@@ -11225,7 +11241,7 @@
               "wave": "ATP W27",
               "year": 2017,
               "attribute": "POLPARTY_RACE",
-              "group": "marginals × Black",
+              "group": "marginals \u00d7 Black",
               "n_questions": 47,
               "ceiling": {
                 "mean": 0.993455,
@@ -11240,7 +11256,7 @@
               "wave": "ATP W27",
               "year": 2017,
               "attribute": "POLPARTY_RACE",
-              "group": "marginals × Democrat",
+              "group": "marginals \u00d7 Democrat",
               "n_questions": 47,
               "ceiling": {
                 "mean": 0.998346,
@@ -11255,7 +11271,7 @@
               "wave": "ATP W27",
               "year": 2017,
               "attribute": "POLPARTY_RACE",
-              "group": "marginals × Hispanic",
+              "group": "marginals \u00d7 Hispanic",
               "n_questions": 47,
               "ceiling": {
                 "mean": 0.985369,
@@ -11270,7 +11286,7 @@
               "wave": "ATP W27",
               "year": 2017,
               "attribute": "POLPARTY_RACE",
-              "group": "marginals × Independent",
+              "group": "marginals \u00d7 Independent",
               "n_questions": 47,
               "ceiling": {
                 "mean": 0.997933,
@@ -11285,7 +11301,7 @@
               "wave": "ATP W27",
               "year": 2017,
               "attribute": "POLPARTY_RACE",
-              "group": "marginals × Mixed Race",
+              "group": "marginals \u00d7 Mixed Race",
               "n_questions": 47,
               "ceiling": {
                 "mean": 0.98298,
@@ -11300,7 +11316,7 @@
               "wave": "ATP W27",
               "year": 2017,
               "attribute": "POLPARTY_RACE",
-              "group": "marginals × Other",
+              "group": "marginals \u00d7 Other",
               "n_questions": 47,
               "ceiling": {
                 "mean": 0.954168,
@@ -11315,7 +11331,7 @@
               "wave": "ATP W27",
               "year": 2017,
               "attribute": "POLPARTY_RACE",
-              "group": "marginals × Refused",
+              "group": "marginals \u00d7 Refused",
               "n_questions": 47,
               "ceiling": {
                 "mean": 0.961056,
@@ -11330,7 +11346,7 @@
               "wave": "ATP W27",
               "year": 2017,
               "attribute": "POLPARTY_RACE",
-              "group": "marginals × Republican",
+              "group": "marginals \u00d7 Republican",
               "n_questions": 47,
               "ceiling": {
                 "mean": 0.997774,
@@ -11345,7 +11361,7 @@
               "wave": "ATP W27",
               "year": 2017,
               "attribute": "POLPARTY_RACE",
-              "group": "marginals × White",
+              "group": "marginals \u00d7 White",
               "n_questions": 47,
               "ceiling": {
                 "mean": 0.999278,
@@ -11360,7 +11376,7 @@
               "wave": "ATP W27",
               "year": 2017,
               "attribute": "RACE_SEX",
-              "group": "Asian × Female",
+              "group": "Asian \u00d7 Female",
               "n_questions": 47,
               "ceiling": {
                 "mean": 0.953579,
@@ -11375,7 +11391,7 @@
               "wave": "ATP W27",
               "year": 2017,
               "attribute": "RACE_SEX",
-              "group": "Asian × Male",
+              "group": "Asian \u00d7 Male",
               "n_questions": 47,
               "ceiling": {
                 "mean": 0.969798,
@@ -11390,7 +11406,7 @@
               "wave": "ATP W27",
               "year": 2017,
               "attribute": "RACE_SEX",
-              "group": "Black × Female",
+              "group": "Black \u00d7 Female",
               "n_questions": 47,
               "ceiling": {
                 "mean": 0.987797,
@@ -11405,7 +11421,7 @@
               "wave": "ATP W27",
               "year": 2017,
               "attribute": "RACE_SEX",
-              "group": "Black × Male",
+              "group": "Black \u00d7 Male",
               "n_questions": 47,
               "ceiling": {
                 "mean": 0.988282,
@@ -11420,7 +11436,7 @@
               "wave": "ATP W27",
               "year": 2017,
               "attribute": "RACE_SEX",
-              "group": "Hispanic × Female",
+              "group": "Hispanic \u00d7 Female",
               "n_questions": 47,
               "ceiling": {
                 "mean": 0.969792,
@@ -11435,7 +11451,7 @@
               "wave": "ATP W27",
               "year": 2017,
               "attribute": "RACE_SEX",
-              "group": "Hispanic × Male",
+              "group": "Hispanic \u00d7 Male",
               "n_questions": 47,
               "ceiling": {
                 "mean": 0.973618,
@@ -11450,7 +11466,7 @@
               "wave": "ATP W27",
               "year": 2017,
               "attribute": "RACE_SEX",
-              "group": "Mixed Race × Female",
+              "group": "Mixed Race \u00d7 Female",
               "n_questions": 47,
               "ceiling": {
                 "mean": 0.968821,
@@ -11465,7 +11481,7 @@
               "wave": "ATP W27",
               "year": 2017,
               "attribute": "RACE_SEX",
-              "group": "Mixed Race × Male",
+              "group": "Mixed Race \u00d7 Male",
               "n_questions": 47,
               "ceiling": {
                 "mean": 0.964591,
@@ -11480,7 +11496,7 @@
               "wave": "ATP W27",
               "year": 2017,
               "attribute": "RACE_SEX",
-              "group": "Other × Female",
+              "group": "Other \u00d7 Female",
               "n_questions": 47,
               "ceiling": {
                 "mean": 0.926403,
@@ -11495,7 +11511,7 @@
               "wave": "ATP W27",
               "year": 2017,
               "attribute": "RACE_SEX",
-              "group": "Other × Male",
+              "group": "Other \u00d7 Male",
               "n_questions": 47,
               "ceiling": {
                 "mean": 0.901799,
@@ -11510,7 +11526,7 @@
               "wave": "ATP W27",
               "year": 2017,
               "attribute": "RACE_SEX",
-              "group": "Refused × Female",
+              "group": "Refused \u00d7 Female",
               "n_questions": 47,
               "ceiling": {
                 "mean": 0.913055,
@@ -11525,7 +11541,7 @@
               "wave": "ATP W27",
               "year": 2017,
               "attribute": "RACE_SEX",
-              "group": "Refused × Male",
+              "group": "Refused \u00d7 Male",
               "n_questions": 47,
               "ceiling": {
                 "mean": 0.939545,
@@ -11540,7 +11556,7 @@
               "wave": "ATP W27",
               "year": 2017,
               "attribute": "RACE_SEX",
-              "group": "White × Female",
+              "group": "White \u00d7 Female",
               "n_questions": 47,
               "ceiling": {
                 "mean": 0.998584,
@@ -11555,7 +11571,7 @@
               "wave": "ATP W27",
               "year": 2017,
               "attribute": "RACE_SEX",
-              "group": "White × Male",
+              "group": "White \u00d7 Male",
               "n_questions": 47,
               "ceiling": {
                 "mean": 0.998512,
@@ -11570,7 +11586,7 @@
               "wave": "ATP W27",
               "year": 2017,
               "attribute": "RACE_SEX",
-              "group": "marginals × Asian",
+              "group": "marginals \u00d7 Asian",
               "n_questions": 47,
               "ceiling": {
                 "mean": 0.979877,
@@ -11585,7 +11601,7 @@
               "wave": "ATP W27",
               "year": 2017,
               "attribute": "RACE_SEX",
-              "group": "marginals × Black",
+              "group": "marginals \u00d7 Black",
               "n_questions": 47,
               "ceiling": {
                 "mean": 0.993455,
@@ -11600,7 +11616,7 @@
               "wave": "ATP W27",
               "year": 2017,
               "attribute": "RACE_SEX",
-              "group": "marginals × Female",
+              "group": "marginals \u00d7 Female",
               "n_questions": 47,
               "ceiling": {
                 "mean": 0.99885,
@@ -11615,7 +11631,7 @@
               "wave": "ATP W27",
               "year": 2017,
               "attribute": "RACE_SEX",
-              "group": "marginals × Hispanic",
+              "group": "marginals \u00d7 Hispanic",
               "n_questions": 47,
               "ceiling": {
                 "mean": 0.985369,
@@ -11630,7 +11646,7 @@
               "wave": "ATP W27",
               "year": 2017,
               "attribute": "RACE_SEX",
-              "group": "marginals × Male",
+              "group": "marginals \u00d7 Male",
               "n_questions": 47,
               "ceiling": {
                 "mean": 0.998812,
@@ -11645,7 +11661,7 @@
               "wave": "ATP W27",
               "year": 2017,
               "attribute": "RACE_SEX",
-              "group": "marginals × Mixed Race",
+              "group": "marginals \u00d7 Mixed Race",
               "n_questions": 47,
               "ceiling": {
                 "mean": 0.98298,
@@ -11660,7 +11676,7 @@
               "wave": "ATP W27",
               "year": 2017,
               "attribute": "RACE_SEX",
-              "group": "marginals × Other",
+              "group": "marginals \u00d7 Other",
               "n_questions": 47,
               "ceiling": {
                 "mean": 0.954168,
@@ -11675,7 +11691,7 @@
               "wave": "ATP W27",
               "year": 2017,
               "attribute": "RACE_SEX",
-              "group": "marginals × Refused",
+              "group": "marginals \u00d7 Refused",
               "n_questions": 47,
               "ceiling": {
                 "mean": 0.961056,
@@ -11690,7 +11706,7 @@
               "wave": "ATP W27",
               "year": 2017,
               "attribute": "RACE_SEX",
-              "group": "marginals × White",
+              "group": "marginals \u00d7 White",
               "n_questions": 47,
               "ceiling": {
                 "mean": 0.999278,
@@ -12305,7 +12321,7 @@
               "wave": "ATP W29",
               "year": 2017,
               "attribute": "POLPARTY_SEX",
-              "group": "Democrat × Female",
+              "group": "Democrat \u00d7 Female",
               "n_questions": 30,
               "ceiling": {
                 "mean": 0.997629,
@@ -12320,7 +12336,7 @@
               "wave": "ATP W29",
               "year": 2017,
               "attribute": "POLPARTY_SEX",
-              "group": "Democrat × Male",
+              "group": "Democrat \u00d7 Male",
               "n_questions": 30,
               "ceiling": {
                 "mean": 0.996995,
@@ -12335,7 +12351,7 @@
               "wave": "ATP W29",
               "year": 2017,
               "attribute": "POLPARTY_SEX",
-              "group": "Independent × Female",
+              "group": "Independent \u00d7 Female",
               "n_questions": 30,
               "ceiling": {
                 "mean": 0.995819,
@@ -12350,7 +12366,7 @@
               "wave": "ATP W29",
               "year": 2017,
               "attribute": "POLPARTY_SEX",
-              "group": "Independent × Male",
+              "group": "Independent \u00d7 Male",
               "n_questions": 30,
               "ceiling": {
                 "mean": 0.99699,
@@ -12365,7 +12381,7 @@
               "wave": "ATP W29",
               "year": 2017,
               "attribute": "POLPARTY_SEX",
-              "group": "Other × Female",
+              "group": "Other \u00d7 Female",
               "n_questions": 30,
               "ceiling": {
                 "mean": 0.991375,
@@ -12380,7 +12396,7 @@
               "wave": "ATP W29",
               "year": 2017,
               "attribute": "POLPARTY_SEX",
-              "group": "Other × Male",
+              "group": "Other \u00d7 Male",
               "n_questions": 30,
               "ceiling": {
                 "mean": 0.991601,
@@ -12395,7 +12411,7 @@
               "wave": "ATP W29",
               "year": 2017,
               "attribute": "POLPARTY_SEX",
-              "group": "Refused × Female",
+              "group": "Refused \u00d7 Female",
               "n_questions": 30,
               "ceiling": {
                 "mean": 0.887254,
@@ -12410,7 +12426,7 @@
               "wave": "ATP W29",
               "year": 2017,
               "attribute": "POLPARTY_SEX",
-              "group": "Republican × Female",
+              "group": "Republican \u00d7 Female",
               "n_questions": 30,
               "ceiling": {
                 "mean": 0.995983,
@@ -12425,7 +12441,7 @@
               "wave": "ATP W29",
               "year": 2017,
               "attribute": "POLPARTY_SEX",
-              "group": "Republican × Male",
+              "group": "Republican \u00d7 Male",
               "n_questions": 30,
               "ceiling": {
                 "mean": 0.996017,
@@ -12440,7 +12456,7 @@
               "wave": "ATP W29",
               "year": 2017,
               "attribute": "POLPARTY_SEX",
-              "group": "marginals × Democrat",
+              "group": "marginals \u00d7 Democrat",
               "n_questions": 30,
               "ceiling": {
                 "mean": 0.998638,
@@ -12455,7 +12471,7 @@
               "wave": "ATP W29",
               "year": 2017,
               "attribute": "POLPARTY_SEX",
-              "group": "marginals × Female",
+              "group": "marginals \u00d7 Female",
               "n_questions": 30,
               "ceiling": {
                 "mean": 0.999034,
@@ -12470,7 +12486,7 @@
               "wave": "ATP W29",
               "year": 2017,
               "attribute": "POLPARTY_SEX",
-              "group": "marginals × Independent",
+              "group": "marginals \u00d7 Independent",
               "n_questions": 30,
               "ceiling": {
                 "mean": 0.998248,
@@ -12485,7 +12501,7 @@
               "wave": "ATP W29",
               "year": 2017,
               "attribute": "POLPARTY_SEX",
-              "group": "marginals × Male",
+              "group": "marginals \u00d7 Male",
               "n_questions": 30,
               "ceiling": {
                 "mean": 0.99902,
@@ -12500,7 +12516,7 @@
               "wave": "ATP W29",
               "year": 2017,
               "attribute": "POLPARTY_SEX",
-              "group": "marginals × Other",
+              "group": "marginals \u00d7 Other",
               "n_questions": 30,
               "ceiling": {
                 "mean": 0.995368,
@@ -12515,7 +12531,7 @@
               "wave": "ATP W29",
               "year": 2017,
               "attribute": "POLPARTY_SEX",
-              "group": "marginals × Refused",
+              "group": "marginals \u00d7 Refused",
               "n_questions": 30,
               "ceiling": {
                 "mean": 0.909958,
@@ -12530,7 +12546,7 @@
               "wave": "ATP W29",
               "year": 2017,
               "attribute": "POLPARTY_SEX",
-              "group": "marginals × Republican",
+              "group": "marginals \u00d7 Republican",
               "n_questions": 30,
               "ceiling": {
                 "mean": 0.997966,
@@ -12545,7 +12561,7 @@
               "wave": "ATP W29",
               "year": 2017,
               "attribute": "POLPARTY_RACE",
-              "group": "Democrat × Asian",
+              "group": "Democrat \u00d7 Asian",
               "n_questions": 30,
               "ceiling": {
                 "mean": 0.968409,
@@ -12560,7 +12576,7 @@
               "wave": "ATP W29",
               "year": 2017,
               "attribute": "POLPARTY_RACE",
-              "group": "Democrat × Black",
+              "group": "Democrat \u00d7 Black",
               "n_questions": 30,
               "ceiling": {
                 "mean": 0.991844,
@@ -12575,7 +12591,7 @@
               "wave": "ATP W29",
               "year": 2017,
               "attribute": "POLPARTY_RACE",
-              "group": "Democrat × Hispanic",
+              "group": "Democrat \u00d7 Hispanic",
               "n_questions": 30,
               "ceiling": {
                 "mean": 0.979219,
@@ -12590,7 +12606,7 @@
               "wave": "ATP W29",
               "year": 2017,
               "attribute": "POLPARTY_RACE",
-              "group": "Democrat × Mixed Race",
+              "group": "Democrat \u00d7 Mixed Race",
               "n_questions": 30,
               "ceiling": {
                 "mean": 0.95578,
@@ -12605,7 +12621,7 @@
               "wave": "ATP W29",
               "year": 2017,
               "attribute": "POLPARTY_RACE",
-              "group": "Democrat × Other",
+              "group": "Democrat \u00d7 Other",
               "n_questions": 30,
               "ceiling": {
                 "mean": 0.92035,
@@ -12620,7 +12636,7 @@
               "wave": "ATP W29",
               "year": 2017,
               "attribute": "POLPARTY_RACE",
-              "group": "Democrat × Refused",
+              "group": "Democrat \u00d7 Refused",
               "n_questions": 30,
               "ceiling": {
                 "mean": 0.866076,
@@ -12635,7 +12651,7 @@
               "wave": "ATP W29",
               "year": 2017,
               "attribute": "POLPARTY_RACE",
-              "group": "Democrat × White",
+              "group": "Democrat \u00d7 White",
               "n_questions": 30,
               "ceiling": {
                 "mean": 0.998185,
@@ -12650,7 +12666,7 @@
               "wave": "ATP W29",
               "year": 2017,
               "attribute": "POLPARTY_RACE",
-              "group": "Independent × Asian",
+              "group": "Independent \u00d7 Asian",
               "n_questions": 30,
               "ceiling": {
                 "mean": 0.961318,
@@ -12665,7 +12681,7 @@
               "wave": "ATP W29",
               "year": 2017,
               "attribute": "POLPARTY_RACE",
-              "group": "Independent × Black",
+              "group": "Independent \u00d7 Black",
               "n_questions": 30,
               "ceiling": {
                 "mean": 0.977244,
@@ -12680,7 +12696,7 @@
               "wave": "ATP W29",
               "year": 2017,
               "attribute": "POLPARTY_RACE",
-              "group": "Independent × Hispanic",
+              "group": "Independent \u00d7 Hispanic",
               "n_questions": 30,
               "ceiling": {
                 "mean": 0.956242,
@@ -12695,7 +12711,7 @@
               "wave": "ATP W29",
               "year": 2017,
               "attribute": "POLPARTY_RACE",
-              "group": "Independent × Mixed Race",
+              "group": "Independent \u00d7 Mixed Race",
               "n_questions": 30,
               "ceiling": {
                 "mean": 0.970363,
@@ -12710,7 +12726,7 @@
               "wave": "ATP W29",
               "year": 2017,
               "attribute": "POLPARTY_RACE",
-              "group": "Independent × Other",
+              "group": "Independent \u00d7 Other",
               "n_questions": 30,
               "ceiling": {
                 "mean": 0.90869,
@@ -12725,7 +12741,7 @@
               "wave": "ATP W29",
               "year": 2017,
               "attribute": "POLPARTY_RACE",
-              "group": "Independent × Refused",
+              "group": "Independent \u00d7 Refused",
               "n_questions": 30,
               "ceiling": {
                 "mean": 0.914904,
@@ -12740,7 +12756,7 @@
               "wave": "ATP W29",
               "year": 2017,
               "attribute": "POLPARTY_RACE",
-              "group": "Independent × White",
+              "group": "Independent \u00d7 White",
               "n_questions": 30,
               "ceiling": {
                 "mean": 0.997832,
@@ -12755,7 +12771,7 @@
               "wave": "ATP W29",
               "year": 2017,
               "attribute": "POLPARTY_RACE",
-              "group": "Other × Asian",
+              "group": "Other \u00d7 Asian",
               "n_questions": 30,
               "ceiling": {
                 "mean": 0.861868,
@@ -12770,7 +12786,7 @@
               "wave": "ATP W29",
               "year": 2017,
               "attribute": "POLPARTY_RACE",
-              "group": "Other × Black",
+              "group": "Other \u00d7 Black",
               "n_questions": 30,
               "ceiling": {
                 "mean": 0.959974,
@@ -12785,7 +12801,7 @@
               "wave": "ATP W29",
               "year": 2017,
               "attribute": "POLPARTY_RACE",
-              "group": "Other × Hispanic",
+              "group": "Other \u00d7 Hispanic",
               "n_questions": 30,
               "ceiling": {
                 "mean": 0.944796,
@@ -12800,7 +12816,7 @@
               "wave": "ATP W29",
               "year": 2017,
               "attribute": "POLPARTY_RACE",
-              "group": "Other × Mixed Race",
+              "group": "Other \u00d7 Mixed Race",
               "n_questions": 30,
               "ceiling": {
                 "mean": 0.908185,
@@ -12815,7 +12831,7 @@
               "wave": "ATP W29",
               "year": 2017,
               "attribute": "POLPARTY_RACE",
-              "group": "Other × Refused",
+              "group": "Other \u00d7 Refused",
               "n_questions": 30,
               "ceiling": {
                 "mean": 0.903772,
@@ -12830,7 +12846,7 @@
               "wave": "ATP W29",
               "year": 2017,
               "attribute": "POLPARTY_RACE",
-              "group": "Other × White",
+              "group": "Other \u00d7 White",
               "n_questions": 30,
               "ceiling": {
                 "mean": 0.993827,
@@ -12845,7 +12861,7 @@
               "wave": "ATP W29",
               "year": 2017,
               "attribute": "POLPARTY_RACE",
-              "group": "Refused × White",
+              "group": "Refused \u00d7 White",
               "n_questions": 30,
               "ceiling": {
                 "mean": 0.833961,
@@ -12860,7 +12876,7 @@
               "wave": "ATP W29",
               "year": 2017,
               "attribute": "POLPARTY_RACE",
-              "group": "Republican × Asian",
+              "group": "Republican \u00d7 Asian",
               "n_questions": 30,
               "ceiling": {
                 "mean": 0.909611,
@@ -12875,7 +12891,7 @@
               "wave": "ATP W29",
               "year": 2017,
               "attribute": "POLPARTY_RACE",
-              "group": "Republican × Black",
+              "group": "Republican \u00d7 Black",
               "n_questions": 30,
               "ceiling": {
                 "mean": 0.862223,
@@ -12890,7 +12906,7 @@
               "wave": "ATP W29",
               "year": 2017,
               "attribute": "POLPARTY_RACE",
-              "group": "Republican × Hispanic",
+              "group": "Republican \u00d7 Hispanic",
               "n_questions": 30,
               "ceiling": {
                 "mean": 0.941806,
@@ -12905,7 +12921,7 @@
               "wave": "ATP W29",
               "year": 2017,
               "attribute": "POLPARTY_RACE",
-              "group": "Republican × Mixed Race",
+              "group": "Republican \u00d7 Mixed Race",
               "n_questions": 30,
               "ceiling": {
                 "mean": 0.911003,
@@ -12920,7 +12936,7 @@
               "wave": "ATP W29",
               "year": 2017,
               "attribute": "POLPARTY_RACE",
-              "group": "Republican × Other",
+              "group": "Republican \u00d7 Other",
               "n_questions": 30,
               "ceiling": {
                 "mean": 0.894029,
@@ -12935,7 +12951,7 @@
               "wave": "ATP W29",
               "year": 2017,
               "attribute": "POLPARTY_RACE",
-              "group": "Republican × Refused",
+              "group": "Republican \u00d7 Refused",
               "n_questions": 30,
               "ceiling": {
                 "mean": 0.901092,
@@ -12950,7 +12966,7 @@
               "wave": "ATP W29",
               "year": 2017,
               "attribute": "POLPARTY_RACE",
-              "group": "Republican × White",
+              "group": "Republican \u00d7 White",
               "n_questions": 30,
               "ceiling": {
                 "mean": 0.997735,
@@ -12965,7 +12981,7 @@
               "wave": "ATP W29",
               "year": 2017,
               "attribute": "POLPARTY_RACE",
-              "group": "marginals × Asian",
+              "group": "marginals \u00d7 Asian",
               "n_questions": 30,
               "ceiling": {
                 "mean": 0.98264,
@@ -12980,7 +12996,7 @@
               "wave": "ATP W29",
               "year": 2017,
               "attribute": "POLPARTY_RACE",
-              "group": "marginals × Black",
+              "group": "marginals \u00d7 Black",
               "n_questions": 30,
               "ceiling": {
                 "mean": 0.994593,
@@ -12995,7 +13011,7 @@
               "wave": "ATP W29",
               "year": 2017,
               "attribute": "POLPARTY_RACE",
-              "group": "marginals × Democrat",
+              "group": "marginals \u00d7 Democrat",
               "n_questions": 30,
               "ceiling": {
                 "mean": 0.998638,
@@ -13010,7 +13026,7 @@
               "wave": "ATP W29",
               "year": 2017,
               "attribute": "POLPARTY_RACE",
-              "group": "marginals × Hispanic",
+              "group": "marginals \u00d7 Hispanic",
               "n_questions": 30,
               "ceiling": {
                 "mean": 0.98984,
@@ -13025,7 +13041,7 @@
               "wave": "ATP W29",
               "year": 2017,
               "attribute": "POLPARTY_RACE",
-              "group": "marginals × Independent",
+              "group": "marginals \u00d7 Independent",
               "n_questions": 30,
               "ceiling": {
                 "mean": 0.998248,
@@ -13040,7 +13056,7 @@
               "wave": "ATP W29",
               "year": 2017,
               "attribute": "POLPARTY_RACE",
-              "group": "marginals × Mixed Race",
+              "group": "marginals \u00d7 Mixed Race",
               "n_questions": 30,
               "ceiling": {
                 "mean": 0.986631,
@@ -13055,7 +13071,7 @@
               "wave": "ATP W29",
               "year": 2017,
               "attribute": "POLPARTY_RACE",
-              "group": "marginals × Other",
+              "group": "marginals \u00d7 Other",
               "n_questions": 30,
               "ceiling": {
                 "mean": 0.972693,
@@ -13070,7 +13086,7 @@
               "wave": "ATP W29",
               "year": 2017,
               "attribute": "POLPARTY_RACE",
-              "group": "marginals × Refused",
+              "group": "marginals \u00d7 Refused",
               "n_questions": 30,
               "ceiling": {
                 "mean": 0.972252,
@@ -13085,7 +13101,7 @@
               "wave": "ATP W29",
               "year": 2017,
               "attribute": "POLPARTY_RACE",
-              "group": "marginals × Republican",
+              "group": "marginals \u00d7 Republican",
               "n_questions": 30,
               "ceiling": {
                 "mean": 0.997966,
@@ -13100,7 +13116,7 @@
               "wave": "ATP W29",
               "year": 2017,
               "attribute": "POLPARTY_RACE",
-              "group": "marginals × White",
+              "group": "marginals \u00d7 White",
               "n_questions": 30,
               "ceiling": {
                 "mean": 0.999376,
@@ -13115,7 +13131,7 @@
               "wave": "ATP W29",
               "year": 2017,
               "attribute": "RACE_SEX",
-              "group": "Asian × Female",
+              "group": "Asian \u00d7 Female",
               "n_questions": 30,
               "ceiling": {
                 "mean": 0.967925,
@@ -13130,7 +13146,7 @@
               "wave": "ATP W29",
               "year": 2017,
               "attribute": "RACE_SEX",
-              "group": "Asian × Male",
+              "group": "Asian \u00d7 Male",
               "n_questions": 30,
               "ceiling": {
                 "mean": 0.970901,
@@ -13145,7 +13161,7 @@
               "wave": "ATP W29",
               "year": 2017,
               "attribute": "RACE_SEX",
-              "group": "Black × Female",
+              "group": "Black \u00d7 Female",
               "n_questions": 30,
               "ceiling": {
                 "mean": 0.989906,
@@ -13160,7 +13176,7 @@
               "wave": "ATP W29",
               "year": 2017,
               "attribute": "RACE_SEX",
-              "group": "Black × Male",
+              "group": "Black \u00d7 Male",
               "n_questions": 30,
               "ceiling": {
                 "mean": 0.989715,
@@ -13175,7 +13191,7 @@
               "wave": "ATP W29",
               "year": 2017,
               "attribute": "RACE_SEX",
-              "group": "Hispanic × Female",
+              "group": "Hispanic \u00d7 Female",
               "n_questions": 30,
               "ceiling": {
                 "mean": 0.979703,
@@ -13190,7 +13206,7 @@
               "wave": "ATP W29",
               "year": 2017,
               "attribute": "RACE_SEX",
-              "group": "Hispanic × Male",
+              "group": "Hispanic \u00d7 Male",
               "n_questions": 30,
               "ceiling": {
                 "mean": 0.982291,
@@ -13205,7 +13221,7 @@
               "wave": "ATP W29",
               "year": 2017,
               "attribute": "RACE_SEX",
-              "group": "Mixed Race × Female",
+              "group": "Mixed Race \u00d7 Female",
               "n_questions": 30,
               "ceiling": {
                 "mean": 0.976095,
@@ -13220,7 +13236,7 @@
               "wave": "ATP W29",
               "year": 2017,
               "attribute": "RACE_SEX",
-              "group": "Mixed Race × Male",
+              "group": "Mixed Race \u00d7 Male",
               "n_questions": 30,
               "ceiling": {
                 "mean": 0.971212,
@@ -13235,7 +13251,7 @@
               "wave": "ATP W29",
               "year": 2017,
               "attribute": "RACE_SEX",
-              "group": "Other × Female",
+              "group": "Other \u00d7 Female",
               "n_questions": 30,
               "ceiling": {
                 "mean": 0.95097,
@@ -13250,7 +13266,7 @@
               "wave": "ATP W29",
               "year": 2017,
               "attribute": "RACE_SEX",
-              "group": "Other × Male",
+              "group": "Other \u00d7 Male",
               "n_questions": 30,
               "ceiling": {
                 "mean": 0.932867,
@@ -13265,7 +13281,7 @@
               "wave": "ATP W29",
               "year": 2017,
               "attribute": "RACE_SEX",
-              "group": "Refused × Female",
+              "group": "Refused \u00d7 Female",
               "n_questions": 30,
               "ceiling": {
                 "mean": 0.927267,
@@ -13280,7 +13296,7 @@
               "wave": "ATP W29",
               "year": 2017,
               "attribute": "RACE_SEX",
-              "group": "Refused × Male",
+              "group": "Refused \u00d7 Male",
               "n_questions": 30,
               "ceiling": {
                 "mean": 0.958248,
@@ -13295,7 +13311,7 @@
               "wave": "ATP W29",
               "year": 2017,
               "attribute": "RACE_SEX",
-              "group": "White × Female",
+              "group": "White \u00d7 Female",
               "n_questions": 30,
               "ceiling": {
                 "mean": 0.998758,
@@ -13310,7 +13326,7 @@
               "wave": "ATP W29",
               "year": 2017,
               "attribute": "RACE_SEX",
-              "group": "White × Male",
+              "group": "White \u00d7 Male",
               "n_questions": 30,
               "ceiling": {
                 "mean": 0.998725,
@@ -13325,7 +13341,7 @@
               "wave": "ATP W29",
               "year": 2017,
               "attribute": "RACE_SEX",
-              "group": "marginals × Asian",
+              "group": "marginals \u00d7 Asian",
               "n_questions": 30,
               "ceiling": {
                 "mean": 0.98264,
@@ -13340,7 +13356,7 @@
               "wave": "ATP W29",
               "year": 2017,
               "attribute": "RACE_SEX",
-              "group": "marginals × Black",
+              "group": "marginals \u00d7 Black",
               "n_questions": 30,
               "ceiling": {
                 "mean": 0.994593,
@@ -13355,7 +13371,7 @@
               "wave": "ATP W29",
               "year": 2017,
               "attribute": "RACE_SEX",
-              "group": "marginals × Female",
+              "group": "marginals \u00d7 Female",
               "n_questions": 30,
               "ceiling": {
                 "mean": 0.999034,
@@ -13370,7 +13386,7 @@
               "wave": "ATP W29",
               "year": 2017,
               "attribute": "RACE_SEX",
-              "group": "marginals × Hispanic",
+              "group": "marginals \u00d7 Hispanic",
               "n_questions": 30,
               "ceiling": {
                 "mean": 0.98984,
@@ -13385,7 +13401,7 @@
               "wave": "ATP W29",
               "year": 2017,
               "attribute": "RACE_SEX",
-              "group": "marginals × Male",
+              "group": "marginals \u00d7 Male",
               "n_questions": 30,
               "ceiling": {
                 "mean": 0.99902,
@@ -13400,7 +13416,7 @@
               "wave": "ATP W29",
               "year": 2017,
               "attribute": "RACE_SEX",
-              "group": "marginals × Mixed Race",
+              "group": "marginals \u00d7 Mixed Race",
               "n_questions": 30,
               "ceiling": {
                 "mean": 0.986631,
@@ -13415,7 +13431,7 @@
               "wave": "ATP W29",
               "year": 2017,
               "attribute": "RACE_SEX",
-              "group": "marginals × Other",
+              "group": "marginals \u00d7 Other",
               "n_questions": 30,
               "ceiling": {
                 "mean": 0.972693,
@@ -13430,7 +13446,7 @@
               "wave": "ATP W29",
               "year": 2017,
               "attribute": "RACE_SEX",
-              "group": "marginals × Refused",
+              "group": "marginals \u00d7 Refused",
               "n_questions": 30,
               "ceiling": {
                 "mean": 0.972252,
@@ -13445,7 +13461,7 @@
               "wave": "ATP W29",
               "year": 2017,
               "attribute": "RACE_SEX",
-              "group": "marginals × White",
+              "group": "marginals \u00d7 White",
               "n_questions": 30,
               "ceiling": {
                 "mean": 0.999376,
@@ -14060,7 +14076,7 @@
               "wave": "ATP W32",
               "year": 2018,
               "attribute": "POLPARTY_SEX",
-              "group": "Democrat × Female",
+              "group": "Democrat \u00d7 Female",
               "n_questions": 65,
               "ceiling": {
                 "mean": 0.997937,
@@ -14075,7 +14091,7 @@
               "wave": "ATP W32",
               "year": 2018,
               "attribute": "POLPARTY_SEX",
-              "group": "Democrat × Male",
+              "group": "Democrat \u00d7 Male",
               "n_questions": 65,
               "ceiling": {
                 "mean": 0.997191,
@@ -14090,7 +14106,7 @@
               "wave": "ATP W32",
               "year": 2018,
               "attribute": "POLPARTY_SEX",
-              "group": "Independent × Female",
+              "group": "Independent \u00d7 Female",
               "n_questions": 65,
               "ceiling": {
                 "mean": 0.996795,
@@ -14105,7 +14121,7 @@
               "wave": "ATP W32",
               "year": 2018,
               "attribute": "POLPARTY_SEX",
-              "group": "Independent × Male",
+              "group": "Independent \u00d7 Male",
               "n_questions": 65,
               "ceiling": {
                 "mean": 0.99744,
@@ -14120,7 +14136,7 @@
               "wave": "ATP W32",
               "year": 2018,
               "attribute": "POLPARTY_SEX",
-              "group": "Other × Female",
+              "group": "Other \u00d7 Female",
               "n_questions": 65,
               "ceiling": {
                 "mean": 0.99106,
@@ -14135,7 +14151,7 @@
               "wave": "ATP W32",
               "year": 2018,
               "attribute": "POLPARTY_SEX",
-              "group": "Other × Male",
+              "group": "Other \u00d7 Male",
               "n_questions": 65,
               "ceiling": {
                 "mean": 0.991415,
@@ -14150,7 +14166,7 @@
               "wave": "ATP W32",
               "year": 2018,
               "attribute": "POLPARTY_SEX",
-              "group": "Refused × Female",
+              "group": "Refused \u00d7 Female",
               "n_questions": 65,
               "ceiling": {
                 "mean": 0.940684,
@@ -14165,7 +14181,7 @@
               "wave": "ATP W32",
               "year": 2018,
               "attribute": "POLPARTY_SEX",
-              "group": "Refused × Male",
+              "group": "Refused \u00d7 Male",
               "n_questions": 65,
               "ceiling": {
                 "mean": 0.893838,
@@ -14180,7 +14196,7 @@
               "wave": "ATP W32",
               "year": 2018,
               "attribute": "POLPARTY_SEX",
-              "group": "Republican × Female",
+              "group": "Republican \u00d7 Female",
               "n_questions": 65,
               "ceiling": {
                 "mean": 0.997277,
@@ -14195,7 +14211,7 @@
               "wave": "ATP W32",
               "year": 2018,
               "attribute": "POLPARTY_SEX",
-              "group": "Republican × Male",
+              "group": "Republican \u00d7 Male",
               "n_questions": 65,
               "ceiling": {
                 "mean": 0.997204,
@@ -14210,7 +14226,7 @@
               "wave": "ATP W32",
               "year": 2018,
               "attribute": "POLPARTY_SEX",
-              "group": "marginals × Democrat",
+              "group": "marginals \u00d7 Democrat",
               "n_questions": 65,
               "ceiling": {
                 "mean": 0.998803,
@@ -14225,7 +14241,7 @@
               "wave": "ATP W32",
               "year": 2018,
               "attribute": "POLPARTY_SEX",
-              "group": "marginals × Female",
+              "group": "marginals \u00d7 Female",
               "n_questions": 65,
               "ceiling": {
                 "mean": 0.999222,
@@ -14240,7 +14256,7 @@
               "wave": "ATP W32",
               "year": 2018,
               "attribute": "POLPARTY_SEX",
-              "group": "marginals × Independent",
+              "group": "marginals \u00d7 Independent",
               "n_questions": 65,
               "ceiling": {
                 "mean": 0.998544,
@@ -14255,7 +14271,7 @@
               "wave": "ATP W32",
               "year": 2018,
               "attribute": "POLPARTY_SEX",
-              "group": "marginals × Male",
+              "group": "marginals \u00d7 Male",
               "n_questions": 65,
               "ceiling": {
                 "mean": 0.999189,
@@ -14270,7 +14286,7 @@
               "wave": "ATP W32",
               "year": 2018,
               "attribute": "POLPARTY_SEX",
-              "group": "marginals × Other",
+              "group": "marginals \u00d7 Other",
               "n_questions": 65,
               "ceiling": {
                 "mean": 0.995482,
@@ -14285,7 +14301,7 @@
               "wave": "ATP W32",
               "year": 2018,
               "attribute": "POLPARTY_SEX",
-              "group": "marginals × Refused",
+              "group": "marginals \u00d7 Refused",
               "n_questions": 65,
               "ceiling": {
                 "mean": 0.962516,
@@ -14300,7 +14316,7 @@
               "wave": "ATP W32",
               "year": 2018,
               "attribute": "POLPARTY_SEX",
-              "group": "marginals × Republican",
+              "group": "marginals \u00d7 Republican",
               "n_questions": 65,
               "ceiling": {
                 "mean": 0.998604,
@@ -14315,7 +14331,7 @@
               "wave": "ATP W32",
               "year": 2018,
               "attribute": "POLPARTY_RACE",
-              "group": "Democrat × Asian",
+              "group": "Democrat \u00d7 Asian",
               "n_questions": 65,
               "ceiling": {
                 "mean": 0.970438,
@@ -14330,7 +14346,7 @@
               "wave": "ATP W32",
               "year": 2018,
               "attribute": "POLPARTY_RACE",
-              "group": "Democrat × Black",
+              "group": "Democrat \u00d7 Black",
               "n_questions": 65,
               "ceiling": {
                 "mean": 0.992532,
@@ -14345,7 +14361,7 @@
               "wave": "ATP W32",
               "year": 2018,
               "attribute": "POLPARTY_RACE",
-              "group": "Democrat × Hispanic",
+              "group": "Democrat \u00d7 Hispanic",
               "n_questions": 65,
               "ceiling": {
                 "mean": 0.98478,
@@ -14360,7 +14376,7 @@
               "wave": "ATP W32",
               "year": 2018,
               "attribute": "POLPARTY_RACE",
-              "group": "Democrat × Mixed Race",
+              "group": "Democrat \u00d7 Mixed Race",
               "n_questions": 65,
               "ceiling": {
                 "mean": 0.949867,
@@ -14375,7 +14391,7 @@
               "wave": "ATP W32",
               "year": 2018,
               "attribute": "POLPARTY_RACE",
-              "group": "Democrat × Other",
+              "group": "Democrat \u00d7 Other",
               "n_questions": 65,
               "ceiling": {
                 "mean": 0.932707,
@@ -14390,7 +14406,7 @@
               "wave": "ATP W32",
               "year": 2018,
               "attribute": "POLPARTY_RACE",
-              "group": "Democrat × Refused",
+              "group": "Democrat \u00d7 Refused",
               "n_questions": 65,
               "ceiling": {
                 "mean": 0.850113,
@@ -14405,7 +14421,7 @@
               "wave": "ATP W32",
               "year": 2018,
               "attribute": "POLPARTY_RACE",
-              "group": "Democrat × White",
+              "group": "Democrat \u00d7 White",
               "n_questions": 65,
               "ceiling": {
                 "mean": 0.998315,
@@ -14420,7 +14436,7 @@
               "wave": "ATP W32",
               "year": 2018,
               "attribute": "POLPARTY_RACE",
-              "group": "Independent × Asian",
+              "group": "Independent \u00d7 Asian",
               "n_questions": 65,
               "ceiling": {
                 "mean": 0.946594,
@@ -14435,7 +14451,7 @@
               "wave": "ATP W32",
               "year": 2018,
               "attribute": "POLPARTY_RACE",
-              "group": "Independent × Black",
+              "group": "Independent \u00d7 Black",
               "n_questions": 65,
               "ceiling": {
                 "mean": 0.98048,
@@ -14450,7 +14466,7 @@
               "wave": "ATP W32",
               "year": 2018,
               "attribute": "POLPARTY_RACE",
-              "group": "Independent × Hispanic",
+              "group": "Independent \u00d7 Hispanic",
               "n_questions": 65,
               "ceiling": {
                 "mean": 0.965921,
@@ -14465,7 +14481,7 @@
               "wave": "ATP W32",
               "year": 2018,
               "attribute": "POLPARTY_RACE",
-              "group": "Independent × Mixed Race",
+              "group": "Independent \u00d7 Mixed Race",
               "n_questions": 65,
               "ceiling": {
                 "mean": 0.961505,
@@ -14480,7 +14496,7 @@
               "wave": "ATP W32",
               "year": 2018,
               "attribute": "POLPARTY_RACE",
-              "group": "Independent × Other",
+              "group": "Independent \u00d7 Other",
               "n_questions": 65,
               "ceiling": {
                 "mean": 0.953506,
@@ -14495,7 +14511,7 @@
               "wave": "ATP W32",
               "year": 2018,
               "attribute": "POLPARTY_RACE",
-              "group": "Independent × Refused",
+              "group": "Independent \u00d7 Refused",
               "n_questions": 65,
               "ceiling": {
                 "mean": 0.916359,
@@ -14510,7 +14526,7 @@
               "wave": "ATP W32",
               "year": 2018,
               "attribute": "POLPARTY_RACE",
-              "group": "Independent × White",
+              "group": "Independent \u00d7 White",
               "n_questions": 65,
               "ceiling": {
                 "mean": 0.998221,
@@ -14525,7 +14541,7 @@
               "wave": "ATP W32",
               "year": 2018,
               "attribute": "POLPARTY_RACE",
-              "group": "Other × Asian",
+              "group": "Other \u00d7 Asian",
               "n_questions": 65,
               "ceiling": {
                 "mean": 0.887457,
@@ -14540,7 +14556,7 @@
               "wave": "ATP W32",
               "year": 2018,
               "attribute": "POLPARTY_RACE",
-              "group": "Other × Black",
+              "group": "Other \u00d7 Black",
               "n_questions": 65,
               "ceiling": {
                 "mean": 0.95098,
@@ -14555,7 +14571,7 @@
               "wave": "ATP W32",
               "year": 2018,
               "attribute": "POLPARTY_RACE",
-              "group": "Other × Hispanic",
+              "group": "Other \u00d7 Hispanic",
               "n_questions": 65,
               "ceiling": {
                 "mean": 0.947716,
@@ -14570,7 +14586,7 @@
               "wave": "ATP W32",
               "year": 2018,
               "attribute": "POLPARTY_RACE",
-              "group": "Other × Mixed Race",
+              "group": "Other \u00d7 Mixed Race",
               "n_questions": 65,
               "ceiling": {
                 "mean": 0.910237,
@@ -14585,7 +14601,7 @@
               "wave": "ATP W32",
               "year": 2018,
               "attribute": "POLPARTY_RACE",
-              "group": "Other × Other",
+              "group": "Other \u00d7 Other",
               "n_questions": 65,
               "ceiling": {
                 "mean": 0.890159,
@@ -14600,7 +14616,7 @@
               "wave": "ATP W32",
               "year": 2018,
               "attribute": "POLPARTY_RACE",
-              "group": "Other × Refused",
+              "group": "Other \u00d7 Refused",
               "n_questions": 65,
               "ceiling": {
                 "mean": 0.842911,
@@ -14615,7 +14631,7 @@
               "wave": "ATP W32",
               "year": 2018,
               "attribute": "POLPARTY_RACE",
-              "group": "Other × White",
+              "group": "Other \u00d7 White",
               "n_questions": 65,
               "ceiling": {
                 "mean": 0.993823,
@@ -14630,7 +14646,7 @@
               "wave": "ATP W32",
               "year": 2018,
               "attribute": "POLPARTY_RACE",
-              "group": "Refused × White",
+              "group": "Refused \u00d7 White",
               "n_questions": 65,
               "ceiling": {
                 "mean": 0.949276,
@@ -14645,7 +14661,7 @@
               "wave": "ATP W32",
               "year": 2018,
               "attribute": "POLPARTY_RACE",
-              "group": "Republican × Asian",
+              "group": "Republican \u00d7 Asian",
               "n_questions": 65,
               "ceiling": {
                 "mean": 0.907108,
@@ -14660,7 +14676,7 @@
               "wave": "ATP W32",
               "year": 2018,
               "attribute": "POLPARTY_RACE",
-              "group": "Republican × Black",
+              "group": "Republican \u00d7 Black",
               "n_questions": 65,
               "ceiling": {
                 "mean": 0.896543,
@@ -14675,7 +14691,7 @@
               "wave": "ATP W32",
               "year": 2018,
               "attribute": "POLPARTY_RACE",
-              "group": "Republican × Hispanic",
+              "group": "Republican \u00d7 Hispanic",
               "n_questions": 65,
               "ceiling": {
                 "mean": 0.952878,
@@ -14690,7 +14706,7 @@
               "wave": "ATP W32",
               "year": 2018,
               "attribute": "POLPARTY_RACE",
-              "group": "Republican × Mixed Race",
+              "group": "Republican \u00d7 Mixed Race",
               "n_questions": 65,
               "ceiling": {
                 "mean": 0.903453,
@@ -14705,7 +14721,7 @@
               "wave": "ATP W32",
               "year": 2018,
               "attribute": "POLPARTY_RACE",
-              "group": "Republican × Other",
+              "group": "Republican \u00d7 Other",
               "n_questions": 65,
               "ceiling": {
                 "mean": 0.952425,
@@ -14720,7 +14736,7 @@
               "wave": "ATP W32",
               "year": 2018,
               "attribute": "POLPARTY_RACE",
-              "group": "Republican × Refused",
+              "group": "Republican \u00d7 Refused",
               "n_questions": 65,
               "ceiling": {
                 "mean": 0.890658,
@@ -14735,7 +14751,7 @@
               "wave": "ATP W32",
               "year": 2018,
               "attribute": "POLPARTY_RACE",
-              "group": "Republican × White",
+              "group": "Republican \u00d7 White",
               "n_questions": 65,
               "ceiling": {
                 "mean": 0.998469,
@@ -14750,7 +14766,7 @@
               "wave": "ATP W32",
               "year": 2018,
               "attribute": "POLPARTY_RACE",
-              "group": "marginals × Asian",
+              "group": "marginals \u00d7 Asian",
               "n_questions": 65,
               "ceiling": {
                 "mean": 0.982934,
@@ -14765,7 +14781,7 @@
               "wave": "ATP W32",
               "year": 2018,
               "attribute": "POLPARTY_RACE",
-              "group": "marginals × Black",
+              "group": "marginals \u00d7 Black",
               "n_questions": 65,
               "ceiling": {
                 "mean": 0.995125,
@@ -14780,7 +14796,7 @@
               "wave": "ATP W32",
               "year": 2018,
               "attribute": "POLPARTY_RACE",
-              "group": "marginals × Democrat",
+              "group": "marginals \u00d7 Democrat",
               "n_questions": 65,
               "ceiling": {
                 "mean": 0.998803,
@@ -14795,7 +14811,7 @@
               "wave": "ATP W32",
               "year": 2018,
               "attribute": "POLPARTY_RACE",
-              "group": "marginals × Hispanic",
+              "group": "marginals \u00d7 Hispanic",
               "n_questions": 65,
               "ceiling": {
                 "mean": 0.991301,
@@ -14810,7 +14826,7 @@
               "wave": "ATP W32",
               "year": 2018,
               "attribute": "POLPARTY_RACE",
-              "group": "marginals × Independent",
+              "group": "marginals \u00d7 Independent",
               "n_questions": 65,
               "ceiling": {
                 "mean": 0.998544,
@@ -14825,7 +14841,7 @@
               "wave": "ATP W32",
               "year": 2018,
               "attribute": "POLPARTY_RACE",
-              "group": "marginals × Mixed Race",
+              "group": "marginals \u00d7 Mixed Race",
               "n_questions": 65,
               "ceiling": {
                 "mean": 0.984562,
@@ -14840,7 +14856,7 @@
               "wave": "ATP W32",
               "year": 2018,
               "attribute": "POLPARTY_RACE",
-              "group": "marginals × Other",
+              "group": "marginals \u00d7 Other",
               "n_questions": 65,
               "ceiling": {
                 "mean": 0.983916,
@@ -14855,7 +14871,7 @@
               "wave": "ATP W32",
               "year": 2018,
               "attribute": "POLPARTY_RACE",
-              "group": "marginals × Refused",
+              "group": "marginals \u00d7 Refused",
               "n_questions": 65,
               "ceiling": {
                 "mean": 0.966532,
@@ -14870,7 +14886,7 @@
               "wave": "ATP W32",
               "year": 2018,
               "attribute": "POLPARTY_RACE",
-              "group": "marginals × Republican",
+              "group": "marginals \u00d7 Republican",
               "n_questions": 65,
               "ceiling": {
                 "mean": 0.998604,
@@ -14885,7 +14901,7 @@
               "wave": "ATP W32",
               "year": 2018,
               "attribute": "POLPARTY_RACE",
-              "group": "marginals × White",
+              "group": "marginals \u00d7 White",
               "n_questions": 65,
               "ceiling": {
                 "mean": 0.999503,
@@ -14900,7 +14916,7 @@
               "wave": "ATP W32",
               "year": 2018,
               "attribute": "RACE_SEX",
-              "group": "Asian × Female",
+              "group": "Asian \u00d7 Female",
               "n_questions": 65,
               "ceiling": {
                 "mean": 0.968919,
@@ -14915,7 +14931,7 @@
               "wave": "ATP W32",
               "year": 2018,
               "attribute": "RACE_SEX",
-              "group": "Asian × Male",
+              "group": "Asian \u00d7 Male",
               "n_questions": 65,
               "ceiling": {
                 "mean": 0.970505,
@@ -14930,7 +14946,7 @@
               "wave": "ATP W32",
               "year": 2018,
               "attribute": "RACE_SEX",
-              "group": "Black × Female",
+              "group": "Black \u00d7 Female",
               "n_questions": 65,
               "ceiling": {
                 "mean": 0.99119,
@@ -14945,7 +14961,7 @@
               "wave": "ATP W32",
               "year": 2018,
               "attribute": "RACE_SEX",
-              "group": "Black × Male",
+              "group": "Black \u00d7 Male",
               "n_questions": 65,
               "ceiling": {
                 "mean": 0.989551,
@@ -14960,7 +14976,7 @@
               "wave": "ATP W32",
               "year": 2018,
               "attribute": "RACE_SEX",
-              "group": "Hispanic × Female",
+              "group": "Hispanic \u00d7 Female",
               "n_questions": 65,
               "ceiling": {
                 "mean": 0.982292,
@@ -14975,7 +14991,7 @@
               "wave": "ATP W32",
               "year": 2018,
               "attribute": "RACE_SEX",
-              "group": "Hispanic × Male",
+              "group": "Hispanic \u00d7 Male",
               "n_questions": 65,
               "ceiling": {
                 "mean": 0.98446,
@@ -14990,7 +15006,7 @@
               "wave": "ATP W32",
               "year": 2018,
               "attribute": "RACE_SEX",
-              "group": "Mixed Race × Female",
+              "group": "Mixed Race \u00d7 Female",
               "n_questions": 65,
               "ceiling": {
                 "mean": 0.973265,
@@ -15005,7 +15021,7 @@
               "wave": "ATP W32",
               "year": 2018,
               "attribute": "RACE_SEX",
-              "group": "Mixed Race × Male",
+              "group": "Mixed Race \u00d7 Male",
               "n_questions": 65,
               "ceiling": {
                 "mean": 0.96441,
@@ -15020,7 +15036,7 @@
               "wave": "ATP W32",
               "year": 2018,
               "attribute": "RACE_SEX",
-              "group": "Other × Female",
+              "group": "Other \u00d7 Female",
               "n_questions": 65,
               "ceiling": {
                 "mean": 0.970211,
@@ -15035,7 +15051,7 @@
               "wave": "ATP W32",
               "year": 2018,
               "attribute": "RACE_SEX",
-              "group": "Other × Male",
+              "group": "Other \u00d7 Male",
               "n_questions": 65,
               "ceiling": {
                 "mean": 0.967128,
@@ -15050,7 +15066,7 @@
               "wave": "ATP W32",
               "year": 2018,
               "attribute": "RACE_SEX",
-              "group": "Refused × Female",
+              "group": "Refused \u00d7 Female",
               "n_questions": 65,
               "ceiling": {
                 "mean": 0.910678,
@@ -15065,7 +15081,7 @@
               "wave": "ATP W32",
               "year": 2018,
               "attribute": "RACE_SEX",
-              "group": "Refused × Male",
+              "group": "Refused \u00d7 Male",
               "n_questions": 65,
               "ceiling": {
                 "mean": 0.948179,
@@ -15080,7 +15096,7 @@
               "wave": "ATP W32",
               "year": 2018,
               "attribute": "RACE_SEX",
-              "group": "White × Female",
+              "group": "White \u00d7 Female",
               "n_questions": 65,
               "ceiling": {
                 "mean": 0.999027,
@@ -15095,7 +15111,7 @@
               "wave": "ATP W32",
               "year": 2018,
               "attribute": "RACE_SEX",
-              "group": "White × Male",
+              "group": "White \u00d7 Male",
               "n_questions": 65,
               "ceiling": {
                 "mean": 0.998964,
@@ -15110,7 +15126,7 @@
               "wave": "ATP W32",
               "year": 2018,
               "attribute": "RACE_SEX",
-              "group": "marginals × Asian",
+              "group": "marginals \u00d7 Asian",
               "n_questions": 65,
               "ceiling": {
                 "mean": 0.982934,
@@ -15125,7 +15141,7 @@
               "wave": "ATP W32",
               "year": 2018,
               "attribute": "RACE_SEX",
-              "group": "marginals × Black",
+              "group": "marginals \u00d7 Black",
               "n_questions": 65,
               "ceiling": {
                 "mean": 0.995125,
@@ -15140,7 +15156,7 @@
               "wave": "ATP W32",
               "year": 2018,
               "attribute": "RACE_SEX",
-              "group": "marginals × Female",
+              "group": "marginals \u00d7 Female",
               "n_questions": 65,
               "ceiling": {
                 "mean": 0.999222,
@@ -15155,7 +15171,7 @@
               "wave": "ATP W32",
               "year": 2018,
               "attribute": "RACE_SEX",
-              "group": "marginals × Hispanic",
+              "group": "marginals \u00d7 Hispanic",
               "n_questions": 65,
               "ceiling": {
                 "mean": 0.991301,
@@ -15170,7 +15186,7 @@
               "wave": "ATP W32",
               "year": 2018,
               "attribute": "RACE_SEX",
-              "group": "marginals × Male",
+              "group": "marginals \u00d7 Male",
               "n_questions": 65,
               "ceiling": {
                 "mean": 0.999189,
@@ -15185,7 +15201,7 @@
               "wave": "ATP W32",
               "year": 2018,
               "attribute": "RACE_SEX",
-              "group": "marginals × Mixed Race",
+              "group": "marginals \u00d7 Mixed Race",
               "n_questions": 65,
               "ceiling": {
                 "mean": 0.984496,
@@ -15200,7 +15216,7 @@
               "wave": "ATP W32",
               "year": 2018,
               "attribute": "RACE_SEX",
-              "group": "marginals × Other",
+              "group": "marginals \u00d7 Other",
               "n_questions": 65,
               "ceiling": {
                 "mean": 0.983916,
@@ -15215,7 +15231,7 @@
               "wave": "ATP W32",
               "year": 2018,
               "attribute": "RACE_SEX",
-              "group": "marginals × Refused",
+              "group": "marginals \u00d7 Refused",
               "n_questions": 65,
               "ceiling": {
                 "mean": 0.966532,
@@ -15230,7 +15246,7 @@
               "wave": "ATP W32",
               "year": 2018,
               "attribute": "RACE_SEX",
-              "group": "marginals × White",
+              "group": "marginals \u00d7 White",
               "n_questions": 65,
               "ceiling": {
                 "mean": 0.999503,
@@ -15845,7 +15861,7 @@
               "wave": "ATP W34",
               "year": 2018,
               "attribute": "POLPARTY_SEX",
-              "group": "Democrat × Female",
+              "group": "Democrat \u00d7 Female",
               "n_questions": 59,
               "ceiling": {
                 "mean": 0.996228,
@@ -15860,7 +15876,7 @@
               "wave": "ATP W34",
               "year": 2018,
               "attribute": "POLPARTY_SEX",
-              "group": "Democrat × Male",
+              "group": "Democrat \u00d7 Male",
               "n_questions": 59,
               "ceiling": {
                 "mean": 0.99538,
@@ -15875,7 +15891,7 @@
               "wave": "ATP W34",
               "year": 2018,
               "attribute": "POLPARTY_SEX",
-              "group": "Independent × Female",
+              "group": "Independent \u00d7 Female",
               "n_questions": 59,
               "ceiling": {
                 "mean": 0.993347,
@@ -15890,7 +15906,7 @@
               "wave": "ATP W34",
               "year": 2018,
               "attribute": "POLPARTY_SEX",
-              "group": "Independent × Male",
+              "group": "Independent \u00d7 Male",
               "n_questions": 59,
               "ceiling": {
                 "mean": 0.994858,
@@ -15905,7 +15921,7 @@
               "wave": "ATP W34",
               "year": 2018,
               "attribute": "POLPARTY_SEX",
-              "group": "Other × Female",
+              "group": "Other \u00d7 Female",
               "n_questions": 59,
               "ceiling": {
                 "mean": 0.985258,
@@ -15920,7 +15936,7 @@
               "wave": "ATP W34",
               "year": 2018,
               "attribute": "POLPARTY_SEX",
-              "group": "Other × Male",
+              "group": "Other \u00d7 Male",
               "n_questions": 59,
               "ceiling": {
                 "mean": 0.987885,
@@ -15935,7 +15951,7 @@
               "wave": "ATP W34",
               "year": 2018,
               "attribute": "POLPARTY_SEX",
-              "group": "Republican × Female",
+              "group": "Republican \u00d7 Female",
               "n_questions": 59,
               "ceiling": {
                 "mean": 0.992923,
@@ -15950,7 +15966,7 @@
               "wave": "ATP W34",
               "year": 2018,
               "attribute": "POLPARTY_SEX",
-              "group": "Republican × Male",
+              "group": "Republican \u00d7 Male",
               "n_questions": 59,
               "ceiling": {
                 "mean": 0.993734,
@@ -15965,7 +15981,7 @@
               "wave": "ATP W34",
               "year": 2018,
               "attribute": "POLPARTY_SEX",
-              "group": "marginals × Democrat",
+              "group": "marginals \u00d7 Democrat",
               "n_questions": 59,
               "ceiling": {
                 "mean": 0.997848,
@@ -15980,7 +15996,7 @@
               "wave": "ATP W34",
               "year": 2018,
               "attribute": "POLPARTY_SEX",
-              "group": "marginals × Female",
+              "group": "marginals \u00d7 Female",
               "n_questions": 59,
               "ceiling": {
                 "mean": 0.998369,
@@ -15995,7 +16011,7 @@
               "wave": "ATP W34",
               "year": 2018,
               "attribute": "POLPARTY_SEX",
-              "group": "marginals × Independent",
+              "group": "marginals \u00d7 Independent",
               "n_questions": 59,
               "ceiling": {
                 "mean": 0.997011,
@@ -16010,7 +16026,7 @@
               "wave": "ATP W34",
               "year": 2018,
               "attribute": "POLPARTY_SEX",
-              "group": "marginals × Male",
+              "group": "marginals \u00d7 Male",
               "n_questions": 59,
               "ceiling": {
                 "mean": 0.998357,
@@ -16025,7 +16041,7 @@
               "wave": "ATP W34",
               "year": 2018,
               "attribute": "POLPARTY_SEX",
-              "group": "marginals × Other",
+              "group": "marginals \u00d7 Other",
               "n_questions": 59,
               "ceiling": {
                 "mean": 0.992873,
@@ -16040,7 +16056,7 @@
               "wave": "ATP W34",
               "year": 2018,
               "attribute": "POLPARTY_SEX",
-              "group": "marginals × Refused",
+              "group": "marginals \u00d7 Refused",
               "n_questions": 59,
               "ceiling": {
                 "mean": 0.871183,
@@ -16055,7 +16071,7 @@
               "wave": "ATP W34",
               "year": 2018,
               "attribute": "POLPARTY_SEX",
-              "group": "marginals × Republican",
+              "group": "marginals \u00d7 Republican",
               "n_questions": 59,
               "ceiling": {
                 "mean": 0.996486,
@@ -16070,7 +16086,7 @@
               "wave": "ATP W34",
               "year": 2018,
               "attribute": "POLPARTY_RACE",
-              "group": "Democrat × Asian",
+              "group": "Democrat \u00d7 Asian",
               "n_questions": 59,
               "ceiling": {
                 "mean": 0.944442,
@@ -16085,7 +16101,7 @@
               "wave": "ATP W34",
               "year": 2018,
               "attribute": "POLPARTY_RACE",
-              "group": "Democrat × Black",
+              "group": "Democrat \u00d7 Black",
               "n_questions": 59,
               "ceiling": {
                 "mean": 0.99236,
@@ -16100,7 +16116,7 @@
               "wave": "ATP W34",
               "year": 2018,
               "attribute": "POLPARTY_RACE",
-              "group": "Democrat × Hispanic",
+              "group": "Democrat \u00d7 Hispanic",
               "n_questions": 59,
               "ceiling": {
                 "mean": 0.980059,
@@ -16115,7 +16131,7 @@
               "wave": "ATP W34",
               "year": 2018,
               "attribute": "POLPARTY_RACE",
-              "group": "Democrat × Mixed Race",
+              "group": "Democrat \u00d7 Mixed Race",
               "n_questions": 59,
               "ceiling": {
                 "mean": 0.924543,
@@ -16130,7 +16146,7 @@
               "wave": "ATP W34",
               "year": 2018,
               "attribute": "POLPARTY_RACE",
-              "group": "Democrat × White",
+              "group": "Democrat \u00d7 White",
               "n_questions": 59,
               "ceiling": {
                 "mean": 0.996368,
@@ -16145,7 +16161,7 @@
               "wave": "ATP W34",
               "year": 2018,
               "attribute": "POLPARTY_RACE",
-              "group": "Independent × Asian",
+              "group": "Independent \u00d7 Asian",
               "n_questions": 59,
               "ceiling": {
                 "mean": 0.943629,
@@ -16160,7 +16176,7 @@
               "wave": "ATP W34",
               "year": 2018,
               "attribute": "POLPARTY_RACE",
-              "group": "Independent × Black",
+              "group": "Independent \u00d7 Black",
               "n_questions": 59,
               "ceiling": {
                 "mean": 0.978497,
@@ -16175,7 +16191,7 @@
               "wave": "ATP W34",
               "year": 2018,
               "attribute": "POLPARTY_RACE",
-              "group": "Independent × Hispanic",
+              "group": "Independent \u00d7 Hispanic",
               "n_questions": 59,
               "ceiling": {
                 "mean": 0.960132,
@@ -16190,7 +16206,7 @@
               "wave": "ATP W34",
               "year": 2018,
               "attribute": "POLPARTY_RACE",
-              "group": "Independent × Mixed Race",
+              "group": "Independent \u00d7 Mixed Race",
               "n_questions": 59,
               "ceiling": {
                 "mean": 0.935445,
@@ -16205,7 +16221,7 @@
               "wave": "ATP W34",
               "year": 2018,
               "attribute": "POLPARTY_RACE",
-              "group": "Independent × Other",
+              "group": "Independent \u00d7 Other",
               "n_questions": 59,
               "ceiling": {
                 "mean": 0.872441,
@@ -16220,7 +16236,7 @@
               "wave": "ATP W34",
               "year": 2018,
               "attribute": "POLPARTY_RACE",
-              "group": "Independent × Refused",
+              "group": "Independent \u00d7 Refused",
               "n_questions": 59,
               "ceiling": {
                 "mean": 0.903129,
@@ -16235,7 +16251,7 @@
               "wave": "ATP W34",
               "year": 2018,
               "attribute": "POLPARTY_RACE",
-              "group": "Independent × White",
+              "group": "Independent \u00d7 White",
               "n_questions": 59,
               "ceiling": {
                 "mean": 0.995943,
@@ -16250,7 +16266,7 @@
               "wave": "ATP W34",
               "year": 2018,
               "attribute": "POLPARTY_RACE",
-              "group": "Other × Black",
+              "group": "Other \u00d7 Black",
               "n_questions": 59,
               "ceiling": {
                 "mean": 0.957839,
@@ -16265,7 +16281,7 @@
               "wave": "ATP W34",
               "year": 2018,
               "attribute": "POLPARTY_RACE",
-              "group": "Other × Hispanic",
+              "group": "Other \u00d7 Hispanic",
               "n_questions": 59,
               "ceiling": {
                 "mean": 0.956154,
@@ -16280,7 +16296,7 @@
               "wave": "ATP W34",
               "year": 2018,
               "attribute": "POLPARTY_RACE",
-              "group": "Other × Mixed Race",
+              "group": "Other \u00d7 Mixed Race",
               "n_questions": 59,
               "ceiling": {
                 "mean": 0.890754,
@@ -16295,7 +16311,7 @@
               "wave": "ATP W34",
               "year": 2018,
               "attribute": "POLPARTY_RACE",
-              "group": "Other × White",
+              "group": "Other \u00d7 White",
               "n_questions": 59,
               "ceiling": {
                 "mean": 0.988293,
@@ -16310,7 +16326,7 @@
               "wave": "ATP W34",
               "year": 2018,
               "attribute": "POLPARTY_RACE",
-              "group": "Republican × Asian",
+              "group": "Republican \u00d7 Asian",
               "n_questions": 59,
               "ceiling": {
                 "mean": 0.870521,
@@ -16325,7 +16341,7 @@
               "wave": "ATP W34",
               "year": 2018,
               "attribute": "POLPARTY_RACE",
-              "group": "Republican × Black",
+              "group": "Republican \u00d7 Black",
               "n_questions": 59,
               "ceiling": {
                 "mean": 0.910168,
@@ -16340,7 +16356,7 @@
               "wave": "ATP W34",
               "year": 2018,
               "attribute": "POLPARTY_RACE",
-              "group": "Republican × Hispanic",
+              "group": "Republican \u00d7 Hispanic",
               "n_questions": 59,
               "ceiling": {
                 "mean": 0.935252,
@@ -16355,7 +16371,7 @@
               "wave": "ATP W34",
               "year": 2018,
               "attribute": "POLPARTY_RACE",
-              "group": "Republican × White",
+              "group": "Republican \u00d7 White",
               "n_questions": 59,
               "ceiling": {
                 "mean": 0.99599,
@@ -16370,7 +16386,7 @@
               "wave": "ATP W34",
               "year": 2018,
               "attribute": "POLPARTY_RACE",
-              "group": "marginals × Asian",
+              "group": "marginals \u00d7 Asian",
               "n_questions": 59,
               "ceiling": {
                 "mean": 0.977503,
@@ -16385,7 +16401,7 @@
               "wave": "ATP W34",
               "year": 2018,
               "attribute": "POLPARTY_RACE",
-              "group": "marginals × Black",
+              "group": "marginals \u00d7 Black",
               "n_questions": 59,
               "ceiling": {
                 "mean": 0.99499,
@@ -16400,7 +16416,7 @@
               "wave": "ATP W34",
               "year": 2018,
               "attribute": "POLPARTY_RACE",
-              "group": "marginals × Democrat",
+              "group": "marginals \u00d7 Democrat",
               "n_questions": 59,
               "ceiling": {
                 "mean": 0.997848,
@@ -16415,7 +16431,7 @@
               "wave": "ATP W34",
               "year": 2018,
               "attribute": "POLPARTY_RACE",
-              "group": "marginals × Hispanic",
+              "group": "marginals \u00d7 Hispanic",
               "n_questions": 59,
               "ceiling": {
                 "mean": 0.989899,
@@ -16430,7 +16446,7 @@
               "wave": "ATP W34",
               "year": 2018,
               "attribute": "POLPARTY_RACE",
-              "group": "marginals × Independent",
+              "group": "marginals \u00d7 Independent",
               "n_questions": 59,
               "ceiling": {
                 "mean": 0.997011,
@@ -16445,7 +16461,7 @@
               "wave": "ATP W34",
               "year": 2018,
               "attribute": "POLPARTY_RACE",
-              "group": "marginals × Mixed Race",
+              "group": "marginals \u00d7 Mixed Race",
               "n_questions": 59,
               "ceiling": {
                 "mean": 0.973906,
@@ -16460,7 +16476,7 @@
               "wave": "ATP W34",
               "year": 2018,
               "attribute": "POLPARTY_RACE",
-              "group": "marginals × Other",
+              "group": "marginals \u00d7 Other",
               "n_questions": 59,
               "ceiling": {
                 "mean": 0.943908,
@@ -16475,7 +16491,7 @@
               "wave": "ATP W34",
               "year": 2018,
               "attribute": "POLPARTY_RACE",
-              "group": "marginals × Refused",
+              "group": "marginals \u00d7 Refused",
               "n_questions": 59,
               "ceiling": {
                 "mean": 0.944706,
@@ -16490,7 +16506,7 @@
               "wave": "ATP W34",
               "year": 2018,
               "attribute": "POLPARTY_RACE",
-              "group": "marginals × Republican",
+              "group": "marginals \u00d7 Republican",
               "n_questions": 59,
               "ceiling": {
                 "mean": 0.996486,
@@ -16505,7 +16521,7 @@
               "wave": "ATP W34",
               "year": 2018,
               "attribute": "POLPARTY_RACE",
-              "group": "marginals × White",
+              "group": "marginals \u00d7 White",
               "n_questions": 59,
               "ceiling": {
                 "mean": 0.998816,
@@ -16520,7 +16536,7 @@
               "wave": "ATP W34",
               "year": 2018,
               "attribute": "RACE_SEX",
-              "group": "Asian × Female",
+              "group": "Asian \u00d7 Female",
               "n_questions": 59,
               "ceiling": {
                 "mean": 0.953409,
@@ -16535,7 +16551,7 @@
               "wave": "ATP W34",
               "year": 2018,
               "attribute": "RACE_SEX",
-              "group": "Asian × Male",
+              "group": "Asian \u00d7 Male",
               "n_questions": 59,
               "ceiling": {
                 "mean": 0.960004,
@@ -16550,7 +16566,7 @@
               "wave": "ATP W34",
               "year": 2018,
               "attribute": "RACE_SEX",
-              "group": "Black × Female",
+              "group": "Black \u00d7 Female",
               "n_questions": 59,
               "ceiling": {
                 "mean": 0.991039,
@@ -16565,7 +16581,7 @@
               "wave": "ATP W34",
               "year": 2018,
               "attribute": "RACE_SEX",
-              "group": "Black × Male",
+              "group": "Black \u00d7 Male",
               "n_questions": 59,
               "ceiling": {
                 "mean": 0.98946,
@@ -16580,7 +16596,7 @@
               "wave": "ATP W34",
               "year": 2018,
               "attribute": "RACE_SEX",
-              "group": "Hispanic × Female",
+              "group": "Hispanic \u00d7 Female",
               "n_questions": 59,
               "ceiling": {
                 "mean": 0.979649,
@@ -16595,7 +16611,7 @@
               "wave": "ATP W34",
               "year": 2018,
               "attribute": "RACE_SEX",
-              "group": "Hispanic × Male",
+              "group": "Hispanic \u00d7 Male",
               "n_questions": 59,
               "ceiling": {
                 "mean": 0.984003,
@@ -16610,7 +16626,7 @@
               "wave": "ATP W34",
               "year": 2018,
               "attribute": "RACE_SEX",
-              "group": "Mixed Race × Female",
+              "group": "Mixed Race \u00d7 Female",
               "n_questions": 59,
               "ceiling": {
                 "mean": 0.953313,
@@ -16625,7 +16641,7 @@
               "wave": "ATP W34",
               "year": 2018,
               "attribute": "RACE_SEX",
-              "group": "Mixed Race × Male",
+              "group": "Mixed Race \u00d7 Male",
               "n_questions": 59,
               "ceiling": {
                 "mean": 0.95136,
@@ -16640,7 +16656,7 @@
               "wave": "ATP W34",
               "year": 2018,
               "attribute": "RACE_SEX",
-              "group": "Other × Female",
+              "group": "Other \u00d7 Female",
               "n_questions": 59,
               "ceiling": {
                 "mean": 0.867382,
@@ -16655,7 +16671,7 @@
               "wave": "ATP W34",
               "year": 2018,
               "attribute": "RACE_SEX",
-              "group": "Other × Male",
+              "group": "Other \u00d7 Male",
               "n_questions": 59,
               "ceiling": {
                 "mean": 0.909292,
@@ -16670,7 +16686,7 @@
               "wave": "ATP W34",
               "year": 2018,
               "attribute": "RACE_SEX",
-              "group": "Refused × Female",
+              "group": "Refused \u00d7 Female",
               "n_questions": 59,
               "ceiling": {
                 "mean": 0.881264,
@@ -16685,7 +16701,7 @@
               "wave": "ATP W34",
               "year": 2018,
               "attribute": "RACE_SEX",
-              "group": "Refused × Male",
+              "group": "Refused \u00d7 Male",
               "n_questions": 59,
               "ceiling": {
                 "mean": 0.914338,
@@ -16700,7 +16716,7 @@
               "wave": "ATP W34",
               "year": 2018,
               "attribute": "RACE_SEX",
-              "group": "White × Female",
+              "group": "White \u00d7 Female",
               "n_questions": 59,
               "ceiling": {
                 "mean": 0.997619,
@@ -16715,7 +16731,7 @@
               "wave": "ATP W34",
               "year": 2018,
               "attribute": "RACE_SEX",
-              "group": "White × Male",
+              "group": "White \u00d7 Male",
               "n_questions": 59,
               "ceiling": {
                 "mean": 0.997691,
@@ -16730,7 +16746,7 @@
               "wave": "ATP W34",
               "year": 2018,
               "attribute": "RACE_SEX",
-              "group": "marginals × Asian",
+              "group": "marginals \u00d7 Asian",
               "n_questions": 59,
               "ceiling": {
                 "mean": 0.977503,
@@ -16745,7 +16761,7 @@
               "wave": "ATP W34",
               "year": 2018,
               "attribute": "RACE_SEX",
-              "group": "marginals × Black",
+              "group": "marginals \u00d7 Black",
               "n_questions": 59,
               "ceiling": {
                 "mean": 0.995022,
@@ -16760,7 +16776,7 @@
               "wave": "ATP W34",
               "year": 2018,
               "attribute": "RACE_SEX",
-              "group": "marginals × Female",
+              "group": "marginals \u00d7 Female",
               "n_questions": 59,
               "ceiling": {
                 "mean": 0.998367,
@@ -16775,7 +16791,7 @@
               "wave": "ATP W34",
               "year": 2018,
               "attribute": "RACE_SEX",
-              "group": "marginals × Hispanic",
+              "group": "marginals \u00d7 Hispanic",
               "n_questions": 59,
               "ceiling": {
                 "mean": 0.989899,
@@ -16790,7 +16806,7 @@
               "wave": "ATP W34",
               "year": 2018,
               "attribute": "RACE_SEX",
-              "group": "marginals × Male",
+              "group": "marginals \u00d7 Male",
               "n_questions": 59,
               "ceiling": {
                 "mean": 0.998357,
@@ -16805,7 +16821,7 @@
               "wave": "ATP W34",
               "year": 2018,
               "attribute": "RACE_SEX",
-              "group": "marginals × Mixed Race",
+              "group": "marginals \u00d7 Mixed Race",
               "n_questions": 59,
               "ceiling": {
                 "mean": 0.973906,
@@ -16820,7 +16836,7 @@
               "wave": "ATP W34",
               "year": 2018,
               "attribute": "RACE_SEX",
-              "group": "marginals × Other",
+              "group": "marginals \u00d7 Other",
               "n_questions": 59,
               "ceiling": {
                 "mean": 0.943908,
@@ -16835,7 +16851,7 @@
               "wave": "ATP W34",
               "year": 2018,
               "attribute": "RACE_SEX",
-              "group": "marginals × Refused",
+              "group": "marginals \u00d7 Refused",
               "n_questions": 59,
               "ceiling": {
                 "mean": 0.944706,
@@ -16850,7 +16866,7 @@
               "wave": "ATP W34",
               "year": 2018,
               "attribute": "RACE_SEX",
-              "group": "marginals × White",
+              "group": "marginals \u00d7 White",
               "n_questions": 59,
               "ceiling": {
                 "mean": 0.998816,
@@ -17465,7 +17481,7 @@
               "wave": "ATP W36",
               "year": 2019,
               "attribute": "POLPARTY_SEX",
-              "group": "Democrat × Female",
+              "group": "Democrat \u00d7 Female",
               "n_questions": 9,
               "ceiling": {
                 "mean": 0.99769,
@@ -17480,7 +17496,7 @@
               "wave": "ATP W36",
               "year": 2019,
               "attribute": "POLPARTY_SEX",
-              "group": "Democrat × Male",
+              "group": "Democrat \u00d7 Male",
               "n_questions": 9,
               "ceiling": {
                 "mean": 0.996909,
@@ -17495,7 +17511,7 @@
               "wave": "ATP W36",
               "year": 2019,
               "attribute": "POLPARTY_SEX",
-              "group": "Independent × Female",
+              "group": "Independent \u00d7 Female",
               "n_questions": 9,
               "ceiling": {
                 "mean": 0.995625,
@@ -17510,7 +17526,7 @@
               "wave": "ATP W36",
               "year": 2019,
               "attribute": "POLPARTY_SEX",
-              "group": "Independent × Male",
+              "group": "Independent \u00d7 Male",
               "n_questions": 9,
               "ceiling": {
                 "mean": 0.997012,
@@ -17525,7 +17541,7 @@
               "wave": "ATP W36",
               "year": 2019,
               "attribute": "POLPARTY_SEX",
-              "group": "Other × Female",
+              "group": "Other \u00d7 Female",
               "n_questions": 9,
               "ceiling": {
                 "mean": 0.988645,
@@ -17540,7 +17556,7 @@
               "wave": "ATP W36",
               "year": 2019,
               "attribute": "POLPARTY_SEX",
-              "group": "Other × Male",
+              "group": "Other \u00d7 Male",
               "n_questions": 9,
               "ceiling": {
                 "mean": 0.989709,
@@ -17555,7 +17571,7 @@
               "wave": "ATP W36",
               "year": 2019,
               "attribute": "POLPARTY_SEX",
-              "group": "Refused × Female",
+              "group": "Refused \u00d7 Female",
               "n_questions": 9,
               "ceiling": {
                 "mean": 0.847579,
@@ -17570,7 +17586,7 @@
               "wave": "ATP W36",
               "year": 2019,
               "attribute": "POLPARTY_SEX",
-              "group": "Republican × Female",
+              "group": "Republican \u00d7 Female",
               "n_questions": 9,
               "ceiling": {
                 "mean": 0.996302,
@@ -17585,7 +17601,7 @@
               "wave": "ATP W36",
               "year": 2019,
               "attribute": "POLPARTY_SEX",
-              "group": "Republican × Male",
+              "group": "Republican \u00d7 Male",
               "n_questions": 9,
               "ceiling": {
                 "mean": 0.996572,
@@ -17600,7 +17616,7 @@
               "wave": "ATP W36",
               "year": 2019,
               "attribute": "POLPARTY_SEX",
-              "group": "marginals × Democrat",
+              "group": "marginals \u00d7 Democrat",
               "n_questions": 9,
               "ceiling": {
                 "mean": 0.998683,
@@ -17615,7 +17631,7 @@
               "wave": "ATP W36",
               "year": 2019,
               "attribute": "POLPARTY_SEX",
-              "group": "marginals × Female",
+              "group": "marginals \u00d7 Female",
               "n_questions": 9,
               "ceiling": {
                 "mean": 0.999045,
@@ -17630,7 +17646,7 @@
               "wave": "ATP W36",
               "year": 2019,
               "attribute": "POLPARTY_SEX",
-              "group": "marginals × Independent",
+              "group": "marginals \u00d7 Independent",
               "n_questions": 9,
               "ceiling": {
                 "mean": 0.998171,
@@ -17645,7 +17661,7 @@
               "wave": "ATP W36",
               "year": 2019,
               "attribute": "POLPARTY_SEX",
-              "group": "marginals × Male",
+              "group": "marginals \u00d7 Male",
               "n_questions": 9,
               "ceiling": {
                 "mean": 0.99904,
@@ -17660,7 +17676,7 @@
               "wave": "ATP W36",
               "year": 2019,
               "attribute": "POLPARTY_SEX",
-              "group": "marginals × Other",
+              "group": "marginals \u00d7 Other",
               "n_questions": 9,
               "ceiling": {
                 "mean": 0.994571,
@@ -17675,7 +17691,7 @@
               "wave": "ATP W36",
               "year": 2019,
               "attribute": "POLPARTY_SEX",
-              "group": "marginals × Refused",
+              "group": "marginals \u00d7 Refused",
               "n_questions": 9,
               "ceiling": {
                 "mean": 0.881545,
@@ -17690,7 +17706,7 @@
               "wave": "ATP W36",
               "year": 2019,
               "attribute": "POLPARTY_SEX",
-              "group": "marginals × Republican",
+              "group": "marginals \u00d7 Republican",
               "n_questions": 9,
               "ceiling": {
                 "mean": 0.998105,
@@ -17705,7 +17721,7 @@
               "wave": "ATP W36",
               "year": 2019,
               "attribute": "POLPARTY_RACE",
-              "group": "Democrat × Asian",
+              "group": "Democrat \u00d7 Asian",
               "n_questions": 9,
               "ceiling": {
                 "mean": 0.9719,
@@ -17720,7 +17736,7 @@
               "wave": "ATP W36",
               "year": 2019,
               "attribute": "POLPARTY_RACE",
-              "group": "Democrat × Black",
+              "group": "Democrat \u00d7 Black",
               "n_questions": 9,
               "ceiling": {
                 "mean": 0.991266,
@@ -17735,7 +17751,7 @@
               "wave": "ATP W36",
               "year": 2019,
               "attribute": "POLPARTY_RACE",
-              "group": "Democrat × Hispanic",
+              "group": "Democrat \u00d7 Hispanic",
               "n_questions": 9,
               "ceiling": {
                 "mean": 0.975205,
@@ -17750,7 +17766,7 @@
               "wave": "ATP W36",
               "year": 2019,
               "attribute": "POLPARTY_RACE",
-              "group": "Democrat × Mixed Race",
+              "group": "Democrat \u00d7 Mixed Race",
               "n_questions": 9,
               "ceiling": {
                 "mean": 0.963457,
@@ -17765,7 +17781,7 @@
               "wave": "ATP W36",
               "year": 2019,
               "attribute": "POLPARTY_RACE",
-              "group": "Democrat × Other",
+              "group": "Democrat \u00d7 Other",
               "n_questions": 9,
               "ceiling": {
                 "mean": 0.924536,
@@ -17780,7 +17796,7 @@
               "wave": "ATP W36",
               "year": 2019,
               "attribute": "POLPARTY_RACE",
-              "group": "Democrat × Refused",
+              "group": "Democrat \u00d7 Refused",
               "n_questions": 9,
               "ceiling": {
                 "mean": 0.818357,
@@ -17795,7 +17811,7 @@
               "wave": "ATP W36",
               "year": 2019,
               "attribute": "POLPARTY_RACE",
-              "group": "Democrat × White",
+              "group": "Democrat \u00d7 White",
               "n_questions": 9,
               "ceiling": {
                 "mean": 0.99816,
@@ -17810,7 +17826,7 @@
               "wave": "ATP W36",
               "year": 2019,
               "attribute": "POLPARTY_RACE",
-              "group": "Independent × Asian",
+              "group": "Independent \u00d7 Asian",
               "n_questions": 9,
               "ceiling": {
                 "mean": 0.950027,
@@ -17825,7 +17841,7 @@
               "wave": "ATP W36",
               "year": 2019,
               "attribute": "POLPARTY_RACE",
-              "group": "Independent × Black",
+              "group": "Independent \u00d7 Black",
               "n_questions": 9,
               "ceiling": {
                 "mean": 0.978999,
@@ -17840,7 +17856,7 @@
               "wave": "ATP W36",
               "year": 2019,
               "attribute": "POLPARTY_RACE",
-              "group": "Independent × Hispanic",
+              "group": "Independent \u00d7 Hispanic",
               "n_questions": 9,
               "ceiling": {
                 "mean": 0.954186,
@@ -17855,7 +17871,7 @@
               "wave": "ATP W36",
               "year": 2019,
               "attribute": "POLPARTY_RACE",
-              "group": "Independent × Mixed Race",
+              "group": "Independent \u00d7 Mixed Race",
               "n_questions": 9,
               "ceiling": {
                 "mean": 0.962697,
@@ -17870,7 +17886,7 @@
               "wave": "ATP W36",
               "year": 2019,
               "attribute": "POLPARTY_RACE",
-              "group": "Independent × Other",
+              "group": "Independent \u00d7 Other",
               "n_questions": 9,
               "ceiling": {
                 "mean": 0.897149,
@@ -17885,7 +17901,7 @@
               "wave": "ATP W36",
               "year": 2019,
               "attribute": "POLPARTY_RACE",
-              "group": "Independent × Refused",
+              "group": "Independent \u00d7 Refused",
               "n_questions": 9,
               "ceiling": {
                 "mean": 0.915096,
@@ -17900,7 +17916,7 @@
               "wave": "ATP W36",
               "year": 2019,
               "attribute": "POLPARTY_RACE",
-              "group": "Independent × White",
+              "group": "Independent \u00d7 White",
               "n_questions": 9,
               "ceiling": {
                 "mean": 0.997739,
@@ -17915,7 +17931,7 @@
               "wave": "ATP W36",
               "year": 2019,
               "attribute": "POLPARTY_RACE",
-              "group": "Other × Asian",
+              "group": "Other \u00d7 Asian",
               "n_questions": 9,
               "ceiling": {
                 "mean": 0.88307,
@@ -17930,7 +17946,7 @@
               "wave": "ATP W36",
               "year": 2019,
               "attribute": "POLPARTY_RACE",
-              "group": "Other × Black",
+              "group": "Other \u00d7 Black",
               "n_questions": 9,
               "ceiling": {
                 "mean": 0.949197,
@@ -17945,7 +17961,7 @@
               "wave": "ATP W36",
               "year": 2019,
               "attribute": "POLPARTY_RACE",
-              "group": "Other × Hispanic",
+              "group": "Other \u00d7 Hispanic",
               "n_questions": 9,
               "ceiling": {
                 "mean": 0.95032,
@@ -17960,7 +17976,7 @@
               "wave": "ATP W36",
               "year": 2019,
               "attribute": "POLPARTY_RACE",
-              "group": "Other × Mixed Race",
+              "group": "Other \u00d7 Mixed Race",
               "n_questions": 9,
               "ceiling": {
                 "mean": 0.899304,
@@ -17975,7 +17991,7 @@
               "wave": "ATP W36",
               "year": 2019,
               "attribute": "POLPARTY_RACE",
-              "group": "Other × Refused",
+              "group": "Other \u00d7 Refused",
               "n_questions": 9,
               "ceiling": {
                 "mean": 0.863269,
@@ -17990,7 +18006,7 @@
               "wave": "ATP W36",
               "year": 2019,
               "attribute": "POLPARTY_RACE",
-              "group": "Other × White",
+              "group": "Other \u00d7 White",
               "n_questions": 9,
               "ceiling": {
                 "mean": 0.992091,
@@ -18005,7 +18021,7 @@
               "wave": "ATP W36",
               "year": 2019,
               "attribute": "POLPARTY_RACE",
-              "group": "Refused × White",
+              "group": "Refused \u00d7 White",
               "n_questions": 9,
               "ceiling": {
                 "mean": 0.832648,
@@ -18020,7 +18036,7 @@
               "wave": "ATP W36",
               "year": 2019,
               "attribute": "POLPARTY_RACE",
-              "group": "Republican × Asian",
+              "group": "Republican \u00d7 Asian",
               "n_questions": 9,
               "ceiling": {
                 "mean": 0.923786,
@@ -18035,7 +18051,7 @@
               "wave": "ATP W36",
               "year": 2019,
               "attribute": "POLPARTY_RACE",
-              "group": "Republican × Black",
+              "group": "Republican \u00d7 Black",
               "n_questions": 9,
               "ceiling": {
                 "mean": 0.889957,
@@ -18050,7 +18066,7 @@
               "wave": "ATP W36",
               "year": 2019,
               "attribute": "POLPARTY_RACE",
-              "group": "Republican × Hispanic",
+              "group": "Republican \u00d7 Hispanic",
               "n_questions": 9,
               "ceiling": {
                 "mean": 0.914472,
@@ -18065,7 +18081,7 @@
               "wave": "ATP W36",
               "year": 2019,
               "attribute": "POLPARTY_RACE",
-              "group": "Republican × Mixed Race",
+              "group": "Republican \u00d7 Mixed Race",
               "n_questions": 9,
               "ceiling": {
                 "mean": 0.897941,
@@ -18080,7 +18096,7 @@
               "wave": "ATP W36",
               "year": 2019,
               "attribute": "POLPARTY_RACE",
-              "group": "Republican × Other",
+              "group": "Republican \u00d7 Other",
               "n_questions": 9,
               "ceiling": {
                 "mean": 0.860182,
@@ -18095,7 +18111,7 @@
               "wave": "ATP W36",
               "year": 2019,
               "attribute": "POLPARTY_RACE",
-              "group": "Republican × Refused",
+              "group": "Republican \u00d7 Refused",
               "n_questions": 9,
               "ceiling": {
                 "mean": 0.899523,
@@ -18110,7 +18126,7 @@
               "wave": "ATP W36",
               "year": 2019,
               "attribute": "POLPARTY_RACE",
-              "group": "Republican × White",
+              "group": "Republican \u00d7 White",
               "n_questions": 9,
               "ceiling": {
                 "mean": 0.997922,
@@ -18125,7 +18141,7 @@
               "wave": "ATP W36",
               "year": 2019,
               "attribute": "POLPARTY_RACE",
-              "group": "marginals × Asian",
+              "group": "marginals \u00d7 Asian",
               "n_questions": 9,
               "ceiling": {
                 "mean": 0.986058,
@@ -18140,7 +18156,7 @@
               "wave": "ATP W36",
               "year": 2019,
               "attribute": "POLPARTY_RACE",
-              "group": "marginals × Black",
+              "group": "marginals \u00d7 Black",
               "n_questions": 9,
               "ceiling": {
                 "mean": 0.994553,
@@ -18155,7 +18171,7 @@
               "wave": "ATP W36",
               "year": 2019,
               "attribute": "POLPARTY_RACE",
-              "group": "marginals × Democrat",
+              "group": "marginals \u00d7 Democrat",
               "n_questions": 9,
               "ceiling": {
                 "mean": 0.998683,
@@ -18170,7 +18186,7 @@
               "wave": "ATP W36",
               "year": 2019,
               "attribute": "POLPARTY_RACE",
-              "group": "marginals × Hispanic",
+              "group": "marginals \u00d7 Hispanic",
               "n_questions": 9,
               "ceiling": {
                 "mean": 0.987792,
@@ -18185,7 +18201,7 @@
               "wave": "ATP W36",
               "year": 2019,
               "attribute": "POLPARTY_RACE",
-              "group": "marginals × Independent",
+              "group": "marginals \u00d7 Independent",
               "n_questions": 9,
               "ceiling": {
                 "mean": 0.998171,
@@ -18200,7 +18216,7 @@
               "wave": "ATP W36",
               "year": 2019,
               "attribute": "POLPARTY_RACE",
-              "group": "marginals × Mixed Race",
+              "group": "marginals \u00d7 Mixed Race",
               "n_questions": 9,
               "ceiling": {
                 "mean": 0.984793,
@@ -18215,7 +18231,7 @@
               "wave": "ATP W36",
               "year": 2019,
               "attribute": "POLPARTY_RACE",
-              "group": "marginals × Other",
+              "group": "marginals \u00d7 Other",
               "n_questions": 9,
               "ceiling": {
                 "mean": 0.954194,
@@ -18230,7 +18246,7 @@
               "wave": "ATP W36",
               "year": 2019,
               "attribute": "POLPARTY_RACE",
-              "group": "marginals × Refused",
+              "group": "marginals \u00d7 Refused",
               "n_questions": 9,
               "ceiling": {
                 "mean": 0.962712,
@@ -18245,7 +18261,7 @@
               "wave": "ATP W36",
               "year": 2019,
               "attribute": "POLPARTY_RACE",
-              "group": "marginals × Republican",
+              "group": "marginals \u00d7 Republican",
               "n_questions": 9,
               "ceiling": {
                 "mean": 0.998105,
@@ -18260,7 +18276,7 @@
               "wave": "ATP W36",
               "year": 2019,
               "attribute": "POLPARTY_RACE",
-              "group": "marginals × White",
+              "group": "marginals \u00d7 White",
               "n_questions": 9,
               "ceiling": {
                 "mean": 0.999397,
@@ -18275,7 +18291,7 @@
               "wave": "ATP W36",
               "year": 2019,
               "attribute": "RACE_SEX",
-              "group": "Asian × Female",
+              "group": "Asian \u00d7 Female",
               "n_questions": 9,
               "ceiling": {
                 "mean": 0.966503,
@@ -18290,7 +18306,7 @@
               "wave": "ATP W36",
               "year": 2019,
               "attribute": "RACE_SEX",
-              "group": "Asian × Male",
+              "group": "Asian \u00d7 Male",
               "n_questions": 9,
               "ceiling": {
                 "mean": 0.978798,
@@ -18305,7 +18321,7 @@
               "wave": "ATP W36",
               "year": 2019,
               "attribute": "RACE_SEX",
-              "group": "Black × Female",
+              "group": "Black \u00d7 Female",
               "n_questions": 9,
               "ceiling": {
                 "mean": 0.990189,
@@ -18320,7 +18336,7 @@
               "wave": "ATP W36",
               "year": 2019,
               "attribute": "RACE_SEX",
-              "group": "Black × Male",
+              "group": "Black \u00d7 Male",
               "n_questions": 9,
               "ceiling": {
                 "mean": 0.988247,
@@ -18335,7 +18351,7 @@
               "wave": "ATP W36",
               "year": 2019,
               "attribute": "RACE_SEX",
-              "group": "Hispanic × Female",
+              "group": "Hispanic \u00d7 Female",
               "n_questions": 9,
               "ceiling": {
                 "mean": 0.974131,
@@ -18350,7 +18366,7 @@
               "wave": "ATP W36",
               "year": 2019,
               "attribute": "RACE_SEX",
-              "group": "Hispanic × Male",
+              "group": "Hispanic \u00d7 Male",
               "n_questions": 9,
               "ceiling": {
                 "mean": 0.978593,
@@ -18365,7 +18381,7 @@
               "wave": "ATP W36",
               "year": 2019,
               "attribute": "RACE_SEX",
-              "group": "Mixed Race × Female",
+              "group": "Mixed Race \u00d7 Female",
               "n_questions": 9,
               "ceiling": {
                 "mean": 0.9731,
@@ -18380,7 +18396,7 @@
               "wave": "ATP W36",
               "year": 2019,
               "attribute": "RACE_SEX",
-              "group": "Mixed Race × Male",
+              "group": "Mixed Race \u00d7 Male",
               "n_questions": 9,
               "ceiling": {
                 "mean": 0.968902,
@@ -18395,7 +18411,7 @@
               "wave": "ATP W36",
               "year": 2019,
               "attribute": "RACE_SEX",
-              "group": "Other × Female",
+              "group": "Other \u00d7 Female",
               "n_questions": 9,
               "ceiling": {
                 "mean": 0.912851,
@@ -18410,7 +18426,7 @@
               "wave": "ATP W36",
               "year": 2019,
               "attribute": "RACE_SEX",
-              "group": "Other × Male",
+              "group": "Other \u00d7 Male",
               "n_questions": 9,
               "ceiling": {
                 "mean": 0.917612,
@@ -18425,7 +18441,7 @@
               "wave": "ATP W36",
               "year": 2019,
               "attribute": "RACE_SEX",
-              "group": "Refused × Female",
+              "group": "Refused \u00d7 Female",
               "n_questions": 9,
               "ceiling": {
                 "mean": 0.900207,
@@ -18440,7 +18456,7 @@
               "wave": "ATP W36",
               "year": 2019,
               "attribute": "RACE_SEX",
-              "group": "Refused × Male",
+              "group": "Refused \u00d7 Male",
               "n_questions": 9,
               "ceiling": {
                 "mean": 0.951372,
@@ -18455,7 +18471,7 @@
               "wave": "ATP W36",
               "year": 2019,
               "attribute": "RACE_SEX",
-              "group": "White × Female",
+              "group": "White \u00d7 Female",
               "n_questions": 9,
               "ceiling": {
                 "mean": 0.998799,
@@ -18470,7 +18486,7 @@
               "wave": "ATP W36",
               "year": 2019,
               "attribute": "RACE_SEX",
-              "group": "White × Male",
+              "group": "White \u00d7 Male",
               "n_questions": 9,
               "ceiling": {
                 "mean": 0.998756,
@@ -18485,7 +18501,7 @@
               "wave": "ATP W36",
               "year": 2019,
               "attribute": "RACE_SEX",
-              "group": "marginals × Asian",
+              "group": "marginals \u00d7 Asian",
               "n_questions": 9,
               "ceiling": {
                 "mean": 0.986058,
@@ -18500,7 +18516,7 @@
               "wave": "ATP W36",
               "year": 2019,
               "attribute": "RACE_SEX",
-              "group": "marginals × Black",
+              "group": "marginals \u00d7 Black",
               "n_questions": 9,
               "ceiling": {
                 "mean": 0.994534,
@@ -18515,7 +18531,7 @@
               "wave": "ATP W36",
               "year": 2019,
               "attribute": "RACE_SEX",
-              "group": "marginals × Female",
+              "group": "marginals \u00d7 Female",
               "n_questions": 9,
               "ceiling": {
                 "mean": 0.999054,
@@ -18530,7 +18546,7 @@
               "wave": "ATP W36",
               "year": 2019,
               "attribute": "RACE_SEX",
-              "group": "marginals × Hispanic",
+              "group": "marginals \u00d7 Hispanic",
               "n_questions": 9,
               "ceiling": {
                 "mean": 0.987792,
@@ -18545,7 +18561,7 @@
               "wave": "ATP W36",
               "year": 2019,
               "attribute": "RACE_SEX",
-              "group": "marginals × Male",
+              "group": "marginals \u00d7 Male",
               "n_questions": 9,
               "ceiling": {
                 "mean": 0.999047,
@@ -18560,7 +18576,7 @@
               "wave": "ATP W36",
               "year": 2019,
               "attribute": "RACE_SEX",
-              "group": "marginals × Mixed Race",
+              "group": "marginals \u00d7 Mixed Race",
               "n_questions": 9,
               "ceiling": {
                 "mean": 0.985024,
@@ -18575,7 +18591,7 @@
               "wave": "ATP W36",
               "year": 2019,
               "attribute": "RACE_SEX",
-              "group": "marginals × Other",
+              "group": "marginals \u00d7 Other",
               "n_questions": 9,
               "ceiling": {
                 "mean": 0.954194,
@@ -18590,7 +18606,7 @@
               "wave": "ATP W36",
               "year": 2019,
               "attribute": "RACE_SEX",
-              "group": "marginals × Refused",
+              "group": "marginals \u00d7 Refused",
               "n_questions": 9,
               "ceiling": {
                 "mean": 0.964055,
@@ -18605,7 +18621,7 @@
               "wave": "ATP W36",
               "year": 2019,
               "attribute": "RACE_SEX",
-              "group": "marginals × White",
+              "group": "marginals \u00d7 White",
               "n_questions": 9,
               "ceiling": {
                 "mean": 0.999397,
@@ -26096,7 +26112,7 @@
     }
   },
   "pricing_snapshot": {
-    "generated_at": "2026-07-17T00:28:21.790596+00:00",
+    "generated_at": "2026-07-17T05:08:34.987626+00:00",
     "synth_panel_version": "1.5.7",
     "snapshot_date": "2026-05-10",
     "rates": {
@@ -26113,10 +26129,10 @@
         "cache_read_cost_per_million": 0.3
       },
       "opus": {
-        "input_cost_per_million": 5.0,
-        "output_cost_per_million": 25.0,
-        "cache_creation_cost_per_million": 6.25,
-        "cache_read_cost_per_million": 0.5
+        "input_cost_per_million": 15.0,
+        "output_cost_per_million": 75.0,
+        "cache_creation_cost_per_million": 18.75,
+        "cache_read_cost_per_million": 1.5
       },
       "gemini-2.5-pro": {
         "input_cost_per_million": 1.25,
@@ -26137,25 +26153,25 @@
       "name": "eurobarometer",
       "redistribution_policy": "gated",
       "license_url": "https://www.gesis.org/eurobarometer-data-service/about-eurobarometer",
-      "citation": "European Commission / GESIS — Eurobarometer Consumer Modules"
+      "citation": "European Commission / GESIS \u2014 Eurobarometer Consumer Modules"
     },
     {
       "name": "globalopinionqa",
       "redistribution_policy": "gated",
       "license_url": "https://creativecommons.org/licenses/by-nc-sa/4.0/",
-      "citation": "Durmus et al. 2023, Anthropic — llm_global_opinions"
+      "citation": "Durmus et al. 2023, Anthropic \u2014 llm_global_opinions"
     },
     {
       "name": "gss",
       "redistribution_policy": "full",
       "license_url": "https://gss.norc.org/About-The-GSS",
-      "citation": "NORC at the University of Chicago — General Social Survey"
+      "citation": "NORC at the University of Chicago \u2014 General Social Survey"
     },
     {
       "name": "michigan",
       "redistribution_policy": "gated",
       "license_url": "https://data.sca.isr.umich.edu/terms.php",
-      "citation": "Survey Research Center, University of Michigan — Surveys of Consumers"
+      "citation": "Survey Research Center, University of Michigan \u2014 Surveys of Consumers"
     },
     {
       "name": "ntia",
@@ -26167,25 +26183,25 @@
       "name": "opinionsqa",
       "redistribution_policy": "gated",
       "license_url": "https://worksheets.codalab.org/worksheets/0x6fb693719477478aac73fc07db333f69",
-      "citation": "Santurkar et al., ICML 2023 — Whose Opinions Do LLMs Reflect? (derived from Pew American Trends Panel)"
+      "citation": "Santurkar et al., ICML 2023 \u2014 Whose Opinions Do LLMs Reflect? (derived from Pew American Trends Panel)"
     },
     {
       "name": "pewtech",
       "redistribution_policy": "gated",
       "license_url": "https://www.pewresearch.org/internet/datasets/",
-      "citation": "Pew Research Center — Internet & Technology (American Trends Panel)"
+      "citation": "Pew Research Center \u2014 Internet & Technology (American Trends Panel)"
     },
     {
       "name": "subpop",
       "redistribution_policy": "gated",
       "license_url": "https://huggingface.co/datasets/jjssuh/subpop",
-      "citation": "Suh et al., ACL 2025 — SubPOP: Subpopulation-Level Opinion Prediction"
+      "citation": "Suh et al., ACL 2025 \u2014 SubPOP: Subpopulation-Level Opinion Prediction"
     },
     {
       "name": "wvs",
       "redistribution_policy": "gated",
       "license_url": "https://worldvaluessurvey.org/WVSDocumentationWV7.jsp",
-      "citation": "World Values Survey Association — WVS Wave 7 (2017-2022)"
+      "citation": "World Values Survey Association \u2014 WVS Wave 7 (2017-2022)"
     }
   ],
   "excluded_runs": [

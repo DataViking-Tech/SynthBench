@@ -7,7 +7,7 @@ const leaderboard = leaderboardRaw as LeaderboardData;
 
 // For each dataset, find the best non-baseline model and the random baseline
 const datasets = leaderboard.datasets;
-const bestModels: { dataset: string; model: string; sps: number }[] = [];
+const bestModels: { dataset: string; model: string; sps: number; flagged: boolean }[] = [];
 const baselines: { dataset: string; sps: number }[] = [];
 
 for (const ds of datasets) {
@@ -17,7 +17,15 @@ for (const ds of datasets) {
 
   if (models.length > 0) {
     const best = models.reduce((a, b) => (a.sps > b.sps ? a : b));
-    bestModels.push({ dataset: ds, model: best.model, sps: best.sps });
+    bestModels.push({
+      dataset: ds,
+      model: best.model,
+      sps: best.sps,
+      // The featured entry must carry the same flag the leaderboard shows —
+      // presenting a held-for-review score as an unqualified "best" misleads
+      // (round-4 review defect #9).
+      flagged: best.verification_badge === "flagged",
+    });
   }
   if (baselineEntry) {
     baselines.push({ dataset: ds, sps: baselineEntry.sps });
@@ -34,7 +42,15 @@ const heroChartData = {
   baselines: baselines.map((b) => b.sps),
 };
 
-const bestModelCaption = bestModels.map((m) => `${m.dataset}: ${m.model}`).join(" · ");
+// Text-legible inline flag, matching the leaderboard's badge convention.
+const bestModelCaption = bestModels
+  .map(
+    (m) =>
+      `${m.dataset}: ${m.model}${
+        m.flagged ? " (⚠ flagged — public/holdout SPS divergence > 0.05, held for review)" : ""
+      }`,
+  )
+  .join(" · ");
 ---
 
 <section class="w-full max-w-4xl mx-auto py-8">

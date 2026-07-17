@@ -4,9 +4,9 @@
 // are enforced in CI by tests/test_baseline_floors.py (sb-lhoh).
 // Keep in sync with docs/baseline-floors-log.md.
 const nullAgentFloors = [
+  { provider: "Random baseline", dataset: "GlobalOpinionQA", sps: "0.774", n: 100 },
   { provider: "Random baseline", dataset: "OpinionsQA", sps: "0.763", n: 684 },
   { provider: "Random baseline", dataset: "SubPOP", sps: "0.758", n: 200 },
-  { provider: "Random baseline", dataset: "GlobalOpinionQA", sps: "0.710", n: 10 },
   { provider: "Majority baseline", dataset: "OpinionsQA", sps: "0.715", n: 80 },
   { provider: "Majority baseline", dataset: "GlobalOpinionQA", sps: "0.690", n: 100 },
   { provider: "Majority baseline", dataset: "SubPOP", sps: "0.673", n: 200 },
@@ -17,7 +17,7 @@ const defences = [
     number: 1,
     title: "Private holdout",
     detail:
-      "Each holdout-enabled dataset is deterministically partitioned into a public 80% (whose per-question human distributions are published on the leaderboard) and a private 20% (whose distributions are withheld). A submitter who copies published distributions has no signal for the private subset, so their public-vs-private SPS must diverge. A separation above 0.05 at production scale is flagged as a validation error. The split is keyed on a versioned salt rotated quarterly, so the partition is not permanently fixed.",
+      "Each holdout-enabled dataset is deterministically partitioned into a public subset (whose per-question human distributions are published on the leaderboard) and a private subset whose distributions are withheld — 20% for large datasets (OpinionsQA, WVS, GSS), 30% for medium ones (SubPOP, GlobalOpinionQA), and 40% for small ones (Michigan, NTIA, Eurobarometer). A submitter who copies published distributions has no signal for the private subset, so their public-vs-private SPS must diverge. A separation above 0.05 at production scale is flagged as a validation error. To be candid about the mechanism's limits: the split is an unsalted SHA-256 hash of the dataset name and question key, stable across runs by design (so ground-truth lookups stay deterministic) — anyone with the source can reconstruct which questions are held out. What stays private is the human distribution for those questions, not their identity.",
   },
   {
     number: 2,

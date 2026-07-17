@@ -125,7 +125,7 @@ function pairR(d: (typeof errorCorrelation)[number], a: string, b: string): numb
   {hasData ? (
     <Chart
       title="Ensemble Gain over Best Single Model"
-      description="Bar chart comparing the SPS of the best single model against a 3-model ensemble for each dataset. Ensemble gains range from +5.2 to +7.0 points."
+      description={`Bar chart comparing the SPS of the best single model against a 3-model ensemble for each dataset. Ensemble gains range from ${gainRange} SPS points.`}
       option={chartOption}
       height="420px"
     />
