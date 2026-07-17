@@ -10,7 +10,7 @@ const cards = [
   },
   {
     heading: "Why it works",
-    body: "The three models make uncorrelated errors on different questions. Blending cancels noise that is specific to any one model while preserving signal they agree on — 72–81% of questions improve under blending across datasets.",
+    body: "The three models' errors are only partially independent — pairwise correlation of per-question errors runs r ≈ 0.2–0.5 (see the error-correlation matrix above), moderate but well short of full correlation. Blending cancels the model-specific share of the error while preserving signal the models agree on — 72–81% of questions improve under blending across datasets. Because the errors are partially shared, the gain is a few SPS points, not a wholesale correction.",
   },
   {
     heading: "What we tested against it",

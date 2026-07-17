@@ -1,0 +1,53 @@
+---
+// Round-3 panel item: prominent scope-of-claim disclosure. States exactly
+// what SPS does and does not measure, and gives the three-disclosure
+// citation guidance reviewers asked for. Factual, no marketing.
+const rawBase = import.meta.env.BASE_URL || "/";
+const base = rawBase.endsWith("/") ? rawBase : `${rawBase}/`;
+---
+
+<section class="w-full max-w-4xl mx-auto py-12 scroll-mt-24" id="scope-of-claim">
+  <h2 class="text-2xl font-bold tracking-tight text-text dark:text-text-dark mb-2">
+    What SPS does — and does not — measure
+  </h2>
+  <div
+    class="rounded-lg border border-primary/30 bg-primary/5 dark:border-primary-light/30 dark:bg-primary-light/5 p-6 max-w-3xl"
+  >
+    <p class="text-text dark:text-text-dark mb-4">
+      The Survey Parity Score measures <strong>distributional fidelity</strong>:
+      how closely a synthetic respondent system's aggregate response
+      distributions match the human response distributions recorded in these
+      specific surveys — the Pew American Trends Panel (OpinionsQA), SubPOP,
+      GlobalOpinionQA, and the General Social Survey. That is the entire
+      claim. SPS does <strong>not</strong> measure the validity of synthetic
+      respondents as substitutes for human research participants, the
+      accuracy of any individual synthetic response, or the ability to
+      predict real-world behavior, purchasing decisions, or future opinion. A
+      high SPS means the system reproduces how surveyed populations answered
+      these questionnaires; it does not mean the system understands people or
+      that its outputs generalize beyond the measured surveys' populations,
+      topics, and time windows.
+    </p>
+    <p class="text-sm text-muted mb-2">
+      <strong class="text-text dark:text-text-dark">If you cite SynthBench results, please carry three disclosures with the number:</strong>
+    </p>
+    <ol class="list-decimal pl-5 text-sm text-muted space-y-1">
+      <li>
+        <strong class="text-text dark:text-text-dark">Fidelity, not validity</strong> — describe SPS as distributional
+        fidelity to recorded survey responses, not as accuracy, correctness,
+        or human-equivalence.
+      </li>
+      <li>
+        <strong class="text-text dark:text-text-dark">Dataset scope</strong> — name the datasets the score was measured
+        on (Pew ATP / SubPOP / GlobalOpinionQA / GSS); a score on these
+        surveys is not a score on your survey.
+      </li>
+      <li>
+        <strong class="text-text dark:text-text-dark">Operator disclosure</strong> — note that the benchmark operator
+        also ships a scored product, and link the
+        <a href={`${base}methodology/#operator-disclosure`} class="text-primary hover:underline">operator disclosure</a>
+        so readers can weigh the conflict of interest themselves.
+      </li>
+    </ol>
+  </div>
+</section>

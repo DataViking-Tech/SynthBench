@@ -126,6 +126,15 @@ for (const ds of leaderboard.datasets) {
     </table>
   </div>
 
+  <!-- Text-visible legend (#317 follow-up): the Range % definition used to
+       live only in a hover tooltip, invisible to text extraction. -->
+  <p class="mt-3 text-xs text-muted text-center max-w-3xl mx-auto">
+    <span class="font-mono">Range %</span> = (SPS − raw-LLM baseline) / (Human Ceiling −
+    raw-LLM baseline) · <span class="font-mono">—</span> = no raw-LLM baseline available
+    for that row · badges name the provider/config variant (ensemble, conditioned,
+    t=temperature, effort, tpl=prompt template).
+  </p>
+
   <p class="mt-4 text-center flex flex-wrap items-center justify-center gap-x-6 gap-y-2">
     <a
       href={`${base}leaderboard/`}

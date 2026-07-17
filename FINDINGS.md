@@ -12,6 +12,12 @@
 > artifacts are listed in the [Asserted constants](#asserted-constants)
 > appendix.
 
+**Scope of claim**: every score in this document measures distributional
+fidelity to specific surveys (Pew ATP via OpinionsQA, SubPOP,
+GlobalOpinionQA, GSS) — not validity of synthetic respondents, accuracy of
+individual responses, or real-world behavior prediction. See
+[What SPS does — and does not — measure](https://synthbench.org/methodology/#scope-of-claim).
+
 ---
 
 ## Executive Summary
@@ -253,6 +259,49 @@ three runs costs roughly 3× a single-model run.
 Comparison set: best_single = highest recomputed-SPS non-ensemble, non-baseline leaderboard row (raw or product framework) evaluated on at least as many questions as the ensemble, after per-(model, framework, dataset) dedup; random_baseline = recomputed SPS of the random-baseline run for the same dataset (n in random_baseline_n).
 <!-- END GENERATED: ensemble -->
 
+### Error correlation between constituents
+
+**Question**: The ensemble was originally framed as working because the
+constituents make "uncorrelated errors". Is that true?
+
+**Method**: For each dataset's published ensemble, pairwise Pearson r
+between the constituent runs' committed per-question JSD-vs-human vectors
+over the ensemble's common question set (do the constituents err on the
+same questions?), plus signed per-option residual correlations computed
+against the canonical human distributions (do the errors point the same
+way?) — the latter carried as an asserted constant because committed gated
+artifacts strip `human_distribution` (#308).
+
+<!-- BEGIN GENERATED: ensemble-error-correlation -->
+**globalopinionqa** (n=100 common questions, mean pairwise r = 0.407):
+
+| Constituent pair | Pearson r (per-question JSD) | n |
+|------------------|------------------------------|---|
+| SynthPanel (Haiku 4.5) ↔ SynthPanel (Gemini Flash Lite) | 0.419 | 100 |
+| SynthPanel (Haiku 4.5) ↔ SynthPanel (GPT-4o-mini) | 0.308 | 100 |
+| SynthPanel (Gemini Flash Lite) ↔ SynthPanel (GPT-4o-mini) | 0.493 | 100 |
+
+**opinionsqa** (n=684 common questions, mean pairwise r = 0.295):
+
+| Constituent pair | Pearson r (per-question JSD) | n |
+|------------------|------------------------------|---|
+| SynthPanel (Haiku 4.5) ↔ SynthPanel (Gemini Flash Lite) | 0.224 | 684 |
+| SynthPanel (Haiku 4.5) ↔ SynthPanel (GPT-4o-mini) | 0.355 | 684 |
+| SynthPanel (Gemini Flash Lite) ↔ SynthPanel (GPT-4o-mini) | 0.308 | 684 |
+
+**subpop** (n=200 common questions, mean pairwise r = 0.322):
+
+| Constituent pair | Pearson r (per-question JSD) | n |
+|------------------|------------------------------|---|
+| SynthPanel (Haiku 4.5) ↔ SynthPanel (Gemini Flash Lite) | 0.282 | 200 |
+| SynthPanel (Haiku 4.5) ↔ SynthPanel (GPT-4o-mini) | 0.260 | 200 |
+| SynthPanel (Gemini Flash Lite) ↔ SynthPanel (GPT-4o-mini) | 0.425 | 200 |
+
+The constituents' errors are **moderately positively correlated** (pairwise r 0.22–0.49 on per-question JSD; 0.27–0.44 on signed per-option residuals, see asserted constants) — not uncorrelated. The ensemble gain comes from partial, not full, independence of errors; the earlier "uncorrelated errors" framing overstated it.
+
+Comparison set: For each dataset's published ensemble: pairwise Pearson r between the constituent runs' committed per-question JSD vectors (each run's error magnitude vs the canonical human distribution), over the ensemble's common question set, read from the exact files named in ensemble_sources. Measures whether constituents err on the same questions. Signed per-option residual correlations need the stripped human_distribution fields (#308) and are carried as the ensemble_signed_error_correlation asserted constant.
+<!-- END GENERATED: ensemble-error-correlation -->
+
 ### Key Findings
 
 1. **Largest single lever discovered.** The size of the gain depends on the
@@ -263,8 +312,12 @@ Comparison set: best_single = highest recomputed-SPS non-ensemble, non-baseline 
    constituents under the retired composite convention.)
 2. **Simple equal-weight averaging is optimal** — score-proportional and
    inverse-JSD weighting produce near-identical results (asserted constant).
-3. Most individual questions improve under blending; models make
-   uncorrelated errors on different questions (asserted constant).
+3. Most individual questions improve under blending (asserted constant),
+   but the constituents' errors are **moderately positively correlated**
+   (pairwise r ≈ 0.22–0.49 on per-question JSD, 0.27–0.44 on signed
+   per-option residuals — see the error-correlation matrix above). The
+   gain comes from partial, not full, independence; the earlier
+   "uncorrelated errors" framing overstated it.
 4. **ORACLE ceiling barely exceeds equal blend** — per-question model
    selection offers negligible headroom over naive averaging (asserted
    constant).
@@ -381,6 +434,7 @@ The following claims are **not derivable from the committed artifacts** and are 
 | 72-81% of individual questions improve under blending | Session-1 per-question blend analysis (2026-04-12), computed under the retired parity-2 convention; not recomputed since. |
 | per-question oracle model selection barely exceeds the equal blend | Session-1 oracle analysis (2026-04-12); oracle blend files were not committed to leaderboard-results/. |
 | base output entropy (bits, default temperature): GPT-4o-mini 0.22, Claude Haiku 4.5 0.36, Gemini Flash Lite 0.56 | Experiment H5 notebook analysis (2026-04-12) of default-temperature model_distribution rows; the notebook output was not committed, so the exact values are asserted. |
+| pairwise Pearson r of constituents' per-option signed residuals (model probability − human probability) on the ensemble common question sets: globalopinionqa 0.27–0.44, opinionsqa 0.36–0.38, subpop 0.36–0.42 — all pairs moderately positively correlated | Computed 2026-07-16 from the committed constituents' per-question model_distribution rows plus canonical human-distribution rehydration (synthbench.human_distributions); committed gated artifacts strip human_distribution (#308), so the signed residuals are not derivable from public artifacts alone. The JSD-based correlations in ensemble_error_correlation ARE derivable and are recomputed by the drift guard. |
 | P_refuse collapses from ~0.80 to 0.40-0.50 on templates with unfilled format-string placeholders | Session-1 template-variant analysis (2026-04-12); per-component P_refuse for the template runs is derivable in principle but the published block only tracks composite SPS for templates. |
 <!-- END GENERATED: asserted-constants -->
 

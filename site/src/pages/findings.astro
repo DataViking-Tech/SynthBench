@@ -12,6 +12,9 @@ import TemperatureCurve from "@/components/findings/TemperatureCurve.astro";
 import TemporalDriftFloor from "@/components/findings/TemporalDriftFloor.astro";
 import TopicGroupedBar from "@/components/findings/TopicGroupedBar.astro";
 import BaseLayout from "@/layouts/BaseLayout.astro";
+
+const rawBase = import.meta.env.BASE_URL || "/";
+const base = rawBase.endsWith("/") ? rawBase : `${rawBase}/`;
 ---
 
 <BaseLayout title="Findings - SynthBench">
@@ -20,6 +23,12 @@ import BaseLayout from "@/layouts/BaseLayout.astro";
     <p class="mt-3 text-lg text-muted max-w-2xl mx-auto">
       Six experiments that reveal what drives synthetic survey quality —
       from the levers that matter most to the biases hiding in default model behavior.
+    </p>
+    <p class="mt-3 text-sm text-muted max-w-2xl mx-auto">
+      Scope of claim: every score below measures distributional fidelity to
+      specific surveys (Pew ATP, SubPOP, GlobalOpinionQA, GSS) — not validity,
+      individual-response accuracy, or real-world behavior prediction.
+      <a href={`${base}methodology/#scope-of-claim`} class="text-primary hover:underline">What SPS does and doesn't measure →</a>
     </p>
   </div>
 

@@ -240,6 +240,16 @@ const sourceLines = Array.from(new Set(cards.map((c) => c.entry.dataset)))
           confidence interval yet; treat the uncertainty as unknown, never zero.
         </p>
         <p>
+          <span class="font-medium text-text dark:text-text-dark">Columns:</span>{" "}
+          Score = distributional parity (p_dist) restricted to the subgroup ·
+          p_cond = conditioning strength vs the unconditioned baseline ·
+          N = questions answered under that conditioning · Cov. = coverage
+          dot derived from N (green = high, ≥100 · amber = medium, 50–99 ·
+          red = low, &lt;50). Topic tables: SPS = Survey Parity Score for the
+          topic · p_dist = 1 − mean(JSD) · p_rank = (1 + mean(τ)) / 2 ·
+          p_refuse = 1 − mean(|R_model − R_human|).
+        </p>
+        <p>
           <span class="font-medium text-text dark:text-text-dark">Multiple comparisons:</span>{" "}
           with this many subgroup cells, a few extreme cells are expected by
           chance alone — read patterns across a dimension, not single cells.

@@ -260,17 +260,22 @@ function hiddenInDefaultView(entry: LeaderboardEntry): boolean {
                 }>✓ verified</a>
               )}
               {entry.verification_badge === "flagged" && (
-                <span class="ml-1 inline-flex items-baseline gap-1">
-                  <span class="text-xs px-1.5 py-0.5 rounded bg-amber-500/10 text-amber-700 dark:text-amber-400" title={
-                    entry.sps_public != null && entry.sps_private != null
-                      ? `Public SPS ${entry.sps_public.toFixed(3)} vs private SPS ${entry.sps_private.toFixed(3)} — divergence exceeds the 0.05 threshold, so this score is held for review. Not proof of cheating; treat with caution.`
-                      : "Public/private SPS diverge beyond the 0.05 threshold, so this score is held for review. Not proof of cheating; treat with caution."
-                  }>⚠ flagged</span>
-                  <a
-                    href={`${base}methodology/#verification-badges`}
-                    class="text-xs text-muted hover:text-primary underline decoration-dotted underline-offset-2"
-                    aria-label={`What does the flagged badge mean for ${entry.model} on ${entry.dataset}?`}
-                  >what does this mean?</a>
+                <span class="ml-1 inline-flex items-baseline gap-1 flex-wrap">
+                  <span class="text-xs px-1.5 py-0.5 rounded bg-amber-500/10 text-amber-700 dark:text-amber-400">⚠ flagged</span>
+                  {/* #317 follow-up: the explanation must be visible in
+                      extracted TEXT, not only in a hover tooltip — agents,
+                      scrapers, and screen readers never see title attrs. */}
+                  <span class="text-xs text-muted">
+                    (public/holdout SPS gap
+                    {entry.sps_public != null && entry.sps_private != null
+                      ? ` ${Math.abs(entry.sps_public - entry.sps_private).toFixed(3)}`
+                      : ""}{" "}&gt; 0.05 — held for review, not proof of cheating;{" "}
+                    <a
+                      href={`${base}methodology/#verification-badges`}
+                      class="hover:text-primary underline decoration-dotted underline-offset-2"
+                      aria-label={`What does the flagged badge mean for ${entry.model} on ${entry.dataset}?`}
+                    >what does this mean?</a>)
+                  </span>
                 </span>
               )}
               {heldOutBadgeState(entry) === "verified" && (
@@ -433,6 +438,20 @@ function hiddenInDefaultView(entry: LeaderboardEntry): boolean {
             {!entry.is_baseline && entry.provider.startsWith("SynthPanel") && !entry.is_ensemble && (
               <span class="ml-1 text-xs px-1.5 py-0.5 rounded bg-provider-synthpanel/10 text-provider-synthpanel">conditioned</span>
             )}
+            {entry.verification_badge === "verified" && (
+              <span class="ml-1 text-xs px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-700 dark:text-emerald-400">✓ verified</span>
+            )}
+            {entry.verification_badge === "flagged" && (
+              <span class="ml-1 inline-flex items-baseline gap-1 flex-wrap">
+                <span class="text-xs px-1.5 py-0.5 rounded bg-amber-500/10 text-amber-700 dark:text-amber-400">⚠ flagged</span>
+                <span class="text-xs text-muted">
+                  (public/holdout SPS gap
+                  {entry.sps_public != null && entry.sps_private != null
+                    ? ` ${Math.abs(entry.sps_public - entry.sps_private).toFixed(3)}`
+                    : ""}{" "}&gt; 0.05 — held for review)
+                </span>
+              </span>
+            )}
             {heldOutBadgeState(entry) === "verified" && (
               <span class="ml-1 text-xs px-1.5 py-0.5 rounded bg-sky-500/10 text-sky-700 dark:text-sky-400" title={heldOutBadgeTitle(entry)}>✓ held-out</span>
             )}
@@ -490,6 +509,39 @@ function hiddenInDefaultView(entry: LeaderboardEntry): boolean {
       );
     })}
   </ul>
+
+  <!-- Text-visible legend (#317 follow-up): every fact that used to live
+       only in hover tooltips must also be extractable as plain text —
+       curl | strip-tags should convey the same key facts as hovering. -->
+  <div class="mt-4 text-xs text-muted max-w-4xl mx-auto space-y-1" id="leaderboard-legend">
+    <p class="font-semibold text-[color:inherit]">Legend</p>
+    <p>
+      <span class="font-mono">✓ verified</span> = public and private-holdout SPS agree within
+      the 0.05 divergence threshold · <span class="font-mono">⚠ flagged</span> = public/holdout
+      SPS divergence exceeds 0.05, score held for review (a statistical anomaly detector, not
+      proof of cheating) — <a href={`${base}methodology/#verification-badges`} class="underline decoration-dotted hover:text-primary">badge methodology</a>.
+    </p>
+    <p>
+      <span class="font-mono">~</span> = estimated cost (run published before token capture;
+      samples × questions × average per-call tokens) · <span class="font-mono">—</span> = not
+      measured for this row · <span class="font-mono">Range %</span> = (SPS − raw-LLM baseline)
+      / (Human Ceiling − raw-LLM baseline), shown only when a raw-LLM baseline exists;
+      "baseline" marks the raw-LLM row itself.
+    </p>
+    <p>
+      <span class="font-mono">$/100Q</span> = US dollars per 100 questions at the pricing
+      snapshot · <span class="font-mono">$/resp</span> = average US dollars per API call
+      (ensemble rows have no single underlying call) · <span class="font-mono">tok/resp</span> =
+      average input+output tokens per call · <span class="font-mono">95% CI</span> = bootstrap
+      confidence interval on SPS.
+    </p>
+    <p>
+      <span class="font-mono">SPS</span> = Survey Parity Score, the equal-weighted composite of
+      <span class="font-mono">p_dist</span> = 1 − mean(JSD), <span class="font-mono">p_rank</span>
+      = (1 + mean(τ)) / 2, and <span class="font-mono">p_refuse</span> = 1 −
+      mean(|R_model − R_human|) — see the <a href={`${base}methodology/`} class="underline decoration-dotted hover:text-primary">methodology</a>.
+    </p>
+  </div>
 </section>
 
 <script>

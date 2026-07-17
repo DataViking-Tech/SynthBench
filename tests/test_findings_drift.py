@@ -40,7 +40,7 @@ def computed_findings() -> dict:
         results, excluded = load_valid_results(RESULTS_DIR)
     finally:
         logging.disable(logging.NOTSET)
-    return build_findings(results, excluded)
+    return build_findings(results, excluded, results_dir=RESULTS_DIR)
 
 
 def test_findings_block_matches_committed_leaderboard(computed_findings):
@@ -88,6 +88,18 @@ def test_findings_block_shape(computed_findings):
             row["ensemble_sps"] - row["best_single_sps"], abs=1e-6
         )
         assert "random_baseline_sps" in row
+    # Every published ensemble carries an error-correlation matrix (3
+    # constituents -> 3 pairwise r's), recomputed from the committed
+    # constituents' per-question JSD vectors.
+    assert len(f["ensemble_error_correlation"]) == len(f["ensemble_comparison"])
+    for row in f["ensemble_error_correlation"]:
+        assert (
+            len(row["pairs"])
+            == len(row["constituents"]) * (len(row["constituents"]) - 1) // 2
+        )
+        for pair in row["pairs"]:
+            assert -1.0 <= pair["pearson_r"] <= 1.0
+            assert pair["n"] > 0
     # KeyFindings.astro looks these groups up by exact display string.
     groups = {(r["attribute"], r["group"]) for r in f["conditioning_results"]}
     for needed in (

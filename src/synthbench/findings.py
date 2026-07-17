@@ -103,6 +103,24 @@ ASSERTED_CONSTANTS: list[dict] = [
         ),
     },
     {
+        "name": "ensemble_signed_error_correlation",
+        "value": (
+            "pairwise Pearson r of constituents' per-option signed residuals "
+            "(model probability − human probability) on the ensemble common "
+            "question sets: globalopinionqa 0.27–0.44, opinionsqa 0.36–0.38, "
+            "subpop 0.36–0.42 — all pairs moderately positively correlated"
+        ),
+        "source": (
+            "Computed 2026-07-16 from the committed constituents' "
+            "per-question model_distribution rows plus canonical "
+            "human-distribution rehydration (synthbench.human_distributions); "
+            "committed gated artifacts strip human_distribution (#308), so "
+            "the signed residuals are not derivable from public artifacts "
+            "alone. The JSD-based correlations in ensemble_error_correlation "
+            "ARE derivable and are recomputed by the drift guard."
+        ),
+    },
+    {
         "name": "template_refusal_collapse",
         "value": (
             "P_refuse collapses from ~0.80 to 0.40-0.50 on templates with "
@@ -363,6 +381,115 @@ def _build_ensemble_comparison(
                     f"{dataset} understates a clean re-blend."
                 )
     return rows, caveats
+
+
+def _build_ensemble_error_correlation(
+    results: list[dict], results_dir: Path | None
+) -> list[dict]:
+    """Pairwise error correlation between each ensemble's constituent runs.
+
+    For every dataset with a published ensemble, reads the constituent run
+    files named in the ensemble's ``ensemble_sources`` and computes the
+    pairwise Pearson r between the constituents' per-question JSD-vs-human
+    vectors over the ensemble's common question set. JSD is each run's
+    committed per-question error magnitude against the canonical human
+    distribution, so r answers "do the constituents err on the same
+    questions?" — the published evidence behind (or against) the ensemble
+    "uncorrelated errors" framing.
+
+    JSD survives the gated-dataset stripping (#308: ``human_distribution``
+    is removed from committed files, derived per-question metrics stay), so
+    this block is fully reproducible from public artifacts and the CI drift
+    guard recomputes it. The sharper signed per-option residual correlation
+    needs the stripped human distributions and is carried as the
+    ``ensemble_signed_error_correlation`` asserted constant instead.
+
+    Requires ``results_dir`` to resolve the constituent files; returns
+    ``[]`` when it is not supplied or a constituent file is unreadable.
+    """
+    if results_dir is None:
+        return []
+    from synthbench.leaderboard import display_provider_name
+    from synthbench.publish import _dedup_results
+
+    # Mirror _build_ensemble_comparison's selection: first ensemble per
+    # dataset in the deduped pool.
+    ensembles: dict[str, dict] = {}
+    for r in _dedup_results(results):
+        cfg = r.get("config") or {}
+        ds = cfg.get("dataset", "unknown")
+        if cfg.get("provider", "").startswith("ensemble/") and ds not in ensembles:
+            ensembles[ds] = r
+
+    rows: list[dict] = []
+    for dataset in sorted(ensembles):
+        ensemble = ensembles[dataset]
+        common_keys = {
+            q.get("key") for q in ensemble.get("per_question") or [] if q.get("key")
+        }
+        if not common_keys:
+            continue
+
+        constituents: list[tuple[str, dict[str, float]]] = []
+        for src in (ensemble.get("config") or {}).get("ensemble_sources", []):
+            path = results_dir / src.get("file", "")
+            try:
+                with open(path) as f:
+                    data = json.load(f)
+            except (OSError, json.JSONDecodeError):
+                constituents = []
+                break
+            jsd_by_key = {
+                q["key"]: float(q["jsd"])
+                for q in data.get("per_question") or []
+                if q.get("key") in common_keys
+                and isinstance(q.get("jsd"), (int, float))
+                and not isinstance(q.get("jsd"), bool)
+            }
+            constituents.append(
+                (display_provider_name(src.get("provider", "")), jsd_by_key)
+            )
+        if len(constituents) < 2:
+            continue
+
+        pairs: list[dict] = []
+        for i in range(len(constituents)):
+            for j in range(i + 1, len(constituents)):
+                name_a, jsd_a = constituents[i]
+                name_b, jsd_b = constituents[j]
+                shared = sorted(set(jsd_a) & set(jsd_b))
+                if len(shared) < 3:
+                    continue
+                try:
+                    r_val = statistics.correlation(
+                        [jsd_a[k] for k in shared], [jsd_b[k] for k in shared]
+                    )
+                except statistics.StatisticsError:
+                    continue
+                pairs.append(
+                    {
+                        "a": name_a,
+                        "b": name_b,
+                        "pearson_r": round(r_val, 6),
+                        "n": len(shared),
+                    }
+                )
+        if not pairs:
+            continue
+        rows.append(
+            {
+                "dataset": dataset,
+                "n_questions": _effective_n(ensemble),
+                "constituents": [name for name, _ in constituents],
+                "pairs": pairs,
+                # Mean of the published (rounded) pairwise values so the
+                # arithmetic is exactly reproducible from the block itself.
+                "mean_pearson_r": round(
+                    statistics.mean(p["pearson_r"] for p in pairs), 6
+                ),
+            }
+        )
+    return rows
 
 
 # Score components the elicitation comparison publishes per arm; deltas are
@@ -757,13 +884,18 @@ def _build_lever_hierarchy(
 
 
 def build_findings(
-    results: list[dict], excluded_run_ids: set[str] | None = None
+    results: list[dict],
+    excluded_run_ids: set[str] | None = None,
+    results_dir: Path | None = None,
 ) -> dict:
     """Compute the published findings block from loaded (valid) run results.
 
     ``results`` is the post-validity-filter run pool (pre-dedup — replicate
     runs are required for sweep/conditioning statistics). ``excluded_run_ids``
     lets ensemble caveats detect blends built on filtered constituents.
+    ``results_dir`` (the directory the results were loaded from) lets the
+    ensemble error-correlation block resolve the exact constituent files
+    named in ``ensemble_sources``; without it that block is empty.
     """
     excluded_run_ids = excluded_run_ids or set()
 
@@ -771,6 +903,7 @@ def build_findings(
     template_comparison = _build_template_comparison(results)
     elicitation_comparison = _build_elicitation_comparison(results)
     ensemble_comparison, caveats = _build_ensemble_comparison(results, excluded_run_ids)
+    ensemble_error_correlation = _build_ensemble_error_correlation(results, results_dir)
     conditioning_results, conditioning_extended = _build_conditioning(results)
     nonresponse_fidelity = _build_nonresponse_fidelity(results)
     sensitive_topic_sidestepping = _build_sensitive_topic_sidestepping(
@@ -791,6 +924,17 @@ def build_findings(
             "dataset) dedup; random_baseline = recomputed SPS of the "
             "random-baseline run for the same dataset (n in "
             "random_baseline_n)."
+        ),
+        "ensemble_error_correlation": (
+            "For each dataset's published ensemble: pairwise Pearson r "
+            "between the constituent runs' committed per-question JSD "
+            "vectors (each run's error magnitude vs the canonical human "
+            "distribution), over the ensemble's common question set, read "
+            "from the exact files named in ensemble_sources. Measures "
+            "whether constituents err on the same questions. Signed "
+            "per-option residual correlations need the stripped "
+            "human_distribution fields (#308) and are carried as the "
+            "ensemble_signed_error_correlation asserted constant."
         ),
         "temperature_sweep": (
             "OpinionsQA sweep-tagged SynthPanel runs (' t=' provider suffix); "
@@ -830,6 +974,7 @@ def build_findings(
         "generated_from": "leaderboard-results/ (recomputed per-question rows)",
         "temperature_sweep": temperature_sweep,
         "ensemble_comparison": ensemble_comparison,
+        "ensemble_error_correlation": ensemble_error_correlation,
         "conditioning_results": conditioning_results,
         "conditioning_extended": conditioning_extended,
         "template_comparison": template_comparison,
