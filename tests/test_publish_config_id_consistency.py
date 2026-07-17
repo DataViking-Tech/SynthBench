@@ -192,3 +192,49 @@ def test_canonical_framework_prefix_in_config_id():
             f"Expected leaderboard config_id for {provider!r} to start with "
             f"{expected_prefix!r}--, got {entry_cid!r}"
         )
+
+
+def test_refusal_detector_version_stamp_never_changes_config_id():
+    """The v2 detector stamp is metadata-only: config_ids must be stable.
+
+    ``config.refusal_detector_version`` (absent = v1 on historical runs)
+    must never feed ``build_config_id`` — otherwise every rebaselined run
+    would mint a new /config/<id>/ URL and orphan its history. Mirrors the
+    additive-knob guarantee #325 established for ``effort``.
+    """
+    for provider in PROVIDER_FIXTURES:
+        base = _result(provider)
+        stamped = _result(provider)
+        stamped["config"]["refusal_detector_version"] = 2
+        base_cid = _build_entry(base, rank=1)["config_id"]
+        stamped_cid = _build_entry(stamped, rank=1)["config_id"]
+        assert base_cid == stamped_cid, (
+            f"config_id changed under refusal_detector_version stamp for "
+            f"{provider!r}: {base_cid!r} vs {stamped_cid!r}"
+        )
+
+
+def test_all_committed_config_ids_unchanged_by_detector_stamp():
+    """Recompute every committed run's config_id with and without the stamp.
+
+    The #325-style regression sweep: 0 changes across the entire committed
+    corpus.
+    """
+    results_dir = Path(__file__).resolve().parent.parent / "leaderboard-results"
+    checked = 0
+    for jf in sorted(results_dir.glob("*.json")):
+        try:
+            data = json.loads(jf.read_text())
+        except (OSError, json.JSONDecodeError):
+            continue
+        if data.get("benchmark") != "synthbench":
+            continue
+        cfg = data.get("config") or {}
+        if not cfg.get("provider"):
+            continue
+        original = _runs_path_config_id(data)
+        stamped = json.loads(json.dumps(data))
+        stamped["config"]["refusal_detector_version"] = 2
+        assert _runs_path_config_id(stamped) == original, jf.name
+        checked += 1
+    assert checked > 50  # the corpus is really there

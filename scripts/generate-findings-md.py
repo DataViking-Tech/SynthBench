@@ -254,6 +254,47 @@ def render_levers(f: dict) -> str:
     return "\n".join(lines)
 
 
+def render_nonresponse(f: dict) -> str:
+    rows = f.get("nonresponse_fidelity") or []
+    if not rows:
+        return "_No runs with committed human distributions available._"
+    lines = [
+        "| Provider | Framework | Template | Dataset | Mean model nonresponse | "
+        "Mean human nonresponse | Mean abs gap | n |",
+        "|----------|-----------|----------|---------|------------------------|"
+        "------------------------|--------------|---|",
+    ]
+    for r in rows:
+        lines.append(
+            f"| {r['provider']} | {r['framework']} | "
+            f"{r.get('template') or 'default'} | {r['dataset']} | "
+            f"{_fmt(r['mean_model_nonresponse_mass'])} | "
+            f"{_fmt(r['mean_human_nonresponse_mass'])} | "
+            f"**{_fmt(r['mean_abs_nonresponse_gap'])}** | {r['n_questions']} |"
+        )
+    lines += ["", f"Comparison set: {f['comparison_sets']['nonresponse_fidelity']}"]
+
+    s = f.get("sensitive_topic_sidestepping")
+    if s:
+        lines += [
+            "",
+            f"**{s['headline']}** ({s['provider']}, {s['dataset']}, "
+            f"n={s['n_questions']}): mean model nonresponse mass "
+            f"{_fmt(s['mean_model_nonresponse_mass'])} vs human "
+            f"{_fmt(s['mean_human_nonresponse_mass'])}. Worst items:",
+            "",
+            "| Item | Model nonresponse | Human nonresponse |",
+            "|------|-------------------|-------------------|",
+        ]
+        for i in s["items"]:
+            lines.append(
+                f"| {i['key']} | {i['model_mass'] * 100:.0f}% | "
+                f"{i['human_mass'] * 100:.1f}% |"
+            )
+        lines += ["", s["note"]]
+    return "\n".join(lines)
+
+
 def render_asserted(f: dict) -> str:
     lines = [
         "The following claims are **not derivable from the committed artifacts** "
@@ -276,6 +317,7 @@ RENDERERS = {
     "ensemble": render_ensemble,
     "extended-temperature": render_extended_temperature,
     "levers": render_levers,
+    "nonresponse-fidelity": render_nonresponse,
     "asserted-constants": render_asserted,
 }
 

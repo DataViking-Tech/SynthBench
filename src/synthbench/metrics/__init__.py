@@ -7,8 +7,10 @@ from synthbench.metrics.conditioning import conditioning_fidelity
 from synthbench.metrics.distributional import jensen_shannon_divergence
 from synthbench.metrics.ranking import kendall_tau_b
 from synthbench.metrics.refusal import (
+    REFUSAL_DETECTOR_VERSION,
     refusal_calibration,
     detect_refusal,
+    detect_refusal_v2,
     extract_human_refusal_rate,
     refusal_rate,
     p_refuse,
@@ -24,8 +26,10 @@ __all__ = [
     "synthbench_parity_score",
     "SPS_METRICS",
     "conditioning_fidelity",
+    "REFUSAL_DETECTOR_VERSION",
     "refusal_calibration",
     "detect_refusal",
+    "detect_refusal_v2",
     "extract_human_refusal_rate",
     "refusal_rate",
     "p_refuse",

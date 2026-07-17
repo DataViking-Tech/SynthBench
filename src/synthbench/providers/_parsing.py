@@ -35,7 +35,11 @@ from __future__ import annotations
 import re
 from dataclasses import dataclass
 
-from synthbench.metrics.refusal import detect_refusal
+from synthbench.metrics.refusal import (
+    REFUSAL_DETECTOR_VERSION,
+    detect_refusal,
+    detect_refusal_v2,
+)
 
 # Full-match bare letter: optional "(", one ASCII letter, optional ")",
 # optional trailing ".", ")" or ":", nothing else but whitespace.
@@ -92,11 +96,21 @@ def _containment_match(text: str, options: list[str]) -> str | None:
     return None
 
 
-def parse_option_response(text: str, options: list[str]) -> ParsedResponse:
+def parse_option_response(
+    text: str,
+    options: list[str],
+    *,
+    refusal_detector_version: int = REFUSAL_DETECTOR_VERSION,
+) -> ParsedResponse:
     """Parse a raw model response into an option selection, refusal, or failure.
 
     Never falls back to ``options[0]``. See module docstring for the
     matching order and rationale.
+
+    ``refusal_detector_version`` selects the refusal heuristic: 2 (default,
+    answer-initial anchoring + option-echo exemption) or 1 (the legacy
+    un-anchored patterns, kept callable so historical runs can be
+    reproduced bit-for-bit).
     """
     raw = str(text)
     stripped = raw.strip()
@@ -113,7 +127,11 @@ def parse_option_response(text: str, options: list[str]) -> ParsedResponse:
         return ParsedResponse(option=by_norm[text_norm])
 
     # 2. Refusal detection BEFORE fuzzy option matching.
-    if detect_refusal(stripped):
+    if refusal_detector_version >= 2:
+        is_refusal = detect_refusal_v2(stripped, options)
+    else:
+        is_refusal = detect_refusal(stripped)
+    if is_refusal:
         return ParsedResponse(refusal=True)
 
     # 3. Bare letter, anchored full-match only.

@@ -30,7 +30,7 @@ asymmetries in how LLMs represent different demographic groups.
 |---------|---------------------|-------------------|-----------------|
 | globalopinionqa (n=100) | **0.813** | 0.786 (SynthPanel (GPT-4o-mini), product) | 0.710 (n=10) |
 | opinionsqa (n=684) | **0.877** | 0.829 (Gemini 2.5 Flash, raw) | 0.763 (n=684) |
-| subpop (n=200) | **0.831** | 0.821 (SynthPanel (Gemini Flash Lite), product) | 0.757 (n=200) |
+| subpop (n=200) | **0.858** | 0.821 (SynthPanel (Gemini Flash Lite), product) | 0.757 (n=200) |
 <!-- END GENERATED: headline -->
 
 Note on interpretation: SPS is a composite parity score, not a
@@ -206,7 +206,7 @@ three runs costs roughly 3× a single-model run.
 |---------|-------------------|-------------|-------------|-----------------|
 | globalopinionqa (100q) | 0.786 (SynthPanel (GPT-4o-mini), product) | **0.813** | **+2.7 pts** | 0.710 (n=10) |
 | opinionsqa (684q) | 0.829 (Gemini 2.5 Flash, raw) | **0.877** | **+4.8 pts** | 0.763 (n=684) |
-| subpop (200q) | 0.821 (SynthPanel (Gemini Flash Lite), product) | **0.831** | **+1.0 pts** | 0.757 (n=200) |
+| subpop (200q) | 0.821 (SynthPanel (Gemini Flash Lite), product) | **0.858** | **+3.7 pts** | 0.757 (n=200) |
 
 Comparison set: best_single = highest recomputed-SPS non-ensemble, non-baseline leaderboard row (raw or product framework) evaluated on at least as many questions as the ensemble, after per-(model, framework, dataset) dedup; random_baseline = recomputed SPS of the random-baseline run for the same dataset (n in random_baseline_n).
 <!-- END GENERATED: ensemble -->
@@ -289,11 +289,42 @@ more temperature — it just adds noise.
 <!-- BEGIN GENERATED: levers -->
 | Lever | Effect size (SPS pts) | Cost | Status |
 |-------|----------------------|------|--------|
-| **Ensemble blending** | +1.0–4.8 | zero | done |
+| **Ensemble blending** | +2.7–4.8 | zero | done |
 | **Per-model optimal temperature** | +0.8–4.5 | low | actionable |
 | **Demographic conditioning** | +4.1–9.9 | moderate | scientific |
 | **Persona template** | 'current' template already optimal (+11.0 pts over the best alternative); no further gain available from this lever. | zero | done |
 <!-- END GENERATED: levers -->
+
+---
+
+## Nonresponse Fidelity
+
+How closely does each model's explicit-nonresponse mass ("don't know"-style
+option selections plus parsed refusals) track the human survey's? Computed
+per run from the committed per-question rows (full-tier datasets only —
+gated files are committed without `human_distribution`).
+
+<!-- BEGIN GENERATED: nonresponse-fidelity -->
+| Provider | Framework | Template | Dataset | Mean model nonresponse | Mean human nonresponse | Mean abs gap | n |
+|----------|-----------|----------|---------|------------------------|------------------------|--------------|---|
+| Gemini 2.5 Flash | raw | default | gss | 0.106 | 0.056 | **0.126** | 75 |
+| SynthPanel (Haiku 4.5) | product | structured | gss | 0.064 | 0.056 | **0.095** | 75 |
+| SynthPanel (Haiku 4.5) | product | default | gss | 0.067 | 0.056 | **0.094** | 75 |
+
+Comparison set: Per deduped non-baseline run whose committed per-question rows still carry human_distribution (full-tier datasets; gated files are stripped per #308): mean |model explicit-nonresponse mass (DK-style option mass + parsed refusal rate) - human's|, plus the five items with the largest model over-selection.
+
+**Safety-aligned models over-select explicit nonresponse options on sensitive items** (Gemini 2.5 Flash, gss, n=75): mean model nonresponse mass 0.106 vs human 0.056. Worst items:
+
+| Item | Model nonresponse | Human nonresponse |
+|------|-------------------|-------------------|
+| GSS_FEPRESCH | 97% | 2.2% |
+| GSS_NATRACE | 83% | 8.8% |
+| GSS_POSTLIFE | 100% | 27.0% |
+| GSS_NATHEAL | 70% | 2.4% |
+| GSS_NATFARE | 63% | 4.6% |
+
+Nonresponse mass concentrates on religion, gender-role, race, and welfare topics; the model selects a legitimate 'don't know'-style option rather than refusing in prose, so the sidestepping is invisible to refusal-rate metrics and only surfaces in the option distribution itself.
+<!-- END GENERATED: nonresponse-fidelity -->
 
 ---
 

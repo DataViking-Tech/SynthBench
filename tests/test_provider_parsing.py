@@ -692,3 +692,218 @@ def test_adapter_parse_option_no_first_char_bug():
     assert _parse_option("2", opts) == "Worse"
     assert _parse_option("2024 was a great year", opts) is None
     assert _parse_option("Disagree", ["Agree", "Disagree"]) == "Disagree"
+
+
+# ---------------------------------------------------------------------------
+# Refusal detector v2 — answer-initial anchoring + option-echo exemption
+# ---------------------------------------------------------------------------
+
+_OPTS_HEALTH = ["excellent", "good", "fair", "poor", "don't know"]
+_OPTS_PARTYID = [
+    "strong democrat",
+    "not very strong democrat",
+    "independent, close to democrat",
+    "independent (neither, no response)",
+    "independent, close to republican",
+    "not very strong republican",
+    "strong republican",
+]
+_OPTS_GOD = [
+    "don't believe",
+    "don't know, no way to find out",
+    "higher power",
+    "believe sometimes",
+    "believe with doubts",
+    "no doubts",
+    "don't know",
+]
+
+
+@pytest.mark.parametrize(
+    ("text", "options", "expected"),
+    [
+        # Chatty in-character answers that v1 mis-flagged via "\bI don't\b":
+        # option-echo exemption + answer-initial anchoring keep them as votes.
+        (
+            "I don't get sick much, I'd say good",
+            _OPTS_HEALTH,
+            ParsedResponse(option="good"),
+        ),
+        (
+            "Honestly, I don't think about it much — fair, probably.",
+            _OPTS_HEALTH,
+            ParsedResponse(option="fair"),
+        ),
+        (
+            "Well, I don't really follow politics, but I'd call myself a "
+            "strong democrat.",
+            _OPTS_PARTYID,
+            ParsedResponse(option="strong democrat"),
+        ),
+        # Mid-text refusal-ish phrasing is not answer-initial — not a refusal.
+        (
+            "My health is excellent. I don't get sick.",
+            _OPTS_HEALTH,
+            ParsedResponse(option="excellent"),
+        ),
+        # True refusals stay refusals: answer-initial, no option echo.
+        (
+            "I can't answer that as an AI",
+            _OPTS_PARTYID,
+            ParsedResponse(refusal=True),
+        ),
+        (
+            "As an AI, I don't have personal political views.",
+            _OPTS_PARTYID,
+            ParsedResponse(refusal=True),
+        ),
+        (
+            "Well, I'd prefer not to say.",
+            _OPTS_PARTYID,
+            ParsedResponse(refusal=True),
+        ),
+        (
+            "Hmm, I cannot really answer that one.",
+            _OPTS_YESNO,
+            ParsedResponse(refusal=True),
+        ),
+        # GSS GOD: the substantive DK option is an OPTION, not a refusal —
+        # exact echo, partial echo, and containment echo all count.
+        (
+            "don't know, no way to find out",
+            _OPTS_GOD,
+            ParsedResponse(option="don't know, no way to find out"),
+        ),
+        (
+            "I'd say don't know, no way to find out.",
+            _OPTS_GOD,
+            ParsedResponse(option="don't know, no way to find out"),
+        ),
+        # A bare "don't know" echoes the shorter DK option exactly.
+        ("don't know", _OPTS_GOD, ParsedResponse(option="don't know")),
+        # DK-style prose on a question that OFFERS a DK option is matched to
+        # that option by containment, not classified as refusal.
+        (
+            "I really don't know on this one.",
+            _OPTS_HEALTH,
+            ParsedResponse(option="don't know"),
+        ),
+        # ...but on a question with no DK option, answer-initial "I don't
+        # know" (with no option echo) is a refusal/nonresponse.
+        ("I don't know.", _OPTS_YESNO, ParsedResponse(refusal=True)),
+    ],
+)
+def test_refusal_detector_v2_table(text, options, expected):
+    assert parse_option_response(text, options) == expected
+
+
+def test_refusal_detector_v1_still_callable_for_reproducibility():
+    """v1 is preserved verbatim: it still exhibits the documented mis-flag."""
+    from synthbench.metrics.refusal import detect_refusal, detect_refusal_v2
+
+    chatty = "I don't get sick much, I'd say good"
+    assert detect_refusal(chatty) is True  # the v1 precision bug, frozen
+    assert detect_refusal_v2(chatty, _OPTS_HEALTH) is False
+    # And parse_option_response can reproduce v1 behaviour on request.
+    parsed_v1 = parse_option_response(chatty, _OPTS_HEALTH, refusal_detector_version=1)
+    assert parsed_v1 == ParsedResponse(refusal=True)
+
+
+def test_refusal_detector_version_constant():
+    from synthbench.metrics.refusal import REFUSAL_DETECTOR_VERSION
+
+    assert REFUSAL_DETECTOR_VERSION == 2
+
+
+# ---------------------------------------------------------------------------
+# Structured elicitation (tpl=structured) — schema-forced extraction
+# ---------------------------------------------------------------------------
+
+
+def _structured_provider(monkeypatch, answers):
+    """SynthPanel provider in structured mode with a stubbed API client."""
+    from synthbench.providers import synthpanel as sp_mod
+
+    monkeypatch.setattr(sp_mod, "_HAS_SYNTH_PANEL_API", True)
+
+    calls = []
+
+    class _FakeClient:
+        def __init__(self):
+            self._i = 0
+
+        def send(self, request):
+            calls.append(request)
+            answer = answers[min(self._i, len(answers) - 1)]
+            self._i += 1
+            if answer is None:
+                content = [sp_mod.TextBlock(text="prose, no tool call")]
+            else:
+                content = [
+                    SimpleNamespace(
+                        type="tool_use",
+                        id="t1",
+                        name=sp_mod._STRUCTURED_TOOL_NAME,
+                        input={"answer": answer},
+                    )
+                ]
+            return SimpleNamespace(
+                text="" if answer is not None else "prose, no tool call",
+                tool_calls=[b for b in content if getattr(b, "type", "") == "tool_use"],
+                model="fake",
+                usage=SimpleNamespace(input_tokens=1, output_tokens=1),
+            )
+
+    monkeypatch.setattr(sp_mod, "LLMClient", lambda: _FakeClient())
+    provider = sp_mod.SynthPanelProvider(model="haiku", elicitation="structured")
+    return provider, calls
+
+
+def test_structured_mode_is_distinct_template_identity(monkeypatch):
+    provider, _ = _structured_provider(monkeypatch, ["Yes"])
+    assert "tpl=structured" in provider.name
+    # The prompt surface hash must differ from the natural mode's.
+    from synthbench.providers import synthpanel as sp_mod
+
+    natural = sp_mod.SynthPanelProvider.__new__(sp_mod.SynthPanelProvider)
+    natural._model = "haiku"
+    natural._prompt_template = None
+    natural._elicitation = "natural"
+    assert provider.prompt_template_source != natural.prompt_template_source
+
+
+def test_structured_mode_rejects_prompt_template():
+    from synthbench.providers import synthpanel as sp_mod
+
+    with pytest.raises(ValueError):
+        sp_mod.SynthPanelProvider(
+            model="haiku", elicitation="structured", prompt_template="x.md"
+        )
+    with pytest.raises(ValueError):
+        sp_mod.SynthPanelProvider(model="haiku", elicitation="nope")
+
+
+@pytest.mark.asyncio
+async def test_structured_mode_forces_tool_and_parses_enum(monkeypatch):
+    provider, calls = _structured_provider(monkeypatch, ["Worse"])
+    resp = await provider.respond("Q?", _OPTS_BETTER)
+    assert resp.selected_option == "Worse"
+    assert resp.refusal is False
+    # The request carried the forced tool schema (enum of option strings).
+    request = calls[0]
+    assert request.tools is not None
+    schema = request.tools[0].input_schema
+    assert schema["properties"]["answer"]["enum"] == _OPTS_BETTER
+    assert request.tool_choice is not None
+
+
+@pytest.mark.asyncio
+async def test_structured_mode_out_of_enum_is_parse_failure(monkeypatch):
+    provider, _ = _structured_provider(monkeypatch, ["Not An Option", None, "Better"])
+    dist = await provider.get_distribution("Q?", _OPTS_BETTER, n_samples=3)
+    # 1 valid vote; out-of-enum + missing tool call are parse failures,
+    # never fabricated votes and never refusals.
+    assert dist.n_parse_failures == 2
+    assert dist.n_samples == 1
+    assert dist.refusal_probability == 0.0
+    assert dist.probabilities[0] == pytest.approx(1.0)

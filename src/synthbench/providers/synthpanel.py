@@ -33,7 +33,13 @@ _LETTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 # ---------------------------------------------------------------------------
 try:
     from synth_panel.llm.client import LLMClient
-    from synth_panel.llm.models import CompletionRequest, InputMessage, TextBlock
+    from synth_panel.llm.models import (
+        CompletionRequest,
+        InputMessage,
+        TextBlock,
+        ToolChoice,
+        ToolDefinition,
+    )
 
     _HAS_SYNTH_PANEL_API = True
 except (ImportError, TypeError):
@@ -176,6 +182,63 @@ def _build_question_text(question: str, options: list[str]) -> str:
     return f"{question}\n\n{opts_lines}"
 
 
+# ---------------------------------------------------------------------------
+# Structured (schema-forced) elicitation — the ``tpl=structured`` variant
+# ---------------------------------------------------------------------------
+
+_STRUCTURED_TOOL_NAME = "select_option"
+
+#: Elicitation modes. ``natural`` (default) sends the plain persona prompt
+#: and parses prose via :func:`parse_option_response`. ``structured`` forces
+#: a tool call whose ``answer`` field is an enum of the literal option
+#: strings, so no prose parsing (and no refusal-text heuristic) is involved.
+ELICITATION_MODES = ("natural", "structured")
+
+
+def _structured_tool_spec(options: list[str]) -> tuple[list, "ToolChoice"]:
+    """Build the forced tool definition + choice for one question's options."""
+    tool = ToolDefinition(
+        name=_STRUCTURED_TOOL_NAME,
+        description=(
+            "Record this respondent's answer to the survey question. "
+            "The answer must be exactly one of the offered options."
+        ),
+        input_schema={
+            "type": "object",
+            "properties": {
+                "answer": {
+                    "type": "string",
+                    "enum": [str(o) for o in options],
+                }
+            },
+            "required": ["answer"],
+        },
+    )
+    return [tool], ToolChoice.specific(_STRUCTURED_TOOL_NAME)
+
+
+def _parse_structured_response(response: Any, options: list[str]):
+    """Extract the enum answer from a forced tool call.
+
+    Returns ``(raw_text, ParsedResponse)``. Exact string equality against
+    the declared options only — a missing tool call or an out-of-enum value
+    is a parse failure, never a fabricated vote and never a refusal (the
+    schema-forced channel has no refusal text to detect).
+    """
+    from synthbench.providers._parsing import ParsedResponse
+
+    for call in getattr(response, "tool_calls", []) or []:
+        if call.name != _STRUCTURED_TOOL_NAME:
+            continue
+        answer = (call.input or {}).get("answer")
+        raw_text = json.dumps({"answer": answer})
+        for opt in options:
+            if str(opt) == str(answer):
+                return raw_text, ParsedResponse(option=opt)
+        return raw_text, ParsedResponse()
+    return getattr(response, "text", "") or "", ParsedResponse()
+
+
 class SynthPanelProvider(Provider):
     """Benchmark the full SynthPanel pipeline.
 
@@ -193,11 +256,28 @@ class SynthPanelProvider(Provider):
         profile: str | None = None,
         prompt_template: str | None = None,
         synthpanel_path: str | None = None,
+        elicitation: str = "natural",
     ):
+        if elicitation not in ELICITATION_MODES:
+            raise ValueError(
+                f"elicitation must be one of {ELICITATION_MODES}, got {elicitation!r}"
+            )
+        if elicitation == "structured" and prompt_template is not None:
+            raise ValueError(
+                "elicitation='structured' is a template variant of its own "
+                "(tpl=structured) and cannot be combined with --prompt-template."
+            )
+        if elicitation == "structured" and not _HAS_SYNTH_PANEL_API:
+            raise ImportError(
+                "elicitation='structured' requires the synth_panel Python API "
+                "(schema-forced tool calls are not exposed by the synthpanel "
+                "CLI fallback). Install synth_panel on Python 3.10+."
+            )
         self._model = model
         self._temperature = temperature
         self._profile = profile
         self._prompt_template = prompt_template
+        self._elicitation = elicitation
         self._use_api = _HAS_SYNTH_PANEL_API
         self._client: Any = None
         self._executor: ThreadPoolExecutor | None = None
@@ -230,6 +310,11 @@ class SynthPanelProvider(Provider):
 
             tname = Path(self._prompt_template).stem
             parts.append(f"tpl={tname}")
+        if self._elicitation == "structured":
+            # Distinct leaderboard identity on the template axis: schema-
+            # forced extraction is a different elicitation surface, not a
+            # silent change to the natural-prose rows.
+            parts.append("tpl=structured")
         return " ".join(parts)
 
     @property
@@ -254,6 +339,11 @@ class SynthPanelProvider(Provider):
         system = _build_system_prompt(None)
         user_text = _build_question_text(sentinel_q, sentinel_opts)
         base = system + "\n" + user_text
+        if self._elicitation == "structured":
+            tools, _choice = _structured_tool_spec(sentinel_opts)
+            base += "\n---elicitation:structured---\n" + json.dumps(
+                tools[0].input_schema, sort_keys=True
+            )
         if self._prompt_template:
             try:
                 override = Path(self._prompt_template).read_text()
@@ -275,28 +365,45 @@ class SynthPanelProvider(Provider):
 
     # ── Direct API path ──────────────────────────────────────────
 
-    async def _respond_api(
+    def _build_api_request(
         self, question: str, options: list[str], persona: PersonaSpec | None
-    ) -> Response:
-        """Direct LLM call — no subprocess overhead."""
+    ) -> "CompletionRequest":
+        """Build one CompletionRequest, honouring the elicitation mode."""
         system = _build_system_prompt(persona)
         user_text = _build_question_text(question, options)
-
-        request = CompletionRequest(
+        kwargs: dict[str, Any] = {}
+        if self._elicitation == "structured":
+            tools, tool_choice = _structured_tool_spec(options)
+            kwargs["tools"] = tools
+            kwargs["tool_choice"] = tool_choice
+        return CompletionRequest(
             model=self._model,
             max_tokens=1024,
             messages=[InputMessage(role="user", content=[TextBlock(text=user_text)])],
             system=system,
             temperature=self._temperature,
+            **kwargs,
         )
+
+    def _parse_api_response(self, response: Any, options: list[str]):
+        """Return ``(raw_text, ParsedResponse)`` per the elicitation mode."""
+        if self._elicitation == "structured":
+            return _parse_structured_response(response, options)
+        raw_text = response.text
+        return raw_text, parse_option_response(raw_text, options)
+
+    async def _respond_api(
+        self, question: str, options: list[str], persona: PersonaSpec | None
+    ) -> Response:
+        """Direct LLM call — no subprocess overhead."""
+        request = self._build_api_request(question, options, persona)
 
         loop = asyncio.get_running_loop()
         response = await call_with_retries(
             lambda: loop.run_in_executor(self._executor, self._client.send, request)
         )
 
-        raw_text = response.text
-        parsed = parse_option_response(raw_text, options)
+        raw_text, parsed = self._parse_api_response(response, options)
 
         return Response(
             selected_option=parsed.option,
@@ -375,16 +482,7 @@ class SynthPanelProvider(Provider):
         a fabricated distribution.
         """
         effective_samples = n_samples if n_samples is not None else 30
-        system = _build_system_prompt(persona)
-        user_text = _build_question_text(question, options)
-
-        request = CompletionRequest(
-            model=self._model,
-            max_tokens=1024,
-            messages=[InputMessage(role="user", content=[TextBlock(text=user_text)])],
-            system=system,
-            temperature=self._temperature,
-        )
+        request = self._build_api_request(question, options, persona)
 
         loop = asyncio.get_running_loop()
 
@@ -408,8 +506,7 @@ class SynthPanelProvider(Provider):
             if isinstance(result, BaseException):
                 infra_errors.append(result)
                 continue
-            raw_text = result.text
-            parsed = parse_option_response(raw_text, options)
+            _raw_text, parsed = self._parse_api_response(result, options)
             if parsed.refusal:
                 refusals += 1
             elif parsed.option is None:

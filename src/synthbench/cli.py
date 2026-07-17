@@ -59,6 +59,7 @@ def _provider_kwargs(
     temperature=None,
     prompt_template=None,
     effort=None,
+    elicitation=None,
 ):
     """Build constructor kwargs appropriate for *provider_name*.
 
@@ -94,6 +95,12 @@ def _provider_kwargs(
                 "--prompt-template is only supported by the synthpanel provider."
             )
         kwargs["prompt_template"] = prompt_template
+    if elicitation is not None:
+        if provider_name != "synthpanel":
+            raise click.UsageError(
+                "--elicitation is only supported by the synthpanel provider."
+            )
+        kwargs["elicitation"] = elicitation
     if effort is not None:
         if provider_name == "synthpanel":
             raise click.UsageError(
@@ -242,6 +249,18 @@ main.add_command(_submit_adapter_cmd)
     default=None,
     help="Path to a custom persona prompt template file (synthpanel only).",
 )
+@click.option(
+    "--elicitation",
+    type=click.Choice(["natural", "structured"]),
+    default=None,
+    help=(
+        "Elicitation mode (synthpanel only). 'natural' (default) parses "
+        "prose responses; 'structured' forces a schema-constrained tool "
+        "call (enum of the option strings) so no prose parsing occurs. "
+        "Structured runs are stamped as a template variant "
+        "(tpl=structured) — a distinct leaderboard identity."
+    ),
+)
 # sb-ymux: `synthbench run --submit` wiring. Keeping all submission flags on
 # the `run` subcommand (not a new subcommand) means a user's first try at
 # "benchmark → leaderboard" is literally one invocation. --wait folds the
@@ -317,6 +336,7 @@ def run(
     temperature,
     effort,
     prompt_template,
+    elicitation,
     submit_after,
     wait,
     submit_api_key,
@@ -382,6 +402,7 @@ def run(
             temperature,
             effort,
             prompt_template,
+            elicitation,
             submit_after=submit_after,
             wait=wait,
             submit_api_key=submit_api_key,
@@ -413,6 +434,7 @@ async def _run_async(
     temperature=None,
     effort=None,
     prompt_template=None,
+    elicitation=None,
     *,
     submit_after: bool = False,
     wait: bool = False,
@@ -465,6 +487,7 @@ async def _run_async(
         temperature=temperature,
         prompt_template=prompt_template,
         effort=effort,
+        elicitation=elicitation,
     )
     try:
         prov = load_provider(provider_name, **provider_kwargs)
@@ -558,6 +581,12 @@ async def _run_async(
         result.config["effort"] = effort
     if prompt_template is not None:
         result.config["prompt_template"] = prompt_template
+    if elicitation is not None and elicitation != "natural":
+        # Structured elicitation is stamped on the template axis so it
+        # groups/dedups/config_ids as a distinct variant (tpl=structured),
+        # plus an explicit elicitation key for human readers.
+        result.config["elicitation"] = elicitation
+        result.config["prompt_template"] = elicitation
 
     click.echo()  # Newline after progress
     click.echo()

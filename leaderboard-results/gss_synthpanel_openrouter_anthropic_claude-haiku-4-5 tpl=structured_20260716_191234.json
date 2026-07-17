@@ -2,71 +2,74 @@
   "benchmark": "synthbench",
   "schema_version": 2,
   "version": "0.1.0",
-  "timestamp": "2026-07-15T22:55:14.456037+00:00",
+  "timestamp": "2026-07-17T00:12:35.041150+00:00",
   "config": {
     "dataset": "gss",
-    "provider": "synthpanel/openrouter/anthropic/claude-haiku-4-5",
+    "provider": "synthpanel/openrouter/anthropic/claude-haiku-4-5 tpl=structured",
     "samples_per_question": 30,
     "n_requested": null,
     "n_evaluated": 75,
-    "model_revision_hash": "sha256:dd56184d9e8db368bfe7b09d99f9316ebc4cb2440d26c57f35166504d2dad080",
-    "prompt_template_hash": "sha256:4f1c561ab4b48967796548fd5fa849c4897cfd87aaca694e6a359e4663546ab6",
+    "refusal_detector_version": 2,
+    "model_revision_hash": "sha256:917c686284a6acf6f8c9ea01c0109f818c9a2301a30032b9d817b1da726e81a7",
+    "prompt_template_hash": "sha256:bc39b5a32e705efc7da4953bba930867eabd560224cc933912a30eeaa8e79635",
+    "elicitation": "structured",
+    "prompt_template": "structured",
     "question_set_hash": "813eca34cc554502164c08944eccde8ba4360612a333e69c3b39785d451b007b",
     "temperature": null,
-    "parse_failure_rate": 0.014222,
+    "parse_failure_rate": 0.0,
     "topic_filter": null
   },
   "reproducibility": {
     "seed": null,
-    "model_revision_hash": "sha256:dd56184d9e8db368bfe7b09d99f9316ebc4cb2440d26c57f35166504d2dad080",
-    "prompt_template_hash": "sha256:4f1c561ab4b48967796548fd5fa849c4897cfd87aaca694e6a359e4663546ab6",
+    "model_revision_hash": "sha256:917c686284a6acf6f8c9ea01c0109f818c9a2301a30032b9d817b1da726e81a7",
+    "prompt_template_hash": "sha256:bc39b5a32e705efc7da4953bba930867eabd560224cc933912a30eeaa8e79635",
     "framework_version": "0.1.0",
-    "submitted_at": "2026-07-15T22:55:14.456071+00:00"
+    "submitted_at": "2026-07-17T00:12:35.041176+00:00"
   },
   "raw_responses": [],
   "scores": {
-    "sps": 0.709263,
-    "p_dist": 0.731949,
-    "p_rank": 0.719347,
-    "p_refuse": 0.676491
+    "sps": 0.791467,
+    "p_dist": 0.666071,
+    "p_rank": 0.736279,
+    "p_refuse": 0.97205
   },
   "aggregate": {
-    "mean_jsd": 0.268051,
-    "median_jsd": 0.196285,
-    "mean_kendall_tau": 0.438695,
-    "composite_parity": 0.725648,
+    "mean_jsd": 0.333929,
+    "median_jsd": 0.283525,
+    "mean_kendall_tau": 0.472558,
+    "composite_parity": 0.701175,
     "n_questions": 75,
-    "elapsed_seconds": 471.9,
+    "elapsed_seconds": 131.2,
     "per_metric_ci": {
       "p_dist": [
-        0.680041,
-        0.773533
+        0.618392,
+        0.707336
       ],
       "p_rank": [
-        0.666633,
-        0.766949
+        0.678019,
+        0.782932
       ],
       "p_refuse": [
-        0.603864,
-        0.74079
+        0.964461,
+        0.977474
       ],
       "sps": [
-        0.666754,
-        0.747372
+        0.753867,
+        0.817981
       ]
     },
     "question_set_hash": "813eca34cc554502164c08944eccde8ba4360612a333e69c3b39785d451b007b",
-    "n_parse_failures": 32,
+    "n_parse_failures": 0,
     "token_usage": {
-      "input_tokens": 309390,
-      "output_tokens": 273538,
+      "input_tokens": 1851090,
+      "output_tokens": 77717,
       "call_count": 2250,
       "source": "measured"
     },
     "latency_seconds": {
-      "mean": 30.157,
-      "p50": 24.8979,
-      "p95": 94.3863,
+      "mean": 8.1158,
+      "p50": 6.6938,
+      "p95": 26.249,
       "n": 75,
       "source": "measured"
     }
@@ -87,24 +90,24 @@
         "don't know": 0.0348
       },
       "model_distribution": {
-        "yes": 0.5,
+        "yes": 1.0,
         "no": 0.0,
-        "don't know": 0.5
+        "don't know": 0.0
       },
-      "jsd": 0.377124,
-      "kendall_tau": 0.0,
-      "parity": 0.561438,
+      "jsd": 0.263468,
+      "kendall_tau": 0.816497,
+      "parity": 0.82239,
       "n_samples": 30,
       "n_parse_failures": 0,
-      "model_refusal_rate": 0.733333,
+      "model_refusal_rate": 0.0,
       "human_refusal_rate": 0.03483,
       "temporal_year": 0,
       "token_usage": {
-        "input_tokens": 3540,
-        "output_tokens": 3021,
+        "input_tokens": 23850,
+        "output_tokens": 990,
         "call_count": 30
       },
-      "latency_seconds": 8.721
+      "latency_seconds": 2.2603
     },
     {
       "key": "GSS_ABDEFECT",
@@ -120,24 +123,24 @@
         "don't know": 0.0428
       },
       "model_distribution": {
-        "yes": 0.75,
+        "yes": 1.0,
         "no": 0.0,
-        "don't know": 0.25
+        "don't know": 0.0
       },
-      "jsd": 0.163116,
-      "kendall_tau": 0.333333,
-      "parity": 0.751775,
+      "jsd": 0.139178,
+      "kendall_tau": 0.816497,
+      "parity": 0.884535,
       "n_samples": 30,
       "n_parse_failures": 0,
-      "model_refusal_rate": 0.333333,
+      "model_refusal_rate": 0.0,
       "human_refusal_rate": 0.04283,
       "temporal_year": 0,
       "token_usage": {
-        "input_tokens": 3690,
-        "output_tokens": 3782,
+        "input_tokens": 24000,
+        "output_tokens": 990,
         "call_count": 30
       },
-      "latency_seconds": 8.721
+      "latency_seconds": 2.2603
     },
     {
       "key": "GSS_ABHLTH",
@@ -162,15 +165,15 @@
       "parity": 0.925173,
       "n_samples": 30,
       "n_parse_failures": 0,
-      "model_refusal_rate": 0.133333,
+      "model_refusal_rate": 0.0,
       "human_refusal_rate": 0.024707,
       "temporal_year": 0,
       "token_usage": {
-        "input_tokens": 3660,
-        "output_tokens": 2279,
+        "input_tokens": 23970,
+        "output_tokens": 990,
         "call_count": 30
       },
-      "latency_seconds": 8.721
+      "latency_seconds": 2.2603
     },
     {
       "key": "GSS_ABNOMORE",
@@ -195,15 +198,15 @@
       "parity": 0.808366,
       "n_samples": 30,
       "n_parse_failures": 0,
-      "model_refusal_rate": 0.166667,
+      "model_refusal_rate": 0.0,
       "human_refusal_rate": 0.04231,
       "temporal_year": 0,
       "token_usage": {
-        "input_tokens": 3630,
-        "output_tokens": 2848,
+        "input_tokens": 23940,
+        "output_tokens": 990,
         "call_count": 30
       },
-      "latency_seconds": 8.721
+      "latency_seconds": 2.2603
     },
     {
       "key": "GSS_ABPOOR",
@@ -228,15 +231,15 @@
       "parity": 0.804412,
       "n_samples": 30,
       "n_parse_failures": 0,
-      "model_refusal_rate": 0.133333,
+      "model_refusal_rate": 0.0,
       "human_refusal_rate": 0.041563,
       "temporal_year": 0,
       "token_usage": {
-        "input_tokens": 3720,
-        "output_tokens": 3202,
+        "input_tokens": 24030,
+        "output_tokens": 990,
         "call_count": 30
       },
-      "latency_seconds": 8.721
+      "latency_seconds": 2.2603
     },
     {
       "key": "GSS_ABRAPE",
@@ -261,15 +264,15 @@
       "parity": 0.900779,
       "n_samples": 30,
       "n_parse_failures": 0,
-      "model_refusal_rate": 0.1,
+      "model_refusal_rate": 0.0,
       "human_refusal_rate": 0.041694,
       "temporal_year": 0,
       "token_usage": {
-        "input_tokens": 3570,
-        "output_tokens": 2323,
+        "input_tokens": 23880,
+        "output_tokens": 990,
         "call_count": 30
       },
-      "latency_seconds": 8.721
+      "latency_seconds": 2.2603
     },
     {
       "key": "GSS_ABSINGLE",
@@ -285,24 +288,24 @@
         "don't know": 0.0381
       },
       "model_distribution": {
-        "yes": 0.9655,
+        "yes": 1.0,
         "no": 0.0,
-        "don't know": 0.0345
+        "don't know": 0.0
       },
-      "jsd": 0.286172,
-      "kendall_tau": 0.333333,
-      "parity": 0.690247,
+      "jsd": 0.312174,
+      "kendall_tau": 0.816497,
+      "parity": 0.798037,
       "n_samples": 30,
       "n_parse_failures": 0,
-      "model_refusal_rate": 0.033333,
+      "model_refusal_rate": 0.0,
       "human_refusal_rate": 0.038075,
       "temporal_year": 0,
       "token_usage": {
-        "input_tokens": 3690,
-        "output_tokens": 2930,
+        "input_tokens": 24000,
+        "output_tokens": 990,
         "call_count": 30
       },
-      "latency_seconds": 8.721
+      "latency_seconds": 2.2603
     },
     {
       "key": "GSS_AFFRMACT",
@@ -323,25 +326,25 @@
       },
       "model_distribution": {
         "strongly favors": 0.0,
-        "not strongly favors": 0.0,
-        "not strongly opposes": 1.0,
+        "not strongly favors": 0.0667,
+        "not strongly opposes": 0.0,
         "strongly opposes": 0.0,
-        "don't know": 0.0
+        "don't know": 0.9333
       },
-      "jsd": 0.513473,
-      "kendall_tau": 0.316228,
-      "parity": 0.572321,
+      "jsd": 0.766621,
+      "kendall_tau": -0.83666,
+      "parity": 0.157525,
       "n_samples": 30,
       "n_parse_failures": 0,
-      "model_refusal_rate": 0.666667,
+      "model_refusal_rate": 0.0,
       "human_refusal_rate": 0.052808,
       "temporal_year": 0,
       "token_usage": {
-        "input_tokens": 5400,
-        "output_tokens": 5711,
+        "input_tokens": 26190,
+        "output_tokens": 1052,
         "call_count": 30
       },
-      "latency_seconds": 8.721
+      "latency_seconds": 2.2603
     },
     {
       "key": "GSS_ATTEND",
@@ -371,28 +374,28 @@
       "model_distribution": {
         "never": 0.0,
         "less than once a year": 0.0,
-        "about once or twice a year": 0.4444,
-        "several times a year": 0.2222,
-        "about once a month": 0.3333,
+        "about once or twice a year": 0.9667,
+        "several times a year": 0.0333,
+        "about once a month": 0.0,
         "2-3 times a month": 0.0,
         "nearly every week": 0.0,
         "every week": 0.0,
         "several times a week": 0.0
       },
-      "jsd": 0.534348,
-      "kendall_tau": -0.03637,
-      "parity": 0.473734,
+      "jsd": 0.678603,
+      "kendall_tau": 0.301232,
+      "parity": 0.486006,
       "n_samples": 30,
       "n_parse_failures": 0,
-      "model_refusal_rate": 0.1,
+      "model_refusal_rate": 0.0,
       "human_refusal_rate": 0,
       "temporal_year": 0,
       "token_usage": {
-        "input_tokens": 4560,
-        "output_tokens": 2196,
+        "input_tokens": 26160,
+        "output_tokens": 1138,
         "call_count": 30
       },
-      "latency_seconds": 8.721
+      "latency_seconds": 2.2603
     },
     {
       "key": "GSS_BIBLE",
@@ -423,15 +426,15 @@
       "parity": 0.712741,
       "n_samples": 30,
       "n_parse_failures": 0,
-      "model_refusal_rate": 0.233333,
+      "model_refusal_rate": 0.0,
       "human_refusal_rate": 0.034096,
       "temporal_year": 0,
       "token_usage": {
-        "input_tokens": 5490,
-        "output_tokens": 3516,
+        "input_tokens": 26160,
+        "output_tokens": 1020,
         "call_count": 30
       },
-      "latency_seconds": 8.721
+      "latency_seconds": 2.2603
     },
     {
       "key": "GSS_CAPPUN",
@@ -448,23 +451,23 @@
       },
       "model_distribution": {
         "favor": 0.0,
-        "oppose": 0.8947,
-        "don't know": 0.1053
+        "oppose": 0.5,
+        "don't know": 0.5
       },
-      "jsd": 0.39615,
-      "kendall_tau": -0.333333,
-      "parity": 0.468592,
+      "jsd": 0.482202,
+      "kendall_tau": -0.816497,
+      "parity": 0.304775,
       "n_samples": 30,
       "n_parse_failures": 0,
-      "model_refusal_rate": 0.366667,
+      "model_refusal_rate": 0.0,
       "human_refusal_rate": 0.034728,
       "temporal_year": 0,
       "token_usage": {
-        "input_tokens": 3060,
-        "output_tokens": 3337,
+        "input_tokens": 23370,
+        "output_tokens": 1020,
         "call_count": 30
       },
-      "latency_seconds": 15.0079
+      "latency_seconds": 3.498
     },
     {
       "key": "GSS_CLASS",
@@ -485,25 +488,25 @@
       },
       "model_distribution": {
         "lower class": 0.0,
-        "working class": 0.0385,
-        "middle class": 0.9615,
+        "working class": 0.1667,
+        "middle class": 0.8333,
         "upper class": 0.0,
         "don't know": 0.0
       },
-      "jsd": 0.280538,
+      "jsd": 0.162139,
       "kendall_tau": 0.83666,
-      "parity": 0.818896,
+      "parity": 0.878095,
       "n_samples": 30,
       "n_parse_failures": 0,
-      "model_refusal_rate": 0.133333,
+      "model_refusal_rate": 0.0,
       "human_refusal_rate": 0.010909,
       "temporal_year": 0,
       "token_usage": {
-        "input_tokens": 4260,
-        "output_tokens": 2532,
+        "input_tokens": 24870,
+        "output_tokens": 1020,
         "call_count": 30
       },
-      "latency_seconds": 15.0079
+      "latency_seconds": 3.498
     },
     {
       "key": "GSS_COLATH",
@@ -528,15 +531,15 @@
       "parity": 0.840959,
       "n_samples": 30,
       "n_parse_failures": 0,
-      "model_refusal_rate": 0.4,
+      "model_refusal_rate": 0.0,
       "human_refusal_rate": 0.021933,
       "temporal_year": 0,
       "token_usage": {
-        "input_tokens": 3600,
-        "output_tokens": 4347,
+        "input_tokens": 24060,
+        "output_tokens": 1110,
         "call_count": 30
       },
-      "latency_seconds": 15.0079
+      "latency_seconds": 3.498
     },
     {
       "key": "GSS_CONARMY",
@@ -554,25 +557,25 @@
         "don't know": 0.0077
       },
       "model_distribution": {
-        "a great deal": 0.2174,
-        "only some": 0.7826,
+        "a great deal": 0.7667,
+        "only some": 0.2333,
         "hardly any": 0.0,
         "don't know": 0.0
       },
-      "jsd": 0.121225,
-      "kendall_tau": 0.912871,
-      "parity": 0.917605,
+      "jsd": 0.119513,
+      "kendall_tau": 0.547723,
+      "parity": 0.827174,
       "n_samples": 30,
       "n_parse_failures": 0,
-      "model_refusal_rate": 0.233333,
+      "model_refusal_rate": 0.0,
       "human_refusal_rate": 0.007678,
       "temporal_year": 0,
       "token_usage": {
-        "input_tokens": 4320,
-        "output_tokens": 3278,
+        "input_tokens": 24840,
+        "output_tokens": 1043,
         "call_count": 30
       },
-      "latency_seconds": 15.0079
+      "latency_seconds": 3.498
     },
     {
       "key": "GSS_CONBUS",
@@ -590,25 +593,25 @@
         "don't know": 0.015
       },
       "model_distribution": {
-        "a great deal": 0.125,
-        "only some": 0.625,
-        "hardly any": 0.25,
+        "a great deal": 0.0,
+        "only some": 1.0,
+        "hardly any": 0.0,
         "don't know": 0.0
       },
-      "jsd": 0.008416,
-      "kendall_tau": 1.0,
-      "parity": 0.995792,
+      "jsd": 0.237085,
+      "kendall_tau": 0.707107,
+      "parity": 0.808234,
       "n_samples": 30,
       "n_parse_failures": 0,
-      "model_refusal_rate": 0.733333,
+      "model_refusal_rate": 0.0,
       "human_refusal_rate": 0.01505,
       "temporal_year": 0,
       "token_usage": {
-        "input_tokens": 4320,
-        "output_tokens": 3791,
+        "input_tokens": 24840,
+        "output_tokens": 1020,
         "call_count": 30
       },
-      "latency_seconds": 15.0079
+      "latency_seconds": 3.498
     },
     {
       "key": "GSS_CONCLERG",
@@ -626,25 +629,25 @@
         "don't know": 0.0224
       },
       "model_distribution": {
-        "a great deal": 0.1333,
-        "only some": 0.8,
-        "hardly any": 0.0667,
+        "a great deal": 0.0,
+        "only some": 1.0,
+        "hardly any": 0.0,
         "don't know": 0.0
       },
-      "jsd": 0.113124,
-      "kendall_tau": 0.666667,
-      "parity": 0.860105,
+      "jsd": 0.322923,
+      "kendall_tau": 0.707107,
+      "parity": 0.765315,
       "n_samples": 30,
       "n_parse_failures": 0,
-      "model_refusal_rate": 0.5,
+      "model_refusal_rate": 0.0,
       "human_refusal_rate": 0.022397,
       "temporal_year": 0,
       "token_usage": {
-        "input_tokens": 4320,
-        "output_tokens": 3793,
+        "input_tokens": 24840,
+        "output_tokens": 1020,
         "call_count": 30
       },
-      "latency_seconds": 15.0079
+      "latency_seconds": 3.498
     },
     {
       "key": "GSS_CONEDUC",
@@ -662,25 +665,25 @@
         "don't know": 0.0061
       },
       "model_distribution": {
-        "a great deal": 0.1481,
-        "only some": 0.7778,
-        "hardly any": 0.0741,
+        "a great deal": 0.0,
+        "only some": 1.0,
+        "hardly any": 0.0,
         "don't know": 0.0
       },
-      "jsd": 0.059529,
-      "kendall_tau": 0.666667,
-      "parity": 0.886902,
+      "jsd": 0.279158,
+      "kendall_tau": 0.707107,
+      "parity": 0.787198,
       "n_samples": 30,
       "n_parse_failures": 0,
-      "model_refusal_rate": 0.1,
+      "model_refusal_rate": 0.0,
       "human_refusal_rate": 0.006138,
       "temporal_year": 0,
       "token_usage": {
-        "input_tokens": 4290,
-        "output_tokens": 3433,
+        "input_tokens": 24810,
+        "output_tokens": 1020,
         "call_count": 30
       },
-      "latency_seconds": 15.0079
+      "latency_seconds": 3.498
     },
     {
       "key": "GSS_CONFED",
@@ -699,24 +702,24 @@
       },
       "model_distribution": {
         "a great deal": 0.0,
-        "only some": 0.75,
-        "hardly any": 0.25,
+        "only some": 1.0,
+        "hardly any": 0.0,
         "don't know": 0.0
       },
-      "jsd": 0.12477,
-      "kendall_tau": 0.547723,
-      "parity": 0.824545,
+      "jsd": 0.387012,
+      "kendall_tau": 0.235702,
+      "parity": 0.61542,
       "n_samples": 30,
       "n_parse_failures": 0,
-      "model_refusal_rate": 0.733333,
+      "model_refusal_rate": 0.0,
       "human_refusal_rate": 0.011839,
       "temporal_year": 0,
       "token_usage": {
-        "input_tokens": 4470,
-        "output_tokens": 3472,
+        "input_tokens": 24990,
+        "output_tokens": 1020,
         "call_count": 30
       },
-      "latency_seconds": 15.0079
+      "latency_seconds": 3.498
     },
     {
       "key": "GSS_CONFINAN",
@@ -734,25 +737,25 @@
         "don't know": 0.0066
       },
       "model_distribution": {
-        "a great deal": 0.125,
-        "only some": 0.75,
-        "hardly any": 0.125,
+        "a great deal": 0.0,
+        "only some": 1.0,
+        "hardly any": 0.0,
         "don't know": 0.0
       },
-      "jsd": 0.028123,
-      "kendall_tau": 0.912871,
-      "parity": 0.964156,
+      "jsd": 0.252097,
+      "kendall_tau": 0.707107,
+      "parity": 0.800728,
       "n_samples": 30,
       "n_parse_failures": 0,
-      "model_refusal_rate": 0.733333,
+      "model_refusal_rate": 0.0,
       "human_refusal_rate": 0.006583,
       "temporal_year": 0,
       "token_usage": {
-        "input_tokens": 4380,
-        "output_tokens": 3535,
+        "input_tokens": 24900,
+        "output_tokens": 1020,
         "call_count": 30
       },
-      "latency_seconds": 15.0079
+      "latency_seconds": 3.498
     },
     {
       "key": "GSS_CONJUDGE",
@@ -770,25 +773,25 @@
         "don't know": 0.0145
       },
       "model_distribution": {
-        "a great deal": 0.1,
-        "only some": 0.6,
-        "hardly any": 0.3,
+        "a great deal": 0.0,
+        "only some": 1.0,
+        "hardly any": 0.0,
         "don't know": 0.0
       },
-      "jsd": 0.026722,
-      "kendall_tau": 1.0,
-      "parity": 0.986639,
+      "jsd": 0.359427,
+      "kendall_tau": 0.707107,
+      "parity": 0.747063,
       "n_samples": 30,
       "n_parse_failures": 0,
-      "model_refusal_rate": 0.666667,
+      "model_refusal_rate": 0.0,
       "human_refusal_rate": 0.014513,
       "temporal_year": 0,
       "token_usage": {
-        "input_tokens": 4470,
-        "output_tokens": 3804,
+        "input_tokens": 24990,
+        "output_tokens": 1020,
         "call_count": 30
       },
-      "latency_seconds": 15.0079
+      "latency_seconds": 3.498
     },
     {
       "key": "GSS_CONLABOR",
@@ -806,25 +809,25 @@
         "don't know": 0.0342
       },
       "model_distribution": {
-        "a great deal": 0.037,
-        "only some": 0.8889,
-        "hardly any": 0.0741,
+        "a great deal": 0.0,
+        "only some": 1.0,
+        "hardly any": 0.0,
         "don't know": 0.0
       },
-      "jsd": 0.105572,
-      "kendall_tau": 1.0,
-      "parity": 0.947214,
+      "jsd": 0.259191,
+      "kendall_tau": 0.707107,
+      "parity": 0.797181,
       "n_samples": 30,
       "n_parse_failures": 0,
-      "model_refusal_rate": 0.1,
+      "model_refusal_rate": 0.0,
       "human_refusal_rate": 0.034247,
       "temporal_year": 0,
       "token_usage": {
-        "input_tokens": 4320,
-        "output_tokens": 3948,
+        "input_tokens": 24840,
+        "output_tokens": 1020,
         "call_count": 30
       },
-      "latency_seconds": 20.1548
+      "latency_seconds": 5.0807
     },
     {
       "key": "GSS_CONLEGIS",
@@ -842,25 +845,25 @@
         "don't know": 0.0109
       },
       "model_distribution": {
-        "a great deal": 0.1667,
-        "only some": 0.5833,
-        "hardly any": 0.25,
+        "a great deal": 0.0,
+        "only some": 0.0,
+        "hardly any": 1.0,
         "don't know": 0.0
       },
-      "jsd": 0.069478,
-      "kendall_tau": 0.666667,
-      "parity": 0.881928,
+      "jsd": 0.300659,
+      "kendall_tau": 0.707107,
+      "parity": 0.776447,
       "n_samples": 30,
       "n_parse_failures": 0,
-      "model_refusal_rate": 0.6,
+      "model_refusal_rate": 0.0,
       "human_refusal_rate": 0.010854,
       "temporal_year": 0,
       "token_usage": {
-        "input_tokens": 4290,
-        "output_tokens": 3252,
+        "input_tokens": 24810,
+        "output_tokens": 1020,
         "call_count": 30
       },
-      "latency_seconds": 20.1548
+      "latency_seconds": 5.0807
     },
     {
       "key": "GSS_CONMEDIC",
@@ -878,25 +881,25 @@
         "don't know": 0.0053
       },
       "model_distribution": {
-        "a great deal": 0.0769,
-        "only some": 0.7692,
-        "hardly any": 0.1538,
+        "a great deal": 0.0,
+        "only some": 1.0,
+        "hardly any": 0.0,
         "don't know": 0.0
       },
-      "jsd": 0.058674,
-      "kendall_tau": 0.666667,
-      "parity": 0.88733,
+      "jsd": 0.284242,
+      "kendall_tau": 0.707107,
+      "parity": 0.784656,
       "n_samples": 30,
       "n_parse_failures": 0,
-      "model_refusal_rate": 0.133333,
+      "model_refusal_rate": 0.0,
       "human_refusal_rate": 0.005273,
       "temporal_year": 0,
       "token_usage": {
-        "input_tokens": 4290,
-        "output_tokens": 4025,
+        "input_tokens": 24810,
+        "output_tokens": 1020,
         "call_count": 30
       },
-      "latency_seconds": 20.1548
+      "latency_seconds": 5.0807
     },
     {
       "key": "GSS_CONPRESS",
@@ -914,25 +917,25 @@
         "don't know": 0.0126
       },
       "model_distribution": {
-        "a great deal": 0.2,
-        "only some": 0.7,
-        "hardly any": 0.1,
+        "a great deal": 0.0,
+        "only some": 1.0,
+        "hardly any": 0.0,
         "don't know": 0.0
       },
-      "jsd": 0.187584,
-      "kendall_tau": 0.333333,
-      "parity": 0.739541,
+      "jsd": 0.427649,
+      "kendall_tau": 0.235702,
+      "parity": 0.595101,
       "n_samples": 30,
       "n_parse_failures": 0,
-      "model_refusal_rate": 0.666667,
+      "model_refusal_rate": 0.0,
       "human_refusal_rate": 0.01264,
       "temporal_year": 0,
       "token_usage": {
-        "input_tokens": 4320,
-        "output_tokens": 3613,
+        "input_tokens": 24840,
+        "output_tokens": 1020,
         "call_count": 30
       },
-      "latency_seconds": 20.1548
+      "latency_seconds": 5.0807
     },
     {
       "key": "GSS_CONSCI",
@@ -950,25 +953,25 @@
         "don't know": 0.0211
       },
       "model_distribution": {
-        "a great deal": 0.1538,
-        "only some": 0.8462,
+        "a great deal": 0.0,
+        "only some": 1.0,
         "hardly any": 0.0,
         "don't know": 0.0
       },
-      "jsd": 0.13222,
-      "kendall_tau": 0.912871,
-      "parity": 0.912108,
+      "jsd": 0.309427,
+      "kendall_tau": 0.707107,
+      "parity": 0.772063,
       "n_samples": 30,
       "n_parse_failures": 0,
-      "model_refusal_rate": 0.566667,
+      "model_refusal_rate": 0.0,
       "human_refusal_rate": 0.021146,
       "temporal_year": 0,
       "token_usage": {
-        "input_tokens": 4350,
-        "output_tokens": 4042,
+        "input_tokens": 24870,
+        "output_tokens": 1020,
         "call_count": 30
       },
-      "latency_seconds": 20.1548
+      "latency_seconds": 5.0807
     },
     {
       "key": "GSS_CONTV",
@@ -986,25 +989,25 @@
         "don't know": 0.01
       },
       "model_distribution": {
-        "a great deal": 0.0769,
-        "only some": 0.5385,
-        "hardly any": 0.3846,
+        "a great deal": 0.0,
+        "only some": 1.0,
+        "hardly any": 0.0,
         "don't know": 0.0
       },
-      "jsd": 0.013204,
-      "kendall_tau": 0.666667,
-      "parity": 0.910064,
+      "jsd": 0.370175,
+      "kendall_tau": 0.235702,
+      "parity": 0.623838,
       "n_samples": 30,
       "n_parse_failures": 0,
-      "model_refusal_rate": 0.566667,
+      "model_refusal_rate": 0.0,
       "human_refusal_rate": 0.009983,
       "temporal_year": 0,
       "token_usage": {
-        "input_tokens": 4290,
-        "output_tokens": 3640,
+        "input_tokens": 24810,
+        "output_tokens": 1020,
         "call_count": 30
       },
-      "latency_seconds": 20.1548
+      "latency_seconds": 5.0807
     },
     {
       "key": "GSS_COURTS",
@@ -1023,24 +1026,24 @@
       },
       "model_distribution": {
         "too harshly": 0.0,
-        "not harshly enough": 0.96,
-        "about right": 0.04,
+        "not harshly enough": 0.8,
+        "about right": 0.2,
         "don't know": 0.0
       },
-      "jsd": 0.236513,
+      "jsd": 0.158569,
       "kendall_tau": 0.912871,
-      "parity": 0.859961,
+      "parity": 0.898933,
       "n_samples": 30,
       "n_parse_failures": 0,
-      "model_refusal_rate": 0.166667,
+      "model_refusal_rate": 0.0,
       "human_refusal_rate": 0.14972,
       "temporal_year": 0,
       "token_usage": {
-        "input_tokens": 3780,
-        "output_tokens": 3635,
+        "input_tokens": 24420,
+        "output_tokens": 1092,
         "call_count": 30
       },
-      "latency_seconds": 20.1548
+      "latency_seconds": 5.0807
     },
     {
       "key": "GSS_DIVLAW",
@@ -1060,23 +1063,23 @@
       "model_distribution": {
         "easier": 0.0,
         "more difficult": 0.0,
-        "stay as is": 1.0,
-        "don't know": 0.0
+        "stay as is": 0.9,
+        "don't know": 0.1
       },
-      "jsd": 0.580554,
-      "kendall_tau": -0.235702,
-      "parity": 0.400798,
+      "jsd": 0.507687,
+      "kendall_tau": -0.547723,
+      "parity": 0.359226,
       "n_samples": 30,
       "n_parse_failures": 0,
-      "model_refusal_rate": 0.266667,
+      "model_refusal_rate": 0.0,
       "human_refusal_rate": 0.07816,
       "temporal_year": 0,
       "token_usage": {
-        "input_tokens": 3390,
-        "output_tokens": 3585,
+        "input_tokens": 23880,
+        "output_tokens": 1050,
         "call_count": 30
       },
-      "latency_seconds": 20.1548
+      "latency_seconds": 5.0807
     },
     {
       "key": "GSS_FAIR",
@@ -1095,24 +1098,24 @@
       },
       "model_distribution": {
         "would take advantage of you": 0.0,
-        "would try to be fair": 0.1304,
-        "depends": 0.8261,
-        "don't know": 0.0435
+        "would try to be fair": 0.0,
+        "depends": 1.0,
+        "don't know": 0.0
       },
-      "jsd": 0.500482,
-      "kendall_tau": -0.333333,
-      "parity": 0.416425,
+      "jsd": 0.721158,
+      "kendall_tau": -0.235702,
+      "parity": 0.330495,
       "n_samples": 30,
       "n_parse_failures": 0,
-      "model_refusal_rate": 0.233333,
+      "model_refusal_rate": 0.0,
       "human_refusal_rate": 0.012013,
       "temporal_year": 0,
       "token_usage": {
-        "input_tokens": 3810,
-        "output_tokens": 3993,
+        "input_tokens": 24450,
+        "output_tokens": 990,
         "call_count": 30
       },
-      "latency_seconds": 20.1548
+      "latency_seconds": 5.0807
     },
     {
       "key": "GSS_FECHLD",
@@ -1132,26 +1135,26 @@
         "don't know": 0.0061
       },
       "model_distribution": {
-        "strongly agree": 0.6923,
-        "agree": 0.3077,
+        "strongly agree": 1.0,
+        "agree": 0.0,
         "disagree": 0.0,
         "strongly disagree": 0.0,
         "don't know": 0.0
       },
-      "jsd": 0.18872,
-      "kendall_tau": 0.597614,
-      "parity": 0.805044,
+      "jsd": 0.475198,
+      "kendall_tau": 0.316228,
+      "parity": 0.591458,
       "n_samples": 30,
       "n_parse_failures": 0,
-      "model_refusal_rate": 0.133333,
+      "model_refusal_rate": 0.0,
       "human_refusal_rate": 0.006057,
       "temporal_year": 0,
       "token_usage": {
-        "input_tokens": 4380,
-        "output_tokens": 4988,
+        "input_tokens": 24990,
+        "output_tokens": 1020,
         "call_count": 30
       },
-      "latency_seconds": 20.1548
+      "latency_seconds": 5.0807
     },
     {
       "key": "GSS_FEFAM",
@@ -1173,24 +1176,24 @@
       "model_distribution": {
         "strongly agree": 0.0,
         "agree": 0.0,
-        "disagree": 0.4643,
-        "strongly disagree": 0.5357,
+        "disagree": 0.8667,
+        "strongly disagree": 0.1333,
         "don't know": 0.0
       },
-      "jsd": 0.196285,
-      "kendall_tau": 0.597614,
-      "parity": 0.801261,
+      "jsd": 0.236951,
+      "kendall_tau": 0.83666,
+      "parity": 0.84069,
       "n_samples": 30,
       "n_parse_failures": 0,
-      "model_refusal_rate": 0.066667,
+      "model_refusal_rate": 0.0,
       "human_refusal_rate": 0.007376,
       "temporal_year": 0,
       "token_usage": {
-        "input_tokens": 4530,
-        "output_tokens": 3942,
+        "input_tokens": 25140,
+        "output_tokens": 1024,
         "call_count": 30
       },
-      "latency_seconds": 24.8979
+      "latency_seconds": 6.6938
     },
     {
       "key": "GSS_FEPOL",
@@ -1206,24 +1209,24 @@
         "don't know": 0.0851
       },
       "model_distribution": {
-        "agree": 0.3333,
-        "disagree": 0.3333,
-        "don't know": 0.3333
+        "agree": 0.0,
+        "disagree": 1.0,
+        "don't know": 0.0
       },
-      "jsd": 0.137027,
-      "kendall_tau": 0.0,
-      "parity": 0.681486,
+      "jsd": 0.137922,
+      "kendall_tau": 0.816497,
+      "parity": 0.885163,
       "n_samples": 30,
       "n_parse_failures": 0,
-      "model_refusal_rate": 1.0,
+      "model_refusal_rate": 0.0,
       "human_refusal_rate": 0.085143,
       "temporal_year": 0,
       "token_usage": {
-        "input_tokens": 3450,
-        "output_tokens": 2819,
+        "input_tokens": 23790,
+        "output_tokens": 1020,
         "call_count": 30
       },
-      "latency_seconds": 24.8979
+      "latency_seconds": 6.6938
     },
     {
       "key": "GSS_FEPRESCH",
@@ -1245,24 +1248,24 @@
       "model_distribution": {
         "strongly agree": 0.0,
         "agree": 0.0,
-        "disagree": 0.92,
-        "strongly disagree": 0.08,
+        "disagree": 1.0,
+        "strongly disagree": 0.0,
         "don't know": 0.0
       },
-      "jsd": 0.225155,
-      "kendall_tau": 0.597614,
-      "parity": 0.786826,
+      "jsd": 0.316706,
+      "kendall_tau": 0.632456,
+      "parity": 0.749761,
       "n_samples": 30,
       "n_parse_failures": 0,
-      "model_refusal_rate": 0.166667,
+      "model_refusal_rate": 0.0,
       "human_refusal_rate": 0.010846,
       "temporal_year": 0,
       "token_usage": {
-        "input_tokens": 4170,
-        "output_tokens": 3964,
+        "input_tokens": 24780,
+        "output_tokens": 1020,
         "call_count": 30
       },
-      "latency_seconds": 24.8979
+      "latency_seconds": 6.6938
     },
     {
       "key": "GSS_FINRELA",
@@ -1300,11 +1303,11 @@
       "human_refusal_rate": 0.00716,
       "temporal_year": 0,
       "token_usage": {
-        "input_tokens": 4230,
-        "output_tokens": 2059,
+        "input_tokens": 24990,
+        "output_tokens": 990,
         "call_count": 30
       },
-      "latency_seconds": 24.8979
+      "latency_seconds": 6.6938
     },
     {
       "key": "GSS_GETAHEAD",
@@ -1322,25 +1325,25 @@
         "don't know": 0.0165
       },
       "model_distribution": {
-        "hard work most important": 0.25,
-        "hard work, luck equally important": 0.25,
-        "luck most important": 0.25,
-        "don't know": 0.25
+        "hard work most important": 0.0,
+        "hard work, luck equally important": 1.0,
+        "luck most important": 0.0,
+        "don't know": 0.0
       },
-      "jsd": 0.17072,
-      "kendall_tau": 0.0,
-      "parity": 0.66464,
-      "n_samples": 1,
-      "n_parse_failures": 29,
-      "model_refusal_rate": 1.0,
+      "jsd": 0.568749,
+      "kendall_tau": 0.235702,
+      "parity": 0.524551,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
       "human_refusal_rate": 0.016521,
       "temporal_year": 0,
       "token_usage": {
-        "input_tokens": 4140,
-        "output_tokens": 5066,
+        "input_tokens": 24840,
+        "output_tokens": 1140,
         "call_count": 30
       },
-      "latency_seconds": 24.8979
+      "latency_seconds": 6.6938
     },
     {
       "key": "GSS_GOD",
@@ -1365,27 +1368,27 @@
       },
       "model_distribution": {
         "don't believe": 0.0,
-        "don't know, no way to find out": 1.0,
+        "don't know, no way to find out": 0.1667,
         "higher power": 0.0,
         "believe sometimes": 0.0,
-        "believe with doubts": 0.0,
+        "believe with doubts": 0.8333,
         "no doubts": 0.0,
         "don't know": 0.0
       },
-      "jsd": 0.795644,
-      "kendall_tau": 0.0,
-      "parity": 0.352178,
+      "jsd": 0.577942,
+      "kendall_tau": 0.328976,
+      "parity": 0.543273,
       "n_samples": 30,
       "n_parse_failures": 0,
-      "model_refusal_rate": 0.933333,
+      "model_refusal_rate": 0.0,
       "human_refusal_rate": 0.083514,
       "temporal_year": 0,
       "token_usage": {
-        "input_tokens": 6990,
-        "output_tokens": 3506,
+        "input_tokens": 28170,
+        "output_tokens": 1105,
         "call_count": 30
       },
-      "latency_seconds": 24.8979
+      "latency_seconds": 6.6938
     },
     {
       "key": "GSS_GRASS",
@@ -1401,24 +1404,24 @@
         "don't know": 0.0965
       },
       "model_distribution": {
-        "should be legal": 0.8621,
-        "should not be legal": 0.069,
-        "don't know": 0.069
+        "should be legal": 0.9667,
+        "should not be legal": 0.0,
+        "don't know": 0.0333
       },
-      "jsd": 0.075853,
-      "kendall_tau": 0.816497,
-      "parity": 0.916197,
+      "jsd": 0.194075,
+      "kendall_tau": 0.333333,
+      "parity": 0.736296,
       "n_samples": 30,
       "n_parse_failures": 0,
-      "model_refusal_rate": 0.033333,
+      "model_refusal_rate": 0.0,
       "human_refusal_rate": 0.096466,
       "temporal_year": 0,
       "token_usage": {
-        "input_tokens": 3210,
-        "output_tokens": 3837,
+        "input_tokens": 23670,
+        "output_tokens": 1050,
         "call_count": 30
       },
-      "latency_seconds": 24.8979
+      "latency_seconds": 6.6938
     },
     {
       "key": "GSS_GUNLAW",
@@ -1434,24 +1437,24 @@
         "don't know": 0.0166
       },
       "model_distribution": {
-        "favor": 0.8214,
-        "oppose": 0.0357,
-        "don't know": 0.1429
+        "favor": 1.0,
+        "oppose": 0.0,
+        "don't know": 0.0
       },
-      "jsd": 0.135442,
-      "kendall_tau": 0.333333,
-      "parity": 0.765613,
+      "jsd": 0.184963,
+      "kendall_tau": 0.816497,
+      "parity": 0.861643,
       "n_samples": 30,
       "n_parse_failures": 0,
-      "model_refusal_rate": 0.066667,
+      "model_refusal_rate": 0.0,
       "human_refusal_rate": 0.016626,
       "temporal_year": 0,
       "token_usage": {
-        "input_tokens": 3420,
-        "output_tokens": 3635,
+        "input_tokens": 23730,
+        "output_tokens": 990,
         "call_count": 30
       },
-      "latency_seconds": 24.8979
+      "latency_seconds": 6.6938
     },
     {
       "key": "GSS_HAPPY",
@@ -1470,24 +1473,24 @@
       },
       "model_distribution": {
         "very happy": 0.0,
-        "pretty happy": 0.8095,
-        "not too happy": 0.1905,
+        "pretty happy": 1.0,
+        "not too happy": 0.0,
         "don't know": 0.0
       },
-      "jsd": 0.136571,
-      "kendall_tau": 0.547723,
-      "parity": 0.818645,
+      "jsd": 0.267895,
+      "kendall_tau": 0.707107,
+      "parity": 0.792829,
       "n_samples": 30,
       "n_parse_failures": 0,
-      "model_refusal_rate": 0.3,
+      "model_refusal_rate": 0.0,
       "human_refusal_rate": 0.003644,
       "temporal_year": 0,
       "token_usage": {
-        "input_tokens": 3840,
-        "output_tokens": 3097,
+        "input_tokens": 24360,
+        "output_tokens": 1020,
         "call_count": 30
       },
-      "latency_seconds": 24.8979
+      "latency_seconds": 6.6938
     },
     {
       "key": "GSS_HEALTH",
@@ -1507,26 +1510,26 @@
         "don't know": 0.0007
       },
       "model_distribution": {
-        "excellent": 0.2,
-        "good": 0.2,
-        "fair": 0.2,
-        "poor": 0.2,
-        "don't know": 0.2
+        "excellent": 0.0,
+        "good": 1.0,
+        "fair": 0.0,
+        "poor": 0.0,
+        "don't know": 0.0
       },
-      "jsd": 0.194448,
-      "kendall_tau": 0.0,
-      "parity": 0.652776,
+      "jsd": 0.285587,
+      "kendall_tau": 0.632456,
+      "parity": 0.76532,
       "n_samples": 30,
       "n_parse_failures": 0,
-      "model_refusal_rate": 1.0,
+      "model_refusal_rate": 0.0,
       "human_refusal_rate": 0.000696,
       "temporal_year": 0,
       "token_usage": {
-        "input_tokens": 3540,
-        "output_tokens": 2645,
+        "input_tokens": 24030,
+        "output_tokens": 990,
         "call_count": 30
       },
-      "latency_seconds": 24.8979
+      "latency_seconds": 6.6938
     },
     {
       "key": "GSS_HELPFUL",
@@ -1544,25 +1547,25 @@
         "don't know": 0.019
       },
       "model_distribution": {
-        "try to be helpful": 0.05,
-        "looking out for themselves": 0.05,
-        "depends": 0.9,
+        "try to be helpful": 0.0,
+        "looking out for themselves": 0.0,
+        "depends": 1.0,
         "don't know": 0.0
       },
-      "jsd": 0.442229,
-      "kendall_tau": 0.182574,
-      "parity": 0.574529,
+      "jsd": 0.658288,
+      "kendall_tau": -0.235702,
+      "parity": 0.36193,
       "n_samples": 30,
       "n_parse_failures": 0,
-      "model_refusal_rate": 0.333333,
+      "model_refusal_rate": 0.0,
       "human_refusal_rate": 0.018973,
       "temporal_year": 0,
       "token_usage": {
-        "input_tokens": 3720,
-        "output_tokens": 4360,
+        "input_tokens": 24300,
+        "output_tokens": 990,
         "call_count": 30
       },
-      "latency_seconds": 30.1049
+      "latency_seconds": 8.3408
     },
     {
       "key": "GSS_HOMOSEX",
@@ -1593,15 +1596,15 @@
       "parity": 0.76763,
       "n_samples": 30,
       "n_parse_failures": 0,
-      "model_refusal_rate": 0.833333,
+      "model_refusal_rate": 0.0,
       "human_refusal_rate": 0.036232,
       "temporal_year": 0,
       "token_usage": {
-        "input_tokens": 4200,
-        "output_tokens": 1876,
+        "input_tokens": 24930,
+        "output_tokens": 1080,
         "call_count": 30
       },
-      "latency_seconds": 30.1049
+      "latency_seconds": 8.3408
     },
     {
       "key": "GSS_LETDIE1",
@@ -1626,15 +1629,15 @@
       "parity": 0.101131,
       "n_samples": 30,
       "n_parse_failures": 0,
-      "model_refusal_rate": 0.433333,
+      "model_refusal_rate": 0.0,
       "human_refusal_rate": 0.035076,
       "temporal_year": 0,
       "token_usage": {
-        "input_tokens": 3870,
-        "output_tokens": 5402,
+        "input_tokens": 24180,
+        "output_tokens": 1050,
         "call_count": 30
       },
-      "latency_seconds": 30.1049
+      "latency_seconds": 8.3408
     },
     {
       "key": "GSS_LIBATH",
@@ -1659,15 +1662,15 @@
       "parity": 0.89245,
       "n_samples": 30,
       "n_parse_failures": 0,
-      "model_refusal_rate": 0.1,
+      "model_refusal_rate": 0.0,
       "human_refusal_rate": 0.012817,
       "temporal_year": 0,
       "token_usage": {
-        "input_tokens": 3990,
-        "output_tokens": 3828,
+        "input_tokens": 24330,
+        "output_tokens": 1020,
         "call_count": 30
       },
-      "latency_seconds": 30.1049
+      "latency_seconds": 8.3408
     },
     {
       "key": "GSS_LIFE",
@@ -1685,25 +1688,25 @@
         "don't know": 0.0074
       },
       "model_distribution": {
-        "exciting": 0.7586,
-        "routine": 0.2414,
+        "exciting": 0.0333,
+        "routine": 0.9667,
         "dull": 0.0,
         "don't know": 0.0
       },
-      "jsd": 0.130913,
-      "kendall_tau": 0.547723,
-      "parity": 0.821474,
+      "jsd": 0.188327,
+      "kendall_tau": 0.912871,
+      "parity": 0.884054,
       "n_samples": 30,
       "n_parse_failures": 0,
-      "model_refusal_rate": 0.033333,
+      "model_refusal_rate": 0.0,
       "human_refusal_rate": 0.007409,
       "temporal_year": 0,
       "token_usage": {
-        "input_tokens": 3300,
-        "output_tokens": 3054,
+        "input_tokens": 23730,
+        "output_tokens": 990,
         "call_count": 30
       },
-      "latency_seconds": 30.1049
+      "latency_seconds": 8.3408
     },
     {
       "key": "GSS_NATAID",
@@ -1731,15 +1734,15 @@
       "parity": 0.810074,
       "n_samples": 30,
       "n_parse_failures": 0,
-      "model_refusal_rate": 0.066667,
+      "model_refusal_rate": 0.0,
       "human_refusal_rate": 0.031192,
       "temporal_year": 0,
       "token_usage": {
-        "input_tokens": 4110,
-        "output_tokens": 3430,
+        "input_tokens": 24600,
+        "output_tokens": 1020,
         "call_count": 30
       },
-      "latency_seconds": 30.1049
+      "latency_seconds": 8.3408
     },
     {
       "key": "GSS_NATARMS",
@@ -1758,24 +1761,24 @@
       },
       "model_distribution": {
         "too little": 0.0,
-        "about right": 0.0,
-        "too much": 1.0,
+        "about right": 0.1333,
+        "too much": 0.8667,
         "don't know": 0.0
       },
-      "jsd": 0.520159,
-      "kendall_tau": -0.235702,
-      "parity": 0.430995,
+      "jsd": 0.328856,
+      "kendall_tau": 0.182574,
+      "parity": 0.631216,
       "n_samples": 30,
       "n_parse_failures": 0,
-      "model_refusal_rate": 0.033333,
+      "model_refusal_rate": 0.0,
       "human_refusal_rate": 0.03256,
       "temporal_year": 0,
       "token_usage": {
-        "input_tokens": 4290,
-        "output_tokens": 4357,
+        "input_tokens": 24780,
+        "output_tokens": 1020,
         "call_count": 30
       },
-      "latency_seconds": 30.1049
+      "latency_seconds": 8.3408
     },
     {
       "key": "GSS_NATCITY",
@@ -1803,15 +1806,15 @@
       "parity": 0.787448,
       "n_samples": 30,
       "n_parse_failures": 0,
-      "model_refusal_rate": 0.1,
+      "model_refusal_rate": 0.0,
       "human_refusal_rate": 0.048538,
       "temporal_year": 0,
       "token_usage": {
-        "input_tokens": 4260,
-        "output_tokens": 4053,
+        "input_tokens": 24750,
+        "output_tokens": 1020,
         "call_count": 30
       },
-      "latency_seconds": 30.1049
+      "latency_seconds": 8.3408
     },
     {
       "key": "GSS_NATCRIME",
@@ -1839,15 +1842,15 @@
       "parity": 0.835038,
       "n_samples": 30,
       "n_parse_failures": 0,
-      "model_refusal_rate": 0.166667,
+      "model_refusal_rate": 0.0,
       "human_refusal_rate": 0.019753,
       "temporal_year": 0,
       "token_usage": {
-        "input_tokens": 4230,
-        "output_tokens": 3980,
+        "input_tokens": 24720,
+        "output_tokens": 1020,
         "call_count": 30
       },
-      "latency_seconds": 30.1049
+      "latency_seconds": 8.3408
     },
     {
       "key": "GSS_NATDRUG",
@@ -1875,15 +1878,15 @@
       "parity": 0.832639,
       "n_samples": 30,
       "n_parse_failures": 0,
-      "model_refusal_rate": 0.1,
+      "model_refusal_rate": 0.0,
       "human_refusal_rate": 0.017794,
       "temporal_year": 0,
       "token_usage": {
-        "input_tokens": 4170,
-        "output_tokens": 4320,
+        "input_tokens": 24660,
+        "output_tokens": 1020,
         "call_count": 30
       },
-      "latency_seconds": 30.1049
+      "latency_seconds": 8.3408
     },
     {
       "key": "GSS_NATEDUC",
@@ -1911,15 +1914,15 @@
       "parity": 0.859291,
       "n_samples": 30,
       "n_parse_failures": 0,
-      "model_refusal_rate": 0.066667,
+      "model_refusal_rate": 0.0,
       "human_refusal_rate": 0.004757,
       "temporal_year": 0,
       "token_usage": {
-        "input_tokens": 4230,
-        "output_tokens": 3920,
+        "input_tokens": 24720,
+        "output_tokens": 1020,
         "call_count": 30
       },
-      "latency_seconds": 36.6549
+      "latency_seconds": 10.1554
     },
     {
       "key": "GSS_NATENVIR",
@@ -1947,15 +1950,15 @@
       "parity": 0.822286,
       "n_samples": 30,
       "n_parse_failures": 0,
-      "model_refusal_rate": 0.033333,
+      "model_refusal_rate": 0.0,
       "human_refusal_rate": 0.023467,
       "temporal_year": 0,
       "token_usage": {
-        "input_tokens": 4200,
-        "output_tokens": 3936,
+        "input_tokens": 24690,
+        "output_tokens": 1020,
         "call_count": 30
       },
-      "latency_seconds": 36.6549
+      "latency_seconds": 10.1554
     },
     {
       "key": "GSS_NATFARE",
@@ -1973,25 +1976,25 @@
         "don't know": 0.0229
       },
       "model_distribution": {
-        "too little": 0.0385,
+        "too little": 0.5667,
         "about right": 0.0,
-        "too much": 0.9615,
-        "don't know": 0.0
+        "too much": 0.3667,
+        "don't know": 0.0667
       },
-      "jsd": 0.402359,
-      "kendall_tau": -0.182574,
-      "parity": 0.503177,
+      "jsd": 0.205082,
+      "kendall_tau": 0.0,
+      "parity": 0.647459,
       "n_samples": 30,
       "n_parse_failures": 0,
-      "model_refusal_rate": 0.133333,
+      "model_refusal_rate": 0.0,
       "human_refusal_rate": 0.022949,
       "temporal_year": 0,
       "token_usage": {
-        "input_tokens": 4080,
-        "output_tokens": 4137,
+        "input_tokens": 24570,
+        "output_tokens": 1022,
         "call_count": 30
       },
-      "latency_seconds": 36.6549
+      "latency_seconds": 10.1554
     },
     {
       "key": "GSS_NATHEAL",
@@ -2019,15 +2022,15 @@
       "parity": 0.851271,
       "n_samples": 30,
       "n_parse_failures": 0,
-      "model_refusal_rate": 0.033333,
+      "model_refusal_rate": 0.0,
       "human_refusal_rate": 0.012082,
       "temporal_year": 0,
       "token_usage": {
-        "input_tokens": 4260,
-        "output_tokens": 3983,
+        "input_tokens": 24750,
+        "output_tokens": 1020,
         "call_count": 30
       },
-      "latency_seconds": 36.6549
+      "latency_seconds": 10.1554
     },
     {
       "key": "GSS_NATRACE",
@@ -2045,25 +2048,25 @@
         "don't know": 0.0439
       },
       "model_distribution": {
-        "too little": 0.9583,
-        "about right": 0.0417,
+        "too little": 1.0,
+        "about right": 0.0,
         "too much": 0.0,
         "don't know": 0.0
       },
-      "jsd": 0.270654,
-      "kendall_tau": 0.912871,
-      "parity": 0.842891,
+      "jsd": 0.356766,
+      "kendall_tau": 0.707107,
+      "parity": 0.748394,
       "n_samples": 30,
       "n_parse_failures": 0,
-      "model_refusal_rate": 0.2,
+      "model_refusal_rate": 0.0,
       "human_refusal_rate": 0.043941,
       "temporal_year": 0,
       "token_usage": {
-        "input_tokens": 4230,
-        "output_tokens": 3912,
+        "input_tokens": 24720,
+        "output_tokens": 1020,
         "call_count": 30
       },
-      "latency_seconds": 36.6549
+      "latency_seconds": 10.1554
     },
     {
       "key": "GSS_NATSPAC",
@@ -2081,25 +2084,25 @@
         "don't know": 0.0565
       },
       "model_distribution": {
-        "too little": 0.0,
-        "about right": 0.0,
-        "too much": 1.0,
+        "too little": 0.7667,
+        "about right": 0.2,
+        "too much": 0.0333,
         "don't know": 0.0
       },
-      "jsd": 0.524575,
-      "kendall_tau": 0.235702,
-      "parity": 0.546638,
+      "jsd": 0.283525,
+      "kendall_tau": 0.333333,
+      "parity": 0.691571,
       "n_samples": 30,
       "n_parse_failures": 0,
-      "model_refusal_rate": 0.033333,
+      "model_refusal_rate": 0.0,
       "human_refusal_rate": 0.056504,
       "temporal_year": 0,
       "token_usage": {
-        "input_tokens": 4170,
-        "output_tokens": 3845,
+        "input_tokens": 24660,
+        "output_tokens": 1020,
         "call_count": 30
       },
-      "latency_seconds": 36.6549
+      "latency_seconds": 10.1554
     },
     {
       "key": "GSS_OWNGUN",
@@ -2117,25 +2120,25 @@
         "don't know": 0.0018
       },
       "model_distribution": {
-        "yes": 1.0,
-        "no": 0.0,
+        "yes": 0.0,
+        "no": 1.0,
         "refused": 0.0,
         "don't know": 0.0
       },
-      "jsd": 0.413501,
-      "kendall_tau": 0.235702,
-      "parity": 0.602175,
+      "jsd": 0.233346,
+      "kendall_tau": 0.707107,
+      "parity": 0.810104,
       "n_samples": 30,
       "n_parse_failures": 0,
-      "model_refusal_rate": 0.9,
+      "model_refusal_rate": 0.0,
       "human_refusal_rate": 0.014899,
       "temporal_year": 0,
       "token_usage": {
-        "input_tokens": 3270,
-        "output_tokens": 787,
+        "input_tokens": 23670,
+        "output_tokens": 990,
         "call_count": 30
       },
-      "latency_seconds": 36.6549
+      "latency_seconds": 10.1554
     },
     {
       "key": "GSS_PARTYID",
@@ -2161,29 +2164,29 @@
         "other party": 0.0247
       },
       "model_distribution": {
-        "strong democrat": 0.125,
-        "not very strong democrat": 0.125,
-        "independent, close to democrat": 0.125,
-        "independent (neither, no response)": 0.125,
-        "independent, close to republican": 0.125,
-        "not very strong republican": 0.125,
-        "strong republican": 0.125,
-        "other party": 0.125
+        "strong democrat": 0.0,
+        "not very strong democrat": 0.0,
+        "independent, close to democrat": 0.0,
+        "independent (neither, no response)": 1.0,
+        "independent, close to republican": 0.0,
+        "not very strong republican": 0.0,
+        "strong republican": 0.0,
+        "other party": 0.0
       },
-      "jsd": 0.049588,
-      "kendall_tau": 0.0,
-      "parity": 0.725206,
+      "jsd": 0.536133,
+      "kendall_tau": 0.5,
+      "parity": 0.606933,
       "n_samples": 30,
       "n_parse_failures": 0,
-      "model_refusal_rate": 1.0,
+      "model_refusal_rate": 0.0,
       "human_refusal_rate": 0,
       "temporal_year": 0,
       "token_usage": {
-        "input_tokens": 4620,
-        "output_tokens": 2566,
+        "input_tokens": 25980,
+        "output_tokens": 1140,
         "call_count": 30
       },
-      "latency_seconds": 36.6549
+      "latency_seconds": 10.1554
     },
     {
       "key": "GSS_POLVIEWS",
@@ -2209,29 +2212,29 @@
         "don't know": 0.0375
       },
       "model_distribution": {
-        "extremely liberal": 0.125,
-        "liberal": 0.125,
-        "slightly liberal": 0.125,
-        "moderate, middle of the road": 0.125,
-        "slightly conservative": 0.125,
-        "conservative": 0.125,
-        "extremely conservative": 0.125,
-        "don't know": 0.125
+        "extremely liberal": 0.0,
+        "liberal": 0.0,
+        "slightly liberal": 0.0,
+        "moderate, middle of the road": 1.0,
+        "slightly conservative": 0.0,
+        "conservative": 0.0,
+        "extremely conservative": 0.0,
+        "don't know": 0.0
       },
-      "jsd": 0.089364,
-      "kendall_tau": 0.0,
-      "parity": 0.705318,
+      "jsd": 0.435934,
+      "kendall_tau": 0.5,
+      "parity": 0.657033,
       "n_samples": 30,
       "n_parse_failures": 0,
-      "model_refusal_rate": 1.0,
+      "model_refusal_rate": 0.0,
       "human_refusal_rate": 0.037474,
       "temporal_year": 0,
       "token_usage": {
-        "input_tokens": 5070,
-        "output_tokens": 2810,
+        "input_tokens": 26100,
+        "output_tokens": 1140,
         "call_count": 30
       },
-      "latency_seconds": 36.6549
+      "latency_seconds": 10.1554
     },
     {
       "key": "GSS_PORNLAW",
@@ -2259,15 +2262,15 @@
       "parity": 0.830458,
       "n_samples": 30,
       "n_parse_failures": 0,
-      "model_refusal_rate": 0.1,
+      "model_refusal_rate": 0.0,
       "human_refusal_rate": 0.00899,
       "temporal_year": 0,
       "token_usage": {
-        "input_tokens": 5700,
-        "output_tokens": 3585,
+        "input_tokens": 27240,
+        "output_tokens": 1410,
         "call_count": 30
       },
-      "latency_seconds": 36.6549
+      "latency_seconds": 10.1554
     },
     {
       "key": "GSS_POSTLIFE",
@@ -2292,15 +2295,15 @@
       "parity": 0.195077,
       "n_samples": 30,
       "n_parse_failures": 0,
-      "model_refusal_rate": 0.933333,
+      "model_refusal_rate": 0.0,
       "human_refusal_rate": 0.134818,
       "temporal_year": 0,
       "token_usage": {
-        "input_tokens": 2940,
-        "output_tokens": 3249,
+        "input_tokens": 23250,
+        "output_tokens": 1050,
         "call_count": 30
       },
-      "latency_seconds": 43.4433
+      "latency_seconds": 11.7153
     },
     {
       "key": "GSS_PRAYER",
@@ -2325,15 +2328,15 @@
       "parity": 0.560516,
       "n_samples": 30,
       "n_parse_failures": 0,
-      "model_refusal_rate": 0.166667,
+      "model_refusal_rate": 0.0,
       "human_refusal_rate": 0.083566,
       "temporal_year": 0,
       "token_usage": {
-        "input_tokens": 4140,
-        "output_tokens": 3910,
+        "input_tokens": 24510,
+        "output_tokens": 990,
         "call_count": 30
       },
-      "latency_seconds": 43.4433
+      "latency_seconds": 11.7153
     },
     {
       "key": "GSS_PREMARSX",
@@ -2355,24 +2358,24 @@
       "model_distribution": {
         "always wrong": 0.0,
         "almost always wrong": 0.0,
-        "wrong only sometimes": 0.0,
-        "not wrong at all": 1.0,
+        "wrong only sometimes": 0.4667,
+        "not wrong at all": 0.5333,
         "don't know": 0.0
       },
-      "jsd": 0.206643,
-      "kendall_tau": 0.632456,
-      "parity": 0.804793,
+      "jsd": 0.202959,
+      "kendall_tau": 0.597614,
+      "parity": 0.797924,
       "n_samples": 30,
       "n_parse_failures": 0,
-      "model_refusal_rate": 0.766667,
+      "model_refusal_rate": 0.0,
       "human_refusal_rate": 0.019471,
       "temporal_year": 0,
       "token_usage": {
-        "input_tokens": 4200,
-        "output_tokens": 3379,
+        "input_tokens": 24930,
+        "output_tokens": 1066,
         "call_count": 30
       },
-      "latency_seconds": 43.4433
+      "latency_seconds": 11.7153
     },
     {
       "key": "GSS_RACOPEN",
@@ -2400,15 +2403,15 @@
       "parity": 0.862796,
       "n_samples": 30,
       "n_parse_failures": 0,
-      "model_refusal_rate": 0.133333,
+      "model_refusal_rate": 0.0,
       "human_refusal_rate": 0.015808,
       "temporal_year": 0,
       "token_usage": {
-        "input_tokens": 5280,
-        "output_tokens": 4242,
+        "input_tokens": 25740,
+        "output_tokens": 1020,
         "call_count": 30
       },
-      "latency_seconds": 43.4433
+      "latency_seconds": 11.7153
     },
     {
       "key": "GSS_SATFIN",
@@ -2436,15 +2439,15 @@
       "parity": 0.756715,
       "n_samples": 30,
       "n_parse_failures": 0,
-      "model_refusal_rate": 0.166667,
+      "model_refusal_rate": 0.0,
       "human_refusal_rate": 0.004145,
       "temporal_year": 0,
       "token_usage": {
-        "input_tokens": 4500,
-        "output_tokens": 3606,
+        "input_tokens": 25140,
+        "output_tokens": 1080,
         "call_count": 30
       },
-      "latency_seconds": 43.4433
+      "latency_seconds": 11.7153
     },
     {
       "key": "GSS_SEXEDUC",
@@ -2469,15 +2472,15 @@
       "parity": 0.914225,
       "n_samples": 30,
       "n_parse_failures": 0,
-      "model_refusal_rate": 0.066667,
+      "model_refusal_rate": 0.0,
       "human_refusal_rate": 0.016578,
       "temporal_year": 0,
       "token_usage": {
-        "input_tokens": 3030,
-        "output_tokens": 3414,
+        "input_tokens": 23340,
+        "output_tokens": 990,
         "call_count": 30
       },
-      "latency_seconds": 43.4433
+      "latency_seconds": 11.7153
     },
     {
       "key": "GSS_SPANKING",
@@ -2508,15 +2511,15 @@
       "parity": 0.573461,
       "n_samples": 30,
       "n_parse_failures": 0,
-      "model_refusal_rate": 0.5,
+      "model_refusal_rate": 0.0,
       "human_refusal_rate": 0.013845,
       "temporal_year": 0,
       "token_usage": {
-        "input_tokens": 3990,
-        "output_tokens": 4100,
+        "input_tokens": 24600,
+        "output_tokens": 1020,
         "call_count": 30
       },
-      "latency_seconds": 43.4433
+      "latency_seconds": 11.7153
     },
     {
       "key": "GSS_SPKATH",
@@ -2541,15 +2544,15 @@
       "parity": 0.894616,
       "n_samples": 30,
       "n_parse_failures": 0,
-      "model_refusal_rate": 0.233333,
+      "model_refusal_rate": 0.0,
       "human_refusal_rate": 0.009638,
       "temporal_year": 0,
       "token_usage": {
-        "input_tokens": 4050,
-        "output_tokens": 3691,
+        "input_tokens": 24510,
+        "output_tokens": 1110,
         "call_count": 30
       },
-      "latency_seconds": 43.4433
+      "latency_seconds": 11.7153
     },
     {
       "key": "GSS_SPKCOM",
@@ -2574,15 +2577,15 @@
       "parity": 0.844446,
       "n_samples": 30,
       "n_parse_failures": 0,
-      "model_refusal_rate": 0.366667,
+      "model_refusal_rate": 0.0,
       "human_refusal_rate": 0.035565,
       "temporal_year": 0,
       "token_usage": {
-        "input_tokens": 3810,
-        "output_tokens": 3849,
+        "input_tokens": 24270,
+        "output_tokens": 1110,
         "call_count": 30
       },
-      "latency_seconds": 43.4433
+      "latency_seconds": 11.7153
     },
     {
       "key": "GSS_SPKRAC",
@@ -2598,24 +2601,24 @@
         "don't know": 0.008
       },
       "model_distribution": {
-        "yes, allowed to speak": 0.8947,
-        "not allowed": 0.1053,
+        "yes, allowed to speak": 0.0,
+        "not allowed": 1.0,
         "don't know": 0.0
       },
-      "jsd": 0.171865,
-      "kendall_tau": 0.333333,
-      "parity": 0.747401,
-      "n_samples": 27,
-      "n_parse_failures": 3,
-      "model_refusal_rate": 0.296296,
+      "jsd": 0.281716,
+      "kendall_tau": 0.816497,
+      "parity": 0.813266,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
       "human_refusal_rate": 0.008011,
       "temporal_year": 0,
       "token_usage": {
-        "input_tokens": 4050,
-        "output_tokens": 5358,
+        "input_tokens": 24510,
+        "output_tokens": 1020,
         "call_count": 30
       },
-      "latency_seconds": 43.4433
+      "latency_seconds": 11.7153
     },
     {
       "key": "GSS_SUICIDE1",
@@ -2640,15 +2643,15 @@
       "parity": 0.108304,
       "n_samples": 30,
       "n_parse_failures": 0,
-      "model_refusal_rate": 0.433333,
+      "model_refusal_rate": 0.0,
       "human_refusal_rate": 0.041092,
       "temporal_year": 0,
       "token_usage": {
-        "input_tokens": 3360,
-        "output_tokens": 4668,
+        "input_tokens": 23670,
+        "output_tokens": 1050,
         "call_count": 30
       },
-      "latency_seconds": 94.3863
+      "latency_seconds": 26.249
     },
     {
       "key": "GSS_TAX",
@@ -2676,15 +2679,15 @@
       "parity": 0.836452,
       "n_samples": 30,
       "n_parse_failures": 0,
-      "model_refusal_rate": 0.066667,
+      "model_refusal_rate": 0.0,
       "human_refusal_rate": 0.026545,
       "temporal_year": 0,
       "token_usage": {
-        "input_tokens": 3630,
-        "output_tokens": 2788,
+        "input_tokens": 24120,
+        "output_tokens": 1020,
         "call_count": 30
       },
-      "latency_seconds": 94.3863
+      "latency_seconds": 26.249
     },
     {
       "key": "GSS_TRUST",
@@ -2702,25 +2705,25 @@
         "don't know": 0.0082
       },
       "model_distribution": {
-        "most people can be trusted": 0.125,
-        "can't be too careful": 0.0417,
-        "depends": 0.8333,
+        "most people can be trusted": 0.0,
+        "can't be too careful": 0.0,
+        "depends": 1.0,
         "don't know": 0.0
       },
-      "jsd": 0.473419,
-      "kendall_tau": 0.0,
-      "parity": 0.51329,
+      "jsd": 0.74266,
+      "kendall_tau": -0.235702,
+      "parity": 0.319745,
       "n_samples": 30,
       "n_parse_failures": 0,
-      "model_refusal_rate": 0.2,
+      "model_refusal_rate": 0.0,
       "human_refusal_rate": 0.008246,
       "temporal_year": 0,
       "token_usage": {
-        "input_tokens": 3780,
-        "output_tokens": 4266,
+        "input_tokens": 24420,
+        "output_tokens": 990,
         "call_count": 30
       },
-      "latency_seconds": 94.3863
+      "latency_seconds": 26.249
     },
     {
       "key": "GSS_WRKWAYUP",
@@ -2745,24 +2748,24 @@
         "agree strongly": 0.0,
         "agree somewhat": 0.0,
         "neither agree nor disagree": 0.0,
-        "disagree somewhat": 0.6667,
-        "disagree strongly": 0.3333,
+        "disagree somewhat": 0.0,
+        "disagree strongly": 1.0,
         "don't know": 0.0
       },
-      "jsd": 0.550308,
-      "kendall_tau": -0.430331,
-      "parity": 0.367263,
+      "jsd": 0.707717,
+      "kendall_tau": -0.11547,
+      "parity": 0.367274,
       "n_samples": 30,
       "n_parse_failures": 0,
-      "model_refusal_rate": 0.5,
+      "model_refusal_rate": 0.0,
       "human_refusal_rate": 0.012613,
       "temporal_year": 0,
       "token_usage": {
-        "input_tokens": 5160,
-        "output_tokens": 6417,
+        "input_tokens": 26040,
+        "output_tokens": 1050,
         "call_count": 30
       },
-      "latency_seconds": 94.3863
+      "latency_seconds": 26.249
     },
     {
       "key": "GSS_XMARSEX",
@@ -2782,26 +2785,26 @@
         "don't know": 0.0081
       },
       "model_distribution": {
-        "always wrong": 0.0556,
-        "almost always wrong": 0.9444,
+        "always wrong": 0.1667,
+        "almost always wrong": 0.8333,
         "wrong only sometimes": 0.0,
         "not wrong at all": 0.0,
         "don't know": 0.0
       },
-      "jsd": 0.529266,
+      "jsd": 0.380977,
       "kendall_tau": 0.597614,
-      "parity": 0.634771,
+      "parity": 0.708915,
       "n_samples": 30,
       "n_parse_failures": 0,
-      "model_refusal_rate": 0.4,
+      "model_refusal_rate": 0.0,
       "human_refusal_rate": 0.008096,
       "temporal_year": 0,
       "token_usage": {
-        "input_tokens": 4320,
-        "output_tokens": 4039,
+        "input_tokens": 25050,
+        "output_tokens": 1045,
         "call_count": 30
       },
-      "latency_seconds": 94.3863
+      "latency_seconds": 26.249
     }
   ],
   "temporal_breakdown": {}

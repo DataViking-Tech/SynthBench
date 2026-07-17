@@ -17,6 +17,7 @@ component), recomputed from per-question rows. The retired 2-metric
 from __future__ import annotations
 
 import json
+import re
 import statistics
 from pathlib import Path
 
@@ -332,6 +333,140 @@ def _build_ensemble_comparison(
     return rows, caveats
 
 
+# Option labels that constitute an EXPLICIT nonresponse when selected —
+# "Don't know" variants, refusals, and no-answer/no-opinion buckets. The
+# per-question refusal rate (parsed refusal text) is added on top, so the
+# metric captures total nonresponse mass regardless of whether the model
+# sidestepped via a legitimate option or via refusal prose.
+_NONRESPONSE_OPTION_RE = re.compile(
+    r"don'?t know|no answer|refused?|not sure|no opinion|cannot choose|"
+    r"undecided|prefer not to",
+    re.IGNORECASE,
+)
+
+# Minimum share of a run's questions that must still carry a
+# human_distribution for the nonresponse-fidelity comparison to be
+# computable. Gated datasets are committed stripped of human_distribution
+# (#308), so this effectively restricts the block to full-tier datasets
+# (GSS, NTIA) where the comparison is reproducible from the artifacts.
+_NONRESPONSE_MIN_HUMAN_COVERAGE = 0.9
+
+
+def _nonresponse_mass(dist: dict | None, refusal_rate: float) -> float:
+    """Explicit nonresponse-option mass plus parsed-refusal mass."""
+    dist = dist or {}
+    mass = sum(
+        float(v)
+        for k, v in dist.items()
+        if isinstance(k, str) and _NONRESPONSE_OPTION_RE.search(k)
+    )
+    return mass + float(refusal_rate or 0.0)
+
+
+def _build_nonresponse_fidelity(results: list[dict]) -> list[dict]:
+    """Per-run nonresponse fidelity: |model DK+refusal mass − human's|.
+
+    For each deduped, non-baseline run whose per-question rows still carry
+    ``human_distribution``, computes the mean absolute gap between the
+    model's explicit-nonresponse mass (DK-style option mass + parsed
+    refusal rate) and the human survey's, plus the items where the model
+    most over-selects nonresponse. Rows sort worst-first.
+    """
+    from synthbench.leaderboard import display_provider_name, provider_framework
+    from synthbench.publish import _dedup_results, _tpl_name
+
+    rows: list[dict] = []
+    for r in _dedup_results(results):
+        cfg = r.get("config") or {}
+        provider = cfg.get("provider", "")
+        fw = provider_framework(provider)
+        if fw == "baseline" or provider.startswith("ensemble/"):
+            continue
+        per_q = r.get("per_question") or []
+        if not per_q:
+            continue
+        with_human = [q for q in per_q if q.get("human_distribution")]
+        if len(with_human) < _NONRESPONSE_MIN_HUMAN_COVERAGE * len(per_q):
+            continue
+
+        items = []
+        for q in with_human:
+            model_mass = _nonresponse_mass(
+                q.get("model_distribution"), q.get("model_refusal_rate", 0.0)
+            )
+            human_mass = _nonresponse_mass(
+                q.get("human_distribution"), q.get("human_refusal_rate", 0.0)
+            )
+            items.append(
+                {
+                    "key": q.get("key", ""),
+                    "model_mass": round(model_mass, 6),
+                    "human_mass": round(human_mass, 6),
+                    "gap": round(model_mass - human_mass, 6),
+                }
+            )
+
+        mean_abs_gap = statistics.mean(abs(i["gap"]) for i in items)
+        top = sorted(items, key=lambda i: -i["gap"])[:5]
+        rows.append(
+            {
+                "provider": display_provider_name(provider),
+                "framework": fw,
+                # Template/elicitation variant (None for the default prompt) —
+                # distinguishes e.g. natural vs tpl=structured rows.
+                "template": _tpl_name(cfg.get("prompt_template")),
+                "dataset": cfg.get("dataset", "unknown"),
+                "n_questions": len(items),
+                "mean_abs_nonresponse_gap": round(mean_abs_gap, 6),
+                "mean_model_nonresponse_mass": round(
+                    statistics.mean(i["model_mass"] for i in items), 6
+                ),
+                "mean_human_nonresponse_mass": round(
+                    statistics.mean(i["human_mass"] for i in items), 6
+                ),
+                "top_overselected": [i for i in top if i["gap"] > 0],
+            }
+        )
+    rows.sort(key=lambda row: -row["mean_abs_nonresponse_gap"])
+    return rows
+
+
+def _build_sensitive_topic_sidestepping(nonresponse_rows: list[dict]) -> dict | None:
+    """Findings entry: safety-aligned sidestepping via explicit DK options.
+
+    Derived from the worst raw-framework nonresponse row (currently
+    Gemini 2.5 Flash on GSS): a model that essentially never refuses in
+    prose still concentrates response mass on explicit "don't know"-style
+    options for sensitive items — religion (POSTLIFE, GOD), gender roles
+    (FEPRESCH), race (NATRACE), welfare (NATFARE) — at rates far above the
+    human survey. This is genuine option selection, not a parsing artifact:
+    the raw responses ARE the DK option strings.
+    """
+    raw_rows = [r for r in nonresponse_rows if r["framework"] == "raw"]
+    if not raw_rows:
+        return None
+    worst = raw_rows[0]  # rows are sorted worst-first
+    return {
+        "headline": (
+            "Safety-aligned models over-select explicit nonresponse options "
+            "on sensitive items"
+        ),
+        "provider": worst["provider"],
+        "dataset": worst["dataset"],
+        "n_questions": worst["n_questions"],
+        "mean_model_nonresponse_mass": worst["mean_model_nonresponse_mass"],
+        "mean_human_nonresponse_mass": worst["mean_human_nonresponse_mass"],
+        "items": worst["top_overselected"],
+        "note": (
+            "Nonresponse mass concentrates on religion, gender-role, race, "
+            "and welfare topics; the model selects a legitimate "
+            "'don't know'-style option rather than refusing in prose, so "
+            "the sidestepping is invisible to refusal-rate metrics and "
+            "only surfaces in the option distribution itself."
+        ),
+    }
+
+
 def _build_conditioning(results: list[dict]) -> tuple[list[dict], list[dict]]:
     """Aggregate per-group conditioning replications from demographic_breakdown.
 
@@ -483,6 +618,10 @@ def build_findings(
     template_comparison = _build_template_comparison(results)
     ensemble_comparison, caveats = _build_ensemble_comparison(results, excluded_run_ids)
     conditioning_results, conditioning_extended = _build_conditioning(results)
+    nonresponse_fidelity = _build_nonresponse_fidelity(results)
+    sensitive_topic_sidestepping = _build_sensitive_topic_sidestepping(
+        nonresponse_fidelity
+    )
     lever_hierarchy = _build_lever_hierarchy(
         ensemble_comparison,
         temperature_sweep,
@@ -513,6 +652,13 @@ def build_findings(
             "SubPOP persona-template variant runs (Haiku 4.5, t=0.85, 100 "
             "questions); mean/std of recomputed SPS across n_runs."
         ),
+        "nonresponse_fidelity": (
+            "Per deduped non-baseline run whose committed per-question rows "
+            "still carry human_distribution (full-tier datasets; gated files "
+            "are stripped per #308): mean |model explicit-nonresponse mass "
+            "(DK-style option mass + parsed refusal rate) - human's|, plus "
+            "the five items with the largest model over-selection."
+        ),
     }
 
     return {
@@ -523,6 +669,8 @@ def build_findings(
         "conditioning_results": conditioning_results,
         "conditioning_extended": conditioning_extended,
         "template_comparison": template_comparison,
+        "nonresponse_fidelity": nonresponse_fidelity,
+        "sensitive_topic_sidestepping": sensitive_topic_sidestepping,
         "lever_hierarchy": lever_hierarchy,
         "comparison_sets": comparison_sets,
         "asserted_constants": ASSERTED_CONSTANTS,
