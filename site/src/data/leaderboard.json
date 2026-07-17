@@ -7785,6 +7785,39 @@
         "std": 0.032431
       }
     ],
+    "elicitation_comparison": [
+      {
+        "model": "SynthPanel (Haiku 4.5)",
+        "framework": "product",
+        "dataset": "gss",
+        "elicitation": "structured",
+        "template": "structured",
+        "n_questions": 75,
+        "samples_per_question": 30,
+        "refusal_detector_version": 2,
+        "natural": {
+          "sps": 0.803193,
+          "p_dist": 0.713558,
+          "p_rank": 0.723971,
+          "p_refuse": 0.972051,
+          "parse_failure_rate": 0.016
+        },
+        "structured": {
+          "sps": 0.791467,
+          "p_dist": 0.666072,
+          "p_rank": 0.736279,
+          "p_refuse": 0.972051,
+          "parse_failure_rate": 0.0
+        },
+        "delta": {
+          "sps": -0.011726,
+          "p_dist": -0.047486,
+          "p_rank": 0.012308,
+          "p_refuse": 0.0,
+          "parse_failure_rate": -0.016
+        }
+      }
+    ],
     "nonresponse_fidelity": [
       {
         "provider": "Gemini 2.5 Flash",
@@ -7990,6 +8023,7 @@
       "temperature_sweep": "OpinionsQA sweep-tagged SynthPanel runs (' t=' provider suffix); mean/std of recomputed SPS across the n_runs replications per (model, temperature) cell.",
       "conditioning_results": "Per-group conditioned SubPOP evaluations (Haiku 4.5, t=0.85); mean p_dist / p_cond across n_replications runs carrying a demographic_breakdown for the group.",
       "template_comparison": "SubPOP persona-template variant runs (Haiku 4.5, t=0.85, 100 questions); mean/std of recomputed SPS across n_runs.",
+      "elicitation_comparison": "Matched pairs of deduped runs differing only in elicitation mode: a run whose config carries an explicit elicitation template variant (e.g. tpl=structured, schema-forced capture) vs the natural-elicitation run of the identical configuration (same base provider, dataset, samples_per_question, question_set_hash, temperature, effort, and question count). All scores recomputed from per-question rows; deltas are structured minus natural.",
       "nonresponse_fidelity": "Per deduped non-baseline run whose committed per-question rows still carry human_distribution (full-tier datasets; gated files are stripped per #308): mean |model explicit-nonresponse mass (DK-style option mass + parsed refusal rate) - human's|, plus the five items with the largest model over-selection."
     },
     "asserted_constants": [

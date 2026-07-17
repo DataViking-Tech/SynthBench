@@ -121,6 +121,48 @@ to refusal collapse (see asserted constants).
 
 ---
 
+## Experiment B v3: Elicitation Mode (Natural vs Schema-Forced)
+
+**Question**: Does forcing panelists to answer through a structured response
+schema (guaranteed-parseable capture) cost anything relative to natural
+in-character roleplay elicitation?
+
+**Method**: One matched pair on GSS (75 questions, 30 samples per question,
+refusal detector v2): the SynthPanel Haiku 4.5 default (natural roleplay)
+run vs the identical configuration with schema-forced structured capture
+(`tpl=structured`, #328). Same model, dataset, question set, and sample
+count — the elicitation surface is the only variable.
+
+<!-- BEGIN GENERATED: elicitation -->
+**SynthPanel (Haiku 4.5)** (product) on gss — n=75 questions × 30 samples per arm, refusal detector v2; the arms differ only in elicitation mode:
+
+| Metric | Natural | Structured | Δ (structured − natural) |
+|--------|---------|------------|--------------------------|
+| SPS | 0.803 | 0.791 | **-1.2 pts** |
+| P_dist | 0.714 | 0.666 | **-4.7 pts** |
+| P_rank | 0.724 | 0.736 | **+1.2 pts** |
+| P_refuse | 0.972 | 0.972 | **+0.0 pts** |
+| Parse failures | 1.6% | 0.0% | -1.6 pts |
+
+Comparison set: Matched pairs of deduped runs differing only in elicitation mode: a run whose config carries an explicit elicitation template variant (e.g. tpl=structured, schema-forced capture) vs the natural-elicitation run of the identical configuration (same base provider, dataset, samples_per_question, question_set_hash, temperature, effort, and question count). All scores recomputed from per-question rows; deltas are structured minus natural.
+<!-- END GENERATED: elicitation -->
+
+### Key Finding
+
+Schema-forced capture eliminates parse failures entirely, but measurably
+lowers distributional fidelity: natural in-character elicitation appears to
+be load-bearing for human-likeness, and the parsing win does not pay for
+the P_dist loss at the composite level. Elicitation mode is now a labeled
+template variant on the leaderboard, so the two surfaces stay separately
+ranked.
+
+**Caveat**: this is a single model × single dataset × one matched pair — a
+suggestive first datapoint, not a general law. More pairs (other models,
+other datasets, replications) are needed before treating the fidelity cost
+as systematic.
+
+---
+
 ## Experiment B v2: Demographic Conditioning
 
 **Question**: Does telling the model "you are a Republican" actually shift its responses toward real Republican survey data?
