@@ -273,6 +273,38 @@ def render_ensemble(f: dict) -> str:
     return "\n".join(lines)
 
 
+def render_error_correlation(f: dict) -> str:
+    rows = f.get("ensemble_error_correlation") or []
+    if not rows:
+        return "_No ensemble constituent runs available._"
+    out: list[str] = []
+    all_r: list[float] = []
+    for row in rows:
+        out += [
+            f"**{row['dataset']}** (n={row['n_questions']} common questions, "
+            f"mean pairwise r = {_fmt(row['mean_pearson_r'])}):",
+            "",
+            "| Constituent pair | Pearson r (per-question JSD) | n |",
+            "|------------------|------------------------------|---|",
+        ]
+        for p in row["pairs"]:
+            out.append(f"| {p['a']} ↔ {p['b']} | {_fmt(p['pearson_r'])} | {p['n']} |")
+            all_r.append(p["pearson_r"])
+        out.append("")
+    if all_r:
+        out += [
+            f"The constituents' errors are **moderately positively correlated** "
+            f"(pairwise r {_fmt(min(all_r), 2)}–{_fmt(max(all_r), 2)} on "
+            f"per-question JSD; 0.27–0.44 on signed per-option residuals, see "
+            f"asserted constants) — not uncorrelated. The ensemble gain comes "
+            f"from partial, not full, independence of errors; the earlier "
+            f'"uncorrelated errors" framing overstated it.',
+            "",
+        ]
+    out.append(f"Comparison set: {f['comparison_sets']['ensemble_error_correlation']}")
+    return "\n".join(out)
+
+
 def render_extended_temperature(f: dict) -> str:
     pts = [
         p
@@ -366,6 +398,7 @@ RENDERERS = {
     "elicitation": render_elicitation,
     "conditioning": render_conditioning,
     "ensemble": render_ensemble,
+    "ensemble-error-correlation": render_error_correlation,
     "extended-temperature": render_extended_temperature,
     "levers": render_levers,
     "nonresponse-fidelity": render_nonresponse,
@@ -402,7 +435,7 @@ def build(findings_md: Path, results_dir: Path) -> tuple[str, str]:
 
     logging.disable(logging.WARNING)  # silence expected recompute-divergence noise
     results, excluded = load_valid_results(results_dir)
-    findings = build_findings(results, excluded)
+    findings = build_findings(results, excluded, results_dir=results_dir)
     original = findings_md.read_text()
     return original, regenerate(original, findings)
 

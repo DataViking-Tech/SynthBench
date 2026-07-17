@@ -272,6 +272,12 @@ export interface FindingsData {
   generated_from: string;
   temperature_sweep: TemperatureSweepPoint[];
   ensemble_comparison: EnsembleComparison[];
+  /**
+   * Pairwise Pearson r between each ensemble's constituents' per-question
+   * JSD-vs-human vectors — the published error-correlation evidence behind
+   * the ensemble framing. Recomputed from committed constituent files.
+   */
+  ensemble_error_correlation?: EnsembleErrorCorrelation[];
   conditioning_results: ConditioningResult[];
   /** Measured attributes beyond the charted POLPARTY/INCOME/EDUCATION set. */
   conditioning_extended?: ConditioningResult[];
@@ -345,6 +351,30 @@ export interface EnsembleComparison {
   /** Random-baseline SPS on the same dataset/scale, for anchoring. */
   random_baseline_sps?: number;
   random_baseline_n?: number;
+}
+
+/** One constituent pair's error correlation (per-question JSD vectors). */
+export interface EnsembleErrorCorrelationPair {
+  a: string;
+  b: string;
+  pearson_r: number;
+  /** Number of common questions the correlation is computed over. */
+  n: number;
+}
+
+/**
+ * Error-correlation matrix for one dataset's published ensemble: pairwise
+ * Pearson r between constituents' committed per-question JSD-vs-human
+ * vectors over the ensemble's common question set (#309 drift-guarded).
+ */
+export interface EnsembleErrorCorrelation {
+  dataset: string;
+  n_questions: number;
+  /** Constituent display names, in ensemble_sources order. */
+  constituents: string[];
+  pairs: EnsembleErrorCorrelationPair[];
+  /** Mean of the published pairwise r values. */
+  mean_pearson_r: number;
 }
 
 export interface ConditioningResult {

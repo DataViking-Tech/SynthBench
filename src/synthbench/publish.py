@@ -885,18 +885,23 @@ def _build_entry(
     return entry
 
 
-def _build_findings(results: list[dict], excluded_runs: list[dict]) -> dict:
+def _build_findings(
+    results: list[dict], excluded_runs: list[dict], results_dir: Path | None = None
+) -> dict:
     """Compute the findings block from the loaded run pool (#309).
 
     Delegates to :mod:`synthbench.findings` — every number is derived from
     the recomputed per-question rows of the valid runs, with non-derivable
     numbers carried as documented asserted constants. ``excluded_runs`` are
     the validity-filtered records so ensemble caveats can flag blends built
-    on excluded constituents.
+    on excluded constituents. ``results_dir`` lets the ensemble
+    error-correlation block resolve constituent files by name.
     """
     from synthbench.findings import build_findings
 
-    return build_findings(results, {e["run_id"] for e in excluded_runs})
+    return build_findings(
+        results, {e["run_id"] for e in excluded_runs}, results_dir=results_dir
+    )
 
 
 def _load_opinionsqa_human_distributions() -> list[dict]:
@@ -1345,7 +1350,7 @@ def publish_leaderboard_data(
         "datasets": datasets,
         "entries": entries,
         "convergence": convergence,
-        "findings": _build_findings(results, excluded_runs),
+        "findings": _build_findings(results, excluded_runs, results_dir),
         "baselines": baselines,
         "cross_provider_concordance": cross_provider_concordance,
         "pricing_snapshot": _build_pricing_snapshot(),

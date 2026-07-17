@@ -90,6 +90,27 @@ const gainRange = hasData
   ? `+${Math.min(...improvementsPts).toFixed(1)} to +${Math.max(...improvementsPts).toFixed(1)}`
   : "";
 const comparisonSet = leaderboard.findings.comparison_sets?.ensemble_comparison ?? "";
+
+// Error-correlation matrix between the ensemble constituents (round 3
+// panel item: the "uncorrelated errors" framing needs published evidence).
+const errorCorrelation = leaderboard.findings.ensemble_error_correlation ?? [];
+const correlationComparisonSet =
+  leaderboard.findings.comparison_sets?.ensemble_error_correlation ?? "";
+const allR = errorCorrelation.flatMap((d) => d.pairs.map((p) => p.pearson_r));
+const rRange =
+  allR.length > 0 ? `${Math.min(...allR).toFixed(2)}–${Math.max(...allR).toFixed(2)}` : "";
+
+// Compact model label: "SynthPanel (Haiku 4.5)" -> "Haiku 4.5".
+function shortName(name: string): string {
+  const m = name.match(/\(([^)]+)\)/);
+  return m ? m[1] : name;
+}
+
+// r for an unordered constituent pair, for the matrix cells.
+function pairR(d: (typeof errorCorrelation)[number], a: string, b: string): number | null {
+  const hit = d.pairs.find((p) => (p.a === a && p.b === b) || (p.a === b && p.b === a));
+  return hit ? hit.pearson_r : null;
+}
 ---
 
 <section class="w-full max-w-4xl mx-auto py-8">
@@ -117,5 +138,72 @@ const comparisonSet = leaderboard.findings.comparison_sets?.ensemble_comparison 
     <p class="text-xs text-muted text-center mt-2 max-w-2xl mx-auto">
       Comparison set: {comparisonSet}
     </p>
+  )}
+
+  {errorCorrelation.length > 0 && (
+    <div class="mt-10" id="ensemble-error-correlation">
+      <h3 class="text-lg font-semibold text-center mb-2">
+        How correlated are the constituents' errors?
+      </h3>
+      <p class="text-center text-sm text-muted mb-4 max-w-2xl mx-auto">
+        Pairwise Pearson r between the constituent runs' per-question error
+        (JSD vs the human distribution) over each ensemble's common question
+        set. The constituents' errors are moderately positively correlated
+        (r {rRange}) — not uncorrelated. The ensemble gain comes from partial,
+        not full, independence of errors.
+      </p>
+      <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {errorCorrelation.map((d) => (
+          <div class="rounded-lg border border-muted/20 bg-surface dark:bg-surface-dark p-4">
+            <h4 class="text-sm font-semibold mb-1">{d.dataset}</h4>
+            <p class="text-xs text-muted mb-3">
+              n = {d.n_questions} questions · mean pairwise r ={" "}
+              {d.mean_pearson_r.toFixed(2)}
+            </p>
+            <div class="overflow-x-auto">
+              <table class="w-full text-xs">
+                <caption class="sr-only">
+                  Pairwise Pearson r between ensemble constituents' per-question
+                  errors on {d.dataset}
+                </caption>
+                <thead>
+                  <tr class="text-muted border-b border-muted/20">
+                    <th class="py-1 pr-2 text-left font-medium" scope="col">
+                      <span class="sr-only">Constituent</span>
+                    </th>
+                    {d.constituents.map((c) => (
+                      <th class="py-1 px-2 text-right font-medium" scope="col">
+                        {shortName(c)}
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {d.constituents.map((rowC, i) => (
+                    <tr class="border-b border-muted/10 last:border-b-0">
+                      <th class="py-1 pr-2 text-left font-medium" scope="row">
+                        {shortName(rowC)}
+                      </th>
+                      {d.constituents.map((colC, j) => (
+                        <td class="py-1 px-2 text-right font-mono text-muted">
+                          {i === j
+                            ? "—"
+                            : (pairR(d, rowC, colC)?.toFixed(3) ?? "—")}
+                        </td>
+                      ))}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        ))}
+      </div>
+      {correlationComparisonSet && (
+        <p class="text-xs text-muted text-center mt-3 max-w-2xl mx-auto">
+          Comparison set: {correlationComparisonSet}
+        </p>
+      )}
+    </div>
   )}
 </section>
