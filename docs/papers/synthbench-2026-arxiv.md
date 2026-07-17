@@ -478,8 +478,9 @@ Full per-experiment data, replication counts, and JSON artifacts are in
 Per-question equal-weight averaging of the response distributions of Claude
 Haiku 4.5, Gemini 2.5 Flash-Lite, and GPT-4o-mini lifts the OpinionsQA-Core
 SPS from the best-single-model 0.766 (Haiku) to **0.836** for the equal blend
-— a **+7.0 SPS-point improvement at zero incremental API cost** because the
-arithmetic is performed offline on already-collected per-question outputs.
+— a **+7.0 SPS-point improvement with no incremental API calls** because the
+arithmetic is performed offline on already-collected per-question outputs
+(collecting all three constituent runs still costs roughly 3× a single run).
 
 | Dataset | Best single | Equal-blend | Δ |
 |---|---|---|---|
