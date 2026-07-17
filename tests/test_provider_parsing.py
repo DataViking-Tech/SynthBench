@@ -256,6 +256,36 @@ def test_constructors_reject_unknown_kwargs(monkeypatch):
         MajorityBaselineProvider(temperature=0.5)
 
 
+def test_synthpanel_prompt_template_forces_cli_path(monkeypatch, tmp_path):
+    """A --prompt-template run must never take the direct API path.
+
+    The API path builds its own persona/system prompt and has no seam for
+    the synthpanel template override — it only stamped the template into
+    the provider name and prompt hash, so a ``tpl=<name>`` run would
+    silently execute the default prompt (untrue leaderboard metadata).
+    Only the CLI path threads --prompt-template through to synthpanel.
+    """
+    from synthbench.providers import synthpanel as sp_mod
+
+    tpl = tmp_path / "custom.txt"
+    tpl.write_text("You are {name}.")
+
+    # Even with the synth_panel API importable, a template override must
+    # route through the CLI.
+    monkeypatch.setattr(sp_mod, "_HAS_SYNTH_PANEL_API", True)
+    provider = sp_mod.SynthPanelProvider(
+        model="haiku", prompt_template=str(tpl), synthpanel_path="/bin/echo"
+    )
+    assert provider._use_api is False
+    cmd = provider._build_cmd("inst.yaml", "pers.yaml")
+    idx = cmd.index("--prompt-template")
+    assert cmd[idx + 1] == str(tpl)
+    # Template-free runs keep the fast API path.
+    monkeypatch.setattr(sp_mod, "LLMClient", lambda: object(), raising=False)
+    default_provider = sp_mod.SynthPanelProvider(model="haiku")
+    assert default_provider._use_api is True
+
+
 def test_synthpanel_temperature_reaches_cli_command(monkeypatch, tmp_path):
     from synthbench.providers import synthpanel as sp_mod
 

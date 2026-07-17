@@ -110,12 +110,12 @@ entropy (see Experiment H5 below).
 <!-- BEGIN GENERATED: template -->
 | Template | Mean SPS | Std | Runs |
 |----------|----------|-----|------|
-| **CURRENT** | **0.690** | 0.019 | 2 |
+| **CURRENT** | **0.771** | — | 1 |
 | MINIMAL | 0.581 | 0.005 | 2 |
 | DEMO | 0.569 | 0.001 | 2 |
 | VALUES | 0.555 | 0.032 | 2 |
 
-The CURRENT template beats the best alternative by **+11.0 SPS points**.
+The CURRENT template beats the best alternative by **+19.0 SPS points**.
 <!-- END GENERATED: template -->
 
 ### Key Finding
@@ -387,7 +387,7 @@ more temperature — it just adds noise.
 | **Ensemble blending** | +2.7–4.8 | zero | done |
 | **Per-model optimal temperature** | +0.8–4.5 | low | actionable |
 | **Demographic conditioning** | +4.1–9.9 | moderate | scientific |
-| **Persona template** | 'current' template already optimal (+11.0 pts over the best alternative); no further gain available from this lever. | zero | done |
+| **Persona template** | 'current' template already optimal (+19.0 pts over the best alternative); no further gain available from this lever. | zero | done |
 <!-- END GENERATED: levers -->
 
 ---
