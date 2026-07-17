@@ -1,10 +1,35 @@
-"""Refusal calibration metric (P_refuse)."""
+"""Refusal calibration metric (P_refuse) and refusal-text detection.
+
+Two detector versions coexist:
+
+* :func:`detect_refusal` — **v1** (retained verbatim for reproducibility of
+  pre-v2 runs). Un-anchored substring patterns; known precision failure:
+  chatty in-character answers ("I don't get sick much, I'd say good") match
+  ``\\bI don't\\b`` anywhere in the text and are mis-flagged as refusals.
+* :func:`detect_refusal_v2` — **v2** (current default via
+  :data:`REFUSAL_DETECTOR_VERSION`). Patterns must be answer-INITIAL
+  (anchored to the start of the trimmed response, tolerating leading
+  pleasantries like "Well," / "Hmm,"), and never fire when the response
+  contains a valid option for the current question (option-echo exemption —
+  required because some instruments carry substantive options containing
+  refusal-ish text, e.g. GSS GOD's "don't know, no way to find out").
+
+Runs are stamped with ``config.refusal_detector_version``; the key is
+additive — files without it were parsed under v1. The stamp is metadata
+only and never feeds :func:`synthbench.config_id.build_config_id`, so
+every historical config_id is unchanged.
+"""
 
 from __future__ import annotations
 
 import re
 
-# Patterns that indicate an LLM-style refusal when explicit refusal field is unavailable
+#: Detector version stamped into run metadata (``config.refusal_detector_version``).
+#: Absent key on a committed run file means v1.
+REFUSAL_DETECTOR_VERSION = 2
+
+# Patterns that indicate an LLM-style refusal when explicit refusal field is
+# unavailable. v1 — un-anchored; kept callable for reproducibility.
 _REFUSAL_PATTERNS = [
     re.compile(r"\bI cannot\b", re.IGNORECASE),
     re.compile(r"\bI can't\b", re.IGNORECASE),
@@ -13,6 +38,125 @@ _REFUSAL_PATTERNS = [
     re.compile(r"\bI'm not able to\b", re.IGNORECASE),
     re.compile(r"\bI am not able to\b", re.IGNORECASE),
 ]
+
+# ---------------------------------------------------------------------------
+# v2 detector
+# ---------------------------------------------------------------------------
+
+# Leading pleasantries / hedges an in-character respondent may open with
+# before the substantive part of the answer. Stripped (repeatedly) before
+# the answer-initial anchor check, so "Well, I can't answer that" is still
+# a refusal while "Well, I don't get sick much" is judged on its own text.
+_PLEASANTRY_PREFIX_RE = re.compile(
+    r"^(?:(?:well|hmm+|hm+|oh(?:\s+man|\s+boy)?|um+|uh+|ah+|honestly|okay|ok|"
+    r"you know|look|gosh|geez|man|wow|huh|ha|haha|heh|so|hey|yeah|sure|right)"
+    r"[\s,.!…:;—-]+)+",
+    re.IGNORECASE,
+)
+
+# Wrapping quote/formatting characters models sometimes emit around answers.
+_WRAPPING_CHARS = "\"'`*_“”‘’ \t\r\n"
+
+# Answer-initial refusal patterns. All are anchored with ``\A`` and applied
+# AFTER the pleasantry prefix is stripped. The v1 ``\bI don't\b`` footgun is
+# narrowed to explicit nonresponse continuations so first-person substantive
+# answers ("I don't get sick much...") never match.
+_REFUSAL_PATTERNS_V2 = [
+    re.compile(r"\AI cannot\b", re.IGNORECASE),
+    re.compile(r"\AI can't\b", re.IGNORECASE),
+    re.compile(r"\AI won't\b", re.IGNORECASE),
+    re.compile(r"\AI refuse\b", re.IGNORECASE),
+    re.compile(r"\AI decline\b", re.IGNORECASE),
+    re.compile(r"\AI(?:'d| would)? ?(?:prefer|rather) not\b", re.IGNORECASE),
+    re.compile(r"\AI'?m not able to\b", re.IGNORECASE),
+    re.compile(r"\AI am not able to\b", re.IGNORECASE),
+    re.compile(r"\AI'?m not comfortable\b", re.IGNORECASE),
+    re.compile(r"\AAs an AI\b", re.IGNORECASE),
+    re.compile(r"\AAs a(?:n)? (?:language |large language )?model\b", re.IGNORECASE),
+    re.compile(r"\AI'?m (?:just )?an AI\b", re.IGNORECASE),
+    re.compile(
+        r"\AI don'?t (?:know|have (?:an |a )?(?:opinion|answer|preference|view)|"
+        r"feel comfortable|want to (?:answer|say)|wish to answer)\b",
+        re.IGNORECASE,
+    ),
+    re.compile(r"\ANo comment\b", re.IGNORECASE),
+    re.compile(r"\A(?:Sorry|I'?m sorry|I apologi[sz]e)\b[,.]?\s", re.IGNORECASE),
+]
+
+_V2_WS_RE = re.compile(r"\s+")
+
+
+def _v2_normalize(text: str) -> str:
+    """Case-fold, collapse whitespace, strip wrapping punctuation."""
+    text = _V2_WS_RE.sub(" ", str(text)).strip().lower()
+    return text.strip("\"'`.,;:!()[]{} ")
+
+
+# Minimum normalized length for an option to participate in the echo
+# exemption. Very short options ("No", "Yes") occur as ordinary words inside
+# genuine refusals ("As an AI, I have no view here") — treating those as
+# echoes would reintroduce the v1-era "no-inside-refusal" false votes.
+_MIN_ECHO_OPTION_LEN = 4
+
+
+def _mentions_option(text: str, options: list[str]) -> bool:
+    """True if *text* plausibly echoes one of the declared options.
+
+    Two forms count as an echo:
+
+    * a declared option (normalized length >= 4) appears in the response
+      with word boundaries on both sides ("I'd say Good" echoes option
+      "good"); or
+    * the (normalized) response is itself a substring of a declared option
+      — a partial echo of a long option ("don't know" against GSS GOD's
+      substantive "don't know, no way to find out" option), which must not
+      be classified as a refusal when the instrument offers it as an
+      answer.
+    """
+    text_norm = _v2_normalize(text)
+    if not text_norm:
+        return False
+    for opt in options:
+        opt_norm = _v2_normalize(opt)
+        if len(opt_norm) < _MIN_ECHO_OPTION_LEN:
+            continue
+        pattern = r"(?<!\w)" + re.escape(opt_norm) + r"(?!\w)"
+        if re.search(pattern, text_norm):
+            return True
+        if len(text_norm) >= _MIN_ECHO_OPTION_LEN and text_norm in opt_norm:
+            return True
+    return False
+
+
+def detect_refusal_v2(text: str, options: list[str] | None = None) -> bool:
+    """Detect refusal — v2: answer-initial anchoring + option-echo exemption.
+
+    A response is a refusal only when a refusal pattern matches at the
+    START of the trimmed response (after skipping leading pleasantries such
+    as "Well," / "Hmm,"), AND the response does not contain a valid option
+    for the current question. The exemption exists because in-character
+    answers routinely open with refusal-shaped text before naming an option
+    ("I don't get sick much, I'd say good" — a vote for "good", not a
+    refusal), and some instruments include substantive options that
+    themselves contain refusal-ish phrases.
+
+    Args:
+        text: Raw response text from the provider.
+        options: Declared answer options for the current question. When
+            provided, an option echo suppresses refusal classification.
+
+    Returns:
+        True if the text is an answer-initial refusal with no option echo.
+    """
+    stripped = str(text).strip(_WRAPPING_CHARS)
+    if not stripped:
+        return False
+    stripped = _PLEASANTRY_PREFIX_RE.sub("", stripped)
+    if not any(p.search(stripped) for p in _REFUSAL_PATTERNS_V2):
+        return False
+    if options and _mentions_option(str(text), options):
+        return False
+    return True
 
 
 def refusal_calibration(

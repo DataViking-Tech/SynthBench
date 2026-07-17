@@ -1,35 +1,35 @@
 # SynthBench Score Card
 
-**Provider:** synthpanel/openrouter/anthropic/claude-haiku-4-5
-**Dataset:** subpop (200 questions)
-**Samples per question:** 30
-**Elapsed:** 1105.9s
+**Provider:** openrouter/anthropic/claude-haiku-4-5
+**Dataset:** globalopinionqa (100 questions)
+**Samples per question:** 15
+**Elapsed:** 213.5s
 
 ## SynthBench Parity Score (SPS)
 
-**SPS: 0.6942 [0.6712, 0.7157]** (from 3 metrics)
+**SPS: 0.6791 [0.6383, 0.7159]** (from 3 metrics)
 
 | Metric | Score | |
 |--------|------:|---|
-| P_dist  Distributional | 0.6559 [0.6300, 0.6790] | ███████░░░ |
-| P_rank  Rank-Order | 0.7235 [0.7021, 0.7459] | ███████░░░ |
-| P_refuse Refusal Cal. | 0.7031 [0.6567, 0.7432] | ███████░░░ |
+| P_dist  Distributional | 0.6713 [0.6152, 0.7176] | ███████░░░ |
+| P_rank  Rank-Order | 0.6159 [0.5550, 0.6760] | ██████░░░░ |
+| P_refuse Refusal Cal. | 0.7502 [0.6684, 0.8215] | ████████░░ |
 
 ## Raw Metrics
 
 | Metric | Value |
 |--------|-------|
-| Mean JSD | 0.3441 |
-| Median JSD | 0.3143 |
-| Mean Kendall's tau | 0.4470 |
-| Composite Parity (legacy) | 0.6897 |
+| Mean JSD | 0.3287 |
+| Median JSD | 0.2681 |
+| Mean Kendall's tau | 0.2317 |
+| Composite Parity (legacy) | 0.6436 |
 
 ## vs Baselines
 
 | Baseline | Score | Delta | % |
 |----------|------:|------:|--:|
-| majority-baseline | 0.5620 | +0.1277 | +23% |
-| random-baseline | 0.6495 | +0.0402 | +6% |
+| majority-baseline | 0.5620 | +0.0816 | +15% |
+| random-baseline | 0.6495 | -0.0059 | -1% |
 
 ## What These Scores Mean
 
@@ -44,18 +44,18 @@
 
 | Question | JSD | tau |
 |----------|-----|-----|
-| Do you believe in Heaven?... | 0.0290 | 1.0000 |
-| Have you heard of the social media site or app BitChute?... | 0.0383 | 0.8165 |
-| When you see or hear news about terrible things happening to... | 0.0532 | 0.8367 |
-| In recent years, several social media sites have emerged as ... | 0.0564 | 0.8165 |
-| In the last month, did you attend religious services in pers... | 0.0605 | 0.8165 |
+| Overall, was the break-up of Czechoslovakia into two indepen... | 0.0000 | 0.0000 |
+| In general, do you think our country is covered fairly or un... | 0.0001 | 0.0000 |
+| Do you think our country's efforts to reduce government spen... | 0.0051 | 0.0000 |
+| Has the Turkish parliament made the right decision not to al... | 0.0052 | 0.0000 |
+| Do you think that the rise of nontraditional political parti... | 0.0058 | 0.0000 |
 
 ## Worst Matches (highest JSD)
 
 | Question | JSD | tau |
 |----------|-----|-----|
-| Thinking about policies around abortion in this country, in ... | 0.6930 | 0.1155 |
-| How would you rate the job that your local elected officials... | 0.7079 | 0.1782 |
-| How well does the explanation "Sometimes bad things just hap... | 0.7370 | -0.1195 |
-| Did you refuse to answer the previous question?... | 1.0000 | -0.8165 |
-| Did you refuse to answer the previous question?... | 1.0000 | -0.8165 |
+| Please tell me if you have a very favorable, somewhat favora... | 0.9014 | -0.6325 |
+| Please tell me if you have a very favorable, somewhat favora... | 0.9014 | -0.6325 |
+| Please tell me if you have a very favorable, somewhat favora... | 0.9022 | -0.6325 |
+| Please tell me if you have a very favorable, somewhat favora... | 0.9022 | -0.3162 |
+| Please tell me if you have a very favorable, somewhat favora... | 0.9290 | -0.6325 |

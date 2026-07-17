@@ -277,12 +277,47 @@ export interface FindingsData {
   conditioning_extended?: ConditioningResult[];
   template_comparison?: TemplateComparisonRow[];
   lever_hierarchy: Lever[];
+  /** Per-run explicit-nonresponse (DK-option + refusal) mass vs humans. */
+  nonresponse_fidelity?: NonresponseFidelityRow[];
+  /** Sensitive-topic sidestepping highlight derived from the worst raw row. */
+  sensitive_topic_sidestepping?: SensitiveTopicSidestepping | null;
   /** Human-readable definition of each finding's comparison set. */
   comparison_sets?: Record<string, string>;
   /** Numbers not derivable from committed artifacts, with provenance. */
   asserted_constants?: AssertedConstant[];
   /** Data-quality caveats (e.g. ensembles blending excluded constituents). */
   caveats?: string[];
+}
+
+export interface NonresponseItemGap {
+  key: string;
+  model_mass: number;
+  human_mass: number;
+  gap: number;
+}
+
+export interface NonresponseFidelityRow {
+  provider: string;
+  framework: string;
+  /** Template/elicitation variant; null for the default prompt. */
+  template?: string | null;
+  dataset: string;
+  n_questions: number;
+  mean_abs_nonresponse_gap: number;
+  mean_model_nonresponse_mass: number;
+  mean_human_nonresponse_mass: number;
+  top_overselected: NonresponseItemGap[];
+}
+
+export interface SensitiveTopicSidestepping {
+  headline: string;
+  provider: string;
+  dataset: string;
+  n_questions: number;
+  mean_model_nonresponse_mass: number;
+  mean_human_nonresponse_mass: number;
+  items: NonresponseItemGap[];
+  note: string;
 }
 
 export interface TemperatureSweepPoint {

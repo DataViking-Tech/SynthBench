@@ -169,7 +169,7 @@ def _policy_to_dict(policy: DatasetPolicy) -> dict:
 
 
 def _dedup_results(results: list[dict]) -> list[dict]:
-    """De-duplicate results: keep the run with the most n_evaluated per (display_name, framework, dataset, effort).
+    """De-duplicate results: keep the run with the most n_evaluated per (display_name, framework, dataset, effort, template).
 
     ``effort`` participates in the key so a "Sonnet (high)" run never
     collapses into the same leaderboard row as the effort-absent run of the
@@ -177,14 +177,22 @@ def _dedup_results(results: list[dict]) -> list[dict]:
     dimension. Pre-effort runs all carry effort=None and group exactly as
     before.
 
+    ``template`` (the ``config.prompt_template`` stem, e.g. ``structured``
+    for schema-forced elicitation) participates for the same reason: a
+    template/elicitation variant is a distinct measured configuration, not
+    a replication of the default-prompt run. Runs without a template carry
+    None and group exactly as before.
+
     Also merges demographic_breakdown data from all runs sharing the same key
     into the winning entry, since conditioned runs may have fewer n_evaluated
     but carry unique demographic data.
     """
     from synthbench.leaderboard import display_provider_name, provider_framework
 
-    best: dict[tuple[str, str, str, str | None], dict] = {}
-    all_demographics: dict[tuple[str, str, str, str | None], dict[str, list]] = {}
+    best: dict[tuple[str, str, str, str | None, str | None], dict] = {}
+    all_demographics: dict[
+        tuple[str, str, str, str | None, str | None], dict[str, list]
+    ] = {}
     for r in results:
         cfg = r.get("config", {})
         provider = cfg.get("provider", "unknown")
@@ -192,7 +200,13 @@ def _dedup_results(results: list[dict]) -> list[dict]:
         n_eval = _effective_n(r)
         name = display_provider_name(provider)
         fw = provider_framework(provider)
-        key = (name, fw, dataset, cfg.get("effort"))
+        key = (
+            name,
+            fw,
+            dataset,
+            cfg.get("effort"),
+            _tpl_name(cfg.get("prompt_template")),
+        )
         existing = best.get(key)
         if existing is None or n_eval > _effective_n(existing):
             best[key] = r

@@ -13,6 +13,7 @@ from synthbench.datasets.base import Question
 from synthbench.datasets import Dataset
 from synthbench.datasets.opinionsqa import wave_year
 from synthbench.metrics import (
+    REFUSAL_DETECTOR_VERSION,
     jensen_shannon_divergence,
     kendall_tau_b,
     parity_score,
@@ -436,6 +437,10 @@ class BenchmarkRunner:
                 "samples_per_question": self.samples_per_question,
                 "n_requested": n,
                 "n_evaluated": len(results),
+                # Metadata-only stamp: which refusal-text heuristic parsed
+                # this run's raw responses. Absent on pre-v2 files (= v1).
+                # Never feeds build_config_id, so config_ids are stable.
+                "refusal_detector_version": REFUSAL_DETECTOR_VERSION,
                 **_provider_reproducibility_hashes(self.provider),
             },
             elapsed_seconds=elapsed,

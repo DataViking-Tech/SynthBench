@@ -1,0 +1,89 @@
+---
+import type { LeaderboardData } from "@/types/leaderboard";
+
+import leaderboardRaw from "@/data/leaderboard.json";
+
+const leaderboard = leaderboardRaw as LeaderboardData;
+const rows = leaderboard.findings.nonresponse_fidelity ?? [];
+const highlight = leaderboard.findings.sensitive_topic_sidestepping ?? null;
+
+const pct = (v: number) => `${(v * 100).toFixed(1)}%`;
+const hasData = rows.length > 0;
+---
+
+<section class="w-full max-w-4xl mx-auto py-8">
+  <h2 class="text-2xl font-bold text-center mb-2">Nonresponse Fidelity</h2>
+  <p class="text-center text-sm text-muted mb-6 max-w-2xl mx-auto">
+    How closely each model's explicit-nonresponse mass ("don't know"-style
+    option selections plus refusals) tracks the human survey's. Computed from
+    committed per-question rows on full-tier datasets.
+  </p>
+  {hasData ? (
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm border-collapse">
+        <thead>
+          <tr class="border-b border-muted/30 text-left">
+            <th class="py-2 pr-4">Provider</th>
+            <th class="py-2 pr-4">Framework</th>
+            <th class="py-2 pr-4">Template</th>
+            <th class="py-2 pr-4">Dataset</th>
+            <th class="py-2 pr-4 text-right">Model nonresponse</th>
+            <th class="py-2 pr-4 text-right">Human nonresponse</th>
+            <th class="py-2 pr-4 text-right">Mean abs gap</th>
+            <th class="py-2 text-right">n</th>
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map((r) => (
+            <tr class="border-b border-muted/10">
+              <td class="py-2 pr-4">{r.provider}</td>
+              <td class="py-2 pr-4">{r.framework}</td>
+              <td class="py-2 pr-4">{r.template ?? "default"}</td>
+              <td class="py-2 pr-4">{r.dataset}</td>
+              <td class="py-2 pr-4 text-right">{pct(r.mean_model_nonresponse_mass)}</td>
+              <td class="py-2 pr-4 text-right">{pct(r.mean_human_nonresponse_mass)}</td>
+              <td class="py-2 pr-4 text-right font-semibold">{pct(r.mean_abs_nonresponse_gap)}</td>
+              <td class="py-2 text-right">{r.n_questions}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  ) : (
+    <div class="text-center text-muted py-12 border border-muted/20 rounded-lg">
+      Nonresponse fidelity data not yet available.
+    </div>
+  )}
+  {highlight && (
+    <div class="mt-6 border border-muted/20 rounded-lg p-4">
+      <h3 class="font-semibold mb-1">{highlight.headline}</h3>
+      <p class="text-sm text-muted mb-3">
+        {highlight.provider} on {highlight.dataset}: mean model nonresponse
+        mass {pct(highlight.mean_model_nonresponse_mass)} vs human
+        {" "}{pct(highlight.mean_human_nonresponse_mass)} across
+        {" "}{highlight.n_questions} questions.
+      </p>
+      <div class="overflow-x-auto">
+        <table class="w-full text-sm border-collapse">
+          <thead>
+            <tr class="border-b border-muted/30 text-left">
+              <th class="py-1 pr-4">Item</th>
+              <th class="py-1 pr-4 text-right">Model nonresponse</th>
+              <th class="py-1 text-right">Human nonresponse</th>
+            </tr>
+          </thead>
+          <tbody>
+            {highlight.items.map((i) => (
+              <tr class="border-b border-muted/10">
+                <td class="py-1 pr-4 font-mono text-xs">{i.key}</td>
+                <td class="py-1 pr-4 text-right">{pct(i.model_mass)}</td>
+                <td class="py-1 text-right">{pct(i.human_mass)}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <p class="text-xs text-muted mt-3">{highlight.note}</p>
+    </div>
+  )}
+</section>
