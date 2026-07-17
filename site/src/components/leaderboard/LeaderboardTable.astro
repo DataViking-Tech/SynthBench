@@ -266,10 +266,10 @@ function hiddenInDefaultView(entry: LeaderboardEntry): boolean {
                       extracted TEXT, not only in a hover tooltip — agents,
                       scrapers, and screen readers never see title attrs. */}
                   <span class="text-xs text-muted">
-                    (public/holdout SPS gap{" "}
+                    (public/holdout SPS gap
                     {entry.sps_public != null && entry.sps_private != null
-                      ? `${Math.abs(entry.sps_public - entry.sps_private).toFixed(3)} `
-                      : ""}&gt; 0.05 — held for review, not proof of cheating;{" "}
+                      ? ` ${Math.abs(entry.sps_public - entry.sps_private).toFixed(3)}`
+                      : ""}{" "}&gt; 0.05 — held for review, not proof of cheating;{" "}
                     <a
                       href={`${base}methodology/#verification-badges`}
                       class="hover:text-primary underline decoration-dotted underline-offset-2"
@@ -445,10 +445,10 @@ function hiddenInDefaultView(entry: LeaderboardEntry): boolean {
               <span class="ml-1 inline-flex items-baseline gap-1 flex-wrap">
                 <span class="text-xs px-1.5 py-0.5 rounded bg-amber-500/10 text-amber-700 dark:text-amber-400">⚠ flagged</span>
                 <span class="text-xs text-muted">
-                  (public/holdout SPS gap{" "}
+                  (public/holdout SPS gap
                   {entry.sps_public != null && entry.sps_private != null
-                    ? `${Math.abs(entry.sps_public - entry.sps_private).toFixed(3)} `
-                    : ""}&gt; 0.05 — held for review)
+                    ? ` ${Math.abs(entry.sps_public - entry.sps_private).toFixed(3)}`
+                    : ""}{" "}&gt; 0.05 — held for review)
                 </span>
               </span>
             )}
