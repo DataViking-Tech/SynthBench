@@ -55,7 +55,7 @@ class OllamaProvider(Provider):
         except ImportError:
             raise ImportError(
                 "openai package required. Install with: "
-                "pip install 'synthbench[openai]'"
+                "pip install 'synthbench[openai] @ git+https://github.com/DataViking-Tech/SynthBench.git'"
             )
 
         self._model = model

@@ -59,7 +59,7 @@ class RawAnthropicProvider(Provider):
         except ImportError:
             raise ImportError(
                 "anthropic package required. Install with: "
-                "pip install 'synthbench[anthropic]'"
+                "pip install 'synthbench[anthropic] @ git+https://github.com/DataViking-Tech/SynthBench.git'"
             )
         self._effort = validate_effort(effort, "raw-anthropic")
         if self._effort is not None and temperature != 1.0:

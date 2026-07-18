@@ -1,8 +1,8 @@
 ---
 const commands = [
   {
-    cmd: "pip install synthbench",
-    desc: "Install the SynthBench CLI and evaluation framework from PyPI.",
+    cmd: 'pip install "synthbench[openai] @ git+https://github.com/DataViking-Tech/SynthBench.git"',
+    desc: "Install the SynthBench CLI and evaluation framework from GitHub. (The synthbench name on PyPI is an unrelated project.)",
   },
   {
     cmd: "synthbench run --dataset opinionsqa --provider your-provider",
