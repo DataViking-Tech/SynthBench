@@ -55,40 +55,20 @@ jobs:
           echo "skipped=false" >> "$GITHUB_OUTPUT"
           echo "Bump type: $BUMP"
 
+      # Latest run per check name only. The check-runs API returns runs from
+      # every check suite on the SHA, so a PR created with --label fires
+      # opened + labeled twin ci.yml runs, concurrency cancels one, and the
+      # cancelled run parks on the SHA forever — counting it blocked v0.3.1
+      # (PR #334), which had to be tagged manually. The logic lives in a
+      # standalone script so it can be exercised directly against any SHA
+      # (see the script header for usage).
       - name: Verify CI checks passed
         if: steps.check.outputs.skipped != 'true'
         env:
           GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
           HEAD_SHA: ${{ github.event.pull_request.head.sha }}
-        run: |
-          echo "Verifying CI status for PR head commit: $HEAD_SHA"
-
-          RUNS=$(gh api "repos/${{ github.repository }}/commits/${HEAD_SHA}/check-runs" \
-            --paginate --jq '.check_runs[] | select(.name != "auto-tag") | {name: .name, status: .status, conclusion: .conclusion}')
-
-          if [ -z "$RUNS" ]; then
-            echo "::error::No CI check runs found for commit $HEAD_SHA — refusing to tag"
-            exit 1
-          fi
-
-          echo "Check runs:"
-          echo "$RUNS" | jq -s '.'
-
-          INCOMPLETE=$(echo "$RUNS" | jq -s '[.[] | select(.status != "completed")] | length')
-          if [ "$INCOMPLETE" -gt 0 ]; then
-            echo "::error::${INCOMPLETE} check(s) still running — refusing to tag"
-            echo "$RUNS" | jq -s '[.[] | select(.status != "completed")]'
-            exit 1
-          fi
-
-          FAILED=$(echo "$RUNS" | jq -s '[.[] | select(.conclusion != "success" and .conclusion != "skipped" and .conclusion != "neutral")] | length')
-          if [ "$FAILED" -gt 0 ]; then
-            echo "::error::${FAILED} check(s) did not pass — refusing to tag"
-            echo "$RUNS" | jq -s '[.[] | select(.conclusion != "success" and .conclusion != "skipped" and .conclusion != "neutral")]'
-            exit 1
-          fi
-
-          echo "All CI checks passed ✓"
+        run: bash .github/scripts/verify-ci-checks.sh
 
       - name: Compute next version
         if: steps.check.outputs.skipped != 'true'
