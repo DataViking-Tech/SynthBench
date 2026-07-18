@@ -25,6 +25,7 @@ jobs:
       - uses: actions/setup-python@v6
         with:
           python-version: "3.14"
+          cache: 'pip'
       - run: pip install ruff
       - run: ruff check .
       - run: ruff format --check .
@@ -60,6 +61,7 @@ jobs:
       - uses: actions/setup-python@v6
         with:
           python-version: ${{ matrix.python-version }}
+          cache: 'pip'
       - run: pip install -e '.[dev]'
       - run: pytest tests/
       - name: Null-agent baseline SPS floor (sb-lhoh)
@@ -82,6 +84,7 @@ jobs:
       - uses: actions/setup-python@v6
         with:
           python-version: "3.14"
+          cache: 'pip'
       - run: pip install -e .
       - name: Find added / modified submissions
         id: changed
@@ -144,6 +147,7 @@ jobs:
       - uses: actions/setup-python@v6
         with:
           python-version: "3.14"
+          cache: 'pip'
       - uses: actions/setup-node@v6
         with:
           node-version: "24"
@@ -229,6 +233,7 @@ jobs:
       - uses: actions/setup-python@v6
         with:
           python-version: "3.14"
+          cache: 'pip'
       - uses: actions/setup-node@v6
         with:
           node-version: "24"
