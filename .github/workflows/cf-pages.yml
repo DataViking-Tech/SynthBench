@@ -36,10 +36,13 @@ jobs:
       - uses: actions/setup-python@v6
         with:
           python-version: '3.14'
+          cache: 'pip'
 
       - uses: actions/setup-node@v6
         with:
           node-version: '24'
+          cache: npm
+          cache-dependency-path: site/package-lock.json
 
       - run: pip install -e .[r2]
 
@@ -64,16 +67,37 @@ jobs:
       - name: Generate leaderboard data
         run: synthbench publish-data --results-dir leaderboard-results --output site/src/data/leaderboard.json
 
-      - name: Generate run explorer artifacts
+      - name: Generate run explorer artifacts (production, gated R2 upload)
+        # Production path only (push to main / manual dispatch). PRs must
+        # never reach the production R2 bucket: an unmerged branch would
+        # overwrite live gated artifacts, and the upload itself is the
+        # slowest step of the build (~3-7 min).
         # SYNTHBENCH_PUBLISH_STRICT=1 makes gating fail closed: if the R2
         # uploader is not configured, the build FAILS here instead of
         # deploying without gated data. Gated artifacts are never written to
         # site/public/data/ — the old local-write fallback shipped
         # license-restricted human_distribution data to the public origin.
+        if: github.event_name != 'pull_request'
         run: synthbench publish-runs --results-dir leaderboard-results --output-dir site/public/data
         env:
           R2_BUCKET: ${{ secrets.R2_BUCKET }}
           SYNTHBENCH_PUBLISH_STRICT: "1"
+
+      - name: Generate run explorer artifacts (PR preview, no R2 upload)
+        # Preview path: emit only the public-tier artifacts locally so the
+        # preview site still has run-explorer data. All four R2_* vars are
+        # blanked (three of them are ambient in $GITHUB_ENV from the Doppler
+        # step above) so env_has_r2_config() is false and gated artifacts
+        # are skipped — never uploaded to the production bucket and never
+        # written to the public output (verified by the integrity step
+        # below). Same non-strict invocation the CI site job uses.
+        if: github.event_name == 'pull_request'
+        run: synthbench publish-runs --results-dir leaderboard-results --output-dir site/public/data
+        env:
+          R2_ACCOUNT_ID: ""
+          R2_ACCESS_KEY_ID: ""
+          R2_SECRET_ACCESS_KEY: ""
+          R2_BUCKET: ""
 
       # Also re-checks that no gated-dataset artifact is present under the
       # local publish output (license-gating backstop).

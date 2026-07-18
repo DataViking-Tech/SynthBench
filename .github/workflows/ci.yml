@@ -131,6 +131,8 @@ jobs:
       - uses: actions/setup-node@v6
         with:
           node-version: "24"
+          cache: npm
+          cache-dependency-path: workers/data-proxy/package-lock.json
       - name: Install
         run: npm install --no-audit --no-fund
       - name: Biome lint
@@ -151,6 +153,8 @@ jobs:
       - uses: actions/setup-node@v6
         with:
           node-version: "24"
+          cache: npm
+          cache-dependency-path: site/package-lock.json
       - run: pip install -e .
       - name: Generate leaderboard data
         run: synthbench publish-data --results-dir leaderboard-results --output site/src/data/leaderboard.json
@@ -237,6 +241,8 @@ jobs:
       - uses: actions/setup-node@v6
         with:
           node-version: "24"
+          cache: npm
+          cache-dependency-path: site/package-lock.json
       - run: pip install -e .
       - name: Generate leaderboard data
         run: synthbench publish-data --results-dir leaderboard-results --output site/src/data/leaderboard.json
@@ -247,9 +253,28 @@ jobs:
       - name: Install site dependencies
         working-directory: site
         run: npm ci
+      - name: Get Playwright version
+        id: playwright-version
+        working-directory: site
+        # Resolved (installed) version, not the package.json range, so the
+        # cache key rolls exactly when the browser build would change.
+        run: echo "version=$(node -p "require('@playwright/test/package.json').version")" >> "$GITHUB_OUTPUT"
+      - name: Cache Playwright browsers
+        id: playwright-cache
+        uses: actions/cache@v6
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ steps.playwright-version.outputs.version }}
       - name: Install Playwright browsers
+        if: steps.playwright-cache.outputs.cache-hit != 'true'
         working-directory: site
         run: npx playwright install --with-deps chromium
+      - name: Install Playwright OS deps (browser cache hit)
+        # The browser binaries are restored from cache, but the runner image
+        # still needs chromium's system libraries.
+        if: steps.playwright-cache.outputs.cache-hit == 'true'
+        working-directory: site
+        run: npx playwright install-deps chromium
       - name: Format generated data
         working-directory: site
         run: npx biome format --write src/data/leaderboard.json
