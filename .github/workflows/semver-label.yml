@@ -1,0 +1,51 @@
+name: Semver Label
+
+# Pre-merge gate: every PR must carry exactly one semver:* label
+# (semver:patch / semver:minor / semver:major to bump, semver:skip to opt
+# out) BEFORE merge. auto-tag.yml reads the label post-merge to cut the
+# release; without this gate a missing label silently skips the release
+# behind a green check (the failure mode SynthPanel hit twice — sp-42i,
+# sy-73j — before adopting the same pre-merge check).
+
+on:
+  pull_request:
+    types: [opened, reopened, synchronize, labeled, unlabeled]
+
+permissions:
+  pull-requests: read
+
+concurrency:
+  group: semver-label-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  semver-label:
+    name: Semver Label
+    runs-on: ubuntu-latest
+    steps:
+      - name: Require exactly one semver label
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          set -euo pipefail
+          # Fresh fetch instead of the event payload: rapid label add/remove
+          # sequences (and re-runs) should judge the CURRENT label set, not
+          # the snapshot from whichever event happened to trigger this run.
+          LABELS=$(gh api "repos/${GITHUB_REPOSITORY}/pulls/${PR_NUMBER}" --jq '[.labels[].name]')
+          echo "Labels (fresh fetch): $LABELS"
+
+          SEMVER=$(echo "$LABELS" | jq -r '.[] | select(startswith("semver:"))')
+          COUNT=$(echo "$SEMVER" | grep -c . || true)
+
+          if [ "$COUNT" -eq 0 ]; then
+            echo "::error::PR #${PR_NUMBER} has no semver label. Add exactly one of: semver:patch, semver:minor, semver:major, or semver:skip."
+            exit 1
+          fi
+
+          if [ "$COUNT" -gt 1 ]; then
+            echo "::error::PR #${PR_NUMBER} has multiple semver labels ($(echo "$SEMVER" | tr '\n' ' ')). Use exactly one."
+            exit 1
+          fi
+
+          echo "OK: exactly one semver label ($SEMVER)."
