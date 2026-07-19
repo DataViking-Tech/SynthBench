@@ -91,7 +91,7 @@ def _build_default_client(config: R2Config) -> _S3Client:
     except ImportError as e:
         raise R2ConfigError(
             "boto3 is required for R2 uploads. Install via "
-            "`pip install synthbench[r2]` or set --no-r2 to use local writes."
+            "`pip install 'synthbench[r2] @ git+https://github.com/DataViking-Tech/SynthBench.git'` or set --no-r2 to use local writes."
         ) from e
     return boto3.client(
         "s3",

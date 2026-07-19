@@ -96,7 +96,8 @@ a single deployable evaluator. Our contributions are:
    temperature sensitivity is governed by base output entropy rather than
    model scale.
 
-SynthBench is publicly hosted, openly reproducible (`pip install synthbench`),
+SynthBench is publicly hosted, openly reproducible (installable directly from
+the public GitHub repository),
 and operates under a "perfection-is-suspicion" auditing posture designed to
 remain trustworthy as the field's collective Goodhart pressure rises.
 
@@ -637,7 +638,7 @@ fidelity, multi-modal personas (image-attached respondent contexts).
 ## 9. Reproducibility
 
 ```bash
-pip install synthbench
+pip install "synthbench[openai] @ git+https://github.com/DataViking-Tech/SynthBench.git"
 synthbench run --provider openrouter --model openai/gpt-4o-mini \
   --suite core --samples 30
 synthbench leaderboard --results-dir ./results

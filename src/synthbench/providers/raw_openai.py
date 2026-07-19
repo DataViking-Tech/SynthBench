@@ -54,7 +54,7 @@ class RawOpenAIProvider(Provider):
         except ImportError:
             raise ImportError(
                 "openai package required. Install with: "
-                "pip install 'synthbench[openai]'"
+                "pip install 'synthbench[openai] @ git+https://github.com/DataViking-Tech/SynthBench.git'"
             )
         self._effort = validate_effort(effort, "raw-openai")
         if self._effort is not None and temperature != 1.0:

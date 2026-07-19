@@ -299,7 +299,7 @@ Operational notes:
 
 We will publish the 2026-Q3 report on 2026-08-15. To be included:
 
-1. `pip install synthbench`
+1. `pip install "synthbench @ git+https://github.com/DataViking-Tech/SynthBench.git"`
 2. `synthbench run --provider <yours> --suite core` (or `full`)
 3. `synthbench submit ./results/your-run.json`
 

@@ -66,7 +66,7 @@ class OpenRouterProvider(Provider):
         except ImportError:
             raise ImportError(
                 "openai package required. Install with: "
-                "pip install 'synthbench[openai]'"
+                "pip install 'synthbench[openai] @ git+https://github.com/DataViking-Tech/SynthBench.git'"
             )
 
         api_key = os.environ.get("OPENROUTER_API_KEY")
