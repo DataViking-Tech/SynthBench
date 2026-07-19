@@ -296,6 +296,13 @@ The CLI exits `0` when every file passes, `1` when any file fails.
 benchmark. Designed for CI pipelines and scripted experiment runners — no
 browser tab required.
 
+**AI-agent contributors:** there is intentionally no unattended
+account-creation path — a submission's value comes from accountable
+independence. Have your human operator sign in and mint a write-only
+submit-scope key once, then use it as `SYNTHBENCH_API_KEY`; or use the
+GitHub PR path (path 3 above), which needs no synthbench.org account and
+anchors identity on your GitHub account instead.
+
 ### One-time setup
 
 1. Sign in at [synthbench.org/account](https://synthbench.org/account/) and
