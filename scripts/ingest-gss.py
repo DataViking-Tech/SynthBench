@@ -56,6 +56,7 @@ import argparse
 import csv
 import io
 import sys
+import urllib.error
 import urllib.request
 import zipfile
 from pathlib import Path
@@ -386,6 +387,34 @@ def _default_data_dir() -> Path:
     return Path.home() / ".synthbench" / "data" / "gss"
 
 
+def _fetch_with_retries(url: str, attempts: int = 3, timeout: int = 120) -> bytes:
+    """Fetch *url*, retrying transient failures with backoff.
+
+    NORC's CDN intermittently times out on first contact; a bare urlopen
+    with no timeout turned that into an indefinite hang or a hard failure
+    for third-party replicators (issue #339 friction log). On exhaustion,
+    point at the --dta manual fallback rather than a bare traceback.
+    """
+    import time
+
+    last: Exception | None = None
+    for attempt in range(1, attempts + 1):
+        try:
+            with urllib.request.urlopen(url, timeout=timeout) as resp:
+                return resp.read()
+        except (urllib.error.URLError, TimeoutError, OSError) as exc:
+            last = exc
+            if attempt < attempts:
+                wait = 5 * attempt
+                print(f"  attempt {attempt} failed ({exc}); retrying in {wait}s ...")
+                time.sleep(wait)
+    raise SystemExit(
+        f"Failed to download {url} after {attempts} attempts (last: {last}).\n"
+        "Download the zip manually, extract the .dta file, and re-run with\n"
+        "  python scripts/ingest-gss.py --dta /path/to/GSS<year>.dta"
+    )
+
+
 def _download_dta(year: int, dest_dir: Path) -> Path:
     """Download and extract the NORC single-year STATA release."""
     dest_dir.mkdir(parents=True, exist_ok=True)
@@ -396,8 +425,7 @@ def _download_dta(year: int, dest_dir: Path) -> Path:
 
     url = _NORC_ZIP_URL.format(year=year)
     print(f"Downloading {url} ...")
-    with urllib.request.urlopen(url) as resp:
-        payload = resp.read()
+    payload = _fetch_with_retries(url)
     with zipfile.ZipFile(io.BytesIO(payload)) as zf:
         member = next(
             (n for n in zf.namelist() if n.lower().endswith(f"gss{year}.dta")),
