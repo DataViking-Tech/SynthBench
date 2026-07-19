@@ -204,8 +204,8 @@ covered:
 
 The validator warns on:
 
-- `RAW_RESPONSES_MISSING` / `RAW_RESPONSES_TYPE` — missing or wrong
-  shape.
+- `RAW_RESPONSES_MISSING` / `RAW_RESPONSES_TYPE` — missing, empty, or
+  wrong shape (an empty list counts as missing).
 - `RAW_RESPONSES_COVERAGE` — fewer than 10% of questions covered.
 - `RAW_RESPONSES_SHAPE` / `RAW_RESPONSES_EMPTY` — sample missing
   `key` / `raw_text`, or `raw_text` is blank.
@@ -445,7 +445,7 @@ across edge nodes.
 | `ANOMALY_PERFECTION` (warning, tier 3) | Per-question JSD has mean or std below 0.005. | You almost certainly copied the human answer key. Re-run against the actual model. |
 | `ANOMALY_NO_REFUSAL` (warning, tier 3) | Never refused despite humans refusing on ≥3 questions. | Check whether your pipeline is silently dropping refusals, or whether the model really never refuses in your prompt. |
 | `ANOMALY_PEER_OUTLIER` (warning, tier 3) | Per-question JSD is >0.15 from same-family peers on overlapping questions. | Confirm the claimed model matches the one that generated the submission. |
-| `RAW_RESPONSES_MISSING` (warning, tier 3) | No `raw_responses` field in the submission. | Add a list with ≥10% coverage. See `SUBMISSIONS.md` for the schema. |
+| `RAW_RESPONSES_MISSING` (warning, tier 3) | No `raw_responses` field in the submission (or an empty list). | Add a list with ≥10% coverage. See `SUBMISSIONS.md` for the schema. |
 | `RAW_RESPONSES_COVERAGE` (warning, tier 3) | Fewer than 10% of questions have raw samples. | Include more samples so auditors can spot-check. |
 | `RAW_RESPONSES_MODE` (warning, tier 3) | Sample's `selected_option` doesn't match the top of the model distribution. | Usually a serialization bug — regenerate. |
 | `REPRO_MISSING` / `REPRO_FIELD_*` (warning, tier 3) | Missing `reproducibility` block or field. | Populate `seed`, `model_revision_hash`, `prompt_template_hash`, `framework_version`, `submitted_at`. |
