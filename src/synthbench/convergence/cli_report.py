@@ -199,7 +199,7 @@ def _render_plot(
         from matplotlib.backends.backend_pdf import PdfPages
     except ImportError as exc:
         raise RuntimeError(
-            "--plot requires matplotlib. Install with: pip install 'synthbench[viz] @ git+https://github.com/DataViking-Tech/SynthBench.git'"
+            "--plot requires matplotlib. Install with: pip install 'synthbench-eval[viz] @ git+https://github.com/DataViking-Tech/SynthBench.git'"
         ) from exc
 
     if not reports:

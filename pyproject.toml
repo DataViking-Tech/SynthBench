@@ -3,7 +3,11 @@ requires = ["setuptools>=68"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "synthbench"
+# Distribution name is synthbench-eval: the bare "synthbench" name on PyPI
+# belongs to an unrelated project. Import package and CLI remain `synthbench`.
+name = "synthbench-eval"
+# Placeholder — the publish job stamps the real version from the release tag
+# at build time (see publish-pypi in .github/workflows/auto-tag.yml).
 version = "0.1.0"
 description = "Open benchmark harness for synthetic survey respondent quality"
 readme = "README.md"

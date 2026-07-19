@@ -16,17 +16,16 @@ SynthBench measures how well synthetic respondent systems (like [synthpanel](htt
 Run your first benchmark in 3 commands:
 
 ```bash
-git clone https://github.com/DataViking-Tech/SynthBench && cd SynthBench
-pip install -e .
+pip install synthbench-eval
 synthbench run --provider random --suite smoke --output results/
 synthbench leaderboard --results-dir results/
 ```
 
-> **Note:** do not `pip install synthbench` — the `synthbench` name on PyPI
-> belongs to an unrelated project. Install from this repository as shown, or in
-> one line: `pip install "synthbench @ git+https://github.com/DataViking-Tech/SynthBench.git"`.
-> API-backed providers need an extra, e.g. `pip install -e ".[openai]"` for the
-> `openrouter` / `raw-openai` / `raw-gemini` / `ollama` providers.
+> **Note:** the distribution is named `synthbench-eval` — the bare `synthbench`
+> name on PyPI belongs to an unrelated project. The import package and CLI are
+> still `synthbench`. For development, clone this repo and `pip install -e .`.
+> API-backed providers need an extra, e.g. `pip install "synthbench-eval[openai]"`
+> for the `openrouter` / `raw-openai` / `raw-gemini` / `ollama` providers.
 
 Try with a real model (requires API key):
 

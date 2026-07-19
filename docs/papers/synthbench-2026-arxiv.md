@@ -638,7 +638,7 @@ fidelity, multi-modal personas (image-attached respondent contexts).
 ## 9. Reproducibility
 
 ```bash
-pip install "synthbench[openai] @ git+https://github.com/DataViking-Tech/SynthBench.git"
+pip install "synthbench-eval[openai] @ git+https://github.com/DataViking-Tech/SynthBench.git"
 synthbench run --provider openrouter --model openai/gpt-4o-mini \
   --suite core --samples 30
 synthbench leaderboard --results-dir ./results

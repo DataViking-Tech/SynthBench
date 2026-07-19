@@ -160,7 +160,7 @@ class GlobalOpinionQADataset(Dataset):
         except ImportError:
             raise ImportError(
                 "The 'datasets' package is required for GlobalOpinionQA.\n"
-                "Install it with: pip install 'synthbench[hf] @ git+https://github.com/DataViking-Tech/SynthBench.git'\n"
+                "Install it with: pip install 'synthbench-eval[hf] @ git+https://github.com/DataViking-Tech/SynthBench.git'\n"
                 "  or: pip install datasets"
             )
 

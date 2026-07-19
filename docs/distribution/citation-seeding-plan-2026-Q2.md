@@ -179,7 +179,7 @@ respondents. Current top result is SPS ~0.84 (3-model ensemble); the
 unconditioned-LLM baseline sits at ~0.62.
 
 I'd love to score [Product X] on the public board. The submission
-protocol is `pip install "synthbench @ git+https://github.com/DataViking-Tech/SynthBench.git"
+protocol is `pip install "synthbench-eval @ git+https://github.com/DataViking-Tech/SynthBench.git"
 && synthbench run --provider <yours>
 --suite core`. Submission is free, public, audit-trailed, and you keep
 the per-question outputs.

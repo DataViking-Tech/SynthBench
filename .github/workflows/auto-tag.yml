@@ -13,6 +13,9 @@ jobs:
   auto-tag:
     if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
+    outputs:
+      skipped: ${{ steps.check.outputs.skipped }}
+      tag: ${{ steps.bump.outputs.tag }}
     permissions:
       contents: write
       pull-requests: read
@@ -134,3 +137,67 @@ jobs:
         run: |
           VERSION="${NEW_TAG#v}"
           gh release create "$NEW_TAG" --generate-notes --title "v$VERSION"
+
+  # Publish to PyPI as `synthbench-eval` via GitHub Trusted Publishing (OIDC).
+  # Lives in this workflow (rather than a tag-triggered one) because the tag
+  # above is pushed with GITHUB_TOKEN, and GITHUB_TOKEN pushes do not trigger
+  # other workflows. Trusted publisher must be registered on PyPI with:
+  #   project = synthbench-eval, owner = DataViking-Tech, repo = SynthBench,
+  #   workflow = auto-tag.yml, environment = pypi
+  # pyproject.toml carries a placeholder version; the real version is stamped
+  # from the tag here at build time (tags are the version source of truth —
+  # committing bumps back to main would need a bypass-capable bot identity).
+  publish-pypi:
+    name: Publish synthbench-eval to PyPI
+    needs: auto-tag
+    if: needs.auto-tag.outputs.skipped != 'true' && needs.auto-tag.outputs.tag != ''
+    runs-on: ubuntu-latest
+    environment: pypi
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - name: Checkout release tag
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ needs.auto-tag.outputs.tag }}
+          persist-credentials: false
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      - name: Stamp version from tag
+        env:
+          NEW_TAG: ${{ needs.auto-tag.outputs.tag }}
+        run: |
+          VERSION="${NEW_TAG#v}"
+          sed -i "s/^version = \".*\"/version = \"${VERSION}\"/" pyproject.toml
+          sed -i "s/^__version__ = \".*\"/__version__ = \"${VERSION}\"/" src/synthbench/__init__.py
+          grep -n '^version' pyproject.toml
+          grep -n '^__version__' src/synthbench/__init__.py
+
+      - name: Build sdist and wheel
+        run: |
+          pip install build
+          python -m build
+          ls -lh dist/
+
+      # skip-existing makes manual re-runs idempotent.
+      - name: Publish to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          skip-existing: true
+
+      - name: Summarize
+        env:
+          NEW_TAG: ${{ needs.auto-tag.outputs.tag }}
+        run: |
+          VERSION="${NEW_TAG#v}"
+          {
+            echo "## Published synthbench-eval ${VERSION}"
+            echo ""
+            echo "- PyPI: https://pypi.org/project/synthbench-eval/${VERSION}/"
+            echo "- Install: \`pip install synthbench-eval==${VERSION}\`"
+          } >> "$GITHUB_STEP_SUMMARY"
