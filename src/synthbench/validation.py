@@ -1127,6 +1127,23 @@ def _validate_raw_responses(data: Mapping[str, Any]) -> list[Issue]:
         )
         return issues
 
+    # An empty list is the same absence of auditable output as a missing
+    # field — without this, `"raw_responses": []` dodges the v2 MISSING
+    # graduation and lands in the softer coverage warning instead.
+    if not raw_responses:
+        issues.append(
+            Issue(
+                code="RAW_RESPONSES_MISSING",
+                severity=Severity.WARNING,
+                message=(
+                    "'raw_responses' is empty — an empty list carries no "
+                    "auditable raw output (see SUBMISSIONS.md)"
+                ),
+                path="raw_responses",
+            )
+        )
+        return issues
+
     # Coverage check: fraction of questions that carry a sample.
     total_questions = len(per_question)
     min_required = max(1, int(math.ceil(total_questions * RAW_RESPONSE_MIN_COVERAGE)))

@@ -918,6 +918,26 @@ class TestSchemaVersionGraduation:
         error_codes = {i.code for i in report.errors}
         assert "RAW_RESPONSES_MISSING" in error_codes
 
+    def test_v1_empty_raw_responses_warns_missing(self, clean_submission):
+        """An empty list is the same absence as no field — MISSING, not COVERAGE."""
+        sub = copy.deepcopy(clean_submission)
+        sub["raw_responses"] = []
+        report = validate_submission(sub, tier3=True)
+        assert report.ok
+        warning_codes = {i.code for i in report.warnings}
+        assert "RAW_RESPONSES_MISSING" in warning_codes
+        assert "RAW_RESPONSES_COVERAGE" not in warning_codes
+
+    def test_v2_empty_raw_responses_is_error(self, clean_submission):
+        """v2 must reject `"raw_responses": []` — it dodged the graduation."""
+        sub = copy.deepcopy(clean_submission)
+        sub["schema_version"] = 2
+        sub["raw_responses"] = []
+        report = validate_submission(sub, tier3=True)
+        assert not report.ok, "v2 must reject submissions with empty raw_responses"
+        error_codes = {i.code for i in report.errors}
+        assert "RAW_RESPONSES_MISSING" in error_codes
+
     def test_v2_mode_desync_is_error(self, clean_submission):
         """v2 submissions whose raw sample disagrees with model_distribution fail."""
         sub = _with_raw_and_repro(clean_submission)

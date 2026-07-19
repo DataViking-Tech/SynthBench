@@ -587,6 +587,18 @@ class BenchmarkRunner:
             dist.n_samples if dist.n_samples is not None else self.samples_per_question
         )
         token_usage = dist.metadata.get("usage") if dist.metadata else None
+        # Same raw_sample extraction as _evaluate_question — the batched
+        # path previously dropped provider-attached samples on the floor,
+        # which left batch-capable distribution providers (synthpanel)
+        # unable to populate raw_responses at all.
+        raw_sample: dict | None = None
+        if dist.metadata:
+            sampled = dist.metadata.get("raw_sample")
+            if isinstance(sampled, dict) and sampled.get("raw_text"):
+                raw_sample = {
+                    "raw_text": str(sampled["raw_text"]),
+                    "selected_option": str(sampled.get("selected_option", "")),
+                }
 
         human_refusal_rate = extract_human_refusal_rate(question.human_distribution)
         jsd = jensen_shannon_divergence(question.human_distribution, model_dist)
@@ -608,6 +620,7 @@ class BenchmarkRunner:
             human_refusal_rate=human_refusal_rate,
             temporal_year=wave_year(question.survey),
             token_usage=token_usage,
+            raw_sample=raw_sample,
             latency_seconds=(
                 round(latency_seconds, 4) if latency_seconds is not None else None
             ),

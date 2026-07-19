@@ -46,6 +46,24 @@ except (ImportError, TypeError):
     _HAS_SYNTH_PANEL_API = False
 
 
+def _pick_raw_sample(samples: list[tuple[str, Any]], counts: Counter) -> dict | None:
+    """Pick one auditable ``{"raw_text", "selected_option"}`` sample.
+
+    Prefers a sample whose parsed option is the modal option of the final
+    distribution so Tier-3's mode-agreement check (``RAW_RESPONSES_MODE``,
+    an ERROR under schema v2) compares like with like; falls back to the
+    first successfully parsed sample.
+    """
+    if not samples:
+        return None
+    modal = counts.most_common(1)[0][0] if counts else None
+    for raw_text, opt in samples:
+        if opt == modal:
+            return {"raw_text": raw_text, "selected_option": str(opt)}
+    raw_text, opt = samples[0]
+    return {"raw_text": raw_text, "selected_option": str(opt)}
+
+
 def _yaml_escape(text: str) -> str:
     """Escape a string for embedding in double-quoted YAML."""
     text = str(text)  # Handle non-string options (e.g., floats from some datasets)
@@ -505,6 +523,7 @@ class SynthPanelProvider(Provider):
         refusals = 0
         parse_failures = 0
         infra_errors: list[BaseException] = []
+        parsed_samples: list[tuple[str, Any]] = []
         input_tokens_total = 0
         output_tokens_total = 0
         usage_calls = 0
@@ -512,13 +531,15 @@ class SynthPanelProvider(Provider):
             if isinstance(result, BaseException):
                 infra_errors.append(result)
                 continue
-            _raw_text, parsed = self._parse_api_response(result, options)
+            raw_text, parsed = self._parse_api_response(result, options)
             if parsed.refusal:
                 refusals += 1
             elif parsed.option is None:
                 parse_failures += 1
             else:
                 responses.append(parsed.option)
+                if raw_text and raw_text.strip():
+                    parsed_samples.append((raw_text, parsed.option))
             usage = getattr(result, "usage", None)
             if usage is not None:
                 input_tokens_total += getattr(usage, "input_tokens", 0) or 0
@@ -545,6 +566,9 @@ class SynthPanelProvider(Provider):
             }
         if infra_errors:
             metadata["n_infra_errors"] = len(infra_errors)
+        raw_sample = _pick_raw_sample(parsed_samples, counts)
+        if raw_sample is not None:
+            metadata["raw_sample"] = raw_sample
 
         return Distribution(
             probabilities=probs,
@@ -842,6 +866,7 @@ class SynthPanelProvider(Provider):
         responses: list[str] = []
         refusals = 0
         parse_failures = 0
+        parsed_samples: list[tuple[str, Any]] = []
         try:
             results = data["rounds"][0]["results"]
             for result in results:
@@ -854,6 +879,8 @@ class SynthPanelProvider(Provider):
                         parse_failures += 1
                     else:
                         responses.append(parsed.option)
+                        if raw_text and raw_text.strip():
+                            parsed_samples.append((raw_text, parsed.option))
         except (KeyError, IndexError):
             pass
 
@@ -862,12 +889,14 @@ class SynthPanelProvider(Provider):
         probs = [counts.get(opt, 0) / max(total, 1) for opt in options]
         refusal_prob = refusals / max(total, 1)
 
+        raw_sample = _pick_raw_sample(parsed_samples, counts)
         return Distribution(
             probabilities=probs,
             refusal_probability=refusal_prob,
             method="sampling",
             n_samples=total,
             n_parse_failures=parse_failures,
+            metadata={"raw_sample": raw_sample} if raw_sample else None,
         )
 
     async def _run_multi_cli(
@@ -931,6 +960,7 @@ class SynthPanelProvider(Provider):
         per_q_selected: list[list[str]] = [[] for _ in range(n_questions)]
         per_q_refusals: list[int] = [0] * n_questions
         per_q_parse_failures: list[int] = [0] * n_questions
+        per_q_samples: list[list[tuple[str, Any]]] = [[] for _ in range(n_questions)]
 
         try:
             results = data["rounds"][0]["results"]
@@ -946,6 +976,8 @@ class SynthPanelProvider(Provider):
                             per_q_parse_failures[q_idx] += 1
                         else:
                             per_q_selected[q_idx].append(parsed.option)
+                            if raw_text and raw_text.strip():
+                                per_q_samples[q_idx].append((raw_text, parsed.option))
                     else:
                         per_q_parse_failures[q_idx] += 1
         except (KeyError, IndexError):
@@ -961,6 +993,7 @@ class SynthPanelProvider(Provider):
             opts = options_list[q_idx]
             probs = [counts.get(opt, 0) / max(total, 1) for opt in opts]
             refusal_prob = refusals / max(total, 1)
+            raw_sample = _pick_raw_sample(per_q_samples[q_idx], counts)
             distributions.append(
                 Distribution(
                     probabilities=probs,
@@ -968,6 +1001,7 @@ class SynthPanelProvider(Provider):
                     method="sampling",
                     n_samples=total,
                     n_parse_failures=per_q_parse_failures[q_idx],
+                    metadata={"raw_sample": raw_sample} if raw_sample else None,
                 )
             )
 

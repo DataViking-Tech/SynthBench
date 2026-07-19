@@ -17,6 +17,7 @@ Covers the P1-8 / P1-7 fixes:
 from __future__ import annotations
 
 import asyncio
+from collections import Counter
 from types import SimpleNamespace
 from unittest.mock import AsyncMock
 
@@ -937,3 +938,144 @@ async def test_structured_mode_out_of_enum_is_parse_failure(monkeypatch):
     assert dist.n_samples == 1
     assert dist.refusal_probability == 0.0
     assert dist.probabilities[0] == pytest.approx(1.0)
+
+
+# ---------------------------------------------------------------------------
+# raw_sample propagation (Tier-3 raw_responses)
+# ---------------------------------------------------------------------------
+
+
+def test_pick_raw_sample_prefers_modal_option():
+    from synthbench.providers.synthpanel import _pick_raw_sample
+
+    counts = Counter({"B": 3, "A": 1})
+    samples = [("I'd say A", "A"), ("Definitely B", "B")]
+    assert _pick_raw_sample(samples, counts) == {
+        "raw_text": "Definitely B",
+        "selected_option": "B",
+    }
+
+
+def test_pick_raw_sample_falls_back_to_first():
+    from synthbench.providers.synthpanel import _pick_raw_sample
+
+    counts = Counter({"C": 5})
+    # No sample matches the modal option — fall back to the first kept one.
+    assert _pick_raw_sample([("I'd say A", "A")], counts) == {
+        "raw_text": "I'd say A",
+        "selected_option": "A",
+    }
+    assert _pick_raw_sample([], counts) is None
+
+
+class _RawSampleBatchProvider(_ZeroSampleProvider):
+    """Batch distribution provider that attaches metadata['raw_sample']."""
+
+    @property
+    def name(self) -> str:
+        return "mock/raw-sample"
+
+    async def get_distribution(
+        self, question, options, *, persona=None, n_samples=None
+    ):
+        return Distribution(
+            probabilities=[1.0] + [0.0] * (len(options) - 1),
+            method="sampling",
+            n_samples=n_samples or 30,
+            n_parse_failures=0,
+            metadata={
+                "raw_sample": {
+                    "raw_text": f"I pick {options[0]}",
+                    "selected_option": options[0],
+                }
+            },
+        )
+
+    async def batch_get_distribution(
+        self, questions, options_list, *, persona=None, n_samples=None
+    ):
+        return [
+            await self.get_distribution(q, opts, n_samples=n_samples)
+            for q, opts in zip(questions, options_list)
+        ]
+
+
+@pytest.mark.asyncio
+async def test_batched_runner_propagates_raw_sample(mock_dataset):
+    """The batch path must not drop provider-attached raw samples.
+
+    Regression: _build_question_result never read metadata['raw_sample'],
+    so batch-capable distribution providers (synthpanel) shipped schema-v2
+    results with empty raw_responses.
+    """
+    runner = BenchmarkRunner(
+        dataset=mock_dataset,
+        provider=_RawSampleBatchProvider(),
+        samples_per_question=30,
+    )
+    result = await runner.run(n=2)
+    assert result.questions
+    for qr in result.questions:
+        assert qr.raw_sample is not None
+        assert qr.raw_sample["raw_text"] == f"I pick {qr.options[0]}"
+        assert qr.raw_sample["selected_option"] == str(qr.options[0])
+
+
+@pytest.mark.asyncio
+async def test_synthpanel_cli_batch_attaches_raw_sample(monkeypatch):
+    from synthbench.providers import synthpanel as sp_mod
+
+    monkeypatch.setattr(sp_mod, "_HAS_SYNTH_PANEL_API", False)
+    provider = sp_mod.SynthPanelProvider(model="haiku", synthpanel_path="/bin/echo")
+
+    canned = {
+        "rounds": [
+            {
+                "results": [
+                    {"responses": [{"response": "(A) Yes"}]},
+                    {"responses": [{"response": "I'd go with Yes"}]},
+                    {"responses": [{"response": "No"}]},
+                ]
+            }
+        ]
+    }
+
+    async def _fake_subprocess(cmd):
+        return canned
+
+    monkeypatch.setattr(provider, "_run_subprocess", _fake_subprocess)
+    dist = await provider._run_batch("inst.yaml", "pers.yaml", ["Yes", "No"], 3)
+    assert dist.metadata is not None and "raw_sample" in dist.metadata
+    sample = dist.metadata["raw_sample"]
+    # Modal option (2× Yes vs 1× No) — and the kept raw text is a real
+    # panelist response, not a synthesized string.
+    assert sample["selected_option"] == "Yes"
+    assert sample["raw_text"] in ("(A) Yes", "I'd go with Yes")
+
+
+@pytest.mark.asyncio
+async def test_synthpanel_api_distribution_attaches_raw_sample(monkeypatch):
+    from synthbench.providers import synthpanel as sp_mod
+
+    provider = sp_mod.SynthPanelProvider(model="haiku")
+    if not provider._use_api:
+        pytest.skip("synth_panel API not importable")
+
+    calls = iter(["(B) No", "(A) Yes", "(A) Yes"])
+
+    def _fake_send(request):
+        return SimpleNamespace(
+            text=next(calls),
+            usage=SimpleNamespace(input_tokens=10, output_tokens=2),
+            model="haiku",
+            tool_calls=None,
+        )
+
+    provider._client = SimpleNamespace(send=_fake_send)
+    dist = await provider._get_distribution_api("Q?", ["Yes", "No"], None, 3)
+    assert dist.metadata is not None
+    sample = dist.metadata["raw_sample"]
+    # Modal option is Yes (2 of 3); the kept sample must agree with it.
+    assert sample["selected_option"] == "Yes"
+    assert sample["raw_text"] == "(A) Yes"
+    await provider.close()
