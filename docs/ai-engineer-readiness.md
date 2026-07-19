@@ -244,7 +244,7 @@ submissions rather than hiding them."*
 Switch to terminal. *"If you want to put your model on this board, it's three
 commands."* Type but don't execute:
 ```
-pip install "synthbench @ git+https://github.com/DataViking-Tech/SynthBench.git"
+pip install "synthbench-eval @ git+https://github.com/DataViking-Tech/SynthBench.git"
 synthbench run --dataset opinionsqa --provider openai --model gpt-5
 # upload run JSON → CI recomputes all scores → merged → live
 ```

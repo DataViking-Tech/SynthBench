@@ -35,7 +35,7 @@ const nExcluded = leaderboard.excluded_runs?.length ?? 0;
 // name `synthbench` belongs to an unrelated project, so install from the
 // repo; `[subpop]` pulls the HF datasets extra the subpop adapter needs.
 const reproduceCommands = [
-  'pip install "synthbench[subpop] @ git+https://github.com/DataViking-Tech/SynthBench.git"',
+  'pip install "synthbench-eval[subpop] @ git+https://github.com/DataViking-Tech/SynthBench.git"',
   "synthbench run --provider <yours> --dataset subpop --samples 30",
   "synthbench validate results/<your-run>.json",
   "synthbench compare results/<your-run>.json <any-published-run>.json",

@@ -66,7 +66,7 @@ class RawGeminiProvider(Provider):
         except ImportError:
             raise ImportError(
                 "openai package required. Install with: "
-                "pip install 'synthbench[openai] @ git+https://github.com/DataViking-Tech/SynthBench.git'"
+                "pip install 'synthbench-eval[openai] @ git+https://github.com/DataViking-Tech/SynthBench.git'"
             )
 
         gemini_key = os.environ.get("GEMINI_API_KEY")
