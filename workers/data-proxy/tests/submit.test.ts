@@ -162,7 +162,7 @@ describe("validateTier1", () => {
       baseSubmission({
         config: {
           model: "google/gemini-2.5-flash-lite",
-          provider: "SynthPanel Ensemble (3-model)",
+          provider: "Althing Ensemble (3-model)",
           dataset: "globalopinionqa",
           framework: "meta-llama/llama-3.3-70b-instruct",
         },

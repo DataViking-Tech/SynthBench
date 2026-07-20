@@ -27,46 +27,57 @@ MODEL_MAP: dict[str, tuple[str, str]] = {
     "raw-anthropic/claude-haiku-4-5-20251001": ("Claude Haiku 4.5", "raw"),
     "raw-gemini/gemini-2.5-flash-lite": ("Gemini Flash Lite", "raw"),
     # Products (orchestration / adapter layers)
-    "synthpanel/claude-haiku-4-5-20251001": ("SynthPanel (Haiku 4.5)", "product"),
-    "synthpanel/gemini-2.5-flash-lite": (
-        "SynthPanel (Gemini Flash Lite)",
+    "althing/claude-haiku-4-5-20251001": ("Althing (Haiku 4.5)", "product"),
+    "althing/gemini-2.5-flash-lite": (
+        "Althing (Gemini Flash Lite)",
         "product",
     ),
     # Products — via OpenRouter
-    "synthpanel/openrouter/anthropic/claude-haiku-4-5": (
-        "SynthPanel (Haiku 4.5)",
+    "althing/openrouter/anthropic/claude-haiku-4-5": (
+        "Althing (Haiku 4.5)",
         "product",
     ),
-    "synthpanel/openrouter/google/gemini-2.5-flash-lite": (
-        "SynthPanel (Gemini Flash Lite)",
+    "althing/openrouter/google/gemini-2.5-flash-lite": (
+        "Althing (Gemini Flash Lite)",
         "product",
     ),
-    "synthpanel/openrouter/openai/gpt-4o-mini": (
-        "SynthPanel (GPT-4o-mini)",
+    "althing/openrouter/openai/gpt-4o-mini": (
+        "Althing (GPT-4o-mini)",
         "product",
     ),
-    "synthpanel/openrouter/anthropic/claude-sonnet-4": (
-        "SynthPanel (Sonnet 4)",
+    "althing/openrouter/anthropic/claude-sonnet-4": (
+        "Althing (Sonnet 4)",
         "product",
     ),
-    "synthpanel/openrouter/meta-llama/llama-3.3-70b-instruct": (
-        "SynthPanel (Llama 3.3 70B)",
+    "althing/openrouter/meta-llama/llama-3.3-70b-instruct": (
+        "Althing (Llama 3.3 70B)",
         "product",
     ),
-    "synthpanel/gpt-4o-mini": ("SynthPanel (GPT-4o-mini)", "product"),
+    "althing/gpt-4o-mini": ("Althing (GPT-4o-mini)", "product"),
     # Ensemble
-    "ensemble/3-model-blend": ("SynthPanel Ensemble (3-model)", "product"),
+    "ensemble/3-model-blend": ("Althing Ensemble (3-model)", "product"),
     # Baselines
     "random-baseline": ("Random Baseline", "baseline"),
     "majority-baseline": ("Majority Baseline", "baseline"),
 }
 
+# Historical alias: results recorded before the 2026-07 rename carry the
+# `synthpanel/` provider prefix. Same taxonomy entry, old id — display names
+# intentionally show the current brand (Althing) for both.
+MODEL_MAP.update(
+    {
+        key.replace("althing/", "synthpanel/", 1): value
+        for key, value in list(MODEL_MAP.items())
+        if key.startswith("althing/")
+    }
+)
+
 
 def _parse_provider_base(provider: str) -> str:
     """Strip temperature/template suffixes from provider name.
 
-    'synthpanel/openrouter/anthropic/claude-haiku-4-5 t=0.85 tpl=current'
-    → 'synthpanel/openrouter/anthropic/claude-haiku-4-5'
+    'althing/openrouter/anthropic/claude-haiku-4-5 t=0.85 tpl=current'
+    → 'althing/openrouter/anthropic/claude-haiku-4-5'
     """
     return provider.split(" t=")[0].split(" tpl=")[0].split(" profile=")[0].strip()
 
@@ -113,8 +124,8 @@ def _config_key(result: dict) -> tuple:
 def _canonicalize_provider_model_segment(provider: str) -> str:
     """Strip a version-date suffix from the model (last) path segment.
 
-    ``synthpanel/claude-haiku-4-5-20251001`` →
-    ``synthpanel/claude-haiku-4-5``. Used to collapse dated and undated
+    ``althing/claude-haiku-4-5-20251001`` →
+    ``althing/claude-haiku-4-5``. Used to collapse dated and undated
     aliases of the same underlying model when looking up MODEL_MAP.
     """
     from synthbench.config_id import canonical_model
@@ -132,7 +143,7 @@ def _canonicalize_provider_model_segment(provider: str) -> str:
 def display_provider_name(provider: str) -> str:
     """Map full provider paths to human-friendly display names via MODEL_MAP.
 
-    Handles suffixed names like 'synthpanel/... t=0.85 tpl=current' by
+    Handles suffixed names like 'althing/... t=0.85 tpl=current' by
     stripping suffixes before lookup. Also normalizes Anthropic-style
     ``-YYYYMMDD`` and OpenAI-style ``-YYYY-MM-DD`` model-version dates so
     aliased + dated forms collapse to a single display name.

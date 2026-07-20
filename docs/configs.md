@@ -27,7 +27,7 @@ synthbench validate-config configs/healthcare-northcentral.yaml
 #    row instead of bare {vendor}.
 synthbench submit \
     --config configs/healthcare-northcentral.yaml \
-    results/synthpanel_healthcare_run.json
+    results/althing_healthcare_run.json
 ```
 
 ## Schema
@@ -35,7 +35,7 @@ synthbench submit \
 ```yaml
 # Required. Vendor adapter the result was produced against. Must match a
 # registered vendor; the leaderboard groups rows by this field.
-vendor: synthpanel
+vendor: althing
 
 # Required. Free-form version string the contributor declares. Reported on
 # the leaderboard row so two configs against different vendor releases stay
@@ -89,7 +89,7 @@ decoding:
 # Optional. Free-form note shown under the row. Don't paste secrets here —
 # everything in the artifact is public on the leaderboard.
 notes: |
-  Optimized for healthcare workers in NC/MN/WI/IA. Beats synthpanel/default
+  Optimized for healthcare workers in NC/MN/WI/IA. Beats althing/default
   by ~6 pp on the targeted slice; tie elsewhere.
 ```
 
@@ -142,7 +142,7 @@ under their vendor default.
   "aggregate": { "..." },
   "per_question": [ "..." ],
   "user_config": {
-    "vendor": "synthpanel",
+    "vendor": "althing",
     "vendor_version": "1.4.0",
     "config_name": "wesley-healthcare-northcentral",
     "contributor": "@wesley",

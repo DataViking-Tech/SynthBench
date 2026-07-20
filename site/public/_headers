@@ -4,7 +4,7 @@
 # Rules are applied in source order; later rules can override earlier ones.
 
 # Public JSON data endpoints — long-ish browser cache + longer edge cache, with
-# stale-while-revalidate so consumers (SynthPanel, agents, dashboards) never
+# stale-while-revalidate so consumers (Althing, agents, dashboards) never
 # block on a slow upstream regeneration. The endpoint itself sets the same
 # Cache-Control in src/pages/data/leaderboard.json.ts; this rule wins on CF
 # Pages because static-asset upload strips runtime headers from the file.

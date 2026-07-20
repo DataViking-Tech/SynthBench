@@ -4,7 +4,7 @@ An "invalid" run is one whose per-question ``model_distribution`` fields are
 overwhelmingly perfectly uniform (``{A: 0.25, B: 0.25, ...}`` for a 4-option
 question), coupled with near-zero refusal activity. This is the signature of
 a silent API failure — provider returned empty distributions, model alias
-missed, budget exhaustion, synthpanel fallback — that still parsed cleanly
+missed, budget exhaustion, althing fallback — that still parsed cleanly
 but produced no usable signal.
 
 Existing ``parse_failure_rate`` tracking does NOT catch this class: the run

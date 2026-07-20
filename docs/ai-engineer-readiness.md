@@ -75,7 +75,7 @@ one-sentence "what is SPS, what does ⚠ mean" orienting callout above the table
    `/leaderboard`: *"✓ verified = public/private SPS within 0.05 tolerance. ⚠ flagged
    = divergence requires review — the row is still displayed for transparency."*
    Without this, a skeptical visitor sees ⚠ on row #2 (Gemini 2.5 Flash) and ⚠ on the
-   SynthPanel Ensemble and walks away questioning the whole board.
+   Althing Ensemble and walks away questioning the whole board.
 
 4. **Missing 2026 frontier models.** The raw-LLM column is dominated by 2024-vintage
    models (GPT-4o-mini, Gemini 2.5 Flash, Llama 3.3 70B, Haiku 4.5, Sonnet 4). At AI
@@ -129,10 +129,10 @@ one-sentence "what is SPS, what does ⚠ mean" orienting callout above the table
 
 ## 4. Synthetic survey — AI engineer attendees
 
-### Execution note — synthpanel could not run in this session
+### Execution note — althing could not run in this session
 
-`synthpanel prompt ...` failed with `Missing API key: set ANTHROPIC_API_KEY` in my
-sandbox. The CLI is installed (`/opt/homebrew/bin/synthpanel`) but no provider key
+`althing prompt ...` failed with `Missing API key: set ANTHROPIC_API_KEY` in my
+sandbox. The CLI is installed (`/opt/homebrew/bin/althing`) but no provider key
 is present in the crew/cpo environment and I am not authorized to source one. I
 flagged this so that a follow-up session with a key can replay the exact prompt
 verbatim and append raw responses to this document.
@@ -140,7 +140,7 @@ verbatim and append raw responses to this document.
 **Command to re-run when a key is available:**
 
 ```bash
-synthpanel --output-format json prompt "You are an AI engineer attending \
+althing --output-format json prompt "You are an AI engineer attending \
 AI Engineer Miami 2026. You just visited synthbench.org — an open MIT-licensed \
 benchmark measuring how well LLMs replicate human survey response distributions. \
 It has 395 leaderboard entries, OpinionsQA + GlobalOpinionQA + SubPOP as ground \
@@ -150,12 +150,12 @@ public repo. Give an honest first impression in 3-5 sentences. What would make \
 you want to submit your own benchmark run?"
 ```
 
-(Better: `synthpanel panel run` with a 10-persona "AI-engineer-attendee" pack.)
+(Better: `althing panel run` with a 10-persona "AI-engineer-attendee" pack.)
 
 ### Reasoned audience simulation (substitute — label as such in public use)
 
 Based on the canonical AI-engineer-audience response patterns documented in prior
-SynthPanel runs and community sentiment analysis, the expected distribution of
+Althing runs and community sentiment analysis, the expected distribution of
 first-impression responses clusters into four archetypes:
 
 **Archetype A — "The skeptical evaluator" (~35%).** *"First question: is this
@@ -186,7 +186,7 @@ That's actually reassuring. Still want to see more recent models."*
 - The 10-minute API-key upload path (beats PR-and-fork 3:1 for conversion)
 - Seeing their preferred provider/framework already represented
 - A clear "your row will appear in < 1 merge cycle" expectation
-- The ability to add a product/framework row (SynthPanel-style) alongside a raw-LLM
+- The ability to add a product/framework row (Althing-style) alongside a raw-LLM
   row — i.e. compete on *methodology* not just model choice
 
 **Common drop-off triggers** (what kills conversion):
@@ -195,7 +195,7 @@ That's actually reassuring. Still want to see more recent models."*
 - Fork-and-PR friction for non-GitHub-native users
 - Unclear how long a run takes / what it costs
 
-I recommend treating this simulation as directional until a real SynthPanel run
+I recommend treating this simulation as directional until a real Althing run
 replaces it — specifically, panel A/B/C/D proportions are my estimates from
 conference audience composition, not measured. Conversion-trigger list is grounded
 in the observed UX of the current submit flow.
@@ -286,8 +286,8 @@ during prep; bring up the offline copy and narrate over it. Don't improvise.
 - [ ] Confirm Supabase sign-in works on conference wifi for a gated dataset drill-down.
 - [ ] Pre-cache static site offline on the demo laptop as wifi backup.
 - [ ] Rehearse the 3-minute script twice end-to-end with a timer.
-- [ ] When an API key is available, run the synthpanel command in §4 and append raw
-      responses under a "Live synthpanel output" heading below.
+- [ ] When an API key is available, run the althing command in §4 and append raw
+      responses under a "Live althing output" heading below.
 
 ---
 

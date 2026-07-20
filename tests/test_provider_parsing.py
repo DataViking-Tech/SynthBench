@@ -257,25 +257,25 @@ def test_constructors_reject_unknown_kwargs(monkeypatch):
         MajorityBaselineProvider(temperature=0.5)
 
 
-def test_synthpanel_prompt_template_forces_cli_path(monkeypatch, tmp_path):
+def test_althing_prompt_template_forces_cli_path(monkeypatch, tmp_path):
     """A --prompt-template run must never take the direct API path.
 
     The API path builds its own persona/system prompt and has no seam for
-    the synthpanel template override — it only stamped the template into
+    the althing template override — it only stamped the template into
     the provider name and prompt hash, so a ``tpl=<name>`` run would
     silently execute the default prompt (untrue leaderboard metadata).
-    Only the CLI path threads --prompt-template through to synthpanel.
+    Only the CLI path threads --prompt-template through to althing.
     """
-    from synthbench.providers import synthpanel as sp_mod
+    from synthbench.providers import althing as sp_mod
 
     tpl = tmp_path / "custom.txt"
     tpl.write_text("You are {name}.")
 
-    # Even with the synth_panel API importable, a template override must
+    # Even with the althing API importable, a template override must
     # route through the CLI.
     monkeypatch.setattr(sp_mod, "_HAS_SYNTH_PANEL_API", True)
-    provider = sp_mod.SynthPanelProvider(
-        model="haiku", prompt_template=str(tpl), synthpanel_path="/bin/echo"
+    provider = sp_mod.AlthingProvider(
+        model="haiku", prompt_template=str(tpl), althing_path="/bin/echo"
     )
     assert provider._use_api is False
     cmd = provider._build_cmd("inst.yaml", "pers.yaml")
@@ -283,16 +283,16 @@ def test_synthpanel_prompt_template_forces_cli_path(monkeypatch, tmp_path):
     assert cmd[idx + 1] == str(tpl)
     # Template-free runs keep the fast API path.
     monkeypatch.setattr(sp_mod, "LLMClient", lambda: object(), raising=False)
-    default_provider = sp_mod.SynthPanelProvider(model="haiku")
+    default_provider = sp_mod.AlthingProvider(model="haiku")
     assert default_provider._use_api is True
 
 
-def test_synthpanel_temperature_reaches_cli_command(monkeypatch, tmp_path):
-    from synthbench.providers import synthpanel as sp_mod
+def test_althing_temperature_reaches_cli_command(monkeypatch, tmp_path):
+    from synthbench.providers import althing as sp_mod
 
     monkeypatch.setattr(sp_mod, "_HAS_SYNTH_PANEL_API", False)
-    provider = sp_mod.SynthPanelProvider(
-        model="haiku", temperature=0.4, synthpanel_path="/bin/echo"
+    provider = sp_mod.AlthingProvider(
+        model="haiku", temperature=0.4, althing_path="/bin/echo"
     )
     cmd = provider._build_cmd("inst.yaml", "pers.yaml")
     idx = cmd.index("--temperature")
@@ -626,7 +626,7 @@ def test_missing_n_samples_field_not_counted_as_zero():
 
 
 # ---------------------------------------------------------------------------
-# synthpanel CLI fallbacks: infra failures raise, never fabricate
+# althing CLI fallbacks: infra failures raise, never fabricate
 # ---------------------------------------------------------------------------
 
 
@@ -640,11 +640,11 @@ class _FakeProc:
         return self._stdout, self._stderr
 
 
-def _cli_synthpanel_provider(monkeypatch):
-    from synthbench.providers import synthpanel as sp_mod
+def _cli_althing_provider(monkeypatch):
+    from synthbench.providers import althing as sp_mod
 
     monkeypatch.setattr(sp_mod, "_HAS_SYNTH_PANEL_API", False)
-    return sp_mod.SynthPanelProvider(model="haiku", synthpanel_path="/bin/echo")
+    return sp_mod.AlthingProvider(model="haiku", althing_path="/bin/echo")
 
 
 def _patch_subprocess(monkeypatch, proc: _FakeProc):
@@ -655,26 +655,26 @@ def _patch_subprocess(monkeypatch, proc: _FakeProc):
 
 
 @pytest.mark.asyncio
-async def test_synthpanel_subprocess_failure_raises_not_uniform(monkeypatch):
-    provider = _cli_synthpanel_provider(monkeypatch)
+async def test_althing_subprocess_failure_raises_not_uniform(monkeypatch):
+    provider = _cli_althing_provider(monkeypatch)
     _patch_subprocess(monkeypatch, _FakeProc(returncode=1, stderr=b"boom"))
     with pytest.raises(ProviderError):
         await provider.get_distribution("Q?", ["Yes", "No"], n_samples=3)
 
 
 @pytest.mark.asyncio
-async def test_synthpanel_bad_json_raises_not_uniform(monkeypatch):
-    provider = _cli_synthpanel_provider(monkeypatch)
+async def test_althing_bad_json_raises_not_uniform(monkeypatch):
+    provider = _cli_althing_provider(monkeypatch)
     _patch_subprocess(monkeypatch, _FakeProc(returncode=0, stdout=b"not json"))
     with pytest.raises(ProviderError):
         await provider.get_distribution("Q?", ["Yes", "No"], n_samples=3)
 
 
 @pytest.mark.asyncio
-async def test_synthpanel_batch_classifies_responses(monkeypatch):
+async def test_althing_batch_classifies_responses(monkeypatch):
     import json as _json
 
-    provider = _cli_synthpanel_provider(monkeypatch)
+    provider = _cli_althing_provider(monkeypatch)
     payload = {
         "rounds": [
             {
@@ -701,8 +701,8 @@ async def test_synthpanel_batch_classifies_responses(monkeypatch):
 
 
 @pytest.mark.asyncio
-async def test_synthpanel_respond_failure_raises(monkeypatch):
-    provider = _cli_synthpanel_provider(monkeypatch)
+async def test_althing_respond_failure_raises(monkeypatch):
+    provider = _cli_althing_provider(monkeypatch)
     _patch_subprocess(monkeypatch, _FakeProc(returncode=2, stderr=b"crashed"))
     with pytest.raises(ProviderError):
         await provider.respond("Q?", ["Yes", "No"])
@@ -852,8 +852,8 @@ def test_refusal_detector_version_constant():
 
 
 def _structured_provider(monkeypatch, answers):
-    """SynthPanel provider in structured mode with a stubbed API client."""
-    from synthbench.providers import synthpanel as sp_mod
+    """Althing provider in structured mode with a stubbed API client."""
+    from synthbench.providers import althing as sp_mod
 
     monkeypatch.setattr(sp_mod, "_HAS_SYNTH_PANEL_API", True)
 
@@ -886,7 +886,7 @@ def _structured_provider(monkeypatch, answers):
             )
 
     monkeypatch.setattr(sp_mod, "LLMClient", lambda: _FakeClient())
-    provider = sp_mod.SynthPanelProvider(model="haiku", elicitation="structured")
+    provider = sp_mod.AlthingProvider(model="haiku", elicitation="structured")
     return provider, calls
 
 
@@ -894,9 +894,9 @@ def test_structured_mode_is_distinct_template_identity(monkeypatch):
     provider, _ = _structured_provider(monkeypatch, ["Yes"])
     assert "tpl=structured" in provider.name
     # The prompt surface hash must differ from the natural mode's.
-    from synthbench.providers import synthpanel as sp_mod
+    from synthbench.providers import althing as sp_mod
 
-    natural = sp_mod.SynthPanelProvider.__new__(sp_mod.SynthPanelProvider)
+    natural = sp_mod.AlthingProvider.__new__(sp_mod.AlthingProvider)
     natural._model = "haiku"
     natural._prompt_template = None
     natural._elicitation = "natural"
@@ -904,14 +904,14 @@ def test_structured_mode_is_distinct_template_identity(monkeypatch):
 
 
 def test_structured_mode_rejects_prompt_template():
-    from synthbench.providers import synthpanel as sp_mod
+    from synthbench.providers import althing as sp_mod
 
     with pytest.raises(ValueError):
-        sp_mod.SynthPanelProvider(
+        sp_mod.AlthingProvider(
             model="haiku", elicitation="structured", prompt_template="x.md"
         )
     with pytest.raises(ValueError):
-        sp_mod.SynthPanelProvider(model="haiku", elicitation="nope")
+        sp_mod.AlthingProvider(model="haiku", elicitation="nope")
 
 
 @pytest.mark.asyncio
@@ -946,7 +946,7 @@ async def test_structured_mode_out_of_enum_is_parse_failure(monkeypatch):
 
 
 def test_pick_raw_sample_prefers_modal_option():
-    from synthbench.providers.synthpanel import _pick_raw_sample
+    from synthbench.providers.althing import _pick_raw_sample
 
     counts = Counter({"B": 3, "A": 1})
     samples = [("I'd say A", "A"), ("Definitely B", "B")]
@@ -957,7 +957,7 @@ def test_pick_raw_sample_prefers_modal_option():
 
 
 def test_pick_raw_sample_falls_back_to_first():
-    from synthbench.providers.synthpanel import _pick_raw_sample
+    from synthbench.providers.althing import _pick_raw_sample
 
     counts = Counter({"C": 5})
     # No sample matches the modal option — fall back to the first kept one.
@@ -1005,7 +1005,7 @@ async def test_batched_runner_propagates_raw_sample(mock_dataset):
     """The batch path must not drop provider-attached raw samples.
 
     Regression: _build_question_result never read metadata['raw_sample'],
-    so batch-capable distribution providers (synthpanel) shipped schema-v2
+    so batch-capable distribution providers (althing) shipped schema-v2
     results with empty raw_responses.
     """
     runner = BenchmarkRunner(
@@ -1022,11 +1022,11 @@ async def test_batched_runner_propagates_raw_sample(mock_dataset):
 
 
 @pytest.mark.asyncio
-async def test_synthpanel_cli_batch_attaches_raw_sample(monkeypatch):
-    from synthbench.providers import synthpanel as sp_mod
+async def test_althing_cli_batch_attaches_raw_sample(monkeypatch):
+    from synthbench.providers import althing as sp_mod
 
     monkeypatch.setattr(sp_mod, "_HAS_SYNTH_PANEL_API", False)
-    provider = sp_mod.SynthPanelProvider(model="haiku", synthpanel_path="/bin/echo")
+    provider = sp_mod.AlthingProvider(model="haiku", althing_path="/bin/echo")
 
     canned = {
         "rounds": [
@@ -1054,12 +1054,12 @@ async def test_synthpanel_cli_batch_attaches_raw_sample(monkeypatch):
 
 
 @pytest.mark.asyncio
-async def test_synthpanel_api_distribution_attaches_raw_sample(monkeypatch):
-    from synthbench.providers import synthpanel as sp_mod
+async def test_althing_api_distribution_attaches_raw_sample(monkeypatch):
+    from synthbench.providers import althing as sp_mod
 
-    provider = sp_mod.SynthPanelProvider(model="haiku")
+    provider = sp_mod.AlthingProvider(model="haiku")
     if not provider._use_api:
-        pytest.skip("synth_panel API not importable")
+        pytest.skip("althing API not importable")
 
     calls = iter(["(B) No", "(A) Yes", "(A) Yes"])
 

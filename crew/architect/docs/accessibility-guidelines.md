@@ -228,7 +228,7 @@ Color-only encoding fails for ~8% of male users (colorblindness). For small stac
 ### Badges
 
 - `bg-accent/15 text-accent` — acceptable with the darker accent token (verify per-instance).
-- Provider tags (`bg-provider-synthpanel/10 text-provider-synthpanel`) — provider colors are hex literals; check each one against the surfaces they sit on.
+- Provider tags (`bg-provider-althing/10 text-provider-althing`) — provider colors are hex literals; check each one against the surfaces they sit on.
 
 ---
 

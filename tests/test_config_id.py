@@ -34,23 +34,23 @@ class TestParseProvider:
         assert p.base_provider == "meta"
         assert p.model == "llama-3.3-70b-instruct"
 
-    def test_synthpanel_nested_four_parts(self):
-        p = parse_provider("synthpanel/openrouter/anthropic/claude-haiku-4-5")
-        assert p.framework == "synthpanel"
+    def test_althing_nested_four_parts(self):
+        p = parse_provider("althing/openrouter/anthropic/claude-haiku-4-5")
+        assert p.framework == "althing"
         assert p.base_provider == "anthropic"
         assert p.model == "claude-haiku-4-5"
         assert p.knobs == {}
 
-    def test_synthpanel_direct_claude_infers_anthropic(self):
-        """`synthpanel/<model>` with no vendor segment infers from model name."""
-        p = parse_provider("synthpanel/claude-haiku-4-5-20251001")
-        assert p.framework == "synthpanel"
+    def test_althing_direct_claude_infers_anthropic(self):
+        """`althing/<model>` with no vendor segment infers from model name."""
+        p = parse_provider("althing/claude-haiku-4-5-20251001")
+        assert p.framework == "althing"
         assert p.base_provider == "anthropic"
         assert p.model == "claude-haiku-4-5-20251001"
 
-    def test_synthpanel_direct_gemini_infers_google(self):
-        p = parse_provider("synthpanel/gemini-2.5-flash-lite")
-        assert p.framework == "synthpanel"
+    def test_althing_direct_gemini_infers_google(self):
+        p = parse_provider("althing/gemini-2.5-flash-lite")
+        assert p.framework == "althing"
         assert p.base_provider == "google"
         assert p.model == "gemini-2.5-flash-lite"
 
@@ -87,17 +87,17 @@ class TestParseProvider:
 
     def test_knobs_parsed(self):
         p = parse_provider(
-            "synthpanel/openrouter/anthropic/claude-haiku-4-5 t=0.85 tpl=current"
+            "althing/openrouter/anthropic/claude-haiku-4-5 t=0.85 tpl=current"
         )
         assert p.knobs == {"t": "0.85", "tpl": "current"}
 
     def test_knobs_order_independent(self):
-        a = parse_provider("synthpanel/x/y/z t=0.5 tpl=minimal")
-        b = parse_provider("synthpanel/x/y/z tpl=minimal t=0.5")
+        a = parse_provider("althing/x/y/z t=0.5 tpl=minimal")
+        b = parse_provider("althing/x/y/z tpl=minimal t=0.5")
         assert a.knobs == b.knobs
 
     def test_malformed_knob_ignored(self):
-        p = parse_provider("synthpanel/x/y/z notakey t=0.5")
+        p = parse_provider("althing/x/y/z notakey t=0.5")
         assert p.knobs == {"t": "0.5"}
 
     def test_empty_string(self):
@@ -114,7 +114,7 @@ class TestParseProvider:
 class TestBuildConfigId:
     def test_slug_shape(self):
         slug, _ = build_config_id(
-            "synthpanel/openrouter/anthropic/claude-haiku-4-5",
+            "althing/openrouter/anthropic/claude-haiku-4-5",
             dataset="opinionsqa",
             temperature=0.85,
             template="current",
@@ -122,7 +122,7 @@ class TestBuildConfigId:
         # framework--model--t<temp>--tpl<name>--<hash8>
         parts = slug.split("--")
         assert len(parts) == 5
-        assert parts[0] == "synthpanel"
+        assert parts[0] == "althing"
         assert parts[1] == "claude-haiku-4-5"
         assert parts[2] == "t0.85"
         assert parts[3] == "tplcurrent"
@@ -131,7 +131,7 @@ class TestBuildConfigId:
 
     def test_hash_deterministic(self):
         args = {
-            "provider": "synthpanel/openrouter/openai/gpt-4o-mini",
+            "provider": "althing/openrouter/openai/gpt-4o-mini",
             "dataset": "opinionsqa",
             "temperature": 0.5,
             "template": "current",
@@ -144,11 +144,11 @@ class TestBuildConfigId:
         """Same canonical config from different provider-string orderings
         must produce the same slug."""
         s1, _ = build_config_id(
-            "synthpanel/x/y/z t=0.85 tpl=current",
+            "althing/x/y/z t=0.85 tpl=current",
             dataset="opinionsqa",
         )
         s2, _ = build_config_id(
-            "synthpanel/x/y/z tpl=current t=0.85",
+            "althing/x/y/z tpl=current t=0.85",
             dataset="opinionsqa",
         )
         assert s1 == s2
@@ -157,14 +157,14 @@ class TestBuildConfigId:
         """Two runs identical in framework/model/temp/template but differing
         in samples_per_question must produce different config IDs."""
         s1, _ = build_config_id(
-            "synthpanel/x/y/z",
+            "althing/x/y/z",
             dataset="opinionsqa",
             temperature=0.85,
             template="current",
             samples_per_question=30,
         )
         s2, _ = build_config_id(
-            "synthpanel/x/y/z",
+            "althing/x/y/z",
             dataset="opinionsqa",
             temperature=0.85,
             template="current",
@@ -176,14 +176,14 @@ class TestBuildConfigId:
 
     def test_collision_resistance_on_question_set(self):
         s1, _ = build_config_id(
-            "synthpanel/x/y/z",
+            "althing/x/y/z",
             dataset="opinionsqa",
             temperature=0.85,
             template="current",
             question_set_hash="abc123",
         )
         s2, _ = build_config_id(
-            "synthpanel/x/y/z",
+            "althing/x/y/z",
             dataset="opinionsqa",
             temperature=0.85,
             template="current",
@@ -193,13 +193,13 @@ class TestBuildConfigId:
 
     def test_collision_resistance_on_dataset(self):
         s_oqa, _ = build_config_id(
-            "synthpanel/x/y/z",
+            "althing/x/y/z",
             dataset="opinionsqa",
             temperature=0.85,
             template="current",
         )
         s_sub, _ = build_config_id(
-            "synthpanel/x/y/z",
+            "althing/x/y/z",
             dataset="subpop",
             temperature=0.85,
             template="current",
@@ -221,7 +221,7 @@ class TestBuildConfigId:
         """The real config.temperature should win over knob ``t=`` in the
         provider string — the knob is advisory and may lag the actual run."""
         slug, parsed = build_config_id(
-            "synthpanel/x/y/z t=0.3",
+            "althing/x/y/z t=0.3",
             dataset="opinionsqa",
             temperature=0.85,
             template="current",
@@ -232,7 +232,7 @@ class TestBuildConfigId:
     def test_template_path_stripped(self):
         """Template stored as a file path should have extension/dir stripped."""
         slug, _ = build_config_id(
-            "synthpanel/x/y/z",
+            "althing/x/y/z",
             dataset="opinionsqa",
             temperature=0.85,
             template="templates/minimal.md",
@@ -321,17 +321,17 @@ class TestBuildConfigIdCanonicalization:
     """config_id collapses dated + undated aliases of the same model."""
 
     def test_anthropic_dated_and_aliased_produce_same_slug(self):
-        """`synthpanel/claude-haiku-4-5-20251001` and
-        `synthpanel/openrouter/anthropic/claude-haiku-4-5` are the same
+        """`althing/claude-haiku-4-5-20251001` and
+        `althing/openrouter/anthropic/claude-haiku-4-5` are the same
         underlying model — their config_ids must collapse."""
         s_dated, p_dated = build_config_id(
-            "synthpanel/claude-haiku-4-5-20251001",
+            "althing/claude-haiku-4-5-20251001",
             dataset="opinionsqa",
             temperature=0.85,
             template="current",
         )
         s_alias, p_alias = build_config_id(
-            "synthpanel/openrouter/anthropic/claude-haiku-4-5",
+            "althing/openrouter/anthropic/claude-haiku-4-5",
             dataset="opinionsqa",
             temperature=0.85,
             template="current",
@@ -377,12 +377,12 @@ class TestBuildConfigIdCanonicalization:
         """Canonicalization applies regardless of dataset — but different
         datasets still produce different hashes (no cross-dataset collapse)."""
         s1, _ = build_config_id(
-            "synthpanel/claude-haiku-4-5-20251001",
+            "althing/claude-haiku-4-5-20251001",
             dataset="opinionsqa",
             temperature=0.85,
         )
         s2, _ = build_config_id(
-            "synthpanel/claude-haiku-4-5-20251001",
+            "althing/claude-haiku-4-5-20251001",
             dataset="subpop",
             temperature=0.85,
         )

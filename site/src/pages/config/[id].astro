@@ -358,7 +358,7 @@ const base = rawBase.endsWith("/") ? rawBase : `${rawBase}/`;
 
     const styles = getComputedStyle(document.documentElement);
     const barColor =
-      styles.getPropertyValue("--color-provider-synthpanel").trim() || "#4f46e5";
+      styles.getPropertyValue("--color-provider-althing").trim() || "#4f46e5";
 
     const barData = means.map((m) => (m === null ? { value: 0, itemStyle: { opacity: 0.15 } } : m));
 

@@ -9,7 +9,7 @@ Open benchmark harness for synthetic survey respondent quality.
 
 **The MLPerf of synthetic UXR.**
 
-SynthBench measures how well synthetic respondent systems (like [synthpanel](https://github.com/DataViking-Tech/SynthPanel), Ditto, Synthetic Users, or raw ChatGPT prompting) reproduce real human survey response patterns against real Pew American Trends Panel and GlobalOpinionQA ground truth — so "it sounds plausible" gets replaced with a measurable similarity score.
+SynthBench measures how well synthetic respondent systems (like [althing](https://github.com/DataViking-Tech/Althing), Ditto, Synthetic Users, or raw ChatGPT prompting) reproduce real human survey response patterns against real Pew American Trends Panel and GlobalOpinionQA ground truth — so "it sounds plausible" gets replaced with a measurable similarity score.
 
 ## Quick Start
 
@@ -203,7 +203,7 @@ The leaderboard JSON carries per-row cost fields and a top-level
   runs listed in `config.ensemble_sources`.
 - `pricing_snapshot` records the per-model `input_per_1m` / `output_per_1m`
   rates used for this publish run, the `snapshot_date` anchor comment, and
-  the installed `synth_panel_version` that produced the rates.
+  the installed `althing_version` that produced the rates.
 
 This lets downstream consumers audit which pricing table produced which
 `cost_usd` and reconcile against provider-reported billing without guessing
@@ -220,7 +220,7 @@ both curves side-by-side.
 
 See [`docs/convergence-analysis.md`](docs/convergence-analysis.md) for the
 JSON schema, CLI flags, and the `load_convergence_baseline` integration
-surface that synthpanel's `--calibrate-against DATASET:QUESTION` flag
+surface that althing's `--calibrate-against DATASET:QUESTION` flag
 consumes.
 
 ## Citation

@@ -11,7 +11,7 @@ const convergence = leaderboard.convergence ?? [];
 // Map raw provider strings to clean display names. Only providers that map to
 // the target display names below are kept on the chart.
 const providerDisplay: Record<string, string> = {
-  "ensemble/3-model-blend": "SynthPanel Ensemble (3-model)",
+  "ensemble/3-model-blend": "Althing Ensemble (3-model)",
   "openrouter/anthropic/claude-haiku-4-5": "Claude Haiku 4.5",
   "raw-anthropic/claude-haiku-4-5-20251001": "Claude Haiku 4.5",
   "openrouter/openai/gpt-4o-mini": "GPT-4o-mini",
@@ -20,14 +20,14 @@ const providerDisplay: Record<string, string> = {
 };
 
 const targetDisplayOrder = [
-  "SynthPanel Ensemble (3-model)",
+  "Althing Ensemble (3-model)",
   "Claude Haiku 4.5",
   "Gemini Flash Lite",
   "GPT-4o-mini",
 ];
 
 const modelColors: Record<string, string> = {
-  "SynthPanel Ensemble (3-model)": "var(--color-provider-synthpanel)",
+  "Althing Ensemble (3-model)": "var(--color-provider-althing)",
   "Claude Haiku 4.5": "#6366f1",
   "Gemini Flash Lite": "#0891b2",
   "GPT-4o-mini": "#d97706",

@@ -1,8 +1,8 @@
-"""SynthPanel full-pipeline provider.
+"""Althing full-pipeline provider.
 
-Benchmarks the complete SynthPanel pipeline.  Prefers direct Python API
+Benchmarks the complete Althing pipeline.  Prefers direct Python API
 import when available (zero subprocess overhead); falls back to the
-``synthpanel`` CLI.
+``althing`` CLI.
 """
 
 from __future__ import annotations
@@ -29,11 +29,11 @@ from synthbench.providers.base import (
 _LETTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 
 # ---------------------------------------------------------------------------
-# Optional direct API import (requires synth_panel on Python 3.10+)
+# Optional direct API import (requires althing on Python 3.10+)
 # ---------------------------------------------------------------------------
 try:
-    from synth_panel.llm.client import LLMClient
-    from synth_panel.llm.models import (
+    from althing.llm.client import LLMClient
+    from althing.llm.models import (
         CompletionRequest,
         InputMessage,
         TextBlock,
@@ -43,7 +43,20 @@ try:
 
     _HAS_SYNTH_PANEL_API = True
 except (ImportError, TypeError):
-    _HAS_SYNTH_PANEL_API = False
+    try:
+        # Pre-rename installs expose the same API as synth_panel.
+        from synth_panel.llm.client import LLMClient  # noqa: F401
+        from synth_panel.llm.models import (  # noqa: F401
+            CompletionRequest,
+            InputMessage,
+            TextBlock,
+            ToolChoice,
+            ToolDefinition,
+        )
+
+        _HAS_SYNTH_PANEL_API = True
+    except (ImportError, TypeError):
+        _HAS_SYNTH_PANEL_API = False
 
 
 def _pick_raw_sample(samples: list[tuple[str, Any]], counts: Counter) -> dict | None:
@@ -73,7 +86,7 @@ def _yaml_escape(text: str) -> str:
 def _build_instrument_yaml(question: str, options: list[str]) -> str:
     """Build a single-question instrument YAML with natural presentation.
 
-    Embeds the options in the question text so synthpanel sees a natural
+    Embeds the options in the question text so althing sees a natural
     survey question rather than a forced-choice letter prompt.
     """
     opts_lines = "\\n".join(f"({_LETTERS[i]}) {opt}" for i, opt in enumerate(options))
@@ -95,7 +108,7 @@ def _build_multi_question_instrument_yaml(
 ) -> str:
     """Build a multi-question instrument YAML for batch evaluation.
 
-    Packs N questions into a single instrument so synthpanel processes
+    Packs N questions into a single instrument so althing processes
     them all in one invocation.
     """
     lines = [
@@ -118,7 +131,7 @@ def _build_persona_yaml(persona: PersonaSpec | None, count: int = 1) -> str:
     """Build persona YAML with full conditioning context.
 
     When *count* > 1, replicates the persona to enable batch runs
-    through a single synthpanel invocation.
+    through a single althing invocation.
     """
     if persona is None:
         block = (
@@ -160,7 +173,7 @@ def _build_persona_yaml(persona: PersonaSpec | None, count: int = 1) -> str:
 
 
 def _build_system_prompt(persona: PersonaSpec | None) -> str:
-    """Build a system prompt matching synthpanel's ``persona_system_prompt``."""
+    """Build a system prompt matching althing's ``persona_system_prompt``."""
     if persona is None:
         return (
             "You are role-playing as Survey Respondent. "
@@ -257,14 +270,14 @@ def _parse_structured_response(response: Any, options: list[str]):
     return getattr(response, "text", "") or "", ParsedResponse()
 
 
-class SynthPanelProvider(Provider):
-    """Benchmark the full SynthPanel pipeline.
+class AlthingProvider(Provider):
+    """Benchmark the full Althing pipeline.
 
-    When ``synth_panel`` is importable, uses the Python API directly —
+    When ``althing`` is importable, uses the Python API directly —
     no subprocess overhead (~1s saved per call).  Otherwise falls back
-    to ``synthpanel panel run`` via subprocess.
+    to ``althing panel run`` via subprocess.
 
-    Supports synthpanel v0.6.0+ flags: --models, --temperature, --profile.
+    Supports althing v0.6.0+ flags: --models, --temperature, --profile.
     """
 
     def __init__(
@@ -273,7 +286,7 @@ class SynthPanelProvider(Provider):
         temperature: float | None = None,
         profile: str | None = None,
         prompt_template: str | None = None,
-        synthpanel_path: str | None = None,
+        althing_path: str | None = None,
         elicitation: str = "natural",
     ):
         if elicitation not in ELICITATION_MODES:
@@ -287,9 +300,9 @@ class SynthPanelProvider(Provider):
             )
         if elicitation == "structured" and not _HAS_SYNTH_PANEL_API:
             raise ImportError(
-                "elicitation='structured' requires the synth_panel Python API "
-                "(schema-forced tool calls are not exposed by the synthpanel "
-                "CLI fallback). Install synth_panel on Python 3.10+."
+                "elicitation='structured' requires the althing Python API "
+                "(schema-forced tool calls are not exposed by the althing "
+                "CLI fallback). Install althing on Python 3.10+."
             )
         self._model = model
         self._temperature = temperature
@@ -297,7 +310,7 @@ class SynthPanelProvider(Provider):
         self._prompt_template = prompt_template
         self._elicitation = elicitation
         # The direct API path builds its own persona/system prompt and has
-        # no seam for a synthpanel --prompt-template override; only the CLI
+        # no seam for a althing --prompt-template override; only the CLI
         # honours it. Route template-override runs through the CLI so the
         # knob is actually applied — a row tagged ``tpl=<name>`` whose
         # requests never saw the template would be untrue leaderboard
@@ -310,20 +323,22 @@ class SynthPanelProvider(Provider):
             self._client = LLMClient()
             self._executor = ThreadPoolExecutor(max_workers=16)
         else:
-            if synthpanel_path:
-                self._synthpanel_bin = synthpanel_path
+            if althing_path:
+                self._althing_bin = althing_path
             else:
-                found = shutil.which("synthpanel")
+                # Prefer the new CLI name; fall back to the pre-rename
+                # `synthpanel` binary for installs older than the rename.
+                found = shutil.which("althing") or shutil.which("synthpanel")
                 if found is None:
                     raise ImportError(
-                        "synthpanel is not installed or not on PATH. "
-                        "Install synthpanel or pass synthpanel_path= explicitly."
+                        "althing is not installed or not on PATH. "
+                        "Install althing or pass althing_path= explicitly."
                     )
-                self._synthpanel_bin = found
+                self._althing_bin = found
 
     @property
     def name(self) -> str:
-        parts = [f"synthpanel/{self._model}"]
+        parts = [f"althing/{self._model}"]
         if self._temperature is not None:
             parts.append(f"t={self._temperature}")
         if self._profile:
@@ -548,7 +563,7 @@ class SynthPanelProvider(Provider):
 
         if infra_errors and not responses and not refusals and not parse_failures:
             raise ProviderError(
-                f"synthpanel API: all {len(infra_errors)} samples failed with "
+                f"althing API: all {len(infra_errors)} samples failed with "
                 f"infrastructure errors (last: {infra_errors[-1]!r})"
             ) from infra_errors[-1]
 
@@ -588,7 +603,7 @@ class SynthPanelProvider(Provider):
         persona: PersonaSpec | None,
         n_samples: int | None,
     ) -> Distribution:
-        """Batch N identical personas into one synthpanel invocation."""
+        """Batch N identical personas into one althing invocation."""
         effective_samples = n_samples if n_samples is not None else 30
         instrument_yaml = _build_instrument_yaml(question, options)
         persona_yaml = _build_persona_yaml(persona, count=effective_samples)
@@ -625,10 +640,10 @@ class SynthPanelProvider(Provider):
         *,
         persona: PersonaSpec | None = None,
     ) -> list[Response]:
-        """Answer multiple questions in a single synthpanel invocation.
+        """Answer multiple questions in a single althing invocation.
 
         Packs all questions into one multi-question instrument, runs
-        synthpanel once, and returns per-question Response objects.
+        althing once, and returns per-question Response objects.
         """
         if self._use_api:
             return await self._batch_respond_api(questions, options_list, persona)
@@ -691,7 +706,7 @@ class SynthPanelProvider(Provider):
         """Get distributions for multiple questions in a single invocation.
 
         CLI path: packs questions into one multi-question instrument with
-        N personas, runs synthpanel once, and extracts per-question
+        N personas, runs althing once, and extracts per-question
         distributions from the results.
 
         API path: gathers individual get_distribution calls concurrently.
@@ -756,9 +771,9 @@ class SynthPanelProvider(Provider):
     # ==================================================================
 
     def _build_cmd(self, inst_path: str, pers_path: str) -> list[str]:
-        """Build the synthpanel CLI command (no --no-synthesis)."""
+        """Build the althing CLI command (no --no-synthesis)."""
         cmd = [
-            self._synthpanel_bin,
+            self._althing_bin,
             "--output-format",
             "json",
         ]
@@ -783,7 +798,7 @@ class SynthPanelProvider(Provider):
         return cmd
 
     async def _run_subprocess(self, cmd: list[str]) -> dict:
-        """Run the synthpanel CLI and return its parsed JSON output.
+        """Run the althing CLI and return its parsed JSON output.
 
         A non-zero exit or unparseable output is an infrastructure failure
         of the pipeline under benchmark — raise instead of fabricating a
@@ -800,21 +815,19 @@ class SynthPanelProvider(Provider):
         raw_stderr = stderr.decode().strip()
 
         if proc.returncode != 0:
-            raise ProviderError(
-                f"synthpanel exited {proc.returncode}: {raw_stderr[:500]}"
-            )
+            raise ProviderError(f"althing exited {proc.returncode}: {raw_stderr[:500]}")
 
         try:
             return json.loads(raw_stdout)
         except json.JSONDecodeError as exc:
             raise ProviderError(
-                f"failed to parse synthpanel JSON output: {raw_stdout[:200]!r}"
+                f"failed to parse althing JSON output: {raw_stdout[:200]!r}"
             ) from exc
 
     async def _run_cli(
         self, inst_path: str, pers_path: str, options: list[str]
     ) -> Response:
-        """Execute synthpanel CLI and parse the JSON output."""
+        """Execute althing CLI and parse the JSON output."""
         cmd = self._build_cmd(inst_path, pers_path)
         data = await self._run_subprocess(cmd)
 
@@ -827,7 +840,7 @@ class SynthPanelProvider(Provider):
 
         parsed = parse_option_response(raw_text, options)
 
-        # Gather metadata from synthpanel output
+        # Gather metadata from althing output
         panelist_result = {}
         try:
             panelist_result = data["rounds"][0]["results"][0]
@@ -902,7 +915,7 @@ class SynthPanelProvider(Provider):
     async def _run_multi_cli(
         self, inst_path: str, pers_path: str, options_list: list[list[str]]
     ) -> list[Response]:
-        """Execute synthpanel with a multi-question instrument (single persona)."""
+        """Execute althing with a multi-question instrument (single persona)."""
         cmd = self._build_cmd(inst_path, pers_path)
         data = await self._run_subprocess(cmd)
 
@@ -1010,3 +1023,7 @@ class SynthPanelProvider(Provider):
     async def close(self) -> None:
         if self._executor is not None:
             self._executor.shutdown(wait=False)
+
+
+# Deprecated alias — kept for external imports that predate the rename.
+SynthPanelProvider = AlthingProvider

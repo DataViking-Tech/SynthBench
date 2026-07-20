@@ -74,7 +74,7 @@ def test_build_nonresponse_fidelity_skips_stripped_runs():
 def test_sensitive_topic_note_derived_from_worst_raw_row():
     rows = [
         {
-            "provider": "SynthPanel (Haiku 4.5)",
+            "provider": "Althing (Haiku 4.5)",
             "framework": "product",
             "dataset": "gss",
             "n_questions": 75,

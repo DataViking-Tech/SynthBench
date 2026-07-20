@@ -2,7 +2,7 @@ import leaderboardRaw from "@/data/leaderboard.json";
 import type { LeaderboardData } from "@/types/leaderboard";
 import type { APIRoute } from "astro";
 
-// sb-ty6 / closes #295 — public stable JSON contract for SynthPanel's
+// sb-ty6 / closes #295 — public stable JSON contract for Althing's
 // `--best-model-for` recommendation lookup and any downstream consumer that
 // wants the live leaderboard without scraping the site or cloning the repo.
 //
@@ -21,7 +21,7 @@ import type { APIRoute } from "astro";
 //     (Cloudflare Pages). Current policy: 1h browser cache, 6h edge cache,
 //     stale-while-revalidate up to 24h. Clients SHOULD honor Cache-Control.
 //
-// SynthPanel's fallback behavior (sy-nkh) treats any non-200 as "use the
+// Althing's fallback behavior (sy-nkh) treats any non-200 as "use the
 // bundled snapshot," so a stale endpoint is still safe — just stale. Removing
 // or renaming this URL would break that fallback, so it MUST stay reachable
 // at this exact path even if the underlying payload schema evolves.

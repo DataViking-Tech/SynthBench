@@ -12,18 +12,18 @@
 Ranked by **reach ÷ effort for the AE Miami audience** (applied AI engineers, agent
 builders, AI-native startups). Effort estimates assume one engineer who knows the codebase.
 
-Products span SynthPanel (CLI + MCP server), SynthBench (CLI + public leaderboard site),
+Products span Althing (CLI + MCP server), SynthBench (CLI + public leaderboard site),
 and Traitprint (hosted web app with API). Different channels map to different products.
 
 ### Tier S — Ship before Tuesday (table stakes + high ROI)
 
 | # | Channel | Product | Effort | Reach | Why now |
 |---|---------|---------|--------|-------|---------|
-| 1 | **MCP Registry (GitHub + Anthropic directories)** | SynthPanel | ~2h | Very high | Server already exists (`synthpanel mcp-serve`). Listing is a metadata PR. Not being listed on Monday reads as "not serious about MCP" to an Anthropic-heavy audience. **TABLE STAKES.** |
+| 1 | **MCP Registry (GitHub + Anthropic directories)** | Althing | ~2h | Very high | Server already exists (`althing mcp-serve`). Listing is a metadata PR. Not being listed on Monday reads as "not serious about MCP" to an Anthropic-heavy audience. **TABLE STAKES.** |
 | 2 | **Hugging Face Space (benchmark viewer)** | SynthBench | 1 day | Very high | Every credible eval benchmark lives on HF Spaces (HELM, MMLU, HumanEval). A drive-by researcher expects to find SynthBench there. Gradio wrapper around leaderboard.json + a "run the core suite" button. **TABLE STAKES.** |
 | 3 | **Hugging Face Dataset (scored results)** | SynthBench | half day | High | Publish `leaderboard-results/` as a versioned HF dataset. Free citation path for researchers. Pairs with #2. |
 | 4 | **Papers With Code listing** | SynthBench | 2h | Mid-high | Benchmark metadata + leaderboard mirror. Table-stakes for the research-leaning slice of the audience. |
-| 5 | **Claude Code skill pack** — `/synthpanel-run`, `/synthbench-submit`, `/traitprint-profile` | All three | 1 day for three skills | High | Anthropic-heavy audience runs Claude Code. A ready-made skill they can `plugin install` during the demo is a conversion engine. **Differentiator** — few vendors have shipped skills yet. |
+| 5 | **Claude Code skill pack** — `/althing-run`, `/synthbench-submit`, `/traitprint-profile` | All three | 1 day for three skills | High | Anthropic-heavy audience runs Claude Code. A ready-made skill they can `plugin install` during the demo is a conversion engine. **Differentiator** — few vendors have shipped skills yet. |
 
 **Tier S bundle: ~3 engineer-days total. Ship all five before Monday EOD.**
 
@@ -31,18 +31,18 @@ and Traitprint (hosted web app with API). Different channels map to different pr
 
 | # | Channel | Product | Effort | Reach | Notes |
 |---|---------|---------|--------|-------|-------|
-| 6 | **Composio tool listing** | SynthPanel | 1-2 days | Mid-high | Composio aggregates tools for LangChain/CrewAI/Autogen. One listing unlocks multiple frameworks. |
-| 7 | **LangChain tool package** (`langchain-synthpanel`) | SynthPanel | 1 day | High | Thin wrapper over MCP tools. Publish to PyPI + LangChain Hub. |
-| 8 | **CrewAI tool package** (`crewai-synthpanel`) | SynthPanel | 1 day | Mid | Same wrapper shape; separate import path. |
-| 9 | **Cursor / Windsurf / Zed MCP visibility** | SynthPanel | 0 incremental | High | All three consume MCP; once #1 ships, this is free. Add one paragraph + screenshot to README. |
-| 10 | **ChatGPT Custom GPT — "SynthPanel Focus Group"** | SynthPanel | 2-4h + hosted action endpoint | Mid (decaying) | GPT Store discoverability has softened, but the ChatGPT install base is still massive. Low-lift hedge. |
+| 6 | **Composio tool listing** | Althing | 1-2 days | Mid-high | Composio aggregates tools for LangChain/CrewAI/Autogen. One listing unlocks multiple frameworks. |
+| 7 | **LangChain tool package** (`langchain-althing`) | Althing | 1 day | High | Thin wrapper over MCP tools. Publish to PyPI + LangChain Hub. |
+| 8 | **CrewAI tool package** (`crewai-althing`) | Althing | 1 day | Mid | Same wrapper shape; separate import path. |
+| 9 | **Cursor / Windsurf / Zed MCP visibility** | Althing | 0 incremental | High | All three consume MCP; once #1 ships, this is free. Add one paragraph + screenshot to README. |
+| 10 | **ChatGPT Custom GPT — "Althing Focus Group"** | Althing | 2-4h + hosted action endpoint | Mid (decaying) | GPT Store discoverability has softened, but the ChatGPT install base is still massive. Low-lift hedge. |
 
 ### Tier B — Ship within 1 quarter (steady background investment)
 
 | # | Channel | Product | Effort | Reach | Notes |
 |---|---------|---------|--------|-------|-------|
-| 11 | **n8n community node** | SynthPanel | 2 days | Mid | No-code automation crowd. Template: "Slack thread → SynthPanel focus group → Notion doc". |
-| 12 | **Zapier / Make connectors** | SynthPanel / Traitprint | 3-5 days each | Mid | Higher reach than n8n for non-technical buyers. Traitprint is the stronger fit here (HR/recruiting workflows). |
+| 11 | **n8n community node** | Althing | 2 days | Mid | No-code automation crowd. Template: "Slack thread → Althing focus group → Notion doc". |
+| 12 | **Zapier / Make connectors** | Althing / Traitprint | 3-5 days each | Mid | Higher reach than n8n for non-technical buyers. Traitprint is the stronger fit here (HR/recruiting workflows). |
 | 13 | **Hugging Face Space for Traitprint demo** | Traitprint | 1 day | Mid | Low stakes — primarily an SEO/discovery play. |
 | 14 | **dstack / Replicate** | None | N/A | N/A | Poor fit. These host inference models, not eval pipelines or web apps. Skip. |
 | 15 | **VS Code extension** | None | N/A | Low | Nothing in the portfolio is an editor-time tool. Skip. |
@@ -52,17 +52,17 @@ and Traitprint (hosted web app with API). Different channels map to different pr
 
 | # | Channel | Product | Effort | Reach | Notes |
 |---|---------|---------|--------|-------|-------|
-| 17 | **AWS Bedrock Agents / Azure AI Agent Service** | SynthPanel | 1-2 weeks each | Mid (enterprise) | Only if an enterprise design partner materializes. |
+| 17 | **AWS Bedrock Agents / Azure AI Agent Service** | Althing | 1-2 weeks each | Mid (enterprise) | Only if an enterprise design partner materializes. |
 | 18 | **Salesforce AgentForce / MuleSoft Anypoint** | Traitprint | 2-3 weeks | Mid (HR tech) | Only if HR-tech is a target vertical. |
-| 19 | **ElevenLabs / Deepgram agent marketplaces** | SynthPanel | Unknown | Low-mid | Voice-agent angle — real only if SynthPanel ships a voice persona mode. |
+| 19 | **ElevenLabs / Deepgram agent marketplaces** | Althing | Unknown | Low-mid | Voice-agent angle — real only if Althing ships a voice persona mode. |
 | 20 | **arXiv paper + NeurIPS/ICML workshop submission** | SynthBench | 2-4 weeks + review cycle | Enormous long-term | Wrong time horizon for Tuesday, right time horizon for a Q3 credibility play. |
 
 ### Recommended ship order for the week
 
 **Monday (EOD goal — 4 of 5 Tier S shipped):**
-1. MCP Registry listing for SynthPanel (2h)
+1. MCP Registry listing for Althing (2h)
 2. Papers With Code listing for SynthBench (2h)
-3. Claude Code skill pack — `/synthpanel-run` + `/synthbench-submit` (1 day)
+3. Claude Code skill pack — `/althing-run` + `/synthbench-submit` (1 day)
 4. Hugging Face Space — SynthBench leaderboard viewer (1 day, parallelizable)
 
 **Tuesday (demo day):** Tier S #3 (HF Dataset) if capacity. Demo-safe.
@@ -70,7 +70,7 @@ and Traitprint (hosted web app with API). Different channels map to different pr
 **Week 2-3:** Tier A (Composio + LangChain + CrewAI packages).
 
 **Demo narrative unlock:** Tier S #1 and #5 let the demo include *"install the
-SynthPanel MCP in Claude Code right now — one command, try it with me"* — a
+Althing MCP in Claude Code right now — one command, try it with me"* — a
 conversion-maximizing live interaction this audience will remember.
 
 ### What NOT to chase
@@ -78,7 +78,7 @@ conversion-maximizing live interaction this audience will remember.
 - **ChatGPT Plugins (legacy)** — deprecated path. Custom GPTs only.
 - **Slack / Discord bots** — low ROI for this audience; they'll come to you.
 - **Fine-tuning-platform partnerships** — wrong layer; our products don't need fine-tuning.
-- **NPM packages** — no JS surface worth exposing today. Skip until there's a SynthPanel-node client worth publishing.
+- **NPM packages** — no JS surface worth exposing today. Skip until there's a Althing-node client worth publishing.
 
 ---
 
@@ -114,7 +114,7 @@ and that is the pitch.
 
 > "DataViking builds the trust layer for any AI product that makes claims about
 > people. **Traitprint** turns a résumé into a rigorous professional profile with
-> skill-level evidence. **SynthPanel** runs synthetic focus groups you can
+> skill-level evidence. **Althing** runs synthetic focus groups you can
 > actually ship product decisions on. **SynthBench** measures, against real human
 > survey data, whether those synthetic people match reality — or whether your
 > model is just giving you trendslop. Represent real people, simulate
@@ -133,7 +133,7 @@ posture.
 > "Every AI product now makes assumptions about humans — what they'd choose,
 > what they'd think, what they're qualified for. **DataViking makes those
 > assumptions measurable.** **Traitprint** quantifies professional identity into
-> structured skill evidence. **SynthPanel** generates synthetic user populations
+> structured skill evidence. **Althing** generates synthetic user populations
 > for research, product, and hiring decisions. **SynthBench** scores, against
 > real population data, how well those populations match the humans they claim
 > to represent. We built the ground truth so your AI doesn't have to guess.
@@ -154,7 +154,7 @@ terms ("your AI doesn't have to guess").
 
 #### Pitch C — "Synthetic UXR that leadership will sign off on" (practitioner angle)
 
-> "DataViking turns 'what would users think?' from a hunch into data. **SynthPanel**
+> "DataViking turns 'what would users think?' from a hunch into data. **Althing**
 > lets your team run a 500-person focus group in ten minutes. **SynthBench**
 > proves — with real Pew-panel data — that those synthetic respondents are
 > actually representative, or flags them when they aren't. **Traitprint** does
@@ -198,7 +198,7 @@ ship on vibes" slightly polarizing for conservative enterprise buyers.
 ### One-line reduction (for bio / LinkedIn / booth signage)
 
 > **DataViking Technologies — tools for the measurable human.
-> Traitprint. SynthPanel. SynthBench.**
+> Traitprint. Althing. SynthBench.**
 
 ### Founder one-liner (for Wesley to use in 1:1 intros)
 
@@ -209,7 +209,7 @@ ship on vibes" slightly polarizing for conservative enterprise buyers.
 ### Rejected framings (and why)
 
 - *"We're building the open evaluation stack for human-AI interaction."* — too
-  academic, and SynthPanel is a product not an eval.
+  academic, and Althing is a product not an eval.
 - *"DataViking is the Vercel of synthetic research."* — over-analogized, borrows
   credibility it shouldn't need.
 - *"We make LLMs honest."* — correct spirit but LLM-providers will read it as
@@ -222,7 +222,7 @@ ship on vibes" slightly polarizing for conservative enterprise buyers.
 - [x] Readiness assessment (`ai-engineer-readiness.md`, shipped)
 - [x] AI distribution ranking (this doc, Part 1)
 - [x] Elevator pitch candidates + recommendation (this doc, Part 2)
-- [ ] Pending: re-run `synthpanel prompt` with API key and append raw responses
+- [ ] Pending: re-run `althing prompt` with API key and append raw responses
       to the readiness doc (blocker: no provider key in crew/cpo env)
 
 *End.*

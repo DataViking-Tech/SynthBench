@@ -12,7 +12,11 @@ PROVIDERS: dict[str, str] = {
     "raw-gemini": "synthbench.providers.raw_gemini:RawGeminiProvider",
     "openrouter": "synthbench.providers.openrouter:OpenRouterProvider",
     "ollama": "synthbench.providers.ollama:OllamaProvider",
-    "synthpanel": "synthbench.providers.synthpanel:SynthPanelProvider",
+    "althing": "synthbench.providers.althing:AlthingProvider",
+    # Deprecated alias — synthpanel was renamed to althing (2026-07). Kept so
+    # existing configs and `--provider synthpanel` invocations keep working;
+    # leaderboard-results/ entries recorded under the old id remain valid.
+    "synthpanel": "synthbench.providers.althing:AlthingProvider",
     "http": "synthbench.providers.http:HttpProvider",
     "random": "synthbench.providers.random_baseline:RandomBaselineProvider",
     "majority": "synthbench.providers.majority_baseline:MajorityBaselineProvider",

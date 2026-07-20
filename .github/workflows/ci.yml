@@ -30,8 +30,8 @@ jobs:
       - run: ruff check .
       - run: ruff format --check .
       - name: Guard against hyphenated sibling-project regression (sb-1el9)
-        # The sibling project's canonical names are `synthpanel` (PyPI package)
-        # and `SynthPanel` (GitHub repo). The stale pre-rename hyphenated form
+        # The sibling project's canonical names are `althing` (PyPI package)
+        # and `Althing` (GitHub repo). The stale pre-rename hyphenated form
         # should never reappear. Historical audit notes (post-flip-audit-*.md)
         # are allowed to reference the old name while documenting the rename.
         # The pattern is assembled at runtime so this step doesn't match itself.
@@ -46,7 +46,7 @@ jobs:
             --exclude="post-flip-audit-*.md" \
             . || true)
           if [ -n "$matches" ]; then
-            echo "::error::Hyphenated sibling-project name found — use 'synthpanel' (PyPI) or 'SynthPanel' (repo)."
+            echo "::error::Hyphenated sibling-project name found — use 'althing' (PyPI) or 'Althing' (repo)."
             echo "$matches"
             exit 1
           fi
@@ -329,7 +329,7 @@ jobs:
       - name: Mint App token
         # Pushing with this token (instead of GITHUB_TOKEN) makes the
         # baseline commit fire `pull_request: synchronize`, so CI re-runs on
-        # the new HEAD automatically. Same pattern as SynthPanel's
+        # the new HEAD automatically. Same pattern as Althing's
         # auto-tag.yml release-bot push.
         if: steps.vrt_gate.outputs.run == 'true'
         id: app_token

@@ -66,7 +66,7 @@ Rationale:
    If that returns "did you mean traitprint-local?" you've lost them.
 2. **One brand, one URL, one CLI surface.** `traitprint init` and
    `traitprint push` in the same binary is the cleanest mental model.
-3. **Precedent in the portfolio.** SynthPanel is a single package with
+3. **Precedent in the portfolio.** Althing is a single package with
    MCP server + CLI + library built in. Consistency.
 4. **License clarity.** Entire package MIT — the cloud *service* is
    the paid product, the client is free. Same model as `openai` SDK
@@ -224,9 +224,9 @@ weeks, credibility intact."
   the cloud when you want to be findable."* That line alone probably
   converts 10-20 signups from the room.
 - **Distribution leverage:** the MCP Registry listing now has a
-  SECOND DataViking entry (SynthPanel + Traitprint). Two tools in the
+  SECOND DataViking entry (Althing + Traitprint). Two tools in the
   registry reads as an ecosystem, not a single product.
-- **Brand coherence:** SynthBench is open MIT, SynthPanel is open MIT
+- **Brand coherence:** SynthBench is open MIT, Althing is open MIT
   with an MCP server, Traitprint-Local is open MIT with an MCP server.
   The "DataViking ships the open layer" story writes itself.
 - **Recruiter-side credibility:** enterprises evaluating Traitprint for

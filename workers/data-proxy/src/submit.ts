@@ -96,7 +96,7 @@ export function validateTier1(raw: unknown): ValidateResult {
   // markup/control characters at ingest so a crafted value never reaches the
   // published catalog in the first place. The allowlist is deliberately
   // generous — Unicode letters + digits + common punctuation — so real model
-  // names like "google/gemini-2.5-flash-lite" or "SynthPanel (3-model)" pass.
+  // names like "google/gemini-2.5-flash-lite" or "Althing (3-model)" pass.
   for (const field of ["model", "provider", "framework", "dataset"] as const) {
     const value = config[field];
     if (typeof value === "string" && !SAFE_META_RE.test(value)) {

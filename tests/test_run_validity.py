@@ -19,7 +19,7 @@ from synthbench.run_validity import (
 
 LEADERBOARD_DIR = Path(__file__).resolve().parent.parent / "leaderboard-results"
 BAD_RUN = (
-    LEADERBOARD_DIR / "subpop_synthpanel_claude-haiku-4-5-20251001_20260411_073013.json"
+    LEADERBOARD_DIR / "subpop_althing_claude-haiku-4-5-20251001_20260411_073013.json"
 )
 GOOD_RUN_GLOB = "globalopinionqa_openrouter_anthropic_claude-haiku-4-5_*.json"
 

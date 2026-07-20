@@ -7,7 +7,7 @@ import pytest
 from synthbench.findings import _build_elicitation_comparison, _parse_failure_rate
 
 _QHASH = "a" * 40
-_PROVIDER = "synthpanel/openrouter/anthropic/claude-haiku-4-5"
+_PROVIDER = "althing/openrouter/anthropic/claude-haiku-4-5"
 
 
 def _q(key: str, jsd: float, tau: float, refusal: float = 0.0) -> dict:
@@ -73,7 +73,7 @@ def test_matched_pair_emits_arms_and_deltas():
     rows = _build_elicitation_comparison([natural, structured])
     assert len(rows) == 1
     row = rows[0]
-    assert row["model"] == "SynthPanel (Haiku 4.5)"
+    assert row["model"] == "Althing (Haiku 4.5)"
     assert row["framework"] == "product"
     assert row["dataset"] == "gss"
     assert row["elicitation"] == "structured"

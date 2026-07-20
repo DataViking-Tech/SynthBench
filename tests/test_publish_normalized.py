@@ -36,7 +36,7 @@ def test_product_normalization_uses_matching_raw_base():
             "sps": 0.815,
         },
         {
-            "model": "SynthPanel (Haiku 4.5)",
+            "model": "Althing (Haiku 4.5)",
             "dataset": "opinionsqa",
             "framework": "product",
             "sps": 0.829,
@@ -50,7 +50,7 @@ def test_product_normalization_uses_matching_raw_base():
 def test_product_without_known_base_is_skipped():
     entries = [
         {
-            "model": "SynthPanel Ensemble (3-model)",
+            "model": "Althing Ensemble (3-model)",
             "dataset": "opinionsqa",
             "framework": "product",
             "sps": 0.835,
@@ -88,7 +88,7 @@ def test_missing_ceiling_skips_dataset():
             "sps": 0.72,
         },
         {
-            "model": "SynthPanel (Haiku 4.5)",
+            "model": "Althing (Haiku 4.5)",
             "dataset": "globalopinionqa",
             "framework": "product",
             "sps": 0.73,
@@ -110,7 +110,7 @@ def test_product_without_matching_raw_on_same_dataset_is_skipped():
             "sps": 0.815,
         },
         {
-            "model": "SynthPanel (Haiku 4.5)",
+            "model": "Althing (Haiku 4.5)",
             "dataset": "subpop",
             "framework": "product",
             "sps": 0.77,
@@ -130,7 +130,7 @@ def test_clamps_to_range_when_sps_exceeds_ceiling():
             "sps": 0.815,
         },
         {
-            "model": "SynthPanel (Haiku 4.5)",
+            "model": "Althing (Haiku 4.5)",
             "dataset": "opinionsqa",
             "framework": "product",
             "sps": 1.2,
@@ -151,7 +151,7 @@ def test_non_positive_range_skipped():
             "sps": 0.9995,
         },
         {
-            "model": "SynthPanel (Haiku 4.5)",
+            "model": "Althing (Haiku 4.5)",
             "dataset": "opinionsqa",
             "framework": "product",
             "sps": 0.999,

@@ -1,7 +1,7 @@
 """Canonical config ID parsing for the run explorer.
 
 Turns raw provider strings like
-``synthpanel/openrouter/anthropic/claude-haiku-4-5 t=0.85 tpl=current``
+``althing/openrouter/anthropic/claude-haiku-4-5 t=0.85 tpl=current``
 into a structured record (framework / base_provider / model / knobs) and a
 stable slug ``framework--model--t<temp>--tpl<name>[--eff<level>]--<hash8>``
 suitable for use as a URL path segment (the ``eff`` segment appears only
@@ -34,7 +34,7 @@ _BASE_VENDOR_NORMALIZE: dict[str, str] = {
 }
 
 # Model-name prefix → canonical vendor. Used to infer base_provider when the
-# path itself doesn't carry a vendor segment (e.g. ``synthpanel/claude-...``).
+# path itself doesn't carry a vendor segment (e.g. ``althing/claude-...``).
 _MODEL_VENDOR_PREFIXES: tuple[tuple[str, str], ...] = (
     ("claude-", "anthropic"),
     ("gemini-", "google"),
@@ -92,8 +92,8 @@ class ParsedConfig:
 def _split_provider_and_knobs(provider: str) -> tuple[str, list[str]]:
     """Split the whitespace-separated provider/knob form.
 
-    ``synthpanel/.../claude-haiku-4-5 t=0.85 tpl=current`` →
-    (``synthpanel/.../claude-haiku-4-5``, [``t=0.85``, ``tpl=current``]).
+    ``althing/.../claude-haiku-4-5 t=0.85 tpl=current`` →
+    (``althing/.../claude-haiku-4-5``, [``t=0.85``, ``tpl=current``]).
     """
     tokens = provider.strip().split()
     if not tokens:
@@ -143,11 +143,11 @@ def _parse_path(path: str) -> tuple[str, str | None, str]:
         raw-anthropic/claude-haiku-4-5          → ("raw", "anthropic", "claude-haiku-4-5")
         raw-gemini/gemini-2.5-flash-lite        → ("raw", "google", "gemini-2.5-flash-lite")
         ensemble/3-model-blend                  → ("ensemble", None, "3-model-blend")
-        synthpanel/claude-haiku-4-5-20251001    → ("synthpanel", "anthropic", "claude-haiku-4-5-20251001")
-        synthpanel/gemini-2.5-flash-lite        → ("synthpanel", "google", "gemini-2.5-flash-lite")
+        althing/claude-haiku-4-5-20251001    → ("althing", "anthropic", "claude-haiku-4-5-20251001")
+        althing/gemini-2.5-flash-lite        → ("althing", "google", "gemini-2.5-flash-lite")
         openrouter/openai/gpt-4o-mini           → ("raw", "openai", "gpt-4o-mini")
-        synthpanel/openrouter/anthropic/claude-haiku-4-5
-                                                → ("synthpanel", "anthropic", "claude-haiku-4-5")
+        althing/openrouter/anthropic/claude-haiku-4-5
+                                                → ("althing", "anthropic", "claude-haiku-4-5")
 
     OpenRouter is a gateway, not a framework — paths that lead with
     ``openrouter/`` collapse to ``framework=raw`` so the same model reached
@@ -217,8 +217,8 @@ def _runnable_model_slug(head: str) -> str:
 
         openrouter/google/gemini-2.5-flash-lite          → google/gemini-2.5-flash-lite
         openrouter/meta-llama/llama-3.3-70b-instruct      → meta-llama/llama-3.3-70b-instruct
-        synthpanel/openrouter/anthropic/claude-haiku-4-5  → anthropic/claude-haiku-4-5
-        synthpanel/gemini-2.5-flash-lite                  → google/gemini-2.5-flash-lite
+        althing/openrouter/anthropic/claude-haiku-4-5  → anthropic/claude-haiku-4-5
+        althing/gemini-2.5-flash-lite                  → google/gemini-2.5-flash-lite
         raw-anthropic/claude-haiku-4-5-20251001           → anthropic/claude-haiku-4-5-20251001
         raw-gemini/gemini-2.5-flash-lite                  → google/gemini-2.5-flash-lite
         ensemble/3-model-blend                            → 3-model-blend
@@ -232,7 +232,9 @@ def _runnable_model_slug(head: str) -> str:
 
     parts = head.split("/")
     # Drop a leading runner segment that isn't part of the model id.
-    if parts and parts[0] in ("synthpanel", "ensemble"):
+    # ("synthpanel" is the pre-rename id of the althing runner, present in
+    # historical config ids.)
+    if parts and parts[0] in ("althing", "synthpanel", "ensemble"):
         parts = parts[1:]
     # Drop an OpenRouter gateway hop — the remaining segments ARE the slug.
     if parts and parts[0] == "openrouter":
@@ -258,9 +260,9 @@ def runnable_ids(provider: str) -> tuple[str, str]:
     These are the runnable counterparts to the human-facing display labels:
 
     - ``provider_id`` — the execution framework/runner taxonomy from
-      :func:`parse_provider` (``raw`` / ``synthpanel`` / ``ensemble`` /
+      :func:`parse_provider` (``raw`` / ``althing`` / ``ensemble`` /
       ``baseline``). Tells a consumer whether a score reflects a raw model, the
-      SynthPanel product layer, an ensemble, or a statistical baseline.
+      Althing product layer, an ensemble, or a statistical baseline.
     - ``model_id`` — an OpenRouter-runnable ``<vendor>/<model>`` slug a consumer
       can pipe straight to the gateway without parsing display names. See
       :func:`_runnable_model_slug` for the exact derivation per shape.

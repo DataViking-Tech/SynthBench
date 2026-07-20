@@ -1,11 +1,11 @@
 """Tests for ``synthbench.load_convergence_baseline`` (sb-ham8).
 
 Contract defined in ``docs/convergence-analysis.md`` §"Integration:
-synthpanel --calibrate-against". synthpanel (>= 0.9) probes six attribute
+althing --calibrate-against". althing (>= 0.9) probes six attribute
 paths to find a baseline loader; the top-of-list path is
 ``synthbench.load_convergence_baseline(dataset=..., question_key=...)``.
 
-These tests pin the behavior synthpanel expects:
+These tests pin the behavior althing expects:
 
 * The export is visible both at ``synthbench.*`` and
   ``synthbench.convergence.*`` (it probes both namespaces).
@@ -34,18 +34,18 @@ from synthbench.datasets.gss import GSSDataset
 
 
 # ---------------------------------------------------------------------------
-# synthpanel attribute probe — the export must resolve at both paths
+# althing attribute probe — the export must resolve at both paths
 # ---------------------------------------------------------------------------
 
 
 def test_export_visible_at_module_root():
-    """synthpanel's first probe hits ``synthbench.load_convergence_baseline``."""
+    """althing's first probe hits ``synthbench.load_convergence_baseline``."""
     assert hasattr(synthbench, "load_convergence_baseline")
     assert callable(synthbench.load_convergence_baseline)
 
 
 def test_export_visible_under_convergence():
-    """synthpanel's fallback probe hits ``synthbench.convergence.*``."""
+    """althing's fallback probe hits ``synthbench.convergence.*``."""
     assert lcb_convergence is load_convergence_baseline
 
 
@@ -110,10 +110,10 @@ def test_full_tier_gss_returns_documented_payload(gss_with_data):
     assert payload["dataset"] == "gss"
     assert payload["question_key"] == "GSS_SPKATH"
     assert payload["redistribution_policy"] == "full"
-    # human_distribution is the only load-bearing field — synthpanel attaches
+    # human_distribution is the only load-bearing field — althing attaches
     # it verbatim to each matching question's `calibration` sub-object.
     assert payload["human_distribution"] == pytest.approx({"Yes": 0.7, "No": 0.3})
-    # Provenance passes through for synthpanel's run-metadata block.
+    # Provenance passes through for althing's run-metadata block.
     assert payload["license_url"]
     assert payload["citation"]
 
@@ -121,7 +121,7 @@ def test_full_tier_gss_returns_documented_payload(gss_with_data):
 def test_full_tier_gss_includes_question_text_and_options(gss_with_data):
     """sb-qtext: full-tier payloads carry the real question wording + labels.
 
-    synthpanel's calibration panel must present the *real* survey item rather
+    althing's calibration panel must present the *real* survey item rather
     than fabricate a placeholder, and its pick_one labels must line up with
     the ``human_distribution`` keys.
     """
@@ -129,7 +129,7 @@ def test_full_tier_gss_includes_question_text_and_options(gss_with_data):
     assert payload["question_text"] == "Allow atheist to speak?"
     assert payload["options"] == ["Yes", "No"]
     # Options are aligned with the human_distribution keys (same strings), so
-    # synthpanel's derived pick_one schema maps 1:1 onto ground truth.
+    # althing's derived pick_one schema maps 1:1 onto ground truth.
     assert set(payload["options"]) == set(payload["human_distribution"].keys())
 
 
@@ -173,7 +173,7 @@ def test_full_tier_ntia_includes_question_text_and_options(monkeypatch):
 
 
 def test_full_tier_accepts_bare_question_id(gss_with_data):
-    """synthpanel may pass the upstream id (``SPKATH``) without the
+    """althing may pass the upstream id (``SPKATH``) without the
     ``GSS_`` prefix — the loader resolves either form."""
     payload = load_convergence_baseline(dataset="gss", question_key="SPKATH")
     assert payload["question_key"] == "GSS_SPKATH"
@@ -193,7 +193,7 @@ def test_unknown_question_raises_unavailable(gss_with_data):
 
 
 # ---------------------------------------------------------------------------
-# Gated failure path — synthpanel must see a distinct, catchable error
+# Gated failure path — althing must see a distinct, catchable error
 # ---------------------------------------------------------------------------
 
 
