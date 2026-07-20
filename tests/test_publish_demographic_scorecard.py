@@ -32,7 +32,7 @@ def _run(demographic_breakdown: dict | None) -> dict:
         "benchmark": "synthbench",
         "config": {
             "dataset": "subpop",
-            "provider": "synthpanel/openrouter/anthropic/claude-haiku-4-5",
+            "provider": "althing/openrouter/anthropic/claude-haiku-4-5",
             "n_evaluated": 2,
         },
         "scores": {},

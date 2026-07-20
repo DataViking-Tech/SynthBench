@@ -42,7 +42,7 @@ Use it for three things:
 1. **Lower-bound reference.** Overlay real-sample convergence against the
    bootstrap curve to see how close real samples get to the i.i.d. floor.
 2. **Budget planning.** If the bootstrap `convergence_n` is 2000 for a
-   question, no amount of synthpanel traffic below 2000 will approximate the
+   question, no amount of althing traffic below 2000 will approximate the
    true distribution — and that is before accounting for heterogeneity.
 3. **Question triage.** Questions with pathologically large `convergence_n`
    (or no convergence on the default grid) are expensive to evaluate and
@@ -166,15 +166,15 @@ direct visualization of the gap between the i.i.d. floor and real
 sampling. See `docs/microdata-ingestion.md` for per-dataset setup
 (starting with GSS; WVS and Eurobarometer follow).
 
-## Integration: synthpanel `--calibrate-against`
+## Integration: althing `--calibrate-against`
 
-synthpanel (>= 0.9) ships a `--calibrate-against DATASET:QUESTION` flag that
+althing (>= 0.9) ships a `--calibrate-against DATASET:QUESTION` flag that
 attaches a `per_question[key].calibration` sub-object to each convergence
-payload. When that flag is set, synthpanel calls into synthbench as a soft
+payload. When that flag is set, althing calls into synthbench as a soft
 dependency to resolve the aggregate `human_distribution` used as the
 calibration baseline. The call site is
-`synth_panel.convergence.load_synthbench_baseline(spec)` (see
-`src/synth_panel/convergence.py` in the synthpanel repo).
+`althing.convergence.load_synthbench_baseline(spec)` (see
+`src/althing/convergence.py` in the althing repo).
 
 The loader probes for the following attributes in order and uses the first
 one it finds:
@@ -203,20 +203,20 @@ shaped like:
 }
 ```
 
-`human_distribution` is the only load-bearing field — synthpanel attaches it
+`human_distribution` is the only load-bearing field — althing attaches it
 to every matching question's `calibration` sub-object and computes JSD
-against the model's cumulative distribution using synthpanel's own local JSD
+against the model's cumulative distribution using althing's own local JSD
 (deliberately not synthbench's, per the sp-inline-calibration spec).
-`dataset` and `question_key` are filled in by synthpanel if missing. The
+`dataset` and `question_key` are filled in by althing if missing. The
 redistribution / license / citation fields are informational and carried
-through into the synthpanel run metadata.
+through into the althing run metadata.
 
 `question_text` and `options` are **additive, policy-gated** fields (added in
 `sb-qtext`):
 
 * `question_text` — the verbatim survey-item wording.
 * `options` — the ordered answer labels. These are aligned with the keys of
-  `human_distribution` (same strings), so synthpanel can present the real
+  `human_distribution` (same strings), so althing can present the real
   answer choices to its panel and derive a `pick_one` schema whose labels
   match ground truth.
 
@@ -244,7 +244,7 @@ importable from `synthbench.convergence`) as of `sb-ham8`. Tier handling:
   rights for them.
 
 Both error classes subclass `LookupError`; `BaselineGatedError` is itself
-a subclass of `BaselineUnavailable`, so synthpanel can catch the parent
+a subclass of `BaselineUnavailable`, so althing can catch the parent
 when the distinction does not matter.
 
 ## Cross-reference

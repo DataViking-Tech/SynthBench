@@ -13,7 +13,7 @@
 
 import type { DemographicBreakdown, TopicCategory } from "./leaderboard";
 
-export type RunFramework = "synthpanel" | "openrouter" | "raw" | "ensemble" | "baseline" | string;
+export type RunFramework = "althing" | "openrouter" | "raw" | "ensemble" | "baseline" | string;
 
 export type Dataset = "opinionsqa" | "globalopinionqa" | "subpop" | string;
 

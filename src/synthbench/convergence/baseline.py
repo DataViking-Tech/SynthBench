@@ -1,6 +1,6 @@
-"""Stable baseline-loader export for synthpanel's ``--calibrate-against`` flag.
+"""Stable baseline-loader export for althing's ``--calibrate-against`` flag.
 
-synthpanel (>= 0.9) probes ``synthbench`` at runtime for a
+althing (>= 0.9) probes ``synthbench`` at runtime for a
 ``load_convergence_baseline`` callable when a user passes
 ``--calibrate-against DATASET:QUESTION``. This module is the single
 owner of that export.
@@ -20,13 +20,13 @@ Policy:
   lookup is conservative (defaults to ``aggregates_only``) and a typo
   should not silently leak or crash downstream.
 
-The return shape is fixed by ``docs/convergence-analysis.md`` — synthpanel
+The return shape is fixed by ``docs/convergence-analysis.md`` — althing
 attaches ``human_distribution`` to every matching question's
 ``calibration`` sub-object and computes JSD with its own local metric.
 
 For datasets whose policy permits redistributing the question wording
 (``full`` / ``citation_only``), the payload additionally carries
-``question_text`` and ``options`` so synthpanel can present the *real*
+``question_text`` and ``options`` so althing can present the *real*
 survey item to its panel instead of fabricating a placeholder prompt.
 These fields are additive; ``human_distribution`` remains the only
 load-bearing key.
@@ -52,7 +52,7 @@ class BaselineGatedError(BaselineUnavailable):
     """Raised when the dataset is ``gated`` and requires authenticated access.
 
     The in-process loader cannot vend gated-tier baselines — those payloads
-    live behind the JWT-authenticated R2 origin. synthpanel can surface this
+    live behind the JWT-authenticated R2 origin. althing can surface this
     to the user as an "authenticate to calibrate against <dataset>" hint.
     """
 
@@ -133,7 +133,7 @@ def load_convergence_baseline(
     }
 
     # Additive, policy-gated metadata: the survey item's wording and its
-    # answer labels. synthpanel's calibration panel needs the real question
+    # answer labels. althing's calibration panel needs the real question
     # text (rather than a fabricated placeholder) and needs option labels that
     # line up with the ``human_distribution`` keys so its pick_one extraction
     # aligns with ground truth. Only surfaced where the redistribution policy
@@ -150,7 +150,7 @@ def _resolve_question(dataset, question_key: str):
     """Locate a Question by key; accept bare or adapter-prefixed forms.
 
     Mirrors the CLI's :func:`convergence.cli_report._resolve_question`
-    behavior so synthpanel callers can pass either the canonical
+    behavior so althing callers can pass either the canonical
     ``Question.key`` or the bare upstream id.
     """
     questions = dataset.load()

@@ -100,7 +100,7 @@ def test_publish_leaderboard_data_excludes_invalid_runs(tmp_path):
         sps=0.77,
     )
     bad = _mk_result(
-        "synthpanel/claude-haiku-4-5-20251001",
+        "althing/claude-haiku-4-5-20251001",
         "subpop",
         [_uniform_pq(f"Q{i}") for i in range(20)],
         sps=0.677,
@@ -118,13 +118,13 @@ def test_publish_leaderboard_data_excludes_invalid_runs(tmp_path):
     assert len(payload["excluded_runs"]) == 1
     excluded = payload["excluded_runs"][0]
     assert excluded["run_id"] == "bad_uniform_garbage"
-    assert excluded["provider"] == "synthpanel/claude-haiku-4-5-20251001"
+    assert excluded["provider"] == "althing/claude-haiku-4-5-20251001"
     assert excluded["metrics"]["n_uniform_questions"] == 20
     assert "uniform-garbage" in excluded["reason"]
 
     # The invalid run does NOT appear in ranked entries.
     entry_providers = [e["provider"] for e in payload["entries"]]
-    assert not any("synthpanel" in p.lower() for p in entry_providers)
+    assert not any("althing" in p.lower() for p in entry_providers)
     assert len(payload["entries"]) == 1
 
 
@@ -151,7 +151,7 @@ def test_publish_leaderboard_data_all_invalid_raises(tmp_path):
     results_dir = tmp_path / "results"
     results_dir.mkdir()
     bad = _mk_result(
-        "synthpanel/broken",
+        "althing/broken",
         "subpop",
         [_uniform_pq(f"Q{i}") for i in range(20)],
     )
@@ -180,7 +180,7 @@ def test_publish_runs_skips_invalid_runs(tmp_path):
         [_healthy_pq(f"Q{i}") for i in range(20)],
     )
     bad = _mk_result(
-        "synthpanel/claude-haiku-4-5-20251001",
+        "althing/claude-haiku-4-5-20251001",
         "subpop",
         [_uniform_pq(f"Q{i}") for i in range(20)],
     )
@@ -215,7 +215,7 @@ def test_publish_questions_skips_invalid_runs(tmp_path):
         [_healthy_pq("Q1"), _healthy_pq("Q2")],
     )
     bad = _mk_result(
-        "synthpanel/claude-haiku-4-5-20251001",
+        "althing/claude-haiku-4-5-20251001",
         "ntia",
         [_uniform_pq(f"Q{i}") for i in range(20)],
     )

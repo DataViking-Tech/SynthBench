@@ -16,7 +16,7 @@ have heavier tails than `1/√n` predicts).
 
 Real-sampling convergence sub-samples *actual respondents* without
 replacement and measures `JSD(subsample, full_population)`. Plotting both
-curves on the same axes is the headline claim: *"synthpanel convergence at
+curves on the same axes is the headline claim: *"althing convergence at
 n=Y matches real human sampling convergence at n=Z."*
 
 ## Common types

@@ -31,7 +31,7 @@ from synthbench.cli import main
 
 def _valid_dict() -> dict:
     return {
-        "vendor": "synthpanel",
+        "vendor": "althing",
         "vendor_version": "1.4.0",
         "config_name": "wesley-healthcare-nc",
         "contributor": "@wesley",
@@ -82,7 +82,7 @@ def test_load_non_mapping(tmp_path):
 
 def test_load_invalid_yaml(tmp_path):
     p = tmp_path / "bad.yaml"
-    p.write_text("vendor: synthpanel\n  bad: indent\n")
+    p.write_text("vendor: althing\n  bad: indent\n")
     res = uc.load_config_file(p)
     assert isinstance(res, uc.ConfigError)
     assert "invalid YAML" in res.message
@@ -96,7 +96,7 @@ def test_load_invalid_yaml(tmp_path):
 def test_valid_config_returns_user_config():
     result = uc.validate_config(_valid_dict())
     assert isinstance(result, uc.UserConfig)
-    assert result.leaderboard_row_key == "synthpanel/wesley-healthcare-nc"
+    assert result.leaderboard_row_key == "althing/wesley-healthcare-nc"
     assert result.contributor == "@wesley"
 
 
@@ -249,12 +249,12 @@ def test_validation_collects_all_errors():
 def test_attach_to_submission_body_adds_user_config():
     cfg = uc.validate_config(_valid_dict())
     assert isinstance(cfg, uc.UserConfig)
-    body = json.dumps({"benchmark": "synthbench", "config": {"provider": "synthpanel"}})
+    body = json.dumps({"benchmark": "synthbench", "config": {"provider": "althing"}})
     stamped = uc.attach_to_submission_body(body, cfg)
     parsed = json.loads(stamped)
     assert parsed["benchmark"] == "synthbench"
-    assert parsed["config"] == {"provider": "synthpanel"}
-    assert parsed["user_config"]["vendor"] == "synthpanel"
+    assert parsed["config"] == {"provider": "althing"}
+    assert parsed["user_config"]["vendor"] == "althing"
     assert parsed["user_config"]["config_name"] == "wesley-healthcare-nc"
 
 
@@ -355,7 +355,7 @@ def test_cli_validate_config_success(tmp_path):
     res = CliRunner().invoke(main, ["validate-config", str(p)])
     assert res.exit_code == 0, res.output
     assert "valid" in res.output
-    assert "synthpanel/wesley-healthcare-nc" in res.output
+    assert "althing/wesley-healthcare-nc" in res.output
 
 
 def test_cli_validate_config_failure(tmp_path):
@@ -388,7 +388,7 @@ def _write_run(tmp_path):
         json.dumps(
             {
                 "benchmark": "synthbench",
-                "config": {"provider": "synthpanel"},
+                "config": {"provider": "althing"},
                 "aggregate": {"n_questions": 1, "composite_parity": 0.7},
                 "per_question": [
                     {
@@ -429,11 +429,11 @@ def test_cli_submit_config_stamps_user_config(tmp_path, monkeypatch):
     assert res.exit_code == 0, res.output
     assert "attaching user_config" in res.output
     sent = json.loads(captured["content"])
-    assert sent["user_config"]["vendor"] == "synthpanel"
+    assert sent["user_config"]["vendor"] == "althing"
     assert sent["user_config"]["config_name"] == "wesley-healthcare-nc"
     # The existing body must be preserved.
     assert sent["benchmark"] == "synthbench"
-    assert sent["config"] == {"provider": "synthpanel"}
+    assert sent["config"] == {"provider": "althing"}
 
 
 def test_cli_submit_config_validation_failure_exits_2(tmp_path, monkeypatch):

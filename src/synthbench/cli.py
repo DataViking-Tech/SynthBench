@@ -37,7 +37,7 @@ MODEL_ALIASES = {
 
 # Providers whose constructor accepts a model identifier / temperature.
 _MODEL_PROVIDERS = frozenset(
-    {"raw-anthropic", "raw-openai", "raw-gemini", "openrouter", "ollama", "synthpanel"}
+    {"raw-anthropic", "raw-openai", "raw-gemini", "openrouter", "ollama", "althing", "synthpanel"}
 )
 
 # Providers that can actually honour a reasoning-effort level. Everything
@@ -90,23 +90,23 @@ def _provider_kwargs(
             )
         kwargs["temperature"] = temperature
     if prompt_template is not None:
-        if provider_name != "synthpanel":
+        if provider_name not in ("althing", "synthpanel"):
             raise click.UsageError(
-                "--prompt-template is only supported by the synthpanel provider."
+                "--prompt-template is only supported by the althing provider."
             )
         kwargs["prompt_template"] = prompt_template
     if elicitation is not None:
-        if provider_name != "synthpanel":
+        if provider_name not in ("althing", "synthpanel"):
             raise click.UsageError(
-                "--elicitation is only supported by the synthpanel provider."
+                "--elicitation is only supported by the althing provider."
             )
         kwargs["elicitation"] = elicitation
     if effort is not None:
-        if provider_name == "synthpanel":
+        if provider_name in ("althing", "synthpanel"):
             raise click.UsageError(
-                "--effort is not supported by provider 'synthpanel': the "
-                "synthpanel CLI does not yet expose a reasoning-effort knob, "
-                "so the run could not actually honour it. Once synthpanel "
+                "--effort is not supported by provider 'althing': the "
+                "althing CLI does not yet expose a reasoning-effort knob, "
+                "so the run could not actually honour it. Once althing "
                 "grows one, wire it through here rather than tagging runs "
                 "with metadata that never applied."
             )
@@ -140,7 +140,7 @@ main.add_command(_submit_adapter_cmd)
     "--provider",
     "-p",
     required=True,
-    help="Provider name (raw-anthropic, raw-openai, raw-gemini, openrouter, ollama, synthpanel, http).",
+    help="Provider name (raw-anthropic, raw-openai, raw-gemini, openrouter, ollama, althing, http).",
 )
 @click.option(
     "--model",
@@ -247,14 +247,14 @@ main.add_command(_submit_adapter_cmd)
     "--prompt-template",
     type=click.Path(exists=True),
     default=None,
-    help="Path to a custom persona prompt template file (synthpanel only).",
+    help="Path to a custom persona prompt template file (althing only).",
 )
 @click.option(
     "--elicitation",
     type=click.Choice(["natural", "structured"]),
     default=None,
     help=(
-        "Elicitation mode (synthpanel only). 'natural' (default) parses "
+        "Elicitation mode (althing only). 'natural' (default) parses "
         "prose responses; 'structured' forces a schema-constrained tool "
         "call (enum of the option strings) so no prose parsing occurs. "
         "Structured runs are stamped as a template variant "

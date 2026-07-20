@@ -399,7 +399,7 @@ def _estimate_cost_fields(config: dict, entry: dict) -> dict:
     if not provider:
         return dict(_NULL_COST_FIELDS)
     try:
-        from synth_panel.cost import lookup_pricing_by_provider
+        from althing.cost import lookup_pricing_by_provider
     except ImportError:
         return dict(_NULL_COST_FIELDS)
     pricing, _ = lookup_pricing_by_provider(provider)
@@ -469,7 +469,7 @@ def _compute_cost_fields(aggregate: dict, config: dict, entry: dict) -> dict:
         if not provider:
             return dict(_NULL_COST_FIELDS)
         try:
-            from synth_panel.cost import lookup_pricing_by_provider
+            from althing.cost import lookup_pricing_by_provider
         except ImportError:
             return dict(_NULL_COST_FIELDS)
         pricing, _is_estimated = lookup_pricing_by_provider(provider)
@@ -526,7 +526,7 @@ def _compute_ensemble_cost(
         return None
 
     try:
-        from synth_panel.cost import lookup_pricing_by_provider
+        from althing.cost import lookup_pricing_by_provider
     except ImportError:
         return None
 
@@ -567,16 +567,16 @@ def _compute_ensemble_cost(
 def _build_pricing_snapshot() -> dict:
     """Emit the rates table used for this publish run.
 
-    Reads the named pricing constants from ``synth_panel.cost`` plus the
+    Reads the named pricing constants from ``althing.cost`` plus the
     ``# pricing snapshot_date: YYYY-MM-DD`` anchor comment, and stamps the
-    installed synthpanel version. Designed to be lossless under ``json.dump``.
+    installed althing version. Designed to be lossless under ``json.dump``.
     """
     rates: dict[str, dict] = {}
     snapshot_date: str | None = None
-    synth_panel_version: str | None = None
+    althing_version: str | None = None
 
     try:
-        from synth_panel import cost as _spc
+        from althing import cost as _spc
     except ImportError:
         _spc = None  # type: ignore[assignment]
 
@@ -613,15 +613,15 @@ def _build_pricing_snapshot() -> dict:
         from importlib.metadata import PackageNotFoundError, version
 
         try:
-            synth_panel_version = version("synthpanel")
+            althing_version = version("althing")
         except PackageNotFoundError:
-            synth_panel_version = None
+            althing_version = None
     except ImportError:
-        synth_panel_version = None
+        althing_version = None
 
     return {
         "generated_at": datetime.now(timezone.utc).isoformat(),
-        "synth_panel_version": synth_panel_version,
+        "althing_version": althing_version,
         "snapshot_date": snapshot_date,
         "rates": rates,
     }
@@ -1279,7 +1279,7 @@ def publish_leaderboard_data(
 
     # Index by (provider_string, dataset) so ensemble cost can resolve its
     # constituent runs. Built off the deduped pool — ensemble_sources reference
-    # canonical provider strings (e.g., "synthpanel/claude-haiku-4-5-...") that
+    # canonical provider strings (e.g., "althing/claude-haiku-4-5-...") that
     # match the constituent runs surviving dedup.
     results_by_provider_ds: dict[tuple[str, str], dict] = {}
     for r in deduped:

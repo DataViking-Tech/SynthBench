@@ -131,13 +131,13 @@ def test_suffixed_providers_collapse_to_display_name():
     # display_provider_name and count against the base model row.
     results = [
         _result(
-            "synthpanel/openrouter/anthropic/claude-haiku-4-5 t=0.85 tpl=current",
+            "althing/openrouter/anthropic/claude-haiku-4-5 t=0.85 tpl=current",
             "opinionsqa",
             temperature=0.85,
             prompt_template="current",
         ),
         _result(
-            "synthpanel/openrouter/anthropic/claude-haiku-4-5",
+            "althing/openrouter/anthropic/claude-haiku-4-5",
             "opinionsqa",
             temperature=0.85,
             prompt_template="current",
@@ -145,7 +145,7 @@ def test_suffixed_providers_collapse_to_display_name():
     ]
     entries = [
         _entry(
-            "SynthPanel (Haiku 4.5)",
+            "Althing (Haiku 4.5)",
             "product",
             "opinionsqa",
             temperature=0.85,

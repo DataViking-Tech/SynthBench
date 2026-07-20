@@ -20,10 +20,10 @@ export interface LeaderboardEntry {
   provider: string;
   model: string;
   /**
-   * Machine-runnable execution-layer ID: "raw" | "synthpanel" | "ensemble" |
+   * Machine-runnable execution-layer ID: "raw" | "althing" | "ensemble" |
    * "baseline". Unlike `provider`/`model` (display labels), this is stable and
    * parseable — it tells a consumer whether a score reflects a raw model, the
-   * SynthPanel product layer, an ensemble, or a statistical baseline. Emitted
+   * Althing product layer, an ensemble, or a statistical baseline. Emitted
    * by publish.py via synthbench.config_id.runnable_ids (sb-7ly).
    */
   provider_id?: string;
@@ -470,12 +470,12 @@ export interface Baselines {
 
 /**
  * Runtime pricing manifest captured by publish.py at publish time (sb-tbm
- * Slice 3). Documents which synthpanel pricing rates were applied to cost
+ * Slice 3). Documents which althing pricing rates were applied to cost
  * fields in this leaderboard build.
  */
 export interface PricingSnapshot {
   generated_at: string;
-  synth_panel_version: string;
+  althing_version: string;
   snapshot_date: string;
   rates: Record<string, number | Record<string, number>>;
 }

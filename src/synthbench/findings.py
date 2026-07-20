@@ -31,18 +31,18 @@ the findings block.
 """
 
 # Display-name map: product entries -> underlying raw-LLM display name.
-# Also used by publish._annotate_normalized_sps so a SynthPanel row can look
+# Also used by publish._annotate_normalized_sps so a Althing row can look
 # up its corresponding "just prompt the model" baseline SPS for the same
 # dataset. Kept as a small explicit map (rather than string parsing) because
 # the product display names omit the vendor prefix ("Haiku 4.5" vs "Claude
 # Haiku 4.5") and a typo-tolerant match would silently bind the wrong row.
 PRODUCT_TO_RAW_DISPLAY: dict[str, str] = {
-    "SynthPanel (Haiku 4.5)": "Claude Haiku 4.5",
-    "SynthPanel (Sonnet 4)": "Claude Sonnet 4",
-    "SynthPanel (GPT-4o-mini)": "GPT-4o-mini",
-    "SynthPanel (GPT-4o)": "GPT-4o",
-    "SynthPanel (Gemini Flash Lite)": "Gemini Flash Lite",
-    "SynthPanel (Llama 3.3 70B)": "Llama 3.3 70B",
+    "Althing (Haiku 4.5)": "Claude Haiku 4.5",
+    "Althing (Sonnet 4)": "Claude Sonnet 4",
+    "Althing (GPT-4o-mini)": "GPT-4o-mini",
+    "Althing (GPT-4o)": "GPT-4o",
+    "Althing (Gemini Flash Lite)": "Gemini Flash Lite",
+    "Althing (Llama 3.3 70B)": "Llama 3.3 70B",
 }
 
 # Short display labels for demographic groups whose raw SubPOP labels are
@@ -937,7 +937,7 @@ def build_findings(
             "ensemble_signed_error_correlation asserted constant."
         ),
         "temperature_sweep": (
-            "OpinionsQA sweep-tagged SynthPanel runs (' t=' provider suffix); "
+            "OpinionsQA sweep-tagged Althing runs (' t=' provider suffix); "
             "mean/std of recomputed SPS across the n_runs replications per "
             "(model, temperature) cell."
         ),

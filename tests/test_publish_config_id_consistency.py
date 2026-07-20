@@ -10,7 +10,7 @@ The bug this guards against:
   ``parse_provider``. If either path ever switches to ``provider_framework``
   (the human-facing taxonomy: ``raw`` / ``product`` / ``baseline``) for the
   slug while the other keeps ``parsed.framework`` (the path-derived label:
-  ``raw`` / ``synthpanel`` / ``ensemble`` / ``baseline``), the prefix
+  ``raw`` / ``althing`` / ``ensemble`` / ``baseline``), the prefix
   diverges — e.g. an OpenRouter raw call becomes ``openrouter--gpt-4o-mini``
   on one side and ``raw--gpt-4o-mini`` on the other.
 """
@@ -35,10 +35,10 @@ PROVIDER_FIXTURES = [
     "openrouter/google/gemini-2.5-flash-lite",
     "raw-anthropic/claude-haiku-4-5-20251001",
     "raw-gemini/gemini-2.5-flash-lite",
-    "synthpanel/openrouter/openai/gpt-4o-mini",
-    "synthpanel/openrouter/anthropic/claude-haiku-4-5",
-    "synthpanel/claude-haiku-4-5-20251001",
-    "synthpanel/gemini-2.5-flash-lite",
+    "althing/openrouter/openai/gpt-4o-mini",
+    "althing/openrouter/anthropic/claude-haiku-4-5",
+    "althing/claude-haiku-4-5-20251001",
+    "althing/gemini-2.5-flash-lite",
     "ensemble/3-model-blend",
     "random-baseline",
     "majority-baseline",
@@ -165,10 +165,10 @@ EXPECTED_FRAMEWORK_PREFIX = {
     "openrouter/google/gemini-2.5-flash-lite": "raw",
     "raw-anthropic/claude-haiku-4-5-20251001": "raw",
     "raw-gemini/gemini-2.5-flash-lite": "raw",
-    "synthpanel/openrouter/openai/gpt-4o-mini": "synthpanel",
-    "synthpanel/openrouter/anthropic/claude-haiku-4-5": "synthpanel",
-    "synthpanel/claude-haiku-4-5-20251001": "synthpanel",
-    "synthpanel/gemini-2.5-flash-lite": "synthpanel",
+    "althing/openrouter/openai/gpt-4o-mini": "althing",
+    "althing/openrouter/anthropic/claude-haiku-4-5": "althing",
+    "althing/claude-haiku-4-5-20251001": "althing",
+    "althing/gemini-2.5-flash-lite": "althing",
     "ensemble/3-model-blend": "ensemble",
     "random-baseline": "baseline",
     "majority-baseline": "baseline",

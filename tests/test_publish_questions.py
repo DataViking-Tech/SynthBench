@@ -116,7 +116,7 @@ def test_collect_rollups_partitions_ensembles_and_skips_baselines():
     # Aggregated bucket: ensemble lands here, not in model_responses.
     aggregated = rollup["aggregated_responses"]
     assert len(aggregated) == 1
-    assert aggregated[0]["model"] == "SynthPanel Ensemble (3-model)"
+    assert aggregated[0]["model"] == "Althing Ensemble (3-model)"
     assert aggregated[0]["run_id"] == "ensemble_run"
     # Ensembles are product-framework in MODEL_MAP; confirm they're not
     # leaking into the raw/product single-model bucket.
@@ -420,7 +420,7 @@ def test_finalize_emits_aggregated_responses_excluded_from_summary():
             "aggregated_responses": [
                 {
                     "config_id": "cfg-ens",
-                    "model": "SynthPanel Ensemble (3-model)",
+                    "model": "Althing Ensemble (3-model)",
                     "framework": "product",
                     "base_provider": "3-model-blend",
                     "distribution": {"A": 0.5, "B": 0.5},
@@ -652,7 +652,7 @@ def test_publish_questions_writes_expected_layout(tmp_path):
     ]
     # Ensemble lives in the aggregated bucket, not model_responses.
     assert [r["model"] for r in q1["aggregated_responses"]] == [
-        "SynthPanel Ensemble (3-model)",
+        "Althing Ensemble (3-model)",
     ]
     assert all(
         "ensemble" not in r["base_provider"].lower() for r in q1["model_responses"]

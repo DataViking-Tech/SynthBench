@@ -261,8 +261,8 @@ function hiddenInDefaultView(entry: LeaderboardEntry): boolean {
               )}
               {entry.is_ensemble && <span class="ml-1 text-xs px-1.5 py-0.5 rounded bg-primary/10 text-primary" title={entry.provider}>ensemble</span>}
               {entry.is_baseline && <span class="ml-1 text-xs px-1.5 py-0.5 rounded bg-muted/20 text-muted" title={entry.provider}>baseline</span>}
-              {!entry.is_baseline && entry.provider.startsWith("SynthPanel") && !entry.is_ensemble && (
-                <span class="ml-1 text-xs px-1.5 py-0.5 rounded bg-provider-synthpanel/10 text-provider-synthpanel" title={entry.provider}>conditioned</span>
+              {!entry.is_baseline && entry.provider.startsWith("Althing") && !entry.is_ensemble && (
+                <span class="ml-1 text-xs px-1.5 py-0.5 rounded bg-provider-althing/10 text-provider-althing" title={entry.provider}>conditioned</span>
               )}
               {entry.verification_badge === "verified" && (
                 <a href={`${base}methodology/#verification-badges`} class="ml-1 text-xs px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 hover:underline" title={
@@ -461,8 +461,8 @@ function hiddenInDefaultView(entry: LeaderboardEntry): boolean {
             <span class="font-medium">{entry.model}</span>
             {entry.is_ensemble && <span class="ml-1 text-xs px-1.5 py-0.5 rounded bg-primary/10 text-primary">ensemble</span>}
             {entry.is_baseline && <span class="ml-1 text-xs px-1.5 py-0.5 rounded bg-muted/20 text-muted">baseline</span>}
-            {!entry.is_baseline && entry.provider.startsWith("SynthPanel") && !entry.is_ensemble && (
-              <span class="ml-1 text-xs px-1.5 py-0.5 rounded bg-provider-synthpanel/10 text-provider-synthpanel">conditioned</span>
+            {!entry.is_baseline && entry.provider.startsWith("Althing") && !entry.is_ensemble && (
+              <span class="ml-1 text-xs px-1.5 py-0.5 rounded bg-provider-althing/10 text-provider-althing">conditioned</span>
             )}
             {entry.verification_badge === "verified" && (
               <span class="ml-1 text-xs px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-700 dark:text-emerald-400">✓ verified</span>

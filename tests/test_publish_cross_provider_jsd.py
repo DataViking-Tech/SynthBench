@@ -173,7 +173,7 @@ def test_non_raw_frameworks_excluded():
             per_question=[_pq("q1", {"A": 0.5, "B": 0.5})],
         ),
         _result(
-            "synthpanel/claude-haiku-4-5-20251001",
+            "althing/claude-haiku-4-5-20251001",
             "opinionsqa",
             per_question=[_pq("q1", {"A": 0.9, "B": 0.1})],
         ),
@@ -182,7 +182,7 @@ def test_non_raw_frameworks_excluded():
     models = out["opinionsqa"]["models"]
     # Only the two raw LLMs survive the framework filter.
     assert len(models) == 2
-    assert all("SynthPanel" not in m for m in models)
+    assert all("Althing" not in m for m in models)
     assert all("baseline" not in m.lower() for m in models)
 
 

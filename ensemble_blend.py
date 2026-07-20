@@ -77,20 +77,20 @@ OPTIMAL_TEMP_PATTERNS = {
     "Haiku": {
         "opinionsqa": lambda f: (
             "claude-haiku" in f
-            and "synthpanel" in f
+            and "althing" in f
             and " t=0.85" in f
             and " tpl=" not in f
         ),
     },
     "Gemini": {
         "opinionsqa": lambda f: (
-            "gemini" in f and "synthpanel" in f and " t=2.0" in f and " tpl=" not in f
+            "gemini" in f and "althing" in f and " t=2.0" in f and " tpl=" not in f
         ),
     },
     "GPT-4o-mini": {
         "opinionsqa": lambda f: (
             "gpt-4o-mini" in f
-            and "synthpanel" in f
+            and "althing" in f
             and " t=1.0" in f
             and " tpl=" not in f
         ),
@@ -101,15 +101,15 @@ OPTIMAL_TEMP_PATTERNS = {
 DEFAULT_TEMP_PATTERNS = {
     "Haiku": lambda f: (
         "claude-haiku" in f
-        and "synthpanel" in f
+        and "althing" in f
         and " t=" not in f
         and " tpl=" not in f
     ),
     "Gemini": lambda f: (
-        "gemini" in f and "synthpanel" in f and " t=" not in f and " tpl=" not in f
+        "gemini" in f and "althing" in f and " t=" not in f and " tpl=" not in f
     ),
     "GPT-4o-mini": lambda f: (
-        "gpt-4o-mini" in f and "synthpanel" in f and " t=" not in f and " tpl=" not in f
+        "gpt-4o-mini" in f and "althing" in f and " t=" not in f and " tpl=" not in f
     ),
 }
 
@@ -512,7 +512,7 @@ def run_optimal_temp_experiment():
                 # Try anyway with the OpinionsQA matcher as fallback
                 found = False
                 for f in RESULTS_DIR.glob(f"{ds}_*.json"):
-                    if " t=" in f.name and "synthpanel" in f.name:
+                    if " t=" in f.name and "althing" in f.name:
                         if (
                             (
                                 mn == "Haiku"

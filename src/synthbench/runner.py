@@ -589,7 +589,7 @@ class BenchmarkRunner:
         token_usage = dist.metadata.get("usage") if dist.metadata else None
         # Same raw_sample extraction as _evaluate_question — the batched
         # path previously dropped provider-attached samples on the floor,
-        # which left batch-capable distribution providers (synthpanel)
+        # which left batch-capable distribution providers (althing)
         # unable to populate raw_responses at all.
         raw_sample: dict | None = None
         if dist.metadata:

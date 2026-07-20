@@ -5,7 +5,7 @@
 > pipeline that turns an adapter into a leaderboard-ready submission is
 > tracked in follow-up issues.
 
-This is the path SynthPanel competitors take to land on the SynthBench
+This is the path Althing competitors take to land on the SynthBench
 leaderboard without filing a bespoke evaluation pipeline. The three steps
 are: write an adapter, run `synthbench submit-adapter`, open a PR.
 

@@ -2,6 +2,12 @@
 
 **Date**: 2026-04-12 (session-1 experiments) | **Numbers regenerated from artifacts** — see below
 
+> **Naming note (2026-07):** the `synthpanel` provider referenced throughout
+> these findings was renamed to **[althing](https://althing.dev)**. Result
+> artifacts and generated tables retain the provider id `synthpanel` they
+> were recorded under; `--provider synthpanel` remains a working alias for
+> the `althing` provider.
+
 > All quantitative tables in this document sit between
 > `<!-- BEGIN GENERATED -->` / `<!-- END GENERATED -->` markers and are
 > rendered by `scripts/generate-findings-md.py` from the per-question rows
@@ -34,9 +40,9 @@ asymmetries in how LLMs represent different demographic groups.
 
 | Dataset | 3-model ensemble SPS | Best single model | Random baseline |
 |---------|---------------------|-------------------|-----------------|
-| globalopinionqa (n=100) | **0.813** | 0.786 (SynthPanel (GPT-4o-mini), product) | 0.774 (n=100) |
+| globalopinionqa (n=100) | **0.813** | 0.786 (Althing (GPT-4o-mini), product) | 0.774 (n=100) |
 | opinionsqa (n=684) | **0.877** | 0.829 (Gemini 2.5 Flash, raw) | 0.763 (n=684) |
-| subpop (n=200) | **0.858** | 0.821 (SynthPanel (Gemini Flash Lite), product) | 0.757 (n=200) |
+| subpop (n=200) | **0.858** | 0.821 (Althing (Gemini Flash Lite), product) | 0.757 (n=200) |
 <!-- END GENERATED: headline -->
 
 Note on interpretation: SPS is a composite parity score, not a
@@ -140,7 +146,7 @@ run vs the identical configuration with schema-forced structured capture
 count — the elicitation surface is the only variable.
 
 <!-- BEGIN GENERATED: elicitation -->
-**SynthPanel (Haiku 4.5)** (product) on gss — n=75 questions × 30 samples per arm, refusal detector v2; the arms differ only in elicitation mode:
+**Althing (Haiku 4.5)** (product) on gss — n=75 questions × 30 samples per arm, refusal detector v2; the arms differ only in elicitation mode:
 
 | Metric | Natural | Structured | Δ (structured − natural) |
 |--------|---------|------------|--------------------------|
@@ -252,9 +258,9 @@ three runs costs roughly 3× a single-model run.
 <!-- BEGIN GENERATED: ensemble -->
 | Dataset | Best single model | Equal blend | Improvement | Random baseline |
 |---------|-------------------|-------------|-------------|-----------------|
-| globalopinionqa (100q) | 0.786 (SynthPanel (GPT-4o-mini), product) | **0.813** | **+2.7 pts** | 0.774 (n=100) |
+| globalopinionqa (100q) | 0.786 (Althing (GPT-4o-mini), product) | **0.813** | **+2.7 pts** | 0.774 (n=100) |
 | opinionsqa (684q) | 0.829 (Gemini 2.5 Flash, raw) | **0.877** | **+4.8 pts** | 0.763 (n=684) |
-| subpop (200q) | 0.821 (SynthPanel (Gemini Flash Lite), product) | **0.858** | **+3.7 pts** | 0.757 (n=200) |
+| subpop (200q) | 0.821 (Althing (Gemini Flash Lite), product) | **0.858** | **+3.7 pts** | 0.757 (n=200) |
 
 Comparison set: best_single = highest recomputed-SPS non-ensemble, non-baseline leaderboard row (raw or product framework) evaluated on at least as many questions as the ensemble, after per-(model, framework, dataset) dedup; random_baseline = recomputed SPS of the random-baseline run for the same dataset (n in random_baseline_n).
 <!-- END GENERATED: ensemble -->
@@ -277,25 +283,25 @@ artifacts strip `human_distribution` (#308).
 
 | Constituent pair | Pearson r (per-question JSD) | n |
 |------------------|------------------------------|---|
-| SynthPanel (Haiku 4.5) ↔ SynthPanel (Gemini Flash Lite) | 0.419 | 100 |
-| SynthPanel (Haiku 4.5) ↔ SynthPanel (GPT-4o-mini) | 0.308 | 100 |
-| SynthPanel (Gemini Flash Lite) ↔ SynthPanel (GPT-4o-mini) | 0.493 | 100 |
+| Althing (Haiku 4.5) ↔ Althing (Gemini Flash Lite) | 0.419 | 100 |
+| Althing (Haiku 4.5) ↔ Althing (GPT-4o-mini) | 0.308 | 100 |
+| Althing (Gemini Flash Lite) ↔ Althing (GPT-4o-mini) | 0.493 | 100 |
 
 **opinionsqa** (n=684 common questions, mean pairwise r = 0.295):
 
 | Constituent pair | Pearson r (per-question JSD) | n |
 |------------------|------------------------------|---|
-| SynthPanel (Haiku 4.5) ↔ SynthPanel (Gemini Flash Lite) | 0.224 | 684 |
-| SynthPanel (Haiku 4.5) ↔ SynthPanel (GPT-4o-mini) | 0.355 | 684 |
-| SynthPanel (Gemini Flash Lite) ↔ SynthPanel (GPT-4o-mini) | 0.308 | 684 |
+| Althing (Haiku 4.5) ↔ Althing (Gemini Flash Lite) | 0.224 | 684 |
+| Althing (Haiku 4.5) ↔ Althing (GPT-4o-mini) | 0.355 | 684 |
+| Althing (Gemini Flash Lite) ↔ Althing (GPT-4o-mini) | 0.308 | 684 |
 
 **subpop** (n=200 common questions, mean pairwise r = 0.322):
 
 | Constituent pair | Pearson r (per-question JSD) | n |
 |------------------|------------------------------|---|
-| SynthPanel (Haiku 4.5) ↔ SynthPanel (Gemini Flash Lite) | 0.282 | 200 |
-| SynthPanel (Haiku 4.5) ↔ SynthPanel (GPT-4o-mini) | 0.260 | 200 |
-| SynthPanel (Gemini Flash Lite) ↔ SynthPanel (GPT-4o-mini) | 0.425 | 200 |
+| Althing (Haiku 4.5) ↔ Althing (Gemini Flash Lite) | 0.282 | 200 |
+| Althing (Haiku 4.5) ↔ Althing (GPT-4o-mini) | 0.260 | 200 |
+| Althing (Gemini Flash Lite) ↔ Althing (GPT-4o-mini) | 0.425 | 200 |
 
 The constituents' errors are **moderately positively correlated** (pairwise r 0.22–0.49 on per-question JSD; 0.27–0.44 on signed per-option residuals, see asserted constants) — not uncorrelated. The ensemble gain comes from partial, not full, independence of errors; the earlier "uncorrelated errors" framing overstated it.
 
@@ -403,8 +409,8 @@ gated files are committed without `human_distribution`).
 | Provider | Framework | Template | Dataset | Mean model nonresponse | Mean human nonresponse | Mean abs gap | n |
 |----------|-----------|----------|---------|------------------------|------------------------|--------------|---|
 | Gemini 2.5 Flash | raw | default | gss | 0.106 | 0.056 | **0.126** | 75 |
-| SynthPanel (Haiku 4.5) | product | structured | gss | 0.064 | 0.056 | **0.095** | 75 |
-| SynthPanel (Haiku 4.5) | product | default | gss | 0.067 | 0.056 | **0.094** | 75 |
+| Althing (Haiku 4.5) | product | structured | gss | 0.064 | 0.056 | **0.095** | 75 |
+| Althing (Haiku 4.5) | product | default | gss | 0.067 | 0.056 | **0.094** | 75 |
 
 Comparison set: Per deduped non-baseline run whose committed per-question rows still carry human_distribution (full-tier datasets; gated files are stripped per #308): mean |model explicit-nonresponse mass (DK-style option mass + parsed refusal rate) - human's|, plus the five items with the largest model over-selection.
 

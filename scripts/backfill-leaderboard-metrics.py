@@ -3,7 +3,7 @@
 
 Two classes of historical drift this resolves (sb-7gn):
 
-1. DIST_SUM — synthpanel runs published before sb-7bg (PR #138) divided
+1. DIST_SUM — althing runs published before sb-7bg (PR #138) divided
    per-question option counts by total samples (incl. refusals/parse-failures),
    so model_distribution sums to <1.0 (typically 0.83 or 0.91). The new
    runner renormalizes over valid options before publishing. We bring

@@ -41,9 +41,9 @@ class TestProviderKwargsEffort:
         with pytest.raises(click.UsageError, match="--effort is not supported"):
             _provider_kwargs(provider, model="m", effort="low")
 
-    def test_effort_rejected_for_synthpanel_with_pointer(self):
-        with pytest.raises(click.UsageError, match="synthpanel"):
-            _provider_kwargs("synthpanel", model="haiku", effort="medium")
+    def test_effort_rejected_for_althing_with_pointer(self):
+        with pytest.raises(click.UsageError, match="althing"):
+            _provider_kwargs("althing", model="haiku", effort="medium")
 
     def test_absent_effort_adds_no_kwarg(self):
         kwargs = _provider_kwargs("raw-anthropic", model="m")
@@ -261,11 +261,20 @@ class TestConfigIdEffort:
             "raw--gpt-4o-mini--tdefault--tplcurrent--704154ed",
         ),
         (
+            # Historical golden: pre-rename provider ids must hash stably
+            # forever — leaderboard-results/ artifacts reference this id.
             dict(
                 provider="synthpanel/openrouter/anthropic/claude-haiku-4-5 t=0.85 tpl=current",
                 dataset="opinionsqa",
             ),
             "synthpanel--claude-haiku-4-5--t0.85--tplcurrent--9f9ed2bc",
+        ),
+        (
+            dict(
+                provider="althing/openrouter/anthropic/claude-haiku-4-5 t=0.85 tpl=current",
+                dataset="opinionsqa",
+            ),
+            "althing--claude-haiku-4-5--t0.85--tplcurrent--d22b2768",
         ),
         (
             dict(
@@ -311,13 +320,13 @@ class TestConfigIdEffort:
         assert parsed.knobs["effort"] == "high"
 
     def test_effort_knob_parsed_from_provider_string(self):
-        """A provider string carrying `effort=high` (synthpanel-style knob
+        """A provider string carrying `effort=high` (althing-style knob
         tokens) resolves the same as the explicit kwarg."""
         via_knob, _ = build_config_id(
-            "synthpanel/x/y/z effort=high", dataset="opinionsqa"
+            "althing/x/y/z effort=high", dataset="opinionsqa"
         )
         via_kwarg, _ = build_config_id(
-            "synthpanel/x/y/z", dataset="opinionsqa", effort="high"
+            "althing/x/y/z", dataset="opinionsqa", effort="high"
         )
         assert via_knob == via_kwarg
 

@@ -67,7 +67,7 @@ const chartOption = {
       name: "Ensemble",
       type: "bar" as const,
       data: ensembleSpsData,
-      itemStyle: { color: "var(--color-provider-synthpanel)" },
+      itemStyle: { color: "var(--color-provider-althing)" },
       barMaxWidth: 50,
       emphasis: {
         itemStyle: { shadowBlur: 10, shadowColor: "rgba(0,0,0,0.3)" },
@@ -100,7 +100,7 @@ const allR = errorCorrelation.flatMap((d) => d.pairs.map((p) => p.pearson_r));
 const rRange =
   allR.length > 0 ? `${Math.min(...allR).toFixed(2)}–${Math.max(...allR).toFixed(2)}` : "";
 
-// Compact model label: "SynthPanel (Haiku 4.5)" -> "Haiku 4.5".
+// Compact model label: "Althing (Haiku 4.5)" -> "Haiku 4.5".
 function shortName(name: string): string {
   const m = name.match(/\(([^)]+)\)/);
   return m ? m[1] : name;

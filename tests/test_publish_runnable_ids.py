@@ -1,12 +1,12 @@
 """Runnable provider/model IDs in leaderboard.json entries (sb-7ly / #297).
 
 ``/data/leaderboard.json`` historically put display labels (e.g.
-``SynthPanel (Gemini Flash Lite)``) in both ``provider`` and ``model``.
-Consumers (SynthPanel #519) need *runnable* IDs so they can pipe a row's model
+``Althing (Gemini Flash Lite)``) in both ``provider`` and ``model``.
+Consumers (Althing #519) need *runnable* IDs so they can pipe a row's model
 straight to OpenRouter without parsing display names. ``_build_entry`` now also
 emits:
 
-- ``provider_id`` — framework/runner (raw / synthpanel / ensemble / baseline)
+- ``provider_id`` — framework/runner (raw / althing / ensemble / baseline)
 - ``model_id``    — an OpenRouter ``<vendor>/<model>`` slug
 
 This locks the exact ID per production provider shape. The key correctness
@@ -45,36 +45,36 @@ RUNNABLE_ID_FIXTURES = [
         "anthropic/claude-haiku-4-5-20251001",
     ),
     ("raw-gemini/gemini-2.5-flash-lite", "raw", "google/gemini-2.5-flash-lite"),
-    # SynthPanel product layer over an OpenRouter-routed model.
+    # Althing product layer over an OpenRouter-routed model.
     (
-        "synthpanel/openrouter/openai/gpt-4o-mini",
-        "synthpanel",
+        "althing/openrouter/openai/gpt-4o-mini",
+        "althing",
         "openai/gpt-4o-mini",
     ),
     (
-        "synthpanel/openrouter/anthropic/claude-haiku-4-5",
-        "synthpanel",
+        "althing/openrouter/anthropic/claude-haiku-4-5",
+        "althing",
         "anthropic/claude-haiku-4-5",
     ),
     (
-        "synthpanel/openrouter/anthropic/claude-sonnet-4",
-        "synthpanel",
+        "althing/openrouter/anthropic/claude-sonnet-4",
+        "althing",
         "anthropic/claude-sonnet-4",
     ),
     (
-        "synthpanel/openrouter/google/gemini-2.5-flash-lite",
-        "synthpanel",
+        "althing/openrouter/google/gemini-2.5-flash-lite",
+        "althing",
         "google/gemini-2.5-flash-lite",
     ),
-    # SynthPanel over a direct (bare) model — vendor inferred so the slug is
+    # Althing over a direct (bare) model — vendor inferred so the slug is
     # still OpenRouter-pipeable.
     (
-        "synthpanel/claude-haiku-4-5-20251001",
-        "synthpanel",
+        "althing/claude-haiku-4-5-20251001",
+        "althing",
         "anthropic/claude-haiku-4-5-20251001",
     ),
-    ("synthpanel/gemini-2.5-flash-lite", "synthpanel", "google/gemini-2.5-flash-lite"),
-    ("synthpanel/gpt-4o-mini", "synthpanel", "openai/gpt-4o-mini"),
+    ("althing/gemini-2.5-flash-lite", "althing", "google/gemini-2.5-flash-lite"),
+    ("althing/gpt-4o-mini", "althing", "openai/gpt-4o-mini"),
     # Ensemble + baselines have no OpenRouter equivalent — keep the native id.
     ("ensemble/3-model-blend", "ensemble", "3-model-blend"),
     ("random-baseline", "baseline", "random-baseline"),
@@ -120,8 +120,8 @@ def test_runnable_ids_per_provider_shape():
 
 def test_runnable_ids_ignore_hyperparameter_knobs():
     """t=/tpl=/profile= suffixes don't change the runnable IDs."""
-    base = "synthpanel/openrouter/anthropic/claude-haiku-4-5"
-    expected = ("synthpanel", "anthropic/claude-haiku-4-5")
+    base = "althing/openrouter/anthropic/claude-haiku-4-5"
+    expected = ("althing", "anthropic/claude-haiku-4-5")
     assert runnable_ids(base) == expected
     assert runnable_ids(f"{base} t=0.85") == expected
     assert runnable_ids(f"{base} t=0.85 tpl=current") == expected

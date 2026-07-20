@@ -18,36 +18,36 @@ from synthbench.publish import (
 )
 
 # Imported lazily by the helpers under test, but the test file needs the
-# pricing constants for assertion math. Tests skip cleanly if synthpanel
+# pricing constants for assertion math. Tests skip cleanly if althing
 # (a dep added in this slice) is not installed.
-synth_panel_cost = pytest.importorskip("synth_panel.cost")
-HAIKU = synth_panel_cost.HAIKU_PRICING
-SONNET = synth_panel_cost.SONNET_PRICING
+althing_cost = pytest.importorskip("althing.cost")
+HAIKU = althing_cost.HAIKU_PRICING
+SONNET = althing_cost.SONNET_PRICING
 
 
 # Dynamic read: extract the pricing snapshot_date from the installed
-# synth_panel.cost source the same way `_build_pricing_snapshot` does.
+# althing.cost source the same way `_build_pricing_snapshot` does.
 # Previously this test hard-coded "2026-04-14", which broke every time
 # the upstream cost.py snapshot comment rolled (observed 2026-04-21 when
-# synth_panel released v0.9.7 — refinery escalation hq-wisp-ll8ti4).
-# Assertions now pin against whatever the installed synth_panel reports,
+# althing released v0.9.7 — refinery escalation hq-wisp-ll8ti4).
+# Assertions now pin against whatever the installed althing reports,
 # so the test no longer requires per-release maintenance.
 _SNAPSHOT_PATTERN = re.compile(r"pricing snapshot_date:\s*(\d{4}-\d{2}-\d{2})")
 
 
 def _current_snapshot_date() -> str:
-    """Return the snapshot_date reported by the installed synth_panel.
+    """Return the snapshot_date reported by the installed althing.
 
     Reads the same `# pricing snapshot_date: YYYY-MM-DD` anchor comment
     `_build_pricing_snapshot` parses, from the installed package source.
     Skips the test (via pytest.skip) if the anchor is missing, which
     matches the library's own fallback behavior.
     """
-    source = inspect.getsource(synth_panel_cost)
+    source = inspect.getsource(althing_cost)
     m = _SNAPSHOT_PATTERN.search(source)
     if not m:
         pytest.skip(
-            "synth_panel.cost does not expose a `pricing snapshot_date:` anchor comment"
+            "althing.cost does not expose a `pricing snapshot_date:` anchor comment"
         )
     return m.group(1)
 
@@ -252,19 +252,19 @@ def _constituent(provider: str, dataset: str, in_tok: int, out_tok: int) -> dict
 
 
 def test_compute_ensemble_cost_sums_all_constituents():
-    haiku = _constituent("synthpanel/claude-haiku-4-5", "subpop", 1_000_000, 500_000)
-    sonnet = _constituent("synthpanel/claude-sonnet-4", "subpop", 1_000_000, 500_000)
+    haiku = _constituent("althing/claude-haiku-4-5", "subpop", 1_000_000, 500_000)
+    sonnet = _constituent("althing/claude-sonnet-4", "subpop", 1_000_000, 500_000)
     opus = _constituent("raw-anthropic/claude-opus-4-6", "subpop", 1_000_000, 500_000)
     results_by_pds = {
-        ("synthpanel/claude-haiku-4-5", "subpop"): haiku,
-        ("synthpanel/claude-sonnet-4", "subpop"): sonnet,
+        ("althing/claude-haiku-4-5", "subpop"): haiku,
+        ("althing/claude-sonnet-4", "subpop"): sonnet,
         ("raw-anthropic/claude-opus-4-6", "subpop"): opus,
     }
     config = {
         "dataset": "subpop",
         "ensemble_sources": [
-            {"provider": "synthpanel/claude-haiku-4-5", "weight": 1 / 3},
-            {"provider": "synthpanel/claude-sonnet-4", "weight": 1 / 3},
+            {"provider": "althing/claude-haiku-4-5", "weight": 1 / 3},
+            {"provider": "althing/claude-sonnet-4", "weight": 1 / 3},
             {"provider": "raw-anthropic/claude-opus-4-6", "weight": 1 / 3},
         ],
     }
@@ -276,32 +276,32 @@ def test_compute_ensemble_cost_sums_all_constituents():
         (HAIKU.input_cost_per_million + 0.5 * HAIKU.output_cost_per_million)
         + (SONNET.input_cost_per_million + 0.5 * SONNET.output_cost_per_million)
         + (
-            synth_panel_cost.OPUS_PRICING.input_cost_per_million
-            + 0.5 * synth_panel_cost.OPUS_PRICING.output_cost_per_million
+            althing_cost.OPUS_PRICING.input_cost_per_million
+            + 0.5 * althing_cost.OPUS_PRICING.output_cost_per_million
         )
     )
     assert cost == pytest.approx(expected, rel=1e-5)
 
 
 def test_compute_ensemble_cost_missing_constituent_returns_none():
-    haiku = _constituent("synthpanel/claude-haiku-4-5", "subpop", 1_000_000, 500_000)
+    haiku = _constituent("althing/claude-haiku-4-5", "subpop", 1_000_000, 500_000)
     # opus exists, but sonnet's token_usage is missing AND its config lacks
     # samples_per_question/n_evaluated, so the #316 estimate can't run either.
     sonnet_no_usage = {
-        "config": {"provider": "synthpanel/claude-sonnet-4", "dataset": "subpop"},
+        "config": {"provider": "althing/claude-sonnet-4", "dataset": "subpop"},
         "aggregate": {"n_questions": 100},  # no token_usage
     }
     opus = _constituent("raw-anthropic/claude-opus-4-6", "subpop", 1_000_000, 500_000)
     results_by_pds = {
-        ("synthpanel/claude-haiku-4-5", "subpop"): haiku,
-        ("synthpanel/claude-sonnet-4", "subpop"): sonnet_no_usage,
+        ("althing/claude-haiku-4-5", "subpop"): haiku,
+        ("althing/claude-sonnet-4", "subpop"): sonnet_no_usage,
         ("raw-anthropic/claude-opus-4-6", "subpop"): opus,
     }
     config = {
         "dataset": "subpop",
         "ensemble_sources": [
-            {"provider": "synthpanel/claude-haiku-4-5", "weight": 1 / 3},
-            {"provider": "synthpanel/claude-sonnet-4", "weight": 1 / 3},
+            {"provider": "althing/claude-haiku-4-5", "weight": 1 / 3},
+            {"provider": "althing/claude-sonnet-4", "weight": 1 / 3},
             {"provider": "raw-anthropic/claude-opus-4-6", "weight": 1 / 3},
         ],
     }
@@ -315,10 +315,10 @@ def test_compute_ensemble_cost_no_sources_returns_none():
 def test_compute_ensemble_cost_estimates_unmeasured_constituent():
     """#316: a constituent without token_usage contributes the documented
     samples×questions×per-call-constant estimate and flips is_estimated."""
-    haiku = _constituent("synthpanel/claude-haiku-4-5", "subpop", 1_000_000, 500_000)
+    haiku = _constituent("althing/claude-haiku-4-5", "subpop", 1_000_000, 500_000)
     sonnet_estimable = {
         "config": {
-            "provider": "synthpanel/claude-sonnet-4",
+            "provider": "althing/claude-sonnet-4",
             "dataset": "subpop",
             "samples_per_question": 5,
             "n_evaluated": 100,
@@ -326,14 +326,14 @@ def test_compute_ensemble_cost_estimates_unmeasured_constituent():
         "aggregate": {"n_questions": 100},  # no token_usage
     }
     results_by_pds = {
-        ("synthpanel/claude-haiku-4-5", "subpop"): haiku,
-        ("synthpanel/claude-sonnet-4", "subpop"): sonnet_estimable,
+        ("althing/claude-haiku-4-5", "subpop"): haiku,
+        ("althing/claude-sonnet-4", "subpop"): sonnet_estimable,
     }
     config = {
         "dataset": "subpop",
         "ensemble_sources": [
-            {"provider": "synthpanel/claude-haiku-4-5", "weight": 0.5},
-            {"provider": "synthpanel/claude-sonnet-4", "weight": 0.5},
+            {"provider": "althing/claude-haiku-4-5", "weight": 0.5},
+            {"provider": "althing/claude-sonnet-4", "weight": 0.5},
         ],
     }
     result = _compute_ensemble_cost(config, results_by_pds)
@@ -357,7 +357,7 @@ def test_build_pricing_snapshot_shape_and_rates():
     snap = _build_pricing_snapshot()
     assert set(snap.keys()) == {
         "generated_at",
-        "synth_panel_version",
+        "althing_version",
         "snapshot_date",
         "rates",
     }
@@ -375,7 +375,7 @@ def test_build_pricing_snapshot_shape_and_rates():
     assert rates["haiku"]["output_cost_per_million"] == HAIKU.output_cost_per_million
     assert rates["sonnet"]["input_cost_per_million"] == SONNET.input_cost_per_million
     # snapshot_date is read from the installed cost.py anchor comment;
-    # pin against whatever synth_panel reports today so future releases
+    # pin against whatever althing reports today so future releases
     # don't break this test (see module-level _current_snapshot_date).
     assert snap["snapshot_date"] == CURRENT_SNAPSHOT_DATE
     assert re.fullmatch(r"\d{4}-\d{2}-\d{2}", snap["snapshot_date"]), (
@@ -471,7 +471,7 @@ def test_golden_three_entry_leaderboard(tmp_path: Path):
     """Feed 3 raw artifacts (measured / no-tokens / ensemble) through publish_leaderboard_data
     and assert the cost-related shape and values."""
     haiku_with_tokens = _make_run(
-        provider="synthpanel/claude-haiku-4-5",
+        provider="althing/claude-haiku-4-5",
         dataset="subpop",
         sps=0.83,
         n_questions=200,
@@ -484,7 +484,7 @@ def test_golden_three_entry_leaderboard(tmp_path: Path):
         },
     )
     gemini_no_tokens = _make_run(
-        provider="synthpanel/gemini-2.5-flash-lite",
+        provider="althing/gemini-2.5-flash-lite",
         dataset="subpop",
         sps=0.78,
         n_questions=200,
@@ -500,12 +500,12 @@ def test_golden_three_entry_leaderboard(tmp_path: Path):
         ensemble_sources=[
             {
                 "file": "h.json",
-                "provider": "synthpanel/claude-haiku-4-5",
+                "provider": "althing/claude-haiku-4-5",
                 "weight": 0.5,
             },
             {
                 "file": "g.json",
-                "provider": "synthpanel/gemini-2.5-flash-lite",
+                "provider": "althing/gemini-2.5-flash-lite",
                 "weight": 0.5,
             },
         ],
@@ -545,7 +545,7 @@ def test_golden_three_entry_leaderboard(tmp_path: Path):
     # Gemini row (no token_usage) — #316 estimate from config
     # (samples_per_question=5 × n_evaluated=200 = 1000 calls at the
     # documented per-call token constants), clearly marked estimated.
-    FLASH_LITE = synth_panel_cost.GEMINI_FLASH_LITE_PRICING
+    FLASH_LITE = althing_cost.GEMINI_FLASH_LITE_PRICING
     expected_gemini_cost = (
         1000
         * (
@@ -660,7 +660,7 @@ def test_compute_latency_fields_absent_block_returns_nulls():
 def test_publish_surfaces_latency_and_per_response_columns(tmp_path: Path):
     """End-to-end: a run with token_usage + latency block → entry has all sb-293 fields."""
     instrumented = _make_run(
-        provider="synthpanel/claude-haiku-4-5",
+        provider="althing/claude-haiku-4-5",
         dataset="subpop",
         sps=0.83,
         n_questions=200,

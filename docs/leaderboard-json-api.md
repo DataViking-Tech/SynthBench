@@ -1,6 +1,6 @@
 # Leaderboard JSON API
 
-Stable HTTP endpoint for downstream consumers (SynthPanel `--best-model-for`,
+Stable HTTP endpoint for downstream consumers (Althing `--best-model-for`,
 agents, dashboards) that want SynthBench's current model recommendation data
 without scraping the site or cloning the repo.
 
@@ -29,9 +29,9 @@ consumers can fetch directly.
   "entries": [
     {
       "rank": 1,
-      "config_id": "synthpanel--claude-sonnet-4--tdefault--tplcurrent--d1dd307b",
-      "provider": "SynthPanel (Sonnet 4)",
-      "model": "SynthPanel (Sonnet 4)",
+      "config_id": "althing--claude-sonnet-4--tdefault--tplcurrent--d1dd307b",
+      "provider": "Althing (Sonnet 4)",
+      "model": "Althing (Sonnet 4)",
       "dataset": "globalopinionqa",
       "framework": "product",
       "sps": 0.7966,
@@ -74,7 +74,7 @@ Always present on every row:
 | `provider` | string | Display name of the system under test. |
 | `model` | string | Concrete model identity (often equal to `provider`). |
 | `dataset` | string | One of the `datasets` array above. |
-| `framework` | string | `product`, `raw`, `synthpanel`, ... |
+| `framework` | string | `product`, `raw`, `althing`, ... |
 | `sps` | float | Synthetic Population Similarity score, [0, 1]. |
 | `p_dist` / `p_rank` / `p_refuse` | float | SPS sub-metrics. |
 | `jsd` | float | Jensen–Shannon divergence to human distribution. |
@@ -186,7 +186,7 @@ Data honesty notes:
   - **Patch** bump → data refresh, no schema change.
 - The exact URL `https://synthbench.org/data/leaderboard.json` is part of the
   contract. It will not move or be renamed — only its payload schema is
-  versioned. SynthPanel's `sy-nkh` fallback depends on this stability.
+  versioned. Althing's `sy-nkh` fallback depends on this stability.
 - **Forward compatibility**: Consumers MUST tolerate unknown top-level keys
   and unknown `entries[].*` fields. We add fields freely at any minor.
 - **Backward compatibility**: Once a field is documented as required, it stays
@@ -209,7 +209,7 @@ HTTP `Date` or `Last-Modified`.
 
 ## Consumer guidance
 
-### SynthPanel
+### Althing
 
 ```python
 import urllib.request, json
