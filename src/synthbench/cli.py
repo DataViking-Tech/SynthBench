@@ -37,7 +37,15 @@ MODEL_ALIASES = {
 
 # Providers whose constructor accepts a model identifier / temperature.
 _MODEL_PROVIDERS = frozenset(
-    {"raw-anthropic", "raw-openai", "raw-gemini", "openrouter", "ollama", "althing", "synthpanel"}
+    {
+        "raw-anthropic",
+        "raw-openai",
+        "raw-gemini",
+        "openrouter",
+        "ollama",
+        "althing",
+        "synthpanel",
+    }
 )
 
 # Providers that can actually honour a reasoning-effort level. Everything

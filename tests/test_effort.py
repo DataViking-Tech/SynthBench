@@ -322,9 +322,7 @@ class TestConfigIdEffort:
     def test_effort_knob_parsed_from_provider_string(self):
         """A provider string carrying `effort=high` (althing-style knob
         tokens) resolves the same as the explicit kwarg."""
-        via_knob, _ = build_config_id(
-            "althing/x/y/z effort=high", dataset="opinionsqa"
-        )
+        via_knob, _ = build_config_id("althing/x/y/z effort=high", dataset="opinionsqa")
         via_kwarg, _ = build_config_id(
             "althing/x/y/z", dataset="opinionsqa", effort="high"
         )

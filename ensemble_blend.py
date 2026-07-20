@@ -89,10 +89,7 @@ OPTIMAL_TEMP_PATTERNS = {
     },
     "GPT-4o-mini": {
         "opinionsqa": lambda f: (
-            "gpt-4o-mini" in f
-            and "althing" in f
-            and " t=1.0" in f
-            and " tpl=" not in f
+            "gpt-4o-mini" in f and "althing" in f and " t=1.0" in f and " tpl=" not in f
         ),
     },
 }
@@ -100,10 +97,7 @@ OPTIMAL_TEMP_PATTERNS = {
 # --- Default-temperature file patterns (no t= in filename) ---
 DEFAULT_TEMP_PATTERNS = {
     "Haiku": lambda f: (
-        "claude-haiku" in f
-        and "althing" in f
-        and " t=" not in f
-        and " tpl=" not in f
+        "claude-haiku" in f and "althing" in f and " t=" not in f and " tpl=" not in f
     ),
     "Gemini": lambda f: (
         "gemini" in f and "althing" in f and " t=" not in f and " tpl=" not in f

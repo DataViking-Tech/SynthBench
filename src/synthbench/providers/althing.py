@@ -815,9 +815,7 @@ class AlthingProvider(Provider):
         raw_stderr = stderr.decode().strip()
 
         if proc.returncode != 0:
-            raise ProviderError(
-                f"althing exited {proc.returncode}: {raw_stderr[:500]}"
-            )
+            raise ProviderError(f"althing exited {proc.returncode}: {raw_stderr[:500]}")
 
         try:
             return json.loads(raw_stdout)
