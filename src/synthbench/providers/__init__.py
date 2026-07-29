@@ -10,6 +10,7 @@ PROVIDERS: dict[str, str] = {
     "raw-anthropic": "synthbench.providers.raw_anthropic:RawAnthropicProvider",
     "raw-openai": "synthbench.providers.raw_openai:RawOpenAIProvider",
     "raw-gemini": "synthbench.providers.raw_gemini:RawGeminiProvider",
+    "aana-openrouter": "synthbench.providers.aana_openrouter:AANAOpenRouterProvider",
     "openrouter": "synthbench.providers.openrouter:OpenRouterProvider",
     "ollama": "synthbench.providers.ollama:OllamaProvider",
     "althing": "synthbench.providers.althing:AlthingProvider",
