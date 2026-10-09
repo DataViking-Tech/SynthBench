@@ -11,7 +11,7 @@ const base = rawBase.endsWith("/") ? rawBase : `${rawBase}/`;
   <div class="py-12 text-center">
     <h1 class="text-3xl sm:text-4xl font-bold tracking-tight">Datasets</h1>
     <p class="mt-3 text-lg text-muted max-w-2xl mx-auto">
-      The real human survey datasets SynthBench validates against — sources,
+      The human survey datasets SynthBench scores against, with the source,
       coverage, demographics, and redistribution policy for each.
     </p>
   </div>
@@ -22,13 +22,14 @@ const base = rawBase.endsWith("/") ? rawBase : `${rawBase}/`;
 
   <section class="w-full max-w-4xl mx-auto py-8">
     <p class="text-sm text-muted">
-      For how these datasets are scored — metrics, baselines, the private
-      holdout split, and anti-gaming defences — see the{" "}
+      The{" "}
       <a
         href={`${base}methodology/`}
         class="text-primary dark:text-primary-light underline underline-offset-2 hover:no-underline"
         >methodology page</a
-      >.
+      >{" "}
+      explains how these datasets are scored: metrics, baselines, the private
+      holdout split, and anti-gaming defences.
     </p>
   </section>
 </BaseLayout>

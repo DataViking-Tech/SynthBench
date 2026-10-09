@@ -2,36 +2,36 @@
 const cards = [
   {
     heading: "What we blend",
-    body: "Per-question response distributions from three models — Claude Haiku 4.5, Gemini Flash Lite, and GPT-4o-mini — run through the Althing conditioning framework on the same inputs.",
+    body: "Per-question response distributions from three models (Claude Haiku 4.5, Gemini Flash Lite, and GPT-4o-mini), each run through the Althing conditioning framework on the same inputs.",
   },
   {
     heading: "How the blend works",
-    body: "Equal-weight arithmetic average of the three distributions per question. For each option on each question, we take the mean of the three models' probability mass. No learned weights, no router, no post-hoc calibration.",
+    body: "An equal-weight average of the three distributions for each question. For each option, we take the mean of the three models' probability mass. There are no learned weights, no router, and no post-hoc calibration.",
   },
   {
     heading: "Why it works",
-    body: "The three models' errors are only partially independent — pairwise correlation of per-question errors runs r ≈ 0.2–0.5 (see the error-correlation matrix above), moderate but well short of full correlation. Blending cancels the model-specific share of the error while preserving signal the models agree on — 72–81% of questions improve under blending across datasets. Because the errors are partially shared, the gain is a few SPS points, not a wholesale correction.",
+    body: "The three models' errors are only partly independent. Pairwise correlation of per-question errors is r ≈ 0.2–0.5 (see the error-correlation matrix above), which is moderate. Blending cancels the part of each model's error that the others don't share and keeps the signal they agree on. Across datasets, 72–81% of questions improve under blending. Because some of the error is shared, the gain is a few SPS points.",
   },
   {
-    heading: "What we tested against it",
-    body: "Equal-weight, score-proportional, and inverse-JSD weighting — scores are indistinguishable to three decimals. The blending weights don't matter; the ensemble itself does.",
+    heading: "Weighting schemes we tried",
+    body: "Equal-weight, score-proportional, and inverse-JSD weighting produce the same scores to three decimals. The choice of weights has no measurable effect. The gain comes from blending itself.",
   },
   {
-    heading: "What we didn't beat",
-    body: "Per-question oracle selection (the best single model picked retroactively) adds negligible headroom over equal-weight blending. There is little left to extract from this set of models without adding new ones.",
+    heading: "Oracle selection adds little",
+    body: "Picking the best single model for each question after the fact (oracle selection) adds negligible headroom over equal-weight blending. Without adding new models, there is little more to gain from this set.",
   },
   {
     heading: "What it costs",
-    body: "The blend itself is pure offline arithmetic — no new API calls beyond the three constituent runs. But it is not free: you have to run all three base models, so producing a 3-model blend costs roughly 3× a single-model run.",
+    body: "The blend is offline arithmetic and makes no API calls beyond the three constituent runs. You still have to run all three base models, so a 3-model blend costs roughly 3× a single-model run.",
   },
 ];
 ---
 
 <section class="w-full max-w-4xl mx-auto py-10" id="ensemble-methodology">
-  <h2 class="text-2xl font-bold text-center mb-2">How the Ensemble Is Built</h2>
+  <h2 class="text-2xl font-bold text-center mb-2">How the ensemble is built</h2>
   <p class="text-center text-sm text-muted mb-8 max-w-2xl mx-auto">
-    The biggest lever in the benchmark is also the simplest. Six things worth
-    knowing about how blending turns three good models into one better one.
+    Ensemble blending is the largest lever in the benchmark and also the simplest.
+    These notes cover what it blends, how, and what it costs.
   </p>
 
   <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">

@@ -28,7 +28,7 @@ const steps = [
     number: 5,
     title: "Open a pull request",
     detail:
-      "Submit a PR with your result file. CI validates the JSON schema and recomputes all aggregate scores from your per-question data. You cannot fake scores.",
+      "Submit a PR with your result file. CI validates the JSON schema and recomputes all aggregate scores from your per-question data. Reported scores that don't match the recomputed ones are rejected.",
   },
   {
     number: 6,
@@ -43,10 +43,10 @@ const steps = [
   <h2
     class="text-2xl font-bold tracking-tight text-text dark:text-text-dark mb-2"
   >
-    Submission Flow
+    Submission flow
   </h2>
   <p class="text-muted mb-8 max-w-2xl">
-    Step-by-step process from installation to leaderboard listing.
+    The steps from installation to a leaderboard listing.
   </p>
 
   <ol class="relative border-l border-muted/30 ml-4 space-y-6">

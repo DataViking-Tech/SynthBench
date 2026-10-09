@@ -8,12 +8,12 @@ const criteria = [
   {
     label: "Negligible refusals",
     detail:
-      "Mean per-question model_refusal_rate ≤ 0.05. A model that genuinely refuses most questions is a legitimate safety pattern, not a failed API response.",
+      "Mean per-question model_refusal_rate ≤ 0.05. A model that actually refuses most questions is showing a legitimate safety pattern, not a failed API response.",
   },
   {
     label: "Enough questions",
     detail:
-      "At least 10 questions in the run. Shorter runs don't give enough signal to distinguish real flat distributions from API-failure garbage.",
+      "At least 10 questions in the run. Shorter runs don't give enough signal to tell real flat distributions apart from ones caused by API failures.",
   },
 ];
 ---
@@ -22,15 +22,15 @@ const criteria = [
   <h2
     class="text-2xl font-bold tracking-tight text-text dark:text-text-dark mb-2"
   >
-    Run Validity Filtering
+    Run validity filtering
   </h2>
   <p class="text-muted mb-6 max-w-2xl">
-    Silent API failures — budget exhaustion, missed model aliases, provider
-    fallbacks — can return responses that parse cleanly but carry no real
-    signal, producing a run whose per-question distributions are all
-    perfectly uniform. Existing parse-failure tracking does not catch this
-    case because the response <em>did</em> parse. We filter these runs at
-    publish time so they never reach the leaderboard.
+    Silent API failures (budget exhaustion, missed model aliases, provider
+    fallbacks) can return responses that parse cleanly but carry no real
+    signal. The result is a run whose per-question distributions are all
+    perfectly uniform. Parse-failure tracking does not catch this case,
+    because the responses did parse. We filter these runs out at publish
+    time so they never reach the leaderboard.
   </p>
 
   <p class="text-muted mb-6 max-w-2xl">
@@ -61,7 +61,7 @@ const criteria = [
     <code class="text-xs bg-muted/10 rounded px-1.5 py-0.5"
       >synthbench scan-invalid</code
     > locally against any results directory. The rule is deliberately strict:
-    we would rather miss a borderline case than false-flag a legitimate run
-    whose distributions happen to be flat.
+    we would rather miss a borderline case than wrongly exclude a legitimate
+    run whose distributions happen to be flat.
   </p>
 </section>

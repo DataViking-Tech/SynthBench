@@ -3,7 +3,7 @@ const metrics = [
   {
     id: "p_dist",
     name: "P_dist",
-    label: "Distributional Parity",
+    label: "Distributional parity",
     definition: "How closely the model's answer percentages match real human survey responses.",
     math: "P_dist = 1 - mean(JSD) across all question-demographic pairs, where JSD is Jensen-Shannon divergence.",
     interpretation: {
@@ -17,7 +17,7 @@ const metrics = [
   {
     id: "p_rank",
     name: "P_rank",
-    label: "Rank-Order Parity",
+    label: "Rank-order parity",
     definition:
       "Whether the model ranks response options in the same order as humans, even if exact percentages differ.",
     math: "P_rank = (1 + mean(tau_b)) / 2, where tau_b is Kendall's tau-b on probability rankings, normalized to [0, 1].",
@@ -32,7 +32,7 @@ const metrics = [
   {
     id: "p_cond",
     name: "P_cond",
-    label: "Conditioning Fidelity",
+    label: "Conditioning fidelity",
     definition:
       'When told "respond as a 65-year-old conservative," does the model actually shift its answers to match that demographic?',
     math: "P_cond = mean(max(0, align_conditioned(G) - align_default(G))) across all demographic groups G.",
@@ -47,12 +47,12 @@ const metrics = [
   {
     id: "p_sub",
     name: "P_sub",
-    label: "Subgroup Consistency",
+    label: "Subgroup consistency",
     definition:
       "Whether accuracy is even across all demographic groups, or if some populations are systematically underserved.",
     math: "P_sub = 1 - CV(group_scores), where CV is the coefficient of variation (std / mean) of per-group P_dist.",
     interpretation: {
-      poor: "Wildly uneven across groups",
+      poor: "Very uneven across groups",
       fair: "Accurate for majorities, poor for minorities",
       good: "Modest variation across groups",
       excellent: "Equally accurate for all demographics",
@@ -62,7 +62,7 @@ const metrics = [
   {
     id: "p_refuse",
     name: "P_refuse",
-    label: "Refusal Calibration",
+    label: "Refusal calibration",
     definition:
       "Whether the model declines to answer at rates matching real human refusal patterns.",
     math: "P_refuse = 1 - mean(|R_provider - R_human|) across all question-demographic pairs.",
@@ -77,7 +77,7 @@ const metrics = [
   {
     id: "p_theme",
     name: "P_theme",
-    label: "Thematic Parity",
+    label: "Thematic parity",
     definition:
       "For open-ended responses, whether the model's themes and reasoning align with human qualitative patterns.",
     math: "LLM-as-judge evaluation: theme relevance, theme distribution accuracy, and reasoning quality scored on a rubric.",
@@ -107,18 +107,18 @@ const zones = [
   <h2
     class="text-2xl font-bold tracking-tight text-text dark:text-text-dark mb-2"
   >
-    How We Score
+    How scoring works
   </h2>
   <p class="text-muted mb-8 max-w-2xl">
     The <strong class="text-text dark:text-text-dark"
       >Survey Parity Score (SPS)</strong
     > measures how closely AI-generated survey responses match real human opinion
-    distributions&mdash;<span class="font-mono">1.0</span> is a perfect match.
-    Phase 1 defines five sub-metrics (six in later phases), each capturing a
-    distinct dimension of synthetic-respondent quality on a 0&ndash;1 scale.
+    distributions. A score of <span class="font-mono">1.0</span> is a perfect match.
+    Phase 1 defines five sub-metrics (six in later phases). Each one measures a
+    different aspect of synthetic-respondent quality on a 0&ndash;1 scale.
     SPS is the <strong class="text-text dark:text-text-dark">equal-weighted mean
-    of the metrics that are computable for a run</strong>: when a metric cannot
-    be computed for a given run, it is excluded and the remaining metrics are
+    of the metrics that are computable for a run</strong>. If a metric cannot
+    be computed for a run, it is dropped and the remaining metrics are
     reweighted to sum to 1.0.
   </p>
 
@@ -126,8 +126,8 @@ const zones = [
   <div
     class="rounded-lg border border-muted/20 bg-surface p-4 mb-4 font-mono text-sm text-text dark:bg-surface-dark dark:text-text-dark overflow-x-auto"
   >
-    SPS = mean(available metrics) &mdash; 0.2 &times; each of P_dist, P_rank,
-    P_cond, P_sub, P_refuse when all five are computable
+    SPS = mean(available metrics). When all five are computable, each of P_dist,
+    P_rank, P_cond, P_sub, P_refuse has weight 0.2.
   </div>
   <p class="text-sm text-muted mb-10 max-w-2xl">
     <strong class="text-text dark:text-text-dark">What current leaderboard
@@ -136,7 +136,7 @@ const zones = [
     and <span class="font-mono">P_refuse</span> (each weighted ⅓).
     <span class="font-mono">P_cond</span> and <span class="font-mono">P_sub</span>
     are measured and reported separately in the per-vendor demographic
-    scorecards; they are not folded into leaderboard SPS today.
+    scorecards. They are not part of leaderboard SPS today.
   </p>
 
   <div class="space-y-6">

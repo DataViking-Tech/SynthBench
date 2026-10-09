@@ -1,0 +1,16 @@
+---
+// Embeds the build-time SynthBench Index data for the client scripts in
+// src/scripts/sb/ (read back by model.ts `data()`).
+import leaderboardRaw from "@/data/leaderboard.json";
+import { buildIndexData, systemSlug } from "@/lib/synthIndex";
+import type { SynthBenchData } from "@/types/leaderboard";
+
+const index = buildIndexData(leaderboardRaw as unknown as SynthBenchData);
+const rawBase = import.meta.env.BASE_URL || "/";
+const base = rawBase.endsWith("/") ? rawBase : `${rawBase}/`;
+const slugs = Object.fromEntries(index.systems.map((c) => [c.baseId, systemSlug(c.baseId)]));
+// Escape "<" so no string in the data can close the script element.
+const payload = JSON.stringify({ ...index, base, slugs }).replace(/</g, "\\u003c");
+---
+
+<script type="application/json" id="sb-index-data" set:html={payload} />

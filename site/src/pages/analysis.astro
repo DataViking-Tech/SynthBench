@@ -1,0 +1,42 @@
+---
+import IndexPayload from "@/components/sb/IndexPayload.astro";
+import BaseLayout from "@/layouts/BaseLayout.astro";
+---
+
+<BaseLayout
+  title="Analysis: SynthBench"
+  description="Four views of why synthetic-respondent systems score the way they do: shares vs. order, persona and ensemble effects, per-dataset scores, and cost."
+>
+  <IndexPayload />
+  <div class="sb">
+    <section class="sb-head">
+      <div class="sb-kicker">Analysis</div>
+      <h1 class="sb-h1 sm">Why systems score the way they do</h1>
+      <p class="sb-lede">
+        Four views of the same systems. Use the filters to hide systems or methods, click a mark for details,
+        and tick systems in the details panel to compare them.
+      </p>
+    </section>
+
+    <section class="sb-block sb-panel">
+      <div class="sb-views" id="an-views" role="tablist" aria-label="Chart"></div>
+      <div class="sb-filterbar" id="an-filters"></div>
+      <div class="sb-panel-head">
+        <div>
+          <h2 id="an-title"></h2>
+          <div class="q" id="an-sub"></div>
+        </div>
+        <div id="an-opts" class="sb-filter"></div>
+      </div>
+      <div class="sb-chart"><div id="an-chart"></div></div>
+      <div class="sb-read">
+        <div><h5>How to read this</h5><div id="an-howto"></div></div>
+        <div><h5>What stands out</h5><ul id="an-notice"></ul></div>
+      </div>
+    </section>
+  </div>
+</BaseLayout>
+
+<script>
+  import "@/scripts/sb/pages/analysis";
+</script>

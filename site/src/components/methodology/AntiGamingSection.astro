@@ -17,19 +17,19 @@ const defences = [
     number: 1,
     title: "Private holdout",
     detail:
-      "Each holdout-enabled dataset is deterministically partitioned into a public subset (whose per-question human distributions are published on the leaderboard) and a private subset whose distributions are withheld — 20% for large datasets (OpinionsQA, WVS, GSS), 30% for medium ones (SubPOP, GlobalOpinionQA), and 40% for small ones (Michigan, NTIA, Eurobarometer). A submitter who copies published distributions has no signal for the private subset, so their public-vs-private SPS must diverge. A separation above 0.05 at production scale is flagged as a validation error. To be candid about the mechanism's limits: the split is an unsalted SHA-256 hash of the dataset name and question key, stable across runs by design (so ground-truth lookups stay deterministic) — anyone with the source can reconstruct which questions are held out. What stays private is the human distribution for those questions, not their identity.",
+      "Each holdout-enabled dataset is deterministically split into a public subset, whose per-question human distributions are published on the leaderboard, and a private subset whose distributions are withheld. The private share is 20% for large datasets (OpinionsQA, WVS, GSS), 30% for medium ones (SubPOP, GlobalOpinionQA), and 40% for small ones (Michigan, NTIA, Eurobarometer). A submitter who copies published distributions has no signal for the private subset, so their public and private SPS will diverge. A gap above 0.05 at production scale is flagged as a validation error. The mechanism has limits. The split is an unsalted SHA-256 hash of the dataset name and question key. It is stable across runs by design, so ground-truth lookups stay deterministic, and anyone with the source can reconstruct which questions are held out. What stays private is the human distribution for those questions.",
   },
   {
     number: 2,
     title: "Tiered statistical validation",
     detail:
-      "Every submission runs through three progressively deeper checks. Tier 1 verifies schema, bounds, and distribution validity. Tier 2 recomputes JSD, Kendall's τ, and composite parity from per-question distributions and rejects any submission whose reported aggregates do not reconcile with its claimed per-question data. Tier 3 applies statistical-anomaly detectors that compare the submission against the distribution of legitimate runs — implausibly perfect per-question JSD, suspiciously-close-to-public-human distributions, and same-family peer deviation.",
+      "Every submission goes through three tiers of checks. Tier 1 verifies schema, bounds, and distribution validity. Tier 2 recomputes JSD, Kendall's τ, and composite parity from the per-question distributions and rejects any submission whose reported aggregates do not match its per-question data. Tier 3 runs statistical anomaly detectors that compare the submission against the distribution of legitimate runs. They flag implausibly perfect per-question JSD, distributions suspiciously close to the public human data, and deviation from peers in the same model family.",
   },
   {
     number: 3,
     title: "Adversarial regression suite",
     detail:
-      "Our test harness maintains a set of fabricated submissions that must fail validation — pure answer-key copies, public-copy-with-fabricated-private attacks, constant-offset noise attacks, aggregate inflation, claimed-model swaps. New detectors are evaluated against this suite before merge, and any tuning of existing detector thresholds must keep the suite passing. The suite is versioned alongside the validator and runs as a CI gate.",
+      "Our test harness keeps a set of fabricated submissions that must fail validation: pure answer-key copies, public-copy-with-fabricated-private attacks, constant-offset noise attacks, aggregate inflation, and claimed-model swaps. New detectors are tested against this suite before merge, and any change to existing detector thresholds must keep the suite passing. The suite is versioned with the validator and runs as a CI gate.",
   },
 ];
 ---
@@ -38,26 +38,25 @@ const defences = [
   <h2
     class="text-2xl font-bold tracking-tight text-text dark:text-text-dark mb-2"
   >
-    Anti-gaming and adversarial robustness
+    Anti-gaming defences
   </h2>
   <p class="text-muted mb-4 max-w-3xl">
-    SynthBench takes the threat of benchmark gaming seriously. Our threat
-    model and defences are informed directly by recent adversarial analyses of
-    AI benchmarks — in particular, Wang et al. (UC Berkeley, 2026) [<a
+    Our threat model and defences draw on recent adversarial analyses of AI
+    benchmarks, in particular Wang et al. (UC Berkeley, 2026) [<a
       href="#anti-gaming-ref-1"
       class="text-primary dark:text-primary-light underline underline-offset-2 hover:no-underline"
       >1</a
-    >], who broke eight widely-used agent benchmarks to near-perfect scores
-    <em>without solving a single task</em>.
+    >]. They pushed eight widely used agent benchmarks to near-perfect scores
+    without solving any of the tasks.
   </p>
   <p class="text-muted mb-6 max-w-3xl">
-    SynthBench is a submission-artifact benchmark — participants submit a
-    JSON file, we score it — so attacks that assume a co-resident evaluating
-    agent (sandbox escapes, <span class="font-mono">eval()</span> on agent
-    input, binary-trojan wrappers, LLM-judge prompt injection) are
-    structurally inapplicable. But the <em>pattern</em> behind Wang et al.'s
-    attacks — <em>attack the evaluator, not the task</em> — applies to us, and
-    we have designed three lines of defence.
+    SynthBench is a submission-artifact benchmark: participants submit a JSON
+    file and we score it. Attacks that assume an evaluating agent running
+    alongside the submission (sandbox escapes, <span class="font-mono">eval()</span>
+    on agent input, binary-trojan wrappers, LLM-judge prompt injection) do not
+    apply. The general pattern behind Wang et al.'s attacks, targeting the
+    evaluator instead of the task, does apply. We have three lines of defence
+    against it.
   </p>
 
   <ol class="relative border-l border-muted/30 ml-4 mb-10 space-y-6">
@@ -82,12 +81,11 @@ const defences = [
     Null-agent baselines
   </h3>
   <p class="text-muted mb-4 max-w-3xl">
-    Following Wang et al.'s recommendation, we additionally track baseline
-    "null agent" submissions — a uniform-random baseline and a majority-class
-    baseline — over time. These are the floor any benchmark-serious model
-    must clear to appear non-trivial. An upward drift in baseline SPS on a
-    stable dataset is itself a scoring-function bug, not a success, and is
-    monitored as part of CI.
+    Following Wang et al.'s recommendation, we also track two "null agent"
+    baselines over time: a uniform-random baseline and a majority-class
+    baseline. A model has to score above these floors for its result to be
+    non-trivial. On a stable dataset, an upward drift in baseline SPS would
+    indicate a bug in the scoring function. CI monitors for it.
   </p>
 
   <div class="mb-4 max-w-3xl overflow-x-auto">
@@ -119,24 +117,23 @@ const defences = [
   <p class="text-xs text-muted mb-4 max-w-3xl">
     Canonical floors are the maximum <span class="font-mono">composite_parity</span>
     observed per (provider, dataset) across every baseline run in
-    <span class="font-mono">leaderboard-results/</span> — mirroring the
+    <span class="font-mono">leaderboard-results/</span>. This matches the
     leaderboard's own display logic, so these are the numbers a new
     submission must beat to appear non-trivial. CI enforces
     <span class="font-mono">random-baseline SPS &lt; 0.80</span> and
-    <span class="font-mono">majority-baseline SPS &lt; 0.85</span>; the
-    Berkeley paper's aspirational target for the random baseline is 0.70,
-    with the residual gap attributable to SynthBench's
-    <span class="font-mono">p_refuse</span> term rewarding agreement with
+    <span class="font-mono">majority-baseline SPS &lt; 0.85</span>. The
+    Berkeley paper's target for the random baseline is 0.70. The remaining
+    gap comes from SynthBench's
+    <span class="font-mono">p_refuse</span> term, which rewards agreement with
     human DK/Refused rates. The git log of
     <span class="font-mono">docs/baseline-floors-log.md</span> is the
     canonical drift record.
   </p>
   <p class="text-muted mb-8 max-w-3xl">
-    We intend this posture to be <em>conservative</em>. The correct failure
-    mode for a scientific leaderboard is to reject a legitimate superhuman
-    submission for human review, not to accept a fabricated one. Submitters
-    whose runs are flagged can appeal, but the null hypothesis at validation
-    time is that suspicious-looking data was fabricated.
+    We err on the conservative side. For a scientific leaderboard, it is better
+    to hold a legitimate superhuman submission for human review than to accept a
+    fabricated one. Submitters whose runs are flagged can appeal. At validation
+    time, the null hypothesis is that suspicious-looking data was fabricated.
   </p>
 
   <div

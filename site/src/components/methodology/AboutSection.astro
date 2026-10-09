@@ -11,7 +11,7 @@ const bibtex = `@software{synthbench2026,
 <div class="bg-surface py-24 sm:py-32 dark:bg-surface-dark" id="about">
   <div class="mx-auto max-w-7xl px-6 lg:px-8">
     <div class="mx-auto max-w-2xl lg:text-center">
-      <h2 class="text-base/7 font-semibold text-primary dark:text-primary-light">Open Benchmark</h2>
+      <h2 class="text-base/7 font-semibold text-primary dark:text-primary-light">Open benchmark</h2>
       <p class="mt-2 text-4xl font-semibold tracking-tight text-pretty text-text sm:text-5xl lg:text-balance dark:text-text-dark">About SynthBench</p>
       <p class="mt-6 text-lg/8 text-muted">
         SynthBench is an open benchmark that measures how well large language models
@@ -34,8 +34,8 @@ const bibtex = `@software{synthbench2026,
           </dt>
           <dd class="mt-2 text-base/7 text-muted">
             Models generate synthetic survey responses matching real demographic profiles.
-            We measure quality using the Survey Parity Score (SPS), Jensen-Shannon Divergence
-            (JSD), and Kendall's Tau rank correlation. Confidence intervals are computed via
+            We measure quality using the Survey Parity Score (SPS), Jensen-Shannon divergence
+            (JSD), and Kendall's tau rank correlation. Confidence intervals are computed via
             bootstrap resampling.
           </dd>
         </div>
@@ -49,8 +49,8 @@ const bibtex = `@software{synthbench2026,
             SPS (Survey Parity Score)
           </dt>
           <dd class="mt-2 text-base/7 text-muted">
-            Primary metric. 1.0 = perfect match to human distributions. Combines distribution
-            similarity and rank preservation into a single 0-1 score.
+            The primary metric. 1.0 means a perfect match to human distributions. It combines
+            distribution similarity and rank preservation into a single 0-1 score.
           </dd>
         </div>
         <div class="relative pl-16">
@@ -60,11 +60,11 @@ const bibtex = `@software{synthbench2026,
                 <path d="M7.5 14.25v2.25m3-4.5v4.5m3-6.75v6.75m3-9v9M6 20.25h12A2.25 2.25 0 0 0 20.25 18V6A2.25 2.25 0 0 0 18 3.75H6A2.25 2.25 0 0 0 3.75 6v12A2.25 2.25 0 0 0 6 20.25Z" stroke-linecap="round" stroke-linejoin="round" />
               </svg>
             </div>
-            JSD (Jensen-Shannon Divergence)
+            JSD (Jensen-Shannon divergence)
           </dt>
           <dd class="mt-2 text-base/7 text-muted">
-            Measures distributional distance between synthetic and human responses. Lower is
-            better. 0 = identical distributions.
+            Distance between the synthetic and human response distributions. Lower is
+            better. 0 means the distributions are identical.
           </dd>
         </div>
         <div class="relative pl-16">
@@ -74,11 +74,11 @@ const bibtex = `@software{synthbench2026,
                 <path d="M3 7.5 7.5 3m0 0L12 7.5M7.5 3v13.5m13.5 0L16.5 21m0 0L12 16.5m4.5 4.5V7.5" stroke-linecap="round" stroke-linejoin="round" />
               </svg>
             </div>
-            Tau (Kendall's Rank Correlation)
+            Tau (Kendall's rank correlation)
           </dt>
           <dd class="mt-2 text-base/7 text-muted">
-            Measures rank-order agreement between synthetic and human response distributions.
-            Higher is better. 1.0 = perfect rank agreement.
+            Rank-order agreement between the synthetic and human response distributions.
+            Higher is better. 1.0 means the rankings match exactly.
           </dd>
         </div>
       </dl>

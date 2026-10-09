@@ -1,18 +1,112 @@
 ---
-import AudienceSection from "@/components/home/AudienceSection.astro";
-import CTASection from "@/components/home/CTASection.astro";
-import HeroChart from "@/components/home/HeroChart.astro";
-import HeroSection from "@/components/home/HeroSection.astro";
-import KeyFindings from "@/components/home/KeyFindings.astro";
-import SummaryLeaderboard from "@/components/home/SummaryLeaderboard.astro";
+import IndexPayload from "@/components/sb/IndexPayload.astro";
+import leaderboardRaw from "@/data/leaderboard.json";
 import BaseLayout from "@/layouts/BaseLayout.astro";
+import type { LeaderboardData } from "@/types/leaderboard";
+
+const leaderboard = leaderboardRaw as LeaderboardData;
+const rawBase = import.meta.env.BASE_URL || "/";
+const base = rawBase.endsWith("/") ? rawBase : `${rawBase}/`;
+
+const questionsByDataset = new Map<string, number>();
+for (const e of leaderboard.entries) {
+  questionsByDataset.set(e.dataset, Math.max(questionsByDataset.get(e.dataset) ?? 0, e.n));
+}
+const nDatasets = questionsByDataset.size;
+const nQuestions = [...questionsByDataset.values()].reduce((a, b) => a + b, 0);
+const updated = leaderboard.generated_at
+  ? new Date(leaderboard.generated_at).toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+    })
+  : null;
 ---
 
-<BaseLayout title="SynthBench — Open Benchmark for Synthetic Survey Quality">
-  <HeroSection />
-  <AudienceSection />
-  <HeroChart />
-  <KeyFindings />
-  <SummaryLeaderboard />
-  <CTASection />
+<BaseLayout
+  title="SynthBench: how close can synthetic respondents get to real people?"
+  description="Open benchmark that scores LLM-generated survey answers against real human answer distributions, on a scale from random answers (0) to real people (100)."
+>
+  <IndexPayload />
+  <div class="sb sb-overview">
+    <section class="sb-head">
+      <div class="sb-kicker">
+        Open benchmark · {nDatasets} survey datasets · {nQuestions.toLocaleString("en-US")} questions
+        {updated && <> · updated <span data-vrt-mask>{updated}</span></>}
+      </div>
+      <h1 class="sb-h1">How close can synthetic respondents get to real people?</h1>
+      <p class="sb-lede" id="ov-lede"></p>
+    </section>
+
+    <section class="sb-block sb-panel">
+      <div class="sb-filterbar" id="ov-filters"></div>
+      <div class="sb-panel-head">
+        <div>
+          <h2>The gap to real people</h2>
+          <div class="q" id="gap-q"></div>
+        </div>
+      </div>
+      <div class="sb-chart"><div id="ov-gap" class="sb-gap"></div></div>
+      <div class="sb-read">
+        <div>
+          <h5>How to read this</h5>
+          Each mark is one system, placed by its <b>SynthBench Index</b>. At <b>0</b>, a system matches
+          people no better than random answers. At <b>100</b>, it matches them as well as a second sample
+          of real people does. The faint bar through each mark is its 95% interval. Click a mark for details.
+        </div>
+        <div>
+          <h5>What stands out</h5>
+          <ul id="ov-notice"></ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="sb-block sb-grid3 sb-why">
+      <div class="sb-panel">
+        <div class="sb-pad sb-why-pad">
+          <div class="sb-kicker">By dataset</div>
+          <h3>Better on US surveys than on global ones</h3>
+          <table class="sb-mh" id="ov-heat"></table>
+          <div class="sb-take" id="ov-heat-take"></div>
+          <a class="sb-more" href={`${base}analysis/?view=datasets`}>Index by dataset <span aria-hidden="true">→</span></a>
+        </div>
+      </div>
+      <div class="sb-panel">
+        <div class="sb-pad sb-why-pad">
+          <div class="sb-kicker">Persona effect</div>
+          <h3>Same model: raw prompt vs. Althing persona</h3>
+          <div class="sb-legend" id="ov-lift-legend"></div>
+          <div id="ov-lift"></div>
+          <div class="sb-take" id="ov-lift-take"></div>
+          <a class="sb-more" href={`${base}analysis/?view=ladder`}>Raw, persona and ensemble <span aria-hidden="true">→</span></a>
+        </div>
+      </div>
+      <div class="sb-panel">
+        <div class="sb-pad sb-why-pad">
+          <div class="sb-kicker">Why scores sit near random</div>
+          <h3>LLMs get the order right and the shares wrong</h3>
+          <div id="ov-why"></div>
+          <div class="sb-take">
+            Random answers spread evenly across the options, which happens to suit questions where people
+            are split. LLMs put too much weight on the most common answer.
+          </div>
+          <a class="sb-more" href={`${base}analysis/?view=shares`}>Shares vs. order <span aria-hidden="true">→</span></a>
+        </div>
+      </div>
+    </section>
+
+    <section class="sb-block">
+      <div class="sb-blockhead">
+        <h2>From the findings</h2>
+        <a class="sb-btn" href={`${base}findings/`}>All findings</a>
+      </div>
+      <div class="sb-panel sb-fl" id="ov-findings"></div>
+    </section>
+
+    <section class="sb-block sb-panel sb-trust" id="ov-trust"></section>
+  </div>
 </BaseLayout>
+
+<script>
+  import "@/scripts/sb/pages/overview";
+</script>

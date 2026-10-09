@@ -19,10 +19,10 @@ const tierLabel: Record<string, string> = {
 const tierCopy: Record<string, string> = {
   full: "Per-question human distributions published openly on the static site.",
   gated:
-    "Per-question human distributions served from authenticated origin; sign-in required (research-use license).",
+    "Per-question human distributions served from an authenticated origin. Sign-in required (research-use license).",
   aggregates_only:
-    "Aggregate scores public; no per-question artifact ships (permission missing or ambiguous).",
-  citation_only: "Question metadata only; all per-question and aggregate metrics suppressed.",
+    "Aggregate scores are public. No per-question artifact ships (permission missing or ambiguous).",
+  citation_only: "Question metadata only. All per-question and aggregate metrics are suppressed.",
 };
 ---
 
@@ -35,27 +35,27 @@ const tierCopy: Record<string, string> = {
         Dataset redistribution policy
       </h2>
       <p class="text-muted mb-6 max-w-2xl">
-        Each upstream dataset carries its own license terms. SynthBench honors
-        them at publish time across four tiers:
+        Each upstream dataset has its own license terms. SynthBench applies
+        them at publish time using four tiers:
       </p>
       <ul class="mb-6 max-w-2xl list-disc pl-6 text-sm text-muted space-y-1">
         <li>
-          <span class="font-mono">full</span> — per-question distributions
-          published openly (public-domain datasets).
+          <span class="font-mono">full</span>: per-question distributions
+          are published openly (public-domain datasets).
         </li>
         <li>
-          <span class="font-mono">gated</span> — per-question distributions
-          served from a Cloudflare Worker that validates a Supabase JWT;
-          research-use sign-in required. No distribution ships anonymously.
+          <span class="font-mono">gated</span>: per-question distributions
+          are served from a Cloudflare Worker that validates a Supabase JWT, so
+          research-use sign-in is required. No distribution is served anonymously.
         </li>
         <li>
-          <span class="font-mono">aggregates_only</span> — aggregate scores
-          public; no per-question artifact ships at all (gating does not
-          substitute for missing redistribution permission).
+          <span class="font-mono">aggregates_only</span>: aggregate scores
+          are public, and no per-question artifact ships at all. Gating is not a
+          substitute for missing redistribution permission.
         </li>
         <li>
-          <span class="font-mono">citation_only</span> — question metadata
-          only; every downstream metric suppressed.
+          <span class="font-mono">citation_only</span>: question metadata
+          only. Every downstream metric is suppressed.
         </li>
       </ul>
       <p class="text-muted mb-6 max-w-2xl">

@@ -2,7 +2,7 @@ import { defineConfig, devices } from "@playwright/test";
 
 // sb-djv — functional test for the explore page exploratory-runs toggle +
 // s/n chips. Follows the dedicated-config pattern established by
-// leaderboard-cost-column.config.ts. Not part of the smoke VRT suite.
+// mobile-audit.config.ts. Not part of the smoke VRT suite.
 export default defineConfig({
   testDir: ".",
   testMatch: "explore-exploratory-toggle.spec.ts",

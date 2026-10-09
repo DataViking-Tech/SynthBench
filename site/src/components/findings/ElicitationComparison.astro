@@ -22,18 +22,18 @@ const hasData = pairs.length > 0;
 ---
 
 <section class="w-full max-w-4xl mx-auto py-8">
-  <h2 class="text-2xl font-bold text-center mb-2">Elicitation Mode: Natural vs Schema-Forced</h2>
+  <h2 class="text-2xl font-bold text-center mb-2">Elicitation mode: natural vs. schema-forced</h2>
   <p class="text-center text-sm text-muted mb-6 max-w-2xl mx-auto">
-    Schema-forced structured capture eliminates parse failures entirely, but
-    it costs distributional fidelity — natural in-character elicitation is
-    load-bearing for human-likeness. Matched pairs differ only in
-    elicitation mode; all scores recomputed from committed per-question rows.
+    Schema-forced structured capture removes parse failures, but it lowers
+    distributional fidelity. Natural, in-character elicitation matters for
+    human-likeness. Each matched pair differs only in elicitation mode. All
+    scores are recomputed from the committed per-question rows.
   </p>
   {hasData ? (
     pairs.map((r) => (
       <div class="mb-6">
         <p class="text-sm text-muted mb-3">
-          {r.model} ({r.framework}) on {r.dataset} — {r.n_questions} questions
+          {r.model} ({r.framework}) on {r.dataset}: {r.n_questions} questions
           × {r.samples_per_question} samples per arm{r.refusal_detector_version != null
             ? `, refusal detector v${r.refusal_detector_version}`
             : ""}.
@@ -74,8 +74,8 @@ const hasData = pairs.length > 0;
     </div>
   )}
   <p class="text-xs text-muted mt-2 max-w-2xl mx-auto text-center">
-    Caveat: a single model × single dataset × one matched pair so far — a
-    suggestive first datapoint, not a general law. More pairs are needed
-    before treating the fidelity cost as systematic.
+    Caveat: so far this is one matched pair, on one model and one dataset.
+    Treat it as a first data point. More pairs are needed before treating the
+    fidelity cost as systematic.
   </p>
 </section>

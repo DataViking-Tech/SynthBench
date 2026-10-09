@@ -12,11 +12,11 @@ const hasData = rows.length > 0;
 ---
 
 <section class="w-full max-w-4xl mx-auto py-8">
-  <h2 class="text-2xl font-bold text-center mb-2">Nonresponse Fidelity</h2>
+  <h2 class="text-2xl font-bold text-center mb-2">Nonresponse fidelity</h2>
   <p class="text-center text-sm text-muted mb-6 max-w-2xl mx-auto">
-    How closely each model's explicit-nonresponse mass ("don't know"-style
-    option selections plus refusals) tracks the human survey's. Computed from
-    committed per-question rows on full-tier datasets.
+    How closely each model's explicit nonresponse mass ("don't know" style
+    option selections plus refusals) matches the human survey's. Computed from
+    the committed per-question rows on full-tier datasets.
   </p>
   {hasData ? (
     <div class="overflow-x-auto">

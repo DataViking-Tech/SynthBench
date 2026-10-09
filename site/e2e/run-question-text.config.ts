@@ -1,7 +1,7 @@
 import { defineConfig, devices } from "@playwright/test";
 
 // sb-1h2 — functional test for the /run/<id> per-question text fix. Follows
-// the dedicated-config pattern established by leaderboard-cost-column and
+// the dedicated-config pattern established by mobile-audit and
 // explore-exploratory-toggle. Not part of the smoke VRT suite.
 export default defineConfig({
   testDir: ".",

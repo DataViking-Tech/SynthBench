@@ -29,13 +29,15 @@ const ROUTES: Route[] = [
   {
     label: "home",
     path: "",
-    readySelector: ".echarts-container canvas, .echarts-container svg",
-    settleMs: 1000,
+    // The overview's charts are client-rendered SVG; the gap chart is the last
+    // large one to paint.
+    readySelector: "#ov-gap svg",
+    settleMs: 500,
   },
   {
     label: "leaderboard",
     path: "leaderboard/",
-    readySelector: "#leaderboard",
+    readySelector: "#leaderboard tbody tr.sys",
     settleMs: 500,
   },
   {

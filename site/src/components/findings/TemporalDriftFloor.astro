@@ -107,22 +107,22 @@ const hasData = !!drift && gapEntries.length > 0;
   <h2 class="text-2xl font-bold text-center mb-2">Temporal Drift Floor</h2>
   <p class="text-center text-sm text-muted mb-6 max-w-2xl mx-auto">
     Mean Jensen-Shannon divergence between the same Pew ATP question stems across
-    different waves, grouped by year gap. A separate baseline from the Human
-    Ceiling — drift measures how much real-world opinions shift, not sampling
-    noise.
+    different waves, grouped by year gap. This baseline is separate from the
+    Human Ceiling. Drift measures how much real-world opinion shifts between
+    waves, as opposed to sampling noise.
   </p>
   {hasData && chartOption ? (
     <>
       <Chart
-        title="Temporal Drift Floor — mean JSD by year gap"
-        description="Bar chart of mean Jensen-Shannon divergence between the same Pew ATP question stems across different waves, grouped by year gap. Shaded band indicates bootstrap 95% CI on the overall mean."
+        title="Temporal Drift Floor: mean JSD by year gap"
+        description="Bar chart of mean Jensen-Shannon divergence between the same Pew ATP question stems across different waves, grouped by year gap. The shaded band is the bootstrap 95% CI on the overall mean."
         option={chartOption}
         height="360px"
       />
       <p class="mt-4 text-xs text-muted max-w-2xl mx-auto text-center italic">
-        A model frozen at time T cannot improve beyond the temporal drift floor
-        when evaluated against later waves. Shaded band = bootstrap 95% CI on the
-        overall mean ({drift!.ci_low.toFixed(5)}–{drift!.ci_high.toFixed(5)},
+        A model frozen at time T cannot score better than the temporal drift floor
+        when evaluated against later waves. The shaded band is the bootstrap 95% CI
+        on the overall mean ({drift!.ci_low.toFixed(5)}–{drift!.ci_high.toFixed(5)},
         n_pairs={drift!.n_pairs}, n_stems={drift!.n_stems}). See the{" "}
         <a
           href="/methodology/#baselines"
@@ -139,10 +139,10 @@ const hasData = !!drift && gapEntries.length > 0;
         Temporal Drift Floor ships May 2026
       </p>
       <p class="text-sm">
-        The next publish cycle lifts the full cross-wave JSD table from
+        The next publish cycle adds the full cross-wave JSD table from
         <code class="text-xs bg-muted/10 rounded px-1 py-0.5">baselines.temporal_drift</code>
-        in <code class="text-xs bg-muted/10 rounded px-1 py-0.5">leaderboard.json</code> —
-        mean drift, 95% CI, and per-year-gap pairs are already computed from repeated
+        in <code class="text-xs bg-muted/10 rounded px-1 py-0.5">leaderboard.json</code>.
+        Mean drift, the 95% CI, and per-year-gap pairs are already computed from repeated
         Pew ATP stems on OpinionsQA. See the
         <a href="/methodology/#baselines" class="underline hover:text-accent">Temporal Drift Floor definition</a>
         on the methodology page.

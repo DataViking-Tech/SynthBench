@@ -4,10 +4,11 @@ const rawBase = import.meta.env.BASE_URL || "/";
 const base = rawBase.endsWith("/") ? rawBase : `${rawBase}/`;
 ---
 
-<footer class="bg-surface dark:bg-surface-dark">
-  <div class="mx-auto max-w-7xl overflow-hidden px-6 py-20 sm:py-24 lg:px-8">
-    <nav aria-label="Footer" class="-mb-6 flex flex-wrap justify-center gap-x-12 gap-y-3 text-sm/6">
-      <a href={`${base}methodology/`} class="text-muted hover:text-text dark:hover:text-text-dark">Methodology</a>
+<footer class="mt-10 border-t border-muted/15 bg-surface dark:bg-surface-dark">
+  <div class="mx-auto max-w-[1220px] overflow-hidden px-3 py-10">
+    <nav aria-label="Footer" class="flex flex-wrap justify-center gap-x-8 gap-y-3 text-sm/6">
+      <a href={`${base}methodology/`} class="text-muted hover:text-text dark:hover:text-text-dark">Method</a>
+      <a href={`${base}data/leaderboard.json`} class="text-muted hover:text-text dark:hover:text-text-dark">JSON API</a>
       <a href={`${base}methodology/#citation`} class="text-muted hover:text-text dark:hover:text-text-dark">Cite</a>
       <a href={`${base}submit/`} class="text-muted hover:text-text dark:hover:text-text-dark">Submit</a>
       <a
@@ -17,7 +18,7 @@ const base = rawBase.endsWith("/") ? rawBase : `${rawBase}/`;
         rel="noopener noreferrer"
       >GitHub<span class="sr-only"> (opens in a new tab)</span></a>
     </nav>
-    <div class="mt-16 flex justify-center gap-x-10">
+    <div class="mt-6 flex justify-center gap-x-10">
       <a
         href="https://github.com/DataViking-Tech/synthbench"
         class="text-muted hover:text-text dark:hover:text-text-dark"
@@ -30,6 +31,10 @@ const base = rawBase.endsWith("/") ? rawBase : `${rawBase}/`;
         </svg>
       </a>
     </div>
-    <p class="mt-10 text-center text-sm/6 text-muted" data-vrt-mask>&copy; {currentYear} DataViking-Tech. SynthBench is open source.</p>
+    <p class="mt-6 text-center text-sm/6 text-muted">
+      SynthBench is open source and run by DataViking, which also builds Althing.
+      <a href={`${base}methodology/#operator-disclosure`} class="underline underline-offset-2 hover:text-text dark:hover:text-text-dark">Disclosure</a>
+    </p>
+    <p class="mt-1 text-center text-sm/6 text-muted" data-vrt-mask>&copy; {currentYear} DataViking-Tech</p>
   </div>
 </footer>

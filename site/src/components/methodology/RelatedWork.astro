@@ -26,7 +26,7 @@ const groups: Group[] = [
         venue: "ACL 2025",
         arxiv: "2502.16761",
         positioning:
-          "SubPOP — the source of our 22-subpopulation dataset. Fine-tunes language models on scaled survey data to predict population-distribution responses. We use the shipped question-subpop distributions as ground truth for P_dist and P_sub on demographic slices.",
+          "SubPOP, the source of our 22-subpopulation dataset. It fine-tunes language models on scaled survey data to predict population-level response distributions. We use its published question-subpop distributions as ground truth for P_dist and P_sub on demographic slices.",
       },
       {
         title:
@@ -35,7 +35,7 @@ const groups: Group[] = [
         venue: "arXiv 2026",
         arxiv: "2602.18462",
         positioning:
-          "Contemporary methodological antecedent: evaluates 2 models across 70K WVS respondent-item pairs and finds that persona prompting does not uniformly improve alignment. SynthBench's P_cond sub-metric is designed to quantify exactly when conditioning helps versus hurts — surfacing the per-group cases their paper reports in aggregate.",
+          "A recent methodological precursor. It evaluates 2 models across 70K WVS respondent-item pairs and finds that persona prompting does not uniformly improve alignment. SynthBench's P_cond sub-metric measures when conditioning helps and when it hurts, broken out by group where the paper reports aggregates.",
       },
       {
         title:
@@ -44,7 +44,7 @@ const groups: Group[] = [
         venue: "arXiv 2025",
         arxiv: "2504.10157",
         positioning:
-          "SocioVerse focuses on population-scale simulation dynamics via a 10M-user pool; SynthBench measures the per-question distributional parity layer that any system like SocioVerse depends on. Orthogonal and complementary — a population-simulator's downstream fidelity is bounded by the per-item parity its respondent models achieve.",
+          "SocioVerse models population-scale simulation dynamics with a 10M-user pool. SynthBench measures per-question distributional parity, which systems like SocioVerse depend on. The two are complementary: a population simulator's downstream fidelity is bounded by the per-item parity its respondent models achieve.",
       },
       {
         title:
@@ -53,14 +53,14 @@ const groups: Group[] = [
         venue: "arXiv 2024",
         arxiv: "2412.03563",
         positioning:
-          "One-stop survey of LLM-driven social simulation spanning individual-level persona modeling through society-scale multi-agent dynamics. Useful entry point for readers placing SynthBench's per-question parity focus within the broader simulation landscape.",
+          "A broad survey of LLM-driven social simulation, from individual-level persona modeling to society-scale multi-agent dynamics. A useful starting point for placing SynthBench's per-question parity focus within the wider simulation literature.",
       },
     ],
   },
   {
     heading: "Broader LLM-as-advisor context",
     intro:
-      "Work on systemic LLM failure modes in advisory settings. These papers motivate the need for distributional measurement infrastructure without themselves operationalizing a ground-truth comparison.",
+      "Work on systemic LLM failure modes in advisory settings. These papers motivate distributional measurement, but they do not compare model output against a human ground truth themselves.",
     references: [
       {
         title: "Researchers Asked LLMs for Strategic Advice. They Got 'Trendslop' in Return.",
@@ -69,7 +69,7 @@ const groups: Group[] = [
         url: "https://hbr.org/2026/03/researchers-asked-llms-for-strategic-advice-they-got-trendslop-in-return",
         urlLabel: "hbr.org",
         positioning:
-          "15,000 strategic-advice queries across seven frontier LLMs converged on the same trend-aligned recommendations regardless of scenario context. Coined 'trendslop' as a shared attractor across providers. SynthBench's Cross-Provider JSD Matrix operationalizes this as a measurable quantity paired with ground-truth human distributions — see the diagnostic on the Findings page.",
+          "15,000 strategic-advice queries across seven frontier LLMs converged on the same trend-aligned recommendations regardless of scenario context. The authors coined 'trendslop' for this shared attractor across providers. SynthBench's cross-provider JSD matrix turns it into a measurable quantity and pairs it with ground-truth human distributions. See the diagnostic on the Findings page.",
       },
       {
         title:
@@ -80,7 +80,7 @@ const groups: Group[] = [
         url: "https://www.hbs.edu/faculty/Pages/item.aspx?num=64700",
         urlLabel: "hbs.edu",
         positioning:
-          "Field experiment with 758 BCG consultants demonstrating that LLM assistance lifts performance inside the capability frontier and degrades it outside — the 'jagged frontier' framing. Complements the trendslop critique: advisor quality depends on where the task sits relative to current model competence, not just on output fluency. Both motivate per-question, per-population measurement rather than aggregate benchmark leaderboards.",
+          "Field experiment with 758 BCG consultants. LLM assistance improved performance on tasks inside the capability frontier and worsened it on tasks outside (the 'jagged frontier'). This complements the trendslop critique: advisor quality depends on where the task sits relative to current model competence, and output fluency alone says little. Both papers argue for per-question, per-population measurement over aggregate benchmark leaderboards.",
       },
     ],
   },
@@ -95,14 +95,13 @@ function arxivUrl(id: string): string {
   <h2
     class="text-2xl font-bold tracking-tight text-text dark:text-text-dark mb-2"
   >
-    Related Work
+    Related work
   </h2>
   <p class="text-muted mb-8 max-w-2xl">
-    SynthBench builds on a growing body of work on LLM-based synthetic survey
-    respondents and social simulation, and sits inside a broader industry
-    conversation about LLM failure modes in advisory settings. The references
-    below anchor our methodological choices and locate SynthBench within both
-    literatures.
+    SynthBench builds on prior work on LLM-based synthetic survey respondents
+    and social simulation. It also relates to a wider discussion of LLM failure
+    modes in advisory settings. The references below explain our methodological
+    choices and where SynthBench fits in both literatures.
   </p>
 
   {

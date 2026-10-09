@@ -11,33 +11,36 @@ const base = rawBase.endsWith("/") ? rawBase : `${rawBase}/`;
 const baseNoTrail = base.replace(/\/$/, "");
 
 const navLinks = [
-  { href: base, label: "Home" },
+  { href: base, label: "Overview" },
   { href: `${base}leaderboard/`, label: "Leaderboard" },
-  { href: `${base}explore/`, label: "Explore" },
+  { href: `${base}analysis/`, label: "Analysis" },
   { href: `${base}findings/`, label: "Findings" },
+  { href: `${base}explore/`, label: "Runs" },
   { href: `${base}datasets/`, label: "Datasets" },
-  { href: `${base}methodology/`, label: "Methodology" },
-  { href: `${base}submit/`, label: "Submit" },
+  { href: `${base}methodology/`, label: "Method" },
 ];
+const submitHref = `${base}submit/`;
 
 function isActive(href: string): boolean {
   if (href === base) {
     return currentPath === base || currentPath === baseNoTrail;
   }
+  // System profiles live under /system/ but belong to the leaderboard.
+  if (href === `${base}leaderboard/` && currentPath.startsWith(`${base}system/`)) return true;
   return currentPath.startsWith(href);
 }
 ---
 
-<header class="bg-surface dark:bg-surface-dark">
-  <nav aria-label="Global" class="mx-auto flex max-w-7xl items-center justify-between p-6 lg:px-8">
+<header class="border-b border-muted/15 bg-surface dark:bg-surface-dark">
+  <nav aria-label="Global" class="mx-auto flex max-w-[1220px] items-center justify-between px-3 py-4">
     <div class="flex lg:flex-1">
       <a href={base} class="-m-1.5 flex items-center gap-2 p-1.5">
-        <svg class="h-8 w-auto text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <svg class="h-7 w-auto text-text dark:text-text-dark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
           <path d="M3 3v18h18" />
           <path d="M7 16l4-8 4 4 4-10" />
         </svg>
-        <span class="text-xl font-bold tracking-tight text-text dark:text-text-dark">SynthBench</span>
-        <span class="hidden text-xs text-muted sm:inline" data-vrt-mask>v{leaderboard.synthbench_version}</span>
+        <span class="text-lg font-semibold tracking-tight text-text dark:text-text-dark">SynthBench</span>
+        <span class="hidden font-mono text-xs text-muted sm:inline" data-vrt-mask>v{leaderboard.synthbench_version}</span>
       </a>
     </div>
     <div class="flex lg:hidden">
@@ -54,15 +57,15 @@ function isActive(href: string): boolean {
         </svg>
       </button>
     </div>
-    <div class="hidden lg:flex lg:gap-x-12">
+    <div class="hidden lg:flex lg:gap-x-6">
       {navLinks.map((link) => (
         <a
           href={link.href}
           class:list={[
-            "text-sm/6 font-semibold",
+            "border-b-2 py-1 text-sm/6 font-medium",
             isActive(link.href)
-              ? "text-primary dark:text-primary-light"
-              : "text-text dark:text-text-dark hover:text-primary dark:hover:text-primary-light",
+              ? "border-text text-text dark:border-text-dark dark:text-text-dark"
+              : "border-transparent text-muted hover:text-text dark:hover:text-text-dark",
           ]}
           aria-current={isActive(link.href) ? "page" : undefined}
         >
@@ -70,7 +73,12 @@ function isActive(href: string): boolean {
         </a>
       ))}
     </div>
-    <div class="hidden lg:flex lg:flex-1 lg:items-center lg:justify-end lg:gap-x-6">
+    <div class="hidden lg:flex lg:flex-1 lg:items-center lg:justify-end lg:gap-x-5">
+      <a
+        href={submitHref}
+        class="rounded-md bg-text px-3 py-1.5 text-sm font-medium text-surface hover:opacity-90 dark:bg-text-dark dark:text-surface-dark"
+        aria-current={isActive(submitHref) ? "page" : undefined}
+      >Submit a system</a>
       <AuthButton />
       <a
         href="https://github.com/DataViking-Tech/synthbench"
@@ -92,7 +100,7 @@ function isActive(href: string): boolean {
     <div class="fixed inset-y-0 right-0 z-50 w-full overflow-y-auto bg-surface p-6 sm:max-w-sm sm:ring-1 sm:ring-muted/10 dark:bg-surface-dark dark:sm:ring-muted/10" id="mobile-menu-panel">
       <div class="flex items-center justify-between">
         <a href={base} class="-m-1.5 flex items-center gap-2 p-1.5">
-          <svg class="h-8 w-auto text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <svg class="h-7 w-auto text-text dark:text-text-dark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
             <path d="M3 3v18h18" />
             <path d="M7 16l4-8 4 4 4-10" />
           </svg>
@@ -123,6 +131,10 @@ function isActive(href: string): boolean {
             ))}
           </div>
           <div class="space-y-2 py-6">
+            <a
+              href={submitHref}
+              class="-mx-3 block rounded-lg px-3 py-2.5 text-base/7 font-semibold text-text hover:bg-muted/10 dark:text-text-dark dark:hover:bg-muted/10"
+            >Submit a system</a>
             <a
               href={`${base}account/`}
               class="-mx-3 block rounded-lg px-3 py-2.5 text-base/7 font-semibold text-text hover:bg-muted/10 dark:text-text-dark dark:hover:bg-muted/10"

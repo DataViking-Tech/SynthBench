@@ -125,13 +125,13 @@ const hasTopics = models.length > 0;
 ---
 
 <section class="w-full max-w-4xl mx-auto py-8">
-  <h2 class="text-2xl font-bold text-center mb-2">SPS by Topic</h2>
+  <h2 class="text-2xl font-bold text-center mb-2">SPS by topic</h2>
   <p class="text-center text-sm text-muted mb-6">
-    Best-per-model performance across the ten topic categories. Baselines and temperature variants hidden; scroll the legend to toggle models.
+    Each model's best configuration, scored on the ten topic categories. Baselines and temperature variants are hidden. Scroll the legend to toggle models.
   </p>
   {hasTopics ? (
     <Chart
-      title="SPS by Topic — per-model breakdown"
+      title="SPS by topic, per model"
       description="Grouped bar chart of best-per-model SPS across ten topic categories. Each group is a topic; each bar is a model."
       option={chartOption}
       height="450px"
