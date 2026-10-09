@@ -28,6 +28,24 @@ This module is the single replacement. Matching order:
 
 Anything else is a parse failure: ``option is None`` and ``refusal`` is
 False. Callers must NOT substitute a default option.
+
+Parser versions (``config.option_parser_version``; absent key = v1):
+
+* **v1** — the matching order above, verbatim. Kept callable so historical
+  runs re-parse bit-for-bit.
+* **v2** (current, synthbench#352) — newer models answer in markdown prose
+  (``**(D) Depends on the situation.**`` followed by an explanation). v1
+  counted those as parse failures, and its whole-text containment could
+  mis-score them by matching an option mentioned in the explanation. v2:
+
+  - strips markdown emphasis/heading/quote markup before matching;
+  - accepts a *leading* option label (``(D) ...``, ``D. ...``, ``D) ...``)
+    as the answer, unless the text right after it exactly names a
+    different option (contradictory → parse failure);
+  - restricts containment to the first line, falling back to the whole
+    response only when exactly one option is contained in it.
+
+  Refusal detection is unchanged (it is versioned separately).
 """
 
 from __future__ import annotations
@@ -46,6 +64,28 @@ from synthbench.metrics.refusal import (
 _BARE_LETTER_RE = re.compile(r"^\s*\(?([A-Za-z])\)?[.):]?\s*$")
 
 _WS_RE = re.compile(r"\s+")
+
+#: Parser version stamped into run metadata (``config.option_parser_version``).
+#: Absent key on a committed run file means v1.
+OPTION_PARSER_VERSION = 2
+
+# v2: markdown markup to drop before matching — emphasis runs (``**``,
+# ``__``, ``*``), and line-leading heading / blockquote / bullet markers.
+_MD_EMPHASIS_RE = re.compile(r"(\*{1,3}|_{2,3})")
+_MD_LINE_PREFIX_RE = re.compile(
+    r"^[ \t]*(?:#{1,6}[ \t]+|>[ \t]*|[-+][ \t]+)", re.MULTILINE
+)
+
+# v2: leading option label, optionally after an "Answer:" style prefix.
+# Parenthesized letters may be either case; bare letters must be uppercase
+# and delimited (checked in _leading_label_match) so "I think..." or
+# "A lot of people..." never parse as a label.
+_LEADING_LABEL_RE = re.compile(
+    r"^\s*(?:(?:answer|my answer|choice)\s*[:\-]\s*)?"
+    r"(?:\(([A-Za-z])\)|([A-Za-z])[.):](?=\s|$))\s*(.*)",
+    re.IGNORECASE | re.DOTALL,
+)
+_PAREN_LABEL_RE = re.compile(r"\(([A-Za-z])\)")
 
 
 @dataclass(frozen=True)
@@ -96,11 +136,91 @@ def _containment_match(text: str, options: list[str]) -> str | None:
     return None
 
 
+def _strip_markdown(text: str) -> str:
+    """Drop markdown emphasis and line-leading markup (v2)."""
+    return _MD_EMPHASIS_RE.sub("", _MD_LINE_PREFIX_RE.sub("", text))
+
+
+def _leading_label_match(text: str, options: list[str]) -> ParsedResponse | None:
+    """Resolve a leading ``(D) ...`` / ``D. ...`` label (v2).
+
+    Returns ``None`` when there is no label; a parse failure when the label
+    is out of range or contradicted by an exact option name right after it.
+    The lowercase bare form (``a. ...``) is not a label — only ``(a)``.
+    """
+    match = _LEADING_LABEL_RE.match(text)
+    if not match:
+        return None
+    paren, bare, rest = match.groups()
+    if bare is not None and not bare.isupper():
+        return None
+    letter = (paren or bare).upper()
+    idx = ord(letter) - ord("A")
+    if not 0 <= idx < len(options):
+        return ParsedResponse()
+    # "(B) Favor" where B is "Oppose": the label and the echoed text
+    # disagree, so neither can be trusted.
+    first_line = rest.strip().split("\n", 1)[0]
+    by_norm = {_normalize(opt): opt for opt in options}
+    echoed = by_norm.get(_normalize(first_line))
+    if echoed is not None and echoed != options[idx]:
+        return ParsedResponse()
+    return ParsedResponse(option=options[idx])
+
+
+def _parse_v2_options(stripped: str, options: list[str]) -> ParsedResponse:
+    """v2 option matching on markdown-stripped text (after refusal checks)."""
+    text = _strip_markdown(stripped).strip()
+    if not text:
+        return ParsedResponse()
+
+    by_norm = {_normalize(opt): opt for opt in options}
+    text_norm = _normalize(text)
+    if text_norm in by_norm:
+        return ParsedResponse(option=by_norm[text_norm])
+
+    match = _BARE_LETTER_RE.match(text)
+    if match:
+        idx = ord(match.group(1).upper()) - ord("A")
+        if 0 <= idx < len(options):
+            return ParsedResponse(option=options[idx])
+        return ParsedResponse()
+
+    labelled = _leading_label_match(text, options)
+    if labelled is not None:
+        return labelled
+
+    lines = [ln for ln in text.splitlines() if ln.strip()]
+    # A parenthesized label after a short lead-in ("I'd say (B) agree",
+    # possibly below a roleplay line like "*thinks*"). Only when the opening
+    # lines carry exactly one distinct label; several means a list or a
+    # comparison, not an answer.
+    lead = "\n".join(lines[:2])
+    labels = list(_PAREN_LABEL_RE.finditer(lead))
+    if labels and len({m.group(1).upper() for m in labels}) == 1:
+        inline = _leading_label_match(lead[labels[0].start() :], options)
+        if inline is not None:
+            return inline
+
+    first_line = lines[0] if lines else ""
+    contained = _containment_match(first_line, options)
+    if contained is not None:
+        return ParsedResponse(option=contained)
+
+    # Whole-response containment only when unambiguous: an explanation that
+    # mentions several options must not be scored as whichever matched first.
+    hits = [opt for opt in options if _containment_match(text, [opt]) is not None]
+    if len(hits) == 1:
+        return ParsedResponse(option=hits[0])
+    return ParsedResponse()
+
+
 def parse_option_response(
     text: str,
     options: list[str],
     *,
     refusal_detector_version: int = REFUSAL_DETECTOR_VERSION,
+    option_parser_version: int = OPTION_PARSER_VERSION,
 ) -> ParsedResponse:
     """Parse a raw model response into an option selection, refusal, or failure.
 
@@ -111,6 +231,9 @@ def parse_option_response(
     answer-initial anchoring + option-echo exemption) or 1 (the legacy
     un-anchored patterns, kept callable so historical runs can be
     reproduced bit-for-bit).
+
+    ``option_parser_version`` selects option matching the same way: 2
+    (default, markdown-aware) or 1 (legacy).
     """
     raw = str(text)
     stripped = raw.strip()
@@ -133,6 +256,9 @@ def parse_option_response(
         is_refusal = detect_refusal(stripped)
     if is_refusal:
         return ParsedResponse(refusal=True)
+
+    if option_parser_version >= 2:
+        return _parse_v2_options(stripped, options)
 
     # 3. Bare letter, anchored full-match only.
     match = _BARE_LETTER_RE.match(stripped)

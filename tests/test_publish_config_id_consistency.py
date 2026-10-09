@@ -214,6 +214,18 @@ def test_refusal_detector_version_stamp_never_changes_config_id():
         )
 
 
+def test_option_parser_version_stamp_never_changes_config_id():
+    """``config.option_parser_version`` is metadata-only, like the refusal stamp."""
+    for provider in PROVIDER_FIXTURES:
+        base = _result(provider)
+        stamped = _result(provider)
+        stamped["config"]["option_parser_version"] = 2
+        assert (
+            _build_entry(base, rank=1)["config_id"]
+            == _build_entry(stamped, rank=1)["config_id"]
+        ), provider
+
+
 def test_all_committed_config_ids_unchanged_by_detector_stamp():
     """Recompute every committed run's config_id with and without the stamp.
 

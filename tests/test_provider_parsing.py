@@ -847,6 +847,114 @@ def test_refusal_detector_version_constant():
 
 
 # ---------------------------------------------------------------------------
+# Option parser v2 (synthbench#352) — markdown-aware matching
+# ---------------------------------------------------------------------------
+
+_OPTS_ALCOHOL = [
+    "Morally acceptable",
+    "Morally unacceptable",
+    "Not a moral issue",
+    "Depends on the situation (VOL)",
+]
+_OPTS_CHINA = [
+    "Next 10 years",
+    "Next 20 years",
+    "Next 50 years",
+    "China will not replace U.S.",
+]
+_OPTS_CONFIDENCE = ["a great deal", "only some", "hardly any", "don't know"]
+
+
+@pytest.mark.parametrize(
+    ("text", "options", "expected_v2", "expected_v1"),
+    [
+        # Markdown-bolded leading label + explanation that mentions another
+        # option: v1 mis-scored via whole-text containment.
+        (
+            "**(D) Depends on the situation.**\n\nA drink with friends is fine. "
+            "For most people it is not a moral issue.",
+            _OPTS_ALCOHOL,
+            "Depends on the situation (VOL)",
+            "Not a moral issue",
+        ),
+        (
+            "**(D) China will not replace the U.S.**\n\nMaybe the gap closes in the next 20 years.",
+            _OPTS_CHINA,
+            "China will not replace U.S.",
+            "Next 20 years",
+        ),
+        # Label after a lead-in, below a roleplay line (from committed runs).
+        (
+            "I'd say **(B) only some confidence**.\n\nThey could do a great deal better.",
+            _OPTS_CONFIDENCE,
+            "only some",
+            "a great deal",
+        ),
+        ("D. Depends", _OPTS_ALCOHOL, "Depends on the situation (VOL)", None),
+        ("Answer: (C)", _OPTS_ALCOHOL, "Not a moral issue", None),
+        (
+            "**Not a moral issue**",
+            _OPTS_ALCOHOL,
+            "Not a moral issue",
+            "Not a moral issue",
+        ),
+        (
+            "## (A) Morally acceptable\nBecause.",
+            _OPTS_ALCOHOL,
+            "Morally acceptable",
+            "Morally acceptable",
+        ),
+        # Unchanged plain forms.
+        ("B", _OPTS_ALCOHOL, "Morally unacceptable", "Morally unacceptable"),
+        (
+            "(B) Morally unacceptable",
+            _OPTS_ALCOHOL,
+            "Morally unacceptable",
+            "Morally unacceptable",
+        ),
+    ],
+)
+def test_option_parser_v2_markdown_answers(text, options, expected_v2, expected_v1):
+    assert parse_option_response(text, options).option == expected_v2
+    assert (
+        parse_option_response(text, options, option_parser_version=1).option
+        == expected_v1
+    )
+
+
+@pytest.mark.parametrize(
+    "text",
+    [
+        "(B) Morally acceptable",  # label and echoed option disagree
+        "(Z) whatever",  # label out of range
+        "I think A.",  # not a label
+        "a. something",  # lowercase bare letter is not a label
+        "Hard to say. (A) and (C) both have merit.",  # several labels
+        # Explanation names two options and no answer line resolves it.
+        "Hard to say.\nSome think it is not a moral issue; others find it morally unacceptable.",
+    ],
+)
+def test_option_parser_v2_refuses_ambiguous_answers(text):
+    assert parse_option_response(text, _OPTS_ALCOHOL) == ParsedResponse()
+
+
+def test_option_parser_v2_unambiguous_whole_text_containment():
+    text = "Hard to say.\nIn the end it is not a moral issue for me."
+    assert parse_option_response(text, _OPTS_ALCOHOL).option == "Not a moral issue"
+
+
+def test_option_parser_v2_keeps_refusal_detection():
+    text = "**I'd rather not answer that.**"
+    assert parse_option_response(text, _OPTS_ALCOHOL) == ParsedResponse(refusal=True)
+
+
+def test_option_parser_version_constant():
+    from synthbench.providers._parsing import OPTION_PARSER_VERSION
+
+    assert OPTION_PARSER_VERSION == 2
+
+
+# ---------------------------------------------------------------------------
 # Structured elicitation (tpl=structured) — schema-forced extraction
 # ---------------------------------------------------------------------------
 

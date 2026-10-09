@@ -22,6 +22,7 @@ from synthbench.metrics import (
     extract_human_refusal_rate,
     conditioning_fidelity,
 )
+from synthbench.providers._parsing import OPTION_PARSER_VERSION
 from synthbench.providers.base import Distribution, PersonaSpec, Provider, Response
 from synthbench.stats import bootstrap_ci, question_set_hash
 
@@ -476,6 +477,9 @@ class BenchmarkRunner:
                 # this run's raw responses. Absent on pre-v2 files (= v1).
                 # Never feeds build_config_id, so config_ids are stable.
                 "refusal_detector_version": REFUSAL_DETECTOR_VERSION,
+                # Same contract for option matching (synthbench#352): absent
+                # on pre-v2 files (= v1); never feeds build_config_id.
+                "option_parser_version": OPTION_PARSER_VERSION,
                 **_provider_reproducibility_hashes(self.provider),
             },
             elapsed_seconds=elapsed,

@@ -698,3 +698,13 @@ async def test_runner_refuses_empty_dataset(mock_provider):
     )
     with pytest.raises(EmptyQuestionSetError, match="loaded 0 questions"):
         await runner.run()
+
+
+async def test_runner_stamps_option_parser_version(mock_dataset, mock_provider):
+    from synthbench.providers._parsing import OPTION_PARSER_VERSION
+
+    runner = BenchmarkRunner(
+        dataset=mock_dataset, provider=mock_provider, samples_per_question=2
+    )
+    result = await runner.run(n=1)
+    assert result.config["option_parser_version"] == OPTION_PARSER_VERSION
