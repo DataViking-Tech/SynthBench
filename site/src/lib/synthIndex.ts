@@ -10,6 +10,7 @@
 // disagrees with the published SPS values it is derived from.
 
 import type { LeaderboardEntry, SynthBenchData } from "@/types/leaderboard";
+import { PINNED_CEILINGS } from "./ceilings";
 
 export const CORE_DATASETS = ["opinionsqa", "subpop", "globalopinionqa"] as const;
 export const ALL_DATASETS = [...CORE_DATASETS, "gss"] as const;
@@ -147,7 +148,13 @@ export function buildIndexData(raw: SynthBenchData): IndexData {
     if (e.model_id === "majority-baseline") majoritySps[e.dataset] = e.sps;
     questions[e.dataset] = Math.max(questions[e.dataset] ?? 0, e.n);
   }
-  const ceilingOf = (ds: string): number | null => ceilings[ds]?.overall?.mean ?? null;
+  // publish-data omits ceilings when the raw survey data isn't on disk (CI,
+  // Pages builds), so fall back to the pinned values in lib/ceilings.ts.
+  const pinned = PINNED_CEILINGS;
+  const ceilingOf = (ds: string): number | null =>
+    ceilings[ds]?.overall?.mean ?? pinned[ds]?.mean ?? null;
+  const qualityOf = (ds: string): string | null =>
+    ceilings[ds]?.overall?.quality_flag ?? pinned[ds]?.qualityFlag ?? null;
   const toIdx = (ds: string, v: number | null | undefined): number | null => {
     if (v == null || randomSps[ds] == null) return null;
     const c = ceilingOf(ds) ?? 1;
@@ -270,7 +277,7 @@ export function buildIndexData(raw: SynthBenchData): IndexData {
     majorityIdx: toIdx(d, majoritySps[d]),
     ceiling: ceilingOf(d),
     ceilingAssumed: ceilingOf(d) == null,
-    ceilingQuality: ceilings[d]?.overall?.quality_flag ?? null,
+    ceilingQuality: qualityOf(d),
   }));
 
   return {

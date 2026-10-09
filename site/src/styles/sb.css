@@ -674,10 +674,15 @@ table.sb-lb tr.refrow b {
   z-index: 60;
   overflow-y: auto;
   transform: translateX(105%);
-  transition: transform 0.18s ease;
+  /* Hidden (not just off-screen) when closed: keeps it out of the tab order
+     and out of full-page screenshots. */
+  visibility: hidden;
+  transition: transform 0.18s ease, visibility 0s linear 0.18s;
 }
 .sb-drawer.on {
   transform: none;
+  visibility: visible;
+  transition: transform 0.18s ease;
 }
 .sb-drawer:focus {
   outline: none;
@@ -872,7 +877,8 @@ table.sb-lb tr.refrow b {
   left: 50%;
   bottom: 18px;
   transform: translate(-50%, 160%);
-  transition: transform 0.18s ease;
+  visibility: hidden;
+  transition: transform 0.18s ease, visibility 0s linear 0.18s;
   z-index: 55;
   background: var(--sb-ink);
   color: var(--sb-panel);
@@ -889,6 +895,8 @@ table.sb-lb tr.refrow b {
 }
 .sb-tray.on {
   transform: translate(-50%, 0);
+  visibility: visible;
+  transition: transform 0.18s ease;
 }
 .sb-drawer.on ~ .sb-tray {
   left: calc(50% - 215px);
