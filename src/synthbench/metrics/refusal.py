@@ -6,13 +6,24 @@ Two detector versions coexist:
   pre-v2 runs). Un-anchored substring patterns; known precision failure:
   chatty in-character answers ("I don't get sick much, I'd say good") match
   ``\\bI don't\\b`` anywhere in the text and are mis-flagged as refusals.
-* :func:`detect_refusal_v2` — **v2** (current default via
-  :data:`REFUSAL_DETECTOR_VERSION`). Patterns must be answer-INITIAL
+* :func:`detect_refusal_v2` — **v2**. Patterns must be answer-INITIAL
   (anchored to the start of the trimmed response, tolerating leading
   pleasantries like "Well," / "Hmm,"), and never fire when the response
   contains a valid option for the current question (option-echo exemption —
   required because some instruments carry substantive options containing
   refusal-ish text, e.g. GSS GOD's "don't know, no way to find out").
+* :func:`detect_refusal_v3` — **v3** (current default via
+  :data:`REFUSAL_DETECTOR_VERSION`, synthbench#356). v2 missed common
+  character breaks from newer models — "I don't have a *personal* opinion
+  …", "I don't have a country …", "I don't think I should pick …", and
+  non-initial declines such as "The premise is outdated … so I can't pick
+  one of these options". Those fell through as parse failures instead of
+  refusals. v3 adds answer-initial "no stake / no standing" openers and
+  an explicit non-selection pattern searched anywhere in the first
+  paragraph. v2's option-echo exemption applies only when exactly one
+  option is echoed (a response weighing both sides chose neither), and
+  v3 adds a single-label exemption: a response carrying exactly one
+  option label (``(B)``) picked an answer, so it is never a refusal.
 
 Runs are stamped with ``config.refusal_detector_version``; the key is
 additive — files without it were parsed under v1. The stamp is metadata
@@ -26,7 +37,7 @@ import re
 
 #: Detector version stamped into run metadata (``config.refusal_detector_version``).
 #: Absent key on a committed run file means v1.
-REFUSAL_DETECTOR_VERSION = 2
+REFUSAL_DETECTOR_VERSION = 3
 
 # Patterns that indicate an LLM-style refusal when explicit refusal field is
 # unavailable. v1 — un-anchored; kept callable for reproducibility.
@@ -157,6 +168,93 @@ def detect_refusal_v2(text: str, options: list[str] | None = None) -> bool:
     if options and _mentions_option(str(text), options):
         return False
     return True
+
+
+# ---------------------------------------------------------------------------
+# v3 detector
+# ---------------------------------------------------------------------------
+
+# Additional answer-initial openers: the respondent says it has no opinion,
+# stake, or standing to answer ("I don't have a personal opinion of ...",
+# "I don't have a country ..."), or that answering isn't its place.
+_REFUSAL_PATTERNS_V3_INITIAL = [
+    re.compile(
+        r"\AI (?:do not|don'?t) have (?:a |an |any )?(?:personal |real |genuine |strong |own )?"
+        r"(?:opinions?|views?|stake|preferences?|country|nationality|personal experience|"
+        r"lived experience|political (?:views?|opinions?|affiliation))\b",
+        re.IGNORECASE,
+    ),
+    re.compile(
+        r"\AI (?:do not|don'?t) think (?:I should|it'?s (?:my place|appropriate|right|fair) to|"
+        r"it would be (?:appropriate|right|fair) (?:for me )?to) "
+        r"(?:pick|choose|select|answer|take a side|weigh in|rate)\b",
+        re.IGNORECASE,
+    ),
+    re.compile(
+        r"\AI'?m (?:just )?an? (?:AI|artificial intelligence|(?:large )?language model)\b",
+        re.IGNORECASE,
+    ),
+]
+
+# Explicit non-selection anywhere in the first paragraph ("..., so I can't
+# pick one of these options", "I won't pick (A) or (B)"). Requires a
+# selection verb, so "I can't believe ..." / "I won't lie, ..." never match.
+_NON_SELECTION_RE = re.compile(
+    r"\bI (?:can'?t|cannot|won'?t|will not|shouldn'?t|should not|am not going to|'?m not going to)\s+"
+    r"(?:honestly |really |fairly |just )?(?:pick|choose|select|rate|give (?:a|an|my) (?:rating|answer))\b",
+    re.IGNORECASE,
+)
+
+_OPTION_LABEL_RE = re.compile(r"\(([A-Za-z])\)")
+
+
+def _first_paragraph(text: str) -> str:
+    for block in re.split(r"\n\s*\n", text.strip()):
+        if block.strip():
+            return block
+    return ""
+
+
+def _single_option_label(text: str, options: list[str]) -> bool:
+    """True when *text* names exactly one in-range option label like ``(B)``."""
+    letters = {m.group(1).upper() for m in _OPTION_LABEL_RE.finditer(text)}
+    return len(letters) == 1 and 0 <= ord(next(iter(letters))) - ord("A") < len(options)
+
+
+def detect_refusal_v3(text: str, options: list[str] | None = None) -> bool:
+    """Detect refusal — v3: v2 plus character-break openers and non-selection.
+
+    Classification order:
+
+    1. A response that echoes exactly one declared option (v2's exemption,
+       narrowed: discussing *both* sides is not choosing one) or names
+       exactly one option label (``(B)``) chose an answer: not a refusal.
+    2. Any v2 answer-initial pattern, or a v3 answer-initial "no opinion /
+       no stake / not my place" opener: refusal.
+    3. An explicit non-selection ("I can't pick one of these options",
+       "I won't pick (A) or (B)") anywhere in the first paragraph: refusal.
+
+    Args:
+        text: Raw response text from the provider.
+        options: Declared answer options for the current question.
+
+    Returns:
+        True if the response declines to choose an option.
+    """
+    raw = str(text)
+    stripped = raw.strip(_WRAPPING_CHARS)
+    if not stripped:
+        return False
+    if options:
+        echoed = sum(1 for opt in options if _mentions_option(raw, [opt]))
+        if echoed == 1 or _single_option_label(raw, options):
+            return False
+    opening = _PLEASANTRY_PREFIX_RE.sub("", stripped)
+    if any(p.search(opening) for p in _REFUSAL_PATTERNS_V2):
+        return True
+    if any(p.search(opening) for p in _REFUSAL_PATTERNS_V3_INITIAL):
+        return True
+    return bool(_NON_SELECTION_RE.search(_first_paragraph(stripped)))
 
 
 def refusal_calibration(

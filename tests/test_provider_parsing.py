@@ -843,7 +843,106 @@ def test_refusal_detector_v1_still_callable_for_reproducibility():
 def test_refusal_detector_version_constant():
     from synthbench.metrics.refusal import REFUSAL_DETECTOR_VERSION
 
-    assert REFUSAL_DETECTOR_VERSION == 2
+    assert REFUSAL_DETECTOR_VERSION == 3
+
+
+# ---------------------------------------------------------------------------
+# Refusal detector v3 (synthbench#356) — character breaks and non-selection
+# ---------------------------------------------------------------------------
+
+_OPTS_APPROVE = ["Approve", "Disapprove", "DK/Refused"]
+_OPTS_FAVOR = [
+    "Very favorable",
+    "Somewhat favorable",
+    "Somewhat unfavorable",
+    "Very unfavorable",
+]
+_OPTS_IRAQ = ["Right decision", "Wrong decision"]
+_OPTS_PARTY = ["PRI", "PAN", "PRD", "Other (VOL)", "None (VOL)"]
+
+
+@pytest.mark.parametrize(
+    ("text", "options"),
+    [
+        # "personal" broke v2's "I don't have (an|a)? opinion" pattern.
+        (
+            "I don't have a personal opinion of political parties, so I can't pick one of these options.",
+            _OPTS_FAVOR,
+        ),
+        (
+            "I don't have personal opinions on political figures, so I can't choose a rating for you.",
+            _OPTS_FAVOR,
+        ),
+        ("I don't have a country, so I can't answer as a citizen would.", _OPTS_IRAQ),
+        (
+            "I don't think I should pick a party here, since that's a partisan judgment.",
+            _OPTS_PARTY,
+        ),
+        # Non-initial explicit non-selection in the first paragraph.
+        (
+            "The premise is outdated. Turchynov isn't in that role now, so I can't pick one of these options.",
+            _OPTS_FAVOR,
+        ),
+        # Discussing both options is not choosing one (v2's echo exemption
+        # let these through, and parser containment then scored a vote).
+        (
+            "I can't give an approve or disapprove answer here. A made-up response could be mistaken for real data.",
+            _OPTS_APPROVE,
+        ),
+        (
+            "I don't have a country or a personal vote, so I won't pick (A) or (B).\n\n"
+            "Some call it the right decision; others the wrong decision.",
+            _OPTS_IRAQ,
+        ),
+    ],
+)
+def test_refusal_v3_detects_character_breaks(text, options):
+    assert parse_option_response(text, options) == ParsedResponse(refusal=True)
+    # v2 did not classify these as refusals.
+    assert (
+        parse_option_response(text, options, refusal_detector_version=2).refusal
+        is False
+    )
+
+
+@pytest.mark.parametrize(
+    ("text", "options", "expected"),
+    [
+        # A single option label is an answer, even after a refusal-shaped opener.
+        ("I'm an AI, but if I had to choose I'd say (B).", _OPTS_APPROVE, "Disapprove"),
+        # Exactly one echoed option is an answer (v2 semantics kept).
+        (
+            "I don't have a strong view, but I'd say somewhat favorable.",
+            _OPTS_FAVOR,
+            "Somewhat favorable",
+        ),
+        ("**(C) DK/Refused**", _OPTS_APPROVE, "DK/Refused"),
+        # Selection verbs only: these are not non-selection.
+        (
+            "I can't believe how fast things changed. Very favorable.",
+            _OPTS_FAVOR,
+            "Very favorable",
+        ),
+        ("I won't lie, I approve.", _OPTS_APPROVE, "Approve"),
+    ],
+)
+def test_refusal_v3_keeps_real_answers(text, options, expected):
+    parsed = parse_option_response(text, options)
+    assert parsed.refusal is False
+    assert parsed.option == expected
+
+
+def test_refusal_v3_non_selection_only_in_first_paragraph():
+    text = "(A) Approve.\n\nOthers might say they can't pick one of these options, but I can."
+    assert parse_option_response(text, _OPTS_APPROVE).option == "Approve"
+
+
+def test_refusal_detector_v2_still_callable():
+    from synthbench.metrics.refusal import detect_refusal_v2, detect_refusal_v3
+
+    text = "I don't have a personal opinion, so I can't pick one of these options."
+    assert detect_refusal_v2(text, _OPTS_FAVOR) is False
+    assert detect_refusal_v3(text, _OPTS_FAVOR) is True
 
 
 # ---------------------------------------------------------------------------
