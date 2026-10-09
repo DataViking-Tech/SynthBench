@@ -446,6 +446,7 @@ across edge nodes.
 | `QSET_HASH` | Reported `question_set_hash` disagrees with the hash of your `per_question` keys. | Something modified the keys after the run. Regenerate. |
 | `QSET_HASH_DATASET` | Your question keys don't match the canonical dataset hash. | You ran against a mutated dataset. Re-pull the upstream fixture. |
 | `COUNT_MISMATCH` | `n_questions` disagrees with `len(per_question)`. | Truncated or merged file — regenerate. |
+| `EMPTY_RUN` | `per_question` is empty — the run evaluated zero questions. | Usually a `--suite`/`--topic` filter that matches nothing in the chosen dataset. Pick a filter for that dataset or use `--n`. |
 | `PER_Q_JSD` / `PER_Q_TAU` | Per-question metric doesn't match what the submitted distributions compute to. | Your metric code diverged from `synthbench`'s. Don't write your own metrics — use the harness's. |
 | `AGG_MEAN_JSD` / `AGG_MEAN_TAU` / `AGG_COMPOSITE` | Aggregate metric doesn't match the per-question recomputation. | Same as above. |
 | `PARSE_SUSPICIOUS` (warning) | Zero parse failures on a large run. | Double-check your parse pipeline isn't silently succeeding. |

@@ -26,6 +26,33 @@ from synthbench.providers.base import Distribution, PersonaSpec, Provider, Respo
 from synthbench.stats import bootstrap_ci, question_set_hash
 
 
+class EmptyQuestionSetError(ValueError):
+    """Raised when a run would evaluate zero questions.
+
+    Scoring an empty set yields empty-input defaults that look like a real
+    SPS (synthbench#353), so the runner refuses instead.
+    """
+
+
+def _empty_question_set_message(
+    dataset_name: str, *, loaded: int, filtered: bool
+) -> str:
+    if not filtered:
+        return f"Dataset '{dataset_name}' loaded 0 questions; nothing to evaluate."
+    from synthbench.suites import SUITE_SOURCE_DATASET
+
+    msg = (
+        f"The --suite/--topic filter matched 0 of {loaded} questions in dataset "
+        f"'{dataset_name}'; nothing to evaluate."
+    )
+    if dataset_name != SUITE_SOURCE_DATASET:
+        msg += (
+            f" Pinned suites and topics are built from '{SUITE_SOURCE_DATASET}' "
+            "question keys — use --n to size a run on this dataset."
+        )
+    return msg
+
+
 def _sha256_of(s: str) -> str:
     """Return ``sha256:<hex>`` digest of a UTF-8 string."""
     return "sha256:" + hashlib.sha256(s.encode("utf-8")).hexdigest()
@@ -405,12 +432,20 @@ class BenchmarkRunner:
     ) -> BenchmarkResult:
         t0 = time.monotonic()
         questions = self.dataset.load(n=n)
+        loaded = len(questions)
 
         # Filter by pinned question set if provided
         if question_keys is not None:
             from synthbench.suites import filter_questions_by_suite
 
             questions = filter_questions_by_suite(questions, question_keys)
+
+        if not questions:
+            raise EmptyQuestionSetError(
+                _empty_question_set_message(
+                    self.dataset.name, loaded=loaded, filtered=question_keys is not None
+                )
+            )
 
         # Use batched evaluation when provider supports it
         use_batch = self.provider.supports_distribution and hasattr(
