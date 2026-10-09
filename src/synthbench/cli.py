@@ -1284,8 +1284,10 @@ async def _replicate_async(
     out_dir.mkdir(parents=True, exist_ok=True)
     from datetime import datetime
 
+    from synthbench.report import provider_slug as report_provider_slug
+
     ts = datetime.now().strftime("%Y%m%d_%H%M%S")
-    provider_slug = prov.name.replace("/", "_")
+    provider_slug = report_provider_slug(prov.name)
 
     json_data = {
         "benchmark": "synthbench",
@@ -2018,8 +2020,10 @@ async def _contamination_async(
         out_dir.mkdir(parents=True, exist_ok=True)
         from datetime import datetime
 
+        from synthbench.report import provider_slug as report_provider_slug
+
         ts = datetime.now().strftime("%Y%m%d_%H%M%S")
-        provider_slug = prov.name.replace("/", "_")
+        provider_slug = report_provider_slug(prov.name)
         json_path = out_dir / f"contamination_{provider_slug}_{ts}.json"
         json_path.write_text(json.dumps(result_data, indent=2))
         click.echo(f"Results saved: {json_path}")
@@ -2152,8 +2156,10 @@ async def _contamination_deident_async(
         out_dir.mkdir(parents=True, exist_ok=True)
         from datetime import datetime
 
+        from synthbench.report import provider_slug as report_provider_slug
+
         ts = datetime.now().strftime("%Y%m%d_%H%M%S")
-        provider_slug = prov.name.replace("/", "_")
+        provider_slug = report_provider_slug(prov.name)
         json_path = out_dir / f"contamination_deident_{provider_slug}_{ts}.json"
         json_path.write_text(json.dumps(result_data, indent=2))
         click.echo(f"Results saved: {json_path}")

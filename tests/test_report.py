@@ -7,7 +7,7 @@ import json
 import pytest
 
 from synthbench.runner import BenchmarkResult, QuestionResult
-from synthbench.report import to_json, to_markdown
+from synthbench.report import provider_slug, save, to_json, to_markdown
 
 
 @pytest.fixture
@@ -160,3 +160,25 @@ def test_latency_appears_in_per_question_records():
     pq = data["per_question"]
     assert pq[0]["latency_seconds"] == pytest.approx(0.42)
     assert "latency_seconds" not in pq[1]
+
+
+@pytest.mark.parametrize(
+    ("name", "expected"),
+    [
+        ("althing/claude-code:haiku", "althing_claude-code_haiku"),
+        ("openrouter/openai/gpt-4o-mini t=0.7", "openrouter_openai_gpt-4o-mini t=0.7"),
+        ('a\\b*c?d"e<f>g|h', "a_b_c_d_e_f_g_h"),
+    ],
+)
+def test_provider_slug_is_filename_safe(name, expected):
+    assert provider_slug(name) == expected
+
+
+def test_save_uses_filename_safe_slug(sample_result, tmp_path):
+    sample_result.provider_name = "althing/claude-code:haiku"
+    json_path, md_path = save(sample_result, tmp_path)
+    assert ":" not in json_path.name
+    assert json_path.name.startswith("test_althing_claude-code_haiku_")
+    card = json.loads(json_path.read_text(encoding="utf-8"))
+    assert card["config"]["provider"] == "althing/claude-code:haiku"
+    assert "█" in md_path.read_text(encoding="utf-8")

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import re
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -469,6 +470,18 @@ def to_markdown(
     return "\n".join(lines)
 
 
+# Characters that are path separators or invalid in Windows filenames. A ':'
+# is the dangerous one: NTFS treats ``name:rest`` as an alternate data
+# stream, so a provider like ``althing/claude-code:haiku`` would silently
+# write its score card into a hidden stream of a truncated file.
+_UNSAFE_FILENAME_CHARS = re.compile(r'[\\/:*?"<>|]')
+
+
+def provider_slug(provider_name: str) -> str:
+    """Return *provider_name* made safe for use in a result filename."""
+    return _UNSAFE_FILENAME_CHARS.sub("_", provider_name)
+
+
 def save(result: BenchmarkResult, output_dir: Path | str) -> tuple[Path, Path]:
     """Save JSON and markdown score cards to output_dir.
 
@@ -478,16 +491,17 @@ def save(result: BenchmarkResult, output_dir: Path | str) -> tuple[Path, Path]:
     output_dir.mkdir(parents=True, exist_ok=True)
 
     ts = datetime.now().strftime("%Y%m%d_%H%M%S")
-    provider_slug = result.provider_name.replace("/", "_")
-    base = f"{result.dataset_name}_{provider_slug}_{ts}"
+    base = f"{result.dataset_name}_{provider_slug(result.provider_name)}_{ts}"
 
     json_path = output_dir / f"{base}.json"
     md_path = output_dir / f"{base}.md"
 
-    with open(json_path, "w") as f:
+    # Explicit UTF-8: the markdown card contains box-drawing bars (█░) that
+    # the Windows default codepage (cp1252) cannot encode.
+    with open(json_path, "w", encoding="utf-8") as f:
         json.dump(to_json(result), f, indent=2)
 
-    with open(md_path, "w") as f:
+    with open(md_path, "w", encoding="utf-8") as f:
         f.write(to_markdown(result))
 
     return json_path, md_path
