@@ -649,6 +649,17 @@ def _validate_counts(data: Mapping[str, Any]) -> list[Issue]:
     per_question = data.get("per_question") or []
     reported = aggregate.get("n_questions")
     actual = len(per_question) if isinstance(per_question, list) else 0
+    if isinstance(per_question, list) and actual == 0:
+        # A zero-question run has no evidence behind it; its scores are
+        # empty-input defaults (synthbench#353), so never accept one.
+        issues.append(
+            Issue(
+                code="EMPTY_RUN",
+                severity=Severity.ERROR,
+                message="per_question is empty — the run evaluated zero questions",
+                path="per_question",
+            )
+        )
     if isinstance(reported, int) and reported != actual:
         issues.append(
             Issue(

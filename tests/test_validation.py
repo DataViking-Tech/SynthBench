@@ -236,6 +236,16 @@ class TestCountMismatch:
         assert any(i.code == "COUNT_MISMATCH" for i in report.errors)
 
 
+class TestEmptyRun:
+    def test_zero_question_run_rejected(self, clean_submission):
+        bad = copy.deepcopy(clean_submission)
+        bad["per_question"] = []
+        bad["aggregate"]["n_questions"] = 0
+        report = validate_submission(bad, tier2=False)
+        assert not report.ok
+        assert any(i.code == "EMPTY_RUN" for i in report.errors)
+
+
 class TestParseFailurePlausibility:
     """PARSE_SUSPICIOUS was retired in sb-a613.
 

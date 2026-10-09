@@ -14,6 +14,7 @@ from synthbench.providers.base import (
 from synthbench.runner import (
     BenchmarkRunner,
     DemographicGroupResult,
+    EmptyQuestionSetError,
     _aggregate_token_usage,
     _normalize_model_dist,
 )
@@ -660,3 +661,40 @@ async def test_runner_records_per_question_latency(mock_dataset, mock_provider):
         assert qr.latency_seconds >= 0.0
         # Per-question latency cannot exceed the total run elapsed time.
         assert qr.latency_seconds <= result.elapsed_seconds + 1e-3
+
+
+@pytest.mark.asyncio
+async def test_runner_refuses_suite_that_matches_no_questions(
+    mock_dataset, mock_provider
+):
+    """synthbench#353: a filter that matches nothing must not yield a score."""
+    runner = BenchmarkRunner(
+        dataset=mock_dataset, provider=mock_provider, samples_per_question=2
+    )
+    with pytest.raises(EmptyQuestionSetError) as exc:
+        await runner.run(question_keys=["BIOTECHC_W34", "DIFF1B_W29"])
+    msg = str(exc.value)
+    assert "matched 0 of" in msg
+    assert "'mock'" in msg
+    assert "opinionsqa" in msg  # points at the dataset the suites come from
+    assert "--n" in msg
+
+
+@pytest.mark.asyncio
+async def test_runner_refuses_empty_dataset(mock_provider):
+    class EmptyDataset(Dataset):
+        @property
+        def name(self) -> str:
+            return "empty"
+
+        def load(self, n=None):
+            return []
+
+        def info(self) -> dict:
+            return {}
+
+    runner = BenchmarkRunner(
+        dataset=EmptyDataset(), provider=mock_provider, samples_per_question=2
+    )
+    with pytest.raises(EmptyQuestionSetError, match="loaded 0 questions"):
+        await runner.run()

@@ -390,7 +390,7 @@ def run(
         )
         sys.exit(2)
 
-    asyncio.run(
+    _run_benchmark_or_exit(
         _run_async(
             provider,
             model,
@@ -421,6 +421,17 @@ def run(
             poll_timeout=poll_timeout,
         )
     )
+
+
+def _run_benchmark_or_exit(coro) -> None:
+    """Run a benchmark coroutine, turning an empty question set into a clean CLI error."""
+    from synthbench.runner import EmptyQuestionSetError
+
+    try:
+        asyncio.run(coro)
+    except EmptyQuestionSetError as exc:
+        click.echo(f"Error: {exc}", err=True)
+        sys.exit(2)
 
 
 async def _run_async(
@@ -1147,7 +1158,7 @@ def replicate(
     Example:
         synthbench replicate --provider raw-anthropic --n-runs 5 --suite core
     """
-    asyncio.run(
+    _run_benchmark_or_exit(
         _replicate_async(
             provider,
             model,

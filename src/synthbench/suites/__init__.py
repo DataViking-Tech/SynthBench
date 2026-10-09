@@ -25,6 +25,10 @@ AVAILABLE_SUITES = ("smoke", "core", "full")
 
 AVAILABLE_TOPICS = ("political", "consumer", "neutral")
 
+# Every pinned suite and topic set above is built from OpinionsQA question
+# keys (``<VAR>_W<wave>``), so against any other dataset they match nothing.
+SUITE_SOURCE_DATASET = "opinionsqa"
+
 
 def load_suite(name: str) -> list[str] | None:
     """Load a pinned question set by name.
