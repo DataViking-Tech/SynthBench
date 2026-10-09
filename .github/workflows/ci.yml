@@ -26,7 +26,10 @@ jobs:
         with:
           python-version: "3.14"
           cache: 'pip'
-      - run: pip install ruff
+      # Pinned: unpinned installs picked up newer ruff releases whose
+      # expanded default rules flag ~225 pre-existing findings. Bump
+      # deliberately alongside the fixes.
+      - run: pip install "ruff==0.15.22"
       - run: ruff check .
       - run: ruff format --check .
       - name: Guard against hyphenated sibling-project regression (sb-1el9)
