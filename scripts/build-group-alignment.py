@@ -79,7 +79,13 @@ ATTR_LABELS = {
 }
 # Ordered attributes list groups low to high; the rest are nominal.
 ORDER = {
-    "POLIDEOLOGY": ["Very conservative", "Conservative", "Moderate", "Liberal", "Very liberal"],
+    "POLIDEOLOGY": [
+        "Very conservative",
+        "Conservative",
+        "Moderate",
+        "Liberal",
+        "Very liberal",
+    ],
     "POLPARTY": ["Republican", "Independent", "Democrat"],
     "EDUCATION": [
         "Less than high school",
@@ -160,10 +166,14 @@ def human_groups() -> dict:
                     total = sum(c.values())
                     if total < 30:
                         continue
-                    oq_groups[a].setdefault(qk, {})[g] = {o: n / total for o, n in c.items()}
+                    oq_groups[a].setdefault(qk, {})[g] = {
+                        o: n / total for o, n in c.items()
+                    }
     out["opinionsqa"] = oq_groups | {"_overall": overall_oq}
 
-    raw = json.loads((DATA / "globalopinionqa" / "questions.json").read_text(encoding="utf-8"))
+    raw = json.loads(
+        (DATA / "globalopinionqa" / "questions.json").read_text(encoding="utf-8")
+    )
     countries: dict[str, dict[str, dict[str, float]]] = {}
     overall: dict[str, dict[str, float]] = {}
     for q in raw["questions"]:
@@ -293,10 +303,16 @@ def summarize(
 
 def main() -> None:
     lb = json.loads(LEADERBOARD.read_text(encoding="utf-8"))
-    entries = [e for e in lb["entries"] if e["dataset"] in ("subpop", "opinionsqa", "globalopinionqa")]
+    entries = [
+        e
+        for e in lb["entries"]
+        if e["dataset"] in ("subpop", "opinionsqa", "globalopinionqa")
+    ]
     humans = human_groups()
     configs = load_runs({e["config_id"] for e in entries})
-    print(f"{len(configs)} of {len(entries)} leaderboard configs found", file=sys.stderr)
+    print(
+        f"{len(configs)} of {len(entries)} leaderboard configs found", file=sys.stderr
+    )
 
     # Group lists per dataset/attribute, ordered where the attribute is ordinal.
     datasets: dict[str, dict] = {}
@@ -312,7 +328,9 @@ def main() -> None:
                     "id": a,
                     "label": ATTR_LABELS.get(a, a.title()),
                     "ordered": a in ORDER,
-                    "groups": [{"id": g, "label": GROUP_LABELS.get(g, g)} for g in groups],
+                    "groups": [
+                        {"id": g, "label": GROUP_LABELS.get(g, g)} for g in groups
+                    ],
                 }
             )
         datasets[ds] = {"attributes": alist}
@@ -345,7 +363,9 @@ def main() -> None:
             key=lambda c: len(set().union(*c["runs"])),
         )
         overall = humans[ds]["_overall"]
-        ref_model = {k: overall[k] for k in set().union(*largest["runs"]) if k in overall}
+        ref_model = {
+            k: overall[k] for k in set().union(*largest["runs"]) if k in overall
+        }
         reference[ds] = {}
         for a in datasets[ds]["attributes"]:
             groups = [g["id"] for g in a["groups"]]
@@ -353,7 +373,10 @@ def main() -> None:
             if res is None:
                 continue
             s = summarize(
-                res[0], groups, MIN_COUNTRY_Q if a["id"] == "COUNTRY" else 10, a["ordered"]
+                res[0],
+                groups,
+                MIN_COUNTRY_Q if a["id"] == "COUNTRY" else 10,
+                a["ordered"],
             )
             if s:
                 reference[ds][a["id"]] = s
@@ -392,7 +415,12 @@ def main() -> None:
                     np.mean([jsd(model[k], norm(by_q[k][g["group"]])) for k in keys])
                 )
                 slot["vals"][(attr, g["group"])].append(
-                    (100 * default, 100 * g["p_dist"], 100 * g["p_cond"], g["n_questions"])
+                    (
+                        100 * default,
+                        100 * g["p_dist"],
+                        100 * g["p_cond"],
+                        g["n_questions"],
+                    )
                 )
     conditioning = []
     for (method, model_id, temp), slot in cond_acc.items():
