@@ -169,6 +169,29 @@ class R2Uploader:
         body = resp["Body"].read()
         return json.loads(body.decode("utf-8"))
 
+    def put_bytes(self, key: str, body: bytes, content_type: str) -> None:
+        """Upload raw bytes (e.g. a mirrored dataset archive) to ``key``."""
+        self._client.put_object(
+            Bucket=self._config.bucket,
+            Key=key.lstrip("/"),
+            Body=body,
+            ContentType=content_type,
+        )
+        self._object_count += 1
+
+    def get_bytes(self, key: str) -> bytes | None:
+        """Fetch an object's raw bytes, or ``None`` when the key does not exist."""
+        try:
+            resp = self._client.get_object(
+                Bucket=self._config.bucket, Key=key.lstrip("/")
+            )
+        except Exception as exc:  # boto3 raises botocore ClientError subclasses
+            code = getattr(exc, "response", {}).get("Error", {}).get("Code", "")
+            if code in ("NoSuchKey", "404"):
+                return None
+            raise
+        return resp["Body"].read()
+
 
 __all__ = [
     "R2Config",
