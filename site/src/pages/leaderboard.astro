@@ -1,39 +1,23 @@
 ---
-import DatasetTabs from "@/components/leaderboard/DatasetTabs.astro";
 import DemographicHeatmap from "@/components/leaderboard/DemographicHeatmap.astro";
-import DotPlot from "@/components/leaderboard/DotPlot.astro";
-import LeaderboardTable from "@/components/leaderboard/LeaderboardTable.astro";
-import MetricRadar from "@/components/leaderboard/MetricRadar.astro";
-import PerMetricDot from "@/components/leaderboard/PerMetricDot.astro";
-import ViewToggle from "@/components/leaderboard/ViewToggle.astro";
-import WhiskerPlot from "@/components/leaderboard/WhiskerPlot.astro";
-import BaseLayout from "@/layouts/BaseLayout.astro";
-
+import IndexPayload from "@/components/sb/IndexPayload.astro";
 import leaderboardRaw from "@/data/leaderboard.json";
+import BaseLayout from "@/layouts/BaseLayout.astro";
 import type { LeaderboardData } from "@/types/leaderboard";
 
 const leaderboard = leaderboardRaw as LeaderboardData;
-const datasets = leaderboard.datasets;
-
 const rawBase = import.meta.env.BASE_URL || "/";
 const base = rawBase.endsWith("/") ? rawBase : `${rawBase}/`;
 
-// Provenance line (credibility: freshness + how many runs the board is built
-// from, and how many the run-validity filter excluded). generated_at /
-// synthbench_version come straight from `synthbench publish-data`.
 const generatedAt = leaderboard.generated_at ? new Date(leaderboard.generated_at) : null;
 const generatedAtLabel =
   generatedAt && !Number.isNaN(generatedAt.getTime())
     ? `${generatedAt.toISOString().slice(0, 16).replace("T", " ")} UTC`
     : null;
-const nEntries = leaderboard.entries.length;
 const nExcluded = leaderboard.excluded_runs?.length ?? 0;
 
-// "Reproduce this yourself" (executive-panel residual: "open code" is not the
-// same as "someone verified it" in a buyer's head — one-command replication
-// is the honest bridge). Command verified against the actual CLI: the PyPI
-// name `synthbench` belongs to an unrelated project, so install from the
-// repo; `[subpop]` pulls the HF datasets extra the subpop adapter needs.
+// The PyPI name `synthbench` belongs to an unrelated project, so install from
+// the repo; `[subpop]` pulls the HF datasets extra the subpop adapter needs.
 const reproduceCommands = [
   'pip install "synthbench-eval[subpop] @ git+https://github.com/DataViking-Tech/SynthBench.git"',
   "synthbench run --provider <yours> --dataset subpop --samples 30",
@@ -42,126 +26,89 @@ const reproduceCommands = [
 ].join("\n");
 ---
 
-<BaseLayout title="Leaderboard - SynthBench">
-  <div class="py-12 text-center">
-    <h1 class="text-3xl sm:text-4xl font-bold tracking-tight">Leaderboard</h1>
-    <p class="mt-3 text-lg text-muted max-w-2xl mx-auto">
-      Full rankings across all datasets and models.
-    </p>
-    <p class="mt-3 text-sm text-muted max-w-2xl mx-auto">
-      <strong class="text-text dark:text-text-dark">Survey Parity Score (SPS)</strong>
-      measures how closely AI-generated survey responses match real human
-      opinion distributions. <span class="font-mono">1.0</span> = perfect match.
-    </p>
-    <p class="mt-4 text-xs text-muted max-w-2xl mx-auto" data-provenance>
-      {nEntries} ranked config{nEntries === 1 ? "" : "s"}
-      {
-        nExcluded > 0 && (
-          <>
-            {" · "}
-            <a
-              href={`${base}methodology#run-validity`}
-              class="underline decoration-dotted hover:text-primary"
-              >{nExcluded} run{nExcluded === 1 ? "" : "s"} excluded</a
-            >
-          </>
-        )
-      }
-      {
-        generatedAtLabel && (
-          <>
-            {" · generated "}
-            <span data-vrt-mask>{generatedAtLabel}</span>
-          </>
-        )
-      }
-      {leaderboard.synthbench_version && ` · synthbench v${leaderboard.synthbench_version}`}
-      {" · "}
-      <a
-        href={`${base}data/leaderboard.json`}
-        class="underline decoration-dotted hover:text-primary">JSON API</a
-      >
-    </p>
-
-    <div
-      class="mt-6 mx-auto max-w-3xl rounded-lg border border-primary/30 bg-primary/5 p-4 text-left"
-      data-reproduce-box
-    >
-      <p class="text-sm font-semibold">Reproduce this yourself</p>
-      <p class="mt-1 text-sm text-muted">
-        Every number on this page is recomputed from per-question data at
-        publish; the scoring code and public-tier data are open.
-        <strong class="text-text dark:text-text-dark">Don't trust us — re-run it:</strong>
-      </p>
-      <div class="relative mt-3">
-        <pre
-          class="rounded border border-muted/20 bg-surface dark:bg-surface-dark p-3 pr-12 text-xs font-mono overflow-x-auto"><code>{reproduceCommands}</code></pre>
-        <button
-          type="button"
-          id="copy-reproduce"
-          class="absolute top-2 right-2 rounded-md p-1.5 text-muted hover:text-text dark:hover:text-text-dark"
-          aria-label="Copy commands"
-          data-commands={reproduceCommands}
-        >
-          <svg
-            class="size-4"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke-width="1.5"
-            stroke="currentColor"
-            aria-hidden="true"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              d="M15.666 3.888A2.25 2.25 0 0013.5 2.25h-3c-1.03 0-1.9.693-2.166 1.638m7.332 0c.055.194.084.4.084.612v0a.75.75 0 01-.75.75H9.75a.75.75 0 01-.75-.75v0c0-.212.03-.418.084-.612m7.332 0c.646.049 1.288.11 1.927.184 1.1.128 1.907 1.077 1.907 2.185V19.5a2.25 2.25 0 01-2.25 2.25H6.75A2.25 2.25 0 014.5 19.5V6.257c0-1.108.806-2.057 1.907-2.185a48.208 48.208 0 011.927-.184"
-            ></path>
-          </svg>
-        </button>
+<BaseLayout
+  title="Leaderboard: SynthBench"
+  description="Every synthetic-respondent system ranked by the SynthBench Index, grouped into statistical tiers."
+>
+  <IndexPayload />
+  <div class="sb">
+    <section class="sb-head sb-head-row">
+      <div>
+        <div class="sb-kicker" data-provenance>
+          Index v1
+          {nExcluded > 0 && <> · <a href={`${base}methodology/#run-validity`}>{nExcluded} runs excluded</a></>}
+          {generatedAtLabel && <> · generated <span data-vrt-mask>{generatedAtLabel}</span></>}
+          {leaderboard.synthbench_version && ` · synthbench v${leaderboard.synthbench_version}`}
+        </div>
+        <h1 class="sb-h1 sm">Leaderboard</h1>
+        <p class="sb-lede">
+          Systems are grouped into <b>tiers</b>. Systems in the same tier can't be reliably told apart once
+          you account for their 95% intervals.
+        </p>
       </div>
-      <p class="mt-2 text-xs text-muted">
-        <code>run</code> benchmarks your provider against the same public
-        ground truth, <code>validate</code> re-checks the artifact against the
-        integrity rules, and <code>compare</code> runs a paired bootstrap
-        significance test against any published run. Machine-readable data:{" "}
-        <a
-          href={`${base}data/leaderboard.json`}
-          class="underline decoration-dotted hover:text-primary">JSON API</a
-        >
-        {" · "}
-        <a
-          href="https://github.com/DataViking-Tech/SynthBench/blob/main/docs/leaderboard-json-api.md"
-          class="underline decoration-dotted hover:text-primary">API contract</a
-        >
+      <div class="sb-head-actions">
+        <button type="button" class="sb-btn" id="lb-csv">Download CSV</button>
+        <a class="sb-btn" href={`${base}data/leaderboard.json`}>JSON API</a>
+      </div>
+    </section>
+
+    <section class="sb-block sb-panel">
+      <div class="sb-filterbar" id="lb-filters"></div>
+      <div class="sb-tablewrap"><table class="sb-lb" id="leaderboard"></table></div>
+    </section>
+
+    <section class="sb-notes">
+      <div>
+        <h4>Tiers</h4>
+        A system's tier is 1 plus the number of systems whose 95% interval sits entirely above its own.
+        A difference of a few points inside a tier is noise.
+      </div>
+      <div>
+        <h4>Reference rows</h4>
+        Striped rows are reference points, not systems: <b>random answers</b> (Index 0) and
+        <b>always choosing the most popular answer</b>.
+      </div>
+      <div>
+        <h4>Compare</h4>
+        Tick up to three rows to compare them side by side. Click a row for details. GSS (†) has no
+        published human ceiling yet, so it isn't part of the Index.
+      </div>
+    </section>
+
+    <section class="sb-block sb-panel sb-pad" data-reproduce-box>
+      <h2 class="sb-h2">Reproduce these numbers</h2>
+      <p class="sb-muted">
+        Every number on this page is recomputed from per-question data when the site is built. The scoring
+        code and public data are open, so you can re-run any of it:
       </p>
-    </div>
+      <div class="sb-code">
+        <pre><code>{reproduceCommands}</code></pre>
+        <button type="button" id="copy-reproduce" class="sb-btn sb-btn-sm" data-commands={reproduceCommands}>Copy</button>
+      </div>
+      <p class="sb-note">
+        <code>run</code> scores your provider on the same public questions. <code>validate</code> checks the
+        result file against the integrity rules. <code>compare</code> runs a paired bootstrap test against any
+        published run. See the <a href="https://github.com/DataViking-Tech/SynthBench/blob/main/docs/leaderboard-json-api.md">API contract</a>
+        for the JSON format.
+      </p>
+    </section>
   </div>
 
-  <div class="w-full max-w-5xl mx-auto px-4 space-y-4">
-    <DatasetTabs datasets={datasets} />
-    <ViewToggle />
-  </div>
-
-  <LeaderboardTable />
-  <MetricRadar />
-  <DemographicHeatmap />
-
-  <div class="mt-12 space-y-8">
-    <DotPlot />
-    <PerMetricDot />
-    <WhiskerPlot />
+  <div class="mt-12">
+    <DemographicHeatmap />
   </div>
 </BaseLayout>
 
 <script>
+  import "@/scripts/sb/pages/leaderboard";
+
   const copyBtn = document.getElementById("copy-reproduce");
-  if (copyBtn) {
-    copyBtn.addEventListener("click", () => {
-      const text = copyBtn.dataset.commands ?? "";
-      navigator.clipboard.writeText(text).then(() => {
-        copyBtn.setAttribute("aria-label", "Copied!");
-        setTimeout(() => copyBtn.setAttribute("aria-label", "Copy commands"), 2000);
-      });
+  copyBtn?.addEventListener("click", () => {
+    navigator.clipboard.writeText(copyBtn.dataset.commands ?? "").then(() => {
+      copyBtn.textContent = "Copied";
+      setTimeout(() => {
+        copyBtn.textContent = "Copy";
+      }, 2000);
     });
-  }
+  });
 </script>

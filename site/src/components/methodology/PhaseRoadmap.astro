@@ -2,16 +2,16 @@
 const phases = [
   {
     number: 1,
-    title: "US Opinion Parity",
+    title: "US opinion parity",
     status: "current",
     datasets: "OpinionsQA, SubPOP",
     metrics: "P_dist, P_rank, P_cond, P_sub, P_refuse",
     description:
-      "Establish the core benchmark with US survey data. Validate metrics against human baselines and publish initial leaderboard.",
+      "Build the core benchmark on US survey data. Validate metrics against human baselines and publish the first leaderboard.",
   },
   {
     number: 2,
-    title: "Global Cultural Parity",
+    title: "Global cultural parity",
     status: "planned",
     datasets: "GlobalOpinionQA expansion",
     metrics: "+ cross-cultural P_dist",
@@ -20,21 +20,21 @@ const phases = [
   },
   {
     number: 3,
-    title: "Open-Ended Qualitative",
+    title: "Open-ended qualitative responses",
     status: "planned",
     datasets: "Custom open-ended question sets",
     metrics: "+ P_theme (LLM-as-judge)",
     description:
-      "Move beyond multiple choice. Evaluate free-text responses for thematic accuracy using automated judge models.",
+      "Add free-text questions to the multiple-choice set. Score free-text responses for thematic accuracy with automated judge models.",
   },
   {
     number: 4,
-    title: "Temporal Stability",
+    title: "Temporal stability",
     status: "planned",
     datasets: "Longitudinal tracking panels",
     metrics: "+ temporal drift metrics",
     description:
-      "Track how model accuracy changes over time. Measure whether models keep pace as public opinion shifts.",
+      "Track how model accuracy changes over time. Measure whether models stay accurate as public opinion shifts.",
   },
 ];
 ---

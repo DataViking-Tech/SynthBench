@@ -18,8 +18,8 @@ Three routes, one theme (dark), one viewport (Desktop Chrome 1280×800):
 
 | Route | Purpose |
 |-------|---------|
-| `/` | Hero, key findings, summary leaderboard |
-| `/leaderboard/` | Full leaderboard + charts |
+| `/` | Overview: Index gap chart, by-dataset / persona / shares panels, findings |
+| `/leaderboard/` | Tiered leaderboard table + subgroup heatmap |
 | `/run/<representative-id>/` | Representative run detail page |
 
 All baselines are produced in the **Ubuntu CI runner** (the Playwright
@@ -32,7 +32,7 @@ macOS dev machines** — they will diverge on CI and mask real regressions.
 Any element in the markup tagged `data-vrt-mask` is masked during compare.
 Today that covers:
 
-- Hero version string and generated date (home)
+- Overview "updated" date (home) and leaderboard generated timestamp
 - Nav version badge (all routes)
 - Footer copyright year (all routes)
 - Run-detail timestamp (run-detail)

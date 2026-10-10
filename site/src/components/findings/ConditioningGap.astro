@@ -68,7 +68,7 @@ const chartOption = {
   },
   yAxis: {
     type: "value" as const,
-    name: "Conditioning Effect (p_cond)",
+    name: "Conditioning effect (p_cond)",
     nameLocation: "middle" as const,
     nameGap: 50,
     min: 0,
@@ -76,7 +76,7 @@ const chartOption = {
   },
   series: [
     {
-      name: "Conditioning Effect",
+      name: "Conditioning effect",
       type: "bar" as const,
       data: pCondValues,
       barMaxWidth: 50,
@@ -100,11 +100,11 @@ const hasData = conditioning.length > 0;
 ---
 
 <section class="w-full max-w-4xl mx-auto py-8">
-  <h2 class="text-2xl font-bold text-center mb-2">Demographic Conditioning Reveals Model Bias</h2>
+  <h2 class="text-2xl font-bold text-center mb-2">Demographic conditioning gap</h2>
   <p class="text-center text-sm text-muted mb-6">
-    How much conditioning on a demographic group shifts model responses (p_cond).
-    Republican conditioning is {ratio ? `${ratio}x` : "significantly"} stronger
-    than Democrat — the model already leans progressive by default.
+    p_cond measures how far conditioning on a demographic group shifts model responses.
+    Republican conditioning shifts responses {ratio ? `${ratio}x` : "much"} more
+    than Democrat conditioning. The unconditioned model already leans progressive.
   </p>
   {hasData ? (
     <>
@@ -120,15 +120,15 @@ const hasData = conditioning.length > 0;
         ))}
       </div>
       <Chart
-        title="Demographic Conditioning Gap"
-        description="Chart showing how conditioning on different demographic groups shifts model responses (p_cond). Republican conditioning produces a larger shift than Democrat — evidence of a default progressive lean."
+        title="Demographic conditioning gap"
+        description="Bar chart of p_cond, the shift in model responses when conditioning on each demographic group. Republican conditioning produces a larger shift than Democrat conditioning, consistent with a default progressive lean."
         option={chartOption}
         height="400px"
       />
     </>
   ) : (
     <div class="text-center text-muted py-12 border border-muted/20 rounded-lg">
-      Conditioning data not yet available.
+      No conditioning data yet.
     </div>
   )}
 </section>

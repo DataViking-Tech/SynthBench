@@ -5,11 +5,11 @@
   <h2
     class="text-2xl font-bold tracking-tight text-text dark:text-text-dark mb-2"
   >
-    Diagnosis without measurement
+    Why measure against human data
   </h2>
   <p class="text-muted mb-4 max-w-2xl">
-    Why a benchmark pinned to real human response distributions is the missing
-    companion piece to the cross-provider homogenization critique.
+    Critiques of cross-provider homogenization need a ground truth to measure
+    against. Real human response distributions provide one.
   </p>
 
   <div
@@ -24,18 +24,18 @@
         rel="noopener noreferrer">HBR, March 2026</a
       >) ran 15,000 strategic-advice queries across seven frontier LLMs and
       found that responses converged on the same trend-aligned recommendations
-      regardless of scenario context — <em>trendslop</em>, a shared attractor
-      across providers rather than an idiosyncrasy of any one model. The
-      critique lands. But it is a <strong>diagnosis without a measurement</strong>:
-      cross-model consensus is only evidence of failure if you can point to the
-      distribution the models should have matched, and on open-ended strategic
-      questions no such ground truth exists.
+      regardless of scenario context. They called this <em>trendslop</em>: a
+      shared attractor across providers, not a quirk of any single model. The
+      critique is sound, but it has no measurement behind it. Cross-model
+      consensus is only evidence of failure if you can point to the
+      distribution the models should have matched, and open-ended strategic
+      questions have no such ground truth.
     </p>
     <p class="text-sm text-text/80 dark:text-text-dark/80">
-      SynthBench is the measurement. Every question we evaluate carries a human
-      response distribution — from Pew American Trends Panel, SubPOP
-      subpopulations, and GlobalOpinionQA cross-country data — and we score how
-      far each provider's output lands from that distribution, overall and per
+      SynthBench supplies that measurement. Every question we evaluate has a
+      human response distribution from Pew American Trends Panel, SubPOP
+      subpopulations, or GlobalOpinionQA cross-country data. We score how far
+      each provider's output is from that distribution, overall and for each
       demographic slice.
     </p>
   </div>
@@ -43,7 +43,7 @@
   <h3
     class="text-lg font-semibold tracking-tight text-text dark:text-text-dark mb-3"
   >
-    Two orthogonal diagnostics
+    Two separate diagnostics
   </h3>
   <div class="grid gap-4 md:grid-cols-2 mb-6">
     <div
@@ -55,8 +55,8 @@
       </p>
       <p class="text-sm text-text/80 dark:text-text-dark/80">
         Mean Jensen-Shannon divergence against real survey responses, rolled up
-        into the Survey Parity Score (SPS). This is the primary SynthBench
-        metric — measured end-to-end in the sections below.
+        into the Survey Parity Score (SPS). This is SynthBench's primary
+        metric. The sections below describe how it is measured.
       </p>
     </div>
     <div
@@ -74,7 +74,7 @@
         <a
           href="/findings#cross-provider-jsd"
           class="text-primary dark:text-primary-light underline underline-offset-2 hover:no-underline"
-          >See the Cross-Provider JSD Matrix →</a
+          >See the cross-provider JSD matrix →</a
         >
       </p>
     </div>

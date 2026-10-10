@@ -63,7 +63,7 @@ const chartOption = {
   grid: { left: 60, right: 40, top: 60, bottom: 40, containLabel: true },
   xAxis: {
     type: "value",
-    name: "Replicate Count",
+    name: "Replicate count",
     nameLocation: "middle",
     nameGap: 30,
     min: 0,
@@ -108,20 +108,20 @@ const hasData = presentModels.length > 0;
 ---
 
 <section class="w-full max-w-4xl mx-auto py-8">
-  <h2 class="text-2xl font-bold text-center mb-2">SPS Convergence</h2>
+  <h2 class="text-2xl font-bold text-center mb-2">SPS convergence</h2>
   <p class="text-center text-sm text-muted mb-6">
-    How SPS stabilizes as replicate count increases. Showing the ensemble and the three blended single models.
+    SPS at each replicate count for the ensemble and the three single models it blends.
   </p>
   {hasData ? (
     <Chart
-      title="SPS Convergence by replicate count"
+      title="SPS convergence by replicate count"
       description="Line chart showing how Survey Parity Score stabilizes as the number of replicates increases. One line per model plus the ensemble."
       option={chartOption}
       height="400px"
     />
   ) : (
     <div class="text-center text-muted py-12 border border-muted/20 rounded-lg">
-      Convergence data not yet available. Run evaluations with multiple replicate counts to populate.
+      No convergence data yet. It appears once evaluations run at several replicate counts.
     </div>
   )}
 </section>

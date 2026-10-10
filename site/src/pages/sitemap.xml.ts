@@ -1,8 +1,9 @@
 import { existsSync, readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import leaderboardRaw from "@/data/leaderboard.json";
+import { buildIndexData, systemSlug } from "@/lib/synthIndex";
 import { vendorSlugMap } from "@/lib/vendor-slug";
-import type { LeaderboardData } from "@/types/leaderboard";
+import type { LeaderboardData, SynthBenchData } from "@/types/leaderboard";
 import type { RunIndex } from "@/types/runs";
 import type { APIRoute } from "astro";
 
@@ -16,6 +17,7 @@ import type { APIRoute } from "astro";
 
 const STATIC_PATHS = [
   "",
+  "analysis/",
   "compare/",
   "datasets/",
   "explore/",
@@ -81,6 +83,13 @@ export const GET: APIRoute = ({ site }) => {
   }
   for (const slug of vendorSlugMap(providers).keys()) {
     urls.push(`  <url><loc>${xmlEscape(urlFor(`leaderboard/${slug}/`))}</loc></url>`);
+  }
+  // System profiles, matching the getStaticPaths source on `system/[slug].astro`.
+  const baseIds = new Set(
+    buildIndexData(leaderboardRaw as unknown as SynthBenchData).systems.map((c) => c.baseId),
+  );
+  for (const id of baseIds) {
+    urls.push(`  <url><loc>${xmlEscape(urlFor(`system/${systemSlug(id)}/`))}</loc></url>`);
   }
   for (const id of runIds) {
     const loc = urlFor(`run/${encodePathSegment(id)}/`);

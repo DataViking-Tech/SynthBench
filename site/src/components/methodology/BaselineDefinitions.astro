@@ -71,7 +71,7 @@ const baselines: Baseline[] = [
     name: "Random Baseline",
     description:
       "Uniform random distribution over all non-refusal options. For a question with k options, each gets P = 1/k.",
-    tests: "The absolute floor. Any provider scoring at or below this is adding negative value.",
+    tests: "The floor. A provider scoring at or below this does no better than random guessing.",
     spsRange: "~0.31",
     position: "floor",
   },
@@ -80,14 +80,14 @@ const baselines: Baseline[] = [
     description:
       "Always picks the most popular human answer. Assigns P = 1.0 to the mode, 0.0 to everything else.",
     tests:
-      "Whether a model does better than just echoing the most common response. Scores well on consensus questions, poorly on divisive ones.",
+      "Whether a model does better than echoing the most common response. It scores well on consensus questions and poorly on divisive ones.",
     spsRange: "~0.45",
     position: "low",
   },
   {
     name: "Population-Average",
     description:
-      "Uses the overall population distribution (ignoring demographics) for every group. The same answer regardless of who is being simulated.",
+      "Uses the overall population distribution (ignoring demographics) for every group, so every simulated respondent gets the same answer.",
     tests:
       "Isolates the value of demographic conditioning. The gap between this baseline and a conditioned provider is the conditioning premium.",
     spsRange: "~0.52",
@@ -98,7 +98,7 @@ const baselines: Baseline[] = [
     description:
       'Raw model output with no persona or demographic conditioning. This is the "just prompt ChatGPT" approach many researchers currently use.',
     tests:
-      "The competitive baseline. Every dedicated synthetic respondent product must beat this to justify its existence.",
+      "The practical baseline. A dedicated synthetic-respondent product has to beat this to be worth using.",
     spsRange: "~0.58",
     position: "high",
   },
@@ -107,42 +107,42 @@ const baselines: Baseline[] = [
     description:
       "Agreement between independent halves of the human survey panel, measured via multinomial-bootstrap split-half reliability. The theoretical maximum score a model can achieve.",
     tests:
-      "A provider scoring above this is overfitting or exploiting artifacts. Sets the upper bound for meaningful evaluation.",
+      "A provider scoring above this is overfitting or exploiting artifacts. It sets the upper bound for meaningful evaluation.",
     spsRange: "~0.99",
     position: "ceiling",
     extended: {
       sections: [
         {
           heading: "What it is",
-          body: "Split-half reliability via multinomial bootstrap. Given observed counts c = [c_1, ..., c_k] with total n per question × subpop, we treat p̂ = c/n as the multinomial MLE and draw two independent half-samples of size ⌊n/2⌋ from Multinomial(n/2, p̂). We compute JSD between the two empirical distributions, repeat B times, and report Ceiling = 1 − mean(JSD). Published values use B=1000, the full bootstrap budget; a vectorized multinomial-and-JSD path keeps this feasible at publish time. Reproducible with bootstrap seed 42.",
+          body: "Split-half reliability via multinomial bootstrap. Given observed counts c = [c_1, ..., c_k] with total n per question × subpop, we treat p̂ = c/n as the multinomial MLE and draw two independent half-samples of size ⌊n/2⌋ from Multinomial(n/2, p̂). We compute JSD between the two empirical distributions, repeat B times, and report Ceiling = 1 − mean(JSD). Published values use B=1000, the full bootstrap budget. A vectorized multinomial and JSD implementation makes this fast enough to run at publish time. Reproducible with bootstrap seed 42.",
         },
         {
           heading: "Why it matters",
-          body: "It is the theoretical maximum for any evaluation built on this human data. Humans disagree with each other; no model can be more consistent with the survey than the survey is with itself. Per-subpopulation ceilings genuinely differ — Spearman-Brown says reliability scales with √n — so small subpops have materially lower ceilings than large ones.",
+          body: "It is the theoretical maximum for any evaluation built on this human data. Humans disagree with each other, so no model can be more consistent with the survey than the survey is with itself. Ceilings differ by subpopulation. By Spearman-Brown, reliability scales with √n, so small subpops have noticeably lower ceilings than large ones.",
         },
         {
           heading: "Per-dataset protocol",
-          body: "OpinionsQA: computed within-wave (never cross-wave — that measures drift, not reliability), aggregated weighted by n_questions per wave. SubPOP: per-subpop (22 subpopulations) + weighted aggregate. GlobalOpinionQA: per-country + regional aggregates, weighted by actual (country, question) coverage to avoid over-weighting US data.",
+          body: "OpinionsQA: computed within each wave, never across waves (cross-wave JSD measures drift, not reliability), then aggregated with weights by n_questions per wave. SubPOP: per-subpop (22 subpopulations) + weighted aggregate. GlobalOpinionQA: per-country + regional aggregates, weighted by actual (country, question) coverage to avoid over-weighting US data.",
         },
         {
           heading: "Two granularities: aggregate vs subgroup",
-          body: "P_dist is measured at wave granularity (~4.5k respondents/wave), so it compares against the wave-aggregate ceiling (~0.9995). P_sub is measured at (wave × attribute × group) granularity — typical n is 50-500, not 4,500 — so the aggregate ceiling materially overstates achievable headroom. OpinionsQA now emits a per-subgroup ceiling distribution and uses the median as the reference for P_sub; the wave-aggregate is kept for P_dist. A model at P_sub = 0.88 is not sitting 0.12 below a true ceiling of 0.9995 — its real headroom is the gap to the subgroup median, which is meaningfully smaller and shrinks further on low-n groups where the ceiling itself drops to ~0.95.",
+          body: "P_dist is measured at wave granularity (~4.5k respondents/wave), so it is compared against the wave-aggregate ceiling (~0.9995). P_sub is measured at (wave × attribute × group) granularity, where typical n is 50-500 rather than 4,500, so the aggregate ceiling overstates achievable headroom. OpinionsQA now emits a per-subgroup ceiling distribution and uses its median as the reference for P_sub. The wave-aggregate ceiling is kept for P_dist. A model at P_sub = 0.88 is not 0.12 below a true ceiling of 0.9995. Its real headroom is the gap to the subgroup median, which is smaller, and smaller still on low-n groups where the ceiling drops to ~0.95.",
         },
         {
           heading: "Measured values (v0.1)",
-          body: "OpinionsQA: 0.9995 (raw counts from 15 Pew ATP waves, n≈56k/wave). SubPOP: 0.9954 (22 subpops, inferred n=500 per subpop, quality flag 'medium'). GlobalOpinionQA: 0.9972 (per-country, inferred n=1000, quality flag 'medium'). All values are reproducible with bootstrap seed 42. The high ceilings reflect large within-wave sample sizes; the realistic gap between models and humans is most visible on small, contentious subpops.",
+          body: "OpinionsQA: 0.9995 (raw counts from 15 Pew ATP waves, n≈56k/wave). SubPOP: 0.9954 (22 subpops, inferred n=500 per subpop, quality flag 'medium'). GlobalOpinionQA: 0.9972 (per-country, inferred n=1000, quality flag 'medium'). All values are reproducible with bootstrap seed 42. The high ceilings reflect large within-wave sample sizes. The gap between models and humans shows up most on small, contentious subpops.",
         },
         {
           heading: "Sample-size quality flags (Cochran 1977)",
-          body: "High: raw subpop n ≥ 400 — use directly. Medium: 200 ≤ n < 400 — report with CI caveat. Low: n < 200 — report with warning; do not use as a gating threshold. SubPOP and GlobalOpinionQA ceilings are flagged 'medium' because sample sizes are inferred from published probabilities, not shipped as raw counts.",
+          body: "High: raw subpop n ≥ 400, use directly. Medium: 200 ≤ n < 400, report with a CI caveat. Low: n < 200, report with a warning and do not use as a gating threshold. SubPOP and GlobalOpinionQA ceilings are flagged 'medium' because their sample sizes are inferred from published probabilities rather than shipped as raw counts.",
         },
         {
           heading: "Survey-weight caveat",
-          body: "Ceiling is computed from raw category counts. Pew applies survey weights; ignoring them could shift the ceiling by 1-3% on demographically skewed subgroups. The raw-count approach is conservative — a weighted ceiling would be slightly tighter, meaning our published ceilings are a mild upper-bound on achievable reliability.",
+          body: "The ceiling is computed from raw category counts. Pew applies survey weights, and ignoring them could shift the ceiling by 1-3% on demographically skewed subgroups. The raw-count approach is conservative. A weighted ceiling would be slightly tighter, so our published ceilings are a mild upper bound on achievable reliability.",
         },
         {
           heading: "Citations",
-          body: "Methodology: Santurkar et al. 2023 (arxiv:2303.17548); Durmus et al. 2023 (arxiv:2306.16388); Suh et al. 2025 — SubPOP (arxiv:2502.16761); Pew Research Center Methodology. Statistical foundations: Spearman (1910) & Brown (1910) — Spearman-Brown prophecy; Efron (1979) — bootstrap; Lin (1991) — Jensen-Shannon divergence; Cochran (1977) — Sampling Techniques, for the n=400 rule-of-thumb.",
+          body: "Methodology: Santurkar et al. 2023 (arxiv:2303.17548); Durmus et al. 2023 (arxiv:2306.16388); Suh et al. 2025, SubPOP (arxiv:2502.16761); Pew Research Center Methodology. Statistical foundations: the Spearman-Brown prophecy (Spearman 1910; Brown 1910); the bootstrap (Efron 1979); Jensen-Shannon divergence (Lin 1991); the n=400 rule of thumb (Cochran 1977, Sampling Techniques).",
         },
       ],
     },
@@ -150,9 +150,9 @@ const baselines: Baseline[] = [
   {
     name: "Temporal Drift Floor",
     description:
-      "A baseline-adjacent metric separate from Human Ceiling: JSD between the same-wording questions across different Pew ATP waves. Pew repeats ~15-20% of items across waves for trend tracking.",
+      "A metric related to the baselines but separate from the Human Ceiling. It is the JSD between same-wording questions across different Pew ATP waves. Pew repeats ~15-20% of items across waves for trend tracking.",
     tests:
-      "Quantifies how much real-world opinions shift year-over-year on repeated items. Useful framing for P_refuse and longitudinal claims — drift is a property of reality, not of a model.",
+      "Measures how much real-world opinion shifts year over year on repeated items. Useful context for P_refuse and longitudinal claims. Drift is a property of the population, not of any model.",
     spsRange: "N/A",
     position: "ceiling",
     extended: {
@@ -163,16 +163,16 @@ const baselines: Baseline[] = [
         },
         {
           heading: "Why it is separate from the Human Ceiling",
-          body: "Split-half reliability must be within-wave: cross-wave JSD conflates sampling noise with real opinion shift. Temporal Drift Floor captures only the latter. A model that perfectly predicts 2022 opinions using 2017 training data would still score imperfectly against 2017 humans — the drift floor tells you how much of that gap is unavoidable.",
+          body: "Split-half reliability has to be measured within a wave, because cross-wave JSD mixes sampling noise with real opinion shift. The Temporal Drift Floor captures only the opinion shift. A model that perfectly predicts 2022 opinions using 2017 training data would still score imperfectly against 2017 humans. The drift floor tells you how much of that gap is unavoidable.",
         },
         {
           heading: "Status",
-          body: "Computed for OpinionsQA only (requires same-wording repeated questions, which Pew ATP uniquely ships). Not applicable to SubPOP or GlobalOpinionQA snapshots. Values emitted to leaderboard.json under baselines.temporal_drift.",
+          body: "Computed for OpinionsQA only, because it needs same-wording repeated questions and only Pew ATP provides them. Not applicable to the SubPOP or GlobalOpinionQA snapshots. Values are written to leaderboard.json under baselines.temporal_drift.",
         },
       ],
       seeAlso: {
         href: "/findings/#temporal-drift-floor",
-        label: "See drift-by-year-gap visualization on the Findings page",
+        label: "Drift by year gap chart on the Findings page",
       },
     },
   },
@@ -183,12 +183,11 @@ const baselines: Baseline[] = [
   <h2
     class="text-2xl font-bold tracking-tight text-text dark:text-text-dark mb-2"
   >
-    Baselines: What to Compare Against
+    Baselines for comparison
   </h2>
   <p class="text-muted mb-8 max-w-2xl">
-    A model that scores 0.70 SPS sounds good — until you realize the
-    majority-class baseline scores 0.45. Baselines give meaning to raw scores by
-    anchoring the scale.
+    Baselines anchor the SPS scale. A score of 0.70 only means something once you
+    know that the majority-class baseline scores 0.45.
   </p>
 
   <!-- Values table — primary reference -->
@@ -287,11 +286,10 @@ const baselines: Baseline[] = [
       Normalized position ("Range %")
     </h3>
     <p class="text-sm text-muted mb-3">
-      Raw SPS values for strong models compress into a narrow band (~0.82-0.85)
-      that is visually hard to separate on a 0-1 bar. The leaderboard also
-      reports a <em>normalized position</em> — where a row sits inside the
-      meaningful evaluation range bounded below by the raw-LLM baseline and
-      above by the Human Ceiling.
+      Raw SPS values for strong models fall in a narrow band (~0.82-0.85) that
+      is hard to tell apart on a 0-1 bar. The leaderboard also reports a
+      <em>normalized position</em>: where a row sits inside the evaluation range,
+      which runs from the raw-LLM baseline up to the Human Ceiling.
     </p>
     <pre
       class="rounded-md border border-muted/20 bg-muted/5 p-3 text-xs font-mono overflow-x-auto dark:bg-muted/10"
@@ -299,8 +297,8 @@ const baselines: Baseline[] = [
     <p class="mt-3 text-sm text-text/80 dark:text-text-dark/80">
       <span class="font-medium">P_unconditioned</span> is the SPS of the raw-LLM
       baseline for the same underlying model on the same dataset (the "just
-      prompt the model" reference). Raw-LLM rows therefore resolve to 0% —
-      they <em>are</em> the reference. Product rows (e.g. conditioned Althing
+      prompt the model" reference). Raw-LLM rows therefore show 0%,
+      because they are the reference. Product rows (e.g. conditioned Althing
       variants) show their lift above the corresponding raw model.
     </p>
     <p class="mt-2 text-sm text-text/80 dark:text-text-dark/80">
@@ -311,8 +309,8 @@ const baselines: Baseline[] = [
     </p>
     <p class="mt-2 text-xs italic text-muted">
       Raw SPS remains the primary column for academic comparability. Range % is
-      a supplementary display that amplifies product lift — a 0.01 SPS gain on
-      a narrow range becomes a double-digit percentage of headroom closed.
+      a supplementary display that magnifies product lift. On a narrow range, a
+      0.01 SPS gain becomes a double-digit percentage of headroom closed.
     </p>
   </div>
 
@@ -455,13 +453,13 @@ const baselines: Baseline[] = [
             <span class="font-mono">
               {oqaQualityBreakdown.low ?? 0} low
             </span>
-            {" — low-n subgroups are retained but flagged so low reliability is not conflated with poor model fit."}
+            {". Low-n subgroups are kept but flagged, so low reliability is not mistaken for poor model fit."}
           </p>
         )}
 
         <p class="mt-3 text-xs italic text-muted border-l-2 border-muted/40 pl-3">
-          Used by the leaderboard when scoring P_sub; compare P_dist against the
-          wave-aggregate ceiling instead.
+          The leaderboard uses this distribution when scoring P_sub. P_dist is
+          compared against the wave-aggregate ceiling.
         </p>
       </details>
     )

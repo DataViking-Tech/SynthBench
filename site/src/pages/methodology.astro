@@ -13,6 +13,7 @@ import RelatedWork from "@/components/methodology/RelatedWork.astro";
 import RunValidity from "@/components/methodology/RunValidity.astro";
 import ScopeOfClaim from "@/components/methodology/ScopeOfClaim.astro";
 import ScoringProtocol from "@/components/methodology/ScoringProtocol.astro";
+import IndexPayload from "@/components/sb/IndexPayload.astro";
 import BaseLayout from "@/layouts/BaseLayout.astro";
 
 const bibtex = `@software{synthbench2026,
@@ -24,13 +25,99 @@ const bibtex = `@software{synthbench2026,
 }`;
 ---
 
-<BaseLayout title="Methodology - SynthBench">
-  <div class="py-12 text-center">
-    <h1 class="text-3xl sm:text-4xl font-bold tracking-tight">Methodology</h1>
-    <p class="mt-3 text-lg text-muted max-w-2xl mx-auto">
-      How SynthBench measures synthetic survey respondent quality — from the
-      metrics we use to the datasets we validate against.
-    </p>
+<BaseLayout
+  title="Methodology: SynthBench"
+  description="How SynthBench scores synthetic survey respondents: three checks against real answer distributions, combined into SPS and placed on the SynthBench Index between random answers and real people."
+>
+  <IndexPayload />
+  <div class="sb">
+    <section class="sb-head">
+      <div class="sb-kicker">Method · Index v1</div>
+      <h1 class="sb-h1 sm">How a score is made</h1>
+      <p class="sb-lede">
+        Each system is scored on three checks against real survey answers. The three are averaged into the
+        Survey Parity Score (SPS), which is then placed between two fixed reference points to give the
+        SynthBench Index. Raw SPS is still published for every result.
+      </p>
+      <nav class="sb-toc-inline" aria-label="On this page">
+        <a href="#example">Worked example</a>
+        <a href="#why-index">Why an Index</a>
+        <a href="#recipe">Formula</a>
+        <a href="#anchors">Reference points</a>
+        <a href="#scope-of-claim">Scope of claim</a>
+        <a href="#run-validity">Run validity</a>
+        <a href="#citation">Citation</a>
+      </nav>
+    </section>
+
+    <section class="sb-block sb-panel sb-pad" id="example">
+      <h2 class="sb-h2">One survey question, scored</h2>
+      <p class="sb-muted">Illustrative numbers. Move the slider to change how the synthetic panel answers.</p>
+      <div class="sb-demo">
+        <div>
+          <div class="sb-strong">“How much do you trust the national news media?”</div>
+          <div class="sb-note sb-legend" id="mt-legend"></div>
+          <div id="mt-dist"></div>
+          <input type="range" min="0" max="100" value="80" id="mt-slider" class="sb-range" aria-label="How the synthetic panel answers" />
+          <div class="sb-range-labels"><span>Random</span><span>Matches people</span><span>Over-confident</span></div>
+        </div>
+        <div>
+          <div class="sb-scores" id="mt-scores"></div>
+          <div class="sb-kicker sb-mt">Index for this question</div>
+          <div class="sb-big" id="mt-big"></div>
+          <p class="sb-note" id="mt-note"></p>
+        </div>
+      </div>
+    </section>
+
+    <section class="sb-block sb-panel sb-pad" id="why-index">
+      <h2 class="sb-h2">Why an Index instead of raw SPS</h2>
+      <p class="sb-muted">The same systems on both scales, OpinionsQA.</p>
+      <div id="mt-why"></div>
+      <p class="sb-note" id="mt-why-note"></p>
+    </section>
+
+    <section class="sb-block sb-panel sb-pad" id="recipe">
+      <h2 class="sb-h2">The formula</h2>
+      <p class="sb-muted">Versioned. Any change to the weights or reference points changes the Index version.</p>
+      <div class="sb-formula">
+        <div>
+          <span>Per question</span>
+          <p>
+            <b>Shares match</b> = 1 − Jensen-Shannon divergence(system, people)<br />
+            <b>Order match</b> = (1 + Kendall τ<sub>b</sub>) ÷ 2<br />
+            <b>Refusal match</b> = 1 − |refusal rate gap|
+          </p>
+        </div>
+        <div>
+          <span>Per dataset</span>
+          <p>
+            <b>SPS</b> = mean of the three, averaged over questions<br />
+            <b>Index<sub>d</sub></b> = 100 × (SPS − SPS<sub>random</sub>) ÷ (ceiling − SPS<sub>random</sub>)
+          </p>
+        </div>
+        <div>
+          <span>Headline</span>
+          <p>
+            <b>SynthBench Index</b> = mean of Index<sub>d</sub> over OpinionsQA, SubPOP and GlobalOpinionQA<br />
+            95% intervals come from bootstrap resampling of questions
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section class="sb-block sb-panel sb-pad" id="anchors">
+      <h2 class="sb-h2">Where 0 and 100 sit</h2>
+      <p class="sb-muted">
+        0 is the SPS of uniformly random answers. 100 is the ceiling: how well one random half of the real
+        panel matches the other half (split-half bootstrap). The majority-answer baseline is shown for reference.
+      </p>
+      <div class="sb-tablewrap"><table class="sb-ct" id="mt-anchors"></table></div>
+    </section>
+
+    <section class="sb-block sb-head">
+      <h2 class="sb-h2">Full methodology</h2>
+    </section>
   </div>
 
   <ProblemFraming />
@@ -109,6 +196,10 @@ const bibtex = `@software{synthbench2026,
     </div>
   </section>
 </BaseLayout>
+
+<script>
+  import "@/scripts/sb/pages/method";
+</script>
 
 <script>
   const btn = document.getElementById("copy-bibtex");

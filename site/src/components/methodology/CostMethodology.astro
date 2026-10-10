@@ -10,7 +10,7 @@ const sections: CostSection[] = [
   {
     id: "what-we-measure",
     title: "What we measure",
-    body: "Every benchmark run records per-call token usage from the provider API — input tokens, output tokens, and (for Anthropic) cache-creation and cache-read tokens. Tokens are a measured quantity returned by the provider, not an estimate. The runner aggregates per-question usage into a run-level total stored alongside scores in the raw run JSON.",
+    body: "Every benchmark run records per-call token usage from the provider API: input tokens, output tokens, and (for Anthropic) cache-creation and cache-read tokens. Token counts are measured values returned by the provider, not estimates. The runner sums per-question usage into a run-level total, stored alongside the scores in the raw run JSON.",
     note: "Runs on providers that do not return usage metadata (e.g. Ollama local inference) record no token counts, and downstream cost is reported as null rather than guessed.",
   },
   {
@@ -28,20 +28,20 @@ const sections: CostSection[] = [
   {
     id: "self-hosted-policy",
     title: "Self-hosted and unknown models",
-    body: "For self-hosted models (Ollama, local inference) and any provider whose pricing is not tracked in althing, cost_usd is reported as null. We deliberately do not impute a cost — hardware, electricity, and amortization vary too widely to produce a number readers can fairly compare against API-priced rows.",
+    body: "For self-hosted models (Ollama, local inference) and any provider whose pricing is not tracked in althing, cost_usd is reported as null. We do not impute a cost. Hardware, electricity, and amortization vary too much to produce a number that compares fairly with API-priced rows.",
     note: "Null cost rows sort last in the leaderboard's $/100Q column and are excluded from the Cost-vs-SPS Pareto chart on the Findings page.",
   },
   {
     id: "ensemble-cost",
     title: "Ensemble cost",
     body: "An ensemble run's cost is the sum of its constituent runs' costs. Constituents with measured token usage contribute measured cost; constituents without it contribute the pre-tracking estimate, which marks the whole ensemble is_cost_estimated. If any constituent cannot be priced at all (self-hosted or unknown), the ensemble's cost_usd is null rather than a partial total.",
-    note: "This mirrors how ensembles aggregate elsewhere on the site: a composite number is only emitted when every input to that number is known — measured or clearly marked as estimated.",
+    note: "This matches how ensembles aggregate elsewhere on the site. A composite number is only emitted when every input to it is known, either measured or clearly marked as estimated.",
   },
   {
     id: "pre-tracking-rows",
     title: "Pre-tracking runs (estimated cost)",
-    body: "Runs produced before per-call token capture landed in the runner have no usage metadata. For those rows we publish an estimate rather than a dash: call count is reconstructed as samples_per_question × questions evaluated, multiplied by per-call token constants (124 input / 4 output tokens per call) anchored to the pool's measured run, then priced from the same snapshot as measured rows. Every such value carries is_cost_estimated: true and renders with a leading ~ on the leaderboard.",
-    note: "Estimates never masquerade as measurements: tokens_per_response stays null on estimated rows, the ~ prefix marks every derived dollar figure, and a re-run on the current runner replaces the estimate with measured usage. Baseline rows (random/majority) make zero model calls, so their $0.00 is exact, not estimated.",
+    body: "Runs produced before per-call token capture landed in the runner have no usage metadata. For those rows we publish an estimate rather than a dash. The call count is reconstructed as samples_per_question × questions evaluated. That count is multiplied by per-call token constants (124 input / 4 output tokens per call) anchored to the pool's measured run, then priced from the same snapshot as measured rows. Every such value carries is_cost_estimated: true and is shown with a leading ~ on the leaderboard.",
+    note: "Estimates are always marked as estimates. tokens_per_response stays null on estimated rows, the ~ prefix marks every derived dollar figure, and re-running on the current runner replaces the estimate with measured usage. Baseline rows (random/majority) make zero model calls, so their $0.00 is exact, not estimated.",
   },
 ];
 ---
@@ -53,11 +53,11 @@ const sections: CostSection[] = [
     Cost computation
   </h2>
   <p class="text-muted mb-8 max-w-2xl">
-    Cost is a derived quantity on SynthBench: providers return measured token
-    counts at runtime, and the publish pipeline multiplies those by a dated
-    pricing snapshot to produce the <code
+    On SynthBench, cost is derived. Providers return measured token counts at
+    runtime, and the publish pipeline multiplies them by a dated pricing
+    snapshot to produce the <code
       class="text-sm bg-muted/10 rounded px-1.5 py-0.5">$/100Q</code
-    > numbers you see on the leaderboard.
+    > numbers on the leaderboard.
   </p>
 
   <div class="space-y-6">

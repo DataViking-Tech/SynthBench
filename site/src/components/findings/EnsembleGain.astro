@@ -35,7 +35,7 @@ const chartOption = {
     axisPointer: { type: "shadow" as const },
   },
   legend: {
-    data: ["Best Single Model", "Ensemble"],
+    data: ["Best single model", "Ensemble"],
     top: 10,
   },
   grid: { left: 60, right: 30, top: 60, bottom: 40, containLabel: true },
@@ -54,7 +54,7 @@ const chartOption = {
   },
   series: [
     {
-      name: "Best Single Model",
+      name: "Best single model",
       type: "bar" as const,
       data: bestSingleData,
       itemStyle: { color: "#94a3b8" },
@@ -114,17 +114,16 @@ function pairR(d: (typeof errorCorrelation)[number], a: string, b: string): numb
 ---
 
 <section class="w-full max-w-4xl mx-auto py-8">
-  <h2 class="text-2xl font-bold text-center mb-2">The Biggest Lever: Ensemble Blending</h2>
+  <h2 class="text-2xl font-bold text-center mb-2">Ensemble blending is the largest lever</h2>
   <p class="text-center text-sm text-muted mb-6">
-    For each dataset, ensemble blending of 3 models outperforms the best single
-    leaderboard entry at matched question count by {gainRange} SPS points.
-    The blend itself is arithmetic — no new model calls beyond the three
-    constituent runs — but producing all three costs roughly 3× a
-    single-model run.
+    On each dataset, a blend of 3 models scores {gainRange} SPS points above the
+    best single leaderboard entry at matched question count. The blend is
+    arithmetic and makes no model calls beyond the three constituent runs.
+    Producing those three runs costs roughly 3× a single-model run.
   </p>
   {hasData ? (
     <Chart
-      title="Ensemble Gain over Best Single Model"
+      title="Ensemble gain over best single model"
       description={`Bar chart comparing the SPS of the best single model against a 3-model ensemble for each dataset. Ensemble gains range from ${gainRange} SPS points.`}
       option={chartOption}
       height="420px"
@@ -148,9 +147,9 @@ function pairR(d: (typeof errorCorrelation)[number], a: string, b: string): numb
       <p class="text-center text-sm text-muted mb-4 max-w-2xl mx-auto">
         Pairwise Pearson r between the constituent runs' per-question error
         (JSD vs the human distribution) over each ensemble's common question
-        set. The constituents' errors are moderately positively correlated
-        (r {rRange}) — not uncorrelated. The ensemble gain comes from partial,
-        not full, independence of errors.
+        set. The errors are moderately positively correlated (r {rRange}), so
+        they are only partly independent. The ensemble gain comes from that
+        partial independence.
       </p>
       <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {errorCorrelation.map((d) => (

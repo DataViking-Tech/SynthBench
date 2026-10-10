@@ -5,10 +5,11 @@
   --color-primary-light: oklch(0.7 0.14 264);
   --color-primary-dark: oklch(0.4 0.18 264);
   --color-accent: oklch(0.55 0.16 150);
-  --color-surface: oklch(0.98 0.005 264);
-  --color-surface-dark: oklch(0.15 0.01 264);
-  --color-text: oklch(0.2 0.01 264);
-  --color-text-dark: oklch(0.92 0.005 264);
+  /* Matched to the --sb-* tokens in sb.css so every page shares one palette. */
+  --color-surface: #f4f4f0;
+  --color-surface-dark: #0f1115;
+  --color-text: #15171a;
+  --color-text-dark: #e9ebee;
   /* WCAG 1.4.3: darkened from 0.55 to 0.45 (≈5.7:1 on --color-surface) */
   --color-muted: oklch(0.45 0.01 264);
   /* Brightened for dark-mode body-text contrast (≥4.5:1 on --color-surface-dark) */
@@ -20,11 +21,13 @@
   --color-provider-baseline: #a3a3a3;
   /* Page background — paired with `color-scheme` so iOS Safari overscroll
      bounce paints the themed color instead of flashing white in dark mode. */
-  --color-bg-page: oklch(0.98 0.005 264);
+  --color-bg-page: #f4f4f0;
+  --font-sans: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "Cascadia Mono", Consolas, monospace;
 }
 
 html {
-  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-family: var(--font-sans);
   /* Tells the UA both themes are supported so form controls, scrollbars,
      and the iOS overscroll area pick the right palette. */
   color-scheme: light dark;
@@ -37,10 +40,10 @@ body {
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --color-bg-page: oklch(0.15 0.01 264);
+    --color-bg-page: #0f1115;
   }
   body {
-    color: oklch(0.92 0.005 264);
+    color: #e9ebee;
   }
   /* Dark-mode contrast (WCAG 1.4.3). We keep --color-primary at its original
      value so solid `bg-primary` buttons retain >4.5:1 contrast against white

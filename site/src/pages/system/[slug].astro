@@ -1,0 +1,88 @@
+---
+import IndexPayload from "@/components/sb/IndexPayload.astro";
+import leaderboardRaw from "@/data/leaderboard.json";
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import { buildIndexData, systemSlug } from "@/lib/synthIndex";
+import type { SynthBenchData } from "@/types/leaderboard";
+
+export function getStaticPaths() {
+  const index = buildIndexData(leaderboardRaw as unknown as SynthBenchData);
+  const seen = new Map<string, { baseId: string; base: string; lab: string }>();
+  for (const c of index.systems) {
+    if (!seen.has(c.baseId)) seen.set(c.baseId, { baseId: c.baseId, base: c.base, lab: c.lab });
+  }
+  return [...seen.values()].map((s) => ({ params: { slug: systemSlug(s.baseId) }, props: s }));
+}
+
+const { baseId, base: name, lab } = Astro.props;
+const rawBase = import.meta.env.BASE_URL || "/";
+const base = rawBase.endsWith("/") ? rawBase : `${rawBase}/`;
+---
+
+<BaseLayout
+  title={`${name}: SynthBench`}
+  description={`How ${name} scores on the SynthBench Index, by dataset, topic and method.`}
+>
+  <IndexPayload />
+  <div class="sb" id="profile" data-base-id={baseId}>
+    <section class="sb-head sb-head-row">
+      <div>
+        <div class="sb-kicker"><a href={`${base}leaderboard/`}>Leaderboard</a> / System profile</div>
+        <h1 class="sb-h1 sm" id="pf-title">{name}</h1>
+        <div class="sb-meta" id="pf-meta"><span>{lab}</span><span class="sb-tag">{baseId}</span></div>
+      </div>
+      <div class="sb-filter" id="pf-method"></div>
+    </section>
+
+    <section class="sb-block sb-panel">
+      <div class="sb-filterbar" id="pf-filters"></div>
+      <div class="sb-stats" id="pf-stats"></div>
+      <p class="sb-summary" id="pf-summary"></p>
+    </section>
+
+    <section class="sb-block sb-grid2">
+      <div class="sb-panel">
+        <div class="sb-panel-head"><div><h3>By dataset</h3><div class="q">Index with 95% interval. Grey band: range of all other systems. Dark tick: their median.</div></div></div>
+        <div class="sb-chart"><div id="pf-ds"></div></div>
+      </div>
+      <div class="sb-panel">
+        <div class="sb-panel-head"><div><h3>Score components</h3><div class="q">Each score combines these three parts, each from 0 to 1. Red tick: random answers.</div></div></div>
+        <div class="sb-chart"><table class="sb-ct" id="pf-comp"></table></div>
+      </div>
+    </section>
+
+    <section class="sb-block sb-panel">
+      <div class="sb-panel-head">
+        <div><h3>By topic</h3><div class="q" id="pf-topic-q"></div></div>
+        <div class="sb-filter" id="pf-topic-ds"></div>
+      </div>
+      <div class="sb-chart"><div id="pf-topics"></div></div>
+    </section>
+
+    <section class="sb-block sb-grid2" id="pf-exp">
+      <div class="sb-panel">
+        <div class="sb-panel-head"><div><h3>Sampling temperature</h3><div class="q">OpinionsQA, Althing persona. Band: ±1 standard deviation across repeat runs.</div></div></div>
+        <div class="sb-chart"><div id="pf-temp"></div></div>
+      </div>
+      <div class="sb-panel">
+        <div class="sb-panel-head"><div><h3>Persona prompt template</h3><div class="q">SubPOP, Althing persona, temperature 0.85.</div></div></div>
+        <div class="sb-chart"><div id="pf-tpl"></div></div>
+      </div>
+    </section>
+
+    <section class="sb-block sb-grid2">
+      <div class="sb-panel">
+        <div class="sb-panel-head"><div><h3>Holdout check</h3><div class="q">Gap between scores on public questions and on the private answer key. Above 0.05 is flagged for review.</div></div></div>
+        <div class="sb-chart"><div id="pf-trust"></div></div>
+      </div>
+      <div class="sb-panel">
+        <div class="sb-panel-head"><div><h3>Runs</h3><div class="q">The published runs behind these numbers.</div></div></div>
+        <div class="sb-chart"><table class="sb-ct" id="pf-runs"></table></div>
+      </div>
+    </section>
+  </div>
+</BaseLayout>
+
+<script>
+  import "@/scripts/sb/pages/profile";
+</script>

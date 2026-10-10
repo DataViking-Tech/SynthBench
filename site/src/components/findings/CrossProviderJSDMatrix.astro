@@ -32,20 +32,20 @@ const hasAnyData = blocks.length > 0;
 
 <section class="w-full max-w-5xl mx-auto py-8 px-4" id="cross-provider-jsd">
   <h2 class="text-2xl font-bold text-center mb-2">
-    Cross-Provider JSD Matrix
+    Cross-provider JSD matrix
   </h2>
   <p class="text-center text-sm text-muted mb-6 max-w-3xl mx-auto">
-    Pairwise Jensen-Shannon divergence between each raw-LLM pair, averaged
-    across shared questions per dataset. Low values (cooler) mean providers
-    agree with each other — a red flag for HBR's
+    Pairwise Jensen-Shannon divergence between each pair of raw LLMs, averaged
+    over the questions they share in each dataset. Low values (cooler colors) mean
+    the providers agree with each other. Under HBR's
     <a
       href="https://hbr.org/2026/03/researchers-asked-llms-for-strategic-advice-they-got-trendslop-in-return"
       class="underline hover:text-accent"
       target="_blank"
       rel="noopener noreferrer">trendslop hypothesis</a
-    > (cross-model consensus reached on shared errors). High values (warmer) mean
-    providers genuinely diverge. Ground-truth concordance (model vs. human) stays
-    a separate axis — see <code class="text-xs">mean_human_jsd</code> below the chart.
+    >, that agreement can mean the models share the same errors. High values (warmer
+    colors) mean the providers diverge. Agreement with the human data is a separate
+    measure, shown as <code class="text-xs">mean_human_jsd</code> below the chart.
   </p>
 
   {
@@ -70,7 +70,7 @@ const hasAnyData = blocks.length > 0;
 
         <figure class="chart-figure" aria-labelledby="xprov-jsd-title">
           <figcaption id="xprov-jsd-title" class="sr-only">
-            Cross-Provider JSD Matrix
+            Cross-provider JSD matrix
           </figcaption>
           <p id="xprov-jsd-desc" class="sr-only">
             Heatmap of pairwise Jensen-Shannon divergence between raw-LLM
@@ -112,8 +112,7 @@ const hasAnyData = blocks.length > 0;
           Cross-provider concordance data not yet available.
         </p>
         <p>
-          Two or more raw-LLM runs on the same dataset are required before the
-          matrix can be rendered.
+          The matrix needs at least two raw-LLM runs on the same dataset.
         </p>
       </div>
     )

@@ -66,7 +66,7 @@ function formatCost(c: number): string {
 // default scatter tooltip then surfaces it verbatim as `{b}`.
 const seriesData = points.map((p) => {
   const status = p.dominated ? "Dominated" : "Pareto-optimal";
-  const nameLine = `${p.name} — Cost: ${formatCost(p.cost)} · SPS: ${p.sps.toFixed(3)} · ${status}`;
+  const nameLine = `${p.name} · Cost: ${formatCost(p.cost)} · SPS: ${p.sps.toFixed(3)} · ${status}`;
   return {
     name: nameLine,
     value: [p.cost, p.sps] as [number, number],
@@ -129,7 +129,7 @@ const chartOption = {
 
 const dataTable = {
   caption: "Cost vs SPS: per-configuration cost in USD, Survey Parity Score, and Pareto status.",
-  headers: ["Configuration", "Cost (USD)", "SPS", "Pareto Status"],
+  headers: ["Configuration", "Cost (USD)", "SPS", "Pareto status"],
   rows: [...points]
     .sort((a, b) => b.sps - a.sps)
     .map((p) => [
@@ -146,9 +146,9 @@ const hasData = points.length > 0;
 <section class="w-full max-w-4xl mx-auto py-8" id="cost-performance-pareto">
   <h2 class="text-2xl font-bold text-center mb-2">Cost vs Performance Pareto</h2>
   <p class="text-center text-sm text-muted mb-6">
-    Each point is one configuration. Pareto-optimal configurations (no other run is
-    cheaper AND higher-SPS) are highlighted; dominated runs are muted. Lower-left of
-    the frontier is the cost/quality trade you cannot beat.
+    Each point is one configuration. A configuration is Pareto-optimal when no other
+    run is both cheaper and higher on SPS. Pareto-optimal points are highlighted and
+    dominated points are muted. The frontier shows the best SPS available at each cost.
   </p>
   {hasData ? (
     <Chart
@@ -164,12 +164,12 @@ const hasData = points.length > 0;
         Cost-vs-SPS Pareto ships May 2026
       </p>
       <p class="text-sm">
-        The token-accounting pipeline completes its first full republish cycle in May 2026.
+        The token-accounting pipeline finishes its first full republish in May 2026.
         Raw cost fields (<code class="text-xs bg-muted/10 rounded px-1 py-0.5">cost_usd</code>,
         <code class="text-xs bg-muted/10 rounded px-1 py-0.5">cost_per_100q</code>,
         <code class="text-xs bg-muted/10 rounded px-1 py-0.5">cost_per_sps_point</code>)
-        are already wired into <code class="text-xs bg-muted/10 rounded px-1 py-0.5">leaderboard.json</code>
-        — see the <a href="/methodology/#cost-computation" class="underline hover:text-accent">Cost computation</a>
+        are already in <code class="text-xs bg-muted/10 rounded px-1 py-0.5">leaderboard.json</code>.
+        See the <a href="/methodology/#cost-computation" class="underline hover:text-accent">Cost computation</a>
         section of the methodology page.
       </p>
     </div>

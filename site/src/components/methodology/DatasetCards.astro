@@ -68,7 +68,7 @@ const datasets: DatasetCard[] = [
     temporal: "1972–present (cumulative file)",
     demographics: "Individual-level microdata (microdata-capable)",
     description:
-      "General Social Survey cumulative microdata from NORC. The only public-domain adapter that ships per-respondent rows, enabling real-sampling convergence curves alongside the bootstrap baseline.",
+      "General Social Survey cumulative microdata from NORC. It is the only public-domain adapter that ships per-respondent rows, which allows convergence curves from real sampling alongside the bootstrap baseline.",
   },
   {
     slug: "ntia",
@@ -90,7 +90,7 @@ const datasets: DatasetCard[] = [
     temporal: "Wave 7 (2017–2022)",
     demographics: "Country + standard demographic cells",
     description:
-      "World Values Survey Wave 7. Cross-cultural value orientations across national populations. Research-use license; per-question artifacts gated behind JWT auth.",
+      "World Values Survey Wave 7. Cross-cultural value orientations across national populations. Research-use license. Per-question artifacts are gated behind JWT auth.",
   },
   {
     slug: "eurobarometer",
@@ -101,7 +101,7 @@ const datasets: DatasetCard[] = [
     temporal: "Quarterly (Standard / Flash / Special)",
     demographics: "Country + EU-harmonized demographic cells",
     description:
-      "Eurobarometer Consumer Modules. EU-wide consumer conditions, digital services, and sustainability attitudes. GESIS redistribution restricted; per-question served from gated origin.",
+      "Eurobarometer Consumer Modules. EU-wide consumer conditions, digital services, and sustainability attitudes. GESIS restricts redistribution, so per-question data is served from a gated origin.",
   },
   {
     slug: "michigan",
@@ -112,7 +112,7 @@ const datasets: DatasetCard[] = [
     temporal: "Monthly cadence",
     demographics: "Standard consumer-survey demographics",
     description:
-      "University of Michigan Surveys of Consumers — consumer sentiment, inflation expectations, and household finance. Academic use terms; per-question gated.",
+      "University of Michigan Surveys of Consumers: consumer sentiment, inflation expectations, and household finance. Academic use terms. Per-question data is gated.",
   },
   {
     slug: "pewtech",
@@ -123,7 +123,7 @@ const datasets: DatasetCard[] = [
     temporal: "10 tech waves (W86–W113)",
     demographics: "ATP demographic weights",
     description:
-      "Pew Research Internet & Technology waves: tech adoption, digital privacy, social media, and AI attitudes. Pew redistribution terms; per-question gated.",
+      "Pew Research Internet & Technology waves: tech adoption, digital privacy, social media, and AI attitudes. Pew redistribution terms. Per-question data is gated.",
   },
 ];
 
@@ -145,11 +145,11 @@ const tierLabel: Record<Tier, string> = {
     Datasets
   </h2>
   <p class="text-muted mb-8 max-w-2xl">
-    SynthBench validates models against real human survey data across nine
-    registered datasets. Each card shows its redistribution tier —
-    <span class="font-mono">full</span> ships per-question distributions
-    publicly, <span class="font-mono">gated</span> requires a research-use
-    sign-in to reach per-question payloads.
+    SynthBench validates models against real human survey data from nine
+    registered datasets. Each card shows the dataset's redistribution tier.
+    <span class="font-mono">full</span> datasets ship per-question distributions
+    publicly. <span class="font-mono">gated</span> datasets require a research-use
+    sign-in for per-question data.
   </p>
 
   <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">

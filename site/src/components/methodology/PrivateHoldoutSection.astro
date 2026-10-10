@@ -11,15 +11,15 @@
     Private holdout split
   </h2>
   <p class="text-muted mb-4 max-w-3xl">
-    Every holdout-enabled dataset is partitioned deterministically into a
-    public subset and a private subset. The private fraction is per-dataset,
-    sized to preserve statistical power: 20% for large datasets (OpinionsQA,
+    Every holdout-enabled dataset is deterministically split into a public
+    subset and a private subset. The private fraction depends on dataset size,
+    chosen to preserve statistical power: 20% for large datasets (OpinionsQA,
     WVS, GSS), 30% for medium ones (SubPOP, GlobalOpinionQA), and 40% for
     small ones (Michigan, NTIA, Eurobarometer). Per-question human
-    distributions for the private subset are suppressed from every public
-    SynthBench artifact — the site, the run-detail JSON, and the
-    question-explorer pages — so a submitter can't recover the private
-    answer key by reading our published files.
+    distributions for the private subset are removed from every public
+    SynthBench artifact (the site, the run-detail JSON, and the
+    question-explorer pages), so a submitter can't recover the private
+    answer key from our published files.
   </p>
   <p class="text-muted mb-4 max-w-3xl">
     Submissions must include results for every question, public and
@@ -27,11 +27,11 @@
     locally against the withheld answer key and publish the resulting
     <span class="font-mono">sps_private</span> alongside
     <span class="font-mono">sps_public</span>. Rows whose public/private
-    SPS delta stays within a tolerance of 0.05 earn a
+    SPS delta is within a tolerance of 0.05 get a
     <span
       class="mx-1 inline-block text-xs px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-700 dark:text-emerald-400"
       >✓ verified</span
-    > badge; rows outside the tolerance are
+    > badge. Rows outside the tolerance are
     <span
       class="mx-1 inline-block text-xs px-1.5 py-0.5 rounded bg-amber-500/10 text-amber-700 dark:text-amber-400"
       >⚠ flagged</span
@@ -41,36 +41,34 @@
     The partition is derived from an unsalted SHA-256 hash of <span
       class="font-mono">dataset_name + ":" + question_key</span
     >. That makes it stable across runs, machines, and Python versions
-    without needing a seed file. It also means <strong
-      >which questions are private is not a secret</strong
-    >: the hash is public code, run artifacts carry explicit
+    without needing a seed file. It also means the list of private questions
+    is not secret. The hash is public code, run artifacts carry explicit
     <span class="font-mono">is_holdout</span> flags, and anyone can compute
-    any question's membership. That is deliberate and Kaggle-like — what is
-    withheld is the private subset's <em>answer key</em> (the per-question
-    human distributions), not the list of held-out questions.
+    any question's membership. This is deliberate and follows the Kaggle
+    model: what is withheld is the private subset's answer key (the
+    per-question human distributions), not the list of held-out questions.
   </p>
   <p class="text-muted mb-4 max-w-3xl">
-    <strong>Honest limits.</strong> The source surveys behind these datasets
-    are publicly downloadable upstream, and our open-source adapters will
-    rebuild the full per-question distributions — private subset included —
-    for anyone willing to run them. A determined actor can therefore
-    reconstruct the private targets. The holdout is a fabrication detector
-    and a deterrent against casual overfitting, not cryptographic secrecy:
-    it raises the effort bar from "copy our published JSON" to "reprocess
-    the upstream source". A genuinely un-memorizable holdout would require
-    newly fielded human data on a rotation cadence — a data-acquisition
-    program scoped separately from this mechanism.
+    <strong>Limits.</strong> The source surveys behind these datasets are
+    publicly downloadable upstream, and our open-source adapters will
+    rebuild the full per-question distributions, private subset included,
+    for anyone who runs them. A determined actor can therefore reconstruct
+    the private targets. The holdout is a fabrication detector and a
+    deterrent against casual overfitting. It does not provide cryptographic
+    secrecy. It raises the effort from "copy our published JSON" to
+    "reprocess the upstream source". A holdout that models cannot memorize
+    would need newly fielded human data on a rotating schedule, which is a
+    separate data-acquisition program.
   </p>
   <p class="text-muted max-w-3xl">
-    <strong>Why bother.</strong> Two independent motivations converge on
-    the same mechanism. First, future LLMs may train on SynthBench itself;
-    holding out 20–40% per dataset slows that recursion. Second (and more
-    important after
-    the public flip): once per-question human distributions are visible,
-    a bad actor could fabricate a submission JSON that exactly matches
-    them. The private subset is a cheap cheating detector — a fabricator
-    has no signal on the hidden keys, so their public and private SPS
-    diverge sharply.
+    <strong>Why have a holdout.</strong> There are two separate reasons.
+    First, future LLMs may train on SynthBench itself, and holding out
+    20–40% per dataset slows that loop. Second, and more important since
+    per-question data was made public: once per-question human
+    distributions are visible, a bad actor could fabricate a submission
+    JSON that matches them exactly. The private subset is a cheap way to
+    catch this. A fabricator has no signal on the hidden keys, so their
+    public and private SPS diverge sharply.
   </p>
 
   <div id="verification-badges" class="mt-8 max-w-3xl scroll-mt-24">
@@ -89,30 +87,28 @@
         <span
           class="mr-1 inline-block text-xs px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-700 dark:text-emerald-400"
           >✓ verified</span
-        > — the public and private scores agree to within the divergence
-        threshold of 0.05 SPS. This is the expected behavior of an honest
-        run: typical honest-submission deltas we've observed are below
-        0.02.
+        >: the public and private scores are within the 0.05 SPS divergence
+        threshold. This is what an honest run looks like. The deltas we have
+        observed on honest submissions are typically below 0.02.
       </li>
       <li>
         <span
           class="mr-1 inline-block text-xs px-1.5 py-0.5 rounded bg-amber-500/10 text-amber-700 dark:text-amber-400"
           >⚠ flagged</span
-        > — the public/private divergence exceeded the 0.05 threshold, so
+        >: the public/private divergence exceeded the 0.05 threshold, so
         the row is held for review.
       </li>
     </ul>
     <p class="text-muted mb-4">
-      <strong>What a flag means — and doesn't.</strong> A flag is a
-      statistical anomaly detector, not proof of cheating. A large
-      divergence is what fabrication looks like (a fabricator can match
-      the public answer key but has no signal on the hidden one), but it
-      can also arise from overfitting to the public subset or, on datasets
-      with a small private subset, from ordinary sampling noise
-      concentrated in a handful of questions. Treat a flagged score with
-      caution — prefer the row's <span class="font-mono">sps_private</span>
-      when deciding how much to trust it — rather than reading the flag as
-      an accusation against the submitter.
+      <strong>What a flag means.</strong> A flag comes from a statistical
+      anomaly detector and is not proof of cheating. A large divergence is
+      what fabrication looks like (a fabricator can match the public answer
+      key but has no signal on the hidden one). It can also come from
+      overfitting to the public subset or, on datasets with a small private
+      subset, from ordinary sampling noise concentrated in a few questions.
+      Treat a flagged score with caution, and rely on the row's
+      <span class="font-mono">sps_private</span> when deciding how much to
+      trust it. A flag is not an accusation against the submitter.
     </p>
     <p class="text-muted">
       The threshold is deliberately loose (0.05, versus typical honest
