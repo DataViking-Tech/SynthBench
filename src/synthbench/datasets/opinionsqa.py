@@ -1,18 +1,38 @@
 """OpinionsQA dataset loader.
 
-Loads 1,498 survey questions from the OpinionsQA dataset
+Loads the 684 canonical survey questions of the OpinionsQA dataset
 (Santurkar et al., ICML 2023) based on Pew American Trends Panel data.
 
 Data source: https://worksheets.codalab.org/worksheets/0x6fb693719477478aac73fc07db333f69
 Paper: https://arxiv.org/abs/2303.17548
+
+Raw data is fetched, in order, from:
+
+1. SynthBench's mirror of the per-wave files (``info.csv`` +
+   ``NONE_data.json`` for the 684 questions the leaderboard uses, built by
+   ``scripts/build-opinionsqa-mirror.py``), read either
+   a. in full, including private-holdout answers, directly from the gated R2
+      bucket (``canonical/opinionsqa/...``) when the ``R2_*`` env vars are set
+      (maintainers and CI), or
+   b. as the public variant, with private-holdout answers withheld, through
+      ``api.synthbench.org/data/`` with ``SYNTHBENCH_API_KEY`` set to an API key
+      with read scope ("Read gated data" at synthbench.org/account).
+2. CodaLab's ``human_resp`` bundle, aggregated locally with
+   :func:`build_canonical_wave_files`. This needs a repo checkout, because the
+   canonical key list lives in ``data/question-text-registries/opinionsqa.json``.
+
+Both downloads are pinned to a sha256, so a tampered or changed upstream file
+is rejected rather than silently scored.
 """
 
 from __future__ import annotations
 
 import csv
+import hashlib
 import io
 import json
-import zipfile
+import tarfile
+from collections import defaultdict
 from ast import literal_eval
 from pathlib import Path
 
@@ -22,6 +42,38 @@ from synthbench.datasets.base import Dataset, DatasetDownloadError, Question
 
 _CODALAB_WORKSHEET = "0x6fb693719477478aac73fc07db333f69"
 _CODALAB_API = "https://worksheets.codalab.org/rest"
+
+# The worksheet's `human_resp` bundle (raw per-respondent answers). Its other
+# bundles are not needed (`runs` alone is 4.1 GB).
+CODALAB_HUMAN_RESP_BUNDLE = "0x050b7e72abb04d1f9b493c1743e580cf"
+CODALAB_HUMAN_RESP_SHA256 = (
+    "e58f634fc5b24a8cac9b8cfc068871b0ae70027ae5c47089bc7c08d88e762103"
+)
+
+# Canonical per-wave files in the gated R2 bucket (see module docstring).
+# They include the private-holdout answers, so they live under canonical/,
+# which the data-proxy Worker never serves.
+MIRROR_KEY = "canonical/opinionsqa/human_resp-canonical-v1.tar.gz"
+MIRROR_SHA256 = "e0193599bebbbb1c2498df82f0d8ce5784d5b4ca6abdf5f42298a117d7ab8666"
+# Public variant served to read-scope API keys: private-holdout answers are
+# replaced by {"withheld": true}, so those questions are sampled but scored
+# only server-side on submission (docs/held-out.md).
+PUBLIC_MIRROR_KEY = "datasets/opinionsqa/human_resp-public-v1.tar.gz"
+PUBLIC_MIRROR_SHA256 = (
+    "0fc1710bc1f2942a4d6f4c336b7ca3d6c2b0b48be32aa24d74aea01c45ce1338"
+)
+# The raw CodaLab bundle (respondent-level answers), mirrored unchanged for
+# provenance under provenance/, which the data-proxy Worker never serves.
+MIRROR_RAW_KEY = (
+    f"provenance/opinionsqa/codalab-{CODALAB_HUMAN_RESP_BUNDLE}-human_resp.tar.gz"
+)
+
+_REGISTRY_PATH = (
+    Path(__file__).resolve().parents[3]
+    / "data"
+    / "question-text-registries"
+    / "opinionsqa.json"
+)
 
 # Surveys included in OpinionsQA
 PEW_WAVES = [26, 27, 29, 32, 34, 36, 41, 42, 43, 45, 49, 50, 54, 82, 92]
@@ -122,6 +174,7 @@ class OpinionsQADataset(Dataset):
                 human_distribution=q["human_distribution"],
                 survey=q.get("survey", ""),
                 topic=q.get("topic", ""),
+                answer_withheld=q.get("answer_withheld", False),
             )
             for q in data["questions"]
         ]
@@ -140,6 +193,7 @@ class OpinionsQADataset(Dataset):
                     "human_distribution": q.human_distribution,
                     "survey": q.survey,
                     "topic": q.topic,
+                    **({"answer_withheld": True} if q.answer_withheld else {}),
                 }
                 for q in questions
             ],
@@ -160,65 +214,39 @@ class OpinionsQADataset(Dataset):
         return questions
 
     def _download_from_codalab(self, raw_dir: Path) -> None:
-        """Attempt to download the OpinionsQA bundle from CodaLab."""
+        """Fetch raw data into *raw_dir*: R2 mirror first, then CodaLab."""
         raw_dir.mkdir(parents=True, exist_ok=True)
+        errors: list[str] = []
+
+        blob = _fetch_mirror(MIRROR_KEY, errors)
+        if blob is not None:
+            if _sha256(blob) == MIRROR_SHA256:
+                _extract_tar_gz(blob, raw_dir)
+                return
+            errors.append("R2 mirror: sha256 mismatch, ignoring the mirrored copy")
+
+        blob = _fetch_via_api(PUBLIC_MIRROR_KEY, errors)
+        if blob is not None:
+            if _sha256(blob) == PUBLIC_MIRROR_SHA256:
+                _extract_tar_gz(blob, raw_dir)
+                return
+            errors.append(
+                "synthbench.org: sha256 mismatch, ignoring the downloaded copy"
+            )
 
         try:
-            # List bundles on the worksheet
-            resp = httpx.get(
-                f"{_CODALAB_API}/interpret/worksheet/{_CODALAB_WORKSHEET}",
-                timeout=30,
-            )
-            resp.raise_for_status()
-            worksheet = resp.json()
-
-            # Find data bundles
-            bundle_uuids = []
-            for item in worksheet.get("blocks", []):
-                if item.get("mode") == "table_block":
-                    for row in item.get("rows", []):
-                        bundle_uuids.append(row.get("uuid"))
-                elif "bundles_spec" in item:
-                    for bundle in item.get("bundles_spec", {}).get("bundle_infos", []):
-                        bundle_uuids.append(bundle.get("uuid"))
-
-            if not bundle_uuids:
-                # Try alternate structure
-                for item in worksheet.get("items", []):
-                    if "bundle_info" in item:
-                        bundle_uuids.append(item["bundle_info"].get("uuid"))
-
-            bundle_uuids = [u for u in bundle_uuids if u]
-
-            if not bundle_uuids:
-                raise RuntimeError("No bundles found on CodaLab worksheet")
-
-            # Download each bundle
-            for uuid in bundle_uuids:
-                blob_url = f"{_CODALAB_API}/bundles/{uuid}/contents/blob/"
-                blob_resp = httpx.get(blob_url, timeout=120, follow_redirects=True)
-                blob_resp.raise_for_status()
-
-                content_type = blob_resp.headers.get("content-type", "")
-                if "zip" in content_type or blob_resp.content[:4] == b"PK\x03\x04":
-                    with zipfile.ZipFile(io.BytesIO(blob_resp.content)) as zf:
-                        zf.extractall(raw_dir)
-                else:
-                    # Try to determine filename
-                    fname = f"bundle_{uuid[:8]}.dat"
-                    (raw_dir / fname).write_bytes(blob_resp.content)
-
-        except Exception as e:
+            blob = fetch_codalab_human_resp()
+            _extract_tar_gz(blob, raw_dir)
+            human_resp = self._find_subdir(raw_dir, "human_resp") or raw_dir
+            build_canonical_wave_files(human_resp, load_canonical_keys())
+        except Exception as e:  # noqa: BLE001 - surface every source's failure
+            errors.append(f"CodaLab: {e}")
             raise DatasetDownloadError(
-                f"Could not auto-download OpinionsQA data: {e}\n\n"
-                "Manual setup:\n"
-                "  1. Go to: https://worksheets.codalab.org/worksheets/"
-                f"{_CODALAB_WORKSHEET}\n"
-                "  2. Download the dataset bundle\n"
-                "  3. Extract to: {raw_dir}\n"
-                "  4. Re-run synthbench\n\n"
-                "The raw/ directory should contain:\n"
-                "  - human_resp/ (survey waves with info.csv + *_data.json)"
+                "Could not fetch OpinionsQA data:\n  - "
+                + "\n  - ".join(errors)
+                + "\n\nSet SYNTHBENCH_API_KEY to an API key with read scope (create one "
+                "at https://synthbench.org/account), or run from a repo checkout so the "
+                "CodaLab bundle can be aggregated."
             ) from e
 
     def _process_raw_data(self, raw_dir: Path) -> list[Question]:
@@ -267,9 +295,12 @@ class OpinionsQADataset(Dataset):
                     continue
 
                 question_text = row.get("question", qkey)
-                human_dist = dist_by_key.get(qkey, {})
+                if qkey not in dist_by_key:
+                    continue
+                human_dist = dist_by_key[qkey]
+                withheld = human_dist is None
 
-                if not human_dist:
+                if not withheld and not human_dist:
                     continue
 
                 questions.append(
@@ -277,15 +308,18 @@ class OpinionsQADataset(Dataset):
                         key=qkey,
                         text=question_text,
                         options=refs,
-                        human_distribution=human_dist,
+                        human_distribution=human_dist or {},
                         survey=f"ATP W{wave}",
+                        answer_withheld=withheld,
                     )
                 )
 
         return questions
 
     @staticmethod
-    def _load_wave_distributions(wave_dir: Path) -> dict[str, dict[str, float]]:
+    def _load_wave_distributions(
+        wave_dir: Path,
+    ) -> dict[str, dict[str, float] | None]:
         """Load aggregated human response distributions for one survey wave.
 
         Prefers NONE_data.json (overall population). Falls back to summing
@@ -309,9 +343,13 @@ class OpinionsQADataset(Dataset):
         with open(json_path) as f:
             data = json.load(f)
 
-        result: dict[str, dict[str, float]] = {}
+        result: dict[str, dict[str, float] | None] = {}
         for qkey, entry in data.items():
             if not isinstance(entry, dict):
+                continue
+            if entry.get("withheld") is True:
+                # Public mirror: private-holdout answer withheld.
+                result[qkey] = None
                 continue
             totals: dict[str, float] = {}
             for sub_key, counts in entry.items():
@@ -410,3 +448,168 @@ class OpinionsQADataset(Dataset):
                     result[qkey] = groups
 
         return result
+
+
+# ---------------------------------------------------------------------------
+# Raw-data helpers (mirror + CodaLab)
+# ---------------------------------------------------------------------------
+
+
+def _sha256(data: bytes) -> str:
+    return hashlib.sha256(data).hexdigest()
+
+
+def _extract_tar_gz(blob: bytes, dest: Path) -> None:
+    """Extract a gzip tarball, refusing members that escape *dest*."""
+    with tarfile.open(fileobj=io.BytesIO(blob), mode="r:gz") as tf:
+        if hasattr(tarfile, "data_filter"):
+            tf.extractall(dest, filter="data")
+            return
+        root = dest.resolve()
+        for member in tf.getmembers():
+            target = (dest / member.name).resolve()
+            if root not in target.parents and target != root:
+                raise DatasetDownloadError(f"Unsafe path in archive: {member.name}")
+            if not (member.isfile() or member.isdir()):
+                raise DatasetDownloadError(f"Unsupported archive member: {member.name}")
+        tf.extractall(dest)
+
+
+def _fetch_mirror(key: str, errors: list[str]) -> bytes | None:
+    """Read *key* from the gated R2 bucket, or ``None`` if unavailable."""
+    from synthbench.r2_upload import R2Uploader, env_has_r2_config
+
+    if not env_has_r2_config():
+        errors.append("R2 mirror: R2_* env vars not set")
+        return None
+    try:
+        blob = R2Uploader.from_env().get_bytes(key)
+    except Exception as e:  # noqa: BLE001
+        errors.append(f"R2 mirror: {e}")
+        return None
+    if blob is None:
+        errors.append(f"R2 mirror: {key} not found")
+    return blob
+
+
+def _fetch_via_api(key: str, errors: list[str]) -> bytes | None:
+    """Read *key* through the data-proxy Worker with a read-scope API key."""
+    import os
+
+    from synthbench.submission import DEFAULT_API_URL
+
+    api_key = os.environ.get("SYNTHBENCH_API_KEY", "").strip()
+    if not api_key:
+        errors.append("synthbench.org: SYNTHBENCH_API_KEY not set")
+        return None
+    base = os.environ.get("SYNTHBENCH_API_URL", "").strip() or DEFAULT_API_URL
+    url = f"{base.rstrip('/')}/data/{key}"
+    try:
+        resp = httpx.get(
+            url,
+            headers={"Authorization": f"Bearer {api_key}"},
+            timeout=300,
+            follow_redirects=True,
+        )
+    except httpx.HTTPError as e:
+        errors.append(f"synthbench.org: {e}")
+        return None
+    if resp.status_code != 200:
+        try:
+            reason = resp.json().get("error", "")
+        except ValueError:
+            reason = resp.text[:200]
+        errors.append(f"synthbench.org: HTTP {resp.status_code} {reason}".rstrip())
+        return None
+    return resp.content
+
+
+def fetch_codalab_human_resp() -> bytes:
+    """Download CodaLab's human_resp bundle and check it against the pinned sha256.
+
+    TLS verification is off for this request: worksheets.codalab.org served an
+    expired certificate as of 2026-10-10. The pinned sha256 is what
+    authenticates the content, so a changed or tampered bundle is rejected.
+    """
+    url = f"{_CODALAB_API}/bundles/{CODALAB_HUMAN_RESP_BUNDLE}/contents/blob/"
+    resp = httpx.get(url, timeout=300, follow_redirects=True, verify=False)
+    resp.raise_for_status()
+    digest = _sha256(resp.content)
+    if digest != CODALAB_HUMAN_RESP_SHA256:
+        raise DatasetDownloadError(
+            f"CodaLab human_resp bundle sha256 {digest} does not match pinned "
+            f"{CODALAB_HUMAN_RESP_SHA256}; refusing to use it."
+        )
+    return resp.content
+
+
+def load_canonical_keys(path: Path = _REGISTRY_PATH) -> list[str]:
+    """The canonical OpinionsQA question keys (repo checkout only)."""
+    if not path.exists():
+        raise DatasetDownloadError(
+            f"Canonical OpinionsQA key list not found at {path}; it ships with the "
+            "repository, not the package."
+        )
+    return list(json.loads(path.read_text(encoding="utf-8"))["questions"])
+
+
+def build_canonical_wave_files(human_resp_dir: Path, canonical_keys: list[str]) -> int:
+    """Write NONE_data.json for each wave from the raw responses.csv.
+
+    CodaLab's current human_resp bundle ships per-respondent answers rather
+    than aggregated NONE_data.json files. Each canonical question becomes
+    ``{key: {"NONE": {option: count}}}`` with **unweighted** response counts,
+    "Refused" kept as an option: the recipe that reproduces the human
+    distributions the leaderboard's existing OpinionsQA runs were scored
+    against. Only canonical keys are written, so ``load(n=...)`` selects the
+    same questions as published runs. Returns the number of questions written.
+    """
+    canonical = set(canonical_keys)
+    csv.field_size_limit(10**9)
+    written = 0
+    for wave_dir in sorted(human_resp_dir.glob("American_Trends_Panel_W*")):
+        with open(wave_dir / "info.csv", encoding="utf-8") as f:
+            info = list(csv.DictReader(f))
+        wanted = [q for q in info if q["key"] in canonical]
+        if not wanted:
+            continue
+        with open(wave_dir / "responses.csv", encoding="utf-8") as f:
+            rows = list(csv.DictReader(f))
+        out: dict[str, dict] = {}
+        for q in wanted:
+            key = q["key"]
+            options = literal_eval(q["references"])
+            counts: dict[str, float] = defaultdict(float)
+            for r in rows:
+                answer = r.get(key)
+                if answer in options:
+                    counts[answer] += 1.0
+            if counts:
+                out[key] = {"NONE": {opt: counts.get(opt, 0.0) for opt in options}}
+        (wave_dir / "NONE_data.json").write_text(json.dumps(out), encoding="utf-8")
+        written += len(out)
+    return written
+
+
+def withhold_private_answers(human_resp_dir: Path) -> int:
+    """Replace private-holdout answers in each wave's NONE_data.json with a marker.
+
+    Turns the canonical per-wave files into the public variant served to
+    read-scope API keys: ``{key: {"withheld": true}}`` for every question
+    :func:`synthbench.private_holdout.is_private_holdout` puts in the private
+    split. Returns the number of answers withheld.
+    """
+    from synthbench.private_holdout import is_private_holdout
+
+    withheld = 0
+    for wave_dir in sorted(human_resp_dir.glob("American_Trends_Panel_W*")):
+        path = wave_dir / "NONE_data.json"
+        if not path.exists():
+            continue
+        data = json.loads(path.read_text(encoding="utf-8"))
+        for key in data:
+            if is_private_holdout("opinionsqa", key):
+                data[key] = {"withheld": True}
+                withheld += 1
+        path.write_text(json.dumps(data), encoding="utf-8")
+    return withheld

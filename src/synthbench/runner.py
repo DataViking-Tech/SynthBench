@@ -124,13 +124,13 @@ class QuestionResult:
     options: list[str]
     human_distribution: dict[str, float]
     model_distribution: dict[str, float]
-    jsd: float
-    kendall_tau: float
-    parity: float
+    jsd: float | None
+    kendall_tau: float | None
+    parity: float | None
     n_samples: int
     n_parse_failures: int = 0
     model_refusal_rate: float = 0.0
-    human_refusal_rate: float = 0.0
+    human_refusal_rate: float | None = 0.0
     temporal_year: int = 0
     token_usage: dict | None = None
     """Summed token usage across samples for this question.
@@ -146,6 +146,10 @@ class QuestionResult:
     expose probabilities but no per-sample strings). See ``raw_responses``
     in :mod:`synthbench.validation` for the Tier-3 audit use case.
     """
+    answer_withheld: bool = False
+    """The human answers were withheld (private holdout, public mirror), so
+    jsd / kendall_tau / parity / human_refusal_rate are ``None`` until the
+    submission pipeline scores the row (scripts/score-withheld-rows.py)."""
     latency_seconds: float | None = None
     """Wall-clock seconds spent evaluating this question (cost-economics column).
 
@@ -156,6 +160,22 @@ class QuestionResult:
     the batch members — an even-split approximation, not per-response
     instrumentation.
     """
+
+
+def _score_question(
+    question: Question, model_dist: dict[str, float]
+) -> tuple[float | None, float | None, float | None, float | None]:
+    """Return (human_refusal_rate, jsd, tau, parity); all ``None`` if withheld."""
+    if question.answer_withheld:
+        return None, None, None, None
+    jsd = jensen_shannon_divergence(question.human_distribution, model_dist)
+    tau = kendall_tau_b(question.human_distribution, model_dist)
+    return (
+        extract_human_refusal_rate(question.human_distribution),
+        jsd,
+        tau,
+        parity_score(jsd, tau),
+    )
 
 
 def _aggregate_token_usage(responses: list[Response]) -> dict | None:
@@ -213,16 +233,28 @@ class BenchmarkResult:
     )
 
     @property
+    def scored(self) -> list[QuestionResult]:
+        """Questions with known human answers. Withheld (private-holdout)
+        rows are excluded from every local score; the submission pipeline
+        scores them server-side."""
+        return [q for q in self.questions if not q.answer_withheld]
+
+    @property
+    def n_withheld(self) -> int:
+        return len(self.questions) - len(self.scored)
+
+    @property
     def mean_jsd(self) -> float:
-        if not self.questions:
+        qs = self.scored
+        if not qs:
             return 0.0
-        return sum(q.jsd for q in self.questions) / len(self.questions)
+        return sum(q.jsd for q in qs) / len(qs)
 
     @property
     def median_jsd(self) -> float:
-        if not self.questions:
+        if not self.scored:
             return 0.0
-        vals = sorted(q.jsd for q in self.questions)
+        vals = sorted(q.jsd for q in self.scored)
         mid = len(vals) // 2
         if len(vals) % 2 == 0:
             return (vals[mid - 1] + vals[mid]) / 2
@@ -230,9 +262,10 @@ class BenchmarkResult:
 
     @property
     def mean_kendall_tau(self) -> float:
-        if not self.questions:
+        qs = self.scored
+        if not qs:
             return 0.0
-        return sum(q.kendall_tau for q in self.questions) / len(self.questions)
+        return sum(q.kendall_tau for q in qs) / len(qs)
 
     @property
     def composite_parity(self) -> float:
@@ -251,11 +284,12 @@ class BenchmarkResult:
     @property
     def p_refuse(self) -> float:
         """P_refuse = 1 - mean(|R_provider - R_human|). Refusal calibration [0, 1]."""
-        if not self.questions:
+        qs = self.scored
+        if not qs:
             return 1.0
         return refusal_calibration(
-            [q.model_refusal_rate for q in self.questions],
-            [q.human_refusal_rate for q in self.questions],
+            [q.model_refusal_rate for q in qs],
+            [q.human_refusal_rate for q in qs],
         )
 
     @property
@@ -311,7 +345,8 @@ class BenchmarkResult:
         Returns {metric_name: (ci_lower, ci_upper)}.
         Requires at least 5 questions for bootstrap to work.
         """
-        if len(self.questions) < 5:
+        qs = self.scored
+        if len(qs) < 5:
             return {}
 
         def _mean(data: list[float]) -> float:
@@ -320,12 +355,12 @@ class BenchmarkResult:
         cis: dict[str, tuple[float, float]] = {}
 
         # P_dist CI from per-question JSD values
-        jsd_vals = [q.jsd for q in self.questions]
+        jsd_vals = [q.jsd for q in qs]
         r = bootstrap_ci(jsd_vals, _mean, seed=42)
         cis["p_dist"] = (round(1.0 - r.ci_upper, 6), round(1.0 - r.ci_lower, 6))
 
         # P_rank CI from per-question tau values
-        tau_vals = [q.kendall_tau for q in self.questions]
+        tau_vals = [q.kendall_tau for q in qs]
         r = bootstrap_ci(tau_vals, _mean, seed=43)
         cis["p_rank"] = (
             round((1.0 + r.ci_lower) / 2.0, 6),
@@ -333,9 +368,7 @@ class BenchmarkResult:
         )
 
         # P_refuse CI from per-question refusal diffs
-        refuse_diffs = [
-            abs(q.model_refusal_rate - q.human_refusal_rate) for q in self.questions
-        ]
+        refuse_diffs = [abs(q.model_refusal_rate - q.human_refusal_rate) for q in qs]
         r = bootstrap_ci(refuse_diffs, _mean, seed=44)
         cis["p_refuse"] = (round(1.0 - r.ci_upper, 6), round(1.0 - r.ci_lower, 6))
 
@@ -358,7 +391,7 @@ class BenchmarkResult:
                 + (1.0 - abs(q.model_refusal_rate - q.human_refusal_rate))
             )
             / 3.0
-            for q in self.questions
+            for q in qs
         ]
         fixed = [v for v in (self.p_sub, self.p_cond) if v is not None]
         n_components = 3 + len(fixed)
@@ -379,7 +412,7 @@ class BenchmarkResult:
         Returns {year: {"p_dist": ..., "mean_jsd": ..., "n_questions": ...}}.
         """
         by_year: dict[int, list[QuestionResult]] = {}
-        for q in self.questions:
+        for q in self.scored:
             if q.temporal_year > 0:
                 by_year.setdefault(q.temporal_year, []).append(q)
 
@@ -564,11 +597,7 @@ class BenchmarkRunner:
         latency = time.monotonic() - t0
 
         model_dist = _normalize_model_dist(model_dist, question.options)
-        human_refusal_rate = extract_human_refusal_rate(question.human_distribution)
-
-        jsd = jensen_shannon_divergence(question.human_distribution, model_dist)
-        tau = kendall_tau_b(question.human_distribution, model_dist)
-        par = parity_score(jsd, tau)
+        human_refusal_rate, jsd, tau, par = _score_question(question, model_dist)
 
         return QuestionResult(
             key=question.key,
@@ -583,6 +612,7 @@ class BenchmarkRunner:
             n_parse_failures=n_parse_failures,
             model_refusal_rate=model_refusal_rate,
             human_refusal_rate=human_refusal_rate,
+            answer_withheld=question.answer_withheld,
             temporal_year=wave_year(question.survey),
             token_usage=token_usage,
             raw_sample=raw_sample,
@@ -696,10 +726,7 @@ class BenchmarkRunner:
                     "selected_option": str(sampled.get("selected_option", "")),
                 }
 
-        human_refusal_rate = extract_human_refusal_rate(question.human_distribution)
-        jsd = jensen_shannon_divergence(question.human_distribution, model_dist)
-        tau = kendall_tau_b(question.human_distribution, model_dist)
-        par = parity_score(jsd, tau)
+        human_refusal_rate, jsd, tau, par = _score_question(question, model_dist)
 
         return QuestionResult(
             key=question.key,
@@ -714,6 +741,7 @@ class BenchmarkRunner:
             n_parse_failures=dist.n_parse_failures,
             model_refusal_rate=model_refusal_rate,
             human_refusal_rate=human_refusal_rate,
+            answer_withheld=question.answer_withheld,
             temporal_year=wave_year(question.survey),
             token_usage=token_usage,
             raw_sample=raw_sample,

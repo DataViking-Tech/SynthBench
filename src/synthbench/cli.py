@@ -2934,6 +2934,7 @@ def validate(
             tier3=tier3,
             peers=peer_data,
             canonical_distributions=_canonical_for(target),
+            require_scored=rehydrate_canonical,
         )
         reports.append(report)
         has_errors = bool(report.errors)
