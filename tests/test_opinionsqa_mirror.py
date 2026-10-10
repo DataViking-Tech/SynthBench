@@ -104,6 +104,8 @@ def test_mirror_sha_mismatch_falls_back_to_codalab(tmp_path, monkeypatch):
 
 
 def test_all_sources_failing_reports_each(tmp_path, monkeypatch):
+    monkeypatch.delenv("SYNTHBENCH_API_KEY", raising=False)
+
     def mirror(key, errors):
         errors.append("R2 mirror: R2_* env vars not set")
 
@@ -165,3 +167,60 @@ def test_r2_bytes_round_trip():
     assert r2.get_bytes("datasets/x.tar.gz") is None
     r2.put_bytes("/datasets/x.tar.gz", b"\x1f\x8b data", "application/gzip")
     assert r2.get_bytes("datasets/x.tar.gz") == b"\x1f\x8b data"
+
+
+class _Resp:
+    def __init__(
+        self, status_code: int, content: bytes = b"", error: str | None = None
+    ):
+        self.status_code = status_code
+        self.content = content
+        self._error = error
+        self.text = content.decode("utf-8", "replace")
+
+    def json(self):
+        return {"error": self._error}
+
+
+def test_api_fetch_needs_a_key(monkeypatch):
+    monkeypatch.delenv("SYNTHBENCH_API_KEY", raising=False)
+    errors: list[str] = []
+    assert oqa._fetch_via_api(oqa.MIRROR_KEY, errors) is None
+    assert errors == ["synthbench.org: SYNTHBENCH_API_KEY not set"]
+
+
+def test_api_fetch_sends_bearer_key(monkeypatch):
+    monkeypatch.setenv("SYNTHBENCH_API_KEY", "sb_" + "r" * 32)
+    monkeypatch.setenv("SYNTHBENCH_API_URL", "https://api.example.test/")
+    seen = {}
+
+    def fake_get(url, headers, **kwargs):
+        seen["url"], seen["auth"] = url, headers["Authorization"]
+        return _Resp(200, b"archive")
+
+    monkeypatch.setattr(oqa.httpx, "get", fake_get)
+    errors: list[str] = []
+    assert oqa._fetch_via_api(oqa.MIRROR_KEY, errors) == b"archive"
+    assert seen["url"] == f"https://api.example.test/data/{oqa.MIRROR_KEY}"
+    assert seen["auth"] == "Bearer sb_" + "r" * 32
+    assert errors == []
+
+
+def test_api_fetch_reports_scope_errors(monkeypatch):
+    monkeypatch.setenv("SYNTHBENCH_API_KEY", "sb_" + "s" * 32)
+    monkeypatch.setattr(
+        oqa.httpx, "get", lambda *a, **k: _Resp(403, b"{}", "api key lacks read scope")
+    )
+    errors: list[str] = []
+    assert oqa._fetch_via_api(oqa.MIRROR_KEY, errors) is None
+    assert errors == ["synthbench.org: HTTP 403 api key lacks read scope"]
+
+
+def test_download_uses_api_when_no_r2(tmp_path, monkeypatch):
+    blob = _tar_gz({"human_resp/American_Trends_Panel_W26/info.csv": INFO.encode()})
+    monkeypatch.setattr(oqa, "MIRROR_SHA256", hashlib.sha256(blob).hexdigest())
+    monkeypatch.setattr(oqa, "_fetch_mirror", lambda key, errors: None)
+    monkeypatch.setattr(oqa, "_fetch_via_api", lambda key, errors: blob)
+    raw = tmp_path / "raw"
+    oqa.OpinionsQADataset(data_dir=tmp_path)._download_from_codalab(raw)
+    assert (raw / "human_resp" / "American_Trends_Panel_W26" / "info.csv").exists()

@@ -312,7 +312,9 @@ anchors identity on your GitHub account instead.
    - **Submit runs** — write-only; can call `/submit` but not read gated data.
      Recommended for CI.
    - **Read gated data** — read-only; can fetch gated-tier datasets via the
-     Worker but cannot upload.
+     Worker but cannot upload. `synthbench run` uses it to download datasets
+     that can't be fetched anonymously (currently OpinionsQA): set it as
+     `SYNTHBENCH_API_KEY` before running.
    - **Read + submit** — both. Use only if you genuinely need both verbs from
      the same key.
 3. Copy the displayed key. **You will not be able to see it again** — the

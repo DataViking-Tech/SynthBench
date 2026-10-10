@@ -8,10 +8,15 @@ Paper: https://arxiv.org/abs/2303.17548
 
 Raw data is fetched, in order, from:
 
-1. SynthBench's private R2 mirror (``canonical/opinionsqa/...`` in the gated
-   bucket, when the ``R2_*`` env vars are set): the canonical per-wave files
-   (``info.csv`` + ``NONE_data.json``) for the 684 questions the leaderboard
-   uses, built by ``scripts/build-opinionsqa-mirror.py``.
+1. SynthBench's mirror of the per-wave files (``info.csv`` +
+   ``NONE_data.json`` for the 684 questions the leaderboard uses, built by
+   ``scripts/build-opinionsqa-mirror.py``), read either
+   a. in full, including private-holdout answers, directly from the gated R2
+      bucket (``canonical/opinionsqa/...``) when the ``R2_*`` env vars are set
+      (maintainers and CI), or
+   b. as the public variant, with private-holdout answers withheld, through
+      ``api.synthbench.org/data/`` with ``SYNTHBENCH_API_KEY`` set to an API key
+      with read scope ("Read gated data" at synthbench.org/account).
 2. CodaLab's ``human_resp`` bundle, aggregated locally with
    :func:`build_canonical_wave_files`. This needs a repo checkout, because the
    canonical key list lives in ``data/question-text-registries/opinionsqa.json``.
@@ -205,6 +210,8 @@ class OpinionsQADataset(Dataset):
         errors: list[str] = []
 
         blob = _fetch_mirror(MIRROR_KEY, errors)
+        if blob is None:
+            blob = _fetch_via_api(MIRROR_KEY, errors)
         if blob is not None:
             if _sha256(blob) == MIRROR_SHA256:
                 _extract_tar_gz(blob, raw_dir)
@@ -221,8 +228,9 @@ class OpinionsQADataset(Dataset):
             raise DatasetDownloadError(
                 "Could not fetch OpinionsQA data:\n  - "
                 + "\n  - ".join(errors)
-                + "\n\nSet the R2_* env vars to use SynthBench's mirror, or run from a "
-                "repo checkout so the CodaLab bundle can be aggregated."
+                + "\n\nSet SYNTHBENCH_API_KEY to an API key with read scope (create one "
+                "at https://synthbench.org/account), or run from a repo checkout so the "
+                "CodaLab bundle can be aggregated."
             ) from e
 
     def _process_raw_data(self, raw_dir: Path) -> list[Question]:
@@ -456,6 +464,38 @@ def _fetch_mirror(key: str, errors: list[str]) -> bytes | None:
     if blob is None:
         errors.append(f"R2 mirror: {key} not found")
     return blob
+
+
+def _fetch_via_api(key: str, errors: list[str]) -> bytes | None:
+    """Read *key* through the data-proxy Worker with a read-scope API key."""
+    import os
+
+    from synthbench.submission import DEFAULT_API_URL
+
+    api_key = os.environ.get("SYNTHBENCH_API_KEY", "").strip()
+    if not api_key:
+        errors.append("synthbench.org: SYNTHBENCH_API_KEY not set")
+        return None
+    base = os.environ.get("SYNTHBENCH_API_URL", "").strip() or DEFAULT_API_URL
+    url = f"{base.rstrip('/')}/data/{key}"
+    try:
+        resp = httpx.get(
+            url,
+            headers={"Authorization": f"Bearer {api_key}"},
+            timeout=300,
+            follow_redirects=True,
+        )
+    except httpx.HTTPError as e:
+        errors.append(f"synthbench.org: {e}")
+        return None
+    if resp.status_code != 200:
+        try:
+            reason = resp.json().get("error", "")
+        except ValueError:
+            reason = resp.text[:200]
+        errors.append(f"synthbench.org: HTTP {resp.status_code} {reason}".rstrip())
+        return None
+    return resp.content
 
 
 def fetch_codalab_human_resp() -> bytes:
