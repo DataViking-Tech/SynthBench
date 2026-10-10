@@ -146,7 +146,7 @@ run vs the identical configuration with schema-forced structured capture
 count — the elicitation surface is the only variable.
 
 <!-- BEGIN GENERATED: elicitation -->
-**Althing (Haiku 5.5 via Claude Code)** (product) on globalopinionqa — n=100 questions × 30 samples per arm, refusal detector v3; the arms differ only in elicitation mode:
+**Althing (Haiku 5.5)** (product) on globalopinionqa — n=100 questions × 30 samples per arm, refusal detector v3; the arms differ only in elicitation mode:
 
 | Metric | Natural | Structured | Δ (structured − natural) |
 |--------|---------|------------|--------------------------|

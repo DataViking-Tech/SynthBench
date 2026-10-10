@@ -41,6 +41,8 @@ export interface RunIndexEntry {
   template: string | null;
   /** althing population pack the run was conditioned on; null = unconditioned. */
   persona_pack?: string | null;
+  /** Agent CLI the run went through ("claude-code", "codex"); null = direct API. */
+  harness?: string | null;
   samples_per_question: number | null;
   n_questions: number;
   n_topics: number;

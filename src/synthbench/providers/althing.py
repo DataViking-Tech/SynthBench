@@ -291,6 +291,22 @@ def _parse_structured_response(response: Any, options: list[str]):
     return getattr(response, "text", "") or "", ParsedResponse()
 
 
+# althing subscription-CLI model prefixes (claude-code:<model>, codex:<model>)
+# and the vendor whose model each harness runs. A harness changes how calls
+# are made, not whose model answers, so runs are named after the vendor and
+# model with the harness as a knob: althing/anthropic/<model> harness=claude-code.
+_HARNESS_VENDORS = {"claude-code": "anthropic", "codex": "openai"}
+
+
+def _split_harness(model: str) -> tuple[str | None, str]:
+    """Split ``claude-code:haiku`` into ``("claude-code", "haiku")``."""
+    for harness in _HARNESS_VENDORS:
+        prefix = f"{harness}:"
+        if model.startswith(prefix):
+            return harness, model[len(prefix) :]
+    return None, model
+
+
 class AlthingProvider(Provider):
     """Benchmark the full Althing pipeline.
 
@@ -305,6 +321,8 @@ class AlthingProvider(Provider):
     """
 
     persona_pack: str | None = None
+    harness: str | None = None
+    _served_model: str | None = None
 
     def __init__(
         self,
@@ -346,6 +364,7 @@ class AlthingProvider(Provider):
         self._client: Any = None
         self._executor: ThreadPoolExecutor | None = None
         self.persona_pack = persona_pack
+        self.harness, self._harness_model = _split_harness(model)
         self._pack_personas: list[dict[str, Any]] = []
         if persona_pack is not None:
             self._pack_personas = _load_population_pack(
@@ -371,7 +390,14 @@ class AlthingProvider(Provider):
 
     @property
     def name(self) -> str:
-        parts = [f"althing/{self._model}"]
+        if self.harness:
+            # The model the CLI actually served (learned from responses), so
+            # an alias like `haiku` is recorded as the model it resolved to.
+            served = self._served_model or self._harness_model or "default"
+            vendor = _HARNESS_VENDORS[self.harness]
+            parts = [f"althing/{vendor}/{served}", f"harness={self.harness}"]
+        else:
+            parts = [f"althing/{self._model}"]
         if self._temperature is not None:
             parts.append(f"t={self._temperature}")
         if self._profile:
@@ -392,6 +418,15 @@ class AlthingProvider(Provider):
             # knob feeds build_config_id so they get their own config_id.
             parts.append(f"pack={self.persona_pack}")
         return " ".join(parts)
+
+    def _note_served_model(self, response: Any) -> None:
+        """Record which model a harness served (``claude-code:claude-haiku-5-5``)."""
+        if not self.harness or self._served_model:
+            return
+        served = str(getattr(response, "model", "") or "")
+        _, bare = _split_harness(served)
+        if bare and bare != self._harness_model:
+            self._served_model = bare
 
     @property
     def supports_distribution(self) -> bool:
@@ -493,6 +528,7 @@ class AlthingProvider(Provider):
         )
 
         raw_text, parsed = self._parse_api_response(response, options)
+        self._note_served_model(response)
 
         return Response(
             selected_option=parsed.option,
@@ -639,6 +675,7 @@ class AlthingProvider(Provider):
                 infra_errors.append(result)
                 continue
             raw_text, parsed = self._parse_api_response(result, options)
+            self._note_served_model(result)
             if parsed.refusal:
                 refusals += 1
             elif parsed.option is None:

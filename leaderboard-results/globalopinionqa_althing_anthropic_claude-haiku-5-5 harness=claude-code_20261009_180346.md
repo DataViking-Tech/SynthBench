@@ -1,35 +1,35 @@
 # SynthBench Score Card
 
-**Provider:** althing/codex:gpt-6-luna tpl=structured pack=global-respondents
+**Provider:** althing/anthropic/claude-haiku-5-5 harness=claude-code
 **Dataset:** globalopinionqa (100 questions)
 **Samples per question:** 30
-**Elapsed:** 2282.0s
+**Elapsed:** 2994.8s
 
 ## SynthBench Parity Score (SPS)
 
-**SPS: 0.8089 [0.7804, 0.8338]** (from 3 metrics)
+**SPS: 0.6952 [0.6529, 0.7298]** (from 3 metrics)
 
 | Metric | Score | |
 |--------|------:|---|
-| P_dist  Distributional | 0.7474 [0.7093, 0.7788] | ███████░░░ |
-| P_rank  Rank-Order | 0.6995 [0.6397, 0.7550] | ███████░░░ |
-| P_refuse Refusal Cal. | 0.9797 [0.9684, 0.9862] | ██████████ |
+| P_dist  Distributional | 0.6905 [0.6449, 0.7334] | ███████░░░ |
+| P_rank  Rank-Order | 0.6464 [0.5825, 0.7063] | ██████░░░░ |
+| P_refuse Refusal Cal. | 0.7487 [0.6784, 0.8074] | ███████░░░ |
 
 ## Raw Metrics
 
 | Metric | Value |
 |--------|-------|
-| Mean JSD | 0.2526 |
-| Median JSD | 0.2248 |
-| Mean Kendall's tau | 0.3991 |
-| Composite Parity (legacy) | 0.7235 |
+| Mean JSD | 0.3095 |
+| Median JSD | 0.2706 |
+| Mean Kendall's tau | 0.2928 |
+| Composite Parity (legacy) | 0.6684 |
 
 ## vs Baselines
 
 | Baseline | Score | Delta | % |
 |----------|------:|------:|--:|
-| majority-baseline | 0.5620 | +0.1615 | +29% |
-| random-baseline | 0.6495 | +0.0739 | +11% |
+| majority-baseline | 0.5620 | +0.1064 | +19% |
+| random-baseline | 0.6495 | +0.0189 | +3% |
 
 ## What These Scores Mean
 
@@ -44,18 +44,18 @@
 
 | Question | JSD | tau |
 |----------|-----|-----|
-| In general, do you think our country is covered fairly or un... | 0.0014 | -1.0000 |
-| For each of the following statements about the missile strik... | 0.0019 | 1.0000 |
-| Please tell me if you approve or disapprove of the way Presi... | 0.0058 | 1.0000 |
-| As I read some specific policies of [American] President Geo... | 0.0160 | 1.0000 |
-| Do you think the U.S. should keep military troops in Iraq un... | 0.0170 | 1.0000 |
+| Again, which one better describes George W. Bush...He makes ... | 0.0052 | 1.0000 |
+| Now I'd like to ask your views about some additional politic... | 0.0058 | 0.0000 |
+| For each of the following statements about the missile strik... | 0.0122 | 1.0000 |
+| (Now/And thinking about the American people...) Which of the... | 0.0138 | 1.0000 |
+| And thinking about some political leaders and organizations ... | 0.0174 | 0.0000 |
 
 ## Worst Matches (highest JSD)
 
 | Question | JSD | tau |
 |----------|-----|-----|
-| Do you personally believe that drinking alcohol is morally a... | 0.6396 | 0.0000 |
-| And thinking about some political leaders and organizations ... | 0.6625 | -0.2357 |
-| Thinking about our relations with China, in your view, which... | 0.7355 | -0.3586 |
-| Which statement comes closer to your own views, even if neit... | 0.7544 | -0.1179 |
-| Do you personally believe that getting a divorce is morally ... | 0.7605 | -0.7071 |
+| Please tell me if you have a very favorable, somewhat favora... | 0.7900 | -0.5976 |
+| Please tell me if you have a very favorable, somewhat favora... | 0.7912 | -0.3586 |
+| Do you personally believe that drinking alcohol is morally a... | 0.8564 | -0.7071 |
+| Please tell me if you have a very favorable, somewhat favora... | 0.9014 | -0.6325 |
+| Please tell me if you have a very favorable, somewhat favora... | 0.9022 | -0.3162 |

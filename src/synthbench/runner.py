@@ -502,6 +502,11 @@ class BenchmarkRunner:
                 # on pre-v2 files (= v1); never feeds build_config_id.
                 "option_parser_version": OPTION_PARSER_VERSION,
                 **({"persona_pack": persona_pack} if persona_pack else {}),
+                **(
+                    {"harness": self.provider.harness}
+                    if getattr(self.provider, "harness", None)
+                    else {}
+                ),
                 **_provider_reproducibility_hashes(self.provider),
             },
             elapsed_seconds=elapsed,

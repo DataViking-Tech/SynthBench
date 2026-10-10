@@ -1,35 +1,35 @@
 # SynthBench Score Card
 
-**Provider:** althing/codex:gpt-6-luna tpl=structured
+**Provider:** althing/anthropic/claude-haiku-5-5 harness=claude-code tpl=structured pack=global-respondents
 **Dataset:** globalopinionqa (100 questions)
 **Samples per question:** 30
-**Elapsed:** 2274.4s
+**Elapsed:** 1312.8s
 
 ## SynthBench Parity Score (SPS)
 
-**SPS: 0.7648 [0.7300, 0.7956]** (from 3 metrics)
+**SPS: 0.8154 [0.7871, 0.8428]** (from 3 metrics)
 
 | Metric | Score | |
 |--------|------:|---|
-| P_dist  Distributional | 0.6539 [0.6084, 0.6958] | ███████░░░ |
-| P_rank  Rank-Order | 0.6606 [0.5975, 0.7197] | ███████░░░ |
+| P_dist  Distributional | 0.7607 [0.7210, 0.7931] | ████████░░ |
+| P_rank  Rank-Order | 0.7058 [0.6450, 0.7584] | ███████░░░ |
 | P_refuse Refusal Cal. | 0.9797 [0.9684, 0.9862] | ██████████ |
 
 ## Raw Metrics
 
 | Metric | Value |
 |--------|-------|
-| Mean JSD | 0.3461 |
-| Median JSD | 0.3195 |
-| Mean Kendall's tau | 0.3213 |
-| Composite Parity (legacy) | 0.6573 |
+| Mean JSD | 0.2393 |
+| Median JSD | 0.1949 |
+| Mean Kendall's tau | 0.4116 |
+| Composite Parity (legacy) | 0.7332 |
 
 ## vs Baselines
 
 | Baseline | Score | Delta | % |
 |----------|------:|------:|--:|
-| majority-baseline | 0.5620 | +0.0953 | +17% |
-| random-baseline | 0.6495 | +0.0077 | +1% |
+| majority-baseline | 0.5620 | +0.1713 | +30% |
+| random-baseline | 0.6495 | +0.0837 | +13% |
 
 ## What These Scores Mean
 
@@ -44,18 +44,18 @@
 
 | Question | JSD | tau |
 |----------|-----|-----|
-| As I read some specific policies of [American] President Geo... | 0.0116 | 1.0000 |
-| Do you think this change in the availability of modern medic... | 0.0193 | 1.0000 |
-| On another topic, had you heard that President Barack Obama'... | 0.0203 | 1.0000 |
-| Do you think that the rise of nontraditional political parti... | 0.0262 | 1.0000 |
-| Which of these characteristics do you associate with (the Ch... | 0.0346 | 1.0000 |
+| Which of these characteristics do you associate with (the Ch... | 0.0001 | 1.0000 |
+| As I read some specific policies of [American] President Geo... | 0.0003 | 1.0000 |
+| In your opinion, has the European Union provided too much fi... | 0.0029 | 1.0000 |
+| Thinking about possible war with Iraq, would you favor or op... | 0.0089 | 1.0000 |
+| I am going to read you the same list.  Does...you can openly... | 0.0103 | 0.5477 |
 
 ## Worst Matches (highest JSD)
 
 | Question | JSD | tau |
 |----------|-----|-----|
-| Please tell me if you have a very favorable, somewhat favora... | 0.7656 | -0.1195 |
-| Please tell me if you have a very favorable, somewhat favora... | 0.7758 | -0.4472 |
-| How satisfied are you with the way democracy is working in o... | 0.8756 | -0.2582 |
-| Please tell me if you have a very favorable, somewhat favora... | 0.9014 | -0.6325 |
-| Please tell me if you have a very favorable, somewhat favora... | 0.9022 | -0.3162 |
+| How concerned, if at all, are you about Hindu extremism in o... | 0.6100 | -0.2357 |
+| And thinking about some political leaders and organizations ... | 0.6625 | -0.2357 |
+| Please tell me if you approve or disapprove of the way Prime... | 0.6937 | -0.8165 |
+| Thinking about our relations with China, in your view, which... | 0.7023 | -0.1195 |
+| Which statement comes closer to your own views, even if neit... | 0.7544 | -0.1179 |

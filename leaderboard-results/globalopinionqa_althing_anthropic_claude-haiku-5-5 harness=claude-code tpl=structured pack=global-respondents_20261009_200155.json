@@ -2,37 +2,38 @@
   "benchmark": "synthbench",
   "schema_version": 2,
   "version": "0.1.0",
-  "timestamp": "2026-10-10T03:02:16.300020+00:00",
+  "timestamp": "2026-10-10T01:01:55.498310+00:00",
   "config": {
     "dataset": "globalopinionqa",
-    "provider": "althing/codex:gpt-6-luna tpl=structured pack=global-respondents",
+    "provider": "althing/anthropic/claude-haiku-5-5 harness=claude-code tpl=structured pack=global-respondents",
     "samples_per_question": 30,
     "n_requested": 100,
     "n_evaluated": 100,
     "refusal_detector_version": 3,
     "option_parser_version": 2,
     "persona_pack": "global-respondents",
-    "model_revision_hash": "sha256:4072c90e80971f9f0e56b6e76938d6171189adc46f2f593e6939399a31a5ddd2",
+    "model_revision_hash": "sha256:50662e5eaf612ed41ae9676f2abfa2c08747ca0ed3f5c7385de79ccc7708c321",
     "prompt_template_hash": "sha256:7e5039484595d0ed583921dac4fee86cfcc05a989b027c60c4558eb3216a8879",
     "elicitation": "structured",
     "prompt_template": "structured",
     "question_set_hash": "4f27a038b9f8a71d9b4cc9a3c5f41b62dcdd4238146c9ca23729d2364e3aaf28",
     "temperature": null,
     "parse_failure_rate": 0.0,
-    "topic_filter": null
+    "topic_filter": null,
+    "harness": "claude-code"
   },
   "reproducibility": {
     "seed": null,
-    "model_revision_hash": "sha256:4072c90e80971f9f0e56b6e76938d6171189adc46f2f593e6939399a31a5ddd2",
+    "model_revision_hash": "sha256:50662e5eaf612ed41ae9676f2abfa2c08747ca0ed3f5c7385de79ccc7708c321",
     "prompt_template_hash": "sha256:7e5039484595d0ed583921dac4fee86cfcc05a989b027c60c4558eb3216a8879",
     "framework_version": "0.1.0",
-    "submitted_at": "2026-10-10T03:02:16.301526+00:00"
+    "submitted_at": "2026-10-10T01:01:55.498310+00:00"
   },
   "raw_responses": [
     {
       "key": "GOQA_0_adeba4f8",
-      "raw_text": "{\"answer\": \"Has about the right amount of influence\"}",
-      "selected_option": "Has about the right amount of influence"
+      "raw_text": "{\"answer\": \"Has too much influence\"}",
+      "selected_option": "Has too much influence"
     },
     {
       "key": "GOQA_1_3c42d99b",
@@ -46,8 +47,8 @@
     },
     {
       "key": "GOQA_3_2f86b3b4",
-      "raw_text": "{\"answer\": \"Next 50 years\"}",
-      "selected_option": "Next 50 years"
+      "raw_text": "{\"answer\": \"China will not replace U.S.\"}",
+      "selected_option": "China will not replace U.S."
     },
     {
       "key": "GOQA_4_91ab651e",
@@ -76,8 +77,8 @@
     },
     {
       "key": "GOQA_9_72cc9ee4",
-      "raw_text": "{\"answer\": \"Not too worried\"}",
-      "selected_option": "Not too worried"
+      "raw_text": "{\"answer\": \"Somewhat worried\"}",
+      "selected_option": "Somewhat worried"
     },
     {
       "key": "GOQA_10_996adb3c",
@@ -101,13 +102,13 @@
     },
     {
       "key": "GOQA_14_e32efdb2",
-      "raw_text": "{\"answer\": \"Keep troops in Iraq\"}",
-      "selected_option": "Keep troops in Iraq"
+      "raw_text": "{\"answer\": \"Remove its troops\"}",
+      "selected_option": "Remove its troops"
     },
     {
       "key": "GOQA_15_b3fdeab2",
-      "raw_text": "{\"answer\": \"Disapprove\"}",
-      "selected_option": "Disapprove"
+      "raw_text": "{\"answer\": \"Approve\"}",
+      "selected_option": "Approve"
     },
     {
       "key": "GOQA_16_b33656e1",
@@ -116,8 +117,8 @@
     },
     {
       "key": "GOQA_17_9d6f6c27",
-      "raw_text": "{\"answer\": \"None (VOL)\"}",
-      "selected_option": "None (VOL)"
+      "raw_text": "{\"answer\": \"PAN\"}",
+      "selected_option": "PAN"
     },
     {
       "key": "GOQA_18_6565d4ba",
@@ -126,8 +127,8 @@
     },
     {
       "key": "GOQA_19_a2004952",
-      "raw_text": "{\"answer\": \"Somewhat well\"}",
-      "selected_option": "Somewhat well"
+      "raw_text": "{\"answer\": \"Very well\"}",
+      "selected_option": "Very well"
     },
     {
       "key": "GOQA_20_b4f3d7a6",
@@ -151,13 +152,13 @@
     },
     {
       "key": "GOQA_24_fcc32e08",
-      "raw_text": "{\"answer\": \"Somewhat satisfied\"}",
-      "selected_option": "Somewhat satisfied"
+      "raw_text": "{\"answer\": \"Not too satisfied\"}",
+      "selected_option": "Not too satisfied"
     },
     {
       "key": "GOQA_25_aeff64c7",
-      "raw_text": "{\"answer\": \"A lot of confidence\"}",
-      "selected_option": "A lot of confidence"
+      "raw_text": "{\"answer\": \"Not too much confidence\"}",
+      "selected_option": "Not too much confidence"
     },
     {
       "key": "GOQA_26_e98eb96f",
@@ -181,8 +182,8 @@
     },
     {
       "key": "GOQA_30_bca03022",
-      "raw_text": "{\"answer\": \"Somewhat unfavorable\"}",
-      "selected_option": "Somewhat unfavorable"
+      "raw_text": "{\"answer\": \"Very favorable\"}",
+      "selected_option": "Very favorable"
     },
     {
       "key": "GOQA_31_f1a89f60",
@@ -191,8 +192,8 @@
     },
     {
       "key": "GOQA_32_76dc5592",
-      "raw_text": "{\"answer\": \"Completely disagree\"}",
-      "selected_option": "Completely disagree"
+      "raw_text": "{\"answer\": \"Mostly disagree\"}",
+      "selected_option": "Mostly disagree"
     },
     {
       "key": "GOQA_33_adfa47b9",
@@ -201,8 +202,8 @@
     },
     {
       "key": "GOQA_34_0f67d596",
-      "raw_text": "{\"answer\": \"No, does not respect personal freedoms\"}",
-      "selected_option": "No, does not respect personal freedoms"
+      "raw_text": "{\"answer\": \"Yes, respects personal freedoms\"}",
+      "selected_option": "Yes, respects personal freedoms"
     },
     {
       "key": "GOQA_35_b8555e45",
@@ -231,13 +232,13 @@
     },
     {
       "key": "GOQA_40_406ad9b5",
-      "raw_text": "{\"answer\": \"Somewhat unfavorable\"}",
-      "selected_option": "Somewhat unfavorable"
+      "raw_text": "{\"answer\": \"Very unfavorable\"}",
+      "selected_option": "Very unfavorable"
     },
     {
       "key": "GOQA_41_f73803a1",
-      "raw_text": "{\"answer\": \"Negotiate a settlement with the rebels and Russia\"}",
-      "selected_option": "Negotiate a settlement with the rebels and Russia"
+      "raw_text": "{\"answer\": \"Use military force to fight the rebels\"}",
+      "selected_option": "Use military force to fight the rebels"
     },
     {
       "key": "GOQA_42_fa4a4441",
@@ -261,13 +262,13 @@
     },
     {
       "key": "GOQA_46_3b67d9e7",
-      "raw_text": "{\"answer\": \"Very good\"}",
-      "selected_option": "Very good"
+      "raw_text": "{\"answer\": \"Somewhat bad\"}",
+      "selected_option": "Somewhat bad"
     },
     {
       "key": "GOQA_47_88f80aa3",
-      "raw_text": "{\"answer\": \"Other reasons\"}",
-      "selected_option": "Other reasons"
+      "raw_text": "{\"answer\": \"Largely more connected\"}",
+      "selected_option": "Largely more connected"
     },
     {
       "key": "GOQA_48_82c7a187",
@@ -286,8 +287,8 @@
     },
     {
       "key": "GOQA_51_7f8ddb52",
-      "raw_text": "{\"answer\": \"About right\"}",
-      "selected_option": "About right"
+      "raw_text": "{\"answer\": \"Not gone far enough\"}",
+      "selected_option": "Not gone far enough"
     },
     {
       "key": "GOQA_52_3eaf2ae3",
@@ -311,13 +312,13 @@
     },
     {
       "key": "GOQA_56_1b93b3b0",
-      "raw_text": "{\"answer\": \"Covered fairly\"}",
-      "selected_option": "Covered fairly"
+      "raw_text": "{\"answer\": \"Covered unfairly\"}",
+      "selected_option": "Covered unfairly"
     },
     {
       "key": "GOQA_57_ca71b519",
-      "raw_text": "{\"answer\": \"Approve\"}",
-      "selected_option": "Approve"
+      "raw_text": "{\"answer\": \"Disapprove\"}",
+      "selected_option": "Disapprove"
     },
     {
       "key": "GOQA_58_986bb318",
@@ -336,8 +337,8 @@
     },
     {
       "key": "GOQA_61_08eb1282",
-      "raw_text": "{\"answer\": \"Somewhat well\"}",
-      "selected_option": "Somewhat well"
+      "raw_text": "{\"answer\": \"Very well\"}",
+      "selected_option": "Very well"
     },
     {
       "key": "GOQA_62_48030fd9",
@@ -391,8 +392,8 @@
     },
     {
       "key": "GOQA_72_098169f0",
-      "raw_text": "{\"answer\": \"No, I do not know anyone\"}",
-      "selected_option": "No, I do not know anyone"
+      "raw_text": "{\"answer\": \"Yes, I know someone\"}",
+      "selected_option": "Yes, I know someone"
     },
     {
       "key": "GOQA_73_3bd0b3f9",
@@ -401,8 +402,8 @@
     },
     {
       "key": "GOQA_74_2ee8eb85",
-      "raw_text": "{\"answer\": \"Very bad\"}",
-      "selected_option": "Very bad"
+      "raw_text": "{\"answer\": \"Somewhat bad\"}",
+      "selected_option": "Somewhat bad"
     },
     {
       "key": "GOQA_75_9ad47b8e",
@@ -411,8 +412,8 @@
     },
     {
       "key": "GOQA_76_945b342a",
-      "raw_text": "{\"answer\": \"Somewhat favorable\"}",
-      "selected_option": "Somewhat favorable"
+      "raw_text": "{\"answer\": \"Somewhat unfavorable\"}",
+      "selected_option": "Somewhat unfavorable"
     },
     {
       "key": "GOQA_77_8e33e852",
@@ -441,8 +442,8 @@
     },
     {
       "key": "GOQA_82_388dfa06",
-      "raw_text": "{\"answer\": \"Approve\"}",
-      "selected_option": "Approve"
+      "raw_text": "{\"answer\": \"Disapprove\"}",
+      "selected_option": "Disapprove"
     },
     {
       "key": "GOQA_83_252eaf5f",
@@ -461,13 +462,13 @@
     },
     {
       "key": "GOQA_86_f184826b",
-      "raw_text": "{\"answer\": \"Yes\"}",
-      "selected_option": "Yes"
+      "raw_text": "{\"answer\": \"No\"}",
+      "selected_option": "No"
     },
     {
       "key": "GOQA_87_46cfaa73",
-      "raw_text": "{\"answer\": \"Approve\"}",
-      "selected_option": "Approve"
+      "raw_text": "{\"answer\": \"Disapprove\"}",
+      "selected_option": "Disapprove"
     },
     {
       "key": "GOQA_88_7fe652b6",
@@ -496,13 +497,13 @@
     },
     {
       "key": "GOQA_93_f0c5f2a9",
-      "raw_text": "{\"answer\": \"Very likely\"}",
-      "selected_option": "Very likely"
+      "raw_text": "{\"answer\": \"Somewhat likely\"}",
+      "selected_option": "Somewhat likely"
     },
     {
       "key": "GOQA_94_fdc918da",
-      "raw_text": "{\"answer\": \"Moderately big problem\"}",
-      "selected_option": "Moderately big problem"
+      "raw_text": "{\"answer\": \"Very big problem\"}",
+      "selected_option": "Very big problem"
     },
     {
       "key": "GOQA_95_92d33774",
@@ -511,13 +512,13 @@
     },
     {
       "key": "GOQA_96_fdd52dee",
-      "raw_text": "{\"answer\": \"DK/Refused\"}",
-      "selected_option": "DK/Refused"
+      "raw_text": "{\"answer\": \"Somewhat unfavorable\"}",
+      "selected_option": "Somewhat unfavorable"
     },
     {
       "key": "GOQA_97_348c0239",
-      "raw_text": "{\"answer\": \"Somewhat favorable\"}",
-      "selected_option": "Somewhat favorable"
+      "raw_text": "{\"answer\": \"Somewhat unfavorable\"}",
+      "selected_option": "Somewhat unfavorable"
     },
     {
       "key": "GOQA_98_c0f43d23",
@@ -526,53 +527,53 @@
     },
     {
       "key": "GOQA_99_7b2f27b9",
-      "raw_text": "{\"answer\": \"Disapprove\"}",
-      "selected_option": "Disapprove"
+      "raw_text": "{\"answer\": \"DK/Refused\"}",
+      "selected_option": "DK/Refused"
     }
   ],
   "scores": {
-    "sps": 0.808885,
-    "p_dist": 0.747379,
-    "p_rank": 0.699545,
+    "sps": 0.815407,
+    "p_dist": 0.760668,
+    "p_rank": 0.705819,
     "p_refuse": 0.979733
   },
   "aggregate": {
-    "mean_jsd": 0.252621,
-    "median_jsd": 0.224815,
-    "mean_kendall_tau": 0.39909,
-    "composite_parity": 0.723462,
+    "mean_jsd": 0.239332,
+    "median_jsd": 0.194912,
+    "mean_kendall_tau": 0.411638,
+    "composite_parity": 0.733243,
     "n_questions": 100,
-    "elapsed_seconds": 2282.0,
+    "elapsed_seconds": 1312.8,
     "per_metric_ci": {
       "p_dist": [
-        0.709334,
-        0.778762
+        0.720967,
+        0.793092
       ],
       "p_rank": [
-        0.639739,
-        0.754965
+        0.64502,
+        0.758417
       ],
       "p_refuse": [
         0.968425,
         0.986173
       ],
       "sps": [
-        0.780435,
-        0.833846
+        0.787067,
+        0.842787
       ]
     },
     "question_set_hash": "4f27a038b9f8a71d9b4cc9a3c5f41b62dcdd4238146c9ca23729d2364e3aaf28",
     "n_parse_failures": 0,
     "token_usage": {
-      "input_tokens": 25351980,
-      "output_tokens": 90694,
+      "input_tokens": 6000,
+      "output_tokens": 963547,
       "call_count": 3000,
       "source": "measured"
     },
     "latency_seconds": {
-      "mean": 175.8655,
-      "p50": 180.125,
-      "p95": 201.14,
+      "mean": 99.6458,
+      "p50": 96.078,
+      "p95": 136.735,
       "n": 100,
       "source": "measured"
     }
@@ -589,25 +590,25 @@
         "DK/Refused"
       ],
       "model_distribution": {
-        "Has too much influence": 0.0,
+        "Has too much influence": 0.8333,
         "Has too little influence": 0.0,
-        "Has about the right amount of influence": 1.0,
+        "Has about the right amount of influence": 0.1667,
         "DK/Refused": 0.0
       },
-      "jsd": 0.294478,
-      "kendall_tau": 0.707107,
-      "parity": 0.779537,
+      "jsd": 0.180588,
+      "kendall_tau": 0.547723,
+      "parity": 0.796637,
       "n_samples": 30,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
       "human_refusal_rate": 0.017538,
       "temporal_year": 0,
       "token_usage": {
-        "input_tokens": 253334,
-        "output_tokens": 630,
+        "input_tokens": 60,
+        "output_tokens": 7807,
         "call_count": 30
       },
-      "latency_seconds": 15.375
+      "latency_seconds": 11.562
     },
     {
       "key": "GOQA_1_3c42d99b",
@@ -621,25 +622,25 @@
       ],
       "model_distribution": {
         "Very favorable": 0.0,
-        "Somewhat favorable": 0.7333,
-        "Somewhat unfavorable": 0.0,
+        "Somewhat favorable": 0.5,
+        "Somewhat unfavorable": 0.4,
         "Very unfavorable": 0.0,
-        "DK/Refused": 0.2667
+        "DK/Refused": 0.1
       },
-      "jsd": 0.399127,
-      "kendall_tau": 0.119523,
-      "parity": 0.580317,
+      "jsd": 0.113543,
+      "kendall_tau": 0.527046,
+      "parity": 0.82499,
       "n_samples": 30,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
       "human_refusal_rate": 0.03,
       "temporal_year": 0,
       "token_usage": {
-        "input_tokens": 252880,
-        "output_tokens": 1521,
+        "input_tokens": 60,
+        "output_tokens": 10368,
         "call_count": 30
       },
-      "latency_seconds": 44.282
+      "latency_seconds": 27.687
     },
     {
       "key": "GOQA_2_8cc6fc68",
@@ -675,11 +676,11 @@
       "human_refusal_rate": 0.046658,
       "temporal_year": 0,
       "token_usage": {
-        "input_tokens": 262949,
-        "output_tokens": 1275,
+        "input_tokens": 60,
+        "output_tokens": 7018,
         "call_count": 30
       },
-      "latency_seconds": 60.813
+      "latency_seconds": 36.937
     },
     {
       "key": "GOQA_3_2f86b3b4",
@@ -692,24 +693,24 @@
       ],
       "model_distribution": {
         "Next 10 years": 0.0,
-        "Next 20 years": 0.1667,
-        "Next 50 years": 0.5,
-        "China will not replace U.S.": 0.3333
+        "Next 20 years": 0.2,
+        "Next 50 years": 0.0333,
+        "China will not replace U.S.": 0.7667
       },
-      "jsd": 0.15295,
-      "kendall_tau": 0.333333,
-      "parity": 0.756859,
+      "jsd": 0.128033,
+      "kendall_tau": 1.0,
+      "parity": 0.935984,
       "n_samples": 30,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
       "human_refusal_rate": 0,
       "temporal_year": 0,
       "token_usage": {
-        "input_tokens": 253904,
-        "output_tokens": 875,
+        "input_tokens": 60,
+        "output_tokens": 10564,
         "call_count": 30
       },
-      "latency_seconds": 74.329
+      "latency_seconds": 48.609
     },
     {
       "key": "GOQA_4_91ab651e",
@@ -721,25 +722,25 @@
         "Not strong at all"
       ],
       "model_distribution": {
-        "Very strong": 0.2667,
-        "Fairly strong": 0.7333,
-        "Not too strong": 0.0,
+        "Very strong": 0.1,
+        "Fairly strong": 0.8667,
+        "Not too strong": 0.0333,
         "Not strong at all": 0.0
       },
-      "jsd": 0.140889,
-      "kendall_tau": 0.912871,
-      "parity": 0.907773,
+      "jsd": 0.144237,
+      "kendall_tau": 1.0,
+      "parity": 0.927881,
       "n_samples": 30,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
       "human_refusal_rate": 0,
       "temporal_year": 0,
       "token_usage": {
-        "input_tokens": 252890,
-        "output_tokens": 779,
+        "input_tokens": 60,
+        "output_tokens": 8709,
         "call_count": 30
       },
-      "latency_seconds": 113.235
+      "latency_seconds": 58.234
     },
     {
       "key": "GOQA_5_60e0a1e8",
@@ -750,24 +751,24 @@
         "DK/Refused"
       ],
       "model_distribution": {
-        "Approve": 0.9,
-        "Disapprove": 0.0333,
-        "DK/Refused": 0.0667
+        "Approve": 0.7333,
+        "Disapprove": 0.0,
+        "DK/Refused": 0.2667
       },
-      "jsd": 0.067375,
+      "jsd": 0.158723,
       "kendall_tau": 0.333333,
-      "parity": 0.799646,
+      "parity": 0.753972,
       "n_samples": 30,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
       "human_refusal_rate": 0.069307,
       "temporal_year": 0,
       "token_usage": {
-        "input_tokens": 260887,
-        "output_tokens": 1303,
+        "input_tokens": 60,
+        "output_tokens": 12039,
         "call_count": 30
       },
-      "latency_seconds": 126.844
+      "latency_seconds": 71.031
     },
     {
       "key": "GOQA_6_e5125a6a",
@@ -793,11 +794,11 @@
       "human_refusal_rate": 0,
       "temporal_year": 0,
       "token_usage": {
-        "input_tokens": 252968,
-        "output_tokens": 1793,
+        "input_tokens": 60,
+        "output_tokens": 10864,
         "call_count": 30
       },
-      "latency_seconds": 149.016
+      "latency_seconds": 82.031
     },
     {
       "key": "GOQA_7_f06b55c4",
@@ -819,11 +820,11 @@
       "human_refusal_rate": 0,
       "temporal_year": 0,
       "token_usage": {
-        "input_tokens": 253044,
-        "output_tokens": 690,
+        "input_tokens": 60,
+        "output_tokens": 9731,
         "call_count": 30
       },
-      "latency_seconds": 178.157
+      "latency_seconds": 93.11
     },
     {
       "key": "GOQA_8_3a7caba0",
@@ -836,26 +837,26 @@
         "DK/Refused"
       ],
       "model_distribution": {
-        "Very big problem": 0.3667,
-        "Moderately big problem": 0.6333,
+        "Very big problem": 0.5333,
+        "Moderately big problem": 0.4667,
         "Small problem": 0.0,
         "Not a problem at all": 0.0,
         "DK/Refused": 0.0
       },
-      "jsd": 0.137406,
-      "kendall_tau": 0.597614,
-      "parity": 0.830701,
+      "jsd": 0.095434,
+      "kendall_tau": 0.83666,
+      "parity": 0.911448,
       "n_samples": 30,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
       "human_refusal_rate": 0.004722,
       "temporal_year": 0,
       "token_usage": {
-        "input_tokens": 254031,
-        "output_tokens": 556,
+        "input_tokens": 60,
+        "output_tokens": 6449,
         "call_count": 30
       },
-      "latency_seconds": 175.922
+      "latency_seconds": 89.672
     },
     {
       "key": "GOQA_9_72cc9ee4",
@@ -868,24 +869,24 @@
       ],
       "model_distribution": {
         "Very worried": 0.0,
-        "Somewhat worried": 0.7333,
-        "Not too worried": 0.2667,
+        "Somewhat worried": 1.0,
+        "Not too worried": 0.0,
         "Not at all worried": 0.0
       },
-      "jsd": 0.335982,
-      "kendall_tau": -0.182574,
-      "parity": 0.536365,
+      "jsd": 0.496771,
+      "kendall_tau": 0.235702,
+      "parity": 0.56054,
       "n_samples": 30,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
       "human_refusal_rate": 0,
       "temporal_year": 0,
       "token_usage": {
-        "input_tokens": 253379,
-        "output_tokens": 510,
+        "input_tokens": 60,
+        "output_tokens": 6147,
         "call_count": 30
       },
-      "latency_seconds": 184.468
+      "latency_seconds": 81.938
     },
     {
       "key": "GOQA_10_996adb3c",
@@ -900,24 +901,24 @@
       "model_distribution": {
         "Being tough with China": 0.0,
         "Having a strong relationship with China": 0.0,
-        "Being tough with China on territorial disputes": 0.7333,
-        "Having a strong economic relationship with China": 0.2667,
+        "Being tough with China on territorial disputes": 0.4,
+        "Having a strong economic relationship with China": 0.6,
         "DK/Refused": 0.0
       },
-      "jsd": 0.73553,
-      "kendall_tau": -0.358569,
-      "parity": 0.292593,
+      "jsd": 0.702299,
+      "kendall_tau": -0.119523,
+      "parity": 0.36897,
       "n_samples": 30,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
       "human_refusal_rate": 0.018571,
       "temporal_year": 0,
       "token_usage": {
-        "input_tokens": 254066,
-        "output_tokens": 630,
+        "input_tokens": 60,
+        "output_tokens": 10624,
         "call_count": 30
       },
-      "latency_seconds": 180.891
+      "latency_seconds": 84.75
     },
     {
       "key": "GOQA_11_56587129",
@@ -927,23 +928,23 @@
         "Other reasons"
       ],
       "model_distribution": {
-        "Largely more connected": 0.1667,
-        "Other reasons": 0.8333
+        "Largely more connected": 0.0333,
+        "Other reasons": 0.9667
       },
-      "jsd": 0.037373,
+      "jsd": 0.142075,
       "kendall_tau": 1.0,
-      "parity": 0.981313,
+      "parity": 0.928962,
       "n_samples": 30,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
       "human_refusal_rate": 0,
       "temporal_year": 0,
       "token_usage": {
-        "input_tokens": 252224,
-        "output_tokens": 495,
+        "input_tokens": 60,
+        "output_tokens": 10879,
         "call_count": 30
       },
-      "latency_seconds": 180.437
+      "latency_seconds": 84.266
     },
     {
       "key": "GOQA_12_6a134fab",
@@ -956,24 +957,24 @@
       ],
       "model_distribution": {
         "Often be justified": 0.0,
-        "Sometimes be justified": 1.0,
-        "Rarely be justified": 0.0,
+        "Sometimes be justified": 0.7333,
+        "Rarely be justified": 0.2667,
         "Never be justified": 0.0
       },
-      "jsd": 0.526404,
-      "kendall_tau": 0.235702,
-      "parity": 0.545723,
+      "jsd": 0.333505,
+      "kendall_tau": 0.182574,
+      "parity": 0.628891,
       "n_samples": 30,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
       "human_refusal_rate": 0,
       "temporal_year": 0,
       "token_usage": {
-        "input_tokens": 253139,
-        "output_tokens": 672,
+        "input_tokens": 60,
+        "output_tokens": 8169,
         "call_count": 30
       },
-      "latency_seconds": 179.14
+      "latency_seconds": 84.766
     },
     {
       "key": "GOQA_13_60b622de",
@@ -995,11 +996,11 @@
       "human_refusal_rate": 0,
       "temporal_year": 0,
       "token_usage": {
-        "input_tokens": 251892,
-        "output_tokens": 847,
+        "input_tokens": 60,
+        "output_tokens": 14188,
         "call_count": 30
       },
-      "latency_seconds": 176.969
+      "latency_seconds": 86.672
     },
     {
       "key": "GOQA_14_e32efdb2",
@@ -1009,23 +1010,23 @@
         "Remove its troops"
       ],
       "model_distribution": {
-        "Keep troops in Iraq": 0.1333,
-        "Remove its troops": 0.8667
+        "Keep troops in Iraq": 0.5333,
+        "Remove its troops": 0.4667
       },
-      "jsd": 0.016979,
-      "kendall_tau": 1.0,
-      "parity": 0.99151,
+      "jsd": 0.060075,
+      "kendall_tau": -1.0,
+      "parity": 0.469963,
       "n_samples": 30,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
       "human_refusal_rate": 0,
       "temporal_year": 0,
       "token_usage": {
-        "input_tokens": 252423,
-        "output_tokens": 540,
+        "input_tokens": 60,
+        "output_tokens": 10505,
         "call_count": 30
       },
-      "latency_seconds": 177.563
+      "latency_seconds": 87.312
     },
     {
       "key": "GOQA_15_b3fdeab2",
@@ -1036,24 +1037,24 @@
         "DK/Refused"
       ],
       "model_distribution": {
-        "Approve": 0.0333,
-        "Disapprove": 0.9667,
-        "DK/Refused": 0.0
+        "Approve": 0.7667,
+        "Disapprove": 0.1333,
+        "DK/Refused": 0.1
       },
-      "jsd": 0.357024,
-      "kendall_tau": 0.333333,
-      "parity": 0.654821,
+      "jsd": 0.047588,
+      "kendall_tau": 1.0,
+      "parity": 0.976206,
       "n_samples": 30,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
       "human_refusal_rate": 0.08,
       "temporal_year": 0,
       "token_usage": {
-        "input_tokens": 252198,
-        "output_tokens": 1476,
+        "input_tokens": 60,
+        "output_tokens": 13908,
         "call_count": 30
       },
-      "latency_seconds": 178.078
+      "latency_seconds": 89.406
     },
     {
       "key": "GOQA_16_b33656e1",
@@ -1081,11 +1082,11 @@
       "human_refusal_rate": 0.050025,
       "temporal_year": 0,
       "token_usage": {
-        "input_tokens": 254808,
-        "output_tokens": 480,
+        "input_tokens": 60,
+        "output_tokens": 5376,
         "call_count": 30
       },
-      "latency_seconds": 178.938
+      "latency_seconds": 88.922
     },
     {
       "key": "GOQA_17_9d6f6c27",
@@ -1098,26 +1099,26 @@
         "None (VOL)"
       ],
       "model_distribution": {
-        "PRI": 0.0,
-        "PAN": 0.2667,
+        "PRI": 0.1333,
+        "PAN": 0.4,
         "PRD": 0.0,
-        "Other (VOL)": 0.1,
-        "None (VOL)": 0.6333
+        "Other (VOL)": 0.2667,
+        "None (VOL)": 0.2
       },
-      "jsd": 0.289303,
-      "kendall_tau": 0.444444,
-      "parity": 0.71646,
+      "jsd": 0.216095,
+      "kendall_tau": 0.105409,
+      "parity": 0.668305,
       "n_samples": 30,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
       "human_refusal_rate": 0,
       "temporal_year": 0,
       "token_usage": {
-        "input_tokens": 261713,
-        "output_tokens": 1525,
+        "input_tokens": 60,
+        "output_tokens": 16954,
         "call_count": 30
       },
-      "latency_seconds": 187.032
+      "latency_seconds": 102.953
     },
     {
       "key": "GOQA_18_6565d4ba",
@@ -1130,24 +1131,24 @@
       ],
       "model_distribution": {
         "Morally acceptable": 0.0,
-        "Morally unacceptable": 0.0667,
-        "Not a moral issue": 0.0333,
-        "Depends on the situation (VOL)": 0.9
+        "Morally unacceptable": 0.2,
+        "Not a moral issue": 0.0,
+        "Depends on the situation (VOL)": 0.8
       },
-      "jsd": 0.63958,
-      "kendall_tau": 0.0,
-      "parity": 0.43021,
+      "jsd": 0.569618,
+      "kendall_tau": -0.182574,
+      "parity": 0.419548,
       "n_samples": 30,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
       "human_refusal_rate": 0,
       "temporal_year": 0,
       "token_usage": {
-        "input_tokens": 252835,
-        "output_tokens": 784,
+        "input_tokens": 60,
+        "output_tokens": 8032,
         "call_count": 30
       },
-      "latency_seconds": 179.64
+      "latency_seconds": 104.406
     },
     {
       "key": "GOQA_19_a2004952",
@@ -1159,25 +1160,25 @@
         "Not well at all"
       ],
       "model_distribution": {
-        "Very well": 0.0,
-        "Somewhat well": 0.9667,
-        "Not too well": 0.0,
-        "Not well at all": 0.0333
+        "Very well": 0.3667,
+        "Somewhat well": 0.2667,
+        "Not too well": 0.2667,
+        "Not well at all": 0.1
       },
-      "jsd": 0.374261,
-      "kendall_tau": 0.182574,
-      "parity": 0.608513,
+      "jsd": 0.01033,
+      "kendall_tau": 0.547723,
+      "parity": 0.881766,
       "n_samples": 30,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
       "human_refusal_rate": 0,
       "temporal_year": 0,
       "token_usage": {
-        "input_tokens": 253303,
-        "output_tokens": 707,
+        "input_tokens": 60,
+        "output_tokens": 11590,
         "call_count": 30
       },
-      "latency_seconds": 180.875
+      "latency_seconds": 101.453
     },
     {
       "key": "GOQA_20_b4f3d7a6",
@@ -1190,24 +1191,24 @@
       ],
       "model_distribution": {
         "Very good": 0.0,
-        "Somewhat good": 0.0333,
-        "Somewhat poor": 0.9667,
+        "Somewhat good": 0.0,
+        "Somewhat poor": 1.0,
         "Very poor": 0.0
       },
-      "jsd": 0.309348,
-      "kendall_tau": 0.547723,
-      "parity": 0.732256,
+      "jsd": 0.366681,
+      "kendall_tau": 0.707107,
+      "parity": 0.743436,
       "n_samples": 30,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
       "human_refusal_rate": 0,
       "temporal_year": 0,
       "token_usage": {
-        "input_tokens": 252946,
-        "output_tokens": 1628,
+        "input_tokens": 60,
+        "output_tokens": 10936,
         "call_count": 30
       },
-      "latency_seconds": 182.0
+      "latency_seconds": 102.203
     },
     {
       "key": "GOQA_21_e28aec32",
@@ -1219,23 +1220,23 @@
       ],
       "model_distribution": {
         "AIDS and other infectious diseases": 0.0,
-        "Pollution and other environmental problems": 0.8,
-        "Growing gap between the rich and poor": 0.2
+        "Pollution and other environmental problems": 1.0,
+        "Growing gap between the rich and poor": 0.0
       },
-      "jsd": 0.372079,
-      "kendall_tau": -0.333333,
-      "parity": 0.480627,
+      "jsd": 0.511865,
+      "kendall_tau": 0.0,
+      "parity": 0.494067,
       "n_samples": 30,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
       "human_refusal_rate": 0,
       "temporal_year": 0,
       "token_usage": {
-        "input_tokens": 252974,
-        "output_tokens": 606,
+        "input_tokens": 60,
+        "output_tokens": 9643,
         "call_count": 30
       },
-      "latency_seconds": 185.125
+      "latency_seconds": 99.687
     },
     {
       "key": "GOQA_22_37912b82",
@@ -1257,11 +1258,11 @@
       "human_refusal_rate": 0,
       "temporal_year": 0,
       "token_usage": {
-        "input_tokens": 251850,
-        "output_tokens": 551,
+        "input_tokens": 60,
+        "output_tokens": 11569,
         "call_count": 30
       },
-      "latency_seconds": 221.546
+      "latency_seconds": 120.969
     },
     {
       "key": "GOQA_23_22156b82",
@@ -1274,24 +1275,24 @@
       ],
       "model_distribution": {
         "Very good": 0.0,
-        "Somewhat good": 0.5333,
-        "Somewhat bad": 0.4667,
+        "Somewhat good": 0.8,
+        "Somewhat bad": 0.2,
         "Very bad": 0.0
       },
-      "jsd": 0.197525,
+      "jsd": 0.227631,
       "kendall_tau": 0.912871,
-      "parity": 0.879455,
+      "parity": 0.864402,
       "n_samples": 30,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
       "human_refusal_rate": 0,
       "temporal_year": 0,
       "token_usage": {
-        "input_tokens": 253018,
-        "output_tokens": 2550,
+        "input_tokens": 60,
+        "output_tokens": 25130,
         "call_count": 30
       },
-      "latency_seconds": 188.156
+      "latency_seconds": 119.766
     },
     {
       "key": "GOQA_24_fcc32e08",
@@ -1306,26 +1307,26 @@
       ],
       "model_distribution": {
         "Very satisfied": 0.0,
-        "Somewhat satisfied": 0.3,
-        "Not too satisfied": 0.5667,
+        "Somewhat satisfied": 0.2333,
+        "Not too satisfied": 0.7,
         "Not at all satisfied": 0.0667,
-        "Don't know/Refused": 0.0667,
+        "Don't know/Refused": 0.0,
         "DK/Refused": 0.0
       },
-      "jsd": 0.162908,
-      "kendall_tau": 0.50128,
-      "parity": 0.793866,
+      "jsd": 0.167519,
+      "kendall_tau": 0.745356,
+      "parity": 0.852579,
       "n_samples": 30,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
       "human_refusal_rate": 0.019768,
       "temporal_year": 0,
       "token_usage": {
-        "input_tokens": 253521,
-        "output_tokens": 516,
+        "input_tokens": 60,
+        "output_tokens": 7528,
         "call_count": 30
       },
-      "latency_seconds": 187.781
+      "latency_seconds": 120.609
     },
     {
       "key": "GOQA_25_aeff64c7",
@@ -1338,26 +1339,26 @@
         "DK/Refused"
       ],
       "model_distribution": {
-        "A lot of confidence": 0.0333,
+        "A lot of confidence": 0.0,
         "Some confidence": 0.0333,
-        "Not too much confidence": 0.1333,
-        "No confidence at all": 0.7333,
-        "DK/Refused": 0.0667
+        "Not too much confidence": 0.7667,
+        "No confidence at all": 0.2,
+        "DK/Refused": 0.0
       },
-      "jsd": 0.220544,
-      "kendall_tau": 0.316228,
-      "parity": 0.718785,
+      "jsd": 0.35483,
+      "kendall_tau": -0.105409,
+      "parity": 0.546233,
       "n_samples": 30,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
       "human_refusal_rate": 0.304404,
       "temporal_year": 0,
       "token_usage": {
-        "input_tokens": 253834,
-        "output_tokens": 539,
+        "input_tokens": 60,
+        "output_tokens": 9589,
         "call_count": 30
       },
-      "latency_seconds": 178.359
+      "latency_seconds": 113.015
     },
     {
       "key": "GOQA_26_e98eb96f",
@@ -1368,24 +1369,24 @@
         "Has not changed"
       ],
       "model_distribution": {
-        "Better": 0.0,
-        "Worse": 1.0,
-        "Has not changed": 0.0
+        "Better": 0.0667,
+        "Worse": 0.7667,
+        "Has not changed": 0.1667
       },
-      "jsd": 0.125364,
-      "kendall_tau": 0.816497,
-      "parity": 0.891442,
+      "jsd": 0.016005,
+      "kendall_tau": 0.333333,
+      "parity": 0.825331,
       "n_samples": 30,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
       "human_refusal_rate": 0,
       "temporal_year": 0,
       "token_usage": {
-        "input_tokens": 260579,
-        "output_tokens": 774,
+        "input_tokens": 60,
+        "output_tokens": 11610,
         "call_count": 30
       },
-      "latency_seconds": 185.125
+      "latency_seconds": 132.391
     },
     {
       "key": "GOQA_27_dec7a01d",
@@ -1399,25 +1400,25 @@
       ],
       "model_distribution": {
         "Very good job": 0.0,
-        "Somewhat good job": 0.0,
-        "Somewhat bad job": 1.0,
+        "Somewhat good job": 0.1,
+        "Somewhat bad job": 0.9,
         "Very bad job": 0.0,
         "DK/Refused": 0.0
       },
-      "jsd": 0.487806,
-      "kendall_tau": 0.316228,
-      "parity": 0.585154,
+      "jsd": 0.314516,
+      "kendall_tau": 0.597614,
+      "parity": 0.742145,
       "n_samples": 30,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
       "human_refusal_rate": 0.011212,
       "temporal_year": 0,
       "token_usage": {
-        "input_tokens": 253371,
-        "output_tokens": 611,
+        "input_tokens": 60,
+        "output_tokens": 6919,
         "call_count": 30
       },
-      "latency_seconds": 191.406
+      "latency_seconds": 124.781
     },
     {
       "key": "GOQA_28_676f2eb8",
@@ -1427,23 +1428,23 @@
         "Oppose"
       ],
       "model_distribution": {
-        "Favor": 0.1,
-        "Oppose": 0.9
+        "Favor": 0.2,
+        "Oppose": 0.8
       },
-      "jsd": 0.045079,
+      "jsd": 0.008883,
       "kendall_tau": 1.0,
-      "parity": 0.97746,
+      "parity": 0.995559,
       "n_samples": 30,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
       "human_refusal_rate": 0,
       "temporal_year": 0,
       "token_usage": {
-        "input_tokens": 252092,
-        "output_tokens": 1240,
+        "input_tokens": 60,
+        "output_tokens": 8347,
         "call_count": 30
       },
-      "latency_seconds": 186.25
+      "latency_seconds": 124.204
     },
     {
       "key": "GOQA_29_a47e2d41",
@@ -1465,11 +1466,11 @@
       "human_refusal_rate": 0,
       "temporal_year": 0,
       "token_usage": {
-        "input_tokens": 252148,
-        "output_tokens": 474,
+        "input_tokens": 60,
+        "output_tokens": 5317,
         "call_count": 30
       },
-      "latency_seconds": 182.844
+      "latency_seconds": 126.61
     },
     {
       "key": "GOQA_30_bca03022",
@@ -1481,25 +1482,25 @@
         "Very unfavorable"
       ],
       "model_distribution": {
-        "Very favorable": 0.1,
+        "Very favorable": 0.3667,
         "Somewhat favorable": 0.3667,
-        "Somewhat unfavorable": 0.4333,
+        "Somewhat unfavorable": 0.1667,
         "Very unfavorable": 0.1
       },
-      "jsd": 0.082088,
-      "kendall_tau": -0.182574,
-      "parity": 0.663312,
+      "jsd": 0.044877,
+      "kendall_tau": 0.182574,
+      "parity": 0.773205,
       "n_samples": 30,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
       "human_refusal_rate": 0,
       "temporal_year": 0,
       "token_usage": {
-        "input_tokens": 252991,
-        "output_tokens": 1186,
+        "input_tokens": 60,
+        "output_tokens": 11372,
         "call_count": 30
       },
-      "latency_seconds": 156.219
+      "latency_seconds": 100.063
     },
     {
       "key": "GOQA_31_f1a89f60",
@@ -1525,11 +1526,11 @@
       "human_refusal_rate": 0,
       "temporal_year": 0,
       "token_usage": {
-        "input_tokens": 253738,
-        "output_tokens": 649,
+        "input_tokens": 60,
+        "output_tokens": 7545,
         "call_count": 30
       },
-      "latency_seconds": 174.672
+      "latency_seconds": 97.593
     },
     {
       "key": "GOQA_32_76dc5592",
@@ -1543,23 +1544,23 @@
       "model_distribution": {
         "Completely agree": 0.0,
         "Mostly agree": 0.2333,
-        "Mostly disagree": 0.2667,
-        "Completely disagree": 0.5
+        "Mostly disagree": 0.6667,
+        "Completely disagree": 0.1
       },
-      "jsd": 0.20119,
-      "kendall_tau": -0.333333,
-      "parity": 0.566072,
+      "jsd": 0.205255,
+      "kendall_tau": 0.333333,
+      "parity": 0.730706,
       "n_samples": 30,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
       "human_refusal_rate": 0,
       "temporal_year": 0,
       "token_usage": {
-        "input_tokens": 252944,
-        "output_tokens": 1458,
+        "input_tokens": 60,
+        "output_tokens": 15045,
         "call_count": 30
       },
-      "latency_seconds": 180.125
+      "latency_seconds": 102.344
     },
     {
       "key": "GOQA_33_adfa47b9",
@@ -1585,11 +1586,11 @@
       "human_refusal_rate": 0.050769,
       "temporal_year": 0,
       "token_usage": {
-        "input_tokens": 261671,
-        "output_tokens": 524,
+        "input_tokens": 60,
+        "output_tokens": 8333,
         "call_count": 30
       },
-      "latency_seconds": 180.656
+      "latency_seconds": 97.094
     },
     {
       "key": "GOQA_34_0f67d596",
@@ -1599,23 +1600,23 @@
         "No, does not respect personal freedoms"
       ],
       "model_distribution": {
-        "Yes, respects personal freedoms": 0.0333,
-        "No, does not respect personal freedoms": 0.9667
+        "Yes, respects personal freedoms": 0.5333,
+        "No, does not respect personal freedoms": 0.4667
       },
-      "jsd": 0.066522,
-      "kendall_tau": 1.0,
-      "parity": 0.966739,
+      "jsd": 0.072933,
+      "kendall_tau": -1.0,
+      "parity": 0.463533,
       "n_samples": 30,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
       "human_refusal_rate": 0,
       "temporal_year": 0,
       "token_usage": {
-        "input_tokens": 252298,
-        "output_tokens": 898,
+        "input_tokens": 60,
+        "output_tokens": 15400,
         "call_count": 30
       },
-      "latency_seconds": 181.969
+      "latency_seconds": 78.922
     },
     {
       "key": "GOQA_35_b8555e45",
@@ -1641,11 +1642,11 @@
       "human_refusal_rate": 0,
       "temporal_year": 0,
       "token_usage": {
-        "input_tokens": 253734,
-        "output_tokens": 537,
+        "input_tokens": 60,
+        "output_tokens": 4792,
         "call_count": 30
       },
-      "latency_seconds": 221.328
+      "latency_seconds": 106.141
     },
     {
       "key": "GOQA_36_2cc0537a",
@@ -1658,26 +1659,26 @@
         "DK/Refused"
       ],
       "model_distribution": {
-        "Very serious threat": 1.0,
-        "Somewhat serious threat": 0.0,
+        "Very serious threat": 0.9,
+        "Somewhat serious threat": 0.1,
         "Minor threat": 0.0,
         "No threat at all": 0.0,
         "DK/Refused": 0.0
       },
-      "jsd": 0.272806,
-      "kendall_tau": 0.632456,
-      "parity": 0.771711,
+      "jsd": 0.174134,
+      "kendall_tau": 0.83666,
+      "parity": 0.872098,
       "n_samples": 30,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
       "human_refusal_rate": 0.16,
       "temporal_year": 0,
       "token_usage": {
-        "input_tokens": 253286,
-        "output_tokens": 536,
+        "input_tokens": 60,
+        "output_tokens": 9150,
         "call_count": 30
       },
-      "latency_seconds": 179.984
+      "latency_seconds": 97.328
     },
     {
       "key": "GOQA_37_0a59d5ad",
@@ -1687,23 +1688,23 @@
         "Unacceptable"
       ],
       "model_distribution": {
-        "Acceptable": 0.0,
-        "Unacceptable": 1.0
+        "Acceptable": 0.0333,
+        "Unacceptable": 0.9667
       },
-      "jsd": 0.214817,
+      "jsd": 0.143835,
       "kendall_tau": 1.0,
-      "parity": 0.892591,
+      "parity": 0.928083,
       "n_samples": 30,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
       "human_refusal_rate": 0,
       "temporal_year": 0,
       "token_usage": {
-        "input_tokens": 252694,
-        "output_tokens": 976,
+        "input_tokens": 60,
+        "output_tokens": 13589,
         "call_count": 30
       },
-      "latency_seconds": 183.359
+      "latency_seconds": 89.656
     },
     {
       "key": "GOQA_38_0a93671f",
@@ -1733,11 +1734,11 @@
       "human_refusal_rate": 0.055441,
       "temporal_year": 0,
       "token_usage": {
-        "input_tokens": 254007,
-        "output_tokens": 510,
+        "input_tokens": 60,
+        "output_tokens": 6630,
         "call_count": 30
       },
-      "latency_seconds": 195.984
+      "latency_seconds": 92.093
     },
     {
       "key": "GOQA_39_febec555",
@@ -1759,11 +1760,11 @@
       "human_refusal_rate": 0,
       "temporal_year": 0,
       "token_usage": {
-        "input_tokens": 251832,
-        "output_tokens": 480,
+        "input_tokens": 60,
+        "output_tokens": 6447,
         "call_count": 30
       },
-      "latency_seconds": 190.781
+      "latency_seconds": 90.812
     },
     {
       "key": "GOQA_40_406ad9b5",
@@ -1777,23 +1778,23 @@
       "model_distribution": {
         "Very favorable": 0.0,
         "Somewhat favorable": 0.0,
-        "Somewhat unfavorable": 0.6,
-        "Very unfavorable": 0.4
+        "Somewhat unfavorable": 0.1,
+        "Very unfavorable": 0.9
       },
-      "jsd": 0.345254,
-      "kendall_tau": 0.0,
-      "parity": 0.577373,
+      "jsd": 0.494517,
+      "kendall_tau": -0.4,
+      "parity": 0.402742,
       "n_samples": 30,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
       "human_refusal_rate": 0,
       "temporal_year": 0,
       "token_usage": {
-        "input_tokens": 252850,
-        "output_tokens": 1692,
+        "input_tokens": 60,
+        "output_tokens": 11862,
         "call_count": 30
       },
-      "latency_seconds": 194.359
+      "latency_seconds": 89.469
     },
     {
       "key": "GOQA_41_f73803a1",
@@ -1804,24 +1805,24 @@
         "Both/neither (VOL)"
       ],
       "model_distribution": {
-        "Use military force to fight the rebels": 0.0333,
-        "Negotiate a settlement with the rebels and Russia": 0.7333,
-        "Both/neither (VOL)": 0.2333
+        "Use military force to fight the rebels": 0.6667,
+        "Negotiate a settlement with the rebels and Russia": 0.0333,
+        "Both/neither (VOL)": 0.3
       },
-      "jsd": 0.083518,
-      "kendall_tau": 0.333333,
-      "parity": 0.791574,
+      "jsd": 0.262047,
+      "kendall_tau": -0.333333,
+      "parity": 0.535643,
       "n_samples": 30,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
       "human_refusal_rate": 0,
       "temporal_year": 0,
       "token_usage": {
-        "input_tokens": 253664,
-        "output_tokens": 667,
+        "input_tokens": 60,
+        "output_tokens": 14394,
         "call_count": 30
       },
-      "latency_seconds": 187.469
+      "latency_seconds": 390.11
     },
     {
       "key": "GOQA_42_fa4a4441",
@@ -1833,23 +1834,23 @@
       ],
       "model_distribution": {
         "Improve": 0.0,
-        "Worse": 0.0333,
-        "No effect": 0.9667
+        "Worse": 0.0,
+        "No effect": 1.0
       },
-      "jsd": 0.495581,
-      "kendall_tau": -1.0,
-      "parity": 0.252209,
+      "jsd": 0.567623,
+      "kendall_tau": -0.816497,
+      "parity": 0.262065,
       "n_samples": 30,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
       "human_refusal_rate": 0,
       "temporal_year": 0,
       "token_usage": {
-        "input_tokens": 251976,
-        "output_tokens": 1594,
+        "input_tokens": 60,
+        "output_tokens": 8785,
         "call_count": 30
       },
-      "latency_seconds": 187.609
+      "latency_seconds": 106.828
     },
     {
       "key": "GOQA_43_723c4877",
@@ -1859,23 +1860,23 @@
         "Bad"
       ],
       "model_distribution": {
-        "Good": 0.9,
-        "Bad": 0.1
+        "Good": 0.8333,
+        "Bad": 0.1667
       },
-      "jsd": 0.096557,
+      "jsd": 0.053448,
       "kendall_tau": 1.0,
-      "parity": 0.951722,
+      "parity": 0.973276,
       "n_samples": 30,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
       "human_refusal_rate": 0,
       "temporal_year": 0,
       "token_usage": {
-        "input_tokens": 252665,
-        "output_tokens": 1534,
+        "input_tokens": 60,
+        "output_tokens": 14399,
         "call_count": 30
       },
-      "latency_seconds": 173.782
+      "latency_seconds": 90.187
     },
     {
       "key": "GOQA_44_146e5f30",
@@ -1885,23 +1886,23 @@
         "No"
       ],
       "model_distribution": {
-        "Yes": 0.9667,
-        "No": 0.0333
+        "Yes": 0.7,
+        "No": 0.3
       },
-      "jsd": 0.267263,
+      "jsd": 0.045849,
       "kendall_tau": -1.0,
-      "parity": 0.366369,
+      "parity": 0.477076,
       "n_samples": 30,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
       "human_refusal_rate": 0,
       "temporal_year": 0,
       "token_usage": {
-        "input_tokens": 252065,
-        "output_tokens": 670,
+        "input_tokens": 60,
+        "output_tokens": 10547,
         "call_count": 30
       },
-      "latency_seconds": 183.813
+      "latency_seconds": 110.906
     },
     {
       "key": "GOQA_45_c715df85",
@@ -1913,23 +1914,23 @@
       ],
       "model_distribution": {
         "Approve": 0.0,
-        "Disapprove": 1.0,
-        "DK/Refused": 0.0
+        "Disapprove": 0.9667,
+        "DK/Refused": 0.0333
       },
-      "jsd": 0.12581,
-      "kendall_tau": 0.816497,
-      "parity": 0.891219,
+      "jsd": 0.108113,
+      "kendall_tau": 0.333333,
+      "parity": 0.779277,
       "n_samples": 30,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
       "human_refusal_rate": 0.03,
       "temporal_year": 0,
       "token_usage": {
-        "input_tokens": 252252,
-        "output_tokens": 1125,
+        "input_tokens": 60,
+        "output_tokens": 15299,
         "call_count": 30
       },
-      "latency_seconds": 193.109
+      "latency_seconds": 120.234
     },
     {
       "key": "GOQA_46_3b67d9e7",
@@ -1941,25 +1942,25 @@
         "Very bad"
       ],
       "model_distribution": {
-        "Very good": 0.7667,
-        "Somewhat good": 0.2333,
-        "Somewhat bad": 0.0,
+        "Very good": 0.0,
+        "Somewhat good": 0.5,
+        "Somewhat bad": 0.5,
         "Very bad": 0.0
       },
-      "jsd": 0.24792,
-      "kendall_tau": 0.547723,
-      "parity": 0.76297,
+      "jsd": 0.289455,
+      "kendall_tau": 0.408248,
+      "parity": 0.707335,
       "n_samples": 30,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
       "human_refusal_rate": 0,
       "temporal_year": 0,
       "token_usage": {
-        "input_tokens": 253000,
-        "output_tokens": 635,
+        "input_tokens": 60,
+        "output_tokens": 11099,
         "call_count": 30
       },
-      "latency_seconds": 182.219
+      "latency_seconds": 127.313
     },
     {
       "key": "GOQA_47_88f80aa3",
@@ -1969,23 +1970,23 @@
         "Other reasons"
       ],
       "model_distribution": {
-        "Largely more connected": 0.8667,
-        "Other reasons": 0.1333
+        "Largely more connected": 0.3,
+        "Other reasons": 0.7
       },
-      "jsd": 0.061072,
-      "kendall_tau": 1.0,
-      "parity": 0.969464,
+      "jsd": 0.07384,
+      "kendall_tau": -1.0,
+      "parity": 0.46308,
       "n_samples": 30,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
       "human_refusal_rate": 0,
       "temporal_year": 0,
       "token_usage": {
-        "input_tokens": 252253,
-        "output_tokens": 558,
+        "input_tokens": 60,
+        "output_tokens": 11204,
         "call_count": 30
       },
-      "latency_seconds": 176.766
+      "latency_seconds": 135.25
     },
     {
       "key": "GOQA_48_82c7a187",
@@ -2007,29 +2008,29 @@
         "0.0": 0.0,
         "1.0": 0.0,
         "2.0": 0.0,
-        "3.0": 0.0,
-        "4.0": 0.0,
-        "5.0": 0.1333,
-        "6.0": 0.2333,
-        "7.0": 0.6333,
-        "8.0": 0.0,
+        "3.0": 0.0333,
+        "4.0": 0.2333,
+        "5.0": 0.2333,
+        "6.0": 0.2667,
+        "7.0": 0.2,
+        "8.0": 0.0333,
         "9.0": 0.0,
         "10.0": 0.0
       },
-      "jsd": 0.341806,
-      "kendall_tau": 0.596849,
-      "parity": 0.728309,
+      "jsd": 0.153515,
+      "kendall_tau": 0.678576,
+      "parity": 0.842887,
       "n_samples": 30,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
       "human_refusal_rate": 0,
       "temporal_year": 0,
       "token_usage": {
-        "input_tokens": 255887,
-        "output_tokens": 926,
+        "input_tokens": 60,
+        "output_tokens": 8005,
         "call_count": 30
       },
-      "latency_seconds": 179.844
+      "latency_seconds": 136.735
     },
     {
       "key": "GOQA_49_77581743",
@@ -2055,11 +2056,11 @@
       "human_refusal_rate": 0,
       "temporal_year": 0,
       "token_usage": {
-        "input_tokens": 252723,
-        "output_tokens": 610,
+        "input_tokens": 60,
+        "output_tokens": 5541,
         "call_count": 30
       },
-      "latency_seconds": 178.968
+      "latency_seconds": 108.141
     },
     {
       "key": "GOQA_50_336b4131",
@@ -2074,26 +2075,26 @@
       ],
       "model_distribution": {
         "Very well": 0.0,
-        "Somewhat well": 0.9333,
-        "Not too well": 0.0333,
-        "Not well at all": 0.0333,
+        "Somewhat well": 0.8667,
+        "Not too well": 0.1333,
+        "Not well at all": 0.0,
         "News organizations should not do this (VOL)": 0.0,
         "DK/Refused": 0.0
       },
-      "jsd": 0.281259,
-      "kendall_tau": 0.544949,
-      "parity": 0.745608,
+      "jsd": 0.260747,
+      "kendall_tau": 0.602464,
+      "parity": 0.770242,
       "n_samples": 30,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
       "human_refusal_rate": 0.027977,
       "temporal_year": 0,
       "token_usage": {
-        "input_tokens": 254486,
-        "output_tokens": 511,
+        "input_tokens": 60,
+        "output_tokens": 6076,
         "call_count": 30
       },
-      "latency_seconds": 178.922
+      "latency_seconds": 107.891
     },
     {
       "key": "GOQA_51_7f8ddb52",
@@ -2104,24 +2105,24 @@
         "About right"
       ],
       "model_distribution": {
-        "Gone too far": 0.1333,
-        "Not gone far enough": 0.3,
-        "About right": 0.5667
+        "Gone too far": 0.3,
+        "Not gone far enough": 0.5667,
+        "About right": 0.1333
       },
-      "jsd": 0.082276,
-      "kendall_tau": -0.333333,
-      "parity": 0.625529,
+      "jsd": 0.027877,
+      "kendall_tau": 1.0,
+      "parity": 0.986061,
       "n_samples": 30,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
       "human_refusal_rate": 0,
       "temporal_year": 0,
       "token_usage": {
-        "input_tokens": 252386,
-        "output_tokens": 703,
+        "input_tokens": 60,
+        "output_tokens": 12874,
         "call_count": 30
       },
-      "latency_seconds": 171.078
+      "latency_seconds": 104.266
     },
     {
       "key": "GOQA_52_3eaf2ae3",
@@ -2143,11 +2144,11 @@
       "human_refusal_rate": 0,
       "temporal_year": 0,
       "token_usage": {
-        "input_tokens": 260289,
-        "output_tokens": 1397,
+        "input_tokens": 60,
+        "output_tokens": 8766,
         "call_count": 30
       },
-      "latency_seconds": 174.375
+      "latency_seconds": 101.969
     },
     {
       "key": "GOQA_53_63551b2d",
@@ -2173,11 +2174,11 @@
       "human_refusal_rate": 0,
       "temporal_year": 0,
       "token_usage": {
-        "input_tokens": 254802,
-        "output_tokens": 747,
+        "input_tokens": 60,
+        "output_tokens": 6051,
         "call_count": 30
       },
-      "latency_seconds": 172.047
+      "latency_seconds": 340.125
     },
     {
       "key": "GOQA_54_f6124585",
@@ -2189,25 +2190,25 @@
         "Depends on the situation (VOL)"
       ],
       "model_distribution": {
-        "Morally acceptable": 0.0,
+        "Morally acceptable": 0.1333,
         "Morally unacceptable": 0.0,
         "Not a moral issue": 0.0,
-        "Depends on the situation (VOL)": 1.0
+        "Depends on the situation (VOL)": 0.8667
       },
-      "jsd": 0.760502,
-      "kendall_tau": -0.707107,
-      "parity": 0.192972,
+      "jsd": 0.559777,
+      "kendall_tau": -0.182574,
+      "parity": 0.424468,
       "n_samples": 30,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
       "human_refusal_rate": 0,
       "temporal_year": 0,
       "token_usage": {
-        "input_tokens": 252868,
-        "output_tokens": 651,
+        "input_tokens": 60,
+        "output_tokens": 7540,
         "call_count": 30
       },
-      "latency_seconds": 224.516
+      "latency_seconds": 96.282
     },
     {
       "key": "GOQA_55_18566aa0",
@@ -2231,11 +2232,11 @@
       "human_refusal_rate": 0.041452,
       "temporal_year": 0,
       "token_usage": {
-        "input_tokens": 252200,
-        "output_tokens": 450,
+        "input_tokens": 60,
+        "output_tokens": 5893,
         "call_count": 30
       },
-      "latency_seconds": 182.437
+      "latency_seconds": 96.844
     },
     {
       "key": "GOQA_56_1b93b3b0",
@@ -2245,23 +2246,23 @@
         "Covered unfairly"
       ],
       "model_distribution": {
-        "Covered fairly": 0.4667,
-        "Covered unfairly": 0.5333
+        "Covered fairly": 0.0,
+        "Covered unfairly": 1.0
       },
-      "jsd": 0.00136,
+      "jsd": 0.319309,
       "kendall_tau": -1.0,
-      "parity": 0.49932,
+      "parity": 0.340346,
       "n_samples": 30,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
       "human_refusal_rate": 0,
       "temporal_year": 0,
       "token_usage": {
-        "input_tokens": 251818,
-        "output_tokens": 529,
+        "input_tokens": 60,
+        "output_tokens": 8512,
         "call_count": 30
       },
-      "latency_seconds": 181.875
+      "latency_seconds": 108.75
     },
     {
       "key": "GOQA_57_ca71b519",
@@ -2272,24 +2273,24 @@
         "DK/Refused"
       ],
       "model_distribution": {
-        "Approve": 0.2667,
-        "Disapprove": 0.3667,
-        "DK/Refused": 0.3667
+        "Approve": 0.3,
+        "Disapprove": 0.7,
+        "DK/Refused": 0.0
       },
-      "jsd": 0.075376,
-      "kendall_tau": 0.0,
-      "parity": 0.712312,
+      "jsd": 0.063591,
+      "kendall_tau": 1.0,
+      "parity": 0.968205,
       "n_samples": 30,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
       "human_refusal_rate": 0.099832,
       "temporal_year": 0,
       "token_usage": {
-        "input_tokens": 252277,
-        "output_tokens": 1348,
+        "input_tokens": 60,
+        "output_tokens": 8431,
         "call_count": 30
       },
-      "latency_seconds": 181.485
+      "latency_seconds": 107.89
     },
     {
       "key": "GOQA_58_986bb318",
@@ -2315,11 +2316,11 @@
       "human_refusal_rate": 0,
       "temporal_year": 0,
       "token_usage": {
-        "input_tokens": 253210,
-        "output_tokens": 510,
+        "input_tokens": 60,
+        "output_tokens": 6452,
         "call_count": 30
       },
-      "latency_seconds": 182.875
+      "latency_seconds": 103.875
     },
     {
       "key": "GOQA_59_06260d4f",
@@ -2329,23 +2330,23 @@
         "He takes into account European interests"
       ],
       "model_distribution": {
-        "He makes decisions based entirely on U.S. interests": 0.1,
-        "He takes into account European interests": 0.9
+        "He makes decisions based entirely on U.S. interests": 0.2333,
+        "He takes into account European interests": 0.7667
       },
-      "jsd": 0.40286,
+      "jsd": 0.250964,
       "kendall_tau": -1.0,
-      "parity": 0.29857,
+      "parity": 0.374518,
       "n_samples": 30,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
       "human_refusal_rate": 0,
       "temporal_year": 0,
       "token_usage": {
-        "input_tokens": 252833,
-        "output_tokens": 634,
+        "input_tokens": 60,
+        "output_tokens": 13266,
         "call_count": 30
       },
-      "latency_seconds": 188.172
+      "latency_seconds": 111.609
     },
     {
       "key": "GOQA_60_cde6942e",
@@ -2359,27 +2360,27 @@
         "None of the above (VOL)"
       ],
       "model_distribution": {
-        "World War II and the Holocaust": 0.6,
-        "The Marshall Plan": 0.0333,
-        "The fall of the Berlin Wall": 0.3667,
+        "World War II and the Holocaust": 0.7667,
+        "The Marshall Plan": 0.1333,
+        "The fall of the Berlin Wall": 0.1,
         "U.S.-German disagreements over the Iraq War": 0.0,
         "U.S. monitoring of [U.S. ONLY: German Chancellor] Angela Merkel's communications": 0.0,
         "None of the above (VOL)": 0.0
       },
-      "jsd": 0.138594,
-      "kendall_tau": 0.894427,
-      "parity": 0.90431,
+      "jsd": 0.197957,
+      "kendall_tau": 0.745356,
+      "parity": 0.837361,
       "n_samples": 30,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
       "human_refusal_rate": 0,
       "temporal_year": 0,
       "token_usage": {
-        "input_tokens": 256447,
-        "output_tokens": 637,
+        "input_tokens": 60,
+        "output_tokens": 7576,
         "call_count": 30
       },
-      "latency_seconds": 179.468
+      "latency_seconds": 96.531
     },
     {
       "key": "GOQA_61_08eb1282",
@@ -2392,26 +2393,26 @@
         "DK/Refused"
       ],
       "model_distribution": {
-        "Very well": 0.3,
-        "Somewhat well": 0.6333,
-        "Not too well": 0.0667,
-        "Not well at all": 0.0,
+        "Very well": 0.7,
+        "Somewhat well": 0.1667,
+        "Not too well": 0.1,
+        "Not well at all": 0.0333,
         "DK/Refused": 0.0
       },
-      "jsd": 0.212364,
-      "kendall_tau": 0.737865,
-      "parity": 0.828284,
+      "jsd": 0.151187,
+      "kendall_tau": 1.0,
+      "parity": 0.924406,
       "n_samples": 30,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
       "human_refusal_rate": 0.032554,
       "temporal_year": 0,
       "token_usage": {
-        "input_tokens": 253090,
-        "output_tokens": 780,
+        "input_tokens": 60,
+        "output_tokens": 7126,
         "call_count": 30
       },
-      "latency_seconds": 179.438
+      "latency_seconds": 92.593
     },
     {
       "key": "GOQA_62_48030fd9",
@@ -2435,11 +2436,11 @@
       "human_refusal_rate": 0.041201,
       "temporal_year": 0,
       "token_usage": {
-        "input_tokens": 253171,
-        "output_tokens": 510,
+        "input_tokens": 60,
+        "output_tokens": 5568,
         "call_count": 30
       },
-      "latency_seconds": 163.657
+      "latency_seconds": 76.703
     },
     {
       "key": "GOQA_63_dcc8a683",
@@ -2467,11 +2468,11 @@
       "human_refusal_rate": 0.019113,
       "temporal_year": 0,
       "token_usage": {
-        "input_tokens": 253551,
-        "output_tokens": 480,
+        "input_tokens": 60,
+        "output_tokens": 4771,
         "call_count": 30
       },
-      "latency_seconds": 155.734
+      "latency_seconds": 75.469
     },
     {
       "key": "GOQA_64_d6c440c5",
@@ -2482,24 +2483,24 @@
         "DK/Refused"
       ],
       "model_distribution": {
-        "People should be able to say these things publically": 0.0,
-        "Government should be able to prevent people from saying these things": 1.0,
+        "People should be able to say these things publically": 0.1,
+        "Government should be able to prevent people from saying these things": 0.9,
         "DK/Refused": 0.0
       },
-      "jsd": 0.17382,
-      "kendall_tau": 0.816497,
-      "parity": 0.867214,
+      "jsd": 0.061827,
+      "kendall_tau": 1.0,
+      "parity": 0.969086,
       "n_samples": 30,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
       "human_refusal_rate": 0.05523,
       "temporal_year": 0,
       "token_usage": {
-        "input_tokens": 253728,
-        "output_tokens": 750,
+        "input_tokens": 60,
+        "output_tokens": 9016,
         "call_count": 30
       },
-      "latency_seconds": 168.828
+      "latency_seconds": 73.938
     },
     {
       "key": "GOQA_65_4894056f",
@@ -2513,25 +2514,25 @@
       ],
       "model_distribution": {
         "Very favorable": 0.0,
-        "Somewhat favorable": 0.0667,
-        "Somewhat unfavorable": 0.6333,
+        "Somewhat favorable": 0.0,
+        "Somewhat unfavorable": 0.9667,
         "Very unfavorable": 0.0,
-        "DK/Refused": 0.3
+        "DK/Refused": 0.0333
       },
-      "jsd": 0.304012,
-      "kendall_tau": 0.105409,
-      "parity": 0.624346,
+      "jsd": 0.456223,
+      "kendall_tau": 0.119523,
+      "parity": 0.551769,
       "n_samples": 30,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
       "human_refusal_rate": 0.1,
       "temporal_year": 0,
       "token_usage": {
-        "input_tokens": 253446,
-        "output_tokens": 668,
+        "input_tokens": 60,
+        "output_tokens": 7900,
         "call_count": 30
       },
-      "latency_seconds": 233.25
+      "latency_seconds": 62.391
     },
     {
       "key": "GOQA_66_e2ce2eed",
@@ -2543,25 +2544,25 @@
         "No influence at all"
       ],
       "model_distribution": {
-        "Great deal": 0.3667,
-        "Fair amount": 0.6,
-        "Not too much": 0.0333,
+        "Great deal": 0.7333,
+        "Fair amount": 0.2667,
+        "Not too much": 0.0,
         "No influence at all": 0.0
       },
-      "jsd": 0.113772,
-      "kendall_tau": 1.0,
-      "parity": 0.943114,
+      "jsd": 0.239748,
+      "kendall_tau": 0.547723,
+      "parity": 0.767057,
       "n_samples": 30,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
       "human_refusal_rate": 0,
       "temporal_year": 0,
       "token_usage": {
-        "input_tokens": 252934,
-        "output_tokens": 647,
+        "input_tokens": 60,
+        "output_tokens": 8027,
         "call_count": 30
       },
-      "latency_seconds": 178.235
+      "latency_seconds": 68.171
     },
     {
       "key": "GOQA_67_8cf4bc27",
@@ -2573,25 +2574,25 @@
         "Not a threat at all"
       ],
       "model_distribution": {
-        "Very great": 0.1,
-        "Fairly great": 0.5667,
-        "Not too great": 0.3333,
+        "Very great": 0.1333,
+        "Fairly great": 0.4667,
+        "Not too great": 0.4,
         "Not a threat at all": 0.0
       },
-      "jsd": 0.229932,
+      "jsd": 0.203811,
       "kendall_tau": -1.0,
-      "parity": 0.385034,
+      "parity": 0.398095,
       "n_samples": 30,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
       "human_refusal_rate": 0,
       "temporal_year": 0,
       "token_usage": {
-        "input_tokens": 253018,
-        "output_tokens": 838,
+        "input_tokens": 60,
+        "output_tokens": 10140,
         "call_count": 30
       },
-      "latency_seconds": 176.453
+      "latency_seconds": 74.672
     },
     {
       "key": "GOQA_68_3a049429",
@@ -2603,25 +2604,25 @@
         "DK/Refused"
       ],
       "model_distribution": {
-        "Optimistic": 0.7667,
-        "Pessimistic": 0.2333,
+        "Optimistic": 0.8667,
+        "Pessimistic": 0.1333,
         "Neither (DO NOT READ)": 0.0,
         "DK/Refused": 0.0
       },
-      "jsd": 0.052482,
+      "jsd": 0.069748,
       "kendall_tau": 0.912871,
-      "parity": 0.951977,
+      "parity": 0.943344,
       "n_samples": 30,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
       "human_refusal_rate": 0.044282,
       "temporal_year": 0,
       "token_usage": {
-        "input_tokens": 253108,
-        "output_tokens": 591,
+        "input_tokens": 60,
+        "output_tokens": 7693,
         "call_count": 30
       },
-      "latency_seconds": 182.016
+      "latency_seconds": 75.422
     },
     {
       "key": "GOQA_69_ee625d1f",
@@ -2647,11 +2648,11 @@
       "human_refusal_rate": 0,
       "temporal_year": 0,
       "token_usage": {
-        "input_tokens": 253126,
-        "output_tokens": 733,
+        "input_tokens": 60,
+        "output_tokens": 8115,
         "call_count": 30
       },
-      "latency_seconds": 181.828
+      "latency_seconds": 78.828
     },
     {
       "key": "GOQA_70_f030d71f",
@@ -2663,25 +2664,25 @@
         "Very unfavorable"
       ],
       "model_distribution": {
-        "Very favorable": 0.3,
-        "Somewhat favorable": 0.7,
-        "Somewhat unfavorable": 0.0,
+        "Very favorable": 0.0,
+        "Somewhat favorable": 0.9333,
+        "Somewhat unfavorable": 0.0667,
         "Very unfavorable": 0.0
       },
-      "jsd": 0.441961,
-      "kendall_tau": -0.182574,
-      "parity": 0.483376,
+      "jsd": 0.429068,
+      "kendall_tau": 0.182574,
+      "parity": 0.581109,
       "n_samples": 30,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
       "human_refusal_rate": 0,
       "temporal_year": 0,
       "token_usage": {
-        "input_tokens": 252856,
-        "output_tokens": 1342,
+        "input_tokens": 60,
+        "output_tokens": 13103,
         "call_count": 30
       },
-      "latency_seconds": 183.968
+      "latency_seconds": 84.031
     },
     {
       "key": "GOQA_71_216197d8",
@@ -2707,11 +2708,11 @@
       "human_refusal_rate": 0,
       "temporal_year": 0,
       "token_usage": {
-        "input_tokens": 252764,
-        "output_tokens": 943,
+        "input_tokens": 60,
+        "output_tokens": 7660,
         "call_count": 30
       },
-      "latency_seconds": 183.5
+      "latency_seconds": 81.531
     },
     {
       "key": "GOQA_72_098169f0",
@@ -2721,23 +2722,23 @@
         "No, I do not know anyone"
       ],
       "model_distribution": {
-        "Yes, I know someone": 0.0,
-        "No, I do not know anyone": 1.0
+        "Yes, I know someone": 0.9667,
+        "No, I do not know anyone": 0.0333
       },
-      "jsd": 0.295302,
-      "kendall_tau": 1.0,
-      "parity": 0.852349,
+      "jsd": 0.246332,
+      "kendall_tau": -1.0,
+      "parity": 0.376834,
       "n_samples": 30,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
       "human_refusal_rate": 0,
       "temporal_year": 0,
       "token_usage": {
-        "input_tokens": 252544,
-        "output_tokens": 630,
+        "input_tokens": 60,
+        "output_tokens": 7882,
         "call_count": 30
       },
-      "latency_seconds": 192.281
+      "latency_seconds": 82.563
     },
     {
       "key": "GOQA_73_3bd0b3f9",
@@ -2750,24 +2751,24 @@
       ],
       "model_distribution": {
         "Completely agree": 0.0,
-        "Mostly agree": 0.6667,
-        "Mostly disagree": 0.3333,
+        "Mostly agree": 0.7333,
+        "Mostly disagree": 0.2667,
         "Completely disagree": 0.0
       },
-      "jsd": 0.214889,
+      "jsd": 0.229987,
       "kendall_tau": 0.912871,
-      "parity": 0.870773,
+      "parity": 0.863224,
       "n_samples": 30,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
       "human_refusal_rate": 0,
       "temporal_year": 0,
       "token_usage": {
-        "input_tokens": 252896,
-        "output_tokens": 905,
+        "input_tokens": 60,
+        "output_tokens": 8098,
         "call_count": 30
       },
-      "latency_seconds": 169.421
+      "latency_seconds": 80.61
     },
     {
       "key": "GOQA_74_2ee8eb85",
@@ -2780,24 +2781,24 @@
       ],
       "model_distribution": {
         "Very good": 0.0,
-        "Somewhat good": 0.3667,
-        "Somewhat bad": 0.5667,
+        "Somewhat good": 0.4,
+        "Somewhat bad": 0.5333,
         "Very bad": 0.0667
       },
-      "jsd": 0.189627,
+      "jsd": 0.177735,
       "kendall_tau": 0.0,
-      "parity": 0.655186,
+      "parity": 0.661133,
       "n_samples": 30,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
       "human_refusal_rate": 0,
       "temporal_year": 0,
       "token_usage": {
-        "input_tokens": 253507,
-        "output_tokens": 842,
+        "input_tokens": 60,
+        "output_tokens": 9113,
         "call_count": 30
       },
-      "latency_seconds": 147.969
+      "latency_seconds": 78.39
     },
     {
       "key": "GOQA_75_9ad47b8e",
@@ -2810,26 +2811,26 @@
         "DK/Refused"
       ],
       "model_distribution": {
-        "Very likely": 0.0333,
-        "Somewhat likely": 0.9667,
-        "Not too likely": 0.0,
+        "Very likely": 0.0,
+        "Somewhat likely": 0.7667,
+        "Not too likely": 0.2333,
         "Not at all likely": 0.0,
         "DK/Refused": 0.0
       },
-      "jsd": 0.425569,
-      "kendall_tau": 0.597614,
-      "parity": 0.686619,
+      "jsd": 0.37528,
+      "kendall_tau": 0.119523,
+      "parity": 0.592241,
       "n_samples": 30,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
       "human_refusal_rate": 0.025701,
       "temporal_year": 0,
       "token_usage": {
-        "input_tokens": 253319,
-        "output_tokens": 734,
+        "input_tokens": 60,
+        "output_tokens": 8985,
         "call_count": 30
       },
-      "latency_seconds": 178.937
+      "latency_seconds": 78.266
     },
     {
       "key": "GOQA_76_945b342a",
@@ -2843,25 +2844,25 @@
       ],
       "model_distribution": {
         "Very favorable": 0.0,
-        "Somewhat favorable": 0.8,
-        "Somewhat unfavorable": 0.0333,
+        "Somewhat favorable": 0.0667,
+        "Somewhat unfavorable": 0.8,
         "Very unfavorable": 0.0,
-        "DK/Refused": 0.1667
+        "DK/Refused": 0.1333
       },
-      "jsd": 0.237391,
-      "kendall_tau": 0.316228,
-      "parity": 0.710361,
+      "jsd": 0.387108,
+      "kendall_tau": 0.105409,
+      "parity": 0.582798,
       "n_samples": 30,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
       "human_refusal_rate": 0.030303,
       "temporal_year": 0,
       "token_usage": {
-        "input_tokens": 253094,
-        "output_tokens": 1061,
+        "input_tokens": 60,
+        "output_tokens": 9256,
         "call_count": 30
       },
-      "latency_seconds": 181.937
+      "latency_seconds": 85.219
     },
     {
       "key": "GOQA_77_8e33e852",
@@ -2872,24 +2873,24 @@
         "About the right amount"
       ],
       "model_distribution": {
-        "Too much": 0.0,
-        "Not enough": 0.0333,
-        "About the right amount": 0.9667
+        "Too much": 0.3,
+        "Not enough": 0.3333,
+        "About the right amount": 0.3667
       },
-      "jsd": 0.333185,
+      "jsd": 0.002893,
       "kendall_tau": 1.0,
-      "parity": 0.833408,
+      "parity": 0.998553,
       "n_samples": 30,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
       "human_refusal_rate": 0,
       "temporal_year": 0,
       "token_usage": {
-        "input_tokens": 252518,
-        "output_tokens": 653,
+        "input_tokens": 60,
+        "output_tokens": 10725,
         "call_count": 30
       },
-      "latency_seconds": 180.75
+      "latency_seconds": 76.969
     },
     {
       "key": "GOQA_78_c49dbadb",
@@ -2902,24 +2903,24 @@
       ],
       "model_distribution": {
         "Very good": 0.0,
-        "Somewhat good": 0.1667,
-        "Somewhat poor": 0.8333,
+        "Somewhat good": 0.0,
+        "Somewhat poor": 1.0,
         "Very poor": 0.0
       },
-      "jsd": 0.213839,
-      "kendall_tau": 0.547723,
-      "parity": 0.780011,
+      "jsd": 0.344456,
+      "kendall_tau": 0.707107,
+      "parity": 0.754549,
       "n_samples": 30,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
       "human_refusal_rate": 0,
       "temporal_year": 0,
       "token_usage": {
-        "input_tokens": 252892,
-        "output_tokens": 1494,
+        "input_tokens": 60,
+        "output_tokens": 10185,
         "call_count": 30
       },
-      "latency_seconds": 178.859
+      "latency_seconds": 78.453
     },
     {
       "key": "GOQA_79_c840ea3e",
@@ -2945,11 +2946,11 @@
       "human_refusal_rate": 0,
       "temporal_year": 0,
       "token_usage": {
-        "input_tokens": 253430,
-        "output_tokens": 533,
+        "input_tokens": 60,
+        "output_tokens": 7050,
         "call_count": 30
       },
-      "latency_seconds": 177.453
+      "latency_seconds": 78.422
     },
     {
       "key": "GOQA_80_7c450fd2",
@@ -2959,23 +2960,23 @@
         "Disagree"
       ],
       "model_distribution": {
-        "Agree": 0.2667,
-        "Disagree": 0.7333
+        "Agree": 0.0,
+        "Disagree": 1.0
       },
-      "jsd": 0.001917,
+      "jsd": 0.177848,
       "kendall_tau": 1.0,
-      "parity": 0.999042,
+      "parity": 0.911076,
       "n_samples": 30,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
       "human_refusal_rate": 0,
       "temporal_year": 0,
       "token_usage": {
-        "input_tokens": 252178,
-        "output_tokens": 1351,
+        "input_tokens": 60,
+        "output_tokens": 10731,
         "call_count": 30
       },
-      "latency_seconds": 170.219
+      "latency_seconds": 109.703
     },
     {
       "key": "GOQA_81_24a3d05c",
@@ -2997,11 +2998,11 @@
       "human_refusal_rate": 0,
       "temporal_year": 0,
       "token_usage": {
-        "input_tokens": 251998,
-        "output_tokens": 1368,
+        "input_tokens": 60,
+        "output_tokens": 20046,
         "call_count": 30
       },
-      "latency_seconds": 177.5
+      "latency_seconds": 100.984
     },
     {
       "key": "GOQA_82_388dfa06",
@@ -3011,23 +3012,23 @@
         "Disapprove"
       ],
       "model_distribution": {
-        "Approve": 0.6,
-        "Disapprove": 0.4
+        "Approve": 0.0,
+        "Disapprove": 1.0
       },
-      "jsd": 0.175887,
-      "kendall_tau": -1.0,
-      "parity": 0.412056,
+      "jsd": 0.072129,
+      "kendall_tau": 1.0,
+      "parity": 0.963935,
       "n_samples": 30,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
       "human_refusal_rate": 0,
       "temporal_year": 0,
       "token_usage": {
-        "input_tokens": 251726,
-        "output_tokens": 2125,
+        "input_tokens": 60,
+        "output_tokens": 9767,
         "call_count": 30
       },
-      "latency_seconds": 179.046
+      "latency_seconds": 99.547
     },
     {
       "key": "GOQA_83_252eaf5f",
@@ -3038,24 +3039,24 @@
         "DK/Refused"
       ],
       "model_distribution": {
-        "Support": 1.0,
-        "Oppose": 0.0,
+        "Support": 0.9667,
+        "Oppose": 0.0333,
         "DK/Refused": 0.0
       },
-      "jsd": 0.159317,
-      "kendall_tau": 0.816497,
-      "parity": 0.874466,
+      "jsd": 0.112796,
+      "kendall_tau": 0.333333,
+      "parity": 0.776935,
       "n_samples": 30,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
       "human_refusal_rate": 0.154147,
       "temporal_year": 0,
       "token_usage": {
-        "input_tokens": 252680,
-        "output_tokens": 638,
+        "input_tokens": 60,
+        "output_tokens": 7449,
         "call_count": 30
       },
-      "latency_seconds": 172.344
+      "latency_seconds": 98.234
     },
     {
       "key": "GOQA_84_9caee34a",
@@ -3081,11 +3082,11 @@
       "human_refusal_rate": 0,
       "temporal_year": 0,
       "token_usage": {
-        "input_tokens": 253887,
-        "output_tokens": 596,
+        "input_tokens": 60,
+        "output_tokens": 7442,
         "call_count": 30
       },
-      "latency_seconds": 176.36
+      "latency_seconds": 88.438
     },
     {
       "key": "GOQA_85_29e427bc",
@@ -3095,23 +3096,23 @@
         "Disapprove"
       ],
       "model_distribution": {
-        "Approve": 0.1333,
-        "Disapprove": 0.8667
+        "Approve": 0.2333,
+        "Disapprove": 0.7667
       },
-      "jsd": 0.015979,
+      "jsd": 0.000264,
       "kendall_tau": 1.0,
-      "parity": 0.99201,
+      "parity": 0.999868,
       "n_samples": 30,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
       "human_refusal_rate": 0,
       "temporal_year": 0,
       "token_usage": {
-        "input_tokens": 252716,
-        "output_tokens": 1408,
+        "input_tokens": 60,
+        "output_tokens": 10698,
         "call_count": 30
       },
-      "latency_seconds": 176.734
+      "latency_seconds": 93.688
     },
     {
       "key": "GOQA_86_f184826b",
@@ -3121,23 +3122,23 @@
         "No"
       ],
       "model_distribution": {
-        "Yes": 0.8333,
-        "No": 0.1667
+        "Yes": 0.1667,
+        "No": 0.8333
       },
-      "jsd": 0.36125,
-      "kendall_tau": -1.0,
-      "parity": 0.319375,
+      "jsd": 0.000121,
+      "kendall_tau": 1.0,
+      "parity": 0.999939,
       "n_samples": 30,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
       "human_refusal_rate": 0,
       "temporal_year": 0,
       "token_usage": {
-        "input_tokens": 252028,
-        "output_tokens": 2032,
+        "input_tokens": 60,
+        "output_tokens": 13243,
         "call_count": 30
       },
-      "latency_seconds": 180.828
+      "latency_seconds": 95.453
     },
     {
       "key": "GOQA_87_46cfaa73",
@@ -3150,26 +3151,26 @@
         "DK/Refused"
       ],
       "model_distribution": {
-        "Strongly approve": 0.6667,
+        "Strongly approve": 0.3333,
         "Approve": 0.3333,
-        "Disapprove": 0.0,
+        "Disapprove": 0.3333,
         "Strongly disapprove": 0.0,
         "DK/Refused": 0.0
       },
-      "jsd": 0.3286,
-      "kendall_tau": 0.358569,
-      "parity": 0.675342,
+      "jsd": 0.132351,
+      "kendall_tau": 0.774597,
+      "parity": 0.877474,
       "n_samples": 30,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
       "human_refusal_rate": 0.110337,
       "temporal_year": 0,
       "token_usage": {
-        "input_tokens": 253634,
-        "output_tokens": 908,
+        "input_tokens": 60,
+        "output_tokens": 7926,
         "call_count": 30
       },
-      "latency_seconds": 179.485
+      "latency_seconds": 96.094
     },
     {
       "key": "GOQA_88_7fe652b6",
@@ -3193,11 +3194,11 @@
       "human_refusal_rate": 0,
       "temporal_year": 0,
       "token_usage": {
-        "input_tokens": 252302,
-        "output_tokens": 510,
+        "input_tokens": 60,
+        "output_tokens": 5699,
         "call_count": 30
       },
-      "latency_seconds": 175.25
+      "latency_seconds": 69.672
     },
     {
       "key": "GOQA_89_160051ef",
@@ -3223,11 +3224,11 @@
       "human_refusal_rate": 0,
       "temporal_year": 0,
       "token_usage": {
-        "input_tokens": 252886,
-        "output_tokens": 1268,
+        "input_tokens": 60,
+        "output_tokens": 8135,
         "call_count": 30
       },
-      "latency_seconds": 178.141
+      "latency_seconds": 78.953
     },
     {
       "key": "GOQA_90_b6adbfa2",
@@ -3255,11 +3256,11 @@
       "human_refusal_rate": 0.017538,
       "temporal_year": 0,
       "token_usage": {
-        "input_tokens": 254069,
-        "output_tokens": 510,
+        "input_tokens": 60,
+        "output_tokens": 4898,
         "call_count": 30
       },
-      "latency_seconds": 178.329
+      "latency_seconds": 96.078
     },
     {
       "key": "GOQA_91_c2f87015",
@@ -3269,23 +3270,23 @@
         "Disapprove"
       ],
       "model_distribution": {
-        "Approve": 0.7,
-        "Disapprove": 0.3
+        "Approve": 0.7667,
+        "Disapprove": 0.2333
       },
-      "jsd": 0.005762,
+      "jsd": 0.019508,
       "kendall_tau": 1.0,
-      "parity": 0.997119,
+      "parity": 0.990246,
       "n_samples": 30,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
       "human_refusal_rate": 0,
       "temporal_year": 0,
       "token_usage": {
-        "input_tokens": 251816,
-        "output_tokens": 2200,
+        "input_tokens": 60,
+        "output_tokens": 15384,
         "call_count": 30
       },
-      "latency_seconds": 179.766
+      "latency_seconds": 86.016
     },
     {
       "key": "GOQA_92_ec6ecd38",
@@ -3307,11 +3308,11 @@
       "human_refusal_rate": 0,
       "temporal_year": 0,
       "token_usage": {
-        "input_tokens": 252155,
-        "output_tokens": 798,
+        "input_tokens": 60,
+        "output_tokens": 10077,
         "call_count": 30
       },
-      "latency_seconds": 180.344
+      "latency_seconds": 86.672
     },
     {
       "key": "GOQA_93_f0c5f2a9",
@@ -3324,26 +3325,26 @@
         "DK/Refused"
       ],
       "model_distribution": {
-        "Very likely": 0.4,
-        "Somewhat likely": 0.6,
-        "Not too likely": 0.0,
+        "Very likely": 0.0,
+        "Somewhat likely": 0.9333,
+        "Not too likely": 0.0667,
         "Not at all likely": 0.0,
         "DK/Refused": 0.0
       },
-      "jsd": 0.35981,
-      "kendall_tau": 0.119523,
-      "parity": 0.599976,
+      "jsd": 0.464449,
+      "kendall_tau": 0.358569,
+      "parity": 0.607418,
       "n_samples": 30,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
       "human_refusal_rate": 0.058319,
       "temporal_year": 0,
       "token_usage": {
-        "input_tokens": 253422,
-        "output_tokens": 607,
+        "input_tokens": 60,
+        "output_tokens": 6681,
         "call_count": 30
       },
-      "latency_seconds": 231.188
+      "latency_seconds": 98.812
     },
     {
       "key": "GOQA_94_fdc918da",
@@ -3355,25 +3356,25 @@
         "Not a problem at all"
       ],
       "model_distribution": {
-        "Very big problem": 0.4,
-        "Moderately big problem": 0.5,
-        "Small problem": 0.1,
+        "Very big problem": 0.9333,
+        "Moderately big problem": 0.0667,
+        "Small problem": 0.0,
         "Not a problem at all": 0.0
       },
-      "jsd": 0.0952,
-      "kendall_tau": 0.666667,
-      "parity": 0.869067,
+      "jsd": 0.080457,
+      "kendall_tau": 0.912871,
+      "parity": 0.937989,
       "n_samples": 30,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
       "human_refusal_rate": 0,
       "temporal_year": 0,
       "token_usage": {
-        "input_tokens": 253836,
-        "output_tokens": 676,
+        "input_tokens": 60,
+        "output_tokens": 8923,
         "call_count": 30
       },
-      "latency_seconds": 182.641
+      "latency_seconds": 94.047
     },
     {
       "key": "GOQA_95_92d33774",
@@ -3388,24 +3389,24 @@
       "model_distribution": {
         "Very favorable": 0.0,
         "Somewhat favorable": 0.0,
-        "Somewhat unfavorable": 0.7,
-        "Very unfavorable": 0.1,
-        "DK/Refused": 0.2
+        "Somewhat unfavorable": 0.9667,
+        "Very unfavorable": 0.0,
+        "DK/Refused": 0.0333
       },
-      "jsd": 0.363389,
-      "kendall_tau": 0.105409,
-      "parity": 0.594658,
+      "jsd": 0.543022,
+      "kendall_tau": -0.119523,
+      "parity": 0.448608,
       "n_samples": 30,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
       "human_refusal_rate": 0.030303,
       "temporal_year": 0,
       "token_usage": {
-        "input_tokens": 253004,
-        "output_tokens": 865,
+        "input_tokens": 60,
+        "output_tokens": 9265,
         "call_count": 30
       },
-      "latency_seconds": 189.922
+      "latency_seconds": 106.14
     },
     {
       "key": "GOQA_96_fdd52dee",
@@ -3419,25 +3420,25 @@
       ],
       "model_distribution": {
         "Very favorable": 0.0,
-        "Somewhat favorable": 0.3,
-        "Somewhat unfavorable": 0.1667,
+        "Somewhat favorable": 0.0,
+        "Somewhat unfavorable": 0.9333,
         "Very unfavorable": 0.0,
-        "DK/Refused": 0.5333
+        "DK/Refused": 0.0667
       },
-      "jsd": 0.566624,
-      "kendall_tau": -0.316228,
-      "parity": 0.387631,
+      "jsd": 0.463236,
+      "kendall_tau": 0.119523,
+      "parity": 0.548263,
       "n_samples": 30,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
       "human_refusal_rate": 0.03,
       "temporal_year": 0,
       "token_usage": {
-        "input_tokens": 253074,
-        "output_tokens": 776,
+        "input_tokens": 60,
+        "output_tokens": 10084,
         "call_count": 30
       },
-      "latency_seconds": 201.14
+      "latency_seconds": 137.906
     },
     {
       "key": "GOQA_97_348c0239",
@@ -3451,25 +3452,25 @@
       ],
       "model_distribution": {
         "Very favorable": 0.0,
-        "Somewhat favorable": 0.8667,
-        "Somewhat unfavorable": 0.0,
+        "Somewhat favorable": 0.0,
+        "Somewhat unfavorable": 1.0,
         "Very unfavorable": 0.0,
-        "DK/Refused": 0.1333
+        "DK/Refused": 0.0
       },
-      "jsd": 0.539734,
-      "kendall_tau": -0.358569,
-      "parity": 0.390491,
+      "jsd": 0.452517,
+      "kendall_tau": 0.316228,
+      "parity": 0.602798,
       "n_samples": 30,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
       "human_refusal_rate": 0.02,
       "temporal_year": 0,
       "token_usage": {
-        "input_tokens": 252942,
-        "output_tokens": 902,
+        "input_tokens": 60,
+        "output_tokens": 7501,
         "call_count": 30
       },
-      "latency_seconds": 189.406
+      "latency_seconds": 139.047
     },
     {
       "key": "GOQA_98_c0f43d23",
@@ -3482,26 +3483,26 @@
         "Never heard of"
       ],
       "model_distribution": {
-        "Very favorable": 0.2333,
-        "Somewhat favorable": 0.7333,
-        "Somewhat unfavorable": 0.0,
+        "Very favorable": 0.1667,
+        "Somewhat favorable": 0.8,
+        "Somewhat unfavorable": 0.0333,
         "Very unfavorable": 0.0,
-        "Never heard of": 0.0333
+        "Never heard of": 0.0
       },
-      "jsd": 0.216708,
-      "kendall_tau": 0.527046,
-      "parity": 0.773408,
+      "jsd": 0.189181,
+      "kendall_tau": 0.737865,
+      "parity": 0.839875,
       "n_samples": 30,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
       "human_refusal_rate": 0,
       "temporal_year": 0,
       "token_usage": {
-        "input_tokens": 252927,
-        "output_tokens": 1043,
+        "input_tokens": 60,
+        "output_tokens": 10169,
         "call_count": 30
       },
-      "latency_seconds": 187.687
+      "latency_seconds": 118.062
     },
     {
       "key": "GOQA_99_7b2f27b9",
@@ -3512,24 +3513,24 @@
         "DK/Refused"
       ],
       "model_distribution": {
-        "Approve": 0.0333,
-        "Disapprove": 0.5667,
-        "DK/Refused": 0.4
+        "Approve": 0.0,
+        "Disapprove": 0.0,
+        "DK/Refused": 1.0
       },
-      "jsd": 0.144339,
-      "kendall_tau": 0.333333,
-      "parity": 0.761164,
+      "jsd": 0.693696,
+      "kendall_tau": -0.816497,
+      "parity": 0.199028,
       "n_samples": 30,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
       "human_refusal_rate": 0.14,
       "temporal_year": 0,
       "token_usage": {
-        "input_tokens": 252362,
-        "output_tokens": 1520,
+        "input_tokens": 60,
+        "output_tokens": 11632,
         "call_count": 30
       },
-      "latency_seconds": 194.843
+      "latency_seconds": 145.188
     }
   ],
   "temporal_breakdown": {},

@@ -209,6 +209,7 @@ if (!hasRunsIndex && import.meta.env.PROD) {
     effort: string | null;
     template: string | null;
     persona_pack: string | null;
+    harness: string | null;
     samples_per_question: number | null;
     n_questions: number;
     is_baseline: boolean;
@@ -291,6 +292,7 @@ if (!hasRunsIndex && import.meta.env.PROD) {
         effort: head.effort,
         template: head.template,
         persona_pack: head.persona_pack ?? null,
+        harness: head.harness ?? null,
         samples_per_question: head.samples_per_question,
         n_questions: head.n_questions,
         is_baseline: head.is_baseline,
@@ -514,6 +516,7 @@ if (!hasRunsIndex && import.meta.env.PROD) {
           effort: r.effort,
           template: r.template,
           persona_pack: r.persona_pack ?? null,
+          harness: r.harness ?? null,
           samples_per_question: r.samples_per_question,
           n_questions: r.n_questions,
           is_baseline: r.is_baseline,
@@ -692,6 +695,14 @@ if (!hasRunsIndex && import.meta.env.PROD) {
             packTag.textContent = `pack=${g.persona_pack}`;
             packTag.title = `conditioned on the althing ${g.persona_pack} population pack`;
             tags.appendChild(packTag);
+          }
+          if (g.harness) {
+            const harnessTag = document.createElement("span");
+            harnessTag.className =
+              "rounded bg-muted/10 text-xs text-muted px-1.5 py-0.5 font-mono";
+            harnessTag.textContent = `harness=${g.harness}`;
+            harnessTag.title = `run through the ${g.harness} CLI instead of the vendor API`;
+            tags.appendChild(harnessTag);
           }
           if (g.is_baseline) {
             const bTag = document.createElement("span");

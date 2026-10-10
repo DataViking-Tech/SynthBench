@@ -402,6 +402,13 @@ function row(r: Row, rows: Row[], i: number): HTMLElement {
         methodKey(c.method),
         METHODS[c.method as ShownMethod].label,
         c.variant ? h("span", { class: "sb-tag" }, c.variant) : null,
+        c.harness
+          ? h(
+              "span",
+              { class: "sb-tag", title: `Run through the ${c.harness} CLI` },
+              `via ${c.harness}`,
+            )
+          : null,
         c.flagged
           ? h("span", { class: "sb-warn", title: "Public vs. private gap above 0.05" }, "⚠")
           : null,
@@ -586,6 +593,7 @@ document.getElementById("lb-csv")?.addEventListener("click", () => {
       "system",
       "method",
       "variant",
+      "harness",
       "tier",
       "index",
       "index_lo",
@@ -599,6 +607,7 @@ document.getElementById("lb-csv")?.addEventListener("click", () => {
         r.c.base,
         r.c.method,
         r.c.variant,
+        r.c.harness,
         r.tier,
         r.v.v,
         r.v.lo,
