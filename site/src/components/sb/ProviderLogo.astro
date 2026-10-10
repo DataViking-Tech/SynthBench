@@ -1,0 +1,14 @@
+---
+// Lab logo for server-rendered pages. Pass any model id, provider string or
+// display name; renders nothing when the lab isn't recognised.
+import { labOf, logoMarkup } from "@/lib/providerIcons";
+
+interface Props {
+  of: string | null | undefined;
+  size?: number;
+}
+const { of, size = 22 } = Astro.props;
+const markup = logoMarkup(labOf(of), size);
+---
+
+{markup && <span class="sb-provider-logo" set:html={markup} />}

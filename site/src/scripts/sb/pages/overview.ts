@@ -25,6 +25,7 @@ import {
   readSet,
   scopeControl,
   setParam,
+  takeaways,
   writeParams,
 } from "../ui";
 
@@ -96,7 +97,7 @@ mount(
           h("button", { type: "button", class: "sb-linkbtn", onclick: reset }, "Reset filters"),
         ),
       );
-      $("ov-notice").replaceChildren();
+      takeaways($("ov-notice"), []);
       return;
     }
     gapChart(gapEl, W, rows);
@@ -124,7 +125,7 @@ mount(
     items.push([
       `The top score is ${fmt.int(top)}. The gap to real people (${fmt.int(100 - top)} points) is larger than the spread between all systems shown (${fmt.int(spread)} points).`,
     ]);
-    $("ov-notice").replaceChildren(...items.map((kids) => h("li", null, ...kids)));
+    takeaways($("ov-notice"), items);
   },
   onChange,
 );

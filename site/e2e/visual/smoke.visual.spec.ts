@@ -41,6 +41,12 @@ const ROUTES: Route[] = [
     settleMs: 500,
   },
   {
+    label: "groups",
+    path: "groups/",
+    readySelector: "#gr-detail svg",
+    settleMs: 500,
+  },
+  {
     label: "run-detail",
     path: `run/${SAMPLE_RUN_ID}/`,
     // The sample run is a gated dataset; with license-gating enforced, its

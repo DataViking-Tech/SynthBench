@@ -5,6 +5,7 @@
 // disaggregated subgroup scorecards (question-type × demographic) to
 // replace the single SPS number that PMF research said buyers reject.
 
+import ProviderLogo from "@/components/sb/ProviderLogo.astro";
 import VendorScorecard from "@/components/leaderboard/VendorScorecard.astro";
 import BaseLayout from "@/layouts/BaseLayout.astro";
 
@@ -59,7 +60,7 @@ const slug = vendorSlug(provider);
 
     <header class="mt-4 flex flex-wrap items-baseline justify-between gap-4">
       <div>
-        <h1 class="text-3xl font-bold tracking-tight break-words">{provider}</h1>
+        <h1 class="flex items-center gap-2 text-3xl font-bold tracking-tight break-words"><ProviderLogo of={provider} size={26} />{provider}</h1>
         <p class="mt-1 text-sm text-muted">
           {entries.length} run{entries.length === 1 ? "" : "s"} ·
           {datasets.length} dataset{datasets.length === 1 ? "" : "s"} ·

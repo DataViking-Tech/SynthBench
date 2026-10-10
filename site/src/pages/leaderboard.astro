@@ -1,5 +1,4 @@
 ---
-import DemographicHeatmap from "@/components/leaderboard/DemographicHeatmap.astro";
 import IndexPayload from "@/components/sb/IndexPayload.astro";
 import leaderboardRaw from "@/data/leaderboard.json";
 import BaseLayout from "@/layouts/BaseLayout.astro";
@@ -57,23 +56,26 @@ const reproduceCommands = [
       <div class="sb-tablewrap"><table class="sb-lb" id="leaderboard"></table></div>
     </section>
 
-    <section class="sb-notes">
-      <div>
-        <h4>Tiers</h4>
-        A system's tier is 1 plus the number of systems whose 95% interval sits entirely above its own.
-        A difference of a few points inside a tier is noise.
+    <details class="sb-fold sb-fold-flat">
+      <summary>How to read this table</summary>
+      <div class="sb-notes">
+        <div>
+          <h4>Tiers</h4>
+          A system's tier is 1 plus the number of systems whose 95% interval sits entirely above its own.
+          A difference of a few points inside a tier is noise.
+        </div>
+        <div>
+          <h4>Reference rows</h4>
+          Striped rows are reference points, not systems: <b>random answers</b> (Index 0) and
+          <b>always choosing the most popular answer</b>.
+        </div>
+        <div>
+          <h4>Compare</h4>
+          Tick up to three rows to compare them side by side. Click a row for details. GSS (†) has no
+          published human ceiling yet, so it isn't part of the Index.
+        </div>
       </div>
-      <div>
-        <h4>Reference rows</h4>
-        Striped rows are reference points, not systems: <b>random answers</b> (Index 0) and
-        <b>always choosing the most popular answer</b>.
-      </div>
-      <div>
-        <h4>Compare</h4>
-        Tick up to three rows to compare them side by side. Click a row for details. GSS (†) has no
-        published human ceiling yet, so it isn't part of the Index.
-      </div>
-    </section>
+    </details>
 
     <section class="sb-block sb-panel sb-pad" data-reproduce-box>
       <h2 class="sb-h2">Reproduce these numbers</h2>
@@ -92,10 +94,17 @@ const reproduceCommands = [
         for the JSON format.
       </p>
     </section>
-  </div>
 
-  <div class="mt-12">
-    <DemographicHeatmap />
+    <section class="sb-block sb-panel sb-pad sb-gr-link">
+      <div>
+        <h2 class="sb-h2">Scores by demographic group</h2>
+        <p class="sb-muted">
+          Which groups each system matches best and worst: political ideology, party, education, income, age,
+          race, religion and country, with reference points and 95% intervals.
+        </p>
+      </div>
+      <a class="sb-btn" href={`${base}groups/`}>Open Groups <span aria-hidden="true">→</span></a>
+    </section>
   </div>
 </BaseLayout>
 

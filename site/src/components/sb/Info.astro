@@ -1,0 +1,15 @@
+---
+// Small (i) marker that shows its content on hover, focus or tap. Used for
+// "how to read this chart" text so it stays out of the way until asked for.
+// Pass `id` when a script fills the content in.
+interface Props {
+  label?: string;
+  id?: string;
+}
+const { label = "How to read this chart", id } = Astro.props;
+---
+
+<span class="sb-info" tabindex="0" aria-label={label}>
+  <span class="sb-info-i" aria-hidden="true">i</span>
+  <span class="sb-info-pop" role="note" id={id}><slot /></span>
+</span>

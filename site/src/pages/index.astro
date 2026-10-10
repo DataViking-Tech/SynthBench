@@ -1,4 +1,5 @@
 ---
+import Info from "@/components/sb/Info.astro";
 import IndexPayload from "@/components/sb/IndexPayload.astro";
 import leaderboardRaw from "@/data/leaderboard.json";
 import BaseLayout from "@/layouts/BaseLayout.astro";
@@ -42,23 +43,19 @@ const updated = leaderboard.generated_at
       <div class="sb-filterbar" id="ov-filters"></div>
       <div class="sb-panel-head">
         <div>
-          <h2>The gap to real people</h2>
+          <h2>
+            The gap to real people
+            <Info>
+              Each mark is one system, placed by its <b>SynthBench Index</b>. At <b>0</b>, a system matches
+              people no better than random answers. At <b>100</b>, it matches them as well as a second sample
+              of real people does. The faint bar through each mark is its 95% interval. Click a mark for details.
+            </Info>
+          </h2>
           <div class="q" id="gap-q"></div>
         </div>
       </div>
       <div class="sb-chart"><div id="ov-gap" class="sb-gap"></div></div>
-      <div class="sb-read">
-        <div>
-          <h5>How to read this</h5>
-          Each mark is one system, placed by its <b>SynthBench Index</b>. At <b>0</b>, a system matches
-          people no better than random answers. At <b>100</b>, it matches them as well as a second sample
-          of real people does. The faint bar through each mark is its 95% interval. Click a mark for details.
-        </div>
-        <div>
-          <h5>What stands out</h5>
-          <ul id="ov-notice"></ul>
-        </div>
-      </div>
+      <div class="sb-takes" id="ov-notice"></div>
     </section>
 
     <section class="sb-block sb-grid3 sb-why">

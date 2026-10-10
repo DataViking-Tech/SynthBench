@@ -203,6 +203,7 @@ const base = rawBase.endsWith("/") ? rawBase : `${rawBase}/`;
 </BaseLayout>
 
 <script>
+  import { labOf, logoMarkup } from "@/lib/providerIcons";
   import * as echarts from "echarts";
   import type { ConfigRollup } from "@/types/runs";
 
@@ -482,7 +483,10 @@ const base = rawBase.endsWith("/") ? rawBase : `${rawBase}/`;
 
     const title = document.getElementById("config-title");
     if (title) {
-      title.textContent = data.display_name || data.model || configId;
+      const name = data.display_name || data.model || configId;
+      title.innerHTML = logoMarkup(labOf(`${data.model ?? ""} ${name}`), 24);
+      title.append(name);
+      title.classList.add("flex", "items-center", "gap-2");
     }
 
     renderMetadata(data);
