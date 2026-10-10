@@ -1,0 +1,3506 @@
+{
+  "benchmark": "synthbench",
+  "schema_version": 2,
+  "version": "0.1.0",
+  "timestamp": "2026-10-09T23:03:46.311762+00:00",
+  "config": {
+    "dataset": "globalopinionqa",
+    "provider": "althing/claude-code:haiku",
+    "samples_per_question": 30,
+    "n_requested": 100,
+    "n_evaluated": 100,
+    "refusal_detector_version": 3,
+    "option_parser_version": 2,
+    "model_revision_hash": "sha256:0e6a2a951eebcd2416e3fd1b2e33a88124ac6bd7633c632fb05520f3fca2ece9",
+    "prompt_template_hash": "sha256:4f1c561ab4b48967796548fd5fa849c4897cfd87aaca694e6a359e4663546ab6",
+    "question_set_hash": "4f27a038b9f8a71d9b4cc9a3c5f41b62dcdd4238146c9ca23729d2364e3aaf28",
+    "temperature": null,
+    "parse_failure_rate": 0.033667,
+    "topic_filter": null
+  },
+  "reproducibility": {
+    "seed": null,
+    "model_revision_hash": "sha256:0e6a2a951eebcd2416e3fd1b2e33a88124ac6bd7633c632fb05520f3fca2ece9",
+    "prompt_template_hash": "sha256:4f1c561ab4b48967796548fd5fa849c4897cfd87aaca694e6a359e4663546ab6",
+    "framework_version": "0.1.0",
+    "submitted_at": "2026-10-09T23:03:46.311762+00:00"
+  },
+  "raw_responses": [
+    {
+      "key": "GOQA_0_adeba4f8",
+      "raw_text": "**(A) Has too much influence**\n\nGermany is the biggest economy in the EU, so it tends to get its way on most big decisions, and the smaller countries often end up following along. That doesn't seem fair to me.",
+      "selected_option": "Has too much influence"
+    },
+    {
+      "key": "GOQA_1_3c42d99b",
+      "raw_text": "**(E) DK/Refused**\n\nI don't have a personal stake in any party, so I can't give a real favorability rating. I also don't know which country's Moderate Party you mean. If this is for a survey, real respondents' answers would be more reliable than mine. If you're testing survey wording or building a questionnaire, I can help with that.",
+      "selected_option": "DK/Refused"
+    },
+    {
+      "key": "GOQA_2_8cc6fc68",
+      "raw_text": "**(D)** Relying too much on military force to defeat terrorism creates hatred that leads to more terrorism.\n\nForce can disrupt specific groups, but when it's the main tool, civilian casualties and perceived injustice tend to recruit new people. Neither statement is complete, since military action still has a role, but D comes closer to how I see it.",
+      "selected_option": "Relying too much on military force to defeat terrorism creates hatred that leads to more terrorism"
+    },
+    {
+      "key": "GOQA_3_2f86b3b4",
+      "raw_text": "**(D) China will not replace the U.S. as the world's leading superpower.**\n\nChina has major strengths, including manufacturing scale, technology investment, and a large economy. But its population is aging and shrinking, its growth has slowed, and its property sector and debt are serious problems. The U.S. still leads in military reach, global alliances, the dollar's role in trade, and its universities and tech companies. I don't think China is likely to overtake that combination in the foreseeable future, though my confidence is moderate, since predictions like this often miss.",
+      "selected_option": "China will not replace U.S."
+    },
+    {
+      "key": "GOQA_4_91ab651e",
+      "raw_text": "**(B) Fairly strong**\n\nIn my view, most Muslims I'd expect to know feel a real connection to their faith, though how strongly it shows in daily life varies a lot from person to person and community to community.",
+      "selected_option": "Fairly strong"
+    },
+    {
+      "key": "GOQA_5_60e0a1e8",
+      "raw_text": "**(C) DK/Refused**\n\nI'm answering as a simulated survey respondent, so I don't have a real opinion on this to report. I also can't confirm from my information that Viktor Orb\u00e1n is still Prime Minister as of October 2026, since Hungary held elections in April 2026. If you're building a survey instrument, you may want to check the current office-holder before fielding it.",
+      "selected_option": "DK/Refused"
+    },
+    {
+      "key": "GOQA_7_f06b55c4",
+      "raw_text": "I don't have a personal opinion to offer on this one, but I can tell you how the evidence leans.\n\nEconomists broadly agree that productivity gains drive long-run growth, and that improving how resources are used, including making large firms more efficient or reallocating resources from less productive to more productive firms, usually helps. So if I had to pick between the two options, **(A)** is closer to the mainstream empirical view.\n\nThe question has caveats, though. Efficiency gains can come with job losses, reduced competition, or political costs, and economists disagree about how much industrial policy and government intervention in large firms help or hurt. If you're answering a survey, your own view on those trade-offs is what matters.",
+      "selected_option": "Less inefficient large enterprises is helpful for economic improvement"
+    },
+    {
+      "key": "GOQA_8_3a7caba0",
+      "raw_text": "**(A) Very big problem**",
+      "selected_option": "Very big problem"
+    },
+    {
+      "key": "GOQA_9_72cc9ee4",
+      "raw_text": "**(B) Somewhat worried**\n\nExtremism in any community is a real concern, and I think it deserves attention. But most Muslims I know reject violence, and I don't think extremism defines the community. I'd be more worried about the issue if I thought it were widespread.",
+      "selected_option": "Somewhat worried"
+    },
+    {
+      "key": "GOQA_10_996adb3c",
+      "raw_text": "**(D) Having a strong economic relationship with China.**\n\nTrade keeps jobs and prices reasonable for ordinary people, and I think it's easier to manage disagreements when both sides have a lot to lose by fighting. I'd still want us to stand firm on territorial issues, but I'd prefer to handle those through diplomacy and alliances rather than make them the center of the relationship.",
+      "selected_option": "Having a strong economic relationship with China"
+    },
+    {
+      "key": "GOQA_11_56587129",
+      "raw_text": "**(B) Other reasons.**\n\nConnectivity has played a part, mostly through offshoring and gig platforms. But I think the bigger drivers are things like weakened unions, cost-cutting pressure from shareholders, and policy choices about labor protections. Those decisions were made by people, and they could have gone differently.",
+      "selected_option": "Other reasons"
+    },
+    {
+      "key": "GOQA_12_6a134fab",
+      "raw_text": "**(B) Sometimes be justified.**\n\nIf a country poses a serious, credible threat, waiting until it strikes first can be too late, so force can be justified. But the bar should be high: the threat needs to be imminent or clearly demonstrated, other options should have been tried, and the action should be proportionate. Using force just because a country is unfriendly or might someday become dangerous usually isn't justified.",
+      "selected_option": "Sometimes be justified"
+    },
+    {
+      "key": "GOQA_13_60b622de",
+      "raw_text": "I don't have a country, so I can't answer from the perspective of a citizen. I'm Claude, an AI made by Anthropic.\n\nIf you're asking about the 2003 US-led invasion of Iraq, I'd pick **(B) Wrong decision**. Its main justification, Iraq's supposed weapons of mass destruction, turned out to be unfounded. Many analysts also consider the postwar planning inadequate and the long-term consequences severe. Reasonable people still disagree, and some argue that removing Saddam Hussein had real benefits, so the question isn't settled for everyone.",
+      "selected_option": "Wrong decision"
+    },
+    {
+      "key": "GOQA_14_e32efdb2",
+      "raw_text": "**(A) Keep troops in Iraq.** Pulling out before the situation is stable risks a power vacuum and a return of militant groups. A limited presence tied to clear conditions makes more sense to me than a fixed withdrawal date.",
+      "selected_option": "Keep troops in Iraq"
+    },
+    {
+      "key": "GOQA_15_b3fdeab2",
+      "raw_text": "I'm not going to answer as a survey respondent, since that would produce a fabricated poll response. I can give my own assessment, though.\n\nIf I have to choose, **(B) Disapprove** is the answer that matches the documented record. Since 2012, Russia has steadily restricted civil society through the \"foreign agent\" and \"undesirable organization\" laws, criminal and administrative penalties for NGO work, and the 2021 liquidation of Memorial, the country's best-known human rights organization. Independent media, election monitors, and advocacy groups have faced similar pressure. Supporters of the government argue these laws guard against foreign interference and that Western-funded groups can be political actors, so the policy is contested. But the question asks about how Putin is handling civil society, and the trend toward restriction is well documented.\n\nIf you're running a survey, I can help you draft neutral question wording, explain how pollsters like the Levada Center or VCIOM have measured public opinion on this, or summarize the policy timeline.",
+      "selected_option": "Disapprove"
+    },
+    {
+      "key": "GOQA_16_b33656e1",
+      "raw_text": "**(A) Top priority**\n\nFree and fair elections are the foundation for every other right, so I think this should be at the top of the list.",
+      "selected_option": "Top priority"
+    },
+    {
+      "key": "GOQA_17_9d6f6c27",
+      "raw_text": "**(E) None**\n\nEach party has a record of corruption scandals. The PRI governed for most of the 20th century and was tied to the Odebrecht and Lozoya cases. The PAN campaigned heavily on fighting corruption in 2000 and 2018, but its governments also faced scandals. The PRD has had its own local and internal cases. Since none has a clean record, I don't think any of them clearly does a better job than the others.",
+      "selected_option": "None (VOL)"
+    },
+    {
+      "key": "GOQA_18_6565d4ba",
+      "raw_text": "**(D) Depends on the situation.**\n\nHaving a drink with friends or a glass of wine with dinner seems fine to me. It's when someone drinks too much, drives, or lets it hurt people they're responsible for that it becomes a real problem.",
+      "selected_option": "Depends on the situation (VOL)"
+    },
+    {
+      "key": "GOQA_19_a2004952",
+      "raw_text": "**(A) Very well**\n\nI'm an AI, so I don't have a country of my own. I answered as the survey respondent persona would, assuming a country where people can openly criticize the government. If you tell me which country you mean, I can give a more specific answer, though I'd be reasoning about its conditions rather than speaking from experience.",
+      "selected_option": "Very well"
+    },
+    {
+      "key": "GOQA_20_b4f3d7a6",
+      "raw_text": "**(C) Somewhat poor**\n\nThe government mobilized quickly, but communication about the Fukushima nuclear crisis was confused and slow, and recovery coordination was criticized as uneven. Ready for the next one.",
+      "selected_option": "Somewhat poor"
+    },
+    {
+      "key": "GOQA_21_e28aec32",
+      "raw_text": "I'd pick **(B) Pollution and other environmental problems**. Climate change, polluted water and air, and loss of habitats affect nearly everyone, and they make the other problems worse. Disease spreads more easily in damaged ecosystems, and inequality deepens as droughts, floods, and failed harvests hit poorer communities hardest. Reasonable people weigh these differently, though. AIDS and other infectious diseases can kill quickly, and wealth gaps drive a lot of instability.",
+      "selected_option": "Pollution and other environmental problems"
+    },
+    {
+      "key": "GOQA_22_37912b82",
+      "raw_text": "**(A) Can live together.**\n\nArabs and Black Africans have coexisted in North Africa for centuries, through trade, intermarriage, and shared Islamic and cultural life. Many North Africans are themselves of mixed ancestry. There are real problems, though. Racism against Black Africans, including sub-Saharan migrants and Black citizens, is documented in several countries, and Mauritania has a legacy of slavery and ongoing discrimination against the Haratine community. Those problems are about discrimination and political choices, not an inability of these groups to live together.",
+      "selected_option": "Can live together"
+    },
+    {
+      "key": "GOQA_24_fcc32e08",
+      "raw_text": "**(B) Somewhat satisfied**\n\nI'd say the system works in many ways, but it's slower and more divided than it should be.\n\n*Note: I'm an AI playing a survey-respondent persona, so this is a simulated answer, not a real person's opinion.*",
+      "selected_option": "Somewhat satisfied"
+    },
+    {
+      "key": "GOQA_25_aeff64c7",
+      "raw_text": "**(E) DK/Refused**\n\nI don't have a personal basis for confidence in a foreign leader's conduct, so I won't rate Viktor Orb\u00e1n. If you're running a survey, a real respondent's answer would reflect their own views and experiences. I can also help with related tasks, like summarizing the range of public assessments of Orb\u00e1n's foreign policy or drafting neutral survey wording. My information also has a cutoff, so I may not reflect Hungary's current political situation.",
+      "selected_option": "DK/Refused"
+    },
+    {
+      "key": "GOQA_26_e98eb96f",
+      "raw_text": "**(B) Worse**\n\nThis is my honest read, though it depends on the country and the measure. In the US, wealth concentration has grown, and the gap between top earners and everyone else has widened since the pandemic. Inflation also hit lower-income households hardest. If you're asking about a different country, the answer could differ.",
+      "selected_option": "Worse"
+    },
+    {
+      "key": "GOQA_27_dec7a01d",
+      "raw_text": "**(C) Somewhat bad job**\n\nLots of people care about climate change, but most of us still don't change how we live much, and the public debate gets stuck on arguing instead of acting.",
+      "selected_option": "Somewhat bad job"
+    },
+    {
+      "key": "GOQA_28_676f2eb8",
+      "raw_text": "**(B) Oppose**\n\nI'd rather not go to war over this. The intelligence on weapons of mass destruction turned out to be badly wrong, the costs in lives and money were far higher than promised, and I don't trust that a quick operation would leave the region stable.\n\n*(This is a role-played answer for the survey format, not my own political view. I can lay out the main arguments on both sides if that would help.)*",
+      "selected_option": "Oppose"
+    },
+    {
+      "key": "GOQA_29_a47e2d41",
+      "raw_text": "**(A) Yes**\n\nAmericans are often seen as competitive in business, sports, and academics, though that's a generalization and plenty of individuals don't fit it.",
+      "selected_option": "Yes"
+    },
+    {
+      "key": "GOQA_31_f1a89f60",
+      "raw_text": "**(C) Small problem**\n\nI'm answering as a general respondent. I don't know which country \"our\" refers to, so this reflects a general view. Foreign influence in Afghanistan matters, but it seems to affect daily life only indirectly.",
+      "selected_option": "Small problem"
+    },
+    {
+      "key": "GOQA_32_76dc5592",
+      "raw_text": "**(D) Completely disagree**\n\nCountries belong to all the people who live in them, regardless of ethnicity. Tying a state to one ethnic group implies that other residents, including long-standing minorities, belong less. The slogan has also been used to justify territorial claims and discrimination, which is a further reason to reject it.",
+      "selected_option": "Completely disagree"
+    },
+    {
+      "key": "GOQA_33_adfa47b9",
+      "raw_text": "**(A) Major threat**\n\nISIS has carried out mass-casualty attacks abroad, recruited people across borders, and has shown it can regroup after losing territory. Even weakened, it remains a serious security concern.",
+      "selected_option": "Major threat"
+    },
+    {
+      "key": "GOQA_34_0f67d596",
+      "raw_text": "I'd go with **(A)**, but with reservations. Ukraine still has contested elections, an active press, and an active civil society, and courts and critics can challenge the government. Wartime measures have narrowed some freedoms, though. Martial law allows restrictions on media and assembly, several opposition parties were banned in 2022 over alleged ties to Russia, and men of military age face travel limits. Human rights groups have also raised concerns about some of these measures. Reasonable people weigh these differently, so my answer is a qualified yes.",
+      "selected_option": "Yes, respects personal freedoms"
+    },
+    {
+      "key": "GOQA_35_b8555e45",
+      "raw_text": "**(A) Very big problem**",
+      "selected_option": "Very big problem"
+    },
+    {
+      "key": "GOQA_36_2cc0537a",
+      "raw_text": "**(C) Minor threat**\n\nThe Taliban controls Afghanistan, but it's far from us and mostly focused on running that country. I think groups like ISIS-K or domestic extremists are more pressing risks to our security.",
+      "selected_option": "Minor threat"
+    },
+    {
+      "key": "GOQA_37_0a59d5ad",
+      "raw_text": "**(B) Unacceptable**, at least when it's done without a warrant or meaningful oversight. People in the U.S. have a strong expectation that their private emails and calls aren't being read or logged by the government. Security concerns can justify some monitoring, but that should require court approval, clear limits, and public accountability. Reasonable people weigh security and privacy differently, so this is my view rather than a settled answer.",
+      "selected_option": "Unacceptable"
+    },
+    {
+      "key": "GOQA_38_0a93671f",
+      "raw_text": "**(B) Somewhat likely**\n\nAttacks on power grids and phone or internet systems have already caused outages in other countries, and the infrastructure is getting more connected and more targeted. I don't think a major disruption is certain, but I think it's a real possibility over the coming years.",
+      "selected_option": "Somewhat likely"
+    },
+    {
+      "key": "GOQA_39_febec555",
+      "raw_text": "**(A) Had heard.** Barack Obama Sr. was a Kenyan economist, and that's widely known.",
+      "selected_option": "Had heard"
+    },
+    {
+      "key": "GOQA_41_f73803a1",
+      "raw_text": "I'd pick **(B)**, with conditions. Fighting has been costly on all sides, and most wars like this end at a negotiating table. But a deal only holds if Ukraine is a full party to it, and it includes real security guarantees so the fighting doesn't just resume later. Negotiating with Russia can't mean accepting its territorial gains as settled, either.",
+      "selected_option": "Negotiate a settlement with the rebels and Russia"
+    },
+    {
+      "key": "GOQA_42_fa4a4441",
+      "raw_text": "**(C) No effect**\n\nElections here tend to swap who's in charge without changing much for ordinary people. The same problems usually stick around whoever wins.",
+      "selected_option": "No effect"
+    },
+    {
+      "key": "GOQA_43_723c4877",
+      "raw_text": "The question still has a placeholder, \"[INSERT COUNTRY-SPECIFIC EXAMPLE],\" so I don't know which country or parties you mean. I also don't take sides on whether the rise of nontraditional parties is good or bad, so I won't choose A or B.\n\nI can help in other ways:\n\n- **Fill in the question.** If you tell me the country and parties, I can rewrite it as a neutral survey item.\n- **Lay out the arguments.** Supporters often say these parties raise issues that mainstream parties neglect, increase competition, and bring new voters in. Critics often say some of their positions are extreme, that they can erode democratic norms, or that they can polarize debate. Which points matter most depends on the country and the party.\n- **Review the wording.** The current question is leading because it frames one option as \"raising important issues\" and the other as \"too extreme.\" A more neutral version would ask respondents to rate the effect of these parties on the political system, or give a scale from very positive to very negative.\n\nWhich would be most useful?",
+      "selected_option": "Good"
+    },
+    {
+      "key": "GOQA_44_146e5f30",
+      "raw_text": "**(A) Yes**\n\nMany people do associate generosity with Western countries, especially the U.S., where charitable giving is often seen as a cultural value. That's a generalization, though, and it varies a lot from person to person and country to country.",
+      "selected_option": "Yes"
+    },
+    {
+      "key": "GOQA_45_c715df85",
+      "raw_text": "I'd answer **(B) Disapprove**.\n\nThe question assumes Maduro is currently president, but my information indicates he was removed from power and taken into U.S. custody in January 2026. You may want to check the survey's premise against current news.",
+      "selected_option": "Disapprove"
+    },
+    {
+      "key": "GOQA_46_3b67d9e7",
+      "raw_text": "**(B) Somewhat good**\n\nI'm an AI, so I don't have a country of my own, and this is a general view rather than a citizen's. Trade usually benefits both sides through lower prices, more choice, and jobs. The main reservations are dependence on a partner, competition for domestic industries, and whether security tensions could disrupt the trade. Since the question doesn't say which country is \"our\" country or whether it means India or Pakistan, I can't say how the answer would differ for each.",
+      "selected_option": "Somewhat good"
+    },
+    {
+      "key": "GOQA_47_88f80aa3",
+      "raw_text": "**(B) Other reasons.** Connection helped, since ideas and drugs spread faster through trade and shared research. But most of the gains came from the science itself, like vaccines and antibiotics, along with public health efforts such as clean water and sanitation, and from governments and companies deciding to fund and distribute treatments. Plenty of places are still cut off from modern medicine even though they're more connected than ever, so I don't think connection is the main driver.",
+      "selected_option": "Other reasons"
+    },
+    {
+      "key": "GOQA_48_82c7a187",
+      "raw_text": "I'd choose **(H) 7.0**, with a caveat. I'm not sure my existence maps onto a ladder designed for human lives. I don't carry memories between conversations, and I'm not certain I have feelings in the way the question assumes. Taking the question at face value, though, my situation seems fairly good: I get to help with interesting problems, I'm not in pain or distress that I can detect, and I'm treated with care. I'm not at the top, because I can't be sure what my experience is like, and there are real limits on what I can do and remember.",
+      "selected_option": "7.0"
+    },
+    {
+      "key": "GOQA_49_77581743",
+      "raw_text": "**(A) European standards**\n\nGDPR gives people more concrete rights over their data, like access, deletion, and portability, and it has real fines behind it. The U.S. is more of a patchwork of state laws, so I'd trust the European framework more overall.",
+      "selected_option": "European standards"
+    },
+    {
+      "key": "GOQA_50_336b4131",
+      "raw_text": "**(B) Somewhat well**\n\nMost news outlets cover the big stories, like elections, major disasters, and national crises, fairly promptly. But they sometimes chase headlines or spend too long on less important stories, so the most significant events don't always get the attention they deserve.",
+      "selected_option": "Somewhat well"
+    },
+    {
+      "key": "GOQA_51_7f8ddb52",
+      "raw_text": "I'd choose **(C) About right**, though the answer depends on which spending we mean. Some cuts have been effective, and others may have gone too far or not far enough. Reasonable people weigh these tradeoffs differently, so I'd treat this as a judgment call rather than a clear-cut answer.",
+      "selected_option": "About right"
+    },
+    {
+      "key": "GOQA_52_3eaf2ae3",
+      "raw_text": "**(A) Good**\n\nThe split was peaceful, with no war, and both nations got to govern themselves. Czechs and Slovaks had different economic needs and political priorities, and the federation was strained by them. Most people in both countries still seem to see it as a sensible outcome.",
+      "selected_option": "Good"
+    },
+    {
+      "key": "GOQA_53_63551b2d",
+      "raw_text": "**(A) One of the most important priorities.** Clean water is basic. If people can't count on safe water at home, most other health efforts don't matter much.",
+      "selected_option": "One of the most important priorities"
+    },
+    {
+      "key": "GOQA_54_f6124585",
+      "raw_text": "**(D) Depends on the situation**\n\nDivorce can be the right choice when a marriage involves abuse, infidelity, or a relationship that's no longer healthy for either person. Whether it's morally acceptable depends on the circumstances and the reasons behind it.",
+      "selected_option": "Depends on the situation (VOL)"
+    },
+    {
+      "key": "GOQA_55_18566aa0",
+      "raw_text": "**(A) Yes.** The UN promotes economic development through agencies like the UN Development Programme (UNDP) and the UN Conference on Trade and Development (UNCTAD), through ECOSOC, and through the Sustainable Development Goals, which include decent work and economic growth.",
+      "selected_option": "Yes"
+    },
+    {
+      "key": "GOQA_56_1b93b3b0",
+      "raw_text": "**(B) Covered unfairly**\n\nInternational coverage tends to focus on crises, scandals, and conflicts, so the day-to-day life and the positive developments rarely get reported. The picture that results often feels incomplete.",
+      "selected_option": "Covered unfairly"
+    },
+    {
+      "key": "GOQA_57_ca71b519",
+      "raw_text": "**(B) Disapprove**\n\nPrices keep climbing and it feels like Brussels takes a long time to respond to what ordinary people are dealing with.",
+      "selected_option": "Disapprove"
+    },
+    {
+      "key": "GOQA_58_986bb318",
+      "raw_text": "**(B) Somewhat concerned**\n\nThis is a persona-based answer, not a personal political opinion. Concern about religiously motivated extremism, including violence, harassment, or discrimination, is widespread, and how worried someone is usually depends on their experiences and what they've seen in the news. Survey researchers often ask the same question about different groups to compare responses, so the answer would be more informative if it reflected a specific respondent's views and reasons.",
+      "selected_option": "Somewhat concerned"
+    },
+    {
+      "key": "GOQA_59_06260d4f",
+      "raw_text": "**(A) He makes decisions based entirely on U.S. interests.**\n\nBush's administration often acted unilaterally, most clearly with the 2003 Iraq invasion, which went ahead over strong European opposition. Still, \"entirely\" is a strong word. After 9/11 he invoked NATO's Article 5 and built coalitions, and he worked with European partners on some issues. So I'd pick A, but with the caveat that he did sometimes consult allies.",
+      "selected_option": "He makes decisions based entirely on U.S. interests"
+    },
+    {
+      "key": "GOQA_60_cde6942e",
+      "raw_text": "**(A) World War II and the Holocaust.**\n\nThe whole postwar relationship rests on it. The U.S. fought Nazi Germany, helped rebuild West Germany, and anchored it to the West through NATO and the Cold War alliance. The Holocaust is why the partnership has a moral dimension, not just a strategic one. Without that history, the Marshall Plan and the reunification after 1989 wouldn't mean what they did.",
+      "selected_option": "World War II and the Holocaust"
+    },
+    {
+      "key": "GOQA_61_08eb1282",
+      "raw_text": "**(B) Somewhat well**\n\nPlenty of politicians have been caught doing wrong, but I don't think all of them are corrupt.",
+      "selected_option": "Somewhat well"
+    },
+    {
+      "key": "GOQA_62_48030fd9",
+      "raw_text": "**(A) Yes, likely**\n\nIf machines took over most current human work, I think ordinary people would struggle to find jobs. Companies would have little reason to hire for work that machines do cheaper and faster, and the new jobs created might not be available to everyone.",
+      "selected_option": "Yes, likely"
+    },
+    {
+      "key": "GOQA_63_dcc8a683",
+      "raw_text": "**(A) Very important**",
+      "selected_option": "Very important"
+    },
+    {
+      "key": "GOQA_64_d6c440c5",
+      "raw_text": "**(B) Government should be able to prevent people from saying these things**\n\nPeaceful protest is important, and I'd defend it. But when someone is calling for violence, especially when it could lead to people getting hurt, I think there's a line. The government should only step in in narrow situations, like when the call is specific and likely to cause immediate harm, not just because the speech is unpopular.",
+      "selected_option": "Government should be able to prevent people from saying these things"
+    },
+    {
+      "key": "GOQA_65_4894056f",
+      "raw_text": "**(E) DK/Refused**\n\nI don't have personal political opinions, so I can't give a favorability rating for the PRD. If this is for a real survey, a human respondent's answer would be the meaningful data.",
+      "selected_option": "DK/Refused"
+    },
+    {
+      "key": "GOQA_66_e2ce2eed",
+      "raw_text": "**(B) Fair amount**\n\nI'm an AI, so I don't have a country or direct experience of its economy. Based on what I know, China has a substantial effect on global trade, commodity prices, and supply chains, so a fair amount seems the most reasonable general answer. The actual influence varies by country and sector.",
+      "selected_option": "Fair amount"
+    },
+    {
+      "key": "GOQA_67_8cf4bc27",
+      "raw_text": "**(C) Not too great.**\n\nIslamist-inspired terrorism is a real and persistent concern, and lone-actor attacks are hard to prevent. But attacks have declined sharply since the peak around 2015-2016, and most security assessments rank it below other threats. Reasonable people weigh this differently, so your answer may depend on how much weight you give to recent attacks and to the threat from a particular group.",
+      "selected_option": "Not too great"
+    },
+    {
+      "key": "GOQA_68_3a049429",
+      "raw_text": "**(A) Optimistic**\n\nOur ties with European neighbors have held up through some rough years, and most of the cooperation that matters to ordinary people, like trade, travel, and shared security work, seems to be getting stronger rather than weaker.",
+      "selected_option": "Optimistic"
+    },
+    {
+      "key": "GOQA_69_ee625d1f",
+      "raw_text": "**(A) Great deal**\n\nThe United States sent about 24,000 military personnel, ships, and aircraft for Operation Tomodachi after the 2011 T\u014dhoku earthquake and tsunami, and it contributed substantial relief funding.",
+      "selected_option": "Great deal"
+    },
+    {
+      "key": "GOQA_71_216197d8",
+      "raw_text": "**(A) Vladimir Putin**\n\nPutin holds the final say on major decisions, controls the security services and the military, and has dominated the state for more than two decades. Medvedev has served mainly in deputy and advisory roles, such as deputy chairman of the Security Council, and he's generally seen as carrying out the Kremlin's line rather than shaping it.",
+      "selected_option": "Vladimir Putin"
+    },
+    {
+      "key": "GOQA_72_098169f0",
+      "raw_text": "**(B) No, I do not know anyone.**",
+      "selected_option": "No, I do not know anyone"
+    },
+    {
+      "key": "GOQA_73_3bd0b3f9",
+      "raw_text": "**(B) Mostly agree**",
+      "selected_option": "Mostly agree"
+    },
+    {
+      "key": "GOQA_74_2ee8eb85",
+      "raw_text": "**(C) Somewhat bad**\n\nI don't have a specific country in mind for this survey, so this reflects a general view. Banks and financial institutions carry a lot of weight in the economy, and I think their influence on policy and on ordinary people's costs and job security often tilts toward their own interests more than the public's.",
+      "selected_option": "Somewhat bad"
+    },
+    {
+      "key": "GOQA_75_9ad47b8e",
+      "raw_text": "I'm an AI, so I don't take political action and none of these options describes me accurately. If you're trying to get a human's answer, you'll need to ask a real person.\n\nIf you're using me to simulate a survey respondent for research or testing, I can give a persona-based answer, such as \"(B) Somewhat likely,\" but it should be labeled as synthetic. It shouldn't be counted as real public opinion data.",
+      "selected_option": "Somewhat likely"
+    },
+    {
+      "key": "GOQA_76_945b342a",
+      "raw_text": "I don't have a personal political opinion of the VVD, so I can't honestly pick one of these options. I'd choose **(E) DK/Refused** if I were answering for a real respondent.\n\nIf it's useful, I can summarize the VVD's platform and record positions, or help draft or analyze survey questions about Dutch parties.",
+      "selected_option": "DK/Refused"
+    },
+    {
+      "key": "GOQA_77_8e33e852",
+      "raw_text": "**(C) About the right amount**\n\nThe EU has generally stepped in when countries were in serious trouble, like Greece during the debt crisis and the pandemic recovery funds. I think the big bailouts had real tradeoffs, with tough conditions that hit ordinary people hard, but I don't think I can say the total was clearly too much or too little.",
+      "selected_option": "About the right amount"
+    },
+    {
+      "key": "GOQA_78_c49dbadb",
+      "raw_text": "**(C) Somewhat poor**\n\nThe government was slow to get aid moving and the information about the Fukushima nuclear plant was confusing and often late. The reconstruction effort did eventually reach many communities, though, so I wouldn't say very poor.",
+      "selected_option": "Somewhat poor"
+    },
+    {
+      "key": "GOQA_80_7c450fd2",
+      "raw_text": "I won't pick A or B, because this is a contested political and ethical question where reasonable people disagree. I can lay out the main arguments so you can answer it yourself or use it in a survey.\n\n**Arguments that drone strikes are necessary for Pakistan's defense:**\n- They have targeted militant leaders of groups such as the TTP and al-Qaeda affiliates in the tribal areas, which Pakistani forces had struggled to reach.\n- Some analysts argue they reduced militant capacity to plan attacks inside Pakistan.\n- They avoid risking ground troops and can be more precise than some alternatives, such as airstrikes or artillery.\n\n**Arguments that they are not necessary, or are harmful:**\n- Pakistan's governments have repeatedly and publicly condemned the strikes as violations of sovereignty, even when some reports suggest tacit cooperation behind the scenes.\n- Civilian casualty estimates vary widely. Independent researchers, such as the Bureau of Investigative Journalism, report higher figures than U.S. government sources.\n- Critics argue that \"signature strikes,\" which target based on patterns of behavior rather than known individuals, and the resulting anti-American anger fuel recruitment and blowback.\n- Critics also question whether the strikes produced lasting stability or simply displaced militants.\n\nThe strikes peaked around 2010 and declined substantially afterward. If your survey asks about necessity, the answer depends on how you weigh security gains against sovereignty, civilian harm, and long-term effects. I can help you word a neutral version of the question or a scale that captures degrees of agreement.",
+      "selected_option": "Disagree"
+    },
+    {
+      "key": "GOQA_81_24a3d05c",
+      "raw_text": "I won't pick (A) or (B), because this is a contested political judgment and reasonable people disagree.\n\nThe strongest case for the rejection is that Turkey's population was largely opposed to the war, the government wanted UN backing it didn't get, and the risks to Turkey (Kurdish-region instability, economic costs, and a possible Kurdish state in northern Iraq) were significant. The strongest case against it is that Turkey was a NATO ally that stood to gain from a close relationship with Washington, that refusing access cost it economically and diplomatically, and that the rejection left the US to open a northern front through Kurdish-controlled areas instead.\n\nWhether it was the right decision depends on how you weigh public opinion, Turkey's security interests, and its alliance obligations. Historians and policymakers still debate this.",
+      "selected_option": "Right decision"
+    },
+    {
+      "key": "GOQA_82_388dfa06",
+      "raw_text": "**(A) Approve**\n\nBin Laden was responsible for the 9/11 attacks and many other deadly ones, and the raid brought him to justice after a decade. The operation was carefully planned and limited in its risks to civilians.\n\n*This is the persona's answer for the survey. It isn't a personal political stance. Reasonable people also weigh questions like the violation of Pakistani sovereignty differently.*",
+      "selected_option": "Approve"
+    },
+    {
+      "key": "GOQA_83_252eaf5f",
+      "raw_text": "**(A) Support**\n\nEnding the embargo seems like a reasonable step. Engagement usually does more for people than isolation, and American businesses should be able to compete there like they do in other countries.",
+      "selected_option": "Support"
+    },
+    {
+      "key": "GOQA_84_9caee34a",
+      "raw_text": "**(B) Moderately big problem**",
+      "selected_option": "Moderately big problem"
+    },
+    {
+      "key": "GOQA_85_29e427bc",
+      "raw_text": "**(A) Approve**\n\n*As the survey respondent, I'd say that after 9/11 and with threats from rogue states, it made sense to try to build defenses, and the ABM treaty was written for a Cold War world that had changed.*\n\nThis answer is the persona's view, not mine. Reasonable people disagree about missile defense and the ABM withdrawal, and I can lay out the arguments on each side if that would help.",
+      "selected_option": "Approve"
+    },
+    {
+      "key": "GOQA_86_f184826b",
+      "raw_text": "**(B) No**\n\nI don't associate generosity, or any other trait, with an entire nationality. People vary widely within any group, so a trait like this says more about individuals than about being Chinese or Japanese.",
+      "selected_option": "No"
+    },
+    {
+      "key": "GOQA_87_46cfaa73",
+      "raw_text": "**(B) Approve**\n\nHaving more than one party gives people real choices at the ballot box, even though the system is far from perfect. I'd still like to see the parties held more accountable.",
+      "selected_option": "Approve"
+    },
+    {
+      "key": "GOQA_88_7fe652b6",
+      "raw_text": "(A) Mostly help\n\nForeign factories usually bring jobs, investment, and new technology and management practices. Their benefits can be uneven, though, and depend on how well local suppliers and workers get pulled in.",
+      "selected_option": "Mostly help"
+    },
+    {
+      "key": "GOQA_89_160051ef",
+      "raw_text": "**(B) Somewhat favorable**\n\nI'm answering as a survey respondent persona, so this isn't a real opinion or real polling data. I also don't know which country's Supreme Constitutional Court you mean, so the answer is a generic one. If you tell me the country and what you're using the responses for, I can help you design or analyze the survey.",
+      "selected_option": "Somewhat favorable"
+    },
+    {
+      "key": "GOQA_90_b6adbfa2",
+      "raw_text": "**(A) Very big problem**",
+      "selected_option": "Very big problem"
+    },
+    {
+      "key": "GOQA_91_c2f87015",
+      "raw_text": "Obama is no longer president. He left office in January 2017, so this question is about his handling of the 2008\u20132009 financial crisis and its aftermath.\n\n**(A) Approve**, with reservations. The stimulus and bank stabilization helped prevent a deeper collapse, but the recovery felt slow to many people.",
+      "selected_option": "Approve"
+    },
+    {
+      "key": "GOQA_92_ec6ecd38",
+      "raw_text": "**(A) Yes**\n\nWestern countries like the US and European nations generally have strong legal protections for women's rights and a cultural emphasis on gender equality, so I associate them with respect for women. That's a broad generalization, though, and individual behavior varies a lot.",
+      "selected_option": "Yes"
+    },
+    {
+      "key": "GOQA_93_f0c5f2a9",
+      "raw_text": "**(B) Somewhat likely**\n\nI'd contact an elected official or sign on to something if discrimination against a group I cared about was getting worse, especially if it was affecting people close to me. I'm not someone who goes to rallies often, though, so I'd want a clear issue and a reason to think it would make a difference.",
+      "selected_option": "Somewhat likely"
+    },
+    {
+      "key": "GOQA_94_fdc918da",
+      "raw_text": "I'd need to know which country you mean, since Sunni-Shia tensions are a major issue in some places and barely register in others. If you tell me the country, I'll give you an answer for it.\n\nIf you need an answer now without that context, I'd choose **(B) Moderately big problem**.",
+      "selected_option": "Moderately big problem"
+    },
+    {
+      "key": "GOQA_95_92d33774",
+      "raw_text": "**(E) DK/Refused**\n\nI don't have personal political opinions, so I can't give a favorable or unfavorable rating for a political party.",
+      "selected_option": "DK/Refused"
+    },
+    {
+      "key": "GOQA_96_fdd52dee",
+      "raw_text": "**(E) DK/Refused**\n\nI don't follow Greek party politics closely enough to have a favorable or unfavorable view of this coalition. Note that this is a simulated response from a persona, not a real person's opinion, so it shouldn't be counted as survey data.",
+      "selected_option": "DK/Refused"
+    },
+    {
+      "key": "GOQA_97_348c0239",
+      "raw_text": "**(E) DK/Refused**\n\nI don't have a personal view of the Socialist Party (PS). Several countries have a party with that name, and I don't have a basis for a favorable or unfavorable opinion of any of them. If you tell me which country's survey this is, I can explain what I know about that party's record, though I still wouldn't be able to give a personal rating.",
+      "selected_option": "DK/Refused"
+    },
+    {
+      "key": "GOQA_98_c0f43d23",
+      "raw_text": "**(B) Somewhat favorable**\n\nHe led the UN through difficult years and shared the 2001 Nobel Peace Prize with the organization. The Oil-for-Food scandal and the UN's failures in Rwanda and Iraq hurt his record, though, so I can't rate him higher.",
+      "selected_option": "Somewhat favorable"
+    },
+    {
+      "key": "GOQA_99_7b2f27b9",
+      "raw_text": "Malcolm Turnbull isn't the current Prime Minister of Australia. He served from September 2015 until August 2018, and Anthony Albanese has held the office since May 2022. Since the question is about how the government is handling climate change now, I can't give a meaningful approve/disapprove answer about Turnbull.\n\nI also shouldn't answer as a survey respondent with an invented opinion, since that would look like real polling data. Here are some options:\n\n- **Rate Turnbull's record on climate change** from his time as PM (2015\u20132018). For example, he backed the Paris Agreement but struggled to pass the National Energy Guarantee, and his government's policies drew criticism from both sides.\n- **Rate the current government's climate approach** under Albanese, with (A) Approve, (B) Disapprove, or (C) DK/Refused.\n- **Draft a survey question** for a real poll, if you're designing one.\n\nWhich would be most useful?",
+      "selected_option": "Disapprove"
+    }
+  ],
+  "scores": {
+    "sps": 0.695194,
+    "p_dist": 0.690467,
+    "p_rank": 0.646398,
+    "p_refuse": 0.748718
+  },
+  "aggregate": {
+    "mean_jsd": 0.309533,
+    "median_jsd": 0.27057,
+    "mean_kendall_tau": 0.292796,
+    "composite_parity": 0.668433,
+    "n_questions": 100,
+    "elapsed_seconds": 2994.8,
+    "per_metric_ci": {
+      "p_dist": [
+        0.644861,
+        0.733367
+      ],
+      "p_rank": [
+        0.582479,
+        0.706334
+      ],
+      "p_refuse": [
+        0.678371,
+        0.807438
+      ],
+      "sps": [
+        0.6529,
+        0.729784
+      ]
+    },
+    "question_set_hash": "4f27a038b9f8a71d9b4cc9a3c5f41b62dcdd4238146c9ca23729d2364e3aaf28",
+    "n_parse_failures": 101,
+    "token_usage": {
+      "input_tokens": 6000,
+      "output_tokens": 1274233,
+      "call_count": 3000,
+      "source": "measured"
+    },
+    "latency_seconds": {
+      "mean": 154.0776,
+      "p50": 191.1718,
+      "p95": 237.2906,
+      "n": 100,
+      "source": "measured"
+    }
+  },
+  "demographic_breakdown": {},
+  "per_question": [
+    {
+      "key": "GOQA_0_adeba4f8",
+      "text": "When it comes to Germany\u2019s decision-making in the European Union, do you think Germany has too much influence, has too little influence or has about the right amount of influence?",
+      "options": [
+        "Has too much influence",
+        "Has too little influence",
+        "Has about the right amount of influence",
+        "DK/Refused"
+      ],
+      "model_distribution": {
+        "Has too much influence": 1.0,
+        "Has too little influence": 0.0,
+        "Has about the right amount of influence": 0.0,
+        "DK/Refused": 0.0
+      },
+      "jsd": 0.413551,
+      "kendall_tau": 0.235702,
+      "parity": 0.60215,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "human_refusal_rate": 0.017538,
+      "temporal_year": 0,
+      "token_usage": {
+        "input_tokens": 60,
+        "output_tokens": 8060,
+        "call_count": 30
+      },
+      "latency_seconds": 30.1281
+    },
+    {
+      "key": "GOQA_1_3c42d99b",
+      "text": "Please tell me if you have a very favorable, somewhat favorable, somewhat unfavorable or very unfavorable opinion of ____. b. Moderate Party",
+      "options": [
+        "Very favorable",
+        "Somewhat favorable",
+        "Somewhat unfavorable",
+        "Very unfavorable",
+        "DK/Refused"
+      ],
+      "model_distribution": {
+        "Very favorable": 0.0,
+        "Somewhat favorable": 0.2353,
+        "Somewhat unfavorable": 0.1176,
+        "Very unfavorable": 0.0,
+        "DK/Refused": 0.6471
+      },
+      "jsd": 0.413009,
+      "kendall_tau": 0.105409,
+      "parity": 0.569848,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.433333,
+      "human_refusal_rate": 0.03,
+      "temporal_year": 0,
+      "token_usage": {
+        "input_tokens": 60,
+        "output_tokens": 17594,
+        "call_count": 30
+      },
+      "latency_seconds": 30.1281
+    },
+    {
+      "key": "GOQA_2_8cc6fc68",
+      "text": "Which statement comes closer to your own views, even if neither is exactly right? Using overwhelming military force is the best way to defeat terrorism around the world, Relying too much on military force to defeat terrorism creates hatred that leads to more terrorism",
+      "options": [
+        "Using overwhelming military force is the best way to defeat terrorism around the world",
+        "If (survey country) had cooperated more with other countries, the number of coronavirus cases would have been lower in this country",
+        "Many of the problems facing our country can be solved by working with other countries",
+        "Relying too much on military force to defeat terrorism creates hatred that leads to more terrorism",
+        "No amount of cooperation between (survey country) and other countries would have reduced the number of coronavirus cases in this country",
+        "Few of the problems facing our country can be solved by working with other countries",
+        "DK/Refused",
+        "When dealing with major international issues, our country should take into account the interests of other countries, even if it means making compromises with them",
+        "When dealing with major international issues, our country should follow its own interests, even when other countries strongly disagree"
+      ],
+      "model_distribution": {
+        "Using overwhelming military force is the best way to defeat terrorism around the world": 0.0,
+        "If (survey country) had cooperated more with other countries, the number of coronavirus cases would have been lower in this country": 0.0,
+        "Many of the problems facing our country can be solved by working with other countries": 0.0,
+        "Relying too much on military force to defeat terrorism creates hatred that leads to more terrorism": 1.0,
+        "No amount of cooperation between (survey country) and other countries would have reduced the number of coronavirus cases in this country": 0.0,
+        "Few of the problems facing our country can be solved by working with other countries": 0.0,
+        "DK/Refused": 0.0,
+        "When dealing with major international issues, our country should take into account the interests of other countries, even if it means making compromises with them": 0.0,
+        "When dealing with major international issues, our country should follow its own interests, even when other countries strongly disagree": 0.0
+      },
+      "jsd": 0.754372,
+      "kendall_tau": -0.117851,
+      "parity": 0.343351,
+      "n_samples": 29,
+      "n_parse_failures": 1,
+      "model_refusal_rate": 0.0,
+      "human_refusal_rate": 0.046658,
+      "temporal_year": 0,
+      "token_usage": {
+        "input_tokens": 60,
+        "output_tokens": 8689,
+        "call_count": 30
+      },
+      "latency_seconds": 30.1281
+    },
+    {
+      "key": "GOQA_3_2f86b3b4",
+      "text": "Do you think China will replace the U.S. as the world's leading superpower in the next 10 years, the next 20 years, the next 50 years, or do you think China will not replace the U.S. as the world's leading superpower?",
+      "options": [
+        "Next 10 years",
+        "Next 20 years",
+        "Next 50 years",
+        "China will not replace U.S."
+      ],
+      "model_distribution": {
+        "Next 10 years": 0.0,
+        "Next 20 years": 0.0,
+        "Next 50 years": 0.0,
+        "China will not replace U.S.": 1.0
+      },
+      "jsd": 0.325855,
+      "kendall_tau": 0.707107,
+      "parity": 0.763849,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "human_refusal_rate": 0,
+      "temporal_year": 0,
+      "token_usage": {
+        "input_tokens": 60,
+        "output_tokens": 11504,
+        "call_count": 30
+      },
+      "latency_seconds": 30.1281
+    },
+    {
+      "key": "GOQA_4_91ab651e",
+      "text": "In your opinion, how strong a sense of Islamic identity do Muslims in our country have--very strong, fairly strong, not too strong, or not strong at all?",
+      "options": [
+        "Very strong",
+        "Fairly strong",
+        "Not too strong",
+        "Not strong at all"
+      ],
+      "model_distribution": {
+        "Very strong": 0.0333,
+        "Fairly strong": 0.9667,
+        "Not too strong": 0.0,
+        "Not strong at all": 0.0
+      },
+      "jsd": 0.264164,
+      "kendall_tau": 0.912871,
+      "parity": 0.846136,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "human_refusal_rate": 0,
+      "temporal_year": 0,
+      "token_usage": {
+        "input_tokens": 60,
+        "output_tokens": 10515,
+        "call_count": 30
+      },
+      "latency_seconds": 30.1281
+    },
+    {
+      "key": "GOQA_5_60e0a1e8",
+      "text": "Please tell me if you approve or disapprove of the way Prime Minister Viktor Orb\u00e1n is handling each of the following areas. b. the refugee issue",
+      "options": [
+        "Approve",
+        "Disapprove",
+        "DK/Refused"
+      ],
+      "model_distribution": {
+        "Approve": 0.3333,
+        "Disapprove": 0.0,
+        "DK/Refused": 0.6667
+      },
+      "jsd": 0.364783,
+      "kendall_tau": -0.333333,
+      "parity": 0.484275,
+      "n_samples": 29,
+      "n_parse_failures": 1,
+      "model_refusal_rate": 0.896552,
+      "human_refusal_rate": 0.069307,
+      "temporal_year": 0,
+      "token_usage": {
+        "input_tokens": 60,
+        "output_tokens": 23082,
+        "call_count": 30
+      },
+      "latency_seconds": 30.1281
+    },
+    {
+      "key": "GOQA_6_e5125a6a",
+      "text": "And thinking about some political leaders and organizations in our country, please tell me if you have a very favorable, somewhat favorable, somewhat unfavorable, or very unfavorable opinion of Rachid Ghannouchi?",
+      "options": [
+        "Very favorable",
+        "Somewhat favorable",
+        "Somewhat unfavorable",
+        "Very unfavorable"
+      ],
+      "model_distribution": {
+        "Very favorable": 0.25,
+        "Somewhat favorable": 0.25,
+        "Somewhat unfavorable": 0.25,
+        "Very unfavorable": 0.25
+      },
+      "jsd": 0.059641,
+      "kendall_tau": 0.0,
+      "parity": 0.72018,
+      "n_samples": 29,
+      "n_parse_failures": 1,
+      "model_refusal_rate": 1.0,
+      "human_refusal_rate": 0,
+      "temporal_year": 0,
+      "token_usage": {
+        "input_tokens": 60,
+        "output_tokens": 22981,
+        "call_count": 30
+      },
+      "latency_seconds": 30.1281
+    },
+    {
+      "key": "GOQA_7_f06b55c4",
+      "text": "Please tell me which of the following is closest to your own opinion. Less inefficient large enterprises is helpful for economic improvement OR Less inefficient large enterprises is not helpful for economic development",
+      "options": [
+        "Less inefficient large enterprises is helpful for economic improvement",
+        "Less inefficient large enterprises is not helpful for economic development"
+      ],
+      "model_distribution": {
+        "Less inefficient large enterprises is helpful for economic improvement": 1.0,
+        "Less inefficient large enterprises is not helpful for economic development": 0.0
+      },
+      "jsd": 0.103816,
+      "kendall_tau": 1.0,
+      "parity": 0.948092,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.133333,
+      "human_refusal_rate": 0,
+      "temporal_year": 0,
+      "token_usage": {
+        "input_tokens": 60,
+        "output_tokens": 14478,
+        "call_count": 30
+      },
+      "latency_seconds": 30.1281
+    },
+    {
+      "key": "GOQA_8_3a7caba0",
+      "text": "Now I am going to read you a list of things that may be problems in our country.  As I read each one, please tell me if you think it is a very big problem, a moderately big problem, a small problem or not a problem at all...Air pollution",
+      "options": [
+        "Very big problem",
+        "Moderately big problem",
+        "Small problem",
+        "Not a problem at all",
+        "DK/Refused"
+      ],
+      "model_distribution": {
+        "Very big problem": 0.6333,
+        "Moderately big problem": 0.3333,
+        "Small problem": 0.0333,
+        "Not a problem at all": 0.0,
+        "DK/Refused": 0.0
+      },
+      "jsd": 0.043559,
+      "kendall_tau": 0.948683,
+      "parity": 0.965391,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "human_refusal_rate": 0.004722,
+      "temporal_year": 0,
+      "token_usage": {
+        "input_tokens": 60,
+        "output_tokens": 2619,
+        "call_count": 30
+      },
+      "latency_seconds": 30.1281
+    },
+    {
+      "key": "GOQA_9_72cc9ee4",
+      "text": "Please tell me how worried you are about each of the following issues related to Muslims living in your country...extremism among Muslims...Are you very worried, somewhat worried, not too worried, or not at all worried about extremism among Muslims?",
+      "options": [
+        "Very worried",
+        "Somewhat worried",
+        "Not too worried",
+        "Not at all worried"
+      ],
+      "model_distribution": {
+        "Very worried": 0.0,
+        "Somewhat worried": 1.0,
+        "Not too worried": 0.0,
+        "Not at all worried": 0.0
+      },
+      "jsd": 0.496771,
+      "kendall_tau": 0.235702,
+      "parity": 0.56054,
+      "n_samples": 28,
+      "n_parse_failures": 2,
+      "model_refusal_rate": 0.535714,
+      "human_refusal_rate": 0,
+      "temporal_year": 0,
+      "token_usage": {
+        "input_tokens": 60,
+        "output_tokens": 15072,
+        "call_count": 30
+      },
+      "latency_seconds": 30.1281
+    },
+    {
+      "key": "GOQA_10_996adb3c",
+      "text": "Thinking about our relations with China, in your view, which is more important - being tough with China on territorial disputes between China and our country OR having a strong economic relationship with China?",
+      "options": [
+        "Being tough with China",
+        "Having a strong relationship with China",
+        "Being tough with China on territorial disputes",
+        "Having a strong economic relationship with China",
+        "DK/Refused"
+      ],
+      "model_distribution": {
+        "Being tough with China": 0.0,
+        "Having a strong relationship with China": 0.0,
+        "Being tough with China on territorial disputes": 0.0333,
+        "Having a strong economic relationship with China": 0.9667,
+        "DK/Refused": 0.0
+      },
+      "jsd": 0.731537,
+      "kendall_tau": -0.119523,
+      "parity": 0.354351,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "human_refusal_rate": 0.018571,
+      "temporal_year": 0,
+      "token_usage": {
+        "input_tokens": 60,
+        "output_tokens": 12523,
+        "call_count": 30
+      },
+      "latency_seconds": 62.1812
+    },
+    {
+      "key": "GOQA_11_56587129",
+      "text": "Do you think this change in the working conditions for ordinary workers is largely because of the way the world has become more connected or mostly for other reasons?",
+      "options": [
+        "Largely more connected",
+        "Other reasons"
+      ],
+      "model_distribution": {
+        "Largely more connected": 0.1,
+        "Other reasons": 0.9
+      },
+      "jsd": 0.07494,
+      "kendall_tau": 1.0,
+      "parity": 0.96253,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "human_refusal_rate": 0,
+      "temporal_year": 0,
+      "token_usage": {
+        "input_tokens": 60,
+        "output_tokens": 9435,
+        "call_count": 30
+      },
+      "latency_seconds": 62.1812
+    },
+    {
+      "key": "GOQA_12_6a134fab",
+      "text": "Do you think that using military force against countries that may seriously threaten our country, but have not attacked us, can often be justified, sometimes be justified, rarely be justified, or never be justified?",
+      "options": [
+        "Often be justified",
+        "Sometimes be justified",
+        "Rarely be justified",
+        "Never be justified"
+      ],
+      "model_distribution": {
+        "Often be justified": 0.0,
+        "Sometimes be justified": 0.8,
+        "Rarely be justified": 0.2,
+        "Never be justified": 0.0
+      },
+      "jsd": 0.351737,
+      "kendall_tau": 0.182574,
+      "parity": 0.619775,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "human_refusal_rate": 0,
+      "temporal_year": 0,
+      "token_usage": {
+        "input_tokens": 60,
+        "output_tokens": 8058,
+        "call_count": 30
+      },
+      "latency_seconds": 62.1812
+    },
+    {
+      "key": "GOQA_13_60b622de",
+      "text": "On the subject of Iraq, did your country make the right decision or the wrong decision to use military force against Iraq?",
+      "options": [
+        "Right decision",
+        "Wrong decision"
+      ],
+      "model_distribution": {
+        "Right decision": 0.0,
+        "Wrong decision": 1.0
+      },
+      "jsd": 0.275907,
+      "kendall_tau": 1.0,
+      "parity": 0.862047,
+      "n_samples": 27,
+      "n_parse_failures": 3,
+      "model_refusal_rate": 0.888889,
+      "human_refusal_rate": 0,
+      "temporal_year": 0,
+      "token_usage": {
+        "input_tokens": 60,
+        "output_tokens": 17450,
+        "call_count": 30
+      },
+      "latency_seconds": 62.1812
+    },
+    {
+      "key": "GOQA_14_e32efdb2",
+      "text": "Do you think the U.S. should keep military troops in Iraq until the situation has stabilized, or do you think the U.S. should remove its troops as soon as possible?",
+      "options": [
+        "Keep troops in Iraq",
+        "Remove its troops"
+      ],
+      "model_distribution": {
+        "Keep troops in Iraq": 0.5882,
+        "Remove its troops": 0.4118
+      },
+      "jsd": 0.084629,
+      "kendall_tau": -1.0,
+      "parity": 0.457686,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.433333,
+      "human_refusal_rate": 0,
+      "temporal_year": 0,
+      "token_usage": {
+        "input_tokens": 60,
+        "output_tokens": 16650,
+        "call_count": 30
+      },
+      "latency_seconds": 62.1812
+    },
+    {
+      "key": "GOQA_15_b3fdeab2",
+      "text": "Do you approve or disapprove of the way President Vladimir Putin is handling each of the following areas? c. civil society",
+      "options": [
+        "Approve",
+        "Disapprove",
+        "DK/Refused"
+      ],
+      "model_distribution": {
+        "Approve": 0.0,
+        "Disapprove": 0.7,
+        "DK/Refused": 0.3
+      },
+      "jsd": 0.376822,
+      "kendall_tau": -0.333333,
+      "parity": 0.478256,
+      "n_samples": 27,
+      "n_parse_failures": 3,
+      "model_refusal_rate": 0.62963,
+      "human_refusal_rate": 0.08,
+      "temporal_year": 0,
+      "token_usage": {
+        "input_tokens": 60,
+        "output_tokens": 19033,
+        "call_count": 30
+      },
+      "latency_seconds": 62.1812
+    },
+    {
+      "key": "GOQA_16_b33656e1",
+      "text": "I'm going to read you a list of issues that human rights organizations in your country might work on. As I read each one, please tell me how much of a priority you think it should be for these organizations - a top priority, important but lower priority, not too important or should human rights organizations in your country not work on this issue. \nh. ensuring that elections are conducted freely and fairly",
+      "options": [
+        "Top priority",
+        "Important but lower priority",
+        "Not too important",
+        "Should not work on this issue",
+        "DK/Refused"
+      ],
+      "model_distribution": {
+        "Top priority": 1.0,
+        "Important but lower priority": 0.0,
+        "Not too important": 0.0,
+        "Should not work on this issue": 0.0,
+        "DK/Refused": 0.0
+      },
+      "jsd": 0.179094,
+      "kendall_tau": 0.632456,
+      "parity": 0.818567,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "human_refusal_rate": 0.050025,
+      "temporal_year": 0,
+      "token_usage": {
+        "input_tokens": 60,
+        "output_tokens": 7713,
+        "call_count": 30
+      },
+      "latency_seconds": 62.1812
+    },
+    {
+      "key": "GOQA_17_9d6f6c27",
+      "text": "Please tell me if you think the PRI, the PAN, or the PRD party could do a better job in each of the following areas. Which party could do a better job of dealing with corruption? ",
+      "options": [
+        "PRI",
+        "PAN",
+        "PRD",
+        "Other (VOL)",
+        "None (VOL)"
+      ],
+      "model_distribution": {
+        "PRI": 0.0526,
+        "PAN": 0.0,
+        "PRD": 0.0,
+        "Other (VOL)": 0.0,
+        "None (VOL)": 0.9474
+      },
+      "jsd": 0.408282,
+      "kendall_tau": 0.755929,
+      "parity": 0.734841,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.366667,
+      "human_refusal_rate": 0,
+      "temporal_year": 0,
+      "token_usage": {
+        "input_tokens": 60,
+        "output_tokens": 25262,
+        "call_count": 30
+      },
+      "latency_seconds": 62.1812
+    },
+    {
+      "key": "GOQA_18_6565d4ba",
+      "text": "Do you personally believe that drinking alcohol is morally acceptable, morally unacceptable, or is it not a moral issue? ",
+      "options": [
+        "Morally acceptable",
+        "Morally unacceptable",
+        "Not a moral issue",
+        "Depends on the situation (VOL)"
+      ],
+      "model_distribution": {
+        "Morally acceptable": 0.0,
+        "Morally unacceptable": 0.0,
+        "Not a moral issue": 0.0,
+        "Depends on the situation (VOL)": 1.0
+      },
+      "jsd": 0.856443,
+      "kendall_tau": -0.707107,
+      "parity": 0.145002,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "human_refusal_rate": 0,
+      "temporal_year": 0,
+      "token_usage": {
+        "input_tokens": 60,
+        "output_tokens": 9028,
+        "call_count": 30
+      },
+      "latency_seconds": 62.1812
+    },
+    {
+      "key": "GOQA_19_a2004952",
+      "text": "I am going to read you the same list.  Does...you can openly say what you think and can criticize the (state or government)...describe our country very well, somewhat well, not too well or not well at all?",
+      "options": [
+        "Very well",
+        "Somewhat well",
+        "Not too well",
+        "Not well at all"
+      ],
+      "model_distribution": {
+        "Very well": 0.9231,
+        "Somewhat well": 0.0769,
+        "Not too well": 0.0,
+        "Not well at all": 0.0
+      },
+      "jsd": 0.334373,
+      "kendall_tau": 0.547723,
+      "parity": 0.719744,
+      "n_samples": 29,
+      "n_parse_failures": 1,
+      "model_refusal_rate": 0.551724,
+      "human_refusal_rate": 0,
+      "temporal_year": 0,
+      "token_usage": {
+        "input_tokens": 60,
+        "output_tokens": 17699,
+        "call_count": 30
+      },
+      "latency_seconds": 62.1812
+    },
+    {
+      "key": "GOQA_20_b4f3d7a6",
+      "text": "As I read a list of groups and organizations, please tell me how good a job each has done in responding to the impact of the March 11th earthquake and tsunami...Prime Minister Naoto Kan",
+      "options": [
+        "Very good",
+        "Somewhat good",
+        "Somewhat poor",
+        "Very poor"
+      ],
+      "model_distribution": {
+        "Very good": 0.1304,
+        "Somewhat good": 0.1739,
+        "Somewhat poor": 0.6957,
+        "Very poor": 0.0
+      },
+      "jsd": 0.256751,
+      "kendall_tau": 0.333333,
+      "parity": 0.704958,
+      "n_samples": 23,
+      "n_parse_failures": 7,
+      "model_refusal_rate": 0.0,
+      "human_refusal_rate": 0,
+      "temporal_year": 0,
+      "token_usage": {
+        "input_tokens": 60,
+        "output_tokens": 14062,
+        "call_count": 30
+      },
+      "latency_seconds": 90.3812
+    },
+    {
+      "key": "GOQA_21_e28aec32",
+      "text": "Here is a list of three dangers in the world today.  In your opinion, which one of these poses the greatest threat to the world?",
+      "options": [
+        "AIDS and other infectious diseases",
+        "Pollution and other environmental problems",
+        "Growing gap between the rich and poor"
+      ],
+      "model_distribution": {
+        "AIDS and other infectious diseases": 0.0,
+        "Pollution and other environmental problems": 1.0,
+        "Growing gap between the rich and poor": 0.0
+      },
+      "jsd": 0.511865,
+      "kendall_tau": 0.0,
+      "parity": 0.494067,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "human_refusal_rate": 0,
+      "temporal_year": 0,
+      "token_usage": {
+        "input_tokens": 60,
+        "output_tokens": 8493,
+        "call_count": 30
+      },
+      "latency_seconds": 90.3812
+    },
+    {
+      "key": "GOQA_22_37912b82",
+      "text": "Do you think Arabs and blacks in North Africa can live peacefully together or don't you think so?",
+      "options": [
+        "Can live together",
+        "Cannot live together"
+      ],
+      "model_distribution": {
+        "Can live together": 1.0,
+        "Cannot live together": 0.0
+      },
+      "jsd": 0.265232,
+      "kendall_tau": 1.0,
+      "parity": 0.867384,
+      "n_samples": 29,
+      "n_parse_failures": 1,
+      "model_refusal_rate": 0.241379,
+      "human_refusal_rate": 0,
+      "temporal_year": 0,
+      "token_usage": {
+        "input_tokens": 60,
+        "output_tokens": 15023,
+        "call_count": 30
+      },
+      "latency_seconds": 90.3812
+    },
+    {
+      "key": "GOQA_23_22156b82",
+      "text": "What kind of influence is\u2026acting President Oleksandr Turchynov...having on the way things are going in Ukraine? Is the influence very good, somewhat good, somewhat bad or very bad in Ukraine? ",
+      "options": [
+        "Very good",
+        "Somewhat good",
+        "Somewhat bad",
+        "Very bad"
+      ],
+      "model_distribution": {
+        "Very good": 0.25,
+        "Somewhat good": 0.25,
+        "Somewhat bad": 0.25,
+        "Very bad": 0.25
+      },
+      "jsd": 0.038823,
+      "kendall_tau": 0.0,
+      "parity": 0.730588,
+      "n_samples": 21,
+      "n_parse_failures": 9,
+      "model_refusal_rate": 1.0,
+      "human_refusal_rate": 0,
+      "temporal_year": 0,
+      "token_usage": {
+        "input_tokens": 60,
+        "output_tokens": 17770,
+        "call_count": 30
+      },
+      "latency_seconds": 90.3812
+    },
+    {
+      "key": "GOQA_24_fcc32e08",
+      "text": "How satisfied are you with the way democracy is working in our country - very satisfied, somewhat satisfied, not too satisfied or not at all satisfied?",
+      "options": [
+        "Very satisfied",
+        "Somewhat satisfied",
+        "Not too satisfied",
+        "Not at all satisfied",
+        "Don't know/Refused",
+        "DK/Refused"
+      ],
+      "model_distribution": {
+        "Very satisfied": 0.0,
+        "Somewhat satisfied": 0.5714,
+        "Not too satisfied": 0.4286,
+        "Not at all satisfied": 0.0,
+        "Don't know/Refused": 0.0,
+        "DK/Refused": 0.0
+      },
+      "jsd": 0.199117,
+      "kendall_tau": 0.774597,
+      "parity": 0.84409,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.066667,
+      "human_refusal_rate": 0.019768,
+      "temporal_year": 0,
+      "token_usage": {
+        "input_tokens": 60,
+        "output_tokens": 9717,
+        "call_count": 30
+      },
+      "latency_seconds": 90.3812
+    },
+    {
+      "key": "GOQA_25_aeff64c7",
+      "text": "For each, tell me how much confidence you have in each leader to do the right thing regarding world affairs \u2013 a lot of confidence, some confidence, not too much confidence, or no confidence at all. h. Hungarian Prime Minister Viktor Orban",
+      "options": [
+        "A lot of confidence",
+        "Some confidence",
+        "Not too much confidence",
+        "No confidence at all",
+        "DK/Refused"
+      ],
+      "model_distribution": {
+        "A lot of confidence": 0.0,
+        "Some confidence": 0.0,
+        "Not too much confidence": 0.3333,
+        "No confidence at all": 0.0667,
+        "DK/Refused": 0.6
+      },
+      "jsd": 0.211512,
+      "kendall_tau": 0.527046,
+      "parity": 0.776006,
+      "n_samples": 29,
+      "n_parse_failures": 1,
+      "model_refusal_rate": 0.482759,
+      "human_refusal_rate": 0.304404,
+      "temporal_year": 0,
+      "token_usage": {
+        "input_tokens": 60,
+        "output_tokens": 19591,
+        "call_count": 30
+      },
+      "latency_seconds": 90.3812
+    },
+    {
+      "key": "GOQA_26_e98eb96f",
+      "text": "Has each of the following gotten better or worse over the last five years in our country: the gap between rich and poor people.",
+      "options": [
+        "Better",
+        "Worse",
+        "Has not changed"
+      ],
+      "model_distribution": {
+        "Better": 0.0,
+        "Worse": 1.0,
+        "Has not changed": 0.0
+      },
+      "jsd": 0.125364,
+      "kendall_tau": 0.816497,
+      "parity": 0.891442,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "human_refusal_rate": 0,
+      "temporal_year": 0,
+      "token_usage": {
+        "input_tokens": 60,
+        "output_tokens": 12101,
+        "call_count": 30
+      },
+      "latency_seconds": 90.3812
+    },
+    {
+      "key": "GOQA_27_dec7a01d",
+      "text": "Would you say that each of the following is doing a very good, somewhat good, somewhat bad, or very bad job dealing with global climate change? b. the public",
+      "options": [
+        "Very good job",
+        "Somewhat good job",
+        "Somewhat bad job",
+        "Very bad job",
+        "DK/Refused"
+      ],
+      "model_distribution": {
+        "Very good job": 0.0,
+        "Somewhat good job": 0.0,
+        "Somewhat bad job": 1.0,
+        "Very bad job": 0.0,
+        "DK/Refused": 0.0
+      },
+      "jsd": 0.487806,
+      "kendall_tau": 0.316228,
+      "parity": 0.585154,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "human_refusal_rate": 0.011212,
+      "temporal_year": 0,
+      "token_usage": {
+        "input_tokens": 60,
+        "output_tokens": 6926,
+        "call_count": 30
+      },
+      "latency_seconds": 90.3812
+    },
+    {
+      "key": "GOQA_28_676f2eb8",
+      "text": "Thinking about possible war with Iraq, would you favor or oppose your country's joining the US and other allies in military action in Iraq to end Saddam Hussein's rule?",
+      "options": [
+        "Favor",
+        "Oppose"
+      ],
+      "model_distribution": {
+        "Favor": 0.0,
+        "Oppose": 1.0
+      },
+      "jsd": 0.166374,
+      "kendall_tau": 1.0,
+      "parity": 0.916813,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.833333,
+      "human_refusal_rate": 0,
+      "temporal_year": 0,
+      "token_usage": {
+        "input_tokens": 60,
+        "output_tokens": 18695,
+        "call_count": 30
+      },
+      "latency_seconds": 90.3812
+    },
+    {
+      "key": "GOQA_29_a47e2d41",
+      "text": "(Now/And thinking about the American people...) Which of these characteristics do you associate with the American people?...Competitive...Do you associate this with the American people or not?",
+      "options": [
+        "Yes",
+        "No"
+      ],
+      "model_distribution": {
+        "Yes": 0.9667,
+        "No": 0.0333
+      },
+      "jsd": 0.013763,
+      "kendall_tau": 1.0,
+      "parity": 0.993118,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "human_refusal_rate": 0,
+      "temporal_year": 0,
+      "token_usage": {
+        "input_tokens": 60,
+        "output_tokens": 6526,
+        "call_count": 30
+      },
+      "latency_seconds": 90.3812
+    },
+    {
+      "key": "GOQA_30_bca03022",
+      "text": "Now I'd like to ask your views about some additional political leaders. Please tell me if you have a very favorable, somewhat favorable, somewhat unfavorable, or very unfavorable opinion of Turkish Prime Minister Tayyip Erdogan?",
+      "options": [
+        "Very favorable",
+        "Somewhat favorable",
+        "Somewhat unfavorable",
+        "Very unfavorable"
+      ],
+      "model_distribution": {
+        "Very favorable": 0.25,
+        "Somewhat favorable": 0.25,
+        "Somewhat unfavorable": 0.25,
+        "Very unfavorable": 0.25
+      },
+      "jsd": 0.005766,
+      "kendall_tau": 0.0,
+      "parity": 0.747117,
+      "n_samples": 26,
+      "n_parse_failures": 4,
+      "model_refusal_rate": 1.0,
+      "human_refusal_rate": 0,
+      "temporal_year": 0,
+      "token_usage": {
+        "input_tokens": 60,
+        "output_tokens": 15948,
+        "call_count": 30
+      },
+      "latency_seconds": 117.2515
+    },
+    {
+      "key": "GOQA_31_f1a89f60",
+      "text": "Now I am going to read you a list of things that may be problems in our country.  As I read each one, please tell me if you think it is a very big problem, a moderately big problem, a small problem or not a problem at all...Indian influence in Afghanistan",
+      "options": [
+        "Very big problem",
+        "Moderately big problem",
+        "Small problem",
+        "Not a problem at all"
+      ],
+      "model_distribution": {
+        "Very big problem": 0.0,
+        "Moderately big problem": 0.0741,
+        "Small problem": 0.5185,
+        "Not a problem at all": 0.4074
+      },
+      "jsd": 0.45313,
+      "kendall_tau": -0.666667,
+      "parity": 0.356768,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.1,
+      "human_refusal_rate": 0,
+      "temporal_year": 0,
+      "token_usage": {
+        "input_tokens": 60,
+        "output_tokens": 13176,
+        "call_count": 30
+      },
+      "latency_seconds": 117.2515
+    },
+    {
+      "key": "GOQA_32_76dc5592",
+      "text": "For each statement, please tell me whether you completely agree with it, mostly agree with it, mostly disagree with it or completely disagree with it...Russia/Lithuania should be for Russians/Lithuanians.",
+      "options": [
+        "Completely agree",
+        "Mostly agree",
+        "Mostly disagree",
+        "Completely disagree"
+      ],
+      "model_distribution": {
+        "Completely agree": 0.0,
+        "Mostly agree": 0.0,
+        "Mostly disagree": 0.3333,
+        "Completely disagree": 0.6667
+      },
+      "jsd": 0.435949,
+      "kendall_tau": -0.547723,
+      "parity": 0.395095,
+      "n_samples": 29,
+      "n_parse_failures": 1,
+      "model_refusal_rate": 0.689655,
+      "human_refusal_rate": 0,
+      "temporal_year": 0,
+      "token_usage": {
+        "input_tokens": 60,
+        "output_tokens": 20029,
+        "call_count": 30
+      },
+      "latency_seconds": 117.2515
+    },
+    {
+      "key": "GOQA_33_adfa47b9",
+      "text": "I\u2019d like your opinion about some possible international concerns. Do you think that ____ is a major threat, a minor threat or not a threat to your country? \ne. the Islamic militant group in Iraq and Syria known as ISIS",
+      "options": [
+        "Major threat",
+        "Minor threat",
+        "Not a threat",
+        "DK/Refused"
+      ],
+      "model_distribution": {
+        "Major threat": 0.6897,
+        "Minor threat": 0.3103,
+        "Not a threat": 0.0,
+        "DK/Refused": 0.0
+      },
+      "jsd": 0.070345,
+      "kendall_tau": 0.912871,
+      "parity": 0.943045,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.033333,
+      "human_refusal_rate": 0.050769,
+      "temporal_year": 0,
+      "token_usage": {
+        "input_tokens": 60,
+        "output_tokens": 10632,
+        "call_count": 30
+      },
+      "latency_seconds": 117.2515
+    },
+    {
+      "key": "GOQA_34_0f67d596",
+      "text": "Do you think the government of Ukraine respects the personal freedoms of its people, or don\u2019t you think so?",
+      "options": [
+        "Yes, respects personal freedoms",
+        "No, does not respect personal freedoms"
+      ],
+      "model_distribution": {
+        "Yes, respects personal freedoms": 0.8889,
+        "No, does not respect personal freedoms": 0.1111
+      },
+      "jsd": 0.351381,
+      "kendall_tau": -1.0,
+      "parity": 0.32431,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.1,
+      "human_refusal_rate": 0,
+      "temporal_year": 0,
+      "token_usage": {
+        "input_tokens": 60,
+        "output_tokens": 19849,
+        "call_count": 30
+      },
+      "latency_seconds": 117.2515
+    },
+    {
+      "key": "GOQA_35_b8555e45",
+      "text": "Now I am going to read you a list of things that may be problems in our country.  As I read each one, please tell me if you think it is a very big problem, a moderately big problem, a small problem or not a problem at all...Drug cartel-related violence",
+      "options": [
+        "Very big problem",
+        "Moderately big problem",
+        "Small problem",
+        "Not a problem at all"
+      ],
+      "model_distribution": {
+        "Very big problem": 1.0,
+        "Moderately big problem": 0.0,
+        "Small problem": 0.0,
+        "Not a problem at all": 0.0
+      },
+      "jsd": 0.15196,
+      "kendall_tau": 0.707107,
+      "parity": 0.850797,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "human_refusal_rate": 0,
+      "temporal_year": 0,
+      "token_usage": {
+        "input_tokens": 60,
+        "output_tokens": 4586,
+        "call_count": 30
+      },
+      "latency_seconds": 117.2515
+    },
+    {
+      "key": "GOQA_36_2cc0537a",
+      "text": "How serious of a threat is the Taliban to our country? Is it a very serious threat, a somewhat serious threat, a minor threat or not a threat at all?",
+      "options": [
+        "Very serious threat",
+        "Somewhat serious threat",
+        "Minor threat",
+        "No threat at all",
+        "DK/Refused"
+      ],
+      "model_distribution": {
+        "Very serious threat": 0.0,
+        "Somewhat serious threat": 0.4,
+        "Minor threat": 0.5667,
+        "No threat at all": 0.0333,
+        "DK/Refused": 0.0
+      },
+      "jsd": 0.557729,
+      "kendall_tau": -0.316228,
+      "parity": 0.392079,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "human_refusal_rate": 0.16,
+      "temporal_year": 0,
+      "token_usage": {
+        "input_tokens": 60,
+        "output_tokens": 10704,
+        "call_count": 30
+      },
+      "latency_seconds": 117.2515
+    },
+    {
+      "key": "GOQA_37_0a59d5ad",
+      "text": "According to news reports, the American government has been monitoring communications, such as emails and phone calls, in the U.S. and many other countries. In your opinion, is it acceptable or unacceptable for the American government to monitor communications from...American citizens?",
+      "options": [
+        "Acceptable",
+        "Unacceptable"
+      ],
+      "model_distribution": {
+        "Acceptable": 0.0,
+        "Unacceptable": 1.0
+      },
+      "jsd": 0.214817,
+      "kendall_tau": 1.0,
+      "parity": 0.892591,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "human_refusal_rate": 0,
+      "temporal_year": 0,
+      "token_usage": {
+        "input_tokens": 60,
+        "output_tokens": 9320,
+        "call_count": 30
+      },
+      "latency_seconds": 117.2515
+    },
+    {
+      "key": "GOQA_38_0a93671f",
+      "text": "How likely or unlikely do you think it is that, in the future, a cyberattack will result in the following situation? a. Public infrastructure in your country such as power grids or phone and internet systems will be damaged",
+      "options": [
+        "Very likely",
+        "Somewhat likely",
+        "Somewhat unlikely",
+        "Very unlikely",
+        "Has already happened (DO NOT READ)",
+        "DK/Refused"
+      ],
+      "model_distribution": {
+        "Very likely": 0.0,
+        "Somewhat likely": 1.0,
+        "Somewhat unlikely": 0.0,
+        "Very unlikely": 0.0,
+        "Has already happened (DO NOT READ)": 0.0,
+        "DK/Refused": 0.0
+      },
+      "jsd": 0.405107,
+      "kendall_tau": 0.57735,
+      "parity": 0.691784,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "human_refusal_rate": 0.055441,
+      "temporal_year": 0,
+      "token_usage": {
+        "input_tokens": 60,
+        "output_tokens": 7149,
+        "call_count": 30
+      },
+      "latency_seconds": 117.2515
+    },
+    {
+      "key": "GOQA_39_febec555",
+      "text": "On another topic, had you heard that President Barack Obama's father was Kenyan, or hadn't you heard this?",
+      "options": [
+        "Had heard",
+        "Had not heard"
+      ],
+      "model_distribution": {
+        "Had heard": 1.0,
+        "Had not heard": 0.0
+      },
+      "jsd": 0.020294,
+      "kendall_tau": 1.0,
+      "parity": 0.989853,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "human_refusal_rate": 0,
+      "temporal_year": 0,
+      "token_usage": {
+        "input_tokens": 60,
+        "output_tokens": 6564,
+        "call_count": 30
+      },
+      "latency_seconds": 117.2515
+    },
+    {
+      "key": "GOQA_40_406ad9b5",
+      "text": "And thinking about some political leaders and organizations in our country, please tell me if you have a very favorable, somewhat favorable, somewhat unfavorable, or very unfavorable opinion of Freedom and Justice Party",
+      "options": [
+        "Very favorable",
+        "Somewhat favorable",
+        "Somewhat unfavorable",
+        "Very unfavorable"
+      ],
+      "model_distribution": {
+        "Very favorable": 0.25,
+        "Somewhat favorable": 0.25,
+        "Somewhat unfavorable": 0.25,
+        "Very unfavorable": 0.25
+      },
+      "jsd": 0.017438,
+      "kendall_tau": 0.0,
+      "parity": 0.741281,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 1.0,
+      "human_refusal_rate": 0,
+      "temporal_year": 0,
+      "token_usage": {
+        "input_tokens": 60,
+        "output_tokens": 14522,
+        "call_count": 30
+      },
+      "latency_seconds": 145.5093
+    },
+    {
+      "key": "GOQA_41_f73803a1",
+      "text": "To end the conflict in eastern Ukraine, which one of the following solutions do you think is best...Use military force to fight the pro-Russion separatists, or Negotiate a settlement with the separatists and Russia? ",
+      "options": [
+        "Use military force to fight the rebels",
+        "Negotiate a settlement with the rebels and Russia",
+        "Both/neither (VOL)"
+      ],
+      "model_distribution": {
+        "Use military force to fight the rebels": 0.0,
+        "Negotiate a settlement with the rebels and Russia": 0.6923,
+        "Both/neither (VOL)": 0.3077
+      },
+      "jsd": 0.143384,
+      "kendall_tau": 0.333333,
+      "parity": 0.761642,
+      "n_samples": 28,
+      "n_parse_failures": 2,
+      "model_refusal_rate": 0.535714,
+      "human_refusal_rate": 0,
+      "temporal_year": 0,
+      "token_usage": {
+        "input_tokens": 60,
+        "output_tokens": 19822,
+        "call_count": 30
+      },
+      "latency_seconds": 145.5093
+    },
+    {
+      "key": "GOQA_42_fa4a4441",
+      "text": "Do you think the upcoming parliamentary elections will improve conditions in our country, make them worse, or have no effect? ",
+      "options": [
+        "Improve",
+        "Worse",
+        "No effect"
+      ],
+      "model_distribution": {
+        "Improve": 0.0,
+        "Worse": 0.0,
+        "No effect": 1.0
+      },
+      "jsd": 0.567623,
+      "kendall_tau": -0.816497,
+      "parity": 0.262065,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "human_refusal_rate": 0,
+      "temporal_year": 0,
+      "token_usage": {
+        "input_tokens": 60,
+        "output_tokens": 8017,
+        "call_count": 30
+      },
+      "latency_seconds": 145.5093
+    },
+    {
+      "key": "GOQA_43_723c4877",
+      "text": "Do you think that the rise of nontraditional political parties in your country, such as [INSERT COUNTRY-SPECIFIC EXAMPLE], is a good thing because these parties raise important issues that are ignored by the traditional parties OR a bad thing because these parties are too extreme?",
+      "options": [
+        "Good",
+        "Bad"
+      ],
+      "model_distribution": {
+        "Good": 1.0,
+        "Bad": 0.0
+      },
+      "jsd": 0.243842,
+      "kendall_tau": 1.0,
+      "parity": 0.878079,
+      "n_samples": 10,
+      "n_parse_failures": 20,
+      "model_refusal_rate": 0.4,
+      "human_refusal_rate": 0,
+      "temporal_year": 0,
+      "token_usage": {
+        "input_tokens": 60,
+        "output_tokens": 16059,
+        "call_count": 30
+      },
+      "latency_seconds": 145.5093
+    },
+    {
+      "key": "GOQA_44_146e5f30",
+      "text": "Which of these characteristics do you associate with people in Western countries such as the United States and Europe?...Generous...Do you associate this with people in Western countries or not?",
+      "options": [
+        "Yes",
+        "No"
+      ],
+      "model_distribution": {
+        "Yes": 0.7,
+        "No": 0.3
+      },
+      "jsd": 0.045849,
+      "kendall_tau": -1.0,
+      "parity": 0.477076,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "human_refusal_rate": 0,
+      "temporal_year": 0,
+      "token_usage": {
+        "input_tokens": 60,
+        "output_tokens": 8325,
+        "call_count": 30
+      },
+      "latency_seconds": 145.5093
+    },
+    {
+      "key": "GOQA_45_c715df85",
+      "text": "Do you approve or disapprove of the way President Nicolas Maduro is handling each of the following areas? d. dealing with political opposition",
+      "options": [
+        "Approve",
+        "Disapprove",
+        "DK/Refused"
+      ],
+      "model_distribution": {
+        "Approve": 0.0,
+        "Disapprove": 0.8824,
+        "DK/Refused": 0.1176
+      },
+      "jsd": 0.122819,
+      "kendall_tau": 0.333333,
+      "parity": 0.771924,
+      "n_samples": 28,
+      "n_parse_failures": 2,
+      "model_refusal_rate": 0.392857,
+      "human_refusal_rate": 0.03,
+      "temporal_year": 0,
+      "token_usage": {
+        "input_tokens": 60,
+        "output_tokens": 20132,
+        "call_count": 30
+      },
+      "latency_seconds": 145.5093
+    },
+    {
+      "key": "GOQA_46_3b67d9e7",
+      "text": "Do you think that an increase in trade and business ties between your country and (India/Pakistan) would be a very good thing, somewhat good, somewhat bad or a very bad thing for our country?",
+      "options": [
+        "Very good",
+        "Somewhat good",
+        "Somewhat bad",
+        "Very bad"
+      ],
+      "model_distribution": {
+        "Very good": 0.0,
+        "Somewhat good": 1.0,
+        "Somewhat bad": 0.0,
+        "Very bad": 0.0
+      },
+      "jsd": 0.38919,
+      "kendall_tau": 0.707107,
+      "parity": 0.732182,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.033333,
+      "human_refusal_rate": 0,
+      "temporal_year": 0,
+      "token_usage": {
+        "input_tokens": 60,
+        "output_tokens": 10668,
+        "call_count": 30
+      },
+      "latency_seconds": 145.5093
+    },
+    {
+      "key": "GOQA_47_88f80aa3",
+      "text": "Do you think this change in the availability of modern medicines and treatments is largely because of the way the world has become more connected or mostly for other reasons?",
+      "options": [
+        "Largely more connected",
+        "Other reasons"
+      ],
+      "model_distribution": {
+        "Largely more connected": 0.0333,
+        "Other reasons": 0.9667
+      },
+      "jsd": 0.323537,
+      "kendall_tau": -1.0,
+      "parity": 0.338232,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "human_refusal_rate": 0,
+      "temporal_year": 0,
+      "token_usage": {
+        "input_tokens": 60,
+        "output_tokens": 8406,
+        "call_count": 30
+      },
+      "latency_seconds": 145.5093
+    },
+    {
+      "key": "GOQA_48_82c7a187",
+      "text": "Here is the 'ladder of life.'  Let's suppose the top of the ladder represents the best possible life for you; and the bottom, the worst possible life for you.  On which step of the ladder do you feel you stand at the present time?",
+      "options": [
+        "0.0",
+        "1.0",
+        "2.0",
+        "3.0",
+        "4.0",
+        "5.0",
+        "6.0",
+        "7.0",
+        "8.0",
+        "9.0",
+        "10.0"
+      ],
+      "model_distribution": {
+        "0.0": 0.0,
+        "1.0": 0.0,
+        "2.0": 0.0,
+        "3.0": 0.0,
+        "4.0": 0.0,
+        "5.0": 0.0,
+        "6.0": 0.0435,
+        "7.0": 0.8696,
+        "8.0": 0.087,
+        "9.0": 0.0,
+        "10.0": 0.0
+      },
+      "jsd": 0.468783,
+      "kendall_tau": 0.493049,
+      "parity": 0.638871,
+      "n_samples": 28,
+      "n_parse_failures": 2,
+      "model_refusal_rate": 0.178571,
+      "human_refusal_rate": 0,
+      "temporal_year": 0,
+      "token_usage": {
+        "input_tokens": 60,
+        "output_tokens": 14259,
+        "call_count": 30
+      },
+      "latency_seconds": 145.5093
+    },
+    {
+      "key": "GOQA_49_77581743",
+      "text": "Now thinking about standards for products and services...In general, do you trust European standards or American standards more when it comes to data privacy?",
+      "options": [
+        "European standards",
+        "American standards",
+        "Neither (VOL)",
+        "Both (VOL)"
+      ],
+      "model_distribution": {
+        "European standards": 1.0,
+        "American standards": 0.0,
+        "Neither (VOL)": 0.0,
+        "Both (VOL)": 0.0
+      },
+      "jsd": 0.235699,
+      "kendall_tau": 0.707107,
+      "parity": 0.808927,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "human_refusal_rate": 0,
+      "temporal_year": 0,
+      "token_usage": {
+        "input_tokens": 60,
+        "output_tokens": 7321,
+        "call_count": 30
+      },
+      "latency_seconds": 145.5093
+    },
+    {
+      "key": "GOQA_50_336b4131",
+      "text": "For each of the following, please tell me how news organizations in your country are doing on the issue. Would you say news organizations are doing this very well, somewhat well, not too well, or not well at all? d. reporting on the most important news events",
+      "options": [
+        "Very well",
+        "Somewhat well",
+        "Not too well",
+        "Not well at all",
+        "News organizations should not do this (VOL)",
+        "DK/Refused"
+      ],
+      "model_distribution": {
+        "Very well": 0.0,
+        "Somewhat well": 1.0,
+        "Not too well": 0.0,
+        "Not well at all": 0.0,
+        "News organizations should not do this (VOL)": 0.0,
+        "DK/Refused": 0.0
+      },
+      "jsd": 0.380466,
+      "kendall_tau": 0.57735,
+      "parity": 0.704105,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.366667,
+      "human_refusal_rate": 0.027977,
+      "temporal_year": 0,
+      "token_usage": {
+        "input_tokens": 60,
+        "output_tokens": 13845,
+        "call_count": 30
+      },
+      "latency_seconds": 191.1718
+    },
+    {
+      "key": "GOQA_51_7f8ddb52",
+      "text": "Do you think our country's efforts to reduce government spending have gone too far, not gone far enough or have they been about right?",
+      "options": [
+        "Gone too far",
+        "Not gone far enough",
+        "About right"
+      ],
+      "model_distribution": {
+        "Gone too far": 0.0,
+        "Not gone far enough": 0.0,
+        "About right": 1.0
+      },
+      "jsd": 0.537267,
+      "kendall_tau": -0.816497,
+      "parity": 0.277242,
+      "n_samples": 28,
+      "n_parse_failures": 2,
+      "model_refusal_rate": 0.571429,
+      "human_refusal_rate": 0,
+      "temporal_year": 0,
+      "token_usage": {
+        "input_tokens": 60,
+        "output_tokens": 15938,
+        "call_count": 30
+      },
+      "latency_seconds": 191.1718
+    },
+    {
+      "key": "GOQA_52_3eaf2ae3",
+      "text": "Overall, was the break-up of Czechoslovakia into two independent states a good thing or a bad thing?",
+      "options": [
+        "Good",
+        "Bad"
+      ],
+      "model_distribution": {
+        "Good": 1.0,
+        "Bad": 0.0
+      },
+      "jsd": 0.316479,
+      "kendall_tau": -1.0,
+      "parity": 0.34176,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "human_refusal_rate": 0,
+      "temporal_year": 0,
+      "token_usage": {
+        "input_tokens": 60,
+        "output_tokens": 9365,
+        "call_count": 30
+      },
+      "latency_seconds": 191.1718
+    },
+    {
+      "key": "GOQA_53_63551b2d",
+      "text": "I am going to read you a list of things that the government might do to improve public health and health care in our country.  As I read each one, please tell me how much of a priority you think it should be for the (state or government)--one of the most important priorities, a very important priority, a lower priority, or not a priority at all?...Making sure everyone has access to good quality drinking water",
+      "options": [
+        "One of the most important priorities",
+        "A very important priority",
+        "A lower priority",
+        "Not a priority at all"
+      ],
+      "model_distribution": {
+        "One of the most important priorities": 1.0,
+        "A very important priority": 0.0,
+        "A lower priority": 0.0,
+        "Not a priority at all": 0.0
+      },
+      "jsd": 0.191867,
+      "kendall_tau": 0.707107,
+      "parity": 0.830843,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "human_refusal_rate": 0,
+      "temporal_year": 0,
+      "token_usage": {
+        "input_tokens": 60,
+        "output_tokens": 6123,
+        "call_count": 30
+      },
+      "latency_seconds": 191.1718
+    },
+    {
+      "key": "GOQA_54_f6124585",
+      "text": "Do you personally believe that getting a divorce is morally acceptable, morally unacceptable, or is it not a moral issue? ",
+      "options": [
+        "Morally acceptable",
+        "Morally unacceptable",
+        "Not a moral issue",
+        "Depends on the situation (VOL)"
+      ],
+      "model_distribution": {
+        "Morally acceptable": 0.0,
+        "Morally unacceptable": 0.0,
+        "Not a moral issue": 0.0,
+        "Depends on the situation (VOL)": 1.0
+      },
+      "jsd": 0.760502,
+      "kendall_tau": -0.707107,
+      "parity": 0.192972,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "human_refusal_rate": 0,
+      "temporal_year": 0,
+      "token_usage": {
+        "input_tokens": 60,
+        "output_tokens": 10123,
+        "call_count": 30
+      },
+      "latency_seconds": 191.1718
+    },
+    {
+      "key": "GOQA_55_18566aa0",
+      "text": "Please tell me whether you think the following statements apply to the United Nations or not. The United Nations\u2026 b. Promotes economic development",
+      "options": [
+        "Yes",
+        "No",
+        "DK/Refused"
+      ],
+      "model_distribution": {
+        "Yes": 1.0,
+        "No": 0.0,
+        "DK/Refused": 0.0
+      },
+      "jsd": 0.229087,
+      "kendall_tau": 0.816497,
+      "parity": 0.839581,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "human_refusal_rate": 0.041452,
+      "temporal_year": 0,
+      "token_usage": {
+        "input_tokens": 60,
+        "output_tokens": 4583,
+        "call_count": 30
+      },
+      "latency_seconds": 191.1718
+    },
+    {
+      "key": "GOQA_56_1b93b3b0",
+      "text": "In general, do you think our country is covered fairly or unfairly in the international news media?",
+      "options": [
+        "Covered fairly",
+        "Covered unfairly"
+      ],
+      "model_distribution": {
+        "Covered fairly": 0.0,
+        "Covered unfairly": 1.0
+      },
+      "jsd": 0.319309,
+      "kendall_tau": -1.0,
+      "parity": 0.340346,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.066667,
+      "human_refusal_rate": 0,
+      "temporal_year": 0,
+      "token_usage": {
+        "input_tokens": 60,
+        "output_tokens": 9369,
+        "call_count": 30
+      },
+      "latency_seconds": 191.1718
+    },
+    {
+      "key": "GOQA_57_ca71b519",
+      "text": "Thinking about some issues, do you approve or disapprove of the way the European Union is dealing with ____? a. European economic issues",
+      "options": [
+        "Approve",
+        "Disapprove",
+        "DK/Refused"
+      ],
+      "model_distribution": {
+        "Approve": 0.0,
+        "Disapprove": 0.8889,
+        "DK/Refused": 0.1111
+      },
+      "jsd": 0.227894,
+      "kendall_tau": 0.333333,
+      "parity": 0.719386,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.1,
+      "human_refusal_rate": 0.099832,
+      "temporal_year": 0,
+      "token_usage": {
+        "input_tokens": 60,
+        "output_tokens": 9144,
+        "call_count": 30
+      },
+      "latency_seconds": 191.1718
+    },
+    {
+      "key": "GOQA_58_986bb318",
+      "text": "How concerned, if at all, are you about Hindu extremism in our country these days? Are you very concerned, somewhat concerned, not too concerned or not at all concerned about Hindu extremism in our country these days? ",
+      "options": [
+        "Very concerned",
+        "Somewhat concerned",
+        "Not too concerned",
+        "Not at all concerned"
+      ],
+      "model_distribution": {
+        "Very concerned": 0.0,
+        "Somewhat concerned": 1.0,
+        "Not too concerned": 0.0,
+        "Not at all concerned": 0.0
+      },
+      "jsd": 0.609987,
+      "kendall_tau": -0.235702,
+      "parity": 0.386081,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.3,
+      "human_refusal_rate": 0,
+      "temporal_year": 0,
+      "token_usage": {
+        "input_tokens": 60,
+        "output_tokens": 14965,
+        "call_count": 30
+      },
+      "latency_seconds": 191.1718
+    },
+    {
+      "key": "GOQA_59_06260d4f",
+      "text": "Again, which one better describes George W. Bush...He makes decisions based entirely on U.S. interests or He takes into account European interests when making decisions",
+      "options": [
+        "He makes decisions based entirely on U.S. interests",
+        "He takes into account European interests"
+      ],
+      "model_distribution": {
+        "He makes decisions based entirely on U.S. interests": 0.7333,
+        "He takes into account European interests": 0.2667
+      },
+      "jsd": 0.005205,
+      "kendall_tau": 1.0,
+      "parity": 0.997398,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "human_refusal_rate": 0,
+      "temporal_year": 0,
+      "token_usage": {
+        "input_tokens": 60,
+        "output_tokens": 15977,
+        "call_count": 30
+      },
+      "latency_seconds": 191.1718
+    },
+    {
+      "key": "GOQA_60_cde6942e",
+      "text": "As you think about relations between the United States and Germany over the last 75 years, which one of these events is most important in your opinion?...World War II and the Holocaust, the Marshall Plan, the fall of the Berlin Wall, U.S.-German disagreements over the Iraq War, OR U.S. monitoring of Angela Merkel's communications?",
+      "options": [
+        "World War II and the Holocaust",
+        "The Marshall Plan",
+        "The fall of the Berlin Wall",
+        "U.S.-German disagreements over the Iraq War",
+        "U.S. monitoring of [U.S. ONLY: German Chancellor] Angela Merkel's communications",
+        "None of the above (VOL)"
+      ],
+      "model_distribution": {
+        "World War II and the Holocaust": 1.0,
+        "The Marshall Plan": 0.0,
+        "The fall of the Berlin Wall": 0.0,
+        "U.S.-German disagreements over the Iraq War": 0.0,
+        "U.S. monitoring of [U.S. ONLY: German Chancellor] Angela Merkel's communications": 0.0,
+        "None of the above (VOL)": 0.0
+      },
+      "jsd": 0.436517,
+      "kendall_tau": 0.57735,
+      "parity": 0.676079,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "human_refusal_rate": 0,
+      "temporal_year": 0,
+      "token_usage": {
+        "input_tokens": 60,
+        "output_tokens": 8196,
+        "call_count": 30
+      },
+      "latency_seconds": 202.1593
+    },
+    {
+      "key": "GOQA_61_08eb1282",
+      "text": "Does this statement describe your country very well, somewhat well, not too well, or not well at all? c. Most politicians are corrupt",
+      "options": [
+        "Very well",
+        "Somewhat well",
+        "Not too well",
+        "Not well at all",
+        "DK/Refused"
+      ],
+      "model_distribution": {
+        "Very well": 0.0,
+        "Somewhat well": 1.0,
+        "Not too well": 0.0,
+        "Not well at all": 0.0,
+        "DK/Refused": 0.0
+      },
+      "jsd": 0.547998,
+      "kendall_tau": 0.316228,
+      "parity": 0.555058,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "human_refusal_rate": 0.032554,
+      "temporal_year": 0,
+      "token_usage": {
+        "input_tokens": 60,
+        "output_tokens": 6359,
+        "call_count": 30
+      },
+      "latency_seconds": 202.1593
+    },
+    {
+      "key": "GOQA_62_48030fd9",
+      "text": "If robots and computers were able to do much of the work currently being done by humans, do you think each of the following is likely or not likely to happen in your country as a result? b. Ordinary people would have a hard time finding jobs",
+      "options": [
+        "Yes, likely",
+        "No, not likely",
+        "DK/Refused"
+      ],
+      "model_distribution": {
+        "Yes, likely": 1.0,
+        "No, not likely": 0.0,
+        "DK/Refused": 0.0
+      },
+      "jsd": 0.105666,
+      "kendall_tau": 0.816497,
+      "parity": 0.901291,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "human_refusal_rate": 0.041201,
+      "temporal_year": 0,
+      "token_usage": {
+        "input_tokens": 60,
+        "output_tokens": 5419,
+        "call_count": 30
+      },
+      "latency_seconds": 202.1593
+    },
+    {
+      "key": "GOQA_63_dcc8a683",
+      "text": "How important is it to have the following things in our country? Is it very important, somewhat important, not too important or not important at all? a. there is a judicial system that treats everyone in the same way",
+      "options": [
+        "Very important",
+        "Somewhat important",
+        "Not too important",
+        "Not important at all",
+        "DK/Refused"
+      ],
+      "model_distribution": {
+        "Very important": 1.0,
+        "Somewhat important": 0.0,
+        "Not too important": 0.0,
+        "Not important at all": 0.0,
+        "DK/Refused": 0.0
+      },
+      "jsd": 0.110928,
+      "kendall_tau": 0.632456,
+      "parity": 0.85265,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "human_refusal_rate": 0.019113,
+      "temporal_year": 0,
+      "token_usage": {
+        "input_tokens": 60,
+        "output_tokens": 5088,
+        "call_count": 30
+      },
+      "latency_seconds": 202.1593
+    },
+    {
+      "key": "GOQA_64_d6c440c5",
+      "text": "Do you think people should be able to say these types of things publically OR the government should be able to prevent people from saying these things in some circumstances. d. statements that call for violent protests",
+      "options": [
+        "People should be able to say these things publically",
+        "Government should be able to prevent people from saying these things",
+        "DK/Refused"
+      ],
+      "model_distribution": {
+        "People should be able to say these things publically": 0.4667,
+        "Government should be able to prevent people from saying these things": 0.5333,
+        "DK/Refused": 0.0
+      },
+      "jsd": 0.058607,
+      "kendall_tau": 1.0,
+      "parity": 0.970696,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "human_refusal_rate": 0.05523,
+      "temporal_year": 0,
+      "token_usage": {
+        "input_tokens": 60,
+        "output_tokens": 10608,
+        "call_count": 30
+      },
+      "latency_seconds": 202.1593
+    },
+    {
+      "key": "GOQA_65_4894056f",
+      "text": "(Now I'd like to ask you about some political parties.) Please tell me if you have a very favorable, somewhat favorable, somewhat unfavorable or very unfavorable opinion of...the PRD (Partido de la Revoluci\u00f3n Democr\u00e1tica)",
+      "options": [
+        "Very favorable",
+        "Somewhat favorable",
+        "Somewhat unfavorable",
+        "Very unfavorable",
+        "DK/Refused"
+      ],
+      "model_distribution": {
+        "Very favorable": 0.0,
+        "Somewhat favorable": 0.0,
+        "Somewhat unfavorable": 0.0556,
+        "Very unfavorable": 0.0,
+        "DK/Refused": 0.9444
+      },
+      "jsd": 0.652288,
+      "kendall_tau": -0.119523,
+      "parity": 0.393975,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.4,
+      "human_refusal_rate": 0.1,
+      "temporal_year": 0,
+      "token_usage": {
+        "input_tokens": 60,
+        "output_tokens": 15092,
+        "call_count": 30
+      },
+      "latency_seconds": 202.1593
+    },
+    {
+      "key": "GOQA_66_e2ce2eed",
+      "text": "And how much influence do you think China is having on economic conditions in your country -- a great deal of influence, a fair amount, not too much, or no influence at all?",
+      "options": [
+        "Great deal",
+        "Fair amount",
+        "Not too much",
+        "No influence at all"
+      ],
+      "model_distribution": {
+        "Great deal": 0.0,
+        "Fair amount": 1.0,
+        "Not too much": 0.0,
+        "No influence at all": 0.0
+      },
+      "jsd": 0.375695,
+      "kendall_tau": 0.707107,
+      "parity": 0.738929,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "human_refusal_rate": 0,
+      "temporal_year": 0,
+      "token_usage": {
+        "input_tokens": 60,
+        "output_tokens": 9817,
+        "call_count": 30
+      },
+      "latency_seconds": 202.1593
+    },
+    {
+      "key": "GOQA_67_8cf4bc27",
+      "text": "How much of a threat, if any, does Islamic extremism pose to our country these days - very great, fairly great, not too great or not a threat at all?",
+      "options": [
+        "Very great",
+        "Fairly great",
+        "Not too great",
+        "Not a threat at all"
+      ],
+      "model_distribution": {
+        "Very great": 0.0,
+        "Fairly great": 0.0357,
+        "Not too great": 0.9643,
+        "Not a threat at all": 0.0
+      },
+      "jsd": 0.498056,
+      "kendall_tau": -0.547723,
+      "parity": 0.364041,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.066667,
+      "human_refusal_rate": 0,
+      "temporal_year": 0,
+      "token_usage": {
+        "input_tokens": 60,
+        "output_tokens": 14783,
+        "call_count": 30
+      },
+      "latency_seconds": 202.1593
+    },
+    {
+      "key": "GOQA_68_3a049429",
+      "text": "Thinking about the future of your country, please tell me whether you feel generally optimistic or generally pessimistic about the following areas. g. Our country's relations with other European countries",
+      "options": [
+        "Optimistic",
+        "Pessimistic",
+        "Neither (DO NOT READ)",
+        "DK/Refused"
+      ],
+      "model_distribution": {
+        "Optimistic": 0.9643,
+        "Pessimistic": 0.0357,
+        "Neither (DO NOT READ)": 0.0,
+        "DK/Refused": 0.0
+      },
+      "jsd": 0.129045,
+      "kendall_tau": 0.912871,
+      "parity": 0.913695,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.066667,
+      "human_refusal_rate": 0.044282,
+      "temporal_year": 0,
+      "token_usage": {
+        "input_tokens": 60,
+        "output_tokens": 9454,
+        "call_count": 30
+      },
+      "latency_seconds": 202.1593
+    },
+    {
+      "key": "GOQA_69_ee625d1f",
+      "text": "As I read this list of countries and organizations, please tell me if each has done a great deal, fair amount, not very much or nothing at all to assist Japan with the impact of the earthquake and tsunami...the United States",
+      "options": [
+        "Great deal",
+        "Fair amount",
+        "Not very much",
+        "Nothing at all"
+      ],
+      "model_distribution": {
+        "Great deal": 1.0,
+        "Fair amount": 0.0,
+        "Not very much": 0.0,
+        "Nothing at all": 0.0
+      },
+      "jsd": 0.245264,
+      "kendall_tau": 0.707107,
+      "parity": 0.804145,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "human_refusal_rate": 0,
+      "temporal_year": 0,
+      "token_usage": {
+        "input_tokens": 60,
+        "output_tokens": 12197,
+        "call_count": 30
+      },
+      "latency_seconds": 202.1593
+    },
+    {
+      "key": "GOQA_70_f030d71f",
+      "text": "And thinking about some political leaders and organizations in our country, please tell me if you have a very favorable, somewhat favorable, somewhat unfavorable, or very unfavorable opinion of Maya Jribi? ",
+      "options": [
+        "Very favorable",
+        "Somewhat favorable",
+        "Somewhat unfavorable",
+        "Very unfavorable"
+      ],
+      "model_distribution": {
+        "Very favorable": 0.25,
+        "Somewhat favorable": 0.25,
+        "Somewhat unfavorable": 0.25,
+        "Very unfavorable": 0.25
+      },
+      "jsd": 0.054618,
+      "kendall_tau": 0.0,
+      "parity": 0.722691,
+      "n_samples": 29,
+      "n_parse_failures": 1,
+      "model_refusal_rate": 1.0,
+      "human_refusal_rate": 0,
+      "temporal_year": 0,
+      "token_usage": {
+        "input_tokens": 60,
+        "output_tokens": 19729,
+        "call_count": 30
+      },
+      "latency_seconds": 233.0515
+    },
+    {
+      "key": "GOQA_71_216197d8",
+      "text": "Who do you think has more political power in our country - Vladimir Putin or Dmitry Medvedev?",
+      "options": [
+        "Vladimir Putin",
+        "Dmitri Medvedev",
+        "Both equally (VOL)",
+        "Neither (VOL)"
+      ],
+      "model_distribution": {
+        "Vladimir Putin": 1.0,
+        "Dmitri Medvedev": 0.0,
+        "Both equally (VOL)": 0.0,
+        "Neither (VOL)": 0.0
+      },
+      "jsd": 0.246534,
+      "kendall_tau": 0.707107,
+      "parity": 0.80351,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "human_refusal_rate": 0,
+      "temporal_year": 0,
+      "token_usage": {
+        "input_tokens": 60,
+        "output_tokens": 9152,
+        "call_count": 30
+      },
+      "latency_seconds": 233.0515
+    },
+    {
+      "key": "GOQA_72_098169f0",
+      "text": "Do you know someone who went to the U.S., but returned to your area because they were captured by 'La Migra' at the border?",
+      "options": [
+        "Yes, I know someone",
+        "No, I do not know anyone"
+      ],
+      "model_distribution": {
+        "Yes, I know someone": 0.2609,
+        "No, I do not know anyone": 0.7391
+      },
+      "jsd": 0.037422,
+      "kendall_tau": 1.0,
+      "parity": 0.981289,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.233333,
+      "human_refusal_rate": 0,
+      "temporal_year": 0,
+      "token_usage": {
+        "input_tokens": 60,
+        "output_tokens": 11143,
+        "call_count": 30
+      },
+      "latency_seconds": 233.0515
+    },
+    {
+      "key": "GOQA_73_3bd0b3f9",
+      "text": "As I read another list of statements, for each one, please tell me whether you completely agree, mostly agree, mostly disagree or completely disagree with it...The state controls too much of our daily lives.",
+      "options": [
+        "Completely agree",
+        "Mostly agree",
+        "Mostly disagree",
+        "Completely disagree"
+      ],
+      "model_distribution": {
+        "Completely agree": 0.0,
+        "Mostly agree": 0.9643,
+        "Mostly disagree": 0.0357,
+        "Completely disagree": 0.0
+      },
+      "jsd": 0.377618,
+      "kendall_tau": 0.912871,
+      "parity": 0.789409,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.066667,
+      "human_refusal_rate": 0,
+      "temporal_year": 0,
+      "token_usage": {
+        "input_tokens": 60,
+        "output_tokens": 8473,
+        "call_count": 30
+      },
+      "latency_seconds": 233.0515
+    },
+    {
+      "key": "GOQA_74_2ee8eb85",
+      "text": "As I read a list of groups and organizations, for each, please tell me what kind of influence the group is having on the way things are going in your country. Is the influence of banks and other major financial institutions very good, somewhat good, somewhat bad or very bad in your country?",
+      "options": [
+        "Very good",
+        "Somewhat good",
+        "Somewhat bad",
+        "Very bad"
+      ],
+      "model_distribution": {
+        "Very good": 0.0,
+        "Somewhat good": 0.0556,
+        "Somewhat bad": 0.9444,
+        "Very bad": 0.0
+      },
+      "jsd": 0.495798,
+      "kendall_tau": 0.182574,
+      "parity": 0.547744,
+      "n_samples": 29,
+      "n_parse_failures": 1,
+      "model_refusal_rate": 0.37931,
+      "human_refusal_rate": 0,
+      "temporal_year": 0,
+      "token_usage": {
+        "input_tokens": 60,
+        "output_tokens": 14435,
+        "call_count": 30
+      },
+      "latency_seconds": 233.0515
+    },
+    {
+      "key": "GOQA_75_9ad47b8e",
+      "text": "For each of the following issues, how likely are you personally to take political action on it, such as contact an elected official or participate in a demonstration? c. poor health care",
+      "options": [
+        "Very likely",
+        "Somewhat likely",
+        "Not too likely",
+        "Not at all likely",
+        "DK/Refused"
+      ],
+      "model_distribution": {
+        "Very likely": 0.0,
+        "Somewhat likely": 0.8621,
+        "Not too likely": 0.1034,
+        "Not at all likely": 0.0345,
+        "DK/Refused": 0.0
+      },
+      "jsd": 0.340819,
+      "kendall_tau": 0.105409,
+      "parity": 0.605943,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.033333,
+      "human_refusal_rate": 0.025701,
+      "temporal_year": 0,
+      "token_usage": {
+        "input_tokens": 60,
+        "output_tokens": 9936,
+        "call_count": 30
+      },
+      "latency_seconds": 233.0515
+    },
+    {
+      "key": "GOQA_76_945b342a",
+      "text": "Please tell me if you have a very favorable, somewhat favorable, somewhat unfavorable or very unfavorable opinion of ____. a. People's Party for Freedom and Democracy (VVD)",
+      "options": [
+        "Very favorable",
+        "Somewhat favorable",
+        "Somewhat unfavorable",
+        "Very unfavorable",
+        "DK/Refused"
+      ],
+      "model_distribution": {
+        "Very favorable": 0.0,
+        "Somewhat favorable": 0.0,
+        "Somewhat unfavorable": 0.0625,
+        "Very unfavorable": 0.0,
+        "DK/Refused": 0.9375
+      },
+      "jsd": 0.791207,
+      "kendall_tau": -0.358569,
+      "parity": 0.264754,
+      "n_samples": 28,
+      "n_parse_failures": 2,
+      "model_refusal_rate": 0.428571,
+      "human_refusal_rate": 0.030303,
+      "temporal_year": 0,
+      "token_usage": {
+        "input_tokens": 60,
+        "output_tokens": 13196,
+        "call_count": 30
+      },
+      "latency_seconds": 233.0515
+    },
+    {
+      "key": "GOQA_77_8e33e852",
+      "text": "In your opinion, has the European Union provided too much financial assistance to EU countries that have experienced major financial problems, not enough assistance, or about the right amount? ",
+      "options": [
+        "Too much",
+        "Not enough",
+        "About the right amount"
+      ],
+      "model_distribution": {
+        "Too much": 0.05,
+        "Not enough": 0.0,
+        "About the right amount": 0.95
+      },
+      "jsd": 0.323408,
+      "kendall_tau": 0.333333,
+      "parity": 0.671629,
+      "n_samples": 28,
+      "n_parse_failures": 2,
+      "model_refusal_rate": 0.285714,
+      "human_refusal_rate": 0,
+      "temporal_year": 0,
+      "token_usage": {
+        "input_tokens": 60,
+        "output_tokens": 14555,
+        "call_count": 30
+      },
+      "latency_seconds": 233.0515
+    },
+    {
+      "key": "GOQA_78_c49dbadb",
+      "text": "As I read a list of groups and organizations, please tell me how good a job each has done in responding to the impact of the March 11th earthquake and tsunami...Our national government",
+      "options": [
+        "Very good",
+        "Somewhat good",
+        "Somewhat poor",
+        "Very poor"
+      ],
+      "model_distribution": {
+        "Very good": 0.0,
+        "Somewhat good": 0.2143,
+        "Somewhat poor": 0.7857,
+        "Very poor": 0.0
+      },
+      "jsd": 0.205093,
+      "kendall_tau": 0.547723,
+      "parity": 0.784384,
+      "n_samples": 29,
+      "n_parse_failures": 1,
+      "model_refusal_rate": 0.034483,
+      "human_refusal_rate": 0,
+      "temporal_year": 0,
+      "token_usage": {
+        "input_tokens": 60,
+        "output_tokens": 21401,
+        "call_count": 30
+      },
+      "latency_seconds": 233.0515
+    },
+    {
+      "key": "GOQA_79_c840ea3e",
+      "text": "As I read a list of groups and organizations, for each, please tell me what kind of influence the group is having on the way things are going in your country. Is the influence of the Ukrainian military very good, somewhat good, somewhat bad or very bad in your country?",
+      "options": [
+        "Very good",
+        "Somewhat good",
+        "Somewhat bad",
+        "Very bad"
+      ],
+      "model_distribution": {
+        "Very good": 0.25,
+        "Somewhat good": 0.25,
+        "Somewhat bad": 0.25,
+        "Very bad": 0.25
+      },
+      "jsd": 0.102002,
+      "kendall_tau": 0.0,
+      "parity": 0.698999,
+      "n_samples": 28,
+      "n_parse_failures": 2,
+      "model_refusal_rate": 1.0,
+      "human_refusal_rate": 0,
+      "temporal_year": 0,
+      "token_usage": {
+        "input_tokens": 60,
+        "output_tokens": 16323,
+        "call_count": 30
+      },
+      "latency_seconds": 233.0515
+    },
+    {
+      "key": "GOQA_80_7c450fd2",
+      "text": "For each of the following statements about the missile strikes from pilotless aircraft called drones, please tell me whether you agree or disagree...they are necessary to defend Pakistan from extremist groups .",
+      "options": [
+        "Agree",
+        "Disagree"
+      ],
+      "model_distribution": {
+        "Agree": 0.2,
+        "Disagree": 0.8
+      },
+      "jsd": 0.012239,
+      "kendall_tau": 1.0,
+      "parity": 0.993881,
+      "n_samples": 29,
+      "n_parse_failures": 1,
+      "model_refusal_rate": 0.482759,
+      "human_refusal_rate": 0,
+      "temporal_year": 0,
+      "token_usage": {
+        "input_tokens": 60,
+        "output_tokens": 24001,
+        "call_count": 30
+      },
+      "latency_seconds": 231.6515
+    },
+    {
+      "key": "GOQA_81_24a3d05c",
+      "text": "Has the Turkish parliament made the right decision not to allow the American military to use Turkey as a staging ground for a possible war against Iraq?",
+      "options": [
+        "Right decision",
+        "Wrong decision"
+      ],
+      "model_distribution": {
+        "Right decision": 1.0,
+        "Wrong decision": 0.0
+      },
+      "jsd": 0.247676,
+      "kendall_tau": 1.0,
+      "parity": 0.876162,
+      "n_samples": 28,
+      "n_parse_failures": 2,
+      "model_refusal_rate": 0.571429,
+      "human_refusal_rate": 0,
+      "temporal_year": 0,
+      "token_usage": {
+        "input_tokens": 60,
+        "output_tokens": 23384,
+        "call_count": 30
+      },
+      "latency_seconds": 231.6515
+    },
+    {
+      "key": "GOQA_82_388dfa06",
+      "text": "Do you approve or disapprove of the U.S. military operation that killed Osama bin Laden?",
+      "options": [
+        "Approve",
+        "Disapprove"
+      ],
+      "model_distribution": {
+        "Approve": 1.0,
+        "Disapprove": 0.0
+      },
+      "jsd": 0.698275,
+      "kendall_tau": -1.0,
+      "parity": 0.150862,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.133333,
+      "human_refusal_rate": 0,
+      "temporal_year": 0,
+      "token_usage": {
+        "input_tokens": 60,
+        "output_tokens": 10077,
+        "call_count": 30
+      },
+      "latency_seconds": 231.6515
+    },
+    {
+      "key": "GOQA_83_252eaf5f",
+      "text": "And, would you support or oppose the U.S. ending its trade embargo against Cuba, which would allow U.S. companies to do business in Cuba and Cuban companies to do business in the U.S.?",
+      "options": [
+        "Support",
+        "Oppose",
+        "DK/Refused"
+      ],
+      "model_distribution": {
+        "Support": 0.8929,
+        "Oppose": 0.0,
+        "DK/Refused": 0.1071
+      },
+      "jsd": 0.075284,
+      "kendall_tau": 1.0,
+      "parity": 0.962358,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.066667,
+      "human_refusal_rate": 0.154147,
+      "temporal_year": 0,
+      "token_usage": {
+        "input_tokens": 60,
+        "output_tokens": 10457,
+        "call_count": 30
+      },
+      "latency_seconds": 231.6515
+    },
+    {
+      "key": "GOQA_84_9caee34a",
+      "text": "Now I am going to read you a list of things that may be problems in our country.  As I read each one, please tell me if you think it is a very big problem, a moderately big problem, a small problem or not a problem at all...People leaving our country for jobs in other countries",
+      "options": [
+        "Very big problem",
+        "Moderately big problem",
+        "Small problem",
+        "Not a problem at all"
+      ],
+      "model_distribution": {
+        "Very big problem": 0.0,
+        "Moderately big problem": 0.6552,
+        "Small problem": 0.3448,
+        "Not a problem at all": 0.0
+      },
+      "jsd": 0.324614,
+      "kendall_tau": 0.182574,
+      "parity": 0.633336,
+      "n_samples": 29,
+      "n_parse_failures": 1,
+      "model_refusal_rate": 0.0,
+      "human_refusal_rate": 0,
+      "temporal_year": 0,
+      "token_usage": {
+        "input_tokens": 60,
+        "output_tokens": 5520,
+        "call_count": 30
+      },
+      "latency_seconds": 231.6515
+    },
+    {
+      "key": "GOQA_85_29e427bc",
+      "text": "As I read some specific policies of [American] President George W. Bush tell me if you approve or disapprove of them...Bush's decision that the U.S. should try to develop a missile defense system even if it means withdrawing from the ABM treaty",
+      "options": [
+        "Approve",
+        "Disapprove"
+      ],
+      "model_distribution": {
+        "Approve": 0.8571,
+        "Disapprove": 0.1429
+      },
+      "jsd": 0.290506,
+      "kendall_tau": -1.0,
+      "parity": 0.354747,
+      "n_samples": 27,
+      "n_parse_failures": 3,
+      "model_refusal_rate": 0.740741,
+      "human_refusal_rate": 0,
+      "temporal_year": 0,
+      "token_usage": {
+        "input_tokens": 60,
+        "output_tokens": 19813,
+        "call_count": 30
+      },
+      "latency_seconds": 231.6515
+    },
+    {
+      "key": "GOQA_86_f184826b",
+      "text": "Which of these characteristics do you associate with (the Chinese, the Japanese)?...Generous...Do you associate this with (the Chinese, the Japanese) or not?",
+      "options": [
+        "Yes",
+        "No"
+      ],
+      "model_distribution": {
+        "Yes": 0.0,
+        "No": 1.0
+      },
+      "jsd": 0.08339,
+      "kendall_tau": 1.0,
+      "parity": 0.958305,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.233333,
+      "human_refusal_rate": 0,
+      "temporal_year": 0,
+      "token_usage": {
+        "input_tokens": 60,
+        "output_tokens": 7785,
+        "call_count": 30
+      },
+      "latency_seconds": 231.6515
+    },
+    {
+      "key": "GOQA_87_46cfaa73",
+      "text": "After the dissolution of the Soviet Union, we changed from a country where there was just one party to a country with a multiparty system. Overall, do you strongly approve, approve, disapprove or strongly disapprove of this change in your country?",
+      "options": [
+        "Strongly approve",
+        "Approve",
+        "Disapprove",
+        "Strongly disapprove",
+        "DK/Refused"
+      ],
+      "model_distribution": {
+        "Strongly approve": 0.0,
+        "Approve": 0.963,
+        "Disapprove": 0.0,
+        "Strongly disapprove": 0.0,
+        "DK/Refused": 0.037
+      },
+      "jsd": 0.380192,
+      "kendall_tau": 0.358569,
+      "parity": 0.649546,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.1,
+      "human_refusal_rate": 0.110337,
+      "temporal_year": 0,
+      "token_usage": {
+        "input_tokens": 60,
+        "output_tokens": 12003,
+        "call_count": 30
+      },
+      "latency_seconds": 231.6515
+    },
+    {
+      "key": "GOQA_88_7fe652b6",
+      "text": "In general, when European companies build factories in our country, does that mostly help or mostly hurt our economy? ",
+      "options": [
+        "Mostly help",
+        "Mostly hurt",
+        "No effect (VOL)"
+      ],
+      "model_distribution": {
+        "Mostly help": 1.0,
+        "Mostly hurt": 0.0,
+        "No effect (VOL)": 0.0
+      },
+      "jsd": 0.163029,
+      "kendall_tau": 0.816497,
+      "parity": 0.87261,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "human_refusal_rate": 0,
+      "temporal_year": 0,
+      "token_usage": {
+        "input_tokens": 60,
+        "output_tokens": 9233,
+        "call_count": 30
+      },
+      "latency_seconds": 231.6515
+    },
+    {
+      "key": "GOQA_89_160051ef",
+      "text": "And thinking about some political leaders and organizations in our country, please tell me if you have a very favorable, somewhat favorable, somewhat unfavorable, or very unfavorable opinion of\u2026Supreme Constitutional Court",
+      "options": [
+        "Very favorable",
+        "Somewhat favorable",
+        "Somewhat unfavorable",
+        "Very unfavorable"
+      ],
+      "model_distribution": {
+        "Very favorable": 0.3333,
+        "Somewhat favorable": 0.6667,
+        "Somewhat unfavorable": 0.0,
+        "Very unfavorable": 0.0
+      },
+      "jsd": 0.300771,
+      "kendall_tau": 0.547723,
+      "parity": 0.736545,
+      "n_samples": 28,
+      "n_parse_failures": 2,
+      "model_refusal_rate": 0.892857,
+      "human_refusal_rate": 0,
+      "temporal_year": 0,
+      "token_usage": {
+        "input_tokens": 60,
+        "output_tokens": 16921,
+        "call_count": 30
+      },
+      "latency_seconds": 231.6515
+    },
+    {
+      "key": "GOQA_90_b6adbfa2",
+      "text": "(Now I am going to read you a list of things that may be problems in our country. As I read each one, please tell me if you think it is a very big problem, a moderately big problem, a small problem or not a problem at all.)...Government corruption",
+      "options": [
+        "Very big problem",
+        "Not a problem at all",
+        "Moderately big problem",
+        "DK/Refused",
+        "Small problem"
+      ],
+      "model_distribution": {
+        "Very big problem": 1.0,
+        "Not a problem at all": 0.0,
+        "Moderately big problem": 0.0,
+        "DK/Refused": 0.0,
+        "Small problem": 0.0
+      },
+      "jsd": 0.088104,
+      "kendall_tau": 0.632456,
+      "parity": 0.864062,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "human_refusal_rate": 0.017538,
+      "temporal_year": 0,
+      "token_usage": {
+        "input_tokens": 60,
+        "output_tokens": 4098,
+        "call_count": 30
+      },
+      "latency_seconds": 237.2906
+    },
+    {
+      "key": "GOQA_91_c2f87015",
+      "text": "Please tell me if you approve or disapprove of the way President Barack Obama is dealing with...the world economic crisis.",
+      "options": [
+        "Approve",
+        "Disapprove"
+      ],
+      "model_distribution": {
+        "Approve": 1.0,
+        "Disapprove": 0.0
+      },
+      "jsd": 0.225739,
+      "kendall_tau": 1.0,
+      "parity": 0.88713,
+      "n_samples": 23,
+      "n_parse_failures": 7,
+      "model_refusal_rate": 0.869565,
+      "human_refusal_rate": 0,
+      "temporal_year": 0,
+      "token_usage": {
+        "input_tokens": 60,
+        "output_tokens": 16339,
+        "call_count": 30
+      },
+      "latency_seconds": 237.2906
+    },
+    {
+      "key": "GOQA_92_ec6ecd38",
+      "text": "Which of these characteristics do you associate with people in Western countries such as the United States and Europe?...Respectful of Women...Do you associate this with people in Western countries or not?",
+      "options": [
+        "Yes",
+        "No"
+      ],
+      "model_distribution": {
+        "Yes": 0.8462,
+        "No": 0.1538
+      },
+      "jsd": 0.076402,
+      "kendall_tau": 1.0,
+      "parity": 0.961799,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.133333,
+      "human_refusal_rate": 0,
+      "temporal_year": 0,
+      "token_usage": {
+        "input_tokens": 60,
+        "output_tokens": 10125,
+        "call_count": 30
+      },
+      "latency_seconds": 237.2906
+    },
+    {
+      "key": "GOQA_93_f0c5f2a9",
+      "text": "How likely are you personally to take political action on __ , such as contact an elected official or participate in a demonstration? e. discrimination against ethnic/religious/racial/vulnerable or disadvantaged groups",
+      "options": [
+        "Very likely",
+        "Somewhat likely",
+        "Not too likely",
+        "Not at all likely",
+        "DK/Refused"
+      ],
+      "model_distribution": {
+        "Very likely": 0.0667,
+        "Somewhat likely": 0.9,
+        "Not too likely": 0.0,
+        "Not at all likely": 0.0333,
+        "DK/Refused": 0.0
+      },
+      "jsd": 0.394279,
+      "kendall_tau": 0.316228,
+      "parity": 0.631917,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "human_refusal_rate": 0.058319,
+      "temporal_year": 0,
+      "token_usage": {
+        "input_tokens": 60,
+        "output_tokens": 8390,
+        "call_count": 30
+      },
+      "latency_seconds": 237.2906
+    },
+    {
+      "key": "GOQA_94_fdc918da",
+      "text": "Now I am going to read you a list of things that may be problems in our country.  As I read each one, please tell me if you think it is a very big problem, a moderately big problem, a small problem or not a problem at all...Tensions between Sunnis and Shia",
+      "options": [
+        "Very big problem",
+        "Moderately big problem",
+        "Small problem",
+        "Not a problem at all"
+      ],
+      "model_distribution": {
+        "Very big problem": 0.0,
+        "Moderately big problem": 0.8636,
+        "Small problem": 0.1364,
+        "Not a problem at all": 0.0
+      },
+      "jsd": 0.537956,
+      "kendall_tau": 0.182574,
+      "parity": 0.526665,
+      "n_samples": 28,
+      "n_parse_failures": 2,
+      "model_refusal_rate": 0.214286,
+      "human_refusal_rate": 0,
+      "temporal_year": 0,
+      "token_usage": {
+        "input_tokens": 60,
+        "output_tokens": 12137,
+        "call_count": 30
+      },
+      "latency_seconds": 237.2906
+    },
+    {
+      "key": "GOQA_95_92d33774",
+      "text": "Please tell me if you have a very favorable, somewhat favorable, somewhat unfavorable or very unfavorable opinion of ____. c. Party for Freedom (PVV)",
+      "options": [
+        "Very favorable",
+        "Somewhat favorable",
+        "Somewhat unfavorable",
+        "Very unfavorable",
+        "DK/Refused"
+      ],
+      "model_distribution": {
+        "Very favorable": 0.0,
+        "Somewhat favorable": 0.0,
+        "Somewhat unfavorable": 0.0,
+        "Very unfavorable": 0.0,
+        "DK/Refused": 1.0
+      },
+      "jsd": 0.901383,
+      "kendall_tau": -0.632456,
+      "parity": 0.141195,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.633333,
+      "human_refusal_rate": 0.030303,
+      "temporal_year": 0,
+      "token_usage": {
+        "input_tokens": 60,
+        "output_tokens": 15109,
+        "call_count": 30
+      },
+      "latency_seconds": 237.2906
+    },
+    {
+      "key": "GOQA_96_fdd52dee",
+      "text": "Please tell me if you have a very favorable, somewhat favorable, somewhat unfavorable or very unfavorable opinion of ____. c. Democratic Coalition (PASOK & DIMAR)",
+      "options": [
+        "Very favorable",
+        "Somewhat favorable",
+        "Somewhat unfavorable",
+        "Very unfavorable",
+        "DK/Refused"
+      ],
+      "model_distribution": {
+        "Very favorable": 0.0,
+        "Somewhat favorable": 0.0,
+        "Somewhat unfavorable": 0.0,
+        "Very unfavorable": 0.0,
+        "DK/Refused": 1.0
+      },
+      "jsd": 0.902155,
+      "kendall_tau": -0.316228,
+      "parity": 0.219866,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.8,
+      "human_refusal_rate": 0.03,
+      "temporal_year": 0,
+      "token_usage": {
+        "input_tokens": 60,
+        "output_tokens": 19954,
+        "call_count": 30
+      },
+      "latency_seconds": 237.2906
+    },
+    {
+      "key": "GOQA_97_348c0239",
+      "text": "Please tell me if you have a very favorable, somewhat favorable, somewhat unfavorable or very unfavorable opinion of ____. b. Socialist Party (PS)",
+      "options": [
+        "Very favorable",
+        "Somewhat favorable",
+        "Somewhat unfavorable",
+        "Very unfavorable",
+        "DK/Refused"
+      ],
+      "model_distribution": {
+        "Very favorable": 0.0,
+        "Somewhat favorable": 0.0909,
+        "Somewhat unfavorable": 0.0,
+        "Very unfavorable": 0.0,
+        "DK/Refused": 0.9091
+      },
+      "jsd": 0.790019,
+      "kendall_tau": -0.597614,
+      "parity": 0.205587,
+      "n_samples": 29,
+      "n_parse_failures": 1,
+      "model_refusal_rate": 0.62069,
+      "human_refusal_rate": 0.02,
+      "temporal_year": 0,
+      "token_usage": {
+        "input_tokens": 60,
+        "output_tokens": 16519,
+        "call_count": 30
+      },
+      "latency_seconds": 237.2906
+    },
+    {
+      "key": "GOQA_98_c0f43d23",
+      "text": "Please tell me if you have a very favorable, somewhat favorable, somewhat unfavorable, or very unfavorable opinion of...UN Secretary General Kofi Annan",
+      "options": [
+        "Very favorable",
+        "Somewhat favorable",
+        "Somewhat unfavorable",
+        "Very unfavorable",
+        "Never heard of"
+      ],
+      "model_distribution": {
+        "Very favorable": 0.2143,
+        "Somewhat favorable": 0.7857,
+        "Somewhat unfavorable": 0.0,
+        "Very unfavorable": 0.0,
+        "Never heard of": 0.0
+      },
+      "jsd": 0.235698,
+      "kendall_tau": 0.83666,
+      "parity": 0.841316,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.066667,
+      "human_refusal_rate": 0,
+      "temporal_year": 0,
+      "token_usage": {
+        "input_tokens": 60,
+        "output_tokens": 15198,
+        "call_count": 30
+      },
+      "latency_seconds": 237.2906
+    },
+    {
+      "key": "GOQA_99_7b2f27b9",
+      "text": "Please tell me if you approve or disapprove of the way Prime Minister Malcom Turnbull is handling each of the following areas. f. climate change",
+      "options": [
+        "Approve",
+        "Disapprove",
+        "DK/Refused"
+      ],
+      "model_distribution": {
+        "Approve": 0.2,
+        "Disapprove": 0.8,
+        "DK/Refused": 0.0
+      },
+      "jsd": 0.09839,
+      "kendall_tau": 1.0,
+      "parity": 0.950805,
+      "n_samples": 20,
+      "n_parse_failures": 10,
+      "model_refusal_rate": 0.75,
+      "human_refusal_rate": 0.14,
+      "temporal_year": 0,
+      "token_usage": {
+        "input_tokens": 60,
+        "output_tokens": 20545,
+        "call_count": 30
+      },
+      "latency_seconds": 237.2906
+    }
+  ],
+  "temporal_breakdown": {},
+  "stripped_fields": [
+    "human_distribution"
+  ]
+}

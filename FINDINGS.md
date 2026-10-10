@@ -146,6 +146,16 @@ run vs the identical configuration with schema-forced structured capture
 count — the elicitation surface is the only variable.
 
 <!-- BEGIN GENERATED: elicitation -->
+**Althing (Haiku 5.5 via Claude Code)** (product) on globalopinionqa — n=100 questions × 30 samples per arm, refusal detector v3; the arms differ only in elicitation mode:
+
+| Metric | Natural | Structured | Δ (structured − natural) |
+|--------|---------|------------|--------------------------|
+| SPS | 0.695 | 0.742 | **+4.7 pts** |
+| P_dist | 0.690 | 0.622 | **-6.8 pts** |
+| P_rank | 0.646 | 0.625 | **-2.1 pts** |
+| P_refuse | 0.749 | 0.980 | **+23.1 pts** |
+| Parse failures | 3.4% | 0.2% | -3.2 pts |
+
 **Althing (Haiku 4.5)** (product) on gss — n=75 questions × 30 samples per arm, refusal detector v2; the arms differ only in elicitation mode:
 
 | Metric | Natural | Structured | Δ (structured − natural) |
