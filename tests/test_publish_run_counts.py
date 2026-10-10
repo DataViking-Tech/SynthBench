@@ -162,14 +162,14 @@ def test_persona_pack_runs_keep_their_own_row_and_count():
 
     plain = {
         "config": {
-            "provider": "althing/claude-code:haiku",
+            "provider": "althing/anthropic/claude-haiku-5-5",
             "dataset": "globalopinionqa",
             "n_evaluated": 100,
         }
     }
     packed = {
         "config": {
-            "provider": "althing/claude-code:haiku pack=global-respondents",
+            "provider": "althing/anthropic/claude-haiku-5-5 pack=global-respondents",
             "dataset": "globalopinionqa",
             "n_evaluated": 100,
             "persona_pack": "global-respondents",
@@ -179,11 +179,9 @@ def test_persona_pack_runs_keep_their_own_row_and_count():
     assert len(kept) == 2
 
     entries = [
-        _entry("Althing (Haiku 5.5 via Claude Code)", "product", "globalopinionqa"),
+        _entry("Althing (Haiku 5.5)", "product", "globalopinionqa"),
         {
-            **_entry(
-                "Althing (Haiku 5.5 via Claude Code)", "product", "globalopinionqa"
-            ),
+            **_entry("Althing (Haiku 5.5)", "product", "globalopinionqa"),
             "persona_pack": "global-respondents",
         },
     ]

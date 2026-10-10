@@ -68,6 +68,8 @@ export interface LeaderboardEntry {
   template?: string;
   /** althing population pack the run was conditioned on (e.g. "global-respondents"); absent = unconditioned. */
   persona_pack?: string;
+  /** Agent CLI the run went through ("claude-code", "codex"); absent = direct API. */
+  harness?: string;
 
   /**
    * 95% bootstrap CI on the recomputed `sps` (questions resampled with

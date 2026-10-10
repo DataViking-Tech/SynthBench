@@ -169,7 +169,11 @@ def _policy_to_dict(policy: DatasetPolicy) -> dict:
 
 
 def _dedup_results(results: list[dict]) -> list[dict]:
-    """De-duplicate results: keep the run with the most n_evaluated per (display_name, framework, dataset, effort, template, persona_pack).
+    """De-duplicate results: keep the run with the most n_evaluated per (display_name, framework, dataset, effort, template, persona_pack, harness).
+
+    ``harness`` (the agent CLI a run went through, e.g. ``claude-code``)
+    keeps harness runs in their own row next to the same vendor model's
+    API runs.
 
     ``persona_pack`` (althing population conditioning, e.g.
     ``global-respondents``) participates for the same reason as effort: a
@@ -193,10 +197,8 @@ def _dedup_results(results: list[dict]) -> list[dict]:
     """
     from synthbench.leaderboard import display_provider_name, provider_framework
 
-    best: dict[tuple[str, str, str, str | None, str | None, str | None], dict] = {}
-    all_demographics: dict[
-        tuple[str, str, str, str | None, str | None, str | None], dict[str, list]
-    ] = {}
+    best: dict[tuple, dict] = {}
+    all_demographics: dict[tuple, dict[str, list]] = {}
     for r in results:
         cfg = r.get("config", {})
         provider = cfg.get("provider", "unknown")
@@ -213,6 +215,7 @@ def _dedup_results(results: list[dict]) -> list[dict]:
             # Population-conditioned runs (althing persona packs) are a
             # different experiment from the same model unconditioned.
             cfg.get("persona_pack"),
+            cfg.get("harness"),
         )
         existing = best.get(key)
         if existing is None or n_eval > _effective_n(existing):
@@ -812,6 +815,9 @@ def _build_entry(
     pack = cfg.get("persona_pack")
     if pack:
         entry["persona_pack"] = pack
+    harness = cfg.get("harness")
+    if harness:
+        entry["harness"] = harness
 
     # Topic scores from per-question keyword categorization
     per_question = r.get("per_question", [])
@@ -1219,10 +1225,11 @@ def _annotate_run_counts(entries: list[dict], all_results: list[dict]) -> None:
         tpl_stem = _tpl_name(cfg.get("prompt_template"))
         effort = cfg.get("effort")
         pack = cfg.get("persona_pack")
+        harness = cfg.get("harness")
 
-        run_key = (name, fw, dataset, temp, tpl_stem, effort, pack)
+        run_key = (name, fw, dataset, temp, tpl_stem, effort, pack, harness)
         run_counts[run_key] = run_counts.get(run_key, 0) + 1
-        cov_key = (name, fw, temp, tpl_stem, effort, pack)
+        cov_key = (name, fw, temp, tpl_stem, effort, pack, harness)
         datasets_per_config.setdefault(cov_key, set()).add(dataset)
 
     for e in entries:
@@ -1234,6 +1241,7 @@ def _annotate_run_counts(entries: list[dict], all_results: list[dict]) -> None:
             e.get("template"),
             e.get("effort"),
             e.get("persona_pack"),
+            e.get("harness"),
         )
         cov_key = (
             e.get("model"),
@@ -1242,6 +1250,7 @@ def _annotate_run_counts(entries: list[dict], all_results: list[dict]) -> None:
             e.get("template"),
             e.get("effort"),
             e.get("persona_pack"),
+            e.get("harness"),
         )
         e["run_count"] = run_counts.get(run_key, 0)
         e["dataset_coverage_count"] = len(datasets_per_config.get(cov_key, set()))
@@ -1688,6 +1697,7 @@ def _build_index_entry(
         "effort": cfg.get("effort"),
         "template": _tpl_name(cfg.get("prompt_template")),
         "persona_pack": cfg.get("persona_pack"),
+        "harness": cfg.get("harness"),
         "samples_per_question": cfg.get("samples_per_question"),
         # `or` (not dict-default) so ensemble rows whose config never carried
         # n_evaluated fall through to the recomputed per-question count
@@ -1755,6 +1765,7 @@ def _build_run_detail(
         "effort": cfg.get("effort"),
         "template": _tpl_name(cfg.get("prompt_template")),
         "persona_pack": cfg.get("persona_pack"),
+        "harness": cfg.get("harness"),
         "samples_per_question": cfg.get("samples_per_question"),
         "n_requested": cfg.get("n_requested"),
         "n_evaluated": cfg.get("n_evaluated") or rec_agg.get("n_questions"),
@@ -1870,6 +1881,7 @@ def _build_config_rollup(
         "effort": sample_cfg.get("effort"),
         "template": _tpl_name(sample_cfg.get("prompt_template")),
         "persona_pack": sample_cfg.get("persona_pack"),
+        "harness": sample_cfg.get("harness"),
         "samples_per_question": sample_cfg.get("samples_per_question"),
         "is_baseline": is_baseline,
         "is_ensemble": is_ensemble,
@@ -2434,6 +2446,7 @@ def _collect_question_rollups(
                 "effort": cfg.get("effort"),
                 "template": tpl_stem,
                 "persona_pack": cfg.get("persona_pack"),
+                "harness": cfg.get("harness"),
             }
             bucket_key = (
                 dataset,
@@ -2442,6 +2455,7 @@ def _collect_question_rollups(
                 display_name,
                 cfg.get("effort"),
                 cfg.get("persona_pack"),
+                cfg.get("harness"),
             )
             target = best_aggregated_by_key if is_ensemble else best_by_key
             prev = target.get(bucket_key)
@@ -2455,6 +2469,7 @@ def _collect_question_rollups(
         _display,
         _effort,
         _pack,
+        _harness,
     ), response in best_by_key.items():
         rollup = rollups.get((dataset, key))
         if rollup is None:
@@ -2468,6 +2483,7 @@ def _collect_question_rollups(
         _display,
         _effort,
         _pack,
+        _harness,
     ), response in best_aggregated_by_key.items():
         rollup = rollups.get((dataset, key))
         if rollup is None:

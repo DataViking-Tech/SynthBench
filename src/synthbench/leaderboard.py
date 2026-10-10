@@ -54,11 +54,10 @@ MODEL_MAP: dict[str, tuple[str, str]] = {
         "product",
     ),
     "althing/gpt-4o-mini": ("Althing (GPT-4o-mini)", "product"),
-    # Products — via subscription CLIs (althing claude-code:/codex: providers).
-    # `claude-code:haiku` is a CLI alias; it resolved to claude-haiku-5-5 for
-    # the 2026-10 runs. Add a dated key if a later alias target is benchmarked.
-    "althing/claude-code:haiku": ("Althing (Haiku 5.5 via Claude Code)", "product"),
-    "althing/codex:gpt-6-luna": ("Althing (GPT-6 Luna via Codex)", "product"),
+    # Products — vendor models also run through agent CLIs; the harness
+    # (claude-code / codex) is a `harness=` knob, not part of the model name.
+    "althing/anthropic/claude-haiku-5-5": ("Althing (Haiku 5.5)", "product"),
+    "althing/openai/gpt-6-luna": ("Althing (GPT-6 Luna)", "product"),
     # Ensemble
     "ensemble/3-model-blend": ("Althing Ensemble (3-model)", "product"),
     # Baselines
@@ -85,7 +84,7 @@ def _parse_provider_base(provider: str) -> str:
     → 'althing/openrouter/anthropic/claude-haiku-4-5'
     """
     base = provider
-    for knob in (" t=", " tpl=", " profile=", " pack="):
+    for knob in (" t=", " tpl=", " profile=", " pack=", " harness="):
         base = base.split(knob)[0]
     return base.strip()
 

@@ -64,6 +64,12 @@ export interface SystemConfig {
   method: Method;
   /** Non-default settings (temperature, prompt template), or null. */
   variant: string | null;
+  /**
+   * Agent CLI the runs went through ("claude-code", "codex"), or null for
+   * direct API calls. A tag on the row, not a variant: harness runs are
+   * still ranked, under the vendor's model and lab.
+   */
+  harness: string | null;
   ds: Record<string, DatasetScore>;
   coverage: number;
   index: number | null;
@@ -102,6 +108,8 @@ const LAB_BY_PREFIX: Record<string, string> = {
 
 const BASE_NAMES: Record<string, string> = {
   "anthropic/claude-haiku-4-5": "Claude Haiku 4.5",
+  "anthropic/claude-haiku-5-5": "Claude Haiku 5.5",
+  "openai/gpt-6-luna": "GPT-6 Luna",
   "anthropic/claude-sonnet-4": "Claude Sonnet 4",
   "anthropic/claude-sonnet-4.6": "Claude Sonnet 4.6",
   "openai/gpt-4o-mini": "GPT-4o mini",
@@ -178,6 +186,7 @@ export function buildIndexData(raw: SynthBenchData): IndexData {
       e.template ?? "current",
       e.effort ?? "",
       e.persona_pack ?? "",
+      e.harness ?? "",
     ].join("|");
     const prefix = modelId.includes("/") ? modelId.split("/")[0] : "";
     let base: string;
@@ -194,6 +203,7 @@ export function buildIndexData(raw: SynthBenchData): IndexData {
         lab: method === "ensemble" ? "DataViking" : (LAB_BY_PREFIX[prefix] ?? "Other"),
         method,
         variant: variantParts.length ? variantParts.join(", ") : null,
+        harness: e.harness ?? null,
         ds: {},
         coverage: 0,
         index: null,
