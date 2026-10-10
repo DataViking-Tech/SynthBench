@@ -76,6 +76,16 @@ describe("parseRequestPath", () => {
     expect(result).toEqual({ ok: false, error: "bad_path" });
   });
 
+  it("never serves the canonical answer key or raw provenance data", () => {
+    for (const p of [
+      "/data/canonical/opinionsqa/human_resp-canonical-v1.tar.gz",
+      "/data/provenance/opinionsqa/raw.tar.gz",
+      "/data/human-distributions/opinionsqa.json",
+    ]) {
+      expect(parseRequestPath("GET", p)).toEqual({ ok: false, error: "bad_path" });
+    }
+  });
+
   it("rejects backslashes and control characters", () => {
     expect(parseRequestPath("GET", "/data/run/abc\\evil.json").ok).toBe(false);
     expect(parseRequestPath("GET", "/data/run/abc\u0001.json").ok).toBe(false);

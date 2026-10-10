@@ -314,7 +314,9 @@ anchors identity on your GitHub account instead.
    - **Read gated data** — read-only; can fetch gated-tier datasets via the
      Worker but cannot upload. `synthbench run` uses it to download datasets
      that can't be fetched anonymously (currently OpinionsQA): set it as
-     `SYNTHBENCH_API_KEY` before running.
+     `SYNTHBENCH_API_KEY` before running. The copy it downloads withholds
+     the answers to private-holdout questions, so those are scored when you
+     submit, not locally (see [docs/held-out.md](docs/held-out.md)).
    - **Read + submit** — both. Use only if you genuinely need both verbs from
      the same key.
 3. Copy the displayed key. **You will not be able to see it again** — the
@@ -449,6 +451,8 @@ across edge nodes.
 | `QSET_HASH_DATASET` | Your question keys don't match the canonical dataset hash. | You ran against a mutated dataset. Re-pull the upstream fixture. |
 | `COUNT_MISMATCH` | `n_questions` disagrees with `len(per_question)`. | Truncated or merged file — regenerate. |
 | `EMPTY_RUN` | `per_question` is empty — the run evaluated zero questions. | Usually a `--suite`/`--topic` filter that matches nothing in the chosen dataset. Pick a filter for that dataset or use `--n`. |
+| `WITHHELD_UNSCORED` | A private-holdout row from the public mirror wasn't scored server-side. | Pipeline problem, not yours. Resubmit or open an issue. |
+| `WITHHELD_NOT_PRIVATE` / `WITHHELD_HAS_METRICS` | A row is marked `answer_withheld` but isn't a private-holdout question, or carries metrics anyway. | The file was edited after the run. Regenerate it. |
 | `PER_Q_JSD` / `PER_Q_TAU` | Per-question metric doesn't match what the submitted distributions compute to. | Your metric code diverged from `synthbench`'s. Don't write your own metrics — use the harness's. |
 | `AGG_MEAN_JSD` / `AGG_MEAN_TAU` / `AGG_COMPOSITE` | Aggregate metric doesn't match the per-question recomputation. | Same as above. |
 | `PARSE_SUSPICIOUS` (warning) | Zero parse failures on a large run. | Double-check your parse pipeline isn't silently succeeding. |

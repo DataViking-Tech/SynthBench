@@ -69,10 +69,13 @@ The Worker mirrors the key layout emitted by `publish.py`:
 | `/data/question/<dataset>/index.json`| `question/<dataset>/index.json` |
 | `/data/datasets/<dataset>/<file>`    | `datasets/<dataset>/<file>`     |
 
-`datasets/` holds dataset archives that benchmark runs download (e.g. the
-OpinionsQA mirror built by `scripts/build-opinionsqa-mirror.py`). Raw
-respondent-level source data is kept under `provenance/`, which is never
-served. Traversal (`..`) and absolute keys are rejected with 400.
+`datasets/` holds dataset archives that benchmark runs download. For
+OpinionsQA that is the public variant built by
+`scripts/build-opinionsqa-mirror.py`, with private-holdout answers withheld
+(see `docs/held-out.md`). The full answer key (`canonical/`,
+`human-distributions/`) and raw respondent-level data (`provenance/`) are in
+the same bucket but are never served: only the four prefixes above are
+routable. Traversal (`..`) and absolute keys are rejected with 400.
 
 ## Tests
 

@@ -66,8 +66,37 @@ per-question human distributions are:
 - stored canonically only in the gated R2 origin
   (`human-distributions/<dataset>.json`) and credentialed maintainer caches
   (`~/.synthbench/human-distributions/`). The public data proxy Worker
-  allowlists only `run/`, `config/`, and `question/` paths, so
-  `human-distributions/*` is unroutable even for authenticated users.
+  allowlists only `run/`, `config/`, `question/`, and `datasets/` paths, so
+  `human-distributions/*` and `canonical/*` are unroutable even for
+  authenticated users.
+
+### Running from the public mirror
+
+OpinionsQA's upstream host (CodaLab) is unreliable, so SynthBench serves a
+copy through the data proxy at `datasets/opinionsqa/`, readable with a
+read-scope API key. That copy is the **public variant**: every
+private-holdout question keeps its text and options, but its human answers
+are replaced with `{"withheld": true}`. The full copy lives under
+`canonical/` and is never served.
+
+A run from the public variant samples the model on every question but scores
+only the public ones locally. Private rows are written with
+`answer_withheld: true` and null `jsd` / `kendall_tau` / `parity`, and the
+local score card says how many questions were scored. The local SPS is a
+public-split preview, not the leaderboard number.
+
+On submission, `scripts/score-withheld-rows.py` runs before validation with
+R2 credentials. It fills each withheld row from the canonical answer key,
+computes the same per-question metrics the runner would, marks the row
+`scored_server_side: true`, and recomputes `scores` and the aggregates over
+all rows. Validation then rejects:
+
+- `WITHHELD_UNSCORED`: a withheld row survived to the pipeline's validation
+  (for example, the answer key was unavailable);
+- `WITHHELD_NOT_PRIVATE`: a row marked withheld is not a private-holdout
+  question;
+- `WITHHELD_HAS_METRICS`: a withheld row also reports human answers or
+  metrics.
 
 The pip wheel ships **zero raw data** — `[tool.setuptools.package-data]` is
 deliberately unset (see the comment in `pyproject.toml`); adapters fetch

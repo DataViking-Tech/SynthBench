@@ -238,6 +238,12 @@ REQUIRED_PER_QUESTION = (
     "kendall_tau",
 )
 
+# Fields a withheld row (``answer_withheld: true``) must carry. Its human
+# answers were withheld from the client (private holdout, public mirror), so
+# jsd / kendall_tau are null until scripts/score-withheld-rows.py scores it
+# server-side on submission.
+WITHHELD_ROW_REQUIRED = ("key", "model_distribution", "jsd", "kendall_tau")
+
 # Allowed values for the optional ``config.effort`` reasoning-effort tag.
 # Kept in sync with synthbench.providers.base.EFFORT_LEVELS — duplicated
 # here (rather than imported) so tier-1 validation stays importable without
@@ -396,7 +402,14 @@ def _validate_schema(data: Any) -> list[Issue]:
                     )
                 )
                 continue
-            for key in required_per_question:
+            # Withheld private-holdout rows (public mirror) carry no human
+            # side yet; _validate_withheld_rows checks them instead.
+            row_required = (
+                WITHHELD_ROW_REQUIRED
+                if q.get("answer_withheld") is True
+                else required_per_question
+            )
+            for key in row_required:
                 if key not in q:
                     issues.append(
                         Issue(
@@ -1404,6 +1417,44 @@ def _validate_reproducibility_metadata(data: Mapping[str, Any]) -> list[Issue]:
 # ---------------------------------------------------------------------------
 
 
+def _validate_withheld_rows(data: Mapping[str, Any]) -> list[Issue]:
+    """Withheld rows are only legitimate for private-holdout questions.
+
+    A client running from the public mirror has no human answers for the
+    private split, so those rows carry ``answer_withheld: true`` and null
+    metrics until the submission pipeline scores them. A withheld row on a
+    public question, or one that also reports metrics, is malformed.
+    """
+    issues: list[Issue] = []
+    config = data.get("config") or {}
+    dataset = str(config.get("dataset") or "")
+    for idx, q in enumerate(data.get("per_question") or []):
+        if not isinstance(q, dict) or q.get("answer_withheld") is not True:
+            continue
+        key = q.get("key")
+        if not (isinstance(key, str) and is_private_holdout(dataset, key)):
+            issues.append(
+                Issue(
+                    code="WITHHELD_NOT_PRIVATE",
+                    severity=Severity.ERROR,
+                    message=f"row {key!r} is marked answer_withheld but is not a private-holdout question",
+                    path=f"per_question[{idx}].answer_withheld",
+                )
+            )
+        if any(
+            q.get(f) is not None for f in ("jsd", "kendall_tau", "human_distribution")
+        ):
+            issues.append(
+                Issue(
+                    code="WITHHELD_HAS_METRICS",
+                    severity=Severity.ERROR,
+                    message=f"withheld row {key!r} must not carry human_distribution, jsd, or kendall_tau",
+                    path=f"per_question[{idx}]",
+                )
+            )
+    return issues
+
+
 def _with_canonical_distributions(
     data: Mapping[str, Any],
     canonical: Mapping[str, Mapping[str, float]],
@@ -1420,7 +1471,7 @@ def _with_canonical_distributions(
     out = dict(data)
     rows = []
     for q in data.get("per_question") or []:
-        if isinstance(q, dict):
+        if isinstance(q, dict) and q.get("answer_withheld") is not True:
             q = dict(q)
             key = q.get("key")
             dist = canonical.get(key) if isinstance(key, str) else None
@@ -1441,6 +1492,7 @@ def validate_submission(
     tier3: bool = False,
     peers: Iterable[Mapping[str, Any]] = (),
     canonical_distributions: Mapping[str, Mapping[str, float]] | None = None,
+    require_scored: bool = False,
 ) -> ValidationReport:
     """Run the configured tiers of validation against a submission.
 
@@ -1468,6 +1520,10 @@ def validate_submission(
             When absent and the file is a stripped gated file, the
             distribution-dependent recompute is SKIPPED with an explicit
             warning rather than silently passing.
+        require_scored: Reject any row still marked ``answer_withheld``
+            (WITHHELD_UNSCORED). Implied when ``canonical_distributions`` is
+            supplied; the submission pipeline also sets it so a missing
+            answer key can't let unscored rows through.
     """
 
     report = ValidationReport(source=source)
@@ -1483,6 +1539,28 @@ def validate_submission(
         report.extend(_validate_question_set_hash(mapping, expected_question_hash))
         report.extend(_validate_parse_failure_plausibility(mapping))
         report.extend(_validate_private_holdout(mapping))
+        report.extend(_validate_withheld_rows(mapping))
+
+    if (require_scored or canonical_distributions is not None) and isinstance(
+        data, dict
+    ):
+        # Trusted context (canonical answers available): withheld rows must
+        # already have been scored by scripts/score-withheld-rows.py. Never
+        # let an unscored row through to publish.
+        n_withheld = sum(
+            1
+            for q in data.get("per_question") or []
+            if isinstance(q, dict) and q.get("answer_withheld") is True
+        )
+        if n_withheld:
+            report.issues.append(
+                Issue(
+                    code="WITHHELD_UNSCORED",
+                    severity=Severity.ERROR,
+                    message=f"{n_withheld} withheld row(s) were not scored server-side",
+                    path="per_question",
+                )
+            )
 
     if tier2 and not report.errors and isinstance(data, dict):
         recompute_data: dict = data
@@ -1544,6 +1622,7 @@ def validate_file(
     tier3: bool = False,
     peers: Iterable[Mapping[str, Any]] = (),
     canonical_distributions: Mapping[str, Mapping[str, float]] | None = None,
+    require_scored: bool = False,
 ) -> ValidationReport:
     """Load a JSON file and validate it. Errors are wrapped as report issues."""
 
@@ -1581,4 +1660,5 @@ def validate_file(
         tier3=tier3,
         peers=peers,
         canonical_distributions=canonical_distributions,
+        require_scored=require_scored,
     )

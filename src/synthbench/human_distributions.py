@@ -91,6 +91,13 @@ def build_artifact(dataset_name: str) -> dict:
     if adapter_cls is None:
         raise KeyError(f"unknown dataset {dataset_name!r}")
     questions = adapter_cls().load()
+    withheld = sum(1 for q in questions if q.answer_withheld)
+    if withheld:
+        # Loaded from the public mirror: not an answer key.
+        raise ValueError(
+            f"{base}: {withheld} question(s) have withheld answers; "
+            "build the canonical artifact from the full data"
+        )
     distributions = {q.key: dict(q.human_distribution) for q in questions}
     return {
         "dataset": base,

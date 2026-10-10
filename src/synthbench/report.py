@@ -107,6 +107,28 @@ def _build_raw_responses(per_q: list[QuestionResult]) -> list[dict]:
     return samples
 
 
+def _question_scores(q: QuestionResult) -> dict:
+    """Per-question human-side fields, or the withheld marker."""
+    model = {k: round(v, 4) for k, v in q.model_distribution.items()}
+    if q.answer_withheld:
+        return {
+            "model_distribution": model,
+            "answer_withheld": True,
+            "jsd": None,
+            "kendall_tau": None,
+            "parity": None,
+            "human_refusal_rate": None,
+        }
+    return {
+        "human_distribution": {k: round(v, 4) for k, v in q.human_distribution.items()},
+        "model_distribution": model,
+        "jsd": round(q.jsd, 6),
+        "kendall_tau": round(q.kendall_tau, 6),
+        "parity": round(q.parity, 6),
+        "human_refusal_rate": round(q.human_refusal_rate, 6),
+    }
+
+
 def to_json(result: BenchmarkResult) -> dict:
     """Convert a benchmark result to a JSON-serializable dict."""
     scores: dict[str, object] = {
@@ -161,6 +183,9 @@ def to_json(result: BenchmarkResult) -> dict:
             "per_metric_ci": per_metric_ci,
             "question_set_hash": result.q_set_hash,
             "n_parse_failures": result.total_parse_failures,
+            # Private-holdout rows the client had no answers for; scored
+            # server-side on submission (scripts/score-withheld-rows.py).
+            **({"n_answers_withheld": result.n_withheld} if result.n_withheld else {}),
             **(
                 {
                     "contamination_sensitivity": round(
@@ -193,19 +218,10 @@ def to_json(result: BenchmarkResult) -> dict:
                 "key": q.key,
                 "text": q.text,
                 "options": q.options,
-                "human_distribution": {
-                    k: round(v, 4) for k, v in q.human_distribution.items()
-                },
-                "model_distribution": {
-                    k: round(v, 4) for k, v in q.model_distribution.items()
-                },
-                "jsd": round(q.jsd, 6),
-                "kendall_tau": round(q.kendall_tau, 6),
-                "parity": round(q.parity, 6),
+                **_question_scores(q),
                 "n_samples": q.n_samples,
                 "n_parse_failures": q.n_parse_failures,
                 "model_refusal_rate": round(q.model_refusal_rate, 6),
-                "human_refusal_rate": round(q.human_refusal_rate, 6),
                 "temporal_year": q.temporal_year,
                 **({"token_usage": q.token_usage} if q.token_usage else {}),
                 **(
@@ -314,6 +330,15 @@ def to_markdown(
         f"**Dataset:** {result.dataset_name} ({len(result.questions)} questions)",
         f"**Samples per question:** {result.config.get('samples_per_question', '?')}",
         f"**Elapsed:** {result.elapsed_seconds:.1f}s",
+        *(
+            [
+                f"**Scored locally:** {len(result.scored)} questions. The other "
+                f"{result.n_withheld} are private-holdout questions whose human "
+                "answers are withheld; they are scored on submission.",
+            ]
+            if result.n_withheld
+            else []
+        ),
         "",
         "## SynthBench Parity Score (SPS)",
         "",
@@ -439,7 +464,7 @@ def to_markdown(
         lines.append("")
 
     # Top 5 best and worst questions
-    sorted_by_jsd = sorted(result.questions, key=lambda q: q.jsd)
+    sorted_by_jsd = sorted(result.scored, key=lambda q: q.jsd)
 
     if len(sorted_by_jsd) >= 5:
         lines.extend(
