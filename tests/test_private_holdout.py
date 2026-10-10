@@ -12,6 +12,7 @@ from synthbench.private_holdout import (
     HOLDOUT_MOD,
     SPS_DIVERGENCE_THRESHOLD,
     compute_split_sps,
+    divergence_threshold,
     holdout_fraction,
     holdout_keys,
     is_holdout_enabled,
@@ -191,6 +192,27 @@ class TestComputeSplitSps:
         out = compute_split_sps("opinionsqa", public_rows + private_rows)
         assert out["delta"] is not None
         assert out["delta"] > SPS_DIVERGENCE_THRESHOLD
+        assert out["flagged"] is True
+
+    def _shifted(self, n_public: int, n_private: int, gap: float) -> list[dict]:
+        """Rows whose public SPS exceeds private SPS by ``gap``."""
+        rows = self._mk_rows(n_public, n_private, dataset="opinionsqa")
+        for row in rows:
+            if is_private_holdout("opinionsqa", row["key"]):
+                row["jsd"] = 0.10 + 2 * gap
+        return rows
+
+    def test_small_run_noise_is_not_flagged(self):
+        # 100-question run: 20 private questions, threshold 0.5/sqrt(20).
+        out = compute_split_sps("opinionsqa", self._shifted(80, 20, 0.07))
+        assert out["delta"] == pytest.approx(0.07)
+        assert out["threshold"] == pytest.approx(divergence_threshold(80, 20))
+        assert out["threshold"] > 0.1
+        assert out["flagged"] is False
+
+    def test_production_scale_keeps_the_floor(self):
+        out = compute_split_sps("opinionsqa", self._shifted(547, 137, 0.07))
+        assert out["threshold"] == SPS_DIVERGENCE_THRESHOLD
         assert out["flagged"] is True
 
     def test_disabled_dataset_places_everything_public(self):

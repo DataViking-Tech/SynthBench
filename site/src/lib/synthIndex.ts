@@ -49,6 +49,8 @@ export interface DatasetScore {
   badge: "verified" | "flagged" | null;
   /** |public - private| SPS on the holdout split. */
   holdoutGap: number | null;
+  /** Gap above which the row is flagged; wider when the private subset is small. */
+  holdoutLimit: number;
   topicIdx: Record<string, number>;
   topicN: Record<string, number>;
   configId: string | null;
@@ -241,6 +243,7 @@ export function buildIndexData(raw: SynthBenchData): IndexData {
       latencyP50: e.latency_p50_seconds ?? null,
       badge: e.verification_badge ?? null,
       holdoutGap: e.sps_public_private_delta ?? null,
+      holdoutLimit: e.sps_public_private_threshold ?? 0.05,
       topicIdx,
       topicN,
       configId: e.config_id ?? null,

@@ -25,7 +25,6 @@ from synthbench.metrics.distributional import jensen_shannon_divergence
 from synthbench.metrics.ranking import kendall_tau_b
 from synthbench.private_holdout import (
     HOLDOUT_MOD,
-    SPS_DIVERGENCE_THRESHOLD,
     compute_split_sps,
     holdout_fraction,
     is_holdout_enabled,
@@ -728,7 +727,7 @@ def _validate_private_holdout(data: Mapping[str, Any]) -> list[Issue]:
 
     2. **SPS divergence.** Recompute SPS on the public and private subsets
        separately. When the gap exceeds
-       :data:`synthbench.private_holdout.SPS_DIVERGENCE_THRESHOLD`, we flag
+       :func:`synthbench.private_holdout.divergence_threshold`, we flag
        the submission as suspicious. Public SPS that massively outstrips
        private SPS means the submitter "knew" the public answers — by
        training on them, by peeking at published distributions, or by
@@ -814,19 +813,11 @@ def _validate_private_holdout(data: Mapping[str, Any]) -> list[Issue]:
         delta = split.get("delta")
         split_n_public = split.get("n_public")
         split_n_private = split.get("n_private")
-
-        # SPS is a bounded-variance mean over the subset, so per-subset
-        # sampling noise scales as ~1/sqrt(n). At n_private ≈ 13 (the
-        # haiku n=100 case from sb-a613) the observed legitimate delta is
-        # ~0.07 — well above the flat 0.05 floor. Widen the threshold for
-        # small subsets so partial / sampled runs don't false-positive,
-        # but keep the 0.05 floor on production-scale submissions where
-        # sampling noise is negligible and fabrication deltas (~0.2+)
-        # still blow past any reasonable bound.
+        # Widened for small subsets; see divergence_threshold.
+        effective_threshold = float(split["threshold"])
         min_side = 1
         if isinstance(split_n_public, int) and isinstance(split_n_private, int):
             min_side = max(1, min(split_n_public, split_n_private))
-        effective_threshold = max(SPS_DIVERGENCE_THRESHOLD, 0.5 / math.sqrt(min_side))
 
         if (
             isinstance(delta, (int, float))

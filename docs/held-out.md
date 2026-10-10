@@ -119,10 +119,18 @@ key (bounded by the recompute tolerance, ~1e-2 per question).
 ### The verification badge
 
 At publish time, `compute_split_sps` produces `sps_public`, `sps_private`,
-and `sps_public_private_delta` for each entry. Rows whose delta is within
-`SPS_DIVERGENCE_THRESHOLD` (0.05; typical honest deltas are < 0.02) earn a
-**✓ verified** badge; rows outside it are **⚠ flagged** — held for review,
-not proof of cheating. Every leaderboard entry on a holdout-enabled dataset
+`sps_public_private_delta`, and `sps_public_private_threshold` for each
+entry. Rows whose delta is within the threshold earn a **✓ verified** badge;
+rows outside it are **⚠ flagged** — held for review, not proof of cheating.
+
+The threshold comes from `divergence_threshold`: `max(0.05, 0.5 / sqrt(m))`,
+where `m` is the smaller of the public and private question counts. On
+production-scale runs (hundreds of questions) it is 0.05 and honest deltas
+are under 0.02. A 100-question run has only 20-30 private questions, so its
+threshold is about 0.09-0.11; with a flat 0.05, about a quarter of honest
+100-question runs were flagged. Fabrication deltas (~0.2+) clear either
+bound. The submission validator's `HOLDOUT_DIVERGENCE` warning uses the same
+threshold. Every leaderboard entry on a holdout-enabled dataset
 carries one of the two badges. See the methodology page's "Private holdout
 split" section for the contributor-facing explainer.
 

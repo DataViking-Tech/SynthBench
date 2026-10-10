@@ -128,6 +128,16 @@ export function component(
   const ids = (scope === "all" ? [...CORE] : [scope]).filter((id) => c.ds[id]);
   return ids.length ? ids.reduce((a, id) => a + c.ds[id][k], 0) / ids.length : null;
 }
+/** Holdout gap of the dataset closest to (or furthest over) its review threshold. */
+export function worstHoldout(c: SystemConfig): { gap: number; limit: number } | null {
+  let worst: { gap: number; limit: number } | null = null;
+  for (const x of Object.values(c.ds)) {
+    if (x.holdoutGap == null) continue;
+    if (!worst || x.holdoutGap / x.holdoutLimit > worst.gap / worst.limit)
+      worst = { gap: x.holdoutGap, limit: x.holdoutLimit };
+  }
+  return worst;
+}
 export const scopeName = (scope: Scope = state.scope): string =>
   scope === "all" ? "Index, average of 3 core datasets" : `${dsLabel(scope)} only`;
 

@@ -38,6 +38,7 @@ bead for the current rationale.
 from __future__ import annotations
 
 import hashlib
+import math
 from collections.abc import Iterable
 from types import MappingProxyType
 from typing import Mapping
@@ -77,9 +78,9 @@ HOLDOUT_ENABLED_DATASETS: Mapping[str, int] = MappingProxyType(
 # boundary is unambiguous (``bucket < fraction`` → private).
 HOLDOUT_MOD = 100
 
-# SPS delta above which a submission's public/private divergence is flagged.
-# Calibrated loosely — typical honest-submission delta is <0.02 on the runs
-# we've analysed, so 0.05 catches fabrication without flagging normal noise.
+# Floor on the SPS delta above which a submission's public/private divergence
+# is flagged. Honest deltas are <0.02 on production-scale runs; smaller runs
+# get a wider threshold (see divergence_threshold).
 SPS_DIVERGENCE_THRESHOLD = 0.05
 
 
@@ -199,6 +200,20 @@ def _subset_sps(rows: list[dict]) -> float | None:
     return 0.5 * p_dist + 0.5 * p_rank
 
 
+def divergence_threshold(n_public: int, n_private: int) -> float:
+    """Return the public/private SPS delta above which a run is flagged.
+
+    Each subset SPS is a mean of bounded per-question scores, so its sampling
+    noise scales as ~1/sqrt(n). On a 100-question run the private subset is
+    20-30 questions and honest deltas routinely exceed 0.05 (a flat 0.05
+    flagged about a quarter of them). Widen the threshold for small subsets
+    and keep the 0.05 floor at production scale, where fabrication deltas
+    (~0.2+) still clear it.
+    """
+    min_side = max(1, min(n_public, n_private))
+    return max(SPS_DIVERGENCE_THRESHOLD, 0.5 / math.sqrt(min_side))
+
+
 def compute_split_sps(
     dataset: str, per_question: Iterable[dict]
 ) -> dict[str, float | int | None]:
@@ -207,7 +222,7 @@ def compute_split_sps(
     Returned keys are always present; numeric fields are ``None`` whenever
     the subset is empty or lacks numeric metrics. Callers surface them as
     ``sps_public`` / ``sps_private`` on the submission record and flag rows
-    whose ``delta`` exceeds :data:`SPS_DIVERGENCE_THRESHOLD`.
+    whose ``delta`` exceeds ``threshold`` (:func:`divergence_threshold`).
     """
     public_rows, private_rows = _partition_rows(dataset, per_question)
     sps_public = _subset_sps(public_rows)
@@ -217,13 +232,15 @@ def compute_split_sps(
         delta = None
     else:
         delta = abs(sps_public - sps_private)
+    threshold = divergence_threshold(len(public_rows), len(private_rows))
     return {
         "sps_public": sps_public,
         "sps_private": sps_private,
         "delta": delta,
         "n_public": len(public_rows),
         "n_private": len(private_rows),
-        "flagged": (delta is not None and delta > SPS_DIVERGENCE_THRESHOLD),
+        "threshold": threshold,
+        "flagged": (delta is not None and delta > threshold),
     }
 
 
@@ -232,6 +249,7 @@ __all__ = [
     "HOLDOUT_MOD",
     "SPS_DIVERGENCE_THRESHOLD",
     "compute_split_sps",
+    "divergence_threshold",
     "holdout_fraction",
     "holdout_keys",
     "is_holdout_enabled",

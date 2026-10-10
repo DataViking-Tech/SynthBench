@@ -27,7 +27,7 @@
     locally against the withheld answer key and publish the resulting
     <span class="font-mono">sps_private</span> alongside
     <span class="font-mono">sps_public</span>. Rows whose public/private
-    SPS delta is within a tolerance of 0.05 get a
+    SPS delta is within the review threshold get a
     <span
       class="mx-1 inline-block text-xs px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-700 dark:text-emerald-400"
       >✓ verified</span
@@ -87,15 +87,14 @@
         <span
           class="mr-1 inline-block text-xs px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-700 dark:text-emerald-400"
           >✓ verified</span
-        >: the public and private scores are within the 0.05 SPS divergence
-        threshold. This is what an honest run looks like. The deltas we have
-        observed on honest submissions are typically below 0.02.
+        >: the public and private scores are within the review threshold.
+        This is what an honest run looks like.
       </li>
       <li>
         <span
           class="mr-1 inline-block text-xs px-1.5 py-0.5 rounded bg-amber-500/10 text-amber-700 dark:text-amber-400"
           >⚠ flagged</span
-        >: the public/private divergence exceeded the 0.05 threshold, so
+        >: the public/private divergence exceeded the review threshold, so
         the row is held for review.
       </li>
     </ul>
@@ -111,10 +110,14 @@
       trust it. A flag is not an accusation against the submitter.
     </p>
     <p class="text-muted">
-      The threshold is deliberately loose (0.05, versus typical honest
-      deltas under 0.02) so that normal run-to-run noise does not flag
-      honest submissions. Both scores and the delta are published on each
-      row, so you can apply a stricter or looser standard yourself.
+      The threshold is 0.05 on runs with hundreds of questions, where honest
+      deltas are under 0.02. A run with fewer private questions gets a wider
+      threshold, 0.5 divided by the square root of the smaller subset's
+      question count. A 100-question run has 20 to 30 private questions, so
+      its threshold is about 0.1. Fabricated submissions show deltas of 0.2
+      or more and are flagged either way. Both scores, the delta, and the
+      threshold are published on each row, so you can apply a stricter or
+      looser standard yourself.
     </p>
   </div>
 </section>

@@ -838,9 +838,9 @@ function renderDrawer(): void {
             ? h(
                 "span",
                 { class: "sb-warn" },
-                `⚠ Gap above 0.05 on ${c.flagged} dataset${c.flagged > 1 ? "s" : ""}`,
+                `⚠ Gap above the review threshold on ${c.flagged} dataset${c.flagged > 1 ? "s" : ""}`,
               )
-            : h("span", { class: "sb-ok" }, "✓ Within 0.05 everywhere"),
+            : h("span", { class: "sb-ok" }, "✓ Within the review threshold everywhere"),
         ),
         h("dt", null, "Replicate runs"),
         h("dd", null, String(c.runs)),
