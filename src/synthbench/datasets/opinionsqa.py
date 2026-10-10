@@ -8,7 +8,7 @@ Paper: https://arxiv.org/abs/2303.17548
 
 Raw data is fetched, in order, from:
 
-1. SynthBench's private R2 mirror (``datasets/opinionsqa/...`` in the gated
+1. SynthBench's private R2 mirror (``canonical/opinionsqa/...`` in the gated
    bucket, when the ``R2_*`` env vars are set): the canonical per-wave files
    (``info.csv`` + ``NONE_data.json``) for the 684 questions the leaderboard
    uses, built by ``scripts/build-opinionsqa-mirror.py``.
@@ -46,7 +46,9 @@ CODALAB_HUMAN_RESP_SHA256 = (
 )
 
 # Canonical per-wave files in the gated R2 bucket (see module docstring).
-MIRROR_KEY = "datasets/opinionsqa/human_resp-canonical-v1.tar.gz"
+# They include the private-holdout answers, so they live under canonical/,
+# which the data-proxy Worker never serves.
+MIRROR_KEY = "canonical/opinionsqa/human_resp-canonical-v1.tar.gz"
 MIRROR_SHA256 = "e0193599bebbbb1c2498df82f0d8ce5784d5b4ca6abdf5f42298a117d7ab8666"
 # The raw CodaLab bundle (respondent-level answers), mirrored unchanged for
 # provenance under provenance/, which the data-proxy Worker never serves.
