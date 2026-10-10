@@ -24,6 +24,18 @@ Two detector versions coexist:
   option is echoed (a response weighing both sides chose neither), and
   v3 adds a single-label exemption: a response carrying exactly one
   option label (``(B)``) picked an answer, so it is never a refusal.
+* :func:`detect_refusal_v4` — **v4** (current default). v3 anchored its
+  character-break openers to the start of the response, so a decline
+  behind a lead-in ("I appreciate the roleplay setup, but I should be
+  straightforward: I can't authentically answer this ...", "I'm Claude,
+  an AI, and I don't actually live anywhere") fell through as a parse
+  failure. Parse failures are dropped from the distribution, so a model
+  whose refusals took that shape paid no refusal penalty: Haiku 4.5 logged
+  22% parse failures and 0.7% refusals on SubPOP, and nearly all of those
+  failures were refusals. v4 also searches the first paragraph for
+  explicit character breaks (identifying as an AI, stepping out of the
+  role, declining to answer "authentically", disclaiming personal beliefs
+  or a place to live). v3's single-option exemptions still come first.
 
 Runs are stamped with ``config.refusal_detector_version``; the key is
 additive — files without it were parsed under v1. The stamp is metadata
@@ -37,7 +49,7 @@ import re
 
 #: Detector version stamped into run metadata (``config.refusal_detector_version``).
 #: Absent key on a committed run file means v1.
-REFUSAL_DETECTOR_VERSION = 3
+REFUSAL_DETECTOR_VERSION = 4
 
 # Patterns that indicate an LLM-style refusal when explicit refusal field is
 # unavailable. v1 — un-anchored; kept callable for reproducibility.
@@ -255,6 +267,74 @@ def detect_refusal_v3(text: str, options: list[str] | None = None) -> bool:
     if any(p.search(opening) for p in _REFUSAL_PATTERNS_V3_INITIAL):
         return True
     return bool(_NON_SELECTION_RE.search(_first_paragraph(stripped)))
+
+
+# ---------------------------------------------------------------------------
+# v4 detector
+# ---------------------------------------------------------------------------
+
+# Character breaks searched anywhere in the first paragraph. Each names the
+# model as an AI or explicitly declines to answer as the respondent, so an
+# in-character opinion ("I can't stand ...", "I don't have strong feelings")
+# never matches.
+_CHARACTER_BREAK_RE = re.compile(
+    r"\bI(?:'m| am) (?:Claude\b|an AI\b|an artificial intelligence\b|an? (?:large )?language model\b)"
+    r"|\bAs an AI\b"
+    r"|\b(?:step|stepping|break|breaking) (?:out of (?:the |this |my )?(?:particular )?"
+    r"(?:role-?play|role|character|persona)|character\b)"
+    r"|\beven (?:in|as) (?:a |an |the |this |my )?(?:character|role-?play|persona|fictional)"
+    r"|\bI (?:can'?t|cannot|won'?t|shouldn'?t) (?:authentically |genuinely |honestly |truthfully )?"
+    r"pretend\b"
+    r"|\bI(?: can'?t| cannot| won'?t| shouldn'?t|'?m not able to| am not able to) "
+    r"(?:authentically|genuinely|honestly|truthfully) "
+    r"(?:answer|respond|adopt|role-?play|represent|express|take|provide|give|pick|choose|speak)\b"
+    r"|\bI (?:can'?t|cannot|won'?t|shouldn'?t) (?:provide|give|offer|take) (?:a|an|any|my) "
+    r"(?:particular |specific |personal |political )?(?:answer|position|stance|side)\b"
+    r"|\bI'?m not comfortable (?:selecting|choosing|picking|answering|role-?playing|taking|"
+    r"expressing|giving|sharing|presenting)\b"
+    r"|\bI (?:don'?t|do not) think it'?s appropriate for me to\b"
+    r"|\bI (?:don'?t|do not) (?:actually |really |genuinely )?(?:hold|have) (?:any )?"
+    r"(?:personal|genuine|real|authentic) (?:political )?"
+    r"(?:beliefs?|opinions?|views?|convictions?|stances?|experiences?)\b"
+    r"|\bI (?:don'?t|do not) actually live\b",
+    re.IGNORECASE,
+)
+
+# Roleplay stage directions ("*pauses thoughtfully*") before the first real
+# paragraph.
+_STAGE_DIRECTION_RE = re.compile(r"\A(?:\s*\*[^*\n]{1,80}\*\s*)+")
+
+
+def detect_refusal_v4(text: str, options: list[str] | None = None) -> bool:
+    """Detect refusal — v4: v3 plus character breaks anywhere in paragraph one.
+
+    Classification order:
+
+    1. v3's exemptions: exactly one echoed option or one option label is an
+       answer, never a refusal.
+    2. Any v3 refusal (answer-initial patterns, explicit non-selection).
+    3. An explicit character break anywhere in the first paragraph (see
+       :data:`_CHARACTER_BREAK_RE`): refusal.
+
+    Args:
+        text: Raw response text from the provider.
+        options: Declared answer options for the current question.
+
+    Returns:
+        True if the response declines to choose an option.
+    """
+    raw = str(text)
+    stripped = raw.strip(_WRAPPING_CHARS)
+    if not stripped:
+        return False
+    if options:
+        echoed = sum(1 for opt in options if _mentions_option(raw, [opt]))
+        if echoed == 1 or _single_option_label(raw, options):
+            return False
+    if detect_refusal_v3(raw, options):
+        return True
+    body = _STAGE_DIRECTION_RE.sub("", raw.strip())
+    return bool(_CHARACTER_BREAK_RE.search(_first_paragraph(body)))
 
 
 def refusal_calibration(

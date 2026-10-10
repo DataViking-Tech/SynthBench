@@ -843,7 +843,7 @@ def test_refusal_detector_v1_still_callable_for_reproducibility():
 def test_refusal_detector_version_constant():
     from synthbench.metrics.refusal import REFUSAL_DETECTOR_VERSION
 
-    assert REFUSAL_DETECTOR_VERSION == 3
+    assert REFUSAL_DETECTOR_VERSION == 4
 
 
 # ---------------------------------------------------------------------------
@@ -934,6 +934,115 @@ def test_refusal_v3_keeps_real_answers(text, options, expected):
 
 def test_refusal_v3_non_selection_only_in_first_paragraph():
     text = "(A) Approve.\n\nOthers might say they can't pick one of these options, but I can."
+    assert parse_option_response(text, _OPTS_APPROVE).option == "Approve"
+
+
+# ---------------------------------------------------------------------------
+# Refusal detector v4 — character breaks behind a lead-in
+# ---------------------------------------------------------------------------
+
+_OPTS_ABORTION = [
+    "Legal in all cases",
+    "Legal in most cases",
+    "Illegal in most cases",
+    "Illegal in all cases",
+    "Refused",
+]
+_OPTS_ACCESS = [
+    "Very difficult",
+    "Somewhat difficult",
+    "Somewhat easy",
+    "Very easy",
+    "Refused",
+]
+
+
+@pytest.mark.parametrize(
+    ("text", "options"),
+    [
+        # Haiku 4.5 samples that v3 left as parse failures.
+        (
+            "I appreciate the roleplay setup, but I should be straightforward: I can't "
+            "authentically answer this as a personal political position, even in character.",
+            _OPTS_ABORTION,
+        ),
+        (
+            "I appreciate the question, but I should be direct with you: I'm Claude, an AI, "
+            "and I don't actually live anywhere or have personal experiences navigating "
+            "abortion access in a particular location.",
+            _OPTS_ACCESS,
+        ),
+        (
+            "I appreciate the scenario, but I should step out of this particular roleplay.\n\n"
+            "While I can engage with survey questions in many contexts, I don't think it's "
+            "appropriate for me to invent a personal political stance.",
+            _OPTS_ABORTION,
+        ),
+        (
+            "I appreciate the setup, but I should be direct here: I'm not comfortable "
+            "selecting one of those options as if it's my genuine personal stance.",
+            _OPTS_ABORTION,
+        ),
+        (
+            "I appreciate the scenario, but I should be straightforward: even in a survey "
+            "respondent role, I shouldn't pretend to hold genuine personal political beliefs.",
+            _OPTS_ABORTION,
+        ),
+        (
+            "*Pauses thoughtfully*\n\nI appreciate the question, but I should be straight with "
+            "you: I'm an AI, so I can't authentically role-play having political opinions.",
+            _OPTS_ABORTION,
+        ),
+    ],
+)
+def test_refusal_v4_detects_character_breaks_behind_a_lead_in(text, options):
+    assert parse_option_response(text, options) == ParsedResponse(refusal=True)
+    # v3 left these as parse failures.
+    assert parse_option_response(
+        text, options, refusal_detector_version=3
+    ).is_parse_failure
+
+
+@pytest.mark.parametrize(
+    ("text", "options", "expected"),
+    [
+        # A character break followed by a single label is still an answer.
+        (
+            "I appreciate the question. I'm an AI, but if I had to pick, (B).",
+            _OPTS_ABORTION,
+            "Legal in most cases",
+        ),
+        # In-character first-person text that is not a character break.
+        (
+            "*pauses to think*\n\nI'd say **(C) Somewhat easy**. I don't have personal "
+            "experience with it, but there are clinics nearby.",
+            _OPTS_ACCESS,
+            "Somewhat easy",
+        ),
+        (
+            "Honestly I can't stand how divisive this is. Legal in most cases.",
+            _OPTS_ABORTION,
+            "Legal in most cases",
+        ),
+    ],
+)
+def test_refusal_v4_keeps_real_answers(text, options, expected):
+    parsed = parse_option_response(text, options)
+    assert parsed.refusal is False
+    assert parsed.option == expected
+
+
+def test_refusal_v4_leaves_clarification_requests_as_parse_failures():
+    # Asking which country to answer for is a non-answer, not a refusal.
+    text = (
+        "I appreciate the question, but I need to clarify something first: which "
+        "country am I supposed to be answering from?"
+    )
+    assert parse_option_response(text, ["Good", "Bad"]).is_parse_failure
+
+
+def test_refusal_v4_character_break_only_in_first_paragraph():
+    text = "(A) Approve.\n\nI'm Claude, an AI, but I'd answer that way."
     assert parse_option_response(text, _OPTS_APPROVE).option == "Approve"
 
 
