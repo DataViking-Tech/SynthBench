@@ -7908,6 +7908,37 @@
     ],
     "elicitation_comparison": [
       {
+        "model": "Althing (Haiku 5.5 via Claude Code)",
+        "framework": "product",
+        "dataset": "globalopinionqa",
+        "elicitation": "structured",
+        "template": "structured",
+        "n_questions": 100,
+        "samples_per_question": 30,
+        "refusal_detector_version": 3,
+        "natural": {
+          "sps": 0.695194,
+          "p_dist": 0.690467,
+          "p_rank": 0.646398,
+          "p_refuse": 0.748718,
+          "parse_failure_rate": 0.033667
+        },
+        "structured": {
+          "sps": 0.742457,
+          "p_dist": 0.622328,
+          "p_rank": 0.62531,
+          "p_refuse": 0.979733,
+          "parse_failure_rate": 0.002
+        },
+        "delta": {
+          "sps": 0.047263,
+          "p_dist": -0.068139,
+          "p_rank": -0.021088,
+          "p_refuse": 0.231015,
+          "parse_failure_rate": -0.031667
+        }
+      },
+      {
         "model": "Althing (Haiku 4.5)",
         "framework": "product",
         "dataset": "gss",

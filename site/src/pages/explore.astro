@@ -208,6 +208,7 @@ if (!hasRunsIndex && import.meta.env.PROD) {
     temperature: number | null;
     effort: string | null;
     template: string | null;
+    persona_pack: string | null;
     samples_per_question: number | null;
     n_questions: number;
     is_baseline: boolean;
@@ -289,6 +290,7 @@ if (!hasRunsIndex && import.meta.env.PROD) {
         temperature: head.temperature,
         effort: head.effort,
         template: head.template,
+        persona_pack: head.persona_pack ?? null,
         samples_per_question: head.samples_per_question,
         n_questions: head.n_questions,
         is_baseline: head.is_baseline,
@@ -511,6 +513,7 @@ if (!hasRunsIndex && import.meta.env.PROD) {
           temperature: r.temperature,
           effort: r.effort,
           template: r.template,
+          persona_pack: r.persona_pack ?? null,
           samples_per_question: r.samples_per_question,
           n_questions: r.n_questions,
           is_baseline: r.is_baseline,
@@ -681,6 +684,14 @@ if (!hasRunsIndex && import.meta.env.PROD) {
               "rounded bg-muted/10 text-xs text-muted px-1.5 py-0.5 font-mono";
             tplTag.textContent = `tpl=${g.template}`;
             tags.appendChild(tplTag);
+          }
+          if (g.persona_pack) {
+            const packTag = document.createElement("span");
+            packTag.className =
+              "rounded bg-muted/10 text-xs text-muted px-1.5 py-0.5 font-mono";
+            packTag.textContent = `pack=${g.persona_pack}`;
+            packTag.title = `conditioned on the althing ${g.persona_pack} population pack`;
+            tags.appendChild(packTag);
           }
           if (g.is_baseline) {
             const bTag = document.createElement("span");

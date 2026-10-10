@@ -155,3 +155,37 @@ def test_suffixed_providers_collapse_to_display_name():
     _annotate_run_counts(entries, results)
 
     assert entries[0]["run_count"] == 2
+
+
+def test_persona_pack_runs_keep_their_own_row_and_count():
+    from synthbench.publish import _dedup_results
+
+    plain = {
+        "config": {
+            "provider": "althing/claude-code:haiku",
+            "dataset": "globalopinionqa",
+            "n_evaluated": 100,
+        }
+    }
+    packed = {
+        "config": {
+            "provider": "althing/claude-code:haiku pack=global-respondents",
+            "dataset": "globalopinionqa",
+            "n_evaluated": 100,
+            "persona_pack": "global-respondents",
+        }
+    }
+    kept = _dedup_results([plain, packed])
+    assert len(kept) == 2
+
+    entries = [
+        _entry("Althing (Haiku 5.5 via Claude Code)", "product", "globalopinionqa"),
+        {
+            **_entry(
+                "Althing (Haiku 5.5 via Claude Code)", "product", "globalopinionqa"
+            ),
+            "persona_pack": "global-respondents",
+        },
+    ]
+    _annotate_run_counts(entries, [plain, packed, packed])
+    assert [e["run_count"] for e in entries] == [1, 2]

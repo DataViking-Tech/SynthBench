@@ -54,6 +54,11 @@ MODEL_MAP: dict[str, tuple[str, str]] = {
         "product",
     ),
     "althing/gpt-4o-mini": ("Althing (GPT-4o-mini)", "product"),
+    # Products — via subscription CLIs (althing claude-code:/codex: providers).
+    # `claude-code:haiku` is a CLI alias; it resolved to claude-haiku-5-5 for
+    # the 2026-10 runs. Add a dated key if a later alias target is benchmarked.
+    "althing/claude-code:haiku": ("Althing (Haiku 5.5 via Claude Code)", "product"),
+    "althing/codex:gpt-6-luna": ("Althing (GPT-6 Luna via Codex)", "product"),
     # Ensemble
     "ensemble/3-model-blend": ("Althing Ensemble (3-model)", "product"),
     # Baselines
@@ -74,12 +79,15 @@ MODEL_MAP.update(
 
 
 def _parse_provider_base(provider: str) -> str:
-    """Strip temperature/template suffixes from provider name.
+    """Strip temperature/template/profile/pack suffixes from provider name.
 
     'althing/openrouter/anthropic/claude-haiku-4-5 t=0.85 tpl=current'
     → 'althing/openrouter/anthropic/claude-haiku-4-5'
     """
-    return provider.split(" t=")[0].split(" tpl=")[0].split(" profile=")[0].strip()
+    base = provider
+    for knob in (" t=", " tpl=", " profile=", " pack="):
+        base = base.split(knob)[0]
+    return base.strip()
 
 
 def _extract_hyperparams(result: dict) -> dict[str, object]:
