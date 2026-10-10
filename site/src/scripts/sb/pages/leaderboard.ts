@@ -16,6 +16,7 @@ import {
   state,
   systems,
   tiers,
+  worstHoldout,
 } from "../model";
 import {
   METHOD_IDS,
@@ -198,7 +199,7 @@ function bullet(v: number | null, r: number | null, color: string): SVGSVGElemen
     );
   return sv;
 }
-function gapBar(g: number | null): SVGSVGElement {
+function gapBar(g: { gap: number; limit: number } | null): SVGSVGElement {
   const W = 110;
   const sv = s("svg", {
     class: "sb-c",
@@ -207,24 +208,24 @@ function gapBar(g: number | null): SVGSVGElement {
     "aria-hidden": "true",
     style: "display:inline-block;vertical-align:middle",
   });
-  const x = linear(0, 0.12, 0, W);
+  const x = linear(0, 0.16, 0, W);
   s("rect", { x: 0, y: 4, width: W, height: 6, rx: 3, fill: css("--sb-grid") }, sv);
-  if (g != null)
-    s(
-      "rect",
-      {
-        x: 0,
-        y: 4,
-        width: x(Math.min(0.12, g)),
-        height: 6,
-        rx: 3,
-        fill: g > 0.05 ? css("--sb-warn") : css("--sb-ink-2"),
-      },
-      sv,
-    );
+  if (g == null) return sv;
+  s(
+    "rect",
+    {
+      x: 0,
+      y: 4,
+      width: x(Math.min(0.16, g.gap)),
+      height: 6,
+      rx: 3,
+      fill: g.gap > g.limit ? css("--sb-warn") : css("--sb-ink-2"),
+    },
+    sv,
+  );
   s(
     "line",
-    { x1: x(0.05), x2: x(0.05), y1: 0, y2: 14, stroke: css("--sb-ink"), "stroke-width": 1.5 },
+    { x1: x(g.limit), x2: x(g.limit), y1: 0, y2: 14, stroke: css("--sb-ink"), "stroke-width": 1.5 },
     sv,
   );
   return sv;
@@ -242,12 +243,6 @@ const th = (label: string | Node, cls?: string | null, title?: string) =>
   h("th", { class: cls ?? null, scope: "col", title: title ?? null }, label);
 const scaled = (label: string, scale: string) =>
   h("span", null, label, h("small", { class: "sb-th-scale" }, scale));
-const maxGap = (c: SystemConfig) => {
-  const gaps = Object.values(c.ds)
-    .map((x) => x.holdoutGap)
-    .filter((g): g is number => g != null);
-  return gaps.length ? Math.max(...gaps) : null;
-};
 const spq = (c: SystemConfig) =>
   [
     ...new Set(
@@ -294,7 +289,7 @@ function header(): HTMLElement[] {
       ...ALL.map((id) =>
         th(`${dsLabel(id)}${id === "gss" ? " †" : ""}`, "c", `Index on ${dsLabel(id)}`),
       ),
-      th("Holdout", "c", "Public and private questions agree within 0.05"),
+      th("Holdout", "c", "Public and private questions agree within the review threshold"),
     );
   else if (st.cols === "components")
     head.push(
@@ -329,9 +324,9 @@ function header(): HTMLElement[] {
     head.push(
       th(idxLabel, "r"),
       th(
-        scaled("Public vs. private SPS gap", "bar 0 to 0.12, line = 0.05 limit"),
+        scaled("Public vs. private SPS gap", "bar 0 to 0.16, line = review threshold"),
         null,
-        "Largest gap across datasets. Line = 0.05 review threshold.",
+        "Dataset with the largest gap relative to its threshold. The threshold is 0.05, wider when few questions are private.",
       ),
       th("Status"),
       th("Runs", "r"),
@@ -410,7 +405,11 @@ function row(r: Row, rows: Row[], i: number): HTMLElement {
             )
           : null,
         c.flagged
-          ? h("span", { class: "sb-warn", title: "Public vs. private gap above 0.05" }, "⚠")
+          ? h(
+              "span",
+              { class: "sb-warn", title: "Public vs. private gap above the review threshold" },
+              "⚠",
+            )
           : null,
       ),
     ),
@@ -438,14 +437,14 @@ function row(r: Row, rows: Row[], i: number): HTMLElement {
         ),
       );
     }
-    const g = maxGap(c);
+    const g = worstHoldout(c);
     cells.push(
       h(
         "td",
         { class: "c" },
         g == null
           ? h("span", { class: "sb-muted" }, "—")
-          : g > 0.05
+          : g.gap > g.limit
             ? h("span", { class: "sb-warn" }, "⚠")
             : h("span", { class: "sb-ok" }, "✓"),
       ),
@@ -480,23 +479,23 @@ function row(r: Row, rows: Row[], i: number): HTMLElement {
       h("td", { class: "v plain" }, String(c.runs)),
     );
   } else {
-    const g = maxGap(c);
+    const g = worstHoldout(c);
     cells.push(
       h("td", { class: "v" }, fmt.int(v.v)),
       h(
         "td",
         { class: "nowrap" },
         gapBar(g),
-        h("span", { class: "sb-mono sb-cellnum" }, g == null ? "—" : g.toFixed(3)),
+        h("span", { class: "sb-mono sb-cellnum" }, g == null ? "—" : g.gap.toFixed(3)),
       ),
       h(
         "td",
         null,
         g == null
           ? h("span", { class: "sb-muted" }, "no holdout")
-          : g > 0.05
+          : g.gap > g.limit
             ? h("span", { class: "sb-warn" }, "⚠ under review")
-            : h("span", { class: "sb-ok" }, "✓ within 0.05"),
+            : h("span", { class: "sb-ok" }, `✓ within ${g.limit.toFixed(2)}`),
       ),
       h("td", { class: "v plain" }, String(c.runs)),
       h(

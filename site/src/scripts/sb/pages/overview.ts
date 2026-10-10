@@ -297,7 +297,7 @@ mount(whyEl, (W) => whyMini(whyEl, W), onChange);
       "div",
       null,
       h("b", null, "Private holdout"),
-      `20 to 40% of each dataset is scored against an answer key we don't publish. ${flagged} result${flagged === 1 ? "" : "s"} with a public/private gap above 0.05 ${flagged === 1 ? "is" : "are"} flagged.`,
+      `20 to 40% of each dataset is scored against an answer key we don't publish. ${flagged} result${flagged === 1 ? "" : "s"} with a public/private gap above the review threshold ${flagged === 1 ? "is" : "are"} flagged.`,
     ),
     h(
       "div",

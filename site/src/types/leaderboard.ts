@@ -163,8 +163,14 @@ export interface LeaderboardEntry {
   /** |sps_public − sps_private|. Large values suggest fabrication or contamination. */
   sps_public_private_delta?: number;
   /**
+   * Delta above which this row is flagged. 0.05 at production scale, wider
+   * when the private subset is small (`divergence_threshold` in
+   * `synthbench.private_holdout`).
+   */
+  sps_public_private_threshold?: number;
+  /**
    * Verification badge derived from `sps_public_private_delta` vs
-   * `SPS_DIVERGENCE_THRESHOLD` (0.05). "verified" = delta within threshold,
+   * `sps_public_private_threshold`. "verified" = delta within threshold,
    * "flagged" = delta exceeds threshold (submission warrants review).
    * Absent when the split cannot be computed.
    */

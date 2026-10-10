@@ -894,6 +894,7 @@ def _build_entry(
         if delta is not None:
             entry["sps_public_private_delta"] = round(float(delta), 6)
         if sps_public is not None and sps_private is not None:
+            entry["sps_public_private_threshold"] = round(float(split["threshold"]), 6)
             entry["verification_badge"] = (
                 "flagged" if split.get("flagged") else "verified"
             )
@@ -1811,6 +1812,7 @@ def _build_run_detail(
             "delta": _round_or_none(split.get("delta")),
             "n_public": split.get("n_public", 0),
             "n_private": split.get("n_private", 0),
+            "threshold": _round_or_none(split.get("threshold")),
             "flagged": bool(split.get("flagged", False)),
         }
 

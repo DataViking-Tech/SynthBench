@@ -681,10 +681,10 @@ else {
 // ---------- Holdout check ----------
 const trustEl = $("pf-trust");
 mount(trustEl, (W) => {
-  const items: { c: SystemConfig; id: string; gap: number }[] = [];
+  const items: { c: SystemConfig; id: string; gap: number; limit: number }[] = [];
   for (const c of mine)
     for (const [id, v] of Object.entries(c.ds))
-      if (v.holdoutGap != null) items.push({ c, id, gap: v.holdoutGap });
+      if (v.holdoutGap != null) items.push({ c, id, gap: v.holdoutGap, limit: v.holdoutLimit });
   const rowH = 26;
   const labelW = 170;
   const plotB = Math.max(1, items.length) * rowH;
@@ -711,8 +711,8 @@ mount(trustEl, (W) => {
     );
     return;
   }
-  const x = linear(0, 0.12, labelW + 10, W - 74);
-  for (const t of [0, 0.04, 0.08, 0.12]) {
+  const x = linear(0, 0.16, labelW + 10, W - 74);
+  for (const t of [0, 0.04, 0.08, 0.12, 0.16]) {
     s("line", { class: "sb-gl", x1: x(t), x2: x(t), y1: 0, y2: plotB }, svg);
     s(
       "text",
@@ -720,18 +720,13 @@ mount(trustEl, (W) => {
       svg,
     );
   }
-  s(
-    "line",
-    { x1: x(0.05), x2: x(0.05), y1: 0, y2: plotB, stroke: css("--sb-ink"), "stroke-width": 1.5 },
-    svg,
-  );
-  axisTitle(svg, "Public minus private SPS, absolute (line = 0.05 limit)", {
-    x: (x(0) + x(0.12)) / 2,
+  axisTitle(svg, "Public minus private SPS, absolute (tick = review threshold)", {
+    x: (x(0) + x(0.16)) / 2,
     y: H - 4,
   });
   items.forEach((it, i) => {
     const cy = i * rowH + rowH / 2;
-    const over = it.gap > 0.05;
+    const over = it.gap > it.limit;
     s(
       "text",
       {
@@ -748,11 +743,23 @@ mount(trustEl, (W) => {
       {
         x: x(0),
         y: cy - 4,
-        width: x(Math.min(0.12, it.gap)) - x(0),
+        width: x(Math.min(0.16, it.gap)) - x(0),
         height: 8,
         rx: 2,
         fill: over ? css("--sb-warn") : css("--sb-ink-2"),
         opacity: over ? 1 : 0.5,
+      },
+      svg,
+    );
+    s(
+      "line",
+      {
+        x1: x(it.limit),
+        x2: x(it.limit),
+        y1: cy - 8,
+        y2: cy + 8,
+        stroke: css("--sb-ink"),
+        "stroke-width": 1.5,
       },
       svg,
     );
