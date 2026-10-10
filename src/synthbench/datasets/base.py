@@ -49,6 +49,12 @@ class Question:
     human_distribution: dict[str, float]
     survey: str = ""
     topic: str = ""
+    respondent_population: dict[str, list[str]] | None = None
+    """Who the human answers come from, as ``{attribute: members}`` with one
+    entry per group the ground truth averages over (repeats kept), e.g.
+    ``{"country": ["Brazil", "Brazil", "Japan"]}``. Passed to providers that
+    condition on a population pack (althing ``persona_pack``). ``None`` when
+    the dataset doesn't expose it."""
 
     def __post_init__(self):
         total = sum(self.human_distribution.values())

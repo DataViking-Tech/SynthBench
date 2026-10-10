@@ -27,6 +27,10 @@ from synthbench.providers.base import Distribution, PersonaSpec, Provider, Respo
 from synthbench.stats import bootstrap_ci, question_set_hash
 
 
+class PopulationUnsupportedError(ValueError):
+    """Raised when a population-conditioned run targets a dataset without populations."""
+
+
 class EmptyQuestionSetError(ValueError):
     """Raised when a run would evaluate zero questions.
 
@@ -448,12 +452,29 @@ class BenchmarkRunner:
                 )
             )
 
-        # Use batched evaluation when provider supports it
-        use_batch = self.provider.supports_distribution and hasattr(
-            self.provider, "batch_get_distribution"
+        # A provider with a persona pack conditions each question on the
+        # population its ground truth comes from (althing population packs).
+        persona_pack = getattr(self.provider, "persona_pack", None)
+        if persona_pack:
+            missing = [q.key for q in questions if not q.respondent_population]
+            if missing:
+                raise PopulationUnsupportedError(
+                    f"--persona-pack needs each question's respondent population, which "
+                    f"dataset '{self.dataset.name}' does not provide ({len(missing)} of "
+                    f"{len(questions)} questions lack it). Supported on globalopinionqa."
+                )
+
+        # Use batched evaluation when provider supports it. Population runs
+        # sample per persona, which batch APIs don't take.
+        use_batch = (
+            not persona_pack
+            and self.provider.supports_distribution
+            and hasattr(self.provider, "batch_get_distribution")
         )
 
-        if use_batch:
+        if persona_pack:
+            results = await self._run_population(questions, progress_callback)
+        elif use_batch:
             results = await self._run_batched(questions, progress_callback)
         else:
             results = []
@@ -480,6 +501,7 @@ class BenchmarkRunner:
                 # Same contract for option matching (synthbench#352): absent
                 # on pre-v2 files (= v1); never feeds build_config_id.
                 "option_parser_version": OPTION_PARSER_VERSION,
+                **({"persona_pack": persona_pack} if persona_pack else {}),
                 **_provider_reproducibility_hashes(self.provider),
             },
             elapsed_seconds=elapsed,
@@ -610,6 +632,36 @@ class BenchmarkRunner:
         await asyncio.gather(*tasks)
 
         return [r for r in all_results if r is not None]
+
+    async def _run_population(
+        self,
+        questions: list[Question],
+        progress_callback=None,
+    ) -> list[QuestionResult]:
+        """Evaluate questions conditioned on each question's respondent population."""
+        total = len(questions)
+        done = 0
+
+        async def one(question: Question) -> QuestionResult:
+            nonlocal done
+            async with self._semaphore:
+                t0 = time.monotonic()
+                dist = await self.provider.get_population_distribution(
+                    question.text,
+                    question.options,
+                    population=question.respondent_population,
+                    n_samples=self.samples_per_question,
+                    seed=question.key,
+                )
+            qr = self._build_question_result(
+                question, dist, latency_seconds=time.monotonic() - t0
+            )
+            done += 1
+            if progress_callback:
+                progress_callback(done, total, qr)
+            return qr
+
+        return list(await asyncio.gather(*(one(q) for q in questions)))
 
     def _build_question_result(
         self,

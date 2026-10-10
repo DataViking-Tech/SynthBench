@@ -196,6 +196,52 @@ class Provider(ABC):
     def name(self) -> str: ...
 
 
+def pool_distributions(dists: list[Distribution], n_options: int) -> Distribution:
+    """Pool distributions sampled under different personas, weighted by samples.
+
+    Each input's ``probabilities`` and ``refusal_probability`` are fractions
+    of its own ``n_samples``; pooling converts them back to counts so a
+    persona with 2 samples weighs twice one with 1. Parse failures, token
+    usage, and infra-error counts are summed; the first raw sample is kept.
+    """
+    counts = [0.0] * n_options
+    refusals = 0.0
+    total = 0
+    parse_failures = 0
+    usage: dict[str, int] = {}
+    infra_errors = 0
+    raw_sample = None
+    for d in dists:
+        n = d.n_samples or 0
+        total += n
+        refusals += d.refusal_probability * n
+        parse_failures += d.n_parse_failures
+        for i, p in enumerate(d.probabilities[:n_options]):
+            counts[i] += p * n
+        meta = d.metadata or {}
+        for k, v in (meta.get("usage") or {}).items():
+            if isinstance(v, (int, float)):
+                usage[k] = usage.get(k, 0) + v
+        infra_errors += meta.get("n_infra_errors", 0) or 0
+        if raw_sample is None and isinstance(meta.get("raw_sample"), dict):
+            raw_sample = meta["raw_sample"]
+    metadata: dict = {}
+    if usage:
+        metadata["usage"] = usage
+    if infra_errors:
+        metadata["n_infra_errors"] = infra_errors
+    if raw_sample is not None:
+        metadata["raw_sample"] = raw_sample
+    return Distribution(
+        probabilities=[c / total if total else 0.0 for c in counts],
+        refusal_probability=refusals / total if total else 0.0,
+        method="sampling",
+        n_samples=total,
+        n_parse_failures=parse_failures,
+        metadata=metadata or None,
+    )
+
+
 def build_persona_system_prompt(base_system: str, persona: PersonaSpec | None) -> str:
     """Build system prompt with optional persona conditioning.
 
