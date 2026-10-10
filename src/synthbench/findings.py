@@ -301,8 +301,11 @@ def _build_ensemble_comparison(
 
     Comparison set: the best (recomputed-SPS) non-ensemble, non-baseline
     leaderboard row — raw or product — evaluated on at least as many
-    questions as the ensemble. Returns ``(rows, caveats)``; caveats flag
-    ensembles blending a constituent that the validity filter excluded.
+    questions as the ensemble. Population-conditioned rows (althing persona
+    packs) are excluded: the ensemble blends unconditioned models, so the
+    lever being measured is blending, not conditioning. Returns
+    ``(rows, caveats)``; caveats flag ensembles blending a constituent that
+    the validity filter excluded.
     """
     from synthbench.leaderboard import display_provider_name, provider_framework
     from synthbench.publish import _dedup_results
@@ -344,6 +347,8 @@ def _build_ensemble_comparison(
                 random_sps, random_n = sps, _effective_n(r)
                 continue
             if fw == "baseline" or provider.startswith("ensemble/"):
+                continue
+            if (r.get("config") or {}).get("persona_pack"):
                 continue
             if _effective_n(r) < n_questions:
                 continue

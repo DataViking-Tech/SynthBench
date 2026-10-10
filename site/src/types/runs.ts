@@ -39,6 +39,8 @@ export interface RunIndexEntry {
   /** Reasoning-effort level ("low" | "medium" | "high"); null = provider default. */
   effort: string | null;
   template: string | null;
+  /** althing population pack the run was conditioned on; null = unconditioned. */
+  persona_pack?: string | null;
   samples_per_question: number | null;
   n_questions: number;
   n_topics: number;

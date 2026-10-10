@@ -169,7 +169,11 @@ def _policy_to_dict(policy: DatasetPolicy) -> dict:
 
 
 def _dedup_results(results: list[dict]) -> list[dict]:
-    """De-duplicate results: keep the run with the most n_evaluated per (display_name, framework, dataset, effort, template).
+    """De-duplicate results: keep the run with the most n_evaluated per (display_name, framework, dataset, effort, template, persona_pack).
+
+    ``persona_pack`` (althing population conditioning, e.g.
+    ``global-respondents``) participates for the same reason as effort: a
+    conditioned run is a different experiment and must keep its own row.
 
     ``effort`` participates in the key so a "Sonnet (high)" run never
     collapses into the same leaderboard row as the effort-absent run of the
@@ -189,9 +193,9 @@ def _dedup_results(results: list[dict]) -> list[dict]:
     """
     from synthbench.leaderboard import display_provider_name, provider_framework
 
-    best: dict[tuple[str, str, str, str | None, str | None], dict] = {}
+    best: dict[tuple[str, str, str, str | None, str | None, str | None], dict] = {}
     all_demographics: dict[
-        tuple[str, str, str, str | None, str | None], dict[str, list]
+        tuple[str, str, str, str | None, str | None, str | None], dict[str, list]
     ] = {}
     for r in results:
         cfg = r.get("config", {})
@@ -206,6 +210,9 @@ def _dedup_results(results: list[dict]) -> list[dict]:
             dataset,
             cfg.get("effort"),
             _tpl_name(cfg.get("prompt_template")),
+            # Population-conditioned runs (althing persona packs) are a
+            # different experiment from the same model unconditioned.
+            cfg.get("persona_pack"),
         )
         existing = best.get(key)
         if existing is None or n_eval > _effective_n(existing):
@@ -802,6 +809,9 @@ def _build_entry(
     tpl = cfg.get("prompt_template")
     if tpl:
         entry["template"] = Path(tpl).stem
+    pack = cfg.get("persona_pack")
+    if pack:
+        entry["persona_pack"] = pack
 
     # Topic scores from per-question keyword categorization
     per_question = r.get("per_question", [])
@@ -1208,10 +1218,11 @@ def _annotate_run_counts(entries: list[dict], all_results: list[dict]) -> None:
         temp = cfg.get("temperature")
         tpl_stem = _tpl_name(cfg.get("prompt_template"))
         effort = cfg.get("effort")
+        pack = cfg.get("persona_pack")
 
-        run_key = (name, fw, dataset, temp, tpl_stem, effort)
+        run_key = (name, fw, dataset, temp, tpl_stem, effort, pack)
         run_counts[run_key] = run_counts.get(run_key, 0) + 1
-        cov_key = (name, fw, temp, tpl_stem, effort)
+        cov_key = (name, fw, temp, tpl_stem, effort, pack)
         datasets_per_config.setdefault(cov_key, set()).add(dataset)
 
     for e in entries:
@@ -1222,6 +1233,7 @@ def _annotate_run_counts(entries: list[dict], all_results: list[dict]) -> None:
             e.get("temperature"),
             e.get("template"),
             e.get("effort"),
+            e.get("persona_pack"),
         )
         cov_key = (
             e.get("model"),
@@ -1229,6 +1241,7 @@ def _annotate_run_counts(entries: list[dict], all_results: list[dict]) -> None:
             e.get("temperature"),
             e.get("template"),
             e.get("effort"),
+            e.get("persona_pack"),
         )
         e["run_count"] = run_counts.get(run_key, 0)
         e["dataset_coverage_count"] = len(datasets_per_config.get(cov_key, set()))
@@ -1674,6 +1687,7 @@ def _build_index_entry(
         "temperature": cfg.get("temperature"),
         "effort": cfg.get("effort"),
         "template": _tpl_name(cfg.get("prompt_template")),
+        "persona_pack": cfg.get("persona_pack"),
         "samples_per_question": cfg.get("samples_per_question"),
         # `or` (not dict-default) so ensemble rows whose config never carried
         # n_evaluated fall through to the recomputed per-question count
@@ -1740,6 +1754,7 @@ def _build_run_detail(
         "temperature": cfg.get("temperature"),
         "effort": cfg.get("effort"),
         "template": _tpl_name(cfg.get("prompt_template")),
+        "persona_pack": cfg.get("persona_pack"),
         "samples_per_question": cfg.get("samples_per_question"),
         "n_requested": cfg.get("n_requested"),
         "n_evaluated": cfg.get("n_evaluated") or rec_agg.get("n_questions"),
@@ -1854,6 +1869,7 @@ def _build_config_rollup(
         "temperature": sample_cfg.get("temperature"),
         "effort": sample_cfg.get("effort"),
         "template": _tpl_name(sample_cfg.get("prompt_template")),
+        "persona_pack": sample_cfg.get("persona_pack"),
         "samples_per_question": sample_cfg.get("samples_per_question"),
         "is_baseline": is_baseline,
         "is_ensemble": is_ensemble,
@@ -2417,14 +2433,29 @@ def _collect_question_rollups(
                 "temperature": cfg.get("temperature"),
                 "effort": cfg.get("effort"),
                 "template": tpl_stem,
+                "persona_pack": cfg.get("persona_pack"),
             }
-            bucket_key = (dataset, key, framework, display_name, cfg.get("effort"))
+            bucket_key = (
+                dataset,
+                key,
+                framework,
+                display_name,
+                cfg.get("effort"),
+                cfg.get("persona_pack"),
+            )
             target = best_aggregated_by_key if is_ensemble else best_by_key
             prev = target.get(bucket_key)
             if prev is None or candidate["n_samples"] > prev["n_samples"]:
                 target[bucket_key] = candidate
 
-    for (dataset, key, _framework, _display, _effort), response in best_by_key.items():
+    for (
+        dataset,
+        key,
+        _framework,
+        _display,
+        _effort,
+        _pack,
+    ), response in best_by_key.items():
         rollup = rollups.get((dataset, key))
         if rollup is None:
             continue
@@ -2436,6 +2467,7 @@ def _collect_question_rollups(
         _framework,
         _display,
         _effort,
+        _pack,
     ), response in best_aggregated_by_key.items():
         rollup = rollups.get((dataset, key))
         if rollup is None:

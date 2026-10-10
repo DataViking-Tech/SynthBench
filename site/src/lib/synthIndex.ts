@@ -169,6 +169,7 @@ export function buildIndexData(raw: SynthBenchData): IndexData {
     if (e.temperature != null) variantParts.push(`temperature ${e.temperature}`);
     if (e.template && e.template !== "current") variantParts.push(`${e.template} template`);
     if (e.effort) variantParts.push(`${e.effort} effort`);
+    if (e.persona_pack) variantParts.push(`${e.persona_pack} personas`);
     const modelId = e.model_id ?? e.model;
     const key = [
       method,
@@ -176,6 +177,7 @@ export function buildIndexData(raw: SynthBenchData): IndexData {
       e.temperature ?? "default",
       e.template ?? "current",
       e.effort ?? "",
+      e.persona_pack ?? "",
     ].join("|");
     const prefix = modelId.includes("/") ? modelId.split("/")[0] : "";
     let base: string;
