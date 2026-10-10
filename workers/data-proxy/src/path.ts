@@ -28,9 +28,11 @@ const PREFIX = "/data/";
 //   config/<config_id>.json
 //   question/<dataset>/<safe_key>.json
 //   question/<dataset>/index.json
+// plus dataset archives that benchmark runs fetch (scripts/build-*-mirror.py):
+//   datasets/<dataset>/<file>
 // Any path outside these prefixes is rejected so we never accidentally proxy
-// unrelated bucket contents (e.g. future private fixtures).
-const ALLOWED_TOP_DIRS = new Set(["run", "config", "question"]);
+// unrelated bucket contents (e.g. provenance/ raw microdata, private fixtures).
+const ALLOWED_TOP_DIRS = new Set(["run", "config", "question", "datasets"]);
 
 export function parseRequestPath(method: string, pathname: string): PathResult | PathFailure {
   if (method !== "GET" && method !== "HEAD") {
@@ -68,6 +70,9 @@ export function parseRequestPath(method: string, pathname: string): PathResult |
     return { ok: false, error: "bad_path" };
   }
 
-  const dataset = top === "question" && segments.length >= 2 ? (segments[1] ?? null) : null;
+  const dataset =
+    (top === "question" || top === "datasets") && segments.length >= 2
+      ? (segments[1] ?? null)
+      : null;
   return { ok: true, value: { bucketKey: raw, dataset } };
 }

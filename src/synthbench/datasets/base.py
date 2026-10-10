@@ -49,6 +49,10 @@ class Question:
     human_distribution: dict[str, float]
     survey: str = ""
     topic: str = ""
+    answer_withheld: bool = False
+    """True for private-holdout questions loaded from a public mirror: the
+    human answers are withheld, so the question is sampled but scored only
+    server-side on submission. ``human_distribution`` is empty."""
     respondent_population: dict[str, list[str]] | None = None
     """Who the human answers come from, as ``{attribute: members}`` with one
     entry per group the ground truth averages over (repeats kept), e.g.

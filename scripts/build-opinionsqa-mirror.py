@@ -8,11 +8,17 @@ data/question-text-registries/opinionsqa.json), and packs them into a
 deterministic tarball. Prints the tarball's sha256, which must match
 ``MIRROR_SHA256`` in ``synthbench/datasets/opinionsqa.py``.
 
-With ``--upload`` (needs the four R2_* env vars) it puts two objects in the
+It also builds the public variant, with private-holdout answers replaced by
+``{"withheld": true}`` (sha256 must match ``PUBLIC_MIRROR_SHA256``).
+
+With ``--upload`` (needs the four R2_* env vars) it puts three objects in the
 gated bucket:
 
-- ``MIRROR_KEY``: the canonical tarball the adapter fetches;
-- ``MIRROR_RAW_KEY``: the raw CodaLab bundle, unchanged, for provenance.
+- ``MIRROR_KEY`` (canonical/): the full tarball, read directly from R2 by
+  maintainers and CI; never served by the data-proxy Worker;
+- ``PUBLIC_MIRROR_KEY`` (datasets/): the public tarball, served to
+  read-scope API keys;
+- ``MIRROR_RAW_KEY`` (provenance/): the raw CodaLab bundle, unchanged.
 
 Usage:
     python scripts/build-opinionsqa-mirror.py [--out DIR] [--upload]
@@ -24,6 +30,7 @@ import argparse
 import gzip
 import hashlib
 import io
+import shutil
 import sys
 import tarfile
 import tempfile
@@ -73,23 +80,45 @@ def main() -> int:
             tmp_path / "human_resp", oqa.load_canonical_keys()
         )
         canonical = pack_canonical(tmp_path / "human_resp")
+        public_dir = tmp_path / "public" / "human_resp"
+        shutil.copytree(tmp_path / "human_resp", public_dir)
+        withheld = oqa.withhold_private_answers(public_dir)
+        public = pack_canonical(public_dir)
 
-    digest = hashlib.sha256(canonical).hexdigest()
-    out = args.out / "opinionsqa-human_resp-canonical-v1.tar.gz"
-    out.write_bytes(canonical)
-    print(f"{n} canonical questions -> {out} ({len(canonical):,} bytes)")
-    print(f"sha256 {digest}")
-    if digest != oqa.MIRROR_SHA256:
-        print(f"note: differs from MIRROR_SHA256 in the adapter ({oqa.MIRROR_SHA256})")
+    for label, blob, name, pinned in (
+        (
+            "canonical",
+            canonical,
+            "opinionsqa-human_resp-canonical-v1.tar.gz",
+            oqa.MIRROR_SHA256,
+        ),
+        (
+            "public",
+            public,
+            "opinionsqa-human_resp-public-v1.tar.gz",
+            oqa.PUBLIC_MIRROR_SHA256,
+        ),
+    ):
+        digest = hashlib.sha256(blob).hexdigest()
+        out = args.out / name
+        out.write_bytes(blob)
+        print(f"{label}: {out} ({len(blob):,} bytes) sha256 {digest}")
+        if digest != pinned:
+            print(f"  note: differs from the sha256 pinned in the adapter ({pinned})")
+    print(
+        f"{n} canonical questions; {withheld} private-holdout answers withheld in the public file"
+    )
 
     if args.upload:
         from synthbench.r2_upload import R2Uploader
 
         r2 = R2Uploader.from_env()
         r2.put_bytes(oqa.MIRROR_KEY, canonical, "application/gzip")
+        r2.put_bytes(oqa.PUBLIC_MIRROR_KEY, public, "application/gzip")
         r2.put_bytes(oqa.MIRROR_RAW_KEY, raw, "application/gzip")
         print(
-            f"uploaded to r2://{r2.bucket}/{oqa.MIRROR_KEY} and /{oqa.MIRROR_RAW_KEY}"
+            f"uploaded to r2://{r2.bucket}/ {oqa.MIRROR_KEY}, {oqa.PUBLIC_MIRROR_KEY}, "
+            f"{oqa.MIRROR_RAW_KEY}"
         )
     return 0
 

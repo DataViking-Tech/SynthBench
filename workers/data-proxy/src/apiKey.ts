@@ -163,6 +163,12 @@ export async function authenticateApiKey(
     return { ok: false, status: 403, reason: "api key lacks read scope" };
   }
 
+  // Reads (/data downloads) are rate-limited by the Cloudflare route rule,
+  // not by the submissions count below.
+  if (requiredScope === "read") {
+    return { ok: true, keyId: row.id, userId: row.user_id, scope: row.scope };
+  }
+
   // Per-key rate limit. We deliberately count BEFORE the new submission
   // is recorded; a row inserted concurrently will be visible to the next
   // request, not this one. Rate limit drift of ~1 across rapid bursts is

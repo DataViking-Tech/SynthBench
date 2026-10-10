@@ -137,6 +137,16 @@ jobs:
           )
           echo "slug=$slug" >> "$GITHUB_OUTPUT"
 
+      - name: Score withheld private-holdout rows
+        # Clients using the public mirror submit private-holdout rows with
+        # answer_withheld: true (docs/held-out.md). Score them against the
+        # canonical answer key before validation. Failures don't stop the
+        # job: validation rejects unscored rows (WITHHELD_UNSCORED), so the
+        # submission is marked rejected instead of hanging in "validating".
+        env:
+          R2_BUCKET: ${{ secrets.R2_BUCKET }}
+        run: python scripts/score-withheld-rows.py .submission/candidate.json || true
+
       - name: Validate submission (tier 1 + 2 + 3, strict)
         id: validate
         env:

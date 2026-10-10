@@ -1,8 +1,11 @@
 // Cloudflare Worker entrypoint. Serves two routes:
 //
-//   GET/HEAD /data/<key>  — gated-tier R2 proxy (sb-io1). JWT-gated read of
-//                           publish artifacts (run/<id>.json, config/<id>.json,
-//                           question/<dataset>/<key>.json) with audit logging.
+//   GET/HEAD /data/<key>  — gated-tier R2 proxy (sb-io1). Read of publish
+//                           artifacts (run/<id>.json, config/<id>.json,
+//                           question/<dataset>/<key>.json) and dataset
+//                           archives (datasets/<dataset>/<file>), gated by a
+//                           Supabase JWT (browser) or an `sb_` API key with
+//                           read scope (CLI), with audit logging.
 //
 //   POST     /submit       — web upload endpoint (sb-me0f). JWT-gated upload of
 //                           a submission JSON → Tier-1 schema check → R2 stage
@@ -143,12 +146,35 @@ async function handleData(
     return jsonResponse({ error: "sign in to view" }, 401, cors);
   }
 
-  const claims = await verifySupabaseJwt(token, {
-    supabaseUrl: env.SUPABASE_URL,
-    expectedAudience: env.SUPABASE_JWT_AUD,
-  });
-  if (!claims) {
-    return jsonResponse({ error: "invalid token" }, 401, cors);
+  // Two auth paths, picked by token shape (same router as /submit):
+  //   • `sb_...` → API key with `read` (or `both`) scope, for the CLI and
+  //     benchmark runs fetching gated datasets.
+  //   • anything else → Supabase JWT, for the signed-in browser.
+  let userId: string;
+  if (isApiKey(token)) {
+    const apiKeyConfig: ApiKeyConfig = {
+      supabaseUrl: env.SUPABASE_URL,
+      serviceRoleKey: env.SUPABASE_SERVICE_ROLE_KEY,
+    };
+    const auth = await authenticateApiKey(token, "read", apiKeyConfig);
+    if (!auth.ok) {
+      return jsonResponse({ error: auth.reason }, auth.status, cors);
+    }
+    userId = auth.userId;
+    ctx.waitUntil(
+      touchLastUsed(auth.keyId, apiKeyConfig).catch((err: unknown) => {
+        console.warn("[apiKey] last_used_at touch failed", (err as Error).message);
+      }),
+    );
+  } else {
+    const claims = await verifySupabaseJwt(token, {
+      supabaseUrl: env.SUPABASE_URL,
+      expectedAudience: env.SUPABASE_JWT_AUD,
+    });
+    if (!claims) {
+      return jsonResponse({ error: "invalid token" }, 401, cors);
+    }
+    userId = claims.sub;
   }
 
   const { bucketKey, dataset } = parsed.value;
@@ -158,12 +184,15 @@ async function handleData(
     return jsonResponse({ error: "not found" }, 404, cors);
   }
 
+  // Publish artifacts are JSON; dataset archives carry their own type.
+  const contentType = obj.httpMetadata?.contentType ?? "application/json; charset=utf-8";
+
   // HEAD must not return a body — match R2's metadata-only response shape.
   if (request.method === "HEAD") {
     return new Response(null, {
       status: 200,
       headers: {
-        "Content-Type": "application/json; charset=utf-8",
+        "Content-Type": contentType,
         "Cache-Control": "private, max-age=60",
         ...cors,
       },
@@ -177,7 +206,7 @@ async function handleData(
   ctx.waitUntil(
     writeAuditLog(
       {
-        userId: claims.sub,
+        userId,
         dataset,
         artifactPath: bucketKey,
         requestIp: clientIpFor(request),
@@ -190,7 +219,7 @@ async function handleData(
   return new Response(obj.body, {
     status: 200,
     headers: {
-      "Content-Type": "application/json; charset=utf-8",
+      "Content-Type": contentType,
       "Cache-Control": "private, max-age=60",
       ...cors,
     },

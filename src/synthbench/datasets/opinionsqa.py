@@ -8,10 +8,15 @@ Paper: https://arxiv.org/abs/2303.17548
 
 Raw data is fetched, in order, from:
 
-1. SynthBench's private R2 mirror (``canonical/opinionsqa/...`` in the gated
-   bucket, when the ``R2_*`` env vars are set): the canonical per-wave files
-   (``info.csv`` + ``NONE_data.json``) for the 684 questions the leaderboard
-   uses, built by ``scripts/build-opinionsqa-mirror.py``.
+1. SynthBench's mirror of the per-wave files (``info.csv`` +
+   ``NONE_data.json`` for the 684 questions the leaderboard uses, built by
+   ``scripts/build-opinionsqa-mirror.py``), read either
+   a. in full, including private-holdout answers, directly from the gated R2
+      bucket (``canonical/opinionsqa/...``) when the ``R2_*`` env vars are set
+      (maintainers and CI), or
+   b. as the public variant, with private-holdout answers withheld, through
+      ``api.synthbench.org/data/`` with ``SYNTHBENCH_API_KEY`` set to an API key
+      with read scope ("Read gated data" at synthbench.org/account).
 2. CodaLab's ``human_resp`` bundle, aggregated locally with
    :func:`build_canonical_wave_files`. This needs a repo checkout, because the
    canonical key list lives in ``data/question-text-registries/opinionsqa.json``.
@@ -50,6 +55,13 @@ CODALAB_HUMAN_RESP_SHA256 = (
 # which the data-proxy Worker never serves.
 MIRROR_KEY = "canonical/opinionsqa/human_resp-canonical-v1.tar.gz"
 MIRROR_SHA256 = "e0193599bebbbb1c2498df82f0d8ce5784d5b4ca6abdf5f42298a117d7ab8666"
+# Public variant served to read-scope API keys: private-holdout answers are
+# replaced by {"withheld": true}, so those questions are sampled but scored
+# only server-side on submission (docs/held-out.md).
+PUBLIC_MIRROR_KEY = "datasets/opinionsqa/human_resp-public-v1.tar.gz"
+PUBLIC_MIRROR_SHA256 = (
+    "0fc1710bc1f2942a4d6f4c336b7ca3d6c2b0b48be32aa24d74aea01c45ce1338"
+)
 # The raw CodaLab bundle (respondent-level answers), mirrored unchanged for
 # provenance under provenance/, which the data-proxy Worker never serves.
 MIRROR_RAW_KEY = (
@@ -162,6 +174,7 @@ class OpinionsQADataset(Dataset):
                 human_distribution=q["human_distribution"],
                 survey=q.get("survey", ""),
                 topic=q.get("topic", ""),
+                answer_withheld=q.get("answer_withheld", False),
             )
             for q in data["questions"]
         ]
@@ -180,6 +193,7 @@ class OpinionsQADataset(Dataset):
                     "human_distribution": q.human_distribution,
                     "survey": q.survey,
                     "topic": q.topic,
+                    **({"answer_withheld": True} if q.answer_withheld else {}),
                 }
                 for q in questions
             ],
@@ -211,6 +225,15 @@ class OpinionsQADataset(Dataset):
                 return
             errors.append("R2 mirror: sha256 mismatch, ignoring the mirrored copy")
 
+        blob = _fetch_via_api(PUBLIC_MIRROR_KEY, errors)
+        if blob is not None:
+            if _sha256(blob) == PUBLIC_MIRROR_SHA256:
+                _extract_tar_gz(blob, raw_dir)
+                return
+            errors.append(
+                "synthbench.org: sha256 mismatch, ignoring the downloaded copy"
+            )
+
         try:
             blob = fetch_codalab_human_resp()
             _extract_tar_gz(blob, raw_dir)
@@ -221,8 +244,9 @@ class OpinionsQADataset(Dataset):
             raise DatasetDownloadError(
                 "Could not fetch OpinionsQA data:\n  - "
                 + "\n  - ".join(errors)
-                + "\n\nSet the R2_* env vars to use SynthBench's mirror, or run from a "
-                "repo checkout so the CodaLab bundle can be aggregated."
+                + "\n\nSet SYNTHBENCH_API_KEY to an API key with read scope (create one "
+                "at https://synthbench.org/account), or run from a repo checkout so the "
+                "CodaLab bundle can be aggregated."
             ) from e
 
     def _process_raw_data(self, raw_dir: Path) -> list[Question]:
@@ -271,9 +295,12 @@ class OpinionsQADataset(Dataset):
                     continue
 
                 question_text = row.get("question", qkey)
-                human_dist = dist_by_key.get(qkey, {})
+                if qkey not in dist_by_key:
+                    continue
+                human_dist = dist_by_key[qkey]
+                withheld = human_dist is None
 
-                if not human_dist:
+                if not withheld and not human_dist:
                     continue
 
                 questions.append(
@@ -281,15 +308,18 @@ class OpinionsQADataset(Dataset):
                         key=qkey,
                         text=question_text,
                         options=refs,
-                        human_distribution=human_dist,
+                        human_distribution=human_dist or {},
                         survey=f"ATP W{wave}",
+                        answer_withheld=withheld,
                     )
                 )
 
         return questions
 
     @staticmethod
-    def _load_wave_distributions(wave_dir: Path) -> dict[str, dict[str, float]]:
+    def _load_wave_distributions(
+        wave_dir: Path,
+    ) -> dict[str, dict[str, float] | None]:
         """Load aggregated human response distributions for one survey wave.
 
         Prefers NONE_data.json (overall population). Falls back to summing
@@ -313,9 +343,13 @@ class OpinionsQADataset(Dataset):
         with open(json_path) as f:
             data = json.load(f)
 
-        result: dict[str, dict[str, float]] = {}
+        result: dict[str, dict[str, float] | None] = {}
         for qkey, entry in data.items():
             if not isinstance(entry, dict):
+                continue
+            if entry.get("withheld") is True:
+                # Public mirror: private-holdout answer withheld.
+                result[qkey] = None
                 continue
             totals: dict[str, float] = {}
             for sub_key, counts in entry.items():
@@ -458,6 +492,38 @@ def _fetch_mirror(key: str, errors: list[str]) -> bytes | None:
     return blob
 
 
+def _fetch_via_api(key: str, errors: list[str]) -> bytes | None:
+    """Read *key* through the data-proxy Worker with a read-scope API key."""
+    import os
+
+    from synthbench.submission import DEFAULT_API_URL
+
+    api_key = os.environ.get("SYNTHBENCH_API_KEY", "").strip()
+    if not api_key:
+        errors.append("synthbench.org: SYNTHBENCH_API_KEY not set")
+        return None
+    base = os.environ.get("SYNTHBENCH_API_URL", "").strip() or DEFAULT_API_URL
+    url = f"{base.rstrip('/')}/data/{key}"
+    try:
+        resp = httpx.get(
+            url,
+            headers={"Authorization": f"Bearer {api_key}"},
+            timeout=300,
+            follow_redirects=True,
+        )
+    except httpx.HTTPError as e:
+        errors.append(f"synthbench.org: {e}")
+        return None
+    if resp.status_code != 200:
+        try:
+            reason = resp.json().get("error", "")
+        except ValueError:
+            reason = resp.text[:200]
+        errors.append(f"synthbench.org: HTTP {resp.status_code} {reason}".rstrip())
+        return None
+    return resp.content
+
+
 def fetch_codalab_human_resp() -> bytes:
     """Download CodaLab's human_resp bundle and check it against the pinned sha256.
 
@@ -523,3 +589,27 @@ def build_canonical_wave_files(human_resp_dir: Path, canonical_keys: list[str]) 
         (wave_dir / "NONE_data.json").write_text(json.dumps(out), encoding="utf-8")
         written += len(out)
     return written
+
+
+def withhold_private_answers(human_resp_dir: Path) -> int:
+    """Replace private-holdout answers in each wave's NONE_data.json with a marker.
+
+    Turns the canonical per-wave files into the public variant served to
+    read-scope API keys: ``{key: {"withheld": true}}`` for every question
+    :func:`synthbench.private_holdout.is_private_holdout` puts in the private
+    split. Returns the number of answers withheld.
+    """
+    from synthbench.private_holdout import is_private_holdout
+
+    withheld = 0
+    for wave_dir in sorted(human_resp_dir.glob("American_Trends_Panel_W*")):
+        path = wave_dir / "NONE_data.json"
+        if not path.exists():
+            continue
+        data = json.loads(path.read_text(encoding="utf-8"))
+        for key in data:
+            if is_private_holdout("opinionsqa", key):
+                data[key] = {"withheld": True}
+                withheld += 1
+        path.write_text(json.dumps(data), encoding="utf-8")
+    return withheld

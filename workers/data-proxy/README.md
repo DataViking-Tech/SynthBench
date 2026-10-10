@@ -1,14 +1,18 @@
 # synthbench data-proxy (Cloudflare Worker)
 
 Worker that enforces the gated-tier access contract introduced in the `cf-gate`
-epic. It sits on `api.synthbench.org/data/*`, validates a Supabase-issued JWT,
-streams the requested artifact out of the private R2 bucket
+epic. It sits on `api.synthbench.org/data/*`, validates a Supabase-issued JWT
+(signed-in browser) or an `sb_` API key with read scope (CLI and benchmark
+runs), streams the requested artifact out of the private R2 bucket
 (`synthbench-data-prod`), and writes an audit row to
 Supabase via a fire-and-forget `ctx.waitUntil`.
 
 ## Responsibilities
 
-1. Parse `Authorization: Bearer <jwt>`; reject missing/invalid tokens with 401.
+1. Parse `Authorization: Bearer <token>`; reject missing/invalid tokens with 401.
+   `sb_...` tokens are API keys: they need `read` or `both` scope (403
+   otherwise) and are looked up in Supabase `api_keys`. Anything else is
+   treated as a JWT.
 2. Validate JWTs against Supabase's JWKS (cached via `jose`'s
    `createRemoteJWKSet`, which respects the `Cache-Control` headers Supabase
    returns). Checks signature, `iss`, `aud`, and `exp`.
@@ -16,8 +20,10 @@ Supabase via a fire-and-forget `ctx.waitUntil`.
 4. Fetch from the `DATA_BUCKET` R2 binding; 404 on miss.
 5. Log access to Supabase `data_access_log` via the REST API using the
    service-role secret — best-effort, errors never block the user response.
-6. Return the JSON object with `Cache-Control: private, max-age=60` plus CORS
-   headers for the configured synthbench origins.
+6. Return the object with its stored content type (JSON for publish
+   artifacts, `application/gzip` for dataset archives),
+   `Cache-Control: private, max-age=60`, and CORS headers for the configured
+   synthbench origins.
 
 Rate limiting is enforced by a Cloudflare Rulesets rate-limit rule on the
 route (e.g. 100 req/min per JWT `sub`). That is configured out-of-band in the
@@ -61,8 +67,15 @@ The Worker mirrors the key layout emitted by `publish.py`:
 | `/data/config/<config_id>.json`      | `config/<config_id>.json`       |
 | `/data/question/<dataset>/<key>.json`| `question/<dataset>/<key>.json` |
 | `/data/question/<dataset>/index.json`| `question/<dataset>/index.json` |
+| `/data/datasets/<dataset>/<file>`    | `datasets/<dataset>/<file>`     |
 
-Traversal (`..`) and absolute keys are rejected with 400.
+`datasets/` holds dataset archives that benchmark runs download. For
+OpinionsQA that is the public variant built by
+`scripts/build-opinionsqa-mirror.py`, with private-holdout answers withheld
+(see `docs/held-out.md`). The full answer key (`canonical/`,
+`human-distributions/`) and raw respondent-level data (`provenance/`) are in
+the same bucket but are never served: only the four prefixes above are
+routable. Traversal (`..`) and absolute keys are rejected with 400.
 
 ## Tests
 
