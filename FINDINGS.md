@@ -146,6 +146,16 @@ run vs the identical configuration with schema-forced structured capture
 count — the elicitation surface is the only variable.
 
 <!-- BEGIN GENERATED: elicitation -->
+**Althing (GPT-6 Luna)** (product) on globalopinionqa — n=100 questions × 30 samples per arm, refusal detector v3; the arms differ only in elicitation mode:
+
+| Metric | Natural | Structured | Δ (structured − natural) |
+|--------|---------|------------|--------------------------|
+| SPS | 0.762 | 0.765 | **+0.2 pts** |
+| P_dist | 0.665 | 0.654 | **-1.1 pts** |
+| P_rank | 0.642 | 0.661 | **+1.9 pts** |
+| P_refuse | 0.980 | 0.980 | **+0.0 pts** |
+| Parse failures | 0.8% | 0.0% | -0.8 pts |
+
 **Althing (Haiku 5.5)** (product) on globalopinionqa — n=100 questions × 30 samples per arm, refusal detector v3; the arms differ only in elicitation mode:
 
 | Metric | Natural | Structured | Δ (structured − natural) |
@@ -165,6 +175,46 @@ count — the elicitation surface is the only variable.
 | P_rank | 0.724 | 0.736 | **+1.2 pts** |
 | P_refuse | 0.972 | 0.972 | **+0.0 pts** |
 | Parse failures | 1.6% | 0.0% | -1.6 pts |
+
+**Althing (GPT-6 Luna)** (product) on opinionsqa — n=100 questions × 30 samples per arm, refusal detector v3; the arms differ only in elicitation mode:
+
+| Metric | Natural | Structured | Δ (structured − natural) |
+|--------|---------|------------|--------------------------|
+| SPS | 0.833 | 0.816 | **-1.7 pts** |
+| P_dist | 0.746 | 0.728 | **-1.8 pts** |
+| P_rank | 0.758 | 0.724 | **-3.4 pts** |
+| P_refuse | 0.994 | 0.994 | **+0.0 pts** |
+| Parse failures | 0.5% | 0.0% | -0.5 pts |
+
+**Althing (Haiku 5.5)** (product) on opinionsqa — n=100 questions × 30 samples per arm, refusal detector v3; the arms differ only in elicitation mode:
+
+| Metric | Natural | Structured | Δ (structured − natural) |
+|--------|---------|------------|--------------------------|
+| SPS | 0.788 | 0.791 | **+0.3 pts** |
+| P_dist | 0.714 | 0.680 | **-3.5 pts** |
+| P_rank | 0.751 | 0.699 | **-5.1 pts** |
+| P_refuse | 0.899 | 0.994 | **+9.5 pts** |
+| Parse failures | 1.5% | 0.0% | -1.5 pts |
+
+**Althing (GPT-6 Luna)** (product) on subpop — n=100 questions × 30 samples per arm, refusal detector v3; the arms differ only in elicitation mode:
+
+| Metric | Natural | Structured | Δ (structured − natural) |
+|--------|---------|------------|--------------------------|
+| SPS | 0.802 | 0.791 | **-1.1 pts** |
+| P_dist | 0.696 | 0.666 | **-3.0 pts** |
+| P_rank | 0.730 | 0.727 | **-0.3 pts** |
+| P_refuse | 0.980 | 0.980 | **+0.0 pts** |
+| Parse failures | 0.3% | 0.0% | -0.3 pts |
+
+**Althing (Haiku 5.5)** (product) on subpop — n=100 questions × 30 samples per arm, refusal detector v3; the arms differ only in elicitation mode:
+
+| Metric | Natural | Structured | Δ (structured − natural) |
+|--------|---------|------------|--------------------------|
+| SPS | 0.671 | 0.726 | **+5.5 pts** |
+| P_dist | 0.580 | 0.572 | **-0.8 pts** |
+| P_rank | 0.612 | 0.626 | **+1.5 pts** |
+| P_refuse | 0.822 | 0.980 | **+15.8 pts** |
+| Parse failures | 3.3% | 0.0% | -3.3 pts |
 
 Comparison set: Matched pairs of deduped runs differing only in elicitation mode: a run whose config carries an explicit elicitation template variant (e.g. tpl=structured, schema-forced capture) vs the natural-elicitation run of the identical configuration (same base provider, dataset, samples_per_question, question_set_hash, temperature, effort, and question count). All scores recomputed from per-question rows; deltas are structured minus natural.
 <!-- END GENERATED: elicitation -->

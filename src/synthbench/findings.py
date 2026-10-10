@@ -280,6 +280,11 @@ def _build_template_comparison(results: list[dict]) -> list[dict]:
         tpl = _tpl_name(cfg.get("prompt_template"))
         if cfg.get("dataset") != "subpop" or tpl is None:
             continue
+        elicitation = cfg.get("elicitation")
+        if isinstance(elicitation, str) and elicitation != "natural":
+            # tpl=structured is an elicitation mode, not a persona template;
+            # _build_elicitation_comparison covers it.
+            continue
         sps = _run_sps(r)
         if sps is not None:
             cells.setdefault(tpl, []).append(sps)

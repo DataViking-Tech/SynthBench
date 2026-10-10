@@ -4,7 +4,11 @@ from __future__ import annotations
 
 import pytest
 
-from synthbench.findings import _build_elicitation_comparison, _parse_failure_rate
+from synthbench.findings import (
+    _build_elicitation_comparison,
+    _build_template_comparison,
+    _parse_failure_rate,
+)
 
 _QHASH = "a" * 40
 _PROVIDER = "althing/openrouter/anthropic/claude-haiku-4-5"
@@ -138,3 +142,16 @@ def test_parse_failure_rate_fallback_from_aggregate():
     # Recorded config value wins over the aggregate-derived fallback.
     result["config"]["parse_failure_rate"] = 0.05
     assert _parse_failure_rate(result) == pytest.approx(0.05)
+
+
+def test_structured_elicitation_is_not_a_persona_template():
+    """tpl=structured runs belong to the elicitation finding, not the
+    persona-template comparison (which would rank them as a template)."""
+    persona = _result(_PROVIDER, [_q("S_A", 0.2, 0.5)])
+    persona["config"].update(dataset="subpop", prompt_template="minimal")
+    structured = _result(_PROVIDER, [_q("S_A", 0.1, 0.9)], elicitation="structured")
+    structured["config"]["dataset"] = "subpop"
+
+    rows = _build_template_comparison([persona, structured])
+
+    assert [r["template"] for r in rows] == ["minimal"]
