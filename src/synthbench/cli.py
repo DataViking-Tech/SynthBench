@@ -68,6 +68,7 @@ def _provider_kwargs(
     prompt_template=None,
     effort=None,
     elicitation=None,
+    persona_pack=None,
 ):
     """Build constructor kwargs appropriate for *provider_name*.
 
@@ -109,6 +110,13 @@ def _provider_kwargs(
                 "--elicitation is only supported by the althing provider."
             )
         kwargs["elicitation"] = elicitation
+    if persona_pack is not None:
+        if provider_name not in ("althing", "synthpanel"):
+            raise click.UsageError(
+                "--persona-pack is only supported by the althing provider "
+                "(althing is the conditioning harness)."
+            )
+        kwargs["persona_pack"] = persona_pack
     if effort is not None:
         if provider_name in ("althing", "synthpanel"):
             raise click.UsageError(
@@ -269,6 +277,18 @@ main.add_command(_submit_adapter_cmd)
         "(tpl=structured) — a distinct leaderboard identity."
     ),
 )
+@click.option(
+    "--persona-pack",
+    default=None,
+    help=(
+        "althing population pack to condition on (althing only), e.g. "
+        "global-respondents. Each question is answered by the pack's "
+        "personas that match the question's respondent population (for "
+        "globalopinionqa, the countries that answered it), with samples "
+        "split as althing allocates them. Stamped as pack=<id>: a distinct "
+        "leaderboard identity."
+    ),
+)
 # sb-ymux: `synthbench run --submit` wiring. Keeping all submission flags on
 # the `run` subcommand (not a new subcommand) means a user's first try at
 # "benchmark → leaderboard" is literally one invocation. --wait folds the
@@ -345,6 +365,7 @@ def run(
     effort,
     prompt_template,
     elicitation,
+    persona_pack,
     submit_after,
     wait,
     submit_api_key,
@@ -411,6 +432,7 @@ def run(
             effort,
             prompt_template,
             elicitation,
+            persona_pack=persona_pack,
             submit_after=submit_after,
             wait=wait,
             submit_api_key=submit_api_key,
@@ -424,12 +446,12 @@ def run(
 
 
 def _run_benchmark_or_exit(coro) -> None:
-    """Run a benchmark coroutine, turning an empty question set into a clean CLI error."""
-    from synthbench.runner import EmptyQuestionSetError
+    """Run a benchmark coroutine, turning setup errors into a clean CLI exit."""
+    from synthbench.runner import EmptyQuestionSetError, PopulationUnsupportedError
 
     try:
         asyncio.run(coro)
-    except EmptyQuestionSetError as exc:
+    except (EmptyQuestionSetError, PopulationUnsupportedError) as exc:
         click.echo(f"Error: {exc}", err=True)
         sys.exit(2)
 
@@ -455,6 +477,7 @@ async def _run_async(
     prompt_template=None,
     elicitation=None,
     *,
+    persona_pack=None,
     submit_after: bool = False,
     wait: bool = False,
     submit_api_key=None,
@@ -507,6 +530,7 @@ async def _run_async(
         prompt_template=prompt_template,
         effort=effort,
         elicitation=elicitation,
+        persona_pack=persona_pack,
     )
     try:
         prov = load_provider(provider_name, **provider_kwargs)
@@ -558,6 +582,8 @@ async def _run_async(
     click.echo(f"  Dataset:  {ds.name}")
     click.echo(f"  Questions: {suite_label}")
     click.echo(f"  Samples/q: {samples}")
+    if persona_pack:
+        click.echo(f"  Persona pack: {persona_pack}")
     if effort:
         click.echo(f"  Effort:   {effort}")
     if demographics:

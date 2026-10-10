@@ -12,6 +12,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import re
 from pathlib import Path
 
 from synthbench.datasets.base import Dataset, Question
@@ -68,6 +69,34 @@ def _aggregate_distributions(
         dist = {opt: s / n_countries for opt, s in zip(options, sums)}
 
     return dist
+
+
+# Label variants in GlobalOpinionQA (Pew Global Attitudes + WVS) mapped to
+# the plain country names used by althing's global-respondents pack.
+_COUNTRY_ALIASES = {
+    "Britain": "Great Britain",
+    "Czech Rep.": "Czechia",
+    "S. Korea": "South Korea",
+    "S. Africa": "South Africa",
+    "Palest. ter.": "Palestinian territories",
+    "Taiwan ROC": "Taiwan",
+    "Bosnia Herzegovina": "Bosnia and Herzegovina",
+    "Hong Kong SAR": "Hong Kong",
+    "Macau SAR": "Macau",
+}
+_SAMPLE_NOTE_RE = re.compile(
+    r"\s*\((?:Non-national|Current national|Old national) sample\)$"
+)
+
+
+def canonical_country(label: str) -> str:
+    """Plain country name for a GlobalOpinionQA selections label.
+
+    Drops sample annotations ("Brazil (Non-national sample)" -> "Brazil")
+    and maps abbreviations ("S. Korea" -> "South Korea").
+    """
+    base = _SAMPLE_NOTE_RE.sub("", label).strip()
+    return _COUNTRY_ALIASES.get(base, base)
 
 
 class GlobalOpinionQADataset(Dataset):
@@ -138,9 +167,21 @@ class GlobalOpinionQADataset(Dataset):
                     options=options,
                     human_distribution=dist,
                     survey=q.get("survey", ""),
+                    respondent_population=self._respondent_population(q["selections"]),
                 )
             )
         return questions
+
+    def _respondent_population(self, selections: dict) -> dict[str, list[str]]:
+        """Countries this question's ground truth averages over, as plain names.
+
+        One entry per ``selections`` label, so a country surveyed twice (a
+        national and a non-national sample) appears twice, matching its
+        weight in the aggregate. With ``--country`` the target is that one
+        country.
+        """
+        labels = [self._country] if self._country is not None else sorted(selections)
+        return {"country": [canonical_country(label) for label in labels]}
 
     def _save_cache(self, raw_rows: list[dict]) -> None:
         self._data_dir.mkdir(parents=True, exist_ok=True)
@@ -231,6 +272,7 @@ class GlobalOpinionQADataset(Dataset):
                     options=options,
                     human_distribution=dist,
                     survey=survey,
+                    respondent_population=self._respondent_population(selections),
                 )
             )
 

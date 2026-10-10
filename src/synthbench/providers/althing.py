@@ -24,6 +24,7 @@ from synthbench.providers.base import (
     Provider,
     ProviderError,
     Response,
+    pool_distributions,
 )
 
 _LETTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
@@ -57,6 +58,26 @@ except (ImportError, TypeError):
         _HAS_SYNTH_PANEL_API = True
     except (ImportError, TypeError):
         _HAS_SYNTH_PANEL_API = False
+
+
+def _load_population_pack(pack_id: str, *, use_api: bool) -> list[dict[str, Any]]:
+    """Load an althing population pack, failing early with a clear message."""
+    if not use_api:
+        raise ImportError(
+            "persona_pack requires the althing Python API (it is not supported by the "
+            "althing CLI fallback or with --prompt-template)."
+        )
+    try:
+        from althing.population import load_pack_personas
+    except ImportError as exc:
+        raise ImportError(
+            "persona_pack requires althing with population packs (althing.population). "
+            "Upgrade althing."
+        ) from exc
+    try:
+        return load_pack_personas(pack_id)
+    except FileNotFoundError as exc:
+        raise ImportError(f"althing persona pack {pack_id!r} not found") from exc
 
 
 def _pick_raw_sample(samples: list[tuple[str, Any]], counts: Counter) -> dict | None:
@@ -278,7 +299,12 @@ class AlthingProvider(Provider):
     to ``althing panel run`` via subprocess.
 
     Supports althing v0.6.0+ flags: --models, --temperature, --profile.
+
+    With ``persona_pack`` set, questions are answered by an althing
+    population pack (see :meth:`get_population_distribution`).
     """
+
+    persona_pack: str | None = None
 
     def __init__(
         self,
@@ -288,6 +314,7 @@ class AlthingProvider(Provider):
         prompt_template: str | None = None,
         althing_path: str | None = None,
         elicitation: str = "natural",
+        persona_pack: str | None = None,
     ):
         if elicitation not in ELICITATION_MODES:
             raise ValueError(
@@ -318,6 +345,12 @@ class AlthingProvider(Provider):
         self._use_api = _HAS_SYNTH_PANEL_API and prompt_template is None
         self._client: Any = None
         self._executor: ThreadPoolExecutor | None = None
+        self.persona_pack = persona_pack
+        self._pack_personas: list[dict[str, Any]] = []
+        if persona_pack is not None:
+            self._pack_personas = _load_population_pack(
+                persona_pack, use_api=self._use_api
+            )
 
         if self._use_api:
             self._client = LLMClient()
@@ -354,6 +387,10 @@ class AlthingProvider(Provider):
             # forced extraction is a different elicitation surface, not a
             # silent change to the natural-prose rows.
             parts.append("tpl=structured")
+        if self.persona_pack:
+            # Population-conditioned runs are a different experiment: the
+            # knob feeds build_config_id so they get their own config_id.
+            parts.append(f"pack={self.persona_pack}")
         return " ".join(parts)
 
     @property
@@ -389,6 +426,10 @@ class AlthingProvider(Provider):
             except OSError:
                 override = ""
             base += "\n---template---\n" + override
+        if self.persona_pack:
+            base += f"\n---persona-pack:{self.persona_pack}---\n" + json.dumps(
+                self._pack_personas, sort_keys=True
+            )
         return base
 
     # ==================================================================
@@ -405,10 +446,19 @@ class AlthingProvider(Provider):
     # ── Direct API path ──────────────────────────────────────────
 
     def _build_api_request(
-        self, question: str, options: list[str], persona: PersonaSpec | None
+        self,
+        question: str,
+        options: list[str],
+        persona: PersonaSpec | None,
+        system: str | None = None,
     ) -> "CompletionRequest":
-        """Build one CompletionRequest, honouring the elicitation mode."""
-        system = _build_system_prompt(persona)
+        """Build one CompletionRequest, honouring the elicitation mode.
+
+        *system* overrides the persona prompt (population packs render
+        theirs with althing's ``persona_system_prompt``).
+        """
+        if system is None:
+            system = _build_system_prompt(persona)
         user_text = _build_question_text(question, options)
         kwargs: dict[str, Any] = {}
         if self._elicitation == "structured":
@@ -505,12 +555,54 @@ class AlthingProvider(Provider):
 
     # ── Direct API path ──────────────────────────────────────────
 
+    async def get_population_distribution(
+        self,
+        question: str,
+        options: list[str],
+        *,
+        population: dict[str, list[str]],
+        n_samples: int,
+        seed: str,
+    ) -> Distribution:
+        """Sample *question* across the persona pack, matched to *population*.
+
+        althing decides which personas answer and how many samples each
+        gets (``althing.population.allocate_population``) and renders each
+        persona's system prompt; this provider samples every share and
+        pools them by sample count.
+        """
+        from althing.population import allocate_population
+        from althing.prompts import persona_system_prompt
+
+        if len(population) != 1:
+            raise ProviderError(
+                f"population must have exactly one attribute, got {sorted(population)}"
+            )
+        ((key, members),) = population.items()
+        allocation = allocate_population(
+            self._pack_personas,
+            key=key,
+            members=members,
+            n_samples=n_samples,
+            seed=seed,
+        )
+        dists = await asyncio.gather(
+            *(
+                self._get_distribution_api(
+                    question, options, None, k, system=persona_system_prompt(persona)
+                )
+                for persona, k in allocation
+            )
+        )
+        return pool_distributions(list(dists), len(options))
+
     async def _get_distribution_api(
         self,
         question: str,
         options: list[str],
         persona: PersonaSpec | None,
         n_samples: int | None,
+        system: str | None = None,
     ) -> Distribution:
         """Concurrent direct API calls — no subprocess overhead.
 
@@ -521,7 +613,7 @@ class AlthingProvider(Provider):
         a fabricated distribution.
         """
         effective_samples = n_samples if n_samples is not None else 30
-        request = self._build_api_request(question, options, persona)
+        request = self._build_api_request(question, options, persona, system=system)
 
         loop = asyncio.get_running_loop()
 
