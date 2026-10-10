@@ -106,6 +106,10 @@ const LAB_BY_PREFIX: Record<string, string> = {
   openai: "OpenAI",
   google: "Google",
   "meta-llama": "Meta",
+  "x-ai": "xAI",
+  deepseek: "DeepSeek",
+  mistralai: "Mistral",
+  qwen: "Alibaba",
 };
 
 const BASE_NAMES: Record<string, string> = {

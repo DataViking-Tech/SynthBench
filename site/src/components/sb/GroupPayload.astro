@@ -1,0 +1,9 @@
+---
+// Embeds the per-group match data for src/scripts/sb/pages/groups.ts.
+import groupData from "@/data/group-alignment.json";
+
+// Escape "<" so no string in the data can close the script element.
+const payload = JSON.stringify(groupData).replace(/</g, "\\u003c");
+---
+
+<script type="application/json" id="sb-group-data" set:html={payload} />

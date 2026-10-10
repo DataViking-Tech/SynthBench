@@ -1,6 +1,7 @@
 // Shared interactive pieces: tooltip, marks, filter controls, the inspector
 // drawer and the compare tray.
 
+import { PROVIDER_ICONS } from "@/lib/providerIcons";
 import { axisTitle, css, fill, fmt, h, linear, s } from "./dom";
 import {
   ALL,
@@ -145,26 +146,53 @@ export function marker(
   return s("circle", { cx: x, cy: y, r: r + 0.5, fill: col, stroke: ring, "stroke-width": 1.5 }, g);
 }
 
+/** Lab logo drawn into an SVG chart, 14px, top-left at (x, y - 11). */
 export function glyphSvg(g: Element, lab: string, x: number, y: number): void {
-  s(
-    "rect",
-    { x, y: y - 11, width: 14, height: 14, rx: 3, fill: "none", stroke: css("--sb-line-2") },
+  const paths = PROVIDER_ICONS[lab];
+  if (!paths) {
+    s(
+      "rect",
+      { x, y: y - 11, width: 14, height: 14, rx: 3, fill: "none", stroke: css("--sb-line-2") },
+      g,
+    );
+    s(
+      "text",
+      {
+        x: x + 7,
+        y: y - 0.5,
+        "text-anchor": "middle",
+        class: "sb-glyph-t",
+        text: LAB_GLYPH[lab] ?? "·",
+      },
+      g,
+    );
+    return;
+  }
+  const icon = s(
+    "svg",
+    { x, y: y - 11, width: 14, height: 14, viewBox: "0 0 24 24", class: "sb-logo" },
     g,
   );
-  s(
-    "text",
-    {
-      x: x + 7,
-      y: y - 0.5,
-      "text-anchor": "middle",
-      class: "sb-glyph-t",
-      text: LAB_GLYPH[lab] ?? "·",
-    },
-    g,
-  );
+  s("title", { text: lab }, icon);
+  for (const p of paths) s("path", { d: p.d, fill: p.fill ?? "currentColor" }, icon);
 }
-export const glyph = (lab: string): HTMLElement =>
-  h("span", { class: "sb-glyph", title: lab, "aria-hidden": "true" }, LAB_GLYPH[lab] ?? "·");
+/** Lab logo for HTML (tables, chips, drawer); falls back to a lettered box. */
+export function glyph(lab: string): HTMLElement {
+  const paths = PROVIDER_ICONS[lab];
+  if (!paths)
+    return h(
+      "span",
+      { class: "sb-glyph", title: lab, "aria-hidden": "true" },
+      LAB_GLYPH[lab] ?? "·",
+    );
+  const icon = s(
+    "svg",
+    { viewBox: "0 0 24 24", width: 15, height: 15, "aria-hidden": "true" },
+    undefined,
+  );
+  for (const p of paths) s("path", { d: p.d, fill: p.fill ?? "currentColor" }, icon);
+  return h("span", { class: "sb-logo-h", title: lab }, icon);
+}
 export const methodKey = (m: SystemConfig["method"]): HTMLElement =>
   h("span", { class: `sb-mk ${m}`, "aria-hidden": "true" });
 
@@ -943,3 +971,36 @@ export function methodChips(on: Set<string>, changed: () => void): Rerenderable 
 
 /** Keep the scope param in the URL in step with state.scope. */
 onChange(() => writeParams({ scope: state.scope === "all" ? null : state.scope }));
+
+// ---------- Takeaways ----------
+const openTakes = new Set<string>();
+type TakeKid = Node | string | null | undefined | false;
+/**
+ * Chart findings: the first one in full, the rest folded behind a toggle that
+ * stays open across re-renders.
+ */
+export function takeaways(el: HTMLElement, items: (string | TakeKid[])[]): void {
+  const kids = items.map((it) => (Array.isArray(it) ? it : [it]));
+  if (!kids.length) {
+    fill(el);
+    return;
+  }
+  const more = kids.slice(1);
+  const det = more.length
+    ? h(
+        "details",
+        { class: "sb-more", open: openTakes.has(el.id) ? true : null },
+        h("summary", null, `${more.length} more finding${more.length === 1 ? "" : "s"}`),
+        h(
+          "ul",
+          null,
+          more.map((k) => h("li", null, ...k)),
+        ),
+      )
+    : null;
+  det?.addEventListener("toggle", () => {
+    if ((det as HTMLDetailsElement).open) openTakes.add(el.id);
+    else openTakes.delete(el.id);
+  });
+  fill(el, h("p", { class: "sb-take1" }, ...kids[0]), det);
+}

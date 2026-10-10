@@ -22,6 +22,7 @@ const STATIC_PATHS = [
   "datasets/",
   "explore/",
   "findings/",
+  "groups/",
   "leaderboard/",
   "methodology/",
   "submit/",

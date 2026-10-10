@@ -1,5 +1,6 @@
 ---
 import IndexPayload from "@/components/sb/IndexPayload.astro";
+import Info from "@/components/sb/Info.astro";
 import BaseLayout from "@/layouts/BaseLayout.astro";
 ---
 
@@ -23,16 +24,13 @@ import BaseLayout from "@/layouts/BaseLayout.astro";
       <div class="sb-filterbar" id="an-filters"></div>
       <div class="sb-panel-head">
         <div>
-          <h2 id="an-title"></h2>
+          <h2><span id="an-title"></span> <Info id="an-howto" /></h2>
           <div class="q" id="an-sub"></div>
         </div>
         <div id="an-opts" class="sb-filter"></div>
       </div>
       <div class="sb-chart"><div id="an-chart"></div></div>
-      <div class="sb-read">
-        <div><h5>How to read this</h5><div id="an-howto"></div></div>
-        <div><h5>What stands out</h5><ul id="an-notice"></ul></div>
-      </div>
+      <div class="sb-takes" id="an-notice"></div>
     </section>
   </div>
 </BaseLayout>

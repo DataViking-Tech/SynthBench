@@ -19,6 +19,7 @@ import {
   readSet,
   scopeControl,
   setParam,
+  takeaways,
   toggleChips,
   writeParams,
 } from "../ui";
@@ -248,7 +249,7 @@ mount(
           h("button", { type: "button", class: "sb-linkbtn", onclick: reset }, "Reset filters"),
         ),
       );
-    $("an-notice").replaceChildren(...notes.map((n) => h("li", null, n)));
+    takeaways($("an-notice"), notes);
   },
   onChange,
 );

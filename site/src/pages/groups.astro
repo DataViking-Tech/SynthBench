@@ -1,0 +1,113 @@
+---
+import GroupPayload from "@/components/sb/GroupPayload.astro";
+import IndexPayload from "@/components/sb/IndexPayload.astro";
+import Info from "@/components/sb/Info.astro";
+import BaseLayout from "@/layouts/BaseLayout.astro";
+---
+
+<BaseLayout
+  title="Groups: SynthBench"
+  description="Which demographic groups and countries each synthetic-respondent system matches best and worst, measured against each group's real survey answers."
+>
+  <IndexPayload />
+  <GroupPayload />
+  <div class="sb">
+    <section class="sb-head">
+      <div class="sb-kicker">Groups</div>
+      <h1 class="sb-h1 sm">Which groups each system sounds like</h1>
+      <p class="sb-lede">
+        How closely each system's default answers match each group's real survey answers.
+        <Info label="How the match is measured">
+          For each question we compare the share of a system's answers on each option with the shares for the
+          group's real respondents: match = 100 × (1 − Jensen-Shannon distance), averaged over the questions the
+          group was asked. 100 means identical shares. No group is named in the prompt.
+        </Info>
+      </p>
+    </section>
+
+    <section class="sb-block sb-panel">
+      <div class="sb-filterbar" id="gr-filters"></div>
+      <div class="sb-filterbar" id="gr-hl"></div>
+      <div class="sb-panel-head">
+        <div>
+          <h2>Which end of each scale systems sound like <Info id="gr-lean-howto" /></h2>
+          <div class="q" id="gr-lean-sub"></div>
+        </div>
+      </div>
+      <div class="sb-legend sb-pad" id="gr-lean-legend"></div>
+      <div class="sb-chart"><div id="gr-lean"></div></div>
+      <div class="sb-takes" id="gr-lean-notice"></div>
+    </section>
+
+    <section class="sb-block sb-panel">
+      <div class="sb-panel-head">
+        <div>
+          <h2>Every system, side by side <Info id="gr-sys-howto" /></h2>
+          <div class="q" id="gr-sys-sub"></div>
+        </div>
+        <div id="gr-sys-find" class="sb-filter"></div>
+      </div>
+      <div class="sb-tablewrap" id="gr-sys"></div>
+    </section>
+
+    <section class="sb-block sb-panel">
+      <div class="sb-panel-head">
+        <div>
+          <h2><span id="gr-detail-title">Every group</span> <Info id="gr-detail-howto" /></h2>
+          <div class="q" id="gr-detail-sub"></div>
+        </div>
+        <div id="gr-detail-opts" class="sb-filter"></div>
+      </div>
+      <div class="sb-filterbar" id="gr-detail-filters"></div>
+      <div class="sb-filterbar" id="gr-detail-hl"></div>
+      <div class="sb-legend sb-pad" id="gr-detail-legend"></div>
+      <div class="sb-chart"><div id="gr-detail"></div></div>
+      <div class="sb-takes" id="gr-detail-notice"></div>
+      <details class="sb-gr-table">
+        <summary>Show as a table</summary>
+        <div class="sb-tablewrap" id="gr-table"></div>
+      </details>
+    </section>
+
+    <section class="sb-block sb-panel">
+      <div class="sb-panel-head">
+        <div>
+          <h2>Telling a system which group to answer as <Info id="gr-cond-howto" /></h2>
+          <div class="q" id="gr-cond-sub"></div>
+        </div>
+      </div>
+      <div class="sb-filterbar" id="gr-cond-filters"></div>
+      <div class="sb-legend sb-pad" id="gr-cond-legend"></div>
+      <div class="sb-chart"><div id="gr-cond"></div></div>
+      <div class="sb-takes" id="gr-cond-notice"></div>
+    </section>
+
+    <details class="sb-block sb-panel sb-fold">
+      <summary>Method and caveats</summary>
+      <div class="sb-pad sb-fold-body">
+        <p>
+          <b>Data.</b> Group answers come from the same surveys as the benchmark: Pew's American Trends Panel
+          (OpinionsQA, SubPOP) and Pew Global Attitudes and the World Values Survey (GlobalOpinionQA). OpinionsQA
+          groups are unweighted respondent counts, like the overall answers the benchmark uses. A group is left
+          out of a question if fewer than 30 of its members answered it.
+        </p>
+        <p>
+          <b>Intervals.</b> 95% bootstrap intervals from resampling questions (<span id="gr-boot"></span>
+          resamples). A difference whose interval includes 0 could be noise.
+        </p>
+        <p>
+          <b>Agreement within a group.</b> Groups whose members agree with each other are easier to match by
+          giving the most common answer. The majority-answer reference shows how much of a gap that explains.
+        </p>
+        <p>
+          <b>Countries.</b> GlobalOpinionQA asks each country a different set of questions, so country
+          differences partly reflect which questions were asked.
+        </p>
+      </div>
+    </details>
+  </div>
+</BaseLayout>
+
+<script>
+  import "@/scripts/sb/pages/groups";
+</script>
