@@ -11,6 +11,7 @@ import {
   pruneCompare,
   rankedPool,
   scopeName,
+  scoreIn,
   shortName,
   state,
   tiers,
@@ -187,7 +188,11 @@ const samplesNote = (): string | null => {
   const pairs = rankedPool()
     .filter((c) => c.method === "althing")
     .map((p) => [rankedPool().find((r) => r.method === "raw" && r.baseId === p.baseId), p] as const)
-    .filter((pair): pair is readonly [SystemConfig, SystemConfig] => pair[0] != null);
+    // Same pairs the chart draws: both scored in the current scope.
+    .filter(
+      (pair): pair is readonly [SystemConfig, SystemConfig] =>
+        pair[0] != null && scoreIn(pair[0]) != null && scoreIn(pair[1]) != null,
+    );
   const fewer = pairs.filter(([raw, persona]) =>
     CORE.some((id) => {
       const a = raw.ds[id]?.samplesPerQuestion;
