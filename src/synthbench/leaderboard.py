@@ -26,6 +26,11 @@ MODEL_MAP: dict[str, tuple[str, str]] = {
     # matters (pricing / SLA), which currently it does not.
     "raw-anthropic/claude-haiku-4-5-20251001": ("Claude Haiku 4.5", "raw"),
     "raw-gemini/gemini-2.5-flash-lite": ("Gemini Flash Lite", "raw"),
+    # Raw prompts through a subscription agent CLI (harness= knob).
+    "raw-anthropic/claude-haiku-5-5": ("Claude Haiku 5.5", "raw"),
+    "raw-anthropic/claude-sonnet-4-6": ("Claude Sonnet 4.6", "raw"),
+    "raw-anthropic/claude-sonnet-5-5": ("Claude Sonnet 5.5", "raw"),
+    "raw-openai/gpt-6-luna": ("GPT-6 Luna", "raw"),
     # Products (orchestration / adapter layers)
     "althing/claude-haiku-4-5-20251001": ("Althing (Haiku 4.5)", "product"),
     "althing/gemini-2.5-flash-lite": (
