@@ -46,6 +46,15 @@ Parser versions (``config.option_parser_version``; absent key = v1):
     response only when exactly one option is contained in it.
 
   Refusal detection is unchanged (it is versioned separately).
+
+* **v3** (current) — a response that restates the option menu ("Once you
+  name it, I'll answer with (A) a great deal, (B) only some, (C) hardly
+  any") is a parse failure. v2 read the first label of such a list as the
+  answer and counted a vote for option A. Haiku 5.5 does this on the GSS
+  confidence-in-institutions items, whose GSS wording opens with "I am going
+  to name an institution". A menu is three or more labeled options, or every
+  option when there are fewer than three; a real answer that compares two
+  options by label is unaffected.
 """
 
 from __future__ import annotations
@@ -69,7 +78,7 @@ _WS_RE = re.compile(r"\s+")
 
 #: Parser version stamped into run metadata (``config.option_parser_version``).
 #: Absent key on a committed run file means v1.
-OPTION_PARSER_VERSION = 2
+OPTION_PARSER_VERSION = 3
 
 # v2: markdown markup to drop before matching — emphasis runs (``**``,
 # ``__``, ``*``), and line-leading heading / blockquote / bullet markers.
@@ -170,6 +179,18 @@ def _leading_label_match(text: str, options: list[str]) -> ParsedResponse | None
     return ParsedResponse(option=options[idx])
 
 
+def _restates_menu(text: str, options: list[str]) -> bool:
+    """True when *text* lists the labeled options back instead of choosing (v3)."""
+    norm = _WS_RE.sub(" ", text).lower()
+    listed = 0
+    for i, opt in enumerate(options):
+        label = re.escape(chr(ord("a") + i))
+        pattern = r"\(" + label + r"\)\s*" + re.escape(_normalize(opt))
+        if re.search(pattern, norm):
+            listed += 1
+    return listed >= min(3, len(options))
+
+
 def _parse_v2_options(stripped: str, options: list[str]) -> ParsedResponse:
     """v2 option matching on markdown-stripped text (after refusal checks)."""
     text = _strip_markdown(stripped).strip()
@@ -236,8 +257,9 @@ def parse_option_response(
     un-anchored patterns). Older versions stay callable so historical runs
     can be reproduced bit-for-bit.
 
-    ``option_parser_version`` selects option matching the same way: 2
-    (default, markdown-aware) or 1 (legacy).
+    ``option_parser_version`` selects option matching the same way: 3
+    (default, v2 plus menu restatements as failures), 2 (markdown-aware) or
+    1 (legacy).
     """
     raw = str(text)
     stripped = raw.strip()
@@ -265,6 +287,10 @@ def parse_option_response(
     if is_refusal:
         return ParsedResponse(refusal=True)
 
+    if option_parser_version >= 3 and _restates_menu(
+        _strip_markdown(stripped), options
+    ):
+        return ParsedResponse()
     if option_parser_version >= 2:
         return _parse_v2_options(stripped, options)
 

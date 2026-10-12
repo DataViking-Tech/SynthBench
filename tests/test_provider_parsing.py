@@ -1159,7 +1159,7 @@ def test_option_parser_v2_keeps_refusal_detection():
 def test_option_parser_version_constant():
     from synthbench.providers._parsing import OPTION_PARSER_VERSION
 
-    assert OPTION_PARSER_VERSION == 2
+    assert OPTION_PARSER_VERSION == 3
 
 
 # ---------------------------------------------------------------------------
@@ -1395,3 +1395,50 @@ async def test_althing_api_distribution_attaches_raw_sample(monkeypatch):
     assert sample["selected_option"] == "Yes"
     assert sample["raw_text"] == "(A) Yes"
     await provider.close()
+
+
+# ---------------------------------------------------------------------------
+# Option parser v3 — a restated option menu is not an answer
+# ---------------------------------------------------------------------------
+
+_OPTS_CONFIDENCE_GSS = ["a great deal", "only some", "hardly any", "don't know"]
+
+
+@pytest.mark.parametrize(
+    "text",
+    [
+        # Haiku 5.5 on GSS confidence items, waiting for "the institution".
+        "Go ahead and name the institution. Once you do, I'll answer with one of the "
+        "options:\n\n(A) a great deal\n(B) only some\n(C) hardly any\n(D) don't know",
+        "I'm ready. Which institution should I consider? Once you name it, I'll give "
+        "you one of the options (A) a great deal, (B) only some, (C) hardly any, or "
+        "(D) don't know.",
+        "**(A) a great deal**, **(B) only some** or **(C) hardly any**? Name it first.",
+    ],
+)
+def test_option_parser_v3_menu_restatement_is_a_parse_failure(text):
+    assert parse_option_response(text, _OPTS_CONFIDENCE_GSS).is_parse_failure
+    # v2 read the first label of the list as a vote.
+    assert (
+        parse_option_response(
+            text, _OPTS_CONFIDENCE_GSS, option_parser_version=2
+        ).option
+        == "a great deal"
+    )
+
+
+@pytest.mark.parametrize(
+    ("text", "expected"),
+    [
+        ("**(B) only some**\n\nSchools do a lot of good.", "only some"),
+        # Comparing two labeled options is still an answer.
+        ("I'd say (A) a great deal, not (B) only some.", "a great deal"),
+    ],
+)
+def test_option_parser_v3_keeps_real_answers(text, expected):
+    assert parse_option_response(text, _OPTS_CONFIDENCE_GSS).option == expected
+
+
+def test_option_parser_v3_two_option_menu():
+    text = "Which one? I can answer (A) Favor or (B) Oppose once you say."
+    assert parse_option_response(text, ["Favor", "Oppose"]).is_parse_failure
