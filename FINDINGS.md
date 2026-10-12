@@ -469,6 +469,7 @@ gated files are committed without `human_distribution`).
 | Provider | Framework | Template | Dataset | Mean model nonresponse | Mean human nonresponse | Mean abs gap | n |
 |----------|-----------|----------|---------|------------------------|------------------------|--------------|---|
 | Althing (Sonnet 5.5) | product | default | gss | 0.281 | 0.056 | **0.264** | 75 |
+| Althing (Haiku 5.5) | product | default | gss | 0.267 | 0.056 | **0.249** | 75 |
 | Althing (Haiku 4.5) | product | default | gss | 0.188 | 0.056 | **0.185** | 75 |
 | Althing (GPT-6 Luna) | product | default | gss | 0.156 | 0.056 | **0.152** | 75 |
 | Gemini 2.5 Flash | raw | default | gss | 0.106 | 0.056 | **0.126** | 75 |
