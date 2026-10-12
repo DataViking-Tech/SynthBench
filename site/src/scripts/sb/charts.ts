@@ -14,7 +14,6 @@ import {
 } from "./dom";
 import {
   CORE,
-  fullCoverage,
   ENSEMBLE_MEMBERS,
   METHODS,
   type Ranked,
@@ -23,6 +22,7 @@ import {
   component,
   data,
   dsLabel,
+  fullCoverage,
   fullName,
   scopeName,
   scoreIn,
