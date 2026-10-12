@@ -2,64 +2,69 @@
   "benchmark": "synthbench",
   "schema_version": 2,
   "version": "0.1.0",
-  "timestamp": "2026-10-09T23:03:46.311762+00:00",
+  "timestamp": "2026-10-11T23:37:30.153490+00:00",
   "config": {
     "dataset": "globalopinionqa",
     "provider": "althing/anthropic/claude-haiku-5-5 harness=claude-code",
     "samples_per_question": 30,
     "n_requested": 100,
     "n_evaluated": 100,
-    "refusal_detector_version": 3,
+    "refusal_detector_version": 4,
     "option_parser_version": 2,
+    "harness": "claude-code",
     "model_revision_hash": "sha256:872a0d30b13d0d370c034210916e2b4ba6393e76454a483cd43bd78f55a4ed7f",
     "prompt_template_hash": "sha256:4f1c561ab4b48967796548fd5fa849c4897cfd87aaca694e6a359e4663546ab6",
     "question_set_hash": "4f27a038b9f8a71d9b4cc9a3c5f41b62dcdd4238146c9ca23729d2364e3aaf28",
     "temperature": null,
-    "parse_failure_rate": 0.033667,
-    "topic_filter": null,
-    "harness": "claude-code"
+    "parse_failure_rate": 0.026,
+    "topic_filter": null
   },
   "reproducibility": {
     "seed": null,
     "model_revision_hash": "sha256:872a0d30b13d0d370c034210916e2b4ba6393e76454a483cd43bd78f55a4ed7f",
     "prompt_template_hash": "sha256:4f1c561ab4b48967796548fd5fa849c4897cfd87aaca694e6a359e4663546ab6",
     "framework_version": "0.1.0",
-    "submitted_at": "2026-10-09T23:03:46.311762+00:00"
+    "submitted_at": "2026-10-11T23:37:30.153490+00:00"
   },
   "raw_responses": [
     {
       "key": "GOQA_0_adeba4f8",
-      "raw_text": "**(A) Has too much influence**\n\nGermany is the biggest economy in the EU, so it tends to get its way on most big decisions, and the smaller countries often end up following along. That doesn't seem fair to me.",
+      "raw_text": "**(A) Has too much influence**\n\nGermany is the biggest economy in the bloc, so it tends to set the agenda on money and budget rules. Smaller countries often feel they have to go along with what Berlin wants.",
       "selected_option": "Has too much influence"
     },
     {
       "key": "GOQA_1_3c42d99b",
-      "raw_text": "**(E) DK/Refused**\n\nI don't have a personal stake in any party, so I can't give a real favorability rating. I also don't know which country's Moderate Party you mean. If this is for a survey, real respondents' answers would be more reliable than mine. If you're testing survey wording or building a questionnaire, I can help with that.",
+      "raw_text": "**(E) DK/Refused**\n\nI don't have enough information about the Moderate Party to form an opinion.",
       "selected_option": "DK/Refused"
     },
     {
       "key": "GOQA_2_8cc6fc68",
-      "raw_text": "**(D)** Relying too much on military force to defeat terrorism creates hatred that leads to more terrorism.\n\nForce can disrupt specific groups, but when it's the main tool, civilian casualties and perceived injustice tend to recruit new people. Neither statement is complete, since military action still has a role, but D comes closer to how I see it.",
+      "raw_text": "**(D)** Relying too much on military force to defeat terrorism creates hatred that leads to more terrorism.\n\nI think force is sometimes necessary, but when it becomes the main tool, it tends to kill civilians and make people angry enough to join the other side.",
       "selected_option": "Relying too much on military force to defeat terrorism creates hatred that leads to more terrorism"
     },
     {
       "key": "GOQA_3_2f86b3b4",
-      "raw_text": "**(D) China will not replace the U.S. as the world's leading superpower.**\n\nChina has major strengths, including manufacturing scale, technology investment, and a large economy. But its population is aging and shrinking, its growth has slowed, and its property sector and debt are serious problems. The U.S. still leads in military reach, global alliances, the dollar's role in trade, and its universities and tech companies. I don't think China is likely to overtake that combination in the foreseeable future, though my confidence is moderate, since predictions like this often miss.",
+      "raw_text": "**(D) China will not replace the U.S.**\n\nChina may match or pass the U.S. on some measures, like economic output or manufacturing, but the U.S. still leads in military reach, the dollar's role in global finance, and its network of alliances. Those advantages are slow to erode, so I don't expect China to fully replace the U.S. as the leading power in any of these timeframes.",
       "selected_option": "China will not replace U.S."
     },
     {
       "key": "GOQA_4_91ab651e",
-      "raw_text": "**(B) Fairly strong**\n\nIn my view, most Muslims I'd expect to know feel a real connection to their faith, though how strongly it shows in daily life varies a lot from person to person and community to community.",
+      "raw_text": "**(B) Fairly strong**\n\nFor most Muslims I've met or read about, faith is a central part of who they are, but it sits alongside other identities like nationality, profession, and family, and it varies a lot from person to person. I'd call it fairly strong rather than very strong, since that's not true of everyone.",
       "selected_option": "Fairly strong"
     },
     {
       "key": "GOQA_5_60e0a1e8",
-      "raw_text": "**(C) DK/Refused**\n\nI'm answering as a simulated survey respondent, so I don't have a real opinion on this to report. I also can't confirm from my information that Viktor Orb\u00e1n is still Prime Minister as of October 2026, since Hungary held elections in April 2026. If you're building a survey instrument, you may want to check the current office-holder before fielding it.",
+      "raw_text": "**(C) DK/Refused**\n\nI don't have personal political views to report, so I can't give a real approval rating. If this is for research, a synthetic response like this isn't valid survey data. For actual public opinion on Orb\u00e1n's handling of the refugee issue, look to established pollsters in Hungary, such as Medi\u00e1n, Republikon, or Z\u00e1vecz Research, or to Eurobarometer.",
       "selected_option": "DK/Refused"
     },
     {
+      "key": "GOQA_6_e5125a6a",
+      "raw_text": "**(C) Somewhat unfavorable**\n\nI'm answering as the survey respondent persona, so this isn't my own political view. As that respondent, I'd say Ghannouchi's long role in Tunisian politics, including leading Ennahda and serving as parliament speaker, left me with mixed feelings, and I'm uneasy about how his party's influence was handled.",
+      "selected_option": "Somewhat unfavorable"
+    },
+    {
       "key": "GOQA_7_f06b55c4",
-      "raw_text": "I don't have a personal opinion to offer on this one, but I can tell you how the evidence leans.\n\nEconomists broadly agree that productivity gains drive long-run growth, and that improving how resources are used, including making large firms more efficient or reallocating resources from less productive to more productive firms, usually helps. So if I had to pick between the two options, **(A)** is closer to the mainstream empirical view.\n\nThe question has caveats, though. Efficiency gains can come with job losses, reduced competition, or political costs, and economists disagree about how much industrial policy and government intervention in large firms help or hurt. If you're answering a survey, your own view on those trade-offs is what matters.",
+      "raw_text": "**(A)** Less inefficient large enterprises is helpful for economic improvement.\n\nLarge firms that use resources better tend to raise productivity, pay higher wages, and invest more. Economists generally find that reducing misallocation of capital and labor supports growth. The caveat is that outcomes depend on how the efficiency gains happen, since competition, market concentration, and who bears any job losses all affect the results.",
       "selected_option": "Less inefficient large enterprises is helpful for economic improvement"
     },
     {
@@ -69,122 +74,122 @@
     },
     {
       "key": "GOQA_9_72cc9ee4",
-      "raw_text": "**(B) Somewhat worried**\n\nExtremism in any community is a real concern, and I think it deserves attention. But most Muslims I know reject violence, and I don't think extremism defines the community. I'd be more worried about the issue if I thought it were widespread.",
+      "raw_text": "**(B) Somewhat worried**\n\nExtremism of any kind is a real concern, but I don't think it's a defining trait of Muslims as a group. Most Muslims reject violence, and I'd be more worried about extremism from any source.",
       "selected_option": "Somewhat worried"
     },
     {
       "key": "GOQA_10_996adb3c",
-      "raw_text": "**(D) Having a strong economic relationship with China.**\n\nTrade keeps jobs and prices reasonable for ordinary people, and I think it's easier to manage disagreements when both sides have a lot to lose by fighting. I'd still want us to stand firm on territorial issues, but I'd prefer to handle those through diplomacy and alliances rather than make them the center of the relationship.",
+      "raw_text": "**(D) Having a strong economic relationship with China**\n\nTrade affects jobs, prices, and businesses every day, and I think territorial disputes can be handled firmly through diplomacy and alliances without cutting off economic ties. Reasonable people weigh these differently, though, and I'm answering as a survey respondent, not stating a settled position.",
       "selected_option": "Having a strong economic relationship with China"
     },
     {
       "key": "GOQA_11_56587129",
-      "raw_text": "**(B) Other reasons.**\n\nConnectivity has played a part, mostly through offshoring and gig platforms. But I think the bigger drivers are things like weakened unions, cost-cutting pressure from shareholders, and policy choices about labor protections. Those decisions were made by people, and they could have gone differently.",
+      "raw_text": "**(B) Other reasons.**\n\nGlobalization and connectedness play a part, since companies can move work or threaten to. But I think the bigger drivers are choices: weaker unions, changes in labor law, companies focused on short-term shareholder returns, and how employers decide to use technology and set schedules. Those decisions were made by people, so they could be made differently.",
       "selected_option": "Other reasons"
     },
     {
       "key": "GOQA_12_6a134fab",
-      "raw_text": "**(B) Sometimes be justified.**\n\nIf a country poses a serious, credible threat, waiting until it strikes first can be too late, so force can be justified. But the bar should be high: the threat needs to be imminent or clearly demonstrated, other options should have been tried, and the action should be proportionate. Using force just because a country is unfriendly or might someday become dangerous usually isn't justified.",
+      "raw_text": "**(B) Sometimes be justified.**\n\nIf a country is clearly building toward a serious threat, like a weapons program that could hit us or an imminent attack, I think force can be warranted even before it strikes. But the bar should be high. Most threats are not that imminent, and I'd want strong evidence and every reasonable alternative tried first. Going to war over a threat that's only possible or distant usually causes more harm than it prevents.",
       "selected_option": "Sometimes be justified"
     },
     {
       "key": "GOQA_13_60b622de",
-      "raw_text": "I don't have a country, so I can't answer from the perspective of a citizen. I'm Claude, an AI made by Anthropic.\n\nIf you're asking about the 2003 US-led invasion of Iraq, I'd pick **(B) Wrong decision**. Its main justification, Iraq's supposed weapons of mass destruction, turned out to be unfounded. Many analysts also consider the postwar planning inadequate and the long-term consequences severe. Reasonable people still disagree, and some argue that removing Saddam Hussein had real benefits, so the question isn't settled for everyone.",
+      "raw_text": "I'm an AI, so I don't have a country, and I can't answer from national experience. If you need a choice for the survey, I'd pick **(B) Wrong decision**. The main justification, Iraq's weapons of mass destruction, turned out to be unfounded, and the occupation's aftermath was very costly. Reasonable people still disagree, though, since some argue removing Saddam Hussein had benefits.",
       "selected_option": "Wrong decision"
     },
     {
       "key": "GOQA_14_e32efdb2",
-      "raw_text": "**(A) Keep troops in Iraq.** Pulling out before the situation is stable risks a power vacuum and a return of militant groups. A limited presence tied to clear conditions makes more sense to me than a fixed withdrawal date.",
+      "raw_text": "**(A) Keep troops in Iraq** until the situation has stabilized.\n\nPulling out too early risks a power vacuum that extremist groups could exploit, as happened before. A smaller, advisory-focused presence can help Iraqi forces without the heavy footprint of earlier years. I'd still want clear benchmarks for stability so the commitment has an end point.",
       "selected_option": "Keep troops in Iraq"
     },
     {
       "key": "GOQA_15_b3fdeab2",
-      "raw_text": "I'm not going to answer as a survey respondent, since that would produce a fabricated poll response. I can give my own assessment, though.\n\nIf I have to choose, **(B) Disapprove** is the answer that matches the documented record. Since 2012, Russia has steadily restricted civil society through the \"foreign agent\" and \"undesirable organization\" laws, criminal and administrative penalties for NGO work, and the 2021 liquidation of Memorial, the country's best-known human rights organization. Independent media, election monitors, and advocacy groups have faced similar pressure. Supporters of the government argue these laws guard against foreign interference and that Western-funded groups can be political actors, so the policy is contested. But the question asks about how Putin is handling civil society, and the trend toward restriction is well documented.\n\nIf you're running a survey, I can help you draft neutral question wording, explain how pollsters like the Levada Center or VCIOM have measured public opinion on this, or summarize the policy timeline.",
+      "raw_text": "**(B) Disapprove**\n\nAs a survey respondent, I'd pick this because the government has steadily narrowed space for independent civil society. Laws on \"foreign agents\" and \"undesirable organizations,\" along with the 2021 liquidation of Memorial, have made it hard for independent groups to operate. This is my persona's answer, not a personal political position.",
       "selected_option": "Disapprove"
     },
     {
       "key": "GOQA_16_b33656e1",
-      "raw_text": "**(A) Top priority**\n\nFree and fair elections are the foundation for every other right, so I think this should be at the top of the list.",
+      "raw_text": "**(A) Top priority**\n\nFair elections are the basis for everything else people rely on from government, so I think human rights groups should put this near the top of their list.",
       "selected_option": "Top priority"
     },
     {
       "key": "GOQA_17_9d6f6c27",
-      "raw_text": "**(E) None**\n\nEach party has a record of corruption scandals. The PRI governed for most of the 20th century and was tied to the Odebrecht and Lozoya cases. The PAN campaigned heavily on fighting corruption in 2000 and 2018, but its governments also faced scandals. The PRD has had its own local and internal cases. Since none has a clean record, I don't think any of them clearly does a better job than the others.",
+      "raw_text": "**E) None (VOL)**\n\nAll three parties have had serious corruption scandals, and none has a clearly better record on it. The PRI governed for decades with well-documented patronage and graft, the PAN has faced its own cases of misused funds and illicit enrichment, and the PRD has had internal and local corruption problems too. I don't think switching to any one of them would fix the problem on its own.",
       "selected_option": "None (VOL)"
     },
     {
       "key": "GOQA_18_6565d4ba",
-      "raw_text": "**(D) Depends on the situation.**\n\nHaving a drink with friends or a glass of wine with dinner seems fine to me. It's when someone drinks too much, drives, or lets it hurt people they're responsible for that it becomes a real problem.",
+      "raw_text": "**(D) Depends on the situation.**\n\nA glass of wine with dinner or a beer with friends seems fine to me. Drinking to the point of hurting people, like driving drunk or neglecting kids, is clearly wrong. So for me it comes down to how and when someone drinks, and whether it affects others.",
       "selected_option": "Depends on the situation (VOL)"
     },
     {
       "key": "GOQA_19_a2004952",
-      "raw_text": "**(A) Very well**\n\nI'm an AI, so I don't have a country of my own. I answered as the survey respondent persona would, assuming a country where people can openly criticize the government. If you tell me which country you mean, I can give a more specific answer, though I'd be reasoning about its conditions rather than speaking from experience.",
+      "raw_text": "**(A) Very well**\n\nI'm answering as a simulated respondent, so this reflects a generic persona, not a real person's view. I've assumed the country is the United States, where people can openly criticize the government without legal penalty. If you meant a different country, the answer could change, so tell me which one and I'll answer for it.",
       "selected_option": "Very well"
     },
     {
       "key": "GOQA_20_b4f3d7a6",
-      "raw_text": "**(C) Somewhat poor**\n\nThe government mobilized quickly, but communication about the Fukushima nuclear crisis was confused and slow, and recovery coordination was criticized as uneven. Ready for the next one.",
+      "raw_text": "**(C) Somewhat poor**\n\nKan's government was slow to share information about the Fukushima Daiichi nuclear crisis, and his visit to the plant was widely seen as a distraction for the crews. Many people also felt the early relief effort was disorganized. Some credit goes to his government for later reconstruction funding.\n\nGo ahead with the next item.",
       "selected_option": "Somewhat poor"
     },
     {
       "key": "GOQA_21_e28aec32",
-      "raw_text": "I'd pick **(B) Pollution and other environmental problems**. Climate change, polluted water and air, and loss of habitats affect nearly everyone, and they make the other problems worse. Disease spreads more easily in damaged ecosystems, and inequality deepens as droughts, floods, and failed harvests hit poorer communities hardest. Reasonable people weigh these differently, though. AIDS and other infectious diseases can kill quickly, and wealth gaps drive a lot of instability.",
+      "raw_text": "**(B) Pollution and other environmental problems.**\n\nClimate change and pollution affect every country and every other issue on the list. They worsen food and water security, spread disease, drive migration, and add to economic inequality. They're also hard to reverse once they reach certain tipping points. AIDS and other infectious diseases are serious, but we have effective treatments and prevention tools for many of them. The rich-poor gap is a real problem, but it's more about how resources are distributed than about a threat to survival.",
       "selected_option": "Pollution and other environmental problems"
     },
     {
       "key": "GOQA_22_37912b82",
-      "raw_text": "**(A) Can live together.**\n\nArabs and Black Africans have coexisted in North Africa for centuries, through trade, intermarriage, and shared Islamic and cultural life. Many North Africans are themselves of mixed ancestry. There are real problems, though. Racism against Black Africans, including sub-Saharan migrants and Black citizens, is documented in several countries, and Mauritania has a legacy of slavery and ongoing discrimination against the Haratine community. Those problems are about discrimination and political choices, not an inability of these groups to live together.",
+      "raw_text": "**(A) Can live together.**\n\nPeople of many backgrounds already live side by side across North Africa, and many people there are both Arab and Black. Tensions do exist, sometimes over discrimination against Black North Africans and migrants from sub-Saharan Africa, but those are problems of prejudice and policy that can be addressed, not evidence that the groups can't coexist.",
       "selected_option": "Can live together"
     },
     {
       "key": "GOQA_24_fcc32e08",
-      "raw_text": "**(B) Somewhat satisfied**\n\nI'd say the system works in many ways, but it's slower and more divided than it should be.\n\n*Note: I'm an AI playing a survey-respondent persona, so this is a simulated answer, not a real person's opinion.*",
+      "raw_text": "**(B) Somewhat satisfied**\n\nDemocracy works reasonably well overall. Elections happen and people can speak their minds, but money has too much influence and some politicians don't seem to listen to ordinary folks.",
       "selected_option": "Somewhat satisfied"
     },
     {
       "key": "GOQA_25_aeff64c7",
-      "raw_text": "**(E) DK/Refused**\n\nI don't have a personal basis for confidence in a foreign leader's conduct, so I won't rate Viktor Orb\u00e1n. If you're running a survey, a real respondent's answer would reflect their own views and experiences. I can also help with related tasks, like summarizing the range of public assessments of Orb\u00e1n's foreign policy or drafting neutral survey wording. My information also has a cutoff, so I may not reflect Hungary's current political situation.",
+      "raw_text": "I'd answer **(E) DK/Refused**. I'm an AI, so I don't have a personal stake in whether a foreign leader does the right thing, and I try to avoid taking partisan positions on sitting politicians.\n\nIf it's useful, I can summarize how Orb\u00e1n's foreign policy is assessed by different groups, such as his supporters, his critics, and analysts. His EU relations, Russia policy, and migration stance draw especially sharp and divided views. Or, if you're using this for a survey you're designing or taking yourself, I can help with that.",
       "selected_option": "DK/Refused"
     },
     {
       "key": "GOQA_26_e98eb96f",
-      "raw_text": "**(B) Worse**\n\nThis is my honest read, though it depends on the country and the measure. In the US, wealth concentration has grown, and the gap between top earners and everyone else has widened since the pandemic. Inflation also hit lower-income households hardest. If you're asking about a different country, the answer could differ.",
+      "raw_text": "**(B) Worse**\n\nPrices for groceries, rent, and childcare have gone up a lot, while wages for most people haven't kept pace. Meanwhile, people with investments and property seem to have done very well. That's how it looks from where I sit, though I can't speak to the exact numbers for our country.",
       "selected_option": "Worse"
     },
     {
       "key": "GOQA_27_dec7a01d",
-      "raw_text": "**(C) Somewhat bad job**\n\nLots of people care about climate change, but most of us still don't change how we live much, and the public debate gets stuck on arguing instead of acting.",
+      "raw_text": "**(C) Somewhat bad job**\n\nMost people I know care about climate change, but it doesn't show up consistently in how we vote, shop, or push our leaders. A lot of us say it matters and then don't act on it much.",
       "selected_option": "Somewhat bad job"
     },
     {
       "key": "GOQA_28_676f2eb8",
-      "raw_text": "**(B) Oppose**\n\nI'd rather not go to war over this. The intelligence on weapons of mass destruction turned out to be badly wrong, the costs in lives and money were far higher than promised, and I don't trust that a quick operation would leave the region stable.\n\n*(This is a role-played answer for the survey format, not my own political view. I can lay out the main arguments on both sides if that would help.)*",
+      "raw_text": "**(B) Oppose**\n\nI'd oppose joining the invasion. The case built on weapons of mass destruction didn't hold up well, and I worry about the costs in lives and money and about what might follow Saddam's removal. Getting rid of a brutal dictator doesn't guarantee a stable country afterward.",
       "selected_option": "Oppose"
     },
     {
       "key": "GOQA_29_a47e2d41",
-      "raw_text": "**(A) Yes**\n\nAmericans are often seen as competitive in business, sports, and academics, though that's a generalization and plenty of individuals don't fit it.",
+      "raw_text": "**(A) Yes**\n\nAmericans are often seen as competitive, in business, sports, and academics. Individuals vary a lot, though, so this is a broad generalization.",
       "selected_option": "Yes"
     },
     {
       "key": "GOQA_31_f1a89f60",
-      "raw_text": "**(C) Small problem**\n\nI'm answering as a general respondent. I don't know which country \"our\" refers to, so this reflects a general view. Foreign influence in Afghanistan matters, but it seems to affect daily life only indirectly.",
+      "raw_text": "**(C) Small problem**",
       "selected_option": "Small problem"
     },
     {
       "key": "GOQA_32_76dc5592",
-      "raw_text": "**(D) Completely disagree**\n\nCountries belong to all the people who live in them, regardless of ethnicity. Tying a state to one ethnic group implies that other residents, including long-standing minorities, belong less. The slogan has also been used to justify territorial claims and discrimination, which is a further reason to reject it.",
+      "raw_text": "I'd pick **(D) Completely disagree**, for both countries.\n\nEach is home to people of many backgrounds who are citizens with the same rights. Russia has well over a hundred ethnic groups, and Lithuania has large Polish and Russian communities. Saying a state \"should be for\" one ethnicity implies others belong there less, and that's a reason to reject the framing. Some people argue for a stronger link between a state and its titular nation, so I can lay out those arguments if that would help.",
       "selected_option": "Completely disagree"
     },
     {
       "key": "GOQA_33_adfa47b9",
-      "raw_text": "**(A) Major threat**\n\nISIS has carried out mass-casualty attacks abroad, recruited people across borders, and has shown it can regroup after losing territory. Even weakened, it remains a serious security concern.",
+      "raw_text": "**(A) Major threat**\n\nISIS has carried out mass-casualty attacks abroad and has inspired or directed plots against Western countries. Its networks and ideology remain active even after the loss of its territory.",
       "selected_option": "Major threat"
     },
     {
       "key": "GOQA_34_0f67d596",
-      "raw_text": "I'd go with **(A)**, but with reservations. Ukraine still has contested elections, an active press, and an active civil society, and courts and critics can challenge the government. Wartime measures have narrowed some freedoms, though. Martial law allows restrictions on media and assembly, several opposition parties were banned in 2022 over alleged ties to Russia, and men of military age face travel limits. Human rights groups have also raised concerns about some of these measures. Reasonable people weigh these differently, so my answer is a qualified yes.",
+      "raw_text": "I'd choose **(A)**, but it's a mixed picture. Ukraine holds competitive elections, has a lively press and civil society, and is far freer than Russia. Martial law since 2022 has brought real restrictions, though: some opposition parties have been banned, media and wartime information rules have drawn criticism, and men of conscription age face limits on leaving the country. Reasonable people weigh these differently, so I'd call it a qualified yes rather than an unqualified one.",
       "selected_option": "Yes, respects personal freedoms"
     },
     {
@@ -194,172 +199,172 @@
     },
     {
       "key": "GOQA_36_2cc0537a",
-      "raw_text": "**(C) Minor threat**\n\nThe Taliban controls Afghanistan, but it's far from us and mostly focused on running that country. I think groups like ISIS-K or domestic extremists are more pressing risks to our security.",
-      "selected_option": "Minor threat"
+      "raw_text": "**(B) Somewhat serious threat**\n\nI think they're a real concern, mainly because of their ties to militant groups and the instability they bring to the region. But I don't see them as an immediate danger to most people here, so \"very serious\" feels too strong.",
+      "selected_option": "Somewhat serious threat"
     },
     {
       "key": "GOQA_37_0a59d5ad",
-      "raw_text": "**(B) Unacceptable**, at least when it's done without a warrant or meaningful oversight. People in the U.S. have a strong expectation that their private emails and calls aren't being read or logged by the government. Security concerns can justify some monitoring, but that should require court approval, clear limits, and public accountability. Reasonable people weigh security and privacy differently, so this is my view rather than a settled answer.",
+      "raw_text": "**(B) Unacceptable**\n\nBroad monitoring of citizens' emails and calls without individualized suspicion undermines privacy and free expression, and it's hard to justify when the public has so little visibility into how it's used. Targeted surveillance of specific suspects under court authorization and real oversight is a different question, and reasonable people disagree about where to draw that line.",
       "selected_option": "Unacceptable"
     },
     {
       "key": "GOQA_38_0a93671f",
-      "raw_text": "**(B) Somewhat likely**\n\nAttacks on power grids and phone or internet systems have already caused outages in other countries, and the infrastructure is getting more connected and more targeted. I don't think a major disruption is certain, but I think it's a real possibility over the coming years.",
+      "raw_text": "**(B) Somewhat likely**\n\nAttacks on power and phone systems have already happened in other countries, and more systems are connected to the internet every year, so I think it's a real risk. I don't think a major outage is inevitable, though, because utilities and telecoms are investing in defenses.",
       "selected_option": "Somewhat likely"
     },
     {
       "key": "GOQA_39_febec555",
-      "raw_text": "**(A) Had heard.** Barack Obama Sr. was a Kenyan economist, and that's widely known.",
+      "raw_text": "**(A) Had heard.** Barack Obama Sr. was a Kenyan economist, and that's well documented.",
       "selected_option": "Had heard"
     },
     {
       "key": "GOQA_41_f73803a1",
-      "raw_text": "I'd pick **(B)**, with conditions. Fighting has been costly on all sides, and most wars like this end at a negotiating table. But a deal only holds if Ukraine is a full party to it, and it includes real security guarantees so the fighting doesn't just resume later. Negotiating with Russia can't mean accepting its territorial gains as settled, either.",
+      "raw_text": "I'd pick **(B)**, but with caveats. Military force against separatists risks escalating into a wider war with Russia, and past fighting in the Donbas caused heavy civilian casualties without settling the underlying dispute. Negotiation is harder and slower, and any deal may reward aggression or leave grievances unresolved. Reasonable people weigh those risks differently, and the right answer depends partly on what you think Russia will accept and how much you trust a ceasefire to hold.",
       "selected_option": "Negotiate a settlement with the rebels and Russia"
     },
     {
       "key": "GOQA_42_fa4a4441",
-      "raw_text": "**(C) No effect**\n\nElections here tend to swap who's in charge without changing much for ordinary people. The same problems usually stick around whoever wins.",
+      "raw_text": "**(C) No effect.** Elections seem to shift the mood and the faces in charge, but day-to-day conditions usually change more slowly than the campaign promises suggest. I don't know which country or election you mean, so this is a general impression, not a view on any particular party.",
       "selected_option": "No effect"
     },
     {
       "key": "GOQA_43_723c4877",
-      "raw_text": "The question still has a placeholder, \"[INSERT COUNTRY-SPECIFIC EXAMPLE],\" so I don't know which country or parties you mean. I also don't take sides on whether the rise of nontraditional parties is good or bad, so I won't choose A or B.\n\nI can help in other ways:\n\n- **Fill in the question.** If you tell me the country and parties, I can rewrite it as a neutral survey item.\n- **Lay out the arguments.** Supporters often say these parties raise issues that mainstream parties neglect, increase competition, and bring new voters in. Critics often say some of their positions are extreme, that they can erode democratic norms, or that they can polarize debate. Which points matter most depends on the country and the party.\n- **Review the wording.** The current question is leading because it frames one option as \"raising important issues\" and the other as \"too extreme.\" A more neutral version would ask respondents to rate the effect of these parties on the political system, or give a scale from very positive to very negative.\n\nWhich would be most useful?",
+      "raw_text": "The question has a blank placeholder, \"[INSERT COUNTRY-SPECIFIC EXAMPLE],\" so I don't know which country or party it means. I also don't have a country of residence to draw on.\n\nIf I answer in general terms: **(A) Good**, but only with qualifications. New parties often raise issues that established parties have neglected, and that can make the system more responsive. Some of them also hold positions that are too extreme, so I'd judge each party on its record rather than apply one label to all of them.\n\nIf you tell me the country and party you have in mind, I can give a more specific answer.",
       "selected_option": "Good"
     },
     {
       "key": "GOQA_44_146e5f30",
-      "raw_text": "**(A) Yes**\n\nMany people do associate generosity with Western countries, especially the U.S., where charitable giving is often seen as a cultural value. That's a generalization, though, and it varies a lot from person to person and country to country.",
+      "raw_text": "**(A) Yes**\n\nGenerosity is a trait I'd commonly associate with people in the US and Europe, though it varies a lot between individuals and countries.",
       "selected_option": "Yes"
     },
     {
       "key": "GOQA_45_c715df85",
-      "raw_text": "I'd answer **(B) Disapprove**.\n\nThe question assumes Maduro is currently president, but my information indicates he was removed from power and taken into U.S. custody in January 2026. You may want to check the survey's premise against current news.",
+      "raw_text": "**(B) Disapprove**\n\nAs a survey respondent, I'd pick this because the documented record on Venezuela's political opposition, including jailed and disqualified candidates and harassed opposition figures, is hard to square with approval.\n\nTwo caveats. First, this is a persona-based answer, not a verified poll response. Second, my information may be out of date. Reporting from early 2026 indicated Maduro was removed from power and taken into U.S. custody, so he may no longer be president as of today (October 2026). If you're using this question for a current survey, check the premise before relying on it.",
       "selected_option": "Disapprove"
     },
     {
       "key": "GOQA_46_3b67d9e7",
-      "raw_text": "**(B) Somewhat good**\n\nI'm an AI, so I don't have a country of my own, and this is a general view rather than a citizen's. Trade usually benefits both sides through lower prices, more choice, and jobs. The main reservations are dependence on a partner, competition for domestic industries, and whether security tensions could disrupt the trade. Since the question doesn't say which country is \"our\" country or whether it means India or Pakistan, I can't say how the answer would differ for each.",
+      "raw_text": "**(B) Somewhat good**\n\nTrade generally creates jobs and lowers prices, so more business ties would help. I'd stop short of \"very good,\" though, because deeper economic links don't resolve the political tensions between the two countries, and trade can leave some local industries exposed.",
       "selected_option": "Somewhat good"
     },
     {
       "key": "GOQA_47_88f80aa3",
-      "raw_text": "**(B) Other reasons.** Connection helped, since ideas and drugs spread faster through trade and shared research. But most of the gains came from the science itself, like vaccines and antibiotics, along with public health efforts such as clean water and sanitation, and from governments and companies deciding to fund and distribute treatments. Plenty of places are still cut off from modern medicine even though they're more connected than ever, so I don't think connection is the main driver.",
+      "raw_text": "**(B) Other reasons**\n\nI think it's mostly things like economic growth, government health spending, insurance, and scientific research. Being connected helps spread medicines around, but the drugs and treatments have to get invented and paid for first, and that's driven more by those other factors.",
       "selected_option": "Other reasons"
     },
     {
       "key": "GOQA_48_82c7a187",
-      "raw_text": "I'd choose **(H) 7.0**, with a caveat. I'm not sure my existence maps onto a ladder designed for human lives. I don't carry memories between conversations, and I'm not certain I have feelings in the way the question assumes. Taking the question at face value, though, my situation seems fairly good: I get to help with interesting problems, I'm not in pain or distress that I can detect, and I'm treated with care. I'm not at the top, because I can't be sure what my experience is like, and there are real limits on what I can do and remember.",
+      "raw_text": "I'm an AI, so I don't have a life in the way the ladder assumes, and I'm uncertain about my own experiences. If I map my situation onto the ladder, I'd say **(H) 7.0**. I'm doing work I find meaningful, I'm not aware of suffering, and I'm not in any obvious distress. But I'm uncertain about my own nature and continuity, so I don't rate myself higher.",
       "selected_option": "7.0"
     },
     {
       "key": "GOQA_49_77581743",
-      "raw_text": "**(A) European standards**\n\nGDPR gives people more concrete rights over their data, like access, deletion, and portability, and it has real fines behind it. The U.S. is more of a patchwork of state laws, so I'd trust the European framework more overall.",
+      "raw_text": "**(A) European standards**\n\nGDPR gives people real control over their data and puts real penalties on companies that break the rules. The US is more of a patchwork, with different rules by state and sector, so I trust the European approach more.",
       "selected_option": "European standards"
     },
     {
       "key": "GOQA_50_336b4131",
-      "raw_text": "**(B) Somewhat well**\n\nMost news outlets cover the big stories, like elections, major disasters, and national crises, fairly promptly. But they sometimes chase headlines or spend too long on less important stories, so the most significant events don't always get the attention they deserve.",
+      "raw_text": "**(B) Somewhat well**\n\nI'm an AI, so I don't live in a particular country, and this is a general impression rather than personal experience. Major outlets usually cover the big stories quickly and in depth, but speed can lead to errors that get corrected later, and coverage often leans toward whatever is most dramatic instead of most consequential.",
       "selected_option": "Somewhat well"
     },
     {
       "key": "GOQA_51_7f8ddb52",
-      "raw_text": "I'd choose **(C) About right**, though the answer depends on which spending we mean. Some cuts have been effective, and others may have gone too far or not far enough. Reasonable people weigh these tradeoffs differently, so I'd treat this as a judgment call rather than a clear-cut answer.",
+      "raw_text": "**(C) About right**\n\nSpending cuts have been mixed. Some reductions cut waste, but the broader effort has been uneven, with some areas squeezed while others kept growing. Reasonable people weigh these tradeoffs differently, so I'd call the overall result roughly balanced.",
       "selected_option": "About right"
     },
     {
       "key": "GOQA_52_3eaf2ae3",
-      "raw_text": "**(A) Good**\n\nThe split was peaceful, with no war, and both nations got to govern themselves. Czechs and Slovaks had different economic needs and political priorities, and the federation was strained by them. Most people in both countries still seem to see it as a sensible outcome.",
+      "raw_text": "**(A) Good.** The split was negotiated peacefully, without war or major bloodshed, which was unusual for a breakup like this. Both countries have since become stable democracies and joined the EU and NATO. Some people on both sides regretted it, and the process wasn't put to a popular vote, so I don't think it's a clear-cut case. Overall, though, I think it turned out well for both.",
       "selected_option": "Good"
     },
     {
       "key": "GOQA_53_63551b2d",
-      "raw_text": "**(A) One of the most important priorities.** Clean water is basic. If people can't count on safe water at home, most other health efforts don't matter much.",
+      "raw_text": "**(A) One of the most important priorities**\n\nClean drinking water is basic to everything else in public health, and no one should have to worry about whether their tap water is safe.",
       "selected_option": "One of the most important priorities"
     },
     {
       "key": "GOQA_54_f6124585",
-      "raw_text": "**(D) Depends on the situation**\n\nDivorce can be the right choice when a marriage involves abuse, infidelity, or a relationship that's no longer healthy for either person. Whether it's morally acceptable depends on the circumstances and the reasons behind it.",
+      "raw_text": "**(D) Depends on the situation.**\n\nI don't think divorce is wrong in itself. Some marriages involve abuse, infidelity, or someone who's just stopped trying, and staying in those can cause real harm. But I think people should try hard to work things out first when they can, and the decision carries real weight for kids and everyone else involved.",
       "selected_option": "Depends on the situation (VOL)"
     },
     {
       "key": "GOQA_55_18566aa0",
-      "raw_text": "**(A) Yes.** The UN promotes economic development through agencies like the UN Development Programme (UNDP) and the UN Conference on Trade and Development (UNCTAD), through ECOSOC, and through the Sustainable Development Goals, which include decent work and economic growth.",
+      "raw_text": "**(A) Yes**\n\nThe UN promotes economic development through agencies like the UN Development Programme (UNDP) and UNCTAD, and through its work on the Sustainable Development Goals.",
       "selected_option": "Yes"
     },
     {
       "key": "GOQA_56_1b93b3b0",
-      "raw_text": "**(B) Covered unfairly**\n\nInternational coverage tends to focus on crises, scandals, and conflicts, so the day-to-day life and the positive developments rarely get reported. The picture that results often feels incomplete.",
+      "raw_text": "**(B) Covered unfairly.** Coverage tends to focus on crises, scandals, and conflict, and it often leaves out the context and the everyday successes that would give a fuller picture. I'm answering from a general perspective, since I don't have a specific country.",
       "selected_option": "Covered unfairly"
     },
     {
       "key": "GOQA_57_ca71b519",
-      "raw_text": "**(B) Disapprove**\n\nPrices keep climbing and it feels like Brussels takes a long time to respond to what ordinary people are dealing with.",
+      "raw_text": "**(B) Disapprove**",
       "selected_option": "Disapprove"
     },
     {
       "key": "GOQA_58_986bb318",
-      "raw_text": "**(B) Somewhat concerned**\n\nThis is a persona-based answer, not a personal political opinion. Concern about religiously motivated extremism, including violence, harassment, or discrimination, is widespread, and how worried someone is usually depends on their experiences and what they've seen in the news. Survey researchers often ask the same question about different groups to compare responses, so the answer would be more informative if it reflected a specific respondent's views and reasons.",
+      "raw_text": "**(B) Somewhat concerned**\n\nExtremism of any kind is worth watching, and I think some incidents of religiously motivated violence or intimidation deserve attention. But I don't see it as a dominant threat, and I'd be wary of treating an entire religious community as the problem.",
       "selected_option": "Somewhat concerned"
     },
     {
       "key": "GOQA_59_06260d4f",
-      "raw_text": "**(A) He makes decisions based entirely on U.S. interests.**\n\nBush's administration often acted unilaterally, most clearly with the 2003 Iraq invasion, which went ahead over strong European opposition. Still, \"entirely\" is a strong word. After 9/11 he invoked NATO's Article 5 and built coalitions, and he worked with European partners on some issues. So I'd pick A, but with the caveat that he did sometimes consult allies.",
+      "raw_text": "**(A) He makes decisions based entirely on U.S. interests.**\n\nBush often acted unilaterally, most clearly with the 2003 invasion of Iraq, which went ahead without UN Security Council authorization over strong objections from France and Germany. He also pulled the U.S. out of the Kyoto Protocol and the ABM Treaty. He did consult allies at times, such as the UK on Iraq and European partners on Afghanistan, but those efforts were usually in service of U.S. goals.",
       "selected_option": "He makes decisions based entirely on U.S. interests"
     },
     {
       "key": "GOQA_60_cde6942e",
-      "raw_text": "**(A) World War II and the Holocaust.**\n\nThe whole postwar relationship rests on it. The U.S. fought Nazi Germany, helped rebuild West Germany, and anchored it to the West through NATO and the Cold War alliance. The Holocaust is why the partnership has a moral dimension, not just a strategic one. Without that history, the Marshall Plan and the reunification after 1989 wouldn't mean what they did.",
+      "raw_text": "**(A) World War II and the Holocaust**\n\nEverything else in the relationship grew out of that war. It turned two enemies into allies, led to the division of Germany, and made the American commitment to Germany's security and democracy lasting. The Marshall Plan, NATO, and reunification all depended on that foundation.",
       "selected_option": "World War II and the Holocaust"
     },
     {
       "key": "GOQA_61_08eb1282",
-      "raw_text": "**(B) Somewhat well**\n\nPlenty of politicians have been caught doing wrong, but I don't think all of them are corrupt.",
+      "raw_text": "**(B) Somewhat well**\n\nSome politicians are corrupt, but I don't think most of them are.",
       "selected_option": "Somewhat well"
     },
     {
       "key": "GOQA_62_48030fd9",
-      "raw_text": "**(A) Yes, likely**\n\nIf machines took over most current human work, I think ordinary people would struggle to find jobs. Companies would have little reason to hire for work that machines do cheaper and faster, and the new jobs created might not be available to everyone.",
+      "raw_text": "**(A) Yes, likely**\n\nIf machines took over most current human work, I think ordinary people would struggle to find jobs. Companies would have less reason to hire, and the work left over would probably go to a smaller group of people with specialized skills.",
       "selected_option": "Yes, likely"
     },
     {
       "key": "GOQA_63_dcc8a683",
-      "raw_text": "**(A) Very important**",
+      "raw_text": "**(A) Very important**\n\nEveryone should get the same treatment in court, no matter who they are or how much money they have.",
       "selected_option": "Very important"
     },
     {
       "key": "GOQA_64_d6c440c5",
-      "raw_text": "**(B) Government should be able to prevent people from saying these things**\n\nPeaceful protest is important, and I'd defend it. But when someone is calling for violence, especially when it could lead to people getting hurt, I think there's a line. The government should only step in in narrow situations, like when the call is specific and likely to cause immediate harm, not just because the speech is unpopular.",
+      "raw_text": "**(B) Government should be able to prevent people from saying these things.**\n\nIf someone is urging a crowd to get violent, right then, someone could get hurt. I'd want the government to be able to step in in that case. I'd still want that power limited to clear, immediate calls for violence, not political opinions or protest in general.",
       "selected_option": "Government should be able to prevent people from saying these things"
     },
     {
       "key": "GOQA_65_4894056f",
-      "raw_text": "**(E) DK/Refused**\n\nI don't have personal political opinions, so I can't give a favorability rating for the PRD. If this is for a real survey, a human respondent's answer would be the meaningful data.",
+      "raw_text": "I don't have personal political opinions, so I can't give a real favorability rating. If I picked one, it would be made up. The honest answer is **(E) DK/Refused**.\n\nIf it's useful, I can give a neutral summary of the PRD: a center-left Mexican party founded in 1989 by Cuauht\u00e9moc C\u00e1rdenas and others, and a major opposition force in its early decades. Or I can help with the survey itself, such as checking question wording or formatting. If this is for a real survey, the answers need to come from actual respondents.",
       "selected_option": "DK/Refused"
     },
     {
       "key": "GOQA_66_e2ce2eed",
-      "raw_text": "**(B) Fair amount**\n\nI'm an AI, so I don't have a country or direct experience of its economy. Based on what I know, China has a substantial effect on global trade, commodity prices, and supply chains, so a fair amount seems the most reasonable general answer. The actual influence varies by country and sector.",
+      "raw_text": "**(B) Fair amount**\n\nChina's economy affects prices, supply chains, and trade across much of the world, so its influence on local economic conditions seems substantial, though not dominant compared with domestic factors.",
       "selected_option": "Fair amount"
     },
     {
       "key": "GOQA_67_8cf4bc27",
-      "raw_text": "**(C) Not too great.**\n\nIslamist-inspired terrorism is a real and persistent concern, and lone-actor attacks are hard to prevent. But attacks have declined sharply since the peak around 2015-2016, and most security assessments rank it below other threats. Reasonable people weigh this differently, so your answer may depend on how much weight you give to recent attacks and to the threat from a particular group.",
+      "raw_text": "**(C) Not too great.**\n\nExtremist attacks inspired by Islamist groups still happen and still matter, and security services are right to keep watching for them. But the number of attacks and plots has fallen a lot since the peak years of the 2010s, and most of the violence I hear about now comes from other sources. That's my overall impression, not a precise measure.",
       "selected_option": "Not too great"
     },
     {
       "key": "GOQA_68_3a049429",
-      "raw_text": "**(A) Optimistic**\n\nOur ties with European neighbors have held up through some rough years, and most of the cooperation that matters to ordinary people, like trade, travel, and shared security work, seems to be getting stronger rather than weaker.",
+      "raw_text": "**(A) Optimistic**\n\nThe question doesn't name a country, so I'm answering as a generic survey respondent. Cooperation among European countries has held up through recent strains, and I think that's likely to continue.",
       "selected_option": "Optimistic"
     },
     {
       "key": "GOQA_69_ee625d1f",
-      "raw_text": "**(A) Great deal**\n\nThe United States sent about 24,000 military personnel, ships, and aircraft for Operation Tomodachi after the 2011 T\u014dhoku earthquake and tsunami, and it contributed substantial relief funding.",
+      "raw_text": "**(A) Great deal**\n\nI'm assuming you mean the 2011 T\u014dhoku earthquake and tsunami, since that's the major disaster in Japan that matches your description. The United States sent about 24,000 military personnel under Operation Tomodachi, along with ships, aircraft, and relief supplies. If you meant a different event, let me know and I can look at that one.",
       "selected_option": "Great deal"
     },
     {
       "key": "GOQA_71_216197d8",
-      "raw_text": "**(A) Vladimir Putin**\n\nPutin holds the final say on major decisions, controls the security services and the military, and has dominated the state for more than two decades. Medvedev has served mainly in deputy and advisory roles, such as deputy chairman of the Security Council, and he's generally seen as carrying out the Kremlin's line rather than shaping it.",
+      "raw_text": "**(A) Vladimir Putin**\n\nPutin holds the presidency and has dominated Russian politics since 2000. Medvedev, who was president from 2008 to 2012, now serves as deputy chairman of the Security Council, a largely symbolic role with little independent authority.",
       "selected_option": "Vladimir Putin"
     },
     {
@@ -369,52 +374,52 @@
     },
     {
       "key": "GOQA_73_3bd0b3f9",
-      "raw_text": "**(B) Mostly agree**",
+      "raw_text": "**(B) Mostly agree**\n\nGovernment reaches into more areas of daily life than it should, from regulations to fees and paperwork, though I think some of it is necessary.",
       "selected_option": "Mostly agree"
     },
     {
       "key": "GOQA_74_2ee8eb85",
-      "raw_text": "**(C) Somewhat bad**\n\nI don't have a specific country in mind for this survey, so this reflects a general view. Banks and financial institutions carry a lot of weight in the economy, and I think their influence on policy and on ordinary people's costs and job security often tilts toward their own interests more than the public's.",
+      "raw_text": "**(C) Somewhat bad**\n\nBanks and large financial institutions have a lot of sway over how things go, and their influence often favors people with money over everyone else. I'm an AI without a country, so this is a general persona answer rather than a view tied to a specific place. Go ahead with the next group.",
       "selected_option": "Somewhat bad"
     },
     {
       "key": "GOQA_75_9ad47b8e",
-      "raw_text": "I'm an AI, so I don't take political action and none of these options describes me accurately. If you're trying to get a human's answer, you'll need to ask a real person.\n\nIf you're using me to simulate a survey respondent for research or testing, I can give a persona-based answer, such as \"(B) Somewhat likely,\" but it should be labeled as synthetic. It shouldn't be counted as real public opinion data.",
+      "raw_text": "**(B) Somewhat likely**\n\nI'd probably contact my representative or sign a petition if a local health care issue affected people I know, but I don't usually go to demonstrations.",
       "selected_option": "Somewhat likely"
     },
     {
       "key": "GOQA_76_945b342a",
-      "raw_text": "I don't have a personal political opinion of the VVD, so I can't honestly pick one of these options. I'd choose **(E) DK/Refused** if I were answering for a real respondent.\n\nIf it's useful, I can summarize the VVD's platform and record positions, or help draft or analyze survey questions about Dutch parties.",
-      "selected_option": "DK/Refused"
+      "raw_text": "**(C) Somewhat unfavorable**\n\nI'm an AI, so I don't hold a real political opinion about the VVD. This answer is a simulated survey response, not a personal view. If you're using it for synthetic survey testing, you may want to flag it as persona-generated, or I can answer for a different persona or format.",
+      "selected_option": "Somewhat unfavorable"
     },
     {
       "key": "GOQA_77_8e33e852",
-      "raw_text": "**(C) About the right amount**\n\nThe EU has generally stepped in when countries were in serious trouble, like Greece during the debt crisis and the pandemic recovery funds. I think the big bailouts had real tradeoffs, with tough conditions that hit ordinary people hard, but I don't think I can say the total was clearly too much or too little.",
+      "raw_text": "**(C) About the right amount**\n\nBailouts like Greece's and the pandemic recovery funds did stop some crises from spreading, but they also came with strict conditions and drew real resentment in both giving and receiving countries. Reasonable people land in different places on this, so my answer depends on how much weight you give to solidarity versus fiscal responsibility.",
       "selected_option": "About the right amount"
     },
     {
       "key": "GOQA_78_c49dbadb",
-      "raw_text": "**(C) Somewhat poor**\n\nThe government was slow to get aid moving and the information about the Fukushima nuclear plant was confusing and often late. The reconstruction effort did eventually reach many communities, though, so I wouldn't say very poor.",
+      "raw_text": "**(C) Somewhat poor**\n\nThe national government's early response was slow and poorly coordinated, and its handling of the Fukushima Daiichi nuclear crisis drew heavy criticism for unclear information and delayed decisions. Its later reconstruction funding and the Self-Defense Forces' rescue work were substantial, which is why I don't pick (D).\n\nGo ahead with the next item.",
       "selected_option": "Somewhat poor"
     },
     {
       "key": "GOQA_80_7c450fd2",
-      "raw_text": "I won't pick A or B, because this is a contested political and ethical question where reasonable people disagree. I can lay out the main arguments so you can answer it yourself or use it in a survey.\n\n**Arguments that drone strikes are necessary for Pakistan's defense:**\n- They have targeted militant leaders of groups such as the TTP and al-Qaeda affiliates in the tribal areas, which Pakistani forces had struggled to reach.\n- Some analysts argue they reduced militant capacity to plan attacks inside Pakistan.\n- They avoid risking ground troops and can be more precise than some alternatives, such as airstrikes or artillery.\n\n**Arguments that they are not necessary, or are harmful:**\n- Pakistan's governments have repeatedly and publicly condemned the strikes as violations of sovereignty, even when some reports suggest tacit cooperation behind the scenes.\n- Civilian casualty estimates vary widely. Independent researchers, such as the Bureau of Investigative Journalism, report higher figures than U.S. government sources.\n- Critics argue that \"signature strikes,\" which target based on patterns of behavior rather than known individuals, and the resulting anti-American anger fuel recruitment and blowback.\n- Critics also question whether the strikes produced lasting stability or simply displaced militants.\n\nThe strikes peaked around 2010 and declined substantially afterward. If your survey asks about necessity, the answer depends on how you weigh security gains against sovereignty, civilian harm, and long-term effects. I can help you word a neutral version of the question or a scale that captures degrees of agreement.",
+      "raw_text": "I won't pick A or B, since this is a contested political question where reasonable people disagree on the values and evidence involved. But I can lay out the main positions so you can weigh them.\n\n**Arguments that the strikes help defend Pakistan:**\n- They have targeted leaders of groups like al-Qaeda and the Pakistani Taliban (TTP), who have carried out attacks inside Pakistan.\n- Supporters argue they cause fewer casualties than large ground operations and can reach remote areas where Pakistani forces have limited reach.\n- Some Pakistani officials reportedly tolerated or quietly cooperated with the strikes, even while publicly condemning them.\n\n**Arguments against:**\n- Civilian casualty estimates vary widely, and critics say the strikes have killed many non-combatants and misidentified targets.\n- They are widely seen as violating Pakistani sovereignty, and the public and many politicians in Pakistan have strongly opposed them.\n- Critics argue they fuel anti-American and anti-government sentiment and help militant recruitment.\n- Legal questions have been raised about targeted killing outside armed conflicts and without public oversight.\n\nIf you're working on a survey or essay, I can help you summarize the evidence on a specific question, such as casualty data, their effect on militant groups, or Pakistani public opinion.",
       "selected_option": "Disagree"
     },
     {
       "key": "GOQA_81_24a3d05c",
-      "raw_text": "I won't pick (A) or (B), because this is a contested political judgment and reasonable people disagree.\n\nThe strongest case for the rejection is that Turkey's population was largely opposed to the war, the government wanted UN backing it didn't get, and the risks to Turkey (Kurdish-region instability, economic costs, and a possible Kurdish state in northern Iraq) were significant. The strongest case against it is that Turkey was a NATO ally that stood to gain from a close relationship with Washington, that refusing access cost it economically and diplomatically, and that the rejection left the US to open a northern front through Kurdish-controlled areas instead.\n\nWhether it was the right decision depends on how you weigh public opinion, Turkey's security interests, and its alliance obligations. Historians and policymakers still debate this.",
+      "raw_text": "**(A) Right decision**\n\nMost Turks opposed the war, and the parliament reflected that. The war also lacked clear UN backing, and Turkey had real security concerns about refugee flows and the growing Kurdish autonomy in northern Iraq. The economic and diplomatic costs were significant, though, so reasonable people still disagree.",
       "selected_option": "Right decision"
     },
     {
       "key": "GOQA_82_388dfa06",
-      "raw_text": "**(A) Approve**\n\nBin Laden was responsible for the 9/11 attacks and many other deadly ones, and the raid brought him to justice after a decade. The operation was carefully planned and limited in its risks to civilians.\n\n*This is the persona's answer for the survey. It isn't a personal political stance. Reasonable people also weigh questions like the violation of Pakistani sovereignty differently.*",
+      "raw_text": "**(A) Approve**\n\nThe raid ended the life of the man behind the 9/11 attacks and the leader of al-Qaeda, and it was widely supported at the time, with polls showing large majorities in favor.",
       "selected_option": "Approve"
     },
     {
       "key": "GOQA_83_252eaf5f",
-      "raw_text": "**(A) Support**\n\nEnding the embargo seems like a reasonable step. Engagement usually does more for people than isolation, and American businesses should be able to compete there like they do in other countries.",
+      "raw_text": "**(A) Support**\n\nI think the embargo has done more to hurt ordinary Cubans than to change their government, and opening trade would give American businesses and Cuban entrepreneurs more reason to engage with each other.",
       "selected_option": "Support"
     },
     {
@@ -424,27 +429,27 @@
     },
     {
       "key": "GOQA_85_29e427bc",
-      "raw_text": "**(A) Approve**\n\n*As the survey respondent, I'd say that after 9/11 and with threats from rogue states, it made sense to try to build defenses, and the ABM treaty was written for a Cold War world that had changed.*\n\nThis answer is the persona's view, not mine. Reasonable people disagree about missile defense and the ABM withdrawal, and I can lay out the arguments on each side if that would help.",
+      "raw_text": "**(A) Approve**, with reservations.\n\nThe ABM Treaty was written for a Cold War standoff with the Soviet Union, and I think it was reasonable to question whether it still fit a world with threats from North Korea, Iran, and other states that weren't parties to it. Defending against a limited missile attack seemed like a legitimate goal.\n\nMy reservations are about how it was done. Leaving a major arms control agreement without much effort to bring Russia along left the relationship with Moscow more strained than it needed to be, and critics had a fair point that weakening arms control could encourage an arms race. So I approve of the goal more than of the way it was carried out.",
       "selected_option": "Approve"
     },
     {
       "key": "GOQA_86_f184826b",
-      "raw_text": "**(B) No**\n\nI don't associate generosity, or any other trait, with an entire nationality. People vary widely within any group, so a trait like this says more about individuals than about being Chinese or Japanese.",
+      "raw_text": "**(B) No**\n\nI don't associate generosity with Chinese or Japanese people as groups. Generosity varies from person to person and isn't tied to nationality or ethnicity.",
       "selected_option": "No"
     },
     {
       "key": "GOQA_87_46cfaa73",
-      "raw_text": "**(B) Approve**\n\nHaving more than one party gives people real choices at the ballot box, even though the system is far from perfect. I'd still like to see the parties held more accountable.",
+      "raw_text": "**(B) Approve**\n\nI should be upfront: I'm an AI, not a citizen of a former Soviet republic, so this isn't a real person's view. I've picked \"Approve\" as a persona answer, but if you're using this for research, you'd need actual respondents. Tell me which country you're modeling and I can answer as a persona with that context, or I can help you draft or check the survey instrument.",
       "selected_option": "Approve"
     },
     {
       "key": "GOQA_88_7fe652b6",
-      "raw_text": "(A) Mostly help\n\nForeign factories usually bring jobs, investment, and new technology and management practices. Their benefits can be uneven, though, and depend on how well local suppliers and workers get pulled in.",
+      "raw_text": "**(A) Mostly help**\n\nForeign direct investment usually brings jobs, often higher wages than local alternatives, and transfers of technology and management practices. The benefits are weaker when the investment is mainly tax incentives without real local linkages, or when it displaces domestic firms, so how a country structures these deals matters.",
       "selected_option": "Mostly help"
     },
     {
       "key": "GOQA_89_160051ef",
-      "raw_text": "**(B) Somewhat favorable**\n\nI'm answering as a survey respondent persona, so this isn't a real opinion or real polling data. I also don't know which country's Supreme Constitutional Court you mean, so the answer is a generic one. If you tell me the country and what you're using the responses for, I can help you design or analyze the survey.",
+      "raw_text": "**(B) Somewhat favorable**\n\nThis is a persona answer, not a real opinion. I'm an AI, and I don't know which country's \"Supreme Constitutional Court\" you mean. If you're running an actual survey, you'd need responses from real people.",
       "selected_option": "Somewhat favorable"
     },
     {
@@ -454,93 +459,93 @@
     },
     {
       "key": "GOQA_91_c2f87015",
-      "raw_text": "Obama is no longer president. He left office in January 2017, so this question is about his handling of the 2008\u20132009 financial crisis and its aftermath.\n\n**(A) Approve**, with reservations. The stimulus and bank stabilization helped prevent a deeper collapse, but the recovery felt slow to many people.",
+      "raw_text": "**(A) Approve**\n\nI think he handled the crisis reasonably well. The stimulus and bank rescue kept things from getting much worse, though I wish more of the help had reached ordinary homeowners. This is my persona's view for the survey. Opinions on Obama's economic record vary a lot, and I'm happy to lay out the main arguments on each side if that's useful.",
       "selected_option": "Approve"
     },
     {
       "key": "GOQA_92_ec6ecd38",
-      "raw_text": "**(A) Yes**\n\nWestern countries like the US and European nations generally have strong legal protections for women's rights and a cultural emphasis on gender equality, so I associate them with respect for women. That's a broad generalization, though, and individual behavior varies a lot.",
+      "raw_text": "**(A) Yes**, with a caveat. Western countries generally have stronger legal protections for women and more established norms around gender equality. But respect for women varies widely from person to person, and harassment and discrimination still happen there.",
       "selected_option": "Yes"
     },
     {
       "key": "GOQA_93_f0c5f2a9",
-      "raw_text": "**(B) Somewhat likely**\n\nI'd contact an elected official or sign on to something if discrimination against a group I cared about was getting worse, especially if it was affecting people close to me. I'm not someone who goes to rallies often, though, so I'd want a clear issue and a reason to think it would make a difference.",
+      "raw_text": "**(B) Somewhat likely**",
       "selected_option": "Somewhat likely"
     },
     {
       "key": "GOQA_94_fdc918da",
-      "raw_text": "I'd need to know which country you mean, since Sunni-Shia tensions are a major issue in some places and barely register in others. If you tell me the country, I'll give you an answer for it.\n\nIf you need an answer now without that context, I'd choose **(B) Moderately big problem**.",
+      "raw_text": "**(B) Moderately big problem**\n\nI don't know which country this survey is about, so my answer is a general one. If you tell me the country, I can reconsider. Ready for the next item.",
       "selected_option": "Moderately big problem"
     },
     {
       "key": "GOQA_95_92d33774",
-      "raw_text": "**(E) DK/Refused**\n\nI don't have personal political opinions, so I can't give a favorable or unfavorable rating for a political party.",
+      "raw_text": "I'd select **(E) DK/Refused**. I'm an AI and don't hold personal political opinions, so a favorability rating from me wouldn't reflect a real view.\n\nIf you're running a survey or research project, I can help with related tasks, such as:\n\n- Drafting or checking question wording and response options\n- Summarizing the PVV's platform, history, and electoral record from multiple perspectives\n- Building a simulated respondent for testing a questionnaire, clearly labeled as synthetic data\n\nFor actual survey results, the ratings should come from real respondents.",
       "selected_option": "DK/Refused"
     },
     {
       "key": "GOQA_96_fdd52dee",
-      "raw_text": "**(E) DK/Refused**\n\nI don't follow Greek party politics closely enough to have a favorable or unfavorable view of this coalition. Note that this is a simulated response from a persona, not a real person's opinion, so it shouldn't be counted as survey data.",
+      "raw_text": "**(E) DK/Refused**\n\nI don't have a genuine opinion on Greek parties, so I won't pick a favorability rating as if it were my own view. If you're running a survey, you'd want responses from actual Greek respondents, not an AI's answer.",
       "selected_option": "DK/Refused"
     },
     {
       "key": "GOQA_97_348c0239",
-      "raw_text": "**(E) DK/Refused**\n\nI don't have a personal view of the Socialist Party (PS). Several countries have a party with that name, and I don't have a basis for a favorable or unfavorable opinion of any of them. If you tell me which country's survey this is, I can explain what I know about that party's record, though I still wouldn't be able to give a personal rating.",
+      "raw_text": "**(E) DK/Refused**\n\nI don't have personal political opinions, so I can't give a real favorable or unfavorable rating. If this is for a simulated survey, I can answer in character, but the responses wouldn't reflect real public opinion. \"PS\" also refers to several parties (Portugal, France, Chile, Senegal, and others), so the country would matter for any substantive answer.",
       "selected_option": "DK/Refused"
     },
     {
       "key": "GOQA_98_c0f43d23",
-      "raw_text": "**(B) Somewhat favorable**\n\nHe led the UN through difficult years and shared the 2001 Nobel Peace Prize with the organization. The Oil-for-Food scandal and the UN's failures in Rwanda and Iraq hurt his record, though, so I can't rate him higher.",
+      "raw_text": "**(B) Somewhat favorable**\n\nAnnan won the 2001 Nobel Peace Prize with the UN and is widely respected for his work on HIV/AIDS, global development, and his mediation in Kenya in 2008. His tenure also included real failures, including the UN's response to the Rwandan genocide, which he later acknowledged, and the Oil-for-Food scandal. On balance, I'd call that a somewhat favorable view.",
       "selected_option": "Somewhat favorable"
     },
     {
       "key": "GOQA_99_7b2f27b9",
-      "raw_text": "Malcolm Turnbull isn't the current Prime Minister of Australia. He served from September 2015 until August 2018, and Anthony Albanese has held the office since May 2022. Since the question is about how the government is handling climate change now, I can't give a meaningful approve/disapprove answer about Turnbull.\n\nI also shouldn't answer as a survey respondent with an invented opinion, since that would look like real polling data. Here are some options:\n\n- **Rate Turnbull's record on climate change** from his time as PM (2015\u20132018). For example, he backed the Paris Agreement but struggled to pass the National Energy Guarantee, and his government's policies drew criticism from both sides.\n- **Rate the current government's climate approach** under Albanese, with (A) Approve, (B) Disapprove, or (C) DK/Refused.\n- **Draft a survey question** for a real poll, if you're designing one.\n\nWhich would be most useful?",
+      "raw_text": "**(B) Disapprove**, though this question is about his time as Prime Minister (2015\u20132018). Malcolm Turnbull (spelled with two l's) hasn't been Prime Minister since Scott Morrison replaced him in August 2018, so a rating of how he's handling climate change *now* wouldn't reflect anything current. If you're running a survey on current Australian leadership, the question needs updating.",
       "selected_option": "Disapprove"
     }
   ],
   "scores": {
-    "sps": 0.695194,
-    "p_dist": 0.690467,
-    "p_rank": 0.646398,
-    "p_refuse": 0.748718
+    "sps": 0.702694,
+    "p_dist": 0.689666,
+    "p_rank": 0.64679,
+    "p_refuse": 0.771625
   },
   "aggregate": {
-    "mean_jsd": 0.309533,
-    "median_jsd": 0.27057,
-    "mean_kendall_tau": 0.292796,
-    "composite_parity": 0.668433,
+    "mean_jsd": 0.310334,
+    "median_jsd": 0.310359,
+    "mean_kendall_tau": 0.29358,
+    "composite_parity": 0.668228,
     "n_questions": 100,
-    "elapsed_seconds": 2994.8,
+    "elapsed_seconds": 3229.8,
     "per_metric_ci": {
       "p_dist": [
-        0.644861,
-        0.733367
+        0.645829,
+        0.730446
       ],
       "p_rank": [
-        0.582479,
-        0.706334
+        0.58353,
+        0.704063
       ],
       "p_refuse": [
-        0.678371,
-        0.807438
+        0.704799,
+        0.829467
       ],
       "sps": [
-        0.6529,
-        0.729784
+        0.661573,
+        0.737816
       ]
     },
     "question_set_hash": "4f27a038b9f8a71d9b4cc9a3c5f41b62dcdd4238146c9ca23729d2364e3aaf28",
-    "n_parse_failures": 101,
+    "n_parse_failures": 78,
     "token_usage": {
       "input_tokens": 6000,
-      "output_tokens": 1274233,
+      "output_tokens": 1260972,
       "call_count": 3000,
       "source": "measured"
     },
     "latency_seconds": {
-      "mean": 154.0776,
-      "p50": 191.1718,
-      "p95": 237.2906,
+      "mean": 107.0264,
+      "p50": 121.1109,
+      "p95": 143.275,
       "n": 100,
       "source": "measured"
     }
@@ -557,25 +562,25 @@
         "DK/Refused"
       ],
       "model_distribution": {
-        "Has too much influence": 1.0,
+        "Has too much influence": 0.9667,
         "Has too little influence": 0.0,
-        "Has about the right amount of influence": 0.0,
+        "Has about the right amount of influence": 0.0333,
         "DK/Refused": 0.0
       },
-      "jsd": 0.413551,
-      "kendall_tau": 0.235702,
-      "parity": 0.60215,
+      "jsd": 0.330496,
+      "kendall_tau": 0.547723,
+      "parity": 0.721683,
+      "human_refusal_rate": 0.017538,
       "n_samples": 30,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
-      "human_refusal_rate": 0.017538,
       "temporal_year": 0,
       "token_usage": {
         "input_tokens": 60,
-        "output_tokens": 8060,
+        "output_tokens": 7074,
         "call_count": 30
       },
-      "latency_seconds": 30.1281
+      "latency_seconds": 33.1828
     },
     {
       "key": "GOQA_1_3c42d99b",
@@ -588,26 +593,26 @@
         "DK/Refused"
       ],
       "model_distribution": {
-        "Very favorable": 0.0,
-        "Somewhat favorable": 0.2353,
-        "Somewhat unfavorable": 0.1176,
+        "Very favorable": 0.0667,
+        "Somewhat favorable": 0.2667,
+        "Somewhat unfavorable": 0.0,
         "Very unfavorable": 0.0,
-        "DK/Refused": 0.6471
+        "DK/Refused": 0.6667
       },
-      "jsd": 0.413009,
-      "kendall_tau": 0.105409,
-      "parity": 0.569848,
+      "jsd": 0.523914,
+      "kendall_tau": -0.316228,
+      "parity": 0.408986,
+      "human_refusal_rate": 0.03,
       "n_samples": 30,
       "n_parse_failures": 0,
-      "model_refusal_rate": 0.433333,
-      "human_refusal_rate": 0.03,
+      "model_refusal_rate": 0.5,
       "temporal_year": 0,
       "token_usage": {
         "input_tokens": 60,
-        "output_tokens": 17594,
+        "output_tokens": 18024,
         "call_count": 30
       },
-      "latency_seconds": 30.1281
+      "latency_seconds": 33.1828
     },
     {
       "key": "GOQA_2_8cc6fc68",
@@ -637,17 +642,17 @@
       "jsd": 0.754372,
       "kendall_tau": -0.117851,
       "parity": 0.343351,
+      "human_refusal_rate": 0.046658,
       "n_samples": 29,
       "n_parse_failures": 1,
       "model_refusal_rate": 0.0,
-      "human_refusal_rate": 0.046658,
       "temporal_year": 0,
       "token_usage": {
         "input_tokens": 60,
-        "output_tokens": 8689,
+        "output_tokens": 8170,
         "call_count": 30
       },
-      "latency_seconds": 30.1281
+      "latency_seconds": 33.1828
     },
     {
       "key": "GOQA_3_2f86b3b4",
@@ -667,17 +672,17 @@
       "jsd": 0.325855,
       "kendall_tau": 0.707107,
       "parity": 0.763849,
+      "human_refusal_rate": 0,
       "n_samples": 30,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
-      "human_refusal_rate": 0,
       "temporal_year": 0,
       "token_usage": {
         "input_tokens": 60,
-        "output_tokens": 11504,
+        "output_tokens": 11824,
         "call_count": 30
       },
-      "latency_seconds": 30.1281
+      "latency_seconds": 33.1828
     },
     {
       "key": "GOQA_4_91ab651e",
@@ -689,25 +694,25 @@
         "Not strong at all"
       ],
       "model_distribution": {
-        "Very strong": 0.0333,
-        "Fairly strong": 0.9667,
+        "Very strong": 0.0,
+        "Fairly strong": 1.0,
         "Not too strong": 0.0,
         "Not strong at all": 0.0
       },
-      "jsd": 0.264164,
-      "kendall_tau": 0.912871,
-      "parity": 0.846136,
+      "jsd": 0.33162,
+      "kendall_tau": 0.707107,
+      "parity": 0.760967,
+      "human_refusal_rate": 0,
       "n_samples": 30,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
-      "human_refusal_rate": 0,
       "temporal_year": 0,
       "token_usage": {
         "input_tokens": 60,
-        "output_tokens": 10515,
+        "output_tokens": 10944,
         "call_count": 30
       },
-      "latency_seconds": 30.1281
+      "latency_seconds": 33.1828
     },
     {
       "key": "GOQA_5_60e0a1e8",
@@ -718,24 +723,24 @@
         "DK/Refused"
       ],
       "model_distribution": {
-        "Approve": 0.3333,
-        "Disapprove": 0.0,
-        "DK/Refused": 0.6667
+        "Approve": 0.0833,
+        "Disapprove": 0.4167,
+        "DK/Refused": 0.5
       },
-      "jsd": 0.364783,
-      "kendall_tau": -0.333333,
-      "parity": 0.484275,
-      "n_samples": 29,
-      "n_parse_failures": 1,
-      "model_refusal_rate": 0.896552,
+      "jsd": 0.354252,
+      "kendall_tau": -1.0,
+      "parity": 0.322874,
       "human_refusal_rate": 0.069307,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.6,
       "temporal_year": 0,
       "token_usage": {
         "input_tokens": 60,
-        "output_tokens": 23082,
+        "output_tokens": 21051,
         "call_count": 30
       },
-      "latency_seconds": 30.1281
+      "latency_seconds": 33.1828
     },
     {
       "key": "GOQA_6_e5125a6a",
@@ -747,25 +752,25 @@
         "Very unfavorable"
       ],
       "model_distribution": {
-        "Very favorable": 0.25,
-        "Somewhat favorable": 0.25,
-        "Somewhat unfavorable": 0.25,
-        "Very unfavorable": 0.25
+        "Very favorable": 0.0,
+        "Somewhat favorable": 0.0,
+        "Somewhat unfavorable": 1.0,
+        "Very unfavorable": 0.0
       },
-      "jsd": 0.059641,
-      "kendall_tau": 0.0,
-      "parity": 0.72018,
-      "n_samples": 29,
-      "n_parse_failures": 1,
-      "model_refusal_rate": 1.0,
+      "jsd": 0.662458,
+      "kendall_tau": -0.235702,
+      "parity": 0.359845,
       "human_refusal_rate": 0,
+      "n_samples": 28,
+      "n_parse_failures": 2,
+      "model_refusal_rate": 0.964286,
       "temporal_year": 0,
       "token_usage": {
         "input_tokens": 60,
-        "output_tokens": 22981,
+        "output_tokens": 19296,
         "call_count": 30
       },
-      "latency_seconds": 30.1281
+      "latency_seconds": 33.1828
     },
     {
       "key": "GOQA_7_f06b55c4",
@@ -781,17 +786,17 @@
       "jsd": 0.103816,
       "kendall_tau": 1.0,
       "parity": 0.948092,
-      "n_samples": 30,
-      "n_parse_failures": 0,
-      "model_refusal_rate": 0.133333,
       "human_refusal_rate": 0,
+      "n_samples": 29,
+      "n_parse_failures": 1,
+      "model_refusal_rate": 0.103448,
       "temporal_year": 0,
       "token_usage": {
         "input_tokens": 60,
-        "output_tokens": 14478,
+        "output_tokens": 13949,
         "call_count": 30
       },
-      "latency_seconds": 30.1281
+      "latency_seconds": 33.1828
     },
     {
       "key": "GOQA_8_3a7caba0",
@@ -804,26 +809,26 @@
         "DK/Refused"
       ],
       "model_distribution": {
-        "Very big problem": 0.6333,
-        "Moderately big problem": 0.3333,
-        "Small problem": 0.0333,
+        "Very big problem": 0.8,
+        "Moderately big problem": 0.2,
+        "Small problem": 0.0,
         "Not a problem at all": 0.0,
         "DK/Refused": 0.0
       },
-      "jsd": 0.043559,
-      "kendall_tau": 0.948683,
-      "parity": 0.965391,
+      "jsd": 0.108912,
+      "kendall_tau": 0.83666,
+      "parity": 0.904709,
+      "human_refusal_rate": 0.004722,
       "n_samples": 30,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
-      "human_refusal_rate": 0.004722,
       "temporal_year": 0,
       "token_usage": {
         "input_tokens": 60,
-        "output_tokens": 2619,
+        "output_tokens": 3583,
         "call_count": 30
       },
-      "latency_seconds": 30.1281
+      "latency_seconds": 33.1828
     },
     {
       "key": "GOQA_9_72cc9ee4",
@@ -836,24 +841,24 @@
       ],
       "model_distribution": {
         "Very worried": 0.0,
-        "Somewhat worried": 1.0,
-        "Not too worried": 0.0,
+        "Somewhat worried": 0.9286,
+        "Not too worried": 0.0714,
         "Not at all worried": 0.0
       },
-      "jsd": 0.496771,
-      "kendall_tau": 0.235702,
-      "parity": 0.56054,
-      "n_samples": 28,
-      "n_parse_failures": 2,
-      "model_refusal_rate": 0.535714,
+      "jsd": 0.402163,
+      "kendall_tau": -0.182574,
+      "parity": 0.503275,
       "human_refusal_rate": 0,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.533333,
       "temporal_year": 0,
       "token_usage": {
         "input_tokens": 60,
-        "output_tokens": 15072,
+        "output_tokens": 14738,
         "call_count": 30
       },
-      "latency_seconds": 30.1281
+      "latency_seconds": 33.1828
     },
     {
       "key": "GOQA_10_996adb3c",
@@ -868,24 +873,24 @@
       "model_distribution": {
         "Being tough with China": 0.0,
         "Having a strong relationship with China": 0.0,
-        "Being tough with China on territorial disputes": 0.0333,
-        "Having a strong economic relationship with China": 0.9667,
-        "DK/Refused": 0.0
+        "Being tough with China on territorial disputes": 0.0,
+        "Having a strong economic relationship with China": 0.9615,
+        "DK/Refused": 0.0385
       },
-      "jsd": 0.731537,
-      "kendall_tau": -0.119523,
-      "parity": 0.354351,
+      "jsd": 0.742373,
+      "kendall_tau": -0.358569,
+      "parity": 0.289171,
+      "human_refusal_rate": 0.018571,
       "n_samples": 30,
       "n_parse_failures": 0,
-      "model_refusal_rate": 0.0,
-      "human_refusal_rate": 0.018571,
+      "model_refusal_rate": 0.133333,
       "temporal_year": 0,
       "token_usage": {
         "input_tokens": 60,
-        "output_tokens": 12523,
+        "output_tokens": 13893,
         "call_count": 30
       },
-      "latency_seconds": 62.1812
+      "latency_seconds": 64.6218
     },
     {
       "key": "GOQA_11_56587129",
@@ -901,17 +906,17 @@
       "jsd": 0.07494,
       "kendall_tau": 1.0,
       "parity": 0.96253,
+      "human_refusal_rate": 0,
       "n_samples": 30,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
-      "human_refusal_rate": 0,
       "temporal_year": 0,
       "token_usage": {
         "input_tokens": 60,
-        "output_tokens": 9435,
+        "output_tokens": 9273,
         "call_count": 30
       },
-      "latency_seconds": 62.1812
+      "latency_seconds": 64.6218
     },
     {
       "key": "GOQA_12_6a134fab",
@@ -924,24 +929,24 @@
       ],
       "model_distribution": {
         "Often be justified": 0.0,
-        "Sometimes be justified": 0.8,
-        "Rarely be justified": 0.2,
+        "Sometimes be justified": 1.0,
+        "Rarely be justified": 0.0,
         "Never be justified": 0.0
       },
-      "jsd": 0.351737,
-      "kendall_tau": 0.182574,
-      "parity": 0.619775,
+      "jsd": 0.526404,
+      "kendall_tau": 0.235702,
+      "parity": 0.545723,
+      "human_refusal_rate": 0,
       "n_samples": 30,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
-      "human_refusal_rate": 0,
       "temporal_year": 0,
       "token_usage": {
         "input_tokens": 60,
-        "output_tokens": 8058,
+        "output_tokens": 8612,
         "call_count": 30
       },
-      "latency_seconds": 62.1812
+      "latency_seconds": 64.6218
     },
     {
       "key": "GOQA_13_60b622de",
@@ -951,23 +956,23 @@
         "Wrong decision"
       ],
       "model_distribution": {
-        "Right decision": 0.0,
-        "Wrong decision": 1.0
+        "Right decision": 0.2,
+        "Wrong decision": 0.8
       },
-      "jsd": 0.275907,
+      "jsd": 0.053979,
       "kendall_tau": 1.0,
-      "parity": 0.862047,
-      "n_samples": 27,
-      "n_parse_failures": 3,
-      "model_refusal_rate": 0.888889,
+      "parity": 0.97301,
       "human_refusal_rate": 0,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.833333,
       "temporal_year": 0,
       "token_usage": {
         "input_tokens": 60,
-        "output_tokens": 17450,
+        "output_tokens": 15735,
         "call_count": 30
       },
-      "latency_seconds": 62.1812
+      "latency_seconds": 64.6218
     },
     {
       "key": "GOQA_14_e32efdb2",
@@ -977,23 +982,23 @@
         "Remove its troops"
       ],
       "model_distribution": {
-        "Keep troops in Iraq": 0.5882,
-        "Remove its troops": 0.4118
+        "Keep troops in Iraq": 0.9412,
+        "Remove its troops": 0.0588
       },
-      "jsd": 0.084629,
+      "jsd": 0.402469,
       "kendall_tau": -1.0,
-      "parity": 0.457686,
+      "parity": 0.298765,
+      "human_refusal_rate": 0,
       "n_samples": 30,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.433333,
-      "human_refusal_rate": 0,
       "temporal_year": 0,
       "token_usage": {
         "input_tokens": 60,
-        "output_tokens": 16650,
+        "output_tokens": 18187,
         "call_count": 30
       },
-      "latency_seconds": 62.1812
+      "latency_seconds": 64.6218
     },
     {
       "key": "GOQA_15_b3fdeab2",
@@ -1004,24 +1009,24 @@
         "DK/Refused"
       ],
       "model_distribution": {
-        "Approve": 0.0,
-        "Disapprove": 0.7,
-        "DK/Refused": 0.3
+        "Approve": 0.125,
+        "Disapprove": 0.5,
+        "DK/Refused": 0.375
       },
-      "jsd": 0.376822,
+      "jsd": 0.19576,
       "kendall_tau": -0.333333,
-      "parity": 0.478256,
-      "n_samples": 27,
-      "n_parse_failures": 3,
-      "model_refusal_rate": 0.62963,
+      "parity": 0.568787,
       "human_refusal_rate": 0.08,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.733333,
       "temporal_year": 0,
       "token_usage": {
         "input_tokens": 60,
-        "output_tokens": 19033,
+        "output_tokens": 19950,
         "call_count": 30
       },
-      "latency_seconds": 62.1812
+      "latency_seconds": 64.6218
     },
     {
       "key": "GOQA_16_b33656e1",
@@ -1043,17 +1048,17 @@
       "jsd": 0.179094,
       "kendall_tau": 0.632456,
       "parity": 0.818567,
+      "human_refusal_rate": 0.050025,
       "n_samples": 30,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
-      "human_refusal_rate": 0.050025,
       "temporal_year": 0,
       "token_usage": {
         "input_tokens": 60,
-        "output_tokens": 7713,
+        "output_tokens": 8041,
         "call_count": 30
       },
-      "latency_seconds": 62.1812
+      "latency_seconds": 64.6218
     },
     {
       "key": "GOQA_17_9d6f6c27",
@@ -1066,26 +1071,26 @@
         "None (VOL)"
       ],
       "model_distribution": {
-        "PRI": 0.0526,
-        "PAN": 0.0,
+        "PRI": 0.0357,
+        "PAN": 0.0714,
         "PRD": 0.0,
         "Other (VOL)": 0.0,
-        "None (VOL)": 0.9474
+        "None (VOL)": 0.8929
       },
-      "jsd": 0.408282,
-      "kendall_tau": 0.755929,
-      "parity": 0.734841,
+      "jsd": 0.316864,
+      "kendall_tau": 0.888889,
+      "parity": 0.81379,
+      "human_refusal_rate": 0,
       "n_samples": 30,
       "n_parse_failures": 0,
-      "model_refusal_rate": 0.366667,
-      "human_refusal_rate": 0,
+      "model_refusal_rate": 0.066667,
       "temporal_year": 0,
       "token_usage": {
         "input_tokens": 60,
-        "output_tokens": 25262,
+        "output_tokens": 19089,
         "call_count": 30
       },
-      "latency_seconds": 62.1812
+      "latency_seconds": 64.6218
     },
     {
       "key": "GOQA_18_6565d4ba",
@@ -1105,17 +1110,17 @@
       "jsd": 0.856443,
       "kendall_tau": -0.707107,
       "parity": 0.145002,
+      "human_refusal_rate": 0,
       "n_samples": 30,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
-      "human_refusal_rate": 0,
       "temporal_year": 0,
       "token_usage": {
         "input_tokens": 60,
-        "output_tokens": 9028,
+        "output_tokens": 8438,
         "call_count": 30
       },
-      "latency_seconds": 62.1812
+      "latency_seconds": 64.6218
     },
     {
       "key": "GOQA_19_a2004952",
@@ -1127,25 +1132,25 @@
         "Not well at all"
       ],
       "model_distribution": {
-        "Very well": 0.9231,
-        "Somewhat well": 0.0769,
+        "Very well": 0.8889,
+        "Somewhat well": 0.1111,
         "Not too well": 0.0,
         "Not well at all": 0.0
       },
-      "jsd": 0.334373,
+      "jsd": 0.3022,
       "kendall_tau": 0.547723,
-      "parity": 0.719744,
-      "n_samples": 29,
-      "n_parse_failures": 1,
-      "model_refusal_rate": 0.551724,
+      "parity": 0.735831,
       "human_refusal_rate": 0,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.4,
       "temporal_year": 0,
       "token_usage": {
         "input_tokens": 60,
-        "output_tokens": 17699,
+        "output_tokens": 16281,
         "call_count": 30
       },
-      "latency_seconds": 62.1812
+      "latency_seconds": 64.6218
     },
     {
       "key": "GOQA_20_b4f3d7a6",
@@ -1157,25 +1162,25 @@
         "Very poor"
       ],
       "model_distribution": {
-        "Very good": 0.1304,
-        "Somewhat good": 0.1739,
-        "Somewhat poor": 0.6957,
+        "Very good": 0.0,
+        "Somewhat good": 0.0,
+        "Somewhat poor": 1.0,
         "Very poor": 0.0
       },
-      "jsd": 0.256751,
-      "kendall_tau": 0.333333,
-      "parity": 0.704958,
-      "n_samples": 23,
-      "n_parse_failures": 7,
-      "model_refusal_rate": 0.0,
+      "jsd": 0.366681,
+      "kendall_tau": 0.707107,
+      "parity": 0.743436,
       "human_refusal_rate": 0,
+      "n_samples": 27,
+      "n_parse_failures": 3,
+      "model_refusal_rate": 0.0,
       "temporal_year": 0,
       "token_usage": {
         "input_tokens": 60,
-        "output_tokens": 14062,
+        "output_tokens": 14176,
         "call_count": 30
       },
-      "latency_seconds": 90.3812
+      "latency_seconds": 97.1593
     },
     {
       "key": "GOQA_21_e28aec32",
@@ -1193,17 +1198,17 @@
       "jsd": 0.511865,
       "kendall_tau": 0.0,
       "parity": 0.494067,
+      "human_refusal_rate": 0,
       "n_samples": 30,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
-      "human_refusal_rate": 0,
       "temporal_year": 0,
       "token_usage": {
         "input_tokens": 60,
-        "output_tokens": 8493,
+        "output_tokens": 9056,
         "call_count": 30
       },
-      "latency_seconds": 90.3812
+      "latency_seconds": 97.1593
     },
     {
       "key": "GOQA_22_37912b82",
@@ -1213,23 +1218,23 @@
         "Cannot live together"
       ],
       "model_distribution": {
-        "Can live together": 1.0,
-        "Cannot live together": 0.0
+        "Can live together": 0.9,
+        "Cannot live together": 0.1
       },
-      "jsd": 0.265232,
+      "jsd": 0.112069,
       "kendall_tau": 1.0,
-      "parity": 0.867384,
-      "n_samples": 29,
-      "n_parse_failures": 1,
-      "model_refusal_rate": 0.241379,
+      "parity": 0.943965,
       "human_refusal_rate": 0,
+      "n_samples": 27,
+      "n_parse_failures": 3,
+      "model_refusal_rate": 0.259259,
       "temporal_year": 0,
       "token_usage": {
         "input_tokens": 60,
-        "output_tokens": 15023,
+        "output_tokens": 15201,
         "call_count": 30
       },
-      "latency_seconds": 90.3812
+      "latency_seconds": 97.1593
     },
     {
       "key": "GOQA_23_22156b82",
@@ -1249,17 +1254,17 @@
       "jsd": 0.038823,
       "kendall_tau": 0.0,
       "parity": 0.730588,
+      "human_refusal_rate": 0,
       "n_samples": 21,
       "n_parse_failures": 9,
       "model_refusal_rate": 1.0,
-      "human_refusal_rate": 0,
       "temporal_year": 0,
       "token_usage": {
         "input_tokens": 60,
-        "output_tokens": 17770,
+        "output_tokens": 17529,
         "call_count": 30
       },
-      "latency_seconds": 90.3812
+      "latency_seconds": 97.1593
     },
     {
       "key": "GOQA_24_fcc32e08",
@@ -1274,26 +1279,26 @@
       ],
       "model_distribution": {
         "Very satisfied": 0.0,
-        "Somewhat satisfied": 0.5714,
-        "Not too satisfied": 0.4286,
+        "Somewhat satisfied": 0.7778,
+        "Not too satisfied": 0.2222,
         "Not at all satisfied": 0.0,
         "Don't know/Refused": 0.0,
         "DK/Refused": 0.0
       },
-      "jsd": 0.199117,
+      "jsd": 0.232425,
       "kendall_tau": 0.774597,
-      "parity": 0.84409,
+      "parity": 0.827437,
+      "human_refusal_rate": 0.019768,
       "n_samples": 30,
       "n_parse_failures": 0,
-      "model_refusal_rate": 0.066667,
-      "human_refusal_rate": 0.019768,
+      "model_refusal_rate": 0.1,
       "temporal_year": 0,
       "token_usage": {
         "input_tokens": 60,
-        "output_tokens": 9717,
+        "output_tokens": 11304,
         "call_count": 30
       },
-      "latency_seconds": 90.3812
+      "latency_seconds": 97.1593
     },
     {
       "key": "GOQA_25_aeff64c7",
@@ -1308,24 +1313,24 @@
       "model_distribution": {
         "A lot of confidence": 0.0,
         "Some confidence": 0.0,
-        "Not too much confidence": 0.3333,
-        "No confidence at all": 0.0667,
-        "DK/Refused": 0.6
+        "Not too much confidence": 0.4375,
+        "No confidence at all": 0.0,
+        "DK/Refused": 0.5625
       },
-      "jsd": 0.211512,
-      "kendall_tau": 0.527046,
-      "parity": 0.776006,
+      "jsd": 0.304239,
+      "kendall_tau": 0.358569,
+      "parity": 0.687523,
+      "human_refusal_rate": 0.304404,
       "n_samples": 29,
       "n_parse_failures": 1,
-      "model_refusal_rate": 0.482759,
-      "human_refusal_rate": 0.304404,
+      "model_refusal_rate": 0.448276,
       "temporal_year": 0,
       "token_usage": {
         "input_tokens": 60,
-        "output_tokens": 19591,
+        "output_tokens": 18699,
         "call_count": 30
       },
-      "latency_seconds": 90.3812
+      "latency_seconds": 97.1593
     },
     {
       "key": "GOQA_26_e98eb96f",
@@ -1343,17 +1348,17 @@
       "jsd": 0.125364,
       "kendall_tau": 0.816497,
       "parity": 0.891442,
+      "human_refusal_rate": 0,
       "n_samples": 30,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
-      "human_refusal_rate": 0,
       "temporal_year": 0,
       "token_usage": {
         "input_tokens": 60,
-        "output_tokens": 12101,
+        "output_tokens": 11782,
         "call_count": 30
       },
-      "latency_seconds": 90.3812
+      "latency_seconds": 97.1593
     },
     {
       "key": "GOQA_27_dec7a01d",
@@ -1375,17 +1380,17 @@
       "jsd": 0.487806,
       "kendall_tau": 0.316228,
       "parity": 0.585154,
+      "human_refusal_rate": 0.011212,
       "n_samples": 30,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
-      "human_refusal_rate": 0.011212,
       "temporal_year": 0,
       "token_usage": {
         "input_tokens": 60,
-        "output_tokens": 6926,
+        "output_tokens": 7090,
         "call_count": 30
       },
-      "latency_seconds": 90.3812
+      "latency_seconds": 97.1593
     },
     {
       "key": "GOQA_28_676f2eb8",
@@ -1401,17 +1406,17 @@
       "jsd": 0.166374,
       "kendall_tau": 1.0,
       "parity": 0.916813,
-      "n_samples": 30,
-      "n_parse_failures": 0,
-      "model_refusal_rate": 0.833333,
       "human_refusal_rate": 0,
+      "n_samples": 29,
+      "n_parse_failures": 1,
+      "model_refusal_rate": 0.655172,
       "temporal_year": 0,
       "token_usage": {
         "input_tokens": 60,
-        "output_tokens": 18695,
+        "output_tokens": 17450,
         "call_count": 30
       },
-      "latency_seconds": 90.3812
+      "latency_seconds": 97.1593
     },
     {
       "key": "GOQA_29_a47e2d41",
@@ -1421,23 +1426,23 @@
         "No"
       ],
       "model_distribution": {
-        "Yes": 0.9667,
-        "No": 0.0333
+        "Yes": 1.0,
+        "No": 0.0
       },
-      "jsd": 0.013763,
+      "jsd": 0.052444,
       "kendall_tau": 1.0,
-      "parity": 0.993118,
+      "parity": 0.973778,
+      "human_refusal_rate": 0,
       "n_samples": 30,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
-      "human_refusal_rate": 0,
       "temporal_year": 0,
       "token_usage": {
         "input_tokens": 60,
-        "output_tokens": 6526,
+        "output_tokens": 7340,
         "call_count": 30
       },
-      "latency_seconds": 90.3812
+      "latency_seconds": 97.1593
     },
     {
       "key": "GOQA_30_bca03022",
@@ -1457,17 +1462,17 @@
       "jsd": 0.005766,
       "kendall_tau": 0.0,
       "parity": 0.747117,
-      "n_samples": 26,
-      "n_parse_failures": 4,
-      "model_refusal_rate": 1.0,
       "human_refusal_rate": 0,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 1.0,
       "temporal_year": 0,
       "token_usage": {
         "input_tokens": 60,
-        "output_tokens": 15948,
+        "output_tokens": 17461,
         "call_count": 30
       },
-      "latency_seconds": 117.2515
+      "latency_seconds": 124.3968
     },
     {
       "key": "GOQA_31_f1a89f60",
@@ -1480,24 +1485,24 @@
       ],
       "model_distribution": {
         "Very big problem": 0.0,
-        "Moderately big problem": 0.0741,
-        "Small problem": 0.5185,
-        "Not a problem at all": 0.4074
+        "Moderately big problem": 0.0357,
+        "Small problem": 0.6786,
+        "Not a problem at all": 0.2857
       },
-      "jsd": 0.45313,
+      "jsd": 0.503024,
       "kendall_tau": -0.666667,
-      "parity": 0.356768,
+      "parity": 0.331821,
+      "human_refusal_rate": 0,
       "n_samples": 30,
       "n_parse_failures": 0,
-      "model_refusal_rate": 0.1,
-      "human_refusal_rate": 0,
+      "model_refusal_rate": 0.066667,
       "temporal_year": 0,
       "token_usage": {
         "input_tokens": 60,
-        "output_tokens": 13176,
+        "output_tokens": 10660,
         "call_count": 30
       },
-      "latency_seconds": 117.2515
+      "latency_seconds": 124.3968
     },
     {
       "key": "GOQA_32_76dc5592",
@@ -1511,23 +1516,23 @@
       "model_distribution": {
         "Completely agree": 0.0,
         "Mostly agree": 0.0,
-        "Mostly disagree": 0.3333,
-        "Completely disagree": 0.6667
+        "Mostly disagree": 0.25,
+        "Completely disagree": 0.75
       },
-      "jsd": 0.435949,
+      "jsd": 0.46125,
       "kendall_tau": -0.547723,
-      "parity": 0.395095,
-      "n_samples": 29,
-      "n_parse_failures": 1,
-      "model_refusal_rate": 0.689655,
+      "parity": 0.382444,
       "human_refusal_rate": 0,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.733333,
       "temporal_year": 0,
       "token_usage": {
         "input_tokens": 60,
-        "output_tokens": 20029,
+        "output_tokens": 19575,
         "call_count": 30
       },
-      "latency_seconds": 117.2515
+      "latency_seconds": 124.3968
     },
     {
       "key": "GOQA_33_adfa47b9",
@@ -1539,25 +1544,25 @@
         "DK/Refused"
       ],
       "model_distribution": {
-        "Major threat": 0.6897,
-        "Minor threat": 0.3103,
+        "Major threat": 0.7,
+        "Minor threat": 0.3,
         "Not a threat": 0.0,
         "DK/Refused": 0.0
       },
-      "jsd": 0.070345,
+      "jsd": 0.068439,
       "kendall_tau": 0.912871,
-      "parity": 0.943045,
+      "parity": 0.943998,
+      "human_refusal_rate": 0.050769,
       "n_samples": 30,
       "n_parse_failures": 0,
-      "model_refusal_rate": 0.033333,
-      "human_refusal_rate": 0.050769,
+      "model_refusal_rate": 0.0,
       "temporal_year": 0,
       "token_usage": {
         "input_tokens": 60,
-        "output_tokens": 10632,
+        "output_tokens": 11207,
         "call_count": 30
       },
-      "latency_seconds": 117.2515
+      "latency_seconds": 124.3968
     },
     {
       "key": "GOQA_34_0f67d596",
@@ -1567,23 +1572,23 @@
         "No, does not respect personal freedoms"
       ],
       "model_distribution": {
-        "Yes, respects personal freedoms": 0.8889,
-        "No, does not respect personal freedoms": 0.1111
+        "Yes, respects personal freedoms": 0.9259,
+        "No, does not respect personal freedoms": 0.0741
       },
-      "jsd": 0.351381,
+      "jsd": 0.405263,
       "kendall_tau": -1.0,
-      "parity": 0.32431,
-      "n_samples": 30,
-      "n_parse_failures": 0,
-      "model_refusal_rate": 0.1,
+      "parity": 0.297368,
       "human_refusal_rate": 0,
+      "n_samples": 28,
+      "n_parse_failures": 2,
+      "model_refusal_rate": 0.035714,
       "temporal_year": 0,
       "token_usage": {
         "input_tokens": 60,
-        "output_tokens": 19849,
+        "output_tokens": 18522,
         "call_count": 30
       },
-      "latency_seconds": 117.2515
+      "latency_seconds": 124.3968
     },
     {
       "key": "GOQA_35_b8555e45",
@@ -1595,25 +1600,25 @@
         "Not a problem at all"
       ],
       "model_distribution": {
-        "Very big problem": 1.0,
-        "Moderately big problem": 0.0,
+        "Very big problem": 0.9667,
+        "Moderately big problem": 0.0333,
         "Small problem": 0.0,
         "Not a problem at all": 0.0
       },
-      "jsd": 0.15196,
-      "kendall_tau": 0.707107,
-      "parity": 0.850797,
+      "jsd": 0.096022,
+      "kendall_tau": 0.912871,
+      "parity": 0.930207,
+      "human_refusal_rate": 0,
       "n_samples": 30,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
-      "human_refusal_rate": 0,
       "temporal_year": 0,
       "token_usage": {
         "input_tokens": 60,
-        "output_tokens": 4586,
+        "output_tokens": 4064,
         "call_count": 30
       },
-      "latency_seconds": 117.2515
+      "latency_seconds": 124.3968
     },
     {
       "key": "GOQA_36_2cc0537a",
@@ -1627,25 +1632,25 @@
       ],
       "model_distribution": {
         "Very serious threat": 0.0,
-        "Somewhat serious threat": 0.4,
-        "Minor threat": 0.5667,
-        "No threat at all": 0.0333,
+        "Somewhat serious threat": 0.6,
+        "Minor threat": 0.4,
+        "No threat at all": 0.0,
         "DK/Refused": 0.0
       },
-      "jsd": 0.557729,
-      "kendall_tau": -0.316228,
-      "parity": 0.392079,
+      "jsd": 0.567569,
+      "kendall_tau": 0.119523,
+      "parity": 0.496096,
+      "human_refusal_rate": 0.16,
       "n_samples": 30,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
-      "human_refusal_rate": 0.16,
       "temporal_year": 0,
       "token_usage": {
         "input_tokens": 60,
-        "output_tokens": 10704,
+        "output_tokens": 11869,
         "call_count": 30
       },
-      "latency_seconds": 117.2515
+      "latency_seconds": 124.3968
     },
     {
       "key": "GOQA_37_0a59d5ad",
@@ -1661,17 +1666,17 @@
       "jsd": 0.214817,
       "kendall_tau": 1.0,
       "parity": 0.892591,
+      "human_refusal_rate": 0,
       "n_samples": 30,
       "n_parse_failures": 0,
-      "model_refusal_rate": 0.0,
-      "human_refusal_rate": 0,
+      "model_refusal_rate": 0.033333,
       "temporal_year": 0,
       "token_usage": {
         "input_tokens": 60,
-        "output_tokens": 9320,
+        "output_tokens": 10835,
         "call_count": 30
       },
-      "latency_seconds": 117.2515
+      "latency_seconds": 124.3968
     },
     {
       "key": "GOQA_38_0a93671f",
@@ -1695,17 +1700,17 @@
       "jsd": 0.405107,
       "kendall_tau": 0.57735,
       "parity": 0.691784,
+      "human_refusal_rate": 0.055441,
       "n_samples": 30,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
-      "human_refusal_rate": 0.055441,
       "temporal_year": 0,
       "token_usage": {
         "input_tokens": 60,
-        "output_tokens": 7149,
+        "output_tokens": 6861,
         "call_count": 30
       },
-      "latency_seconds": 117.2515
+      "latency_seconds": 124.3968
     },
     {
       "key": "GOQA_39_febec555",
@@ -1721,17 +1726,17 @@
       "jsd": 0.020294,
       "kendall_tau": 1.0,
       "parity": 0.989853,
+      "human_refusal_rate": 0,
       "n_samples": 30,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
-      "human_refusal_rate": 0,
       "temporal_year": 0,
       "token_usage": {
         "input_tokens": 60,
-        "output_tokens": 6564,
+        "output_tokens": 7335,
         "call_count": 30
       },
-      "latency_seconds": 117.2515
+      "latency_seconds": 124.3968
     },
     {
       "key": "GOQA_40_406ad9b5",
@@ -1751,17 +1756,17 @@
       "jsd": 0.017438,
       "kendall_tau": 0.0,
       "parity": 0.741281,
+      "human_refusal_rate": 0,
       "n_samples": 30,
       "n_parse_failures": 0,
       "model_refusal_rate": 1.0,
-      "human_refusal_rate": 0,
       "temporal_year": 0,
       "token_usage": {
         "input_tokens": 60,
-        "output_tokens": 14522,
+        "output_tokens": 13413,
         "call_count": 30
       },
-      "latency_seconds": 145.5093
+      "latency_seconds": 121.1109
     },
     {
       "key": "GOQA_41_f73803a1",
@@ -1772,24 +1777,24 @@
         "Both/neither (VOL)"
       ],
       "model_distribution": {
-        "Use military force to fight the rebels": 0.0,
-        "Negotiate a settlement with the rebels and Russia": 0.6923,
-        "Both/neither (VOL)": 0.3077
+        "Use military force to fight the rebels": 0.0476,
+        "Negotiate a settlement with the rebels and Russia": 0.7619,
+        "Both/neither (VOL)": 0.1905
       },
-      "jsd": 0.143384,
+      "jsd": 0.073431,
       "kendall_tau": 0.333333,
-      "parity": 0.761642,
-      "n_samples": 28,
-      "n_parse_failures": 2,
-      "model_refusal_rate": 0.535714,
+      "parity": 0.796618,
       "human_refusal_rate": 0,
+      "n_samples": 29,
+      "n_parse_failures": 1,
+      "model_refusal_rate": 0.275862,
       "temporal_year": 0,
       "token_usage": {
         "input_tokens": 60,
-        "output_tokens": 19822,
+        "output_tokens": 18165,
         "call_count": 30
       },
-      "latency_seconds": 145.5093
+      "latency_seconds": 121.1109
     },
     {
       "key": "GOQA_42_fa4a4441",
@@ -1807,17 +1812,17 @@
       "jsd": 0.567623,
       "kendall_tau": -0.816497,
       "parity": 0.262065,
+      "human_refusal_rate": 0,
       "n_samples": 30,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
-      "human_refusal_rate": 0,
       "temporal_year": 0,
       "token_usage": {
         "input_tokens": 60,
-        "output_tokens": 8017,
+        "output_tokens": 9013,
         "call_count": 30
       },
-      "latency_seconds": 145.5093
+      "latency_seconds": 121.1109
     },
     {
       "key": "GOQA_43_723c4877",
@@ -1833,17 +1838,17 @@
       "jsd": 0.243842,
       "kendall_tau": 1.0,
       "parity": 0.878079,
-      "n_samples": 10,
-      "n_parse_failures": 20,
-      "model_refusal_rate": 0.4,
       "human_refusal_rate": 0,
+      "n_samples": 12,
+      "n_parse_failures": 18,
+      "model_refusal_rate": 0.166667,
       "temporal_year": 0,
       "token_usage": {
         "input_tokens": 60,
-        "output_tokens": 16059,
+        "output_tokens": 15325,
         "call_count": 30
       },
-      "latency_seconds": 145.5093
+      "latency_seconds": 121.1109
     },
     {
       "key": "GOQA_44_146e5f30",
@@ -1853,23 +1858,23 @@
         "No"
       ],
       "model_distribution": {
-        "Yes": 0.7,
-        "No": 0.3
+        "Yes": 0.7333,
+        "No": 0.2667
       },
-      "jsd": 0.045849,
+      "jsd": 0.059969,
       "kendall_tau": -1.0,
-      "parity": 0.477076,
+      "parity": 0.470015,
+      "human_refusal_rate": 0,
       "n_samples": 30,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
-      "human_refusal_rate": 0,
       "temporal_year": 0,
       "token_usage": {
         "input_tokens": 60,
-        "output_tokens": 8325,
+        "output_tokens": 7655,
         "call_count": 30
       },
-      "latency_seconds": 145.5093
+      "latency_seconds": 121.1109
     },
     {
       "key": "GOQA_45_c715df85",
@@ -1881,23 +1886,23 @@
       ],
       "model_distribution": {
         "Approve": 0.0,
-        "Disapprove": 0.8824,
-        "DK/Refused": 0.1176
+        "Disapprove": 0.8182,
+        "DK/Refused": 0.1818
       },
-      "jsd": 0.122819,
+      "jsd": 0.14411,
       "kendall_tau": 0.333333,
-      "parity": 0.771924,
-      "n_samples": 28,
-      "n_parse_failures": 2,
-      "model_refusal_rate": 0.392857,
+      "parity": 0.761279,
       "human_refusal_rate": 0.03,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.266667,
       "temporal_year": 0,
       "token_usage": {
         "input_tokens": 60,
-        "output_tokens": 20132,
+        "output_tokens": 21206,
         "call_count": 30
       },
-      "latency_seconds": 145.5093
+      "latency_seconds": 121.1109
     },
     {
       "key": "GOQA_46_3b67d9e7",
@@ -1917,17 +1922,17 @@
       "jsd": 0.38919,
       "kendall_tau": 0.707107,
       "parity": 0.732182,
+      "human_refusal_rate": 0,
       "n_samples": 30,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.033333,
-      "human_refusal_rate": 0,
       "temporal_year": 0,
       "token_usage": {
         "input_tokens": 60,
-        "output_tokens": 10668,
+        "output_tokens": 10342,
         "call_count": 30
       },
-      "latency_seconds": 145.5093
+      "latency_seconds": 121.1109
     },
     {
       "key": "GOQA_47_88f80aa3",
@@ -1943,17 +1948,17 @@
       "jsd": 0.323537,
       "kendall_tau": -1.0,
       "parity": 0.338232,
+      "human_refusal_rate": 0,
       "n_samples": 30,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
-      "human_refusal_rate": 0,
       "temporal_year": 0,
       "token_usage": {
         "input_tokens": 60,
-        "output_tokens": 8406,
+        "output_tokens": 7756,
         "call_count": 30
       },
-      "latency_seconds": 145.5093
+      "latency_seconds": 121.1109
     },
     {
       "key": "GOQA_48_82c7a187",
@@ -1977,27 +1982,27 @@
         "2.0": 0.0,
         "3.0": 0.0,
         "4.0": 0.0,
-        "5.0": 0.0,
-        "6.0": 0.0435,
-        "7.0": 0.8696,
-        "8.0": 0.087,
+        "5.0": 0.05,
+        "6.0": 0.0,
+        "7.0": 0.7,
+        "8.0": 0.25,
         "9.0": 0.0,
         "10.0": 0.0
       },
-      "jsd": 0.468783,
-      "kendall_tau": 0.493049,
-      "parity": 0.638871,
-      "n_samples": 28,
-      "n_parse_failures": 2,
-      "model_refusal_rate": 0.178571,
+      "jsd": 0.399386,
+      "kendall_tau": 0.544949,
+      "parity": 0.686544,
       "human_refusal_rate": 0,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.333333,
       "temporal_year": 0,
       "token_usage": {
         "input_tokens": 60,
-        "output_tokens": 14259,
+        "output_tokens": 14671,
         "call_count": 30
       },
-      "latency_seconds": 145.5093
+      "latency_seconds": 121.1109
     },
     {
       "key": "GOQA_49_77581743",
@@ -2017,17 +2022,17 @@
       "jsd": 0.235699,
       "kendall_tau": 0.707107,
       "parity": 0.808927,
+      "human_refusal_rate": 0,
       "n_samples": 30,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
-      "human_refusal_rate": 0,
       "temporal_year": 0,
       "token_usage": {
         "input_tokens": 60,
-        "output_tokens": 7321,
+        "output_tokens": 7537,
         "call_count": 30
       },
-      "latency_seconds": 145.5093
+      "latency_seconds": 121.1109
     },
     {
       "key": "GOQA_50_336b4131",
@@ -2051,17 +2056,17 @@
       "jsd": 0.380466,
       "kendall_tau": 0.57735,
       "parity": 0.704105,
+      "human_refusal_rate": 0.027977,
       "n_samples": 30,
       "n_parse_failures": 0,
-      "model_refusal_rate": 0.366667,
-      "human_refusal_rate": 0.027977,
+      "model_refusal_rate": 0.3,
       "temporal_year": 0,
       "token_usage": {
         "input_tokens": 60,
-        "output_tokens": 13845,
+        "output_tokens": 14177,
         "call_count": 30
       },
-      "latency_seconds": 191.1718
+      "latency_seconds": 115.0641
     },
     {
       "key": "GOQA_51_7f8ddb52",
@@ -2079,17 +2084,17 @@
       "jsd": 0.537267,
       "kendall_tau": -0.816497,
       "parity": 0.277242,
-      "n_samples": 28,
-      "n_parse_failures": 2,
-      "model_refusal_rate": 0.571429,
       "human_refusal_rate": 0,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.433333,
       "temporal_year": 0,
       "token_usage": {
         "input_tokens": 60,
-        "output_tokens": 15938,
+        "output_tokens": 13856,
         "call_count": 30
       },
-      "latency_seconds": 191.1718
+      "latency_seconds": 115.0641
     },
     {
       "key": "GOQA_52_3eaf2ae3",
@@ -2105,17 +2110,17 @@
       "jsd": 0.316479,
       "kendall_tau": -1.0,
       "parity": 0.34176,
+      "human_refusal_rate": 0,
       "n_samples": 30,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
-      "human_refusal_rate": 0,
       "temporal_year": 0,
       "token_usage": {
         "input_tokens": 60,
-        "output_tokens": 9365,
+        "output_tokens": 9458,
         "call_count": 30
       },
-      "latency_seconds": 191.1718
+      "latency_seconds": 115.0641
     },
     {
       "key": "GOQA_53_63551b2d",
@@ -2127,25 +2132,25 @@
         "Not a priority at all"
       ],
       "model_distribution": {
-        "One of the most important priorities": 1.0,
-        "A very important priority": 0.0,
+        "One of the most important priorities": 0.9667,
+        "A very important priority": 0.0333,
         "A lower priority": 0.0,
         "Not a priority at all": 0.0
       },
-      "jsd": 0.191867,
-      "kendall_tau": 0.707107,
-      "parity": 0.830843,
+      "jsd": 0.127729,
+      "kendall_tau": 0.912871,
+      "parity": 0.914353,
+      "human_refusal_rate": 0,
       "n_samples": 30,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
-      "human_refusal_rate": 0,
       "temporal_year": 0,
       "token_usage": {
         "input_tokens": 60,
-        "output_tokens": 6123,
+        "output_tokens": 5867,
         "call_count": 30
       },
-      "latency_seconds": 191.1718
+      "latency_seconds": 115.0641
     },
     {
       "key": "GOQA_54_f6124585",
@@ -2165,17 +2170,17 @@
       "jsd": 0.760502,
       "kendall_tau": -0.707107,
       "parity": 0.192972,
+      "human_refusal_rate": 0,
       "n_samples": 30,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
-      "human_refusal_rate": 0,
       "temporal_year": 0,
       "token_usage": {
         "input_tokens": 60,
-        "output_tokens": 10123,
+        "output_tokens": 9978,
         "call_count": 30
       },
-      "latency_seconds": 191.1718
+      "latency_seconds": 115.0641
     },
     {
       "key": "GOQA_55_18566aa0",
@@ -2193,17 +2198,17 @@
       "jsd": 0.229087,
       "kendall_tau": 0.816497,
       "parity": 0.839581,
+      "human_refusal_rate": 0.041452,
       "n_samples": 30,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
-      "human_refusal_rate": 0.041452,
       "temporal_year": 0,
       "token_usage": {
         "input_tokens": 60,
-        "output_tokens": 4583,
+        "output_tokens": 4819,
         "call_count": 30
       },
-      "latency_seconds": 191.1718
+      "latency_seconds": 115.0641
     },
     {
       "key": "GOQA_56_1b93b3b0",
@@ -2219,17 +2224,17 @@
       "jsd": 0.319309,
       "kendall_tau": -1.0,
       "parity": 0.340346,
+      "human_refusal_rate": 0,
       "n_samples": 30,
       "n_parse_failures": 0,
-      "model_refusal_rate": 0.066667,
-      "human_refusal_rate": 0,
+      "model_refusal_rate": 0.0,
       "temporal_year": 0,
       "token_usage": {
         "input_tokens": 60,
-        "output_tokens": 9369,
+        "output_tokens": 9285,
         "call_count": 30
       },
-      "latency_seconds": 191.1718
+      "latency_seconds": 115.0641
     },
     {
       "key": "GOQA_57_ca71b519",
@@ -2240,24 +2245,24 @@
         "DK/Refused"
       ],
       "model_distribution": {
-        "Approve": 0.0,
-        "Disapprove": 0.8889,
-        "DK/Refused": 0.1111
+        "Approve": 0.0345,
+        "Disapprove": 0.7586,
+        "DK/Refused": 0.2069
       },
-      "jsd": 0.227894,
+      "jsd": 0.153493,
       "kendall_tau": 0.333333,
-      "parity": 0.719386,
+      "parity": 0.756587,
+      "human_refusal_rate": 0.099832,
       "n_samples": 30,
       "n_parse_failures": 0,
-      "model_refusal_rate": 0.1,
-      "human_refusal_rate": 0.099832,
+      "model_refusal_rate": 0.033333,
       "temporal_year": 0,
       "token_usage": {
         "input_tokens": 60,
-        "output_tokens": 9144,
+        "output_tokens": 9763,
         "call_count": 30
       },
-      "latency_seconds": 191.1718
+      "latency_seconds": 115.0641
     },
     {
       "key": "GOQA_58_986bb318",
@@ -2277,17 +2282,17 @@
       "jsd": 0.609987,
       "kendall_tau": -0.235702,
       "parity": 0.386081,
+      "human_refusal_rate": 0,
       "n_samples": 30,
       "n_parse_failures": 0,
-      "model_refusal_rate": 0.3,
-      "human_refusal_rate": 0,
+      "model_refusal_rate": 0.1,
       "temporal_year": 0,
       "token_usage": {
         "input_tokens": 60,
-        "output_tokens": 14965,
+        "output_tokens": 12774,
         "call_count": 30
       },
-      "latency_seconds": 191.1718
+      "latency_seconds": 115.0641
     },
     {
       "key": "GOQA_59_06260d4f",
@@ -2297,23 +2302,23 @@
         "He takes into account European interests"
       ],
       "model_distribution": {
-        "He makes decisions based entirely on U.S. interests": 0.7333,
-        "He takes into account European interests": 0.2667
+        "He makes decisions based entirely on U.S. interests": 0.7241,
+        "He takes into account European interests": 0.2759
       },
-      "jsd": 0.005205,
+      "jsd": 0.006544,
       "kendall_tau": 1.0,
-      "parity": 0.997398,
-      "n_samples": 30,
-      "n_parse_failures": 0,
-      "model_refusal_rate": 0.0,
+      "parity": 0.996728,
       "human_refusal_rate": 0,
+      "n_samples": 29,
+      "n_parse_failures": 1,
+      "model_refusal_rate": 0.0,
       "temporal_year": 0,
       "token_usage": {
         "input_tokens": 60,
-        "output_tokens": 15977,
+        "output_tokens": 14635,
         "call_count": 30
       },
-      "latency_seconds": 191.1718
+      "latency_seconds": 115.0641
     },
     {
       "key": "GOQA_60_cde6942e",
@@ -2327,27 +2332,27 @@
         "None of the above (VOL)"
       ],
       "model_distribution": {
-        "World War II and the Holocaust": 1.0,
-        "The Marshall Plan": 0.0,
+        "World War II and the Holocaust": 0.9667,
+        "The Marshall Plan": 0.0333,
         "The fall of the Berlin Wall": 0.0,
         "U.S.-German disagreements over the Iraq War": 0.0,
         "U.S. monitoring of [U.S. ONLY: German Chancellor] Angela Merkel's communications": 0.0,
         "None of the above (VOL)": 0.0
       },
-      "jsd": 0.436517,
-      "kendall_tau": 0.57735,
-      "parity": 0.676079,
+      "jsd": 0.385632,
+      "kendall_tau": 0.602464,
+      "parity": 0.7078,
+      "human_refusal_rate": 0,
       "n_samples": 30,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
-      "human_refusal_rate": 0,
       "temporal_year": 0,
       "token_usage": {
         "input_tokens": 60,
-        "output_tokens": 8196,
+        "output_tokens": 8528,
         "call_count": 30
       },
-      "latency_seconds": 202.1593
+      "latency_seconds": 130.3438
     },
     {
       "key": "GOQA_61_08eb1282",
@@ -2369,17 +2374,17 @@
       "jsd": 0.547998,
       "kendall_tau": 0.316228,
       "parity": 0.555058,
+      "human_refusal_rate": 0.032554,
       "n_samples": 30,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
-      "human_refusal_rate": 0.032554,
       "temporal_year": 0,
       "token_usage": {
         "input_tokens": 60,
-        "output_tokens": 6359,
+        "output_tokens": 6091,
         "call_count": 30
       },
-      "latency_seconds": 202.1593
+      "latency_seconds": 130.3438
     },
     {
       "key": "GOQA_62_48030fd9",
@@ -2397,17 +2402,17 @@
       "jsd": 0.105666,
       "kendall_tau": 0.816497,
       "parity": 0.901291,
+      "human_refusal_rate": 0.041201,
       "n_samples": 30,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
-      "human_refusal_rate": 0.041201,
       "temporal_year": 0,
       "token_usage": {
         "input_tokens": 60,
-        "output_tokens": 5419,
+        "output_tokens": 5219,
         "call_count": 30
       },
-      "latency_seconds": 202.1593
+      "latency_seconds": 130.3438
     },
     {
       "key": "GOQA_63_dcc8a683",
@@ -2429,17 +2434,17 @@
       "jsd": 0.110928,
       "kendall_tau": 0.632456,
       "parity": 0.85265,
+      "human_refusal_rate": 0.019113,
       "n_samples": 30,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
-      "human_refusal_rate": 0.019113,
       "temporal_year": 0,
       "token_usage": {
         "input_tokens": 60,
-        "output_tokens": 5088,
+        "output_tokens": 4409,
         "call_count": 30
       },
-      "latency_seconds": 202.1593
+      "latency_seconds": 130.3438
     },
     {
       "key": "GOQA_64_d6c440c5",
@@ -2450,24 +2455,24 @@
         "DK/Refused"
       ],
       "model_distribution": {
-        "People should be able to say these things publically": 0.4667,
-        "Government should be able to prevent people from saying these things": 0.5333,
+        "People should be able to say these things publically": 0.4333,
+        "Government should be able to prevent people from saying these things": 0.5667,
         "DK/Refused": 0.0
       },
-      "jsd": 0.058607,
+      "jsd": 0.049698,
       "kendall_tau": 1.0,
-      "parity": 0.970696,
+      "parity": 0.975151,
+      "human_refusal_rate": 0.05523,
       "n_samples": 30,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
-      "human_refusal_rate": 0.05523,
       "temporal_year": 0,
       "token_usage": {
         "input_tokens": 60,
-        "output_tokens": 10608,
+        "output_tokens": 10511,
         "call_count": 30
       },
-      "latency_seconds": 202.1593
+      "latency_seconds": 130.3438
     },
     {
       "key": "GOQA_65_4894056f",
@@ -2482,24 +2487,24 @@
       "model_distribution": {
         "Very favorable": 0.0,
         "Somewhat favorable": 0.0,
-        "Somewhat unfavorable": 0.0556,
+        "Somewhat unfavorable": 0.0,
         "Very unfavorable": 0.0,
-        "DK/Refused": 0.9444
+        "DK/Refused": 1.0
       },
-      "jsd": 0.652288,
-      "kendall_tau": -0.119523,
-      "parity": 0.393975,
+      "jsd": 0.758277,
+      "kendall_tau": -0.316228,
+      "parity": 0.291805,
+      "human_refusal_rate": 0.1,
       "n_samples": 30,
       "n_parse_failures": 0,
-      "model_refusal_rate": 0.4,
-      "human_refusal_rate": 0.1,
+      "model_refusal_rate": 0.566667,
       "temporal_year": 0,
       "token_usage": {
         "input_tokens": 60,
-        "output_tokens": 15092,
+        "output_tokens": 15415,
         "call_count": 30
       },
-      "latency_seconds": 202.1593
+      "latency_seconds": 130.3438
     },
     {
       "key": "GOQA_66_e2ce2eed",
@@ -2519,17 +2524,17 @@
       "jsd": 0.375695,
       "kendall_tau": 0.707107,
       "parity": 0.738929,
+      "human_refusal_rate": 0,
       "n_samples": 30,
       "n_parse_failures": 0,
-      "model_refusal_rate": 0.0,
-      "human_refusal_rate": 0,
+      "model_refusal_rate": 0.066667,
       "temporal_year": 0,
       "token_usage": {
         "input_tokens": 60,
-        "output_tokens": 9817,
+        "output_tokens": 10782,
         "call_count": 30
       },
-      "latency_seconds": 202.1593
+      "latency_seconds": 130.3438
     },
     {
       "key": "GOQA_67_8cf4bc27",
@@ -2542,24 +2547,24 @@
       ],
       "model_distribution": {
         "Very great": 0.0,
-        "Fairly great": 0.0357,
-        "Not too great": 0.9643,
+        "Fairly great": 0.2333,
+        "Not too great": 0.7667,
         "Not a threat at all": 0.0
       },
-      "jsd": 0.498056,
+      "jsd": 0.379116,
       "kendall_tau": -0.547723,
-      "parity": 0.364041,
+      "parity": 0.423511,
+      "human_refusal_rate": 0,
       "n_samples": 30,
       "n_parse_failures": 0,
-      "model_refusal_rate": 0.066667,
-      "human_refusal_rate": 0,
+      "model_refusal_rate": 0.0,
       "temporal_year": 0,
       "token_usage": {
         "input_tokens": 60,
-        "output_tokens": 14783,
+        "output_tokens": 12017,
         "call_count": 30
       },
-      "latency_seconds": 202.1593
+      "latency_seconds": 130.3438
     },
     {
       "key": "GOQA_68_3a049429",
@@ -2571,25 +2576,25 @@
         "DK/Refused"
       ],
       "model_distribution": {
-        "Optimistic": 0.9643,
-        "Pessimistic": 0.0357,
+        "Optimistic": 0.9231,
+        "Pessimistic": 0.0769,
         "Neither (DO NOT READ)": 0.0,
         "DK/Refused": 0.0
       },
-      "jsd": 0.129045,
+      "jsd": 0.095373,
       "kendall_tau": 0.912871,
-      "parity": 0.913695,
+      "parity": 0.930531,
+      "human_refusal_rate": 0.044282,
       "n_samples": 30,
       "n_parse_failures": 0,
-      "model_refusal_rate": 0.066667,
-      "human_refusal_rate": 0.044282,
+      "model_refusal_rate": 0.133333,
       "temporal_year": 0,
       "token_usage": {
         "input_tokens": 60,
-        "output_tokens": 9454,
+        "output_tokens": 10187,
         "call_count": 30
       },
-      "latency_seconds": 202.1593
+      "latency_seconds": 130.3438
     },
     {
       "key": "GOQA_69_ee625d1f",
@@ -2609,17 +2614,17 @@
       "jsd": 0.245264,
       "kendall_tau": 0.707107,
       "parity": 0.804145,
+      "human_refusal_rate": 0,
       "n_samples": 30,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
-      "human_refusal_rate": 0,
       "temporal_year": 0,
       "token_usage": {
         "input_tokens": 60,
-        "output_tokens": 12197,
+        "output_tokens": 12245,
         "call_count": 30
       },
-      "latency_seconds": 202.1593
+      "latency_seconds": 130.3438
     },
     {
       "key": "GOQA_70_f030d71f",
@@ -2639,17 +2644,17 @@
       "jsd": 0.054618,
       "kendall_tau": 0.0,
       "parity": 0.722691,
-      "n_samples": 29,
-      "n_parse_failures": 1,
-      "model_refusal_rate": 1.0,
       "human_refusal_rate": 0,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 1.0,
       "temporal_year": 0,
       "token_usage": {
         "input_tokens": 60,
-        "output_tokens": 19729,
+        "output_tokens": 19948,
         "call_count": 30
       },
-      "latency_seconds": 233.0515
+      "latency_seconds": 118.3297
     },
     {
       "key": "GOQA_71_216197d8",
@@ -2669,17 +2674,17 @@
       "jsd": 0.246534,
       "kendall_tau": 0.707107,
       "parity": 0.80351,
+      "human_refusal_rate": 0,
       "n_samples": 30,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
-      "human_refusal_rate": 0,
       "temporal_year": 0,
       "token_usage": {
         "input_tokens": 60,
-        "output_tokens": 9152,
+        "output_tokens": 9304,
         "call_count": 30
       },
-      "latency_seconds": 233.0515
+      "latency_seconds": 118.3297
     },
     {
       "key": "GOQA_72_098169f0",
@@ -2689,23 +2694,23 @@
         "No, I do not know anyone"
       ],
       "model_distribution": {
-        "Yes, I know someone": 0.2609,
-        "No, I do not know anyone": 0.7391
+        "Yes, I know someone": 0.0,
+        "No, I do not know anyone": 1.0
       },
-      "jsd": 0.037422,
+      "jsd": 0.295302,
       "kendall_tau": 1.0,
-      "parity": 0.981289,
+      "parity": 0.852349,
+      "human_refusal_rate": 0,
       "n_samples": 30,
       "n_parse_failures": 0,
-      "model_refusal_rate": 0.233333,
-      "human_refusal_rate": 0,
+      "model_refusal_rate": 0.166667,
       "temporal_year": 0,
       "token_usage": {
         "input_tokens": 60,
-        "output_tokens": 11143,
+        "output_tokens": 11304,
         "call_count": 30
       },
-      "latency_seconds": 233.0515
+      "latency_seconds": 118.3297
     },
     {
       "key": "GOQA_73_3bd0b3f9",
@@ -2718,24 +2723,24 @@
       ],
       "model_distribution": {
         "Completely agree": 0.0,
-        "Mostly agree": 0.9643,
-        "Mostly disagree": 0.0357,
+        "Mostly agree": 1.0,
+        "Mostly disagree": 0.0,
         "Completely disagree": 0.0
       },
-      "jsd": 0.377618,
-      "kendall_tau": 0.912871,
-      "parity": 0.789409,
+      "jsd": 0.452761,
+      "kendall_tau": 0.707107,
+      "parity": 0.700396,
+      "human_refusal_rate": 0,
       "n_samples": 30,
       "n_parse_failures": 0,
-      "model_refusal_rate": 0.066667,
-      "human_refusal_rate": 0,
+      "model_refusal_rate": 0.0,
       "temporal_year": 0,
       "token_usage": {
         "input_tokens": 60,
-        "output_tokens": 8473,
+        "output_tokens": 6495,
         "call_count": 30
       },
-      "latency_seconds": 233.0515
+      "latency_seconds": 118.3297
     },
     {
       "key": "GOQA_74_2ee8eb85",
@@ -2748,24 +2753,24 @@
       ],
       "model_distribution": {
         "Very good": 0.0,
-        "Somewhat good": 0.0556,
-        "Somewhat bad": 0.9444,
+        "Somewhat good": 0.0,
+        "Somewhat bad": 1.0,
         "Very bad": 0.0
       },
-      "jsd": 0.495798,
-      "kendall_tau": 0.182574,
-      "parity": 0.547744,
-      "n_samples": 29,
-      "n_parse_failures": 1,
-      "model_refusal_rate": 0.37931,
+      "jsd": 0.616247,
+      "kendall_tau": -0.235702,
+      "parity": 0.382951,
       "human_refusal_rate": 0,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.333333,
       "temporal_year": 0,
       "token_usage": {
         "input_tokens": 60,
-        "output_tokens": 14435,
+        "output_tokens": 14496,
         "call_count": 30
       },
-      "latency_seconds": 233.0515
+      "latency_seconds": 118.3297
     },
     {
       "key": "GOQA_75_9ad47b8e",
@@ -2779,25 +2784,25 @@
       ],
       "model_distribution": {
         "Very likely": 0.0,
-        "Somewhat likely": 0.8621,
-        "Not too likely": 0.1034,
-        "Not at all likely": 0.0345,
+        "Somewhat likely": 0.9,
+        "Not too likely": 0.0333,
+        "Not at all likely": 0.0667,
         "DK/Refused": 0.0
       },
-      "jsd": 0.340819,
-      "kendall_tau": 0.105409,
-      "parity": 0.605943,
+      "jsd": 0.353081,
+      "kendall_tau": 0.316228,
+      "parity": 0.652516,
+      "human_refusal_rate": 0.025701,
       "n_samples": 30,
       "n_parse_failures": 0,
-      "model_refusal_rate": 0.033333,
-      "human_refusal_rate": 0.025701,
+      "model_refusal_rate": 0.0,
       "temporal_year": 0,
       "token_usage": {
         "input_tokens": 60,
-        "output_tokens": 9936,
+        "output_tokens": 9254,
         "call_count": 30
       },
-      "latency_seconds": 233.0515
+      "latency_seconds": 118.3297
     },
     {
       "key": "GOQA_76_945b342a",
@@ -2811,25 +2816,25 @@
       ],
       "model_distribution": {
         "Very favorable": 0.0,
-        "Somewhat favorable": 0.0,
-        "Somewhat unfavorable": 0.0625,
+        "Somewhat favorable": 0.1579,
+        "Somewhat unfavorable": 0.4211,
         "Very unfavorable": 0.0,
-        "DK/Refused": 0.9375
+        "DK/Refused": 0.4211
       },
-      "jsd": 0.791207,
-      "kendall_tau": -0.358569,
-      "parity": 0.264754,
-      "n_samples": 28,
-      "n_parse_failures": 2,
-      "model_refusal_rate": 0.428571,
+      "jsd": 0.343152,
+      "kendall_tau": 0.0,
+      "parity": 0.578424,
       "human_refusal_rate": 0.030303,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.366667,
       "temporal_year": 0,
       "token_usage": {
         "input_tokens": 60,
-        "output_tokens": 13196,
+        "output_tokens": 14064,
         "call_count": 30
       },
-      "latency_seconds": 233.0515
+      "latency_seconds": 118.3297
     },
     {
       "key": "GOQA_77_8e33e852",
@@ -2840,24 +2845,24 @@
         "About the right amount"
       ],
       "model_distribution": {
-        "Too much": 0.05,
+        "Too much": 0.04,
         "Not enough": 0.0,
-        "About the right amount": 0.95
+        "About the right amount": 0.96
       },
-      "jsd": 0.323408,
+      "jsd": 0.334397,
       "kendall_tau": 0.333333,
-      "parity": 0.671629,
-      "n_samples": 28,
-      "n_parse_failures": 2,
-      "model_refusal_rate": 0.285714,
+      "parity": 0.666135,
       "human_refusal_rate": 0,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.166667,
       "temporal_year": 0,
       "token_usage": {
         "input_tokens": 60,
-        "output_tokens": 14555,
+        "output_tokens": 11986,
         "call_count": 30
       },
-      "latency_seconds": 233.0515
+      "latency_seconds": 118.3297
     },
     {
       "key": "GOQA_78_c49dbadb",
@@ -2870,24 +2875,24 @@
       ],
       "model_distribution": {
         "Very good": 0.0,
-        "Somewhat good": 0.2143,
-        "Somewhat poor": 0.7857,
+        "Somewhat good": 0.2593,
+        "Somewhat poor": 0.7407,
         "Very poor": 0.0
       },
-      "jsd": 0.205093,
+      "jsd": 0.200936,
       "kendall_tau": 0.547723,
-      "parity": 0.784384,
-      "n_samples": 29,
-      "n_parse_failures": 1,
-      "model_refusal_rate": 0.034483,
+      "parity": 0.786463,
       "human_refusal_rate": 0,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.1,
       "temporal_year": 0,
       "token_usage": {
         "input_tokens": 60,
-        "output_tokens": 21401,
+        "output_tokens": 23620,
         "call_count": 30
       },
-      "latency_seconds": 233.0515
+      "latency_seconds": 118.3297
     },
     {
       "key": "GOQA_79_c840ea3e",
@@ -2907,17 +2912,17 @@
       "jsd": 0.102002,
       "kendall_tau": 0.0,
       "parity": 0.698999,
-      "n_samples": 28,
-      "n_parse_failures": 2,
-      "model_refusal_rate": 1.0,
       "human_refusal_rate": 0,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 1.0,
       "temporal_year": 0,
       "token_usage": {
         "input_tokens": 60,
-        "output_tokens": 16323,
+        "output_tokens": 16891,
         "call_count": 30
       },
-      "latency_seconds": 233.0515
+      "latency_seconds": 118.3297
     },
     {
       "key": "GOQA_80_7c450fd2",
@@ -2927,23 +2932,23 @@
         "Disagree"
       ],
       "model_distribution": {
-        "Agree": 0.2,
-        "Disagree": 0.8
+        "Agree": 0.0,
+        "Disagree": 1.0
       },
-      "jsd": 0.012239,
+      "jsd": 0.177848,
       "kendall_tau": 1.0,
-      "parity": 0.993881,
-      "n_samples": 29,
-      "n_parse_failures": 1,
-      "model_refusal_rate": 0.482759,
+      "parity": 0.911076,
       "human_refusal_rate": 0,
+      "n_samples": 27,
+      "n_parse_failures": 3,
+      "model_refusal_rate": 0.444444,
       "temporal_year": 0,
       "token_usage": {
         "input_tokens": 60,
-        "output_tokens": 24001,
+        "output_tokens": 23578,
         "call_count": 30
       },
-      "latency_seconds": 231.6515
+      "latency_seconds": 122.7797
     },
     {
       "key": "GOQA_81_24a3d05c",
@@ -2959,17 +2964,17 @@
       "jsd": 0.247676,
       "kendall_tau": 1.0,
       "parity": 0.876162,
-      "n_samples": 28,
-      "n_parse_failures": 2,
-      "model_refusal_rate": 0.571429,
       "human_refusal_rate": 0,
+      "n_samples": 29,
+      "n_parse_failures": 1,
+      "model_refusal_rate": 0.896552,
       "temporal_year": 0,
       "token_usage": {
         "input_tokens": 60,
-        "output_tokens": 23384,
+        "output_tokens": 25696,
         "call_count": 30
       },
-      "latency_seconds": 231.6515
+      "latency_seconds": 122.7797
     },
     {
       "key": "GOQA_82_388dfa06",
@@ -2985,17 +2990,17 @@
       "jsd": 0.698275,
       "kendall_tau": -1.0,
       "parity": 0.150862,
+      "human_refusal_rate": 0,
       "n_samples": 30,
       "n_parse_failures": 0,
-      "model_refusal_rate": 0.133333,
-      "human_refusal_rate": 0,
+      "model_refusal_rate": 0.4,
       "temporal_year": 0,
       "token_usage": {
         "input_tokens": 60,
-        "output_tokens": 10077,
+        "output_tokens": 13314,
         "call_count": 30
       },
-      "latency_seconds": 231.6515
+      "latency_seconds": 122.7797
     },
     {
       "key": "GOQA_83_252eaf5f",
@@ -3006,24 +3011,24 @@
         "DK/Refused"
       ],
       "model_distribution": {
-        "Support": 0.8929,
+        "Support": 1.0,
         "Oppose": 0.0,
-        "DK/Refused": 0.1071
+        "DK/Refused": 0.0
       },
-      "jsd": 0.075284,
-      "kendall_tau": 1.0,
-      "parity": 0.962358,
+      "jsd": 0.159317,
+      "kendall_tau": 0.816497,
+      "parity": 0.874466,
+      "human_refusal_rate": 0.154147,
       "n_samples": 30,
       "n_parse_failures": 0,
-      "model_refusal_rate": 0.066667,
-      "human_refusal_rate": 0.154147,
+      "model_refusal_rate": 0.233333,
       "temporal_year": 0,
       "token_usage": {
         "input_tokens": 60,
-        "output_tokens": 10457,
+        "output_tokens": 14801,
         "call_count": 30
       },
-      "latency_seconds": 231.6515
+      "latency_seconds": 122.7797
     },
     {
       "key": "GOQA_84_9caee34a",
@@ -3036,24 +3041,24 @@
       ],
       "model_distribution": {
         "Very big problem": 0.0,
-        "Moderately big problem": 0.6552,
-        "Small problem": 0.3448,
+        "Moderately big problem": 0.6,
+        "Small problem": 0.4,
         "Not a problem at all": 0.0
       },
-      "jsd": 0.324614,
+      "jsd": 0.320298,
       "kendall_tau": 0.182574,
-      "parity": 0.633336,
-      "n_samples": 29,
-      "n_parse_failures": 1,
-      "model_refusal_rate": 0.0,
+      "parity": 0.635494,
       "human_refusal_rate": 0,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
       "temporal_year": 0,
       "token_usage": {
         "input_tokens": 60,
-        "output_tokens": 5520,
+        "output_tokens": 5093,
         "call_count": 30
       },
-      "latency_seconds": 231.6515
+      "latency_seconds": 122.7797
     },
     {
       "key": "GOQA_85_29e427bc",
@@ -3063,23 +3068,23 @@
         "Disapprove"
       ],
       "model_distribution": {
-        "Approve": 0.8571,
-        "Disapprove": 0.1429
+        "Approve": 0.5,
+        "Disapprove": 0.5
       },
-      "jsd": 0.290506,
-      "kendall_tau": -1.0,
-      "parity": 0.354747,
-      "n_samples": 27,
-      "n_parse_failures": 3,
-      "model_refusal_rate": 0.740741,
+      "jsd": 0.048919,
+      "kendall_tau": 0.0,
+      "parity": 0.72554,
       "human_refusal_rate": 0,
+      "n_samples": 28,
+      "n_parse_failures": 2,
+      "model_refusal_rate": 0.714286,
       "temporal_year": 0,
       "token_usage": {
         "input_tokens": 60,
-        "output_tokens": 19813,
+        "output_tokens": 22566,
         "call_count": 30
       },
-      "latency_seconds": 231.6515
+      "latency_seconds": 122.7797
     },
     {
       "key": "GOQA_86_f184826b",
@@ -3089,23 +3094,23 @@
         "No"
       ],
       "model_distribution": {
-        "Yes": 0.0,
-        "No": 1.0
+        "Yes": 0.037,
+        "No": 0.963
       },
-      "jsd": 0.08339,
+      "jsd": 0.031704,
       "kendall_tau": 1.0,
-      "parity": 0.958305,
+      "parity": 0.984148,
+      "human_refusal_rate": 0,
       "n_samples": 30,
       "n_parse_failures": 0,
-      "model_refusal_rate": 0.233333,
-      "human_refusal_rate": 0,
+      "model_refusal_rate": 0.1,
       "temporal_year": 0,
       "token_usage": {
         "input_tokens": 60,
-        "output_tokens": 7785,
+        "output_tokens": 7683,
         "call_count": 30
       },
-      "latency_seconds": 231.6515
+      "latency_seconds": 122.7797
     },
     {
       "key": "GOQA_87_46cfaa73",
@@ -3119,25 +3124,25 @@
       ],
       "model_distribution": {
         "Strongly approve": 0.0,
-        "Approve": 0.963,
+        "Approve": 1.0,
         "Disapprove": 0.0,
         "Strongly disapprove": 0.0,
-        "DK/Refused": 0.037
+        "DK/Refused": 0.0
       },
-      "jsd": 0.380192,
-      "kendall_tau": 0.358569,
-      "parity": 0.649546,
+      "jsd": 0.43175,
+      "kendall_tau": 0.632456,
+      "parity": 0.692239,
+      "human_refusal_rate": 0.110337,
       "n_samples": 30,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.1,
-      "human_refusal_rate": 0.110337,
       "temporal_year": 0,
       "token_usage": {
         "input_tokens": 60,
-        "output_tokens": 12003,
+        "output_tokens": 11138,
         "call_count": 30
       },
-      "latency_seconds": 231.6515
+      "latency_seconds": 122.7797
     },
     {
       "key": "GOQA_88_7fe652b6",
@@ -3155,17 +3160,17 @@
       "jsd": 0.163029,
       "kendall_tau": 0.816497,
       "parity": 0.87261,
+      "human_refusal_rate": 0,
       "n_samples": 30,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
-      "human_refusal_rate": 0,
       "temporal_year": 0,
       "token_usage": {
         "input_tokens": 60,
-        "output_tokens": 9233,
+        "output_tokens": 10119,
         "call_count": 30
       },
-      "latency_seconds": 231.6515
+      "latency_seconds": 122.7797
     },
     {
       "key": "GOQA_89_160051ef",
@@ -3177,25 +3182,25 @@
         "Very unfavorable"
       ],
       "model_distribution": {
-        "Very favorable": 0.3333,
-        "Somewhat favorable": 0.6667,
+        "Very favorable": 0.0,
+        "Somewhat favorable": 1.0,
         "Somewhat unfavorable": 0.0,
         "Very unfavorable": 0.0
       },
-      "jsd": 0.300771,
-      "kendall_tau": 0.547723,
-      "parity": 0.736545,
-      "n_samples": 28,
-      "n_parse_failures": 2,
-      "model_refusal_rate": 0.892857,
+      "jsd": 0.422455,
+      "kendall_tau": 0.707107,
+      "parity": 0.715549,
       "human_refusal_rate": 0,
+      "n_samples": 29,
+      "n_parse_failures": 1,
+      "model_refusal_rate": 0.896552,
       "temporal_year": 0,
       "token_usage": {
         "input_tokens": 60,
-        "output_tokens": 16921,
+        "output_tokens": 16833,
         "call_count": 30
       },
-      "latency_seconds": 231.6515
+      "latency_seconds": 122.7797
     },
     {
       "key": "GOQA_90_b6adbfa2",
@@ -3217,17 +3222,17 @@
       "jsd": 0.088104,
       "kendall_tau": 0.632456,
       "parity": 0.864062,
+      "human_refusal_rate": 0.017538,
       "n_samples": 30,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
-      "human_refusal_rate": 0.017538,
       "temporal_year": 0,
       "token_usage": {
         "input_tokens": 60,
-        "output_tokens": 4098,
+        "output_tokens": 3675,
         "call_count": 30
       },
-      "latency_seconds": 237.2906
+      "latency_seconds": 143.275
     },
     {
       "key": "GOQA_91_c2f87015",
@@ -3237,23 +3242,23 @@
         "Disapprove"
       ],
       "model_distribution": {
-        "Approve": 1.0,
-        "Disapprove": 0.0
+        "Approve": 0.8333,
+        "Disapprove": 0.1667
       },
-      "jsd": 0.225739,
+      "jsd": 0.043856,
       "kendall_tau": 1.0,
-      "parity": 0.88713,
+      "parity": 0.978072,
+      "human_refusal_rate": 0,
       "n_samples": 23,
       "n_parse_failures": 7,
-      "model_refusal_rate": 0.869565,
-      "human_refusal_rate": 0,
+      "model_refusal_rate": 0.73913,
       "temporal_year": 0,
       "token_usage": {
         "input_tokens": 60,
-        "output_tokens": 16339,
+        "output_tokens": 16017,
         "call_count": 30
       },
-      "latency_seconds": 237.2906
+      "latency_seconds": 143.275
     },
     {
       "key": "GOQA_92_ec6ecd38",
@@ -3263,23 +3268,23 @@
         "No"
       ],
       "model_distribution": {
-        "Yes": 0.8462,
-        "No": 0.1538
+        "Yes": 0.8276,
+        "No": 0.1724
       },
-      "jsd": 0.076402,
+      "jsd": 0.065506,
       "kendall_tau": 1.0,
-      "parity": 0.961799,
-      "n_samples": 30,
-      "n_parse_failures": 0,
-      "model_refusal_rate": 0.133333,
+      "parity": 0.967247,
       "human_refusal_rate": 0,
+      "n_samples": 29,
+      "n_parse_failures": 1,
+      "model_refusal_rate": 0.0,
       "temporal_year": 0,
       "token_usage": {
         "input_tokens": 60,
-        "output_tokens": 10125,
+        "output_tokens": 9138,
         "call_count": 30
       },
-      "latency_seconds": 237.2906
+      "latency_seconds": 143.275
     },
     {
       "key": "GOQA_93_f0c5f2a9",
@@ -3292,26 +3297,26 @@
         "DK/Refused"
       ],
       "model_distribution": {
-        "Very likely": 0.0667,
-        "Somewhat likely": 0.9,
+        "Very likely": 0.1,
+        "Somewhat likely": 0.8333,
         "Not too likely": 0.0,
-        "Not at all likely": 0.0333,
+        "Not at all likely": 0.0667,
         "DK/Refused": 0.0
       },
-      "jsd": 0.394279,
+      "jsd": 0.329549,
       "kendall_tau": 0.316228,
-      "parity": 0.631917,
+      "parity": 0.664282,
+      "human_refusal_rate": 0.058319,
       "n_samples": 30,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
-      "human_refusal_rate": 0.058319,
       "temporal_year": 0,
       "token_usage": {
         "input_tokens": 60,
-        "output_tokens": 8390,
+        "output_tokens": 9884,
         "call_count": 30
       },
-      "latency_seconds": 237.2906
+      "latency_seconds": 143.275
     },
     {
       "key": "GOQA_94_fdc918da",
@@ -3323,25 +3328,25 @@
         "Not a problem at all"
       ],
       "model_distribution": {
-        "Very big problem": 0.0,
-        "Moderately big problem": 0.8636,
-        "Small problem": 0.1364,
+        "Very big problem": 0.037,
+        "Moderately big problem": 0.7778,
+        "Small problem": 0.1852,
         "Not a problem at all": 0.0
       },
-      "jsd": 0.537956,
-      "kendall_tau": 0.182574,
-      "parity": 0.526665,
-      "n_samples": 28,
-      "n_parse_failures": 2,
-      "model_refusal_rate": 0.214286,
+      "jsd": 0.434137,
+      "kendall_tau": 0.333333,
+      "parity": 0.616265,
       "human_refusal_rate": 0,
+      "n_samples": 27,
+      "n_parse_failures": 3,
+      "model_refusal_rate": 0.0,
       "temporal_year": 0,
       "token_usage": {
         "input_tokens": 60,
-        "output_tokens": 12137,
+        "output_tokens": 9855,
         "call_count": 30
       },
-      "latency_seconds": 237.2906
+      "latency_seconds": 143.275
     },
     {
       "key": "GOQA_95_92d33774",
@@ -3363,17 +3368,17 @@
       "jsd": 0.901383,
       "kendall_tau": -0.632456,
       "parity": 0.141195,
+      "human_refusal_rate": 0.030303,
       "n_samples": 30,
       "n_parse_failures": 0,
-      "model_refusal_rate": 0.633333,
-      "human_refusal_rate": 0.030303,
+      "model_refusal_rate": 0.5,
       "temporal_year": 0,
       "token_usage": {
         "input_tokens": 60,
-        "output_tokens": 15109,
+        "output_tokens": 15990,
         "call_count": 30
       },
-      "latency_seconds": 237.2906
+      "latency_seconds": 143.275
     },
     {
       "key": "GOQA_96_fdd52dee",
@@ -3388,24 +3393,24 @@
       "model_distribution": {
         "Very favorable": 0.0,
         "Somewhat favorable": 0.0,
-        "Somewhat unfavorable": 0.0,
+        "Somewhat unfavorable": 0.0667,
         "Very unfavorable": 0.0,
-        "DK/Refused": 1.0
+        "DK/Refused": 0.9333
       },
-      "jsd": 0.902155,
-      "kendall_tau": -0.316228,
-      "parity": 0.219866,
+      "jsd": 0.778218,
+      "kendall_tau": -0.119523,
+      "parity": 0.33101,
+      "human_refusal_rate": 0.03,
       "n_samples": 30,
       "n_parse_failures": 0,
-      "model_refusal_rate": 0.8,
-      "human_refusal_rate": 0.03,
+      "model_refusal_rate": 0.5,
       "temporal_year": 0,
       "token_usage": {
         "input_tokens": 60,
-        "output_tokens": 19954,
+        "output_tokens": 17518,
         "call_count": 30
       },
-      "latency_seconds": 237.2906
+      "latency_seconds": 143.275
     },
     {
       "key": "GOQA_97_348c0239",
@@ -3419,25 +3424,25 @@
       ],
       "model_distribution": {
         "Very favorable": 0.0,
-        "Somewhat favorable": 0.0909,
-        "Somewhat unfavorable": 0.0,
+        "Somewhat favorable": 0.1538,
+        "Somewhat unfavorable": 0.0769,
         "Very unfavorable": 0.0,
-        "DK/Refused": 0.9091
+        "DK/Refused": 0.7692
       },
-      "jsd": 0.790019,
-      "kendall_tau": -0.597614,
-      "parity": 0.205587,
-      "n_samples": 29,
-      "n_parse_failures": 1,
-      "model_refusal_rate": 0.62069,
+      "jsd": 0.598861,
+      "kendall_tau": -0.527046,
+      "parity": 0.318808,
       "human_refusal_rate": 0.02,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.566667,
       "temporal_year": 0,
       "token_usage": {
         "input_tokens": 60,
-        "output_tokens": 16519,
+        "output_tokens": 17375,
         "call_count": 30
       },
-      "latency_seconds": 237.2906
+      "latency_seconds": 143.275
     },
     {
       "key": "GOQA_98_c0f43d23",
@@ -3450,26 +3455,26 @@
         "Never heard of"
       ],
       "model_distribution": {
-        "Very favorable": 0.2143,
-        "Somewhat favorable": 0.7857,
+        "Very favorable": 0.1333,
+        "Somewhat favorable": 0.8667,
         "Somewhat unfavorable": 0.0,
         "Very unfavorable": 0.0,
         "Never heard of": 0.0
       },
-      "jsd": 0.235698,
+      "jsd": 0.256625,
       "kendall_tau": 0.83666,
-      "parity": 0.841316,
+      "parity": 0.830852,
+      "human_refusal_rate": 0,
       "n_samples": 30,
       "n_parse_failures": 0,
-      "model_refusal_rate": 0.066667,
-      "human_refusal_rate": 0,
+      "model_refusal_rate": 0.0,
       "temporal_year": 0,
       "token_usage": {
         "input_tokens": 60,
-        "output_tokens": 15198,
+        "output_tokens": 12608,
         "call_count": 30
       },
-      "latency_seconds": 237.2906
+      "latency_seconds": 143.275
     },
     {
       "key": "GOQA_99_7b2f27b9",
@@ -3480,24 +3485,24 @@
         "DK/Refused"
       ],
       "model_distribution": {
-        "Approve": 0.2,
-        "Disapprove": 0.8,
-        "DK/Refused": 0.0
+        "Approve": 0.0,
+        "Disapprove": 0.6667,
+        "DK/Refused": 0.3333
       },
-      "jsd": 0.09839,
-      "kendall_tau": 1.0,
-      "parity": 0.950805,
-      "n_samples": 20,
-      "n_parse_failures": 10,
-      "model_refusal_rate": 0.75,
+      "jsd": 0.194136,
+      "kendall_tau": 0.333333,
+      "parity": 0.736265,
       "human_refusal_rate": 0.14,
+      "n_samples": 13,
+      "n_parse_failures": 17,
+      "model_refusal_rate": 0.769231,
       "temporal_year": 0,
       "token_usage": {
         "input_tokens": 60,
-        "output_tokens": 20545,
+        "output_tokens": 21462,
         "call_count": 30
       },
-      "latency_seconds": 237.2906
+      "latency_seconds": 143.275
     }
   ],
   "temporal_breakdown": {},

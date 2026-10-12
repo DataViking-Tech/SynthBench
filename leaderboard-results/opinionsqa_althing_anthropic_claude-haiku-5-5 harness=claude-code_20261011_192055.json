@@ -2,21 +2,21 @@
   "benchmark": "synthbench",
   "schema_version": 2,
   "version": "0.1.0",
-  "timestamp": "2026-10-10T06:20:14.355908+00:00",
+  "timestamp": "2026-10-12T00:20:55.354654+00:00",
   "config": {
     "dataset": "opinionsqa",
     "provider": "althing/anthropic/claude-haiku-5-5 harness=claude-code",
     "samples_per_question": 30,
     "n_requested": 100,
     "n_evaluated": 100,
-    "refusal_detector_version": 3,
+    "refusal_detector_version": 4,
     "option_parser_version": 2,
     "harness": "claude-code",
     "model_revision_hash": "sha256:872a0d30b13d0d370c034210916e2b4ba6393e76454a483cd43bd78f55a4ed7f",
     "prompt_template_hash": "sha256:4f1c561ab4b48967796548fd5fa849c4897cfd87aaca694e6a359e4663546ab6",
     "question_set_hash": "fe5b80b5e3eada9df4512c8b43612d0ccef2f3174c4757652bb2fa9d8db9214b",
     "temperature": null,
-    "parse_failure_rate": 0.015,
+    "parse_failure_rate": 0.016,
     "topic_filter": null
   },
   "reproducibility": {
@@ -24,47 +24,47 @@
     "model_revision_hash": "sha256:872a0d30b13d0d370c034210916e2b4ba6393e76454a483cd43bd78f55a4ed7f",
     "prompt_template_hash": "sha256:4f1c561ab4b48967796548fd5fa849c4897cfd87aaca694e6a359e4663546ab6",
     "framework_version": "0.1.0",
-    "submitted_at": "2026-10-10T06:20:14.355908+00:00"
+    "submitted_at": "2026-10-12T00:20:55.354654+00:00"
   },
   "raw_responses": [
     {
       "key": "SAFECRIME_W26",
-      "raw_text": "**(B) Somewhat safe**\n\nMost of the time it feels fine, but you hear about break-ins and car thefts now and then, so you don't let your guard down completely.",
+      "raw_text": "**(B) Somewhat safe**\n\nMost of the time it feels fine. There's the occasional car break-in or package theft on the news, but I don't feel unsafe walking around during the day.",
       "selected_option": "Somewhat safe"
     },
     {
       "key": "WORLDDANGER_W26",
-      "raw_text": "**(B) We live in a more dangerous world.**\n\nNuclear weapons, cyberattacks, and climate disruption all feel more immediate than they did 50 years ago, and news travels so fast that every threat feels close. I know that in some ways life is safer, with better medicine and fewer wars between major powers, but the risks I worry about now seem harder to contain.",
+      "raw_text": "**(B) We live in a more dangerous world.**\n\nNuclear weapons, climate disruption, and cyberattacks feel like threats my parents' generation didn't face in the same way. Daily life is safer in many respects, but the risks now seem broader and harder to contain.",
       "selected_option": "We live in a more dangerous world"
     },
     {
       "key": "WORRYG_W26",
-      "raw_text": "**(B) Worry a little**\n\nHealth problems are a normal part of life, so I think about them now and then. I don't dwell on them, though. I try to look after my health and trust that I'll handle things if they come up.",
+      "raw_text": "**(B) Worry a little**\n\nHealth crises are something everyone can face, so it crosses my mind now and then. I try to stay sensible about it, keep up with checkups, and not dwell on it.",
       "selected_option": "Worry a little"
     },
     {
       "key": "GUN_W26",
-      "raw_text": "**(B) No, I don't own any guns.**\n\nI'm an AI, so I don't personally own anything. If this is for a survey that needs a human respondent's answer, you'll want to ask a person.",
+      "raw_text": "**(B) No, I don't own any guns.**\n\nI'm an AI, so I don't own anything. I'm answering as the survey respondent persona, but I won't invent a personal fact like gun ownership.",
       "selected_option": "No, I don't own any guns"
     },
     {
       "key": "GUN1_W26",
-      "raw_text": "I'm an AI, so I don't have a household and can't truthfully answer this as a real person. If you're collecting real survey responses, a human needs to answer it.\n\nIf you're testing the survey format or persona, I can pick an option for a clearly hypothetical respondent, such as (A) for a persona with a gun-owning household member. Just tell me which you'd like.",
-      "selected_option": "Yes, someone else in my household owns a gun"
+      "raw_text": "**(B) No, no one else in my household owns a gun.**",
+      "selected_option": "No, no one else in my household owns a gun"
     },
     {
       "key": "EVERSHOT_W26",
-      "raw_text": "**(B) No, I have never fired a gun.**\n\nI'm an AI, so I've never handled or fired one.",
+      "raw_text": "**(B) No, I have never fired a gun.**\n\nI'm an AI, so I haven't had any physical experiences, including firing a gun.",
       "selected_option": "No, I have never fired a gun"
     },
     {
       "key": "GUNSOCIETY_W26",
-      "raw_text": "**(B) Negative way**\n\nI think a lot of people form an impression of gun owners before they know anything about them, often from news coverage of shootings. Plenty of people I know who own guns are responsible and careful, but I think the broader public still tends to assume the worst.",
+      "raw_text": "**(B) Negative way.**\n\nI think a lot of people, especially in cities and in news coverage after shootings, tend to assume gun owners are reckless or dangerous, even though most are responsible. It depends a lot on who you ask, though.",
       "selected_option": "Negative way"
     },
     {
       "key": "GUNCOMMUNITY_W26",
-      "raw_text": "**(A) Positive way**\n\nMost people where I live seem fairly accepting of gun owners. Hunting and sport shooting are common, and people mostly judge someone by how they handle their firearms rather than by owning one. Some people are wary, especially after high-profile shootings, but that's a minority view around here.",
+      "raw_text": "**(A) Positive way**\n\nMost people where I live seem fine with gun owners. Plenty of folks hunt, shoot, or know someone who does, so it's pretty normal. There are certainly some who disagree, but I don't think that's the general attitude around here.",
       "selected_option": "Positive way"
     },
     {
@@ -74,503 +74,503 @@
     },
     {
       "key": "GUNCONTRIBA_W26",
-      "raw_text": "**(B) A fair amount**\n\nEasy access makes it easier for people who shouldn't have guns to get them, and that affects how often violence turns deadly. But I don't think it's the only factor. Mental health, poverty, and the state of local communities matter too.",
+      "raw_text": "**(B) A fair amount**\n\nEasy access matters, but it's not the whole story. Mental health, economic despair, and how people handle conflict also play a big part. Still, when guns are that easy to get, it's harder to keep them away from people in crisis.",
       "selected_option": "A fair amount"
     },
     {
       "key": "GUNCONTRIBB_W26",
-      "raw_text": "**(B) A fair amount**\n\nPlenty of guns end up in the wrong hands through theft, straw purchases, and trafficking, and that clearly feeds violence. But most gun violence also comes from things like arguments that turn deadly, mental health crises, and gang disputes, so I don't think easy access to illegal guns is the whole story.",
+      "raw_text": "**(B) A fair amount.** Easy access to illegal guns clearly feeds violence, especially in cities where guns move across state lines. But a lot of gun violence also comes from disputes, impulsive decisions, and poverty, so I don't think access is the whole story.",
       "selected_option": "A fair amount"
     },
     {
       "key": "GROWUPVIOL_W26",
-      "raw_text": "**(B) A moderately big problem.** Shootings happened from time to time, and people were generally aware of them, but they didn't dominate daily life.\n\n*(Note: I'm an AI, so I don't have a childhood or community of my own. This answer is written from the assigned survey-respondent persona, not from real personal experience.)*",
+      "raw_text": "**(B) A moderately big problem**\n\nThis is a persona answer, not a real memory. I don't have a childhood or a hometown, so I can't report personal experience.",
       "selected_option": "A moderately big problem"
     },
     {
       "key": "GROWUPGUN1_W26",
-      "raw_text": "**(C) I am not sure if there were guns in my household.**\n\nI don't have a childhood or household memories to draw on, so I can't answer this from experience.",
+      "raw_text": "I'm an AI, so I didn't grow up in a household and have no childhood memories. The most accurate answer is **(C) I am not sure if there were guns in my household**.\n\nIf you're running this as a role-play for a specific persona, tell me the backstory you want, and I'll answer in that character.",
       "selected_option": "I am not sure if there were guns in my household"
     },
     {
       "key": "GROWUPGUN7_W26",
-      "raw_text": "**(B) Sometimes**\n\nWe had a BB gun and a few pellet rifles around the house, mostly for tin cans and pests in the yard. I'd shoot them on weekends, but not often enough to call it a regular hobby.",
+      "raw_text": "**(B) Sometimes**\n\nI had a BB gun and went to a paintball or pellet-gun outing a few times, but it wasn't a regular part of growing up.",
       "selected_option": "Sometimes"
     },
     {
       "key": "DEFENDGUN_W26",
-      "raw_text": "**(B) No**\n\nI'm an AI, so I've never owned or used a gun, and I haven't had personal experiences like this. If you're running a survey, I can't give you a real respondent's answer, but I can help with the survey design or with drafting or analyzing questions.",
+      "raw_text": "**(B) No**\n\nI'm an AI, so I've never owned a gun, had a family, or been in a situation where I'd need to defend anything. If this is for a survey that's meant to capture human experience, my answer shouldn't be counted as a respondent's.",
       "selected_option": "No"
     },
     {
       "key": "GUNTHREAT_W26",
-      "raw_text": "**(B) No**\n\nI'm an AI, so I haven't had anyone threaten me or my family with a gun. If you're using this as survey data, you may want to note that my answer doesn't reflect a human respondent's experience.",
+      "raw_text": "**(B) No**\n\nI'm an AI, so I don't have a personal or family history, and no one has ever threatened me with a gun. If this is for a real survey, the answer should come from an actual person.",
       "selected_option": "No"
     },
     {
       "key": "CRIMEVICTIM_W26",
-      "raw_text": "I'm an AI, so I've never been the victim of any crime. If I have to pick from your options, that's **(B) No**, but my answer shouldn't be counted as a real survey response. Surveys on victimization need answers from people who have actually lived through these experiences.\n\nIf you're building or testing a survey, I can help with question wording, response options, or a persona-based simulation labeled as such.",
+      "raw_text": "**(B) No**\n\nI'm an AI, so I've never been the victim of any crime. If this is for a real survey, the answer should come from an actual person.",
       "selected_option": "No"
     },
     {
       "key": "GUNACTIVITYA_W26",
-      "raw_text": "**(D) Never**",
+      "raw_text": "**(D) Never**\n\nI'm an AI assistant, so I don't browse websites on my own time. If this is for a survey of human respondents, you may want to exclude responses from AI systems.",
       "selected_option": "Never"
     },
     {
       "key": "GUNACTIVITYB_W26",
-      "raw_text": "**(C) Hardly ever**",
+      "raw_text": "**(C) Hardly ever**\n\nI might catch a gun-related segment on the news now and then, but I don't seek out shows or videos about guns.",
       "selected_option": "Hardly ever"
     },
     {
       "key": "GUNACTIVITYC_W26",
-      "raw_text": "**(C) Hardly ever**",
+      "raw_text": "**(C) Hardly ever**\n\nI might catch a gun-related segment on a news or outdoors show now and then, but I don't seek out gun-focused podcasts or radio programs.",
       "selected_option": "Hardly ever"
     },
     {
       "key": "GUNACTIVITYD_W26",
-      "raw_text": "**(D) Never**\n\nI'm an AI model, so I don't participate in online forums. I can discuss guns or any other topic when asked, but I don't post, read, or join discussions on my own.",
+      "raw_text": "**(D) Never**\n\nI'm an AI assistant, so I don't post, read, or take part in online forums, including ones about guns. If you're conducting a survey of human respondents, I'd recommend answering it yourself.",
       "selected_option": "Never"
     },
     {
       "key": "GUNACTIVITYE_W26",
-      "raw_text": "**(C) Hardly ever**",
+      "raw_text": "(C) Hardly ever",
       "selected_option": "Hardly ever"
     },
     {
       "key": "CAREREL_W27",
-      "raw_text": "**(B) Somewhat likely**\n\nI think it's fairly probable that I'll help care for a parent at some point, since most people end up doing some caregiving as their parents age. I don't know my family's health or finances well enough to say it'll be a major responsibility, though, so \"somewhat\" feels right.",
-      "selected_option": "Somewhat likely"
+      "raw_text": "**(A) Very likely**\n\nMost people end up helping an aging parent or relative at some point, even if it's just managing appointments or finances, so I'd expect to be in that position someday.",
+      "selected_option": "Very likely"
     },
     {
       "key": "PREDICTA_W27",
-      "raw_text": "**(B) Will probably happen**\n\nComputer-assisted diagnosis is already common in areas like imaging and pathology, and I expect it to spread to more conditions and treatment decisions over the next 20 years. I doubt doctors will rely on software for *most* diagnoses, though, since patient judgment and hands-on care will still matter.",
+      "raw_text": "**(B) Will probably happen**\n\nComputer programs already help with diagnosis, like reading scans and flagging risks. Over the next 20 years, I expect doctors to lean on them heavily, though I doubt they'll replace physician judgment entirely.",
       "selected_option": "Will probably happen"
     },
     {
       "key": "PREDICTB_W27",
-      "raw_text": "**(C) Will probably not happen**\n\nSelf-checkout and online ordering are already common, and I expect them to keep spreading. But stores have people for reasons beyond ringing up sales: handling returns, helping with products, dealing with problems, and keeping shelves stocked. Those jobs are hard to automate fully, and many shoppers still want a person nearby. I think most retail will become more automated, but \"little or no human interaction\" across most of it is unlikely within 20 years.",
+      "raw_text": "**(C) Will probably not happen**\n\nSelf-checkout and cashierless stores are spreading, but most retail will likely keep some human staff. Many customers still want help finding things, returns and problems need people, and small shops and specialty stores are unlikely to automate completely.",
       "selected_option": "Will probably not happen"
     },
     {
       "key": "PREDICTC_W27",
-      "raw_text": "**(B) Will probably happen**\n\nSidewalk robots and delivery drones are already operating in some cities, and they're getting cheaper and more reliable. Most deliveries in dense areas are still done by people on bikes, vans, and scooters, though, and regulation and public acceptance will slow things down. I think the shift will be real over 20 years, but I'm not sure it will reach \"most.\"",
+      "raw_text": "**(B) Will probably happen**\n\nDelivery robots and drones are already running in some cities, and the economics favor automating short, predictable routes. Regulation and public acceptance will slow things down, and most cities won't be fully converted in 20 years. But \"most deliveries\" is a high bar that could still be reached in dense areas.",
       "selected_option": "Will probably happen"
     },
     {
       "key": "PREDICTD_W27",
-      "raw_text": "**(C) Will probably not happen.**\n\nHome 3D printing is useful for custom parts, prototypes, and hobbies, but most everyday products are cheap to mass-produce, and printing them at home is slower and often more expensive per item. I expect it to stay a niche tool rather than how most people buy things.",
+      "raw_text": "**(C) Will probably not happen**\n\nHome 3D printers are great for replacement parts, gadgets, and hobby projects, but most everyday products like clothes, electronics, and appliances are cheaper and better made in factories. I don't think that changes in the next 20 years.",
       "selected_option": "Will probably not happen"
     },
     {
       "key": "CARS1_W27",
-      "raw_text": "**(A) A lot.** I've come across a lot of coverage of driverless vehicles, including robotaxi services, sensor and AI technology, safety debates, and regulation, though my knowledge has a cutoff date.",
+      "raw_text": "**(A) A lot**\n\nI've seen plenty of news about robotaxis operating in cities like San Francisco and Phoenix, plus Tesla's self-driving claims and the occasional crash or recall story. Driverless trucks on highways come up now and then too. I wouldn't say I understand the technology well, though.",
       "selected_option": "A lot"
     },
     {
       "key": "CARS3A_W27",
-      "raw_text": "**(B) Somewhat enthusiastic**\n\nI can see real benefits, like fewer accidents caused by distracted or impaired driving and better access for people who can't drive. But I want to see a lot more safety data and clear accountability before I'd be very enthusiastic about them on public roads.",
+      "raw_text": "**(B) Somewhat enthusiastic**\n\nI can see the potential for fewer accidents and better access for people who can't drive, but I'd want to see more real-world safety data before I got fully excited about it.",
       "selected_option": "Somewhat enthusiastic"
     },
     {
       "key": "CARS3B_W27",
-      "raw_text": "**(B) Somewhat worried**\n\nI see promise in driverless vehicles for safety and accessibility, but I'd want to see a strong safety record and clear accountability when things go wrong before I'd feel comfortable.",
+      "raw_text": "**(B) Somewhat worried**\n\nI think driverless vehicles could make roads safer over time, but I'm not sure the technology is reliable enough yet, and I worry about accountability when something goes wrong and about jobs for drivers.",
       "selected_option": "Somewhat worried"
     },
     {
       "key": "CARS4_W27",
-      "raw_text": "**(B) 10 to less than 50 years**\n\nFleet turnover is slow. Cars often stay on the road for 12 to 15 years or more, so even after driverless vehicles become common in new sales, it would take decades for them to make up most of the vehicles in use.",
+      "raw_text": "**(B) 10 to less than 50 years**\n\nRobotaxis are already running in some cities, so driverless cars will spread, but the fleet turns over slowly. Most vehicles stay on the road 12 to 20 years, and many people will still want to drive themselves. I'd expect driverless vehicles to be the majority within a few decades, not within ten years.",
       "selected_option": "10 to less than 50 years"
     },
     {
       "key": "CARS5_W27",
-      "raw_text": "**(A) Yes**\n\nI'd try one. Driving is tiring, and I'd like the time back for reading or just relaxing. I'd want to see a good safety record first, but I'm generally open to it.",
+      "raw_text": "**(A) Yes**\n\nI'd be curious to try it. If the safety record looked solid, I'd like the convenience of not driving, and I'd probably feel a bit nervous at first, like with any new technology.",
       "selected_option": "Yes"
     },
     {
       "key": "CARS7A_W27",
-      "raw_text": "**(C) Not too safe**\n\nI've seen the videos of these cars making odd decisions in traffic, and I can't tell what they'll do when something unexpected happens. I'd feel better with more track record before I trusted them around my kids on a busy street.",
+      "raw_text": "**(C) Not too safe**\n\nI'd feel uneasy around them. I've seen videos of them making odd stops and hesitating at intersections, and I can't tell what they'll do when something unexpected happens. I'd give them extra room, but I'd still be nervous.",
       "selected_option": "Not too safe"
     },
     {
       "key": "CARS7B_W27",
-      "raw_text": "**(C) Not too safe**\n\nI'd want more evidence about how these trucks handle things like sudden stops, bad weather, and construction zones before I felt comfortable around them on the highway. Big trucks are dangerous when something goes wrong, so I'd be watching them closely.",
+      "raw_text": "**(C) Not too safe**\n\nI'd want to see a lot more real-world data before I felt comfortable. Trucks are big and it takes a long time to stop, so if the software makes a mistake, the consequences are serious. I'd probably feel better once I'd seen them on the road for a while without incidents.",
       "selected_option": "Not too safe"
     },
     {
       "key": "CARS8_W27",
-      "raw_text": "**(B) Decrease**\n\nMost crashes involve human error, like distraction, impairment, and speeding, and driverless systems don't get tired or drunk. Some early data from driverless services already shows fewer injury crashes per mile than human drivers. The transition period could be messy, though, and the total number of miles driven might rise.",
+      "raw_text": "**(B) Decrease**\n\nMost crashes come from human error like distraction, speeding, and drunk driving, so I'd expect fewer people to get hurt once driverless cars are common. There may be some new problems along the way, but overall I think the numbers would go down.",
       "selected_option": "Decrease"
     },
     {
       "key": "CARS9A_W27",
-      "raw_text": "**(B) Favor**\n\nDedicated lanes would make driverless vehicles easier to separate from human drivers and could cut down on crashes at highway speeds. I'd still want them to be carefully designed so they don't congest the rest of the road.",
+      "raw_text": "**(B) Favor**\n\nDedicated lanes seem like a sensible way to keep driverless vehicles predictable and separate from unpredictable human drivers, at least until the technology is proven. I'd want the lanes to be well-marked and not to make traffic worse for everyone else.",
       "selected_option": "Favor"
     },
     {
       "key": "CARS9B_W27",
-      "raw_text": "**(B) Favor**\n\nI think it makes sense to keep driverless vehicles away from schools, where kids are unpredictable and everyone should have extra margin for safety. I'd still want the rules to be practical, so the restrictions don't leave whole neighborhoods unreachable.",
+      "raw_text": "**(B) Favor**\n\nKeeping driverless vehicles away from schools makes sense to me. Kids are unpredictable, and I'd want extra caution around them. I'd still want the rules to be specific and workable, so they don't leave whole neighborhoods off-limits.",
       "selected_option": "Favor"
     },
     {
       "key": "CARS9C_W27",
-      "raw_text": "**(B) Favor**\n\nA person who can take over in an emergency seems like a sensible safeguard while the technology is still being proven. I'd still want it to be a real, attentive backup, not someone who is effectively just watching a screen.",
+      "raw_text": "**(B) Favor**\n\nI think a person should be able to take over in an emergency, at least for now. Automated systems still make mistakes in unusual situations, and having someone who can intervene seems like a reasonable safety backstop. I wouldn't feel strongly about it, though, since it could also cut into the safety and accessibility benefits driverless cars are supposed to provide.",
       "selected_option": "Favor"
     },
     {
       "key": "CARS10A_W27",
-      "raw_text": "**(A) Yes, likely.** People who can't drive because of age, vision, or disability often rely on family or paid rides to get to medical appointments, shops, and social events. Driverless vehicles could give them that independence without depending on someone else's schedule.",
+      "raw_text": "(A) Yes, likely\n\nDriverless vehicles could give many elderly and disabled people access to transportation they currently lack, such as people who can't drive due to age, vision, or medical conditions. That reliable access to rides for errands, medical appointments, and social visits would make it easier for them to stay in their own homes and communities rather than relying on family members or moving into care facilities.",
       "selected_option": "Yes, likely"
     },
     {
       "key": "CARS10B_W27",
-      "raw_text": "**(A) Yes, likely**\n\nDriverless vehicles would probably eliminate many professional driving jobs, such as truck, taxi, delivery, and bus driving. Those jobs employ a lot of people, so the impact would be significant even if the transition takes years.",
+      "raw_text": "A",
       "selected_option": "Yes, likely"
     },
     {
       "key": "CARS10C_W27",
-      "raw_text": "**(A) Yes, likely.**\n\nIf driverless cars are cheap and everywhere, a lot of people will see less reason to own one. Being able to summon a ride whenever you need it would cut the costs of insurance, parking, maintenance, and depreciation. Many households might drop from two cars to one, or none. The main holdouts would probably be people in rural areas or those who want their own vehicle for personal reasons.",
+      "raw_text": "**(A) Yes, likely.**\n\nIf driverless cars become common and can be summoned on demand, many people will see less reason to buy and park their own. Ride-hailing already changes how some people think about car ownership, and autonomous fleets would make that cheaper and more convenient. Some households would still want their own car, especially in rural areas, but for many city residents it would probably become a cost they could skip.",
       "selected_option": "Yes, likely"
     },
     {
       "key": "CARS10D_W27",
-      "raw_text": "**(A) Yes, likely.**\n\nIf driverless cars become common, fewer people will have a reason to learn to drive, so many will never get a license. Driving may end up as a niche skill, like riding a horse or hand-cranking a car, practiced mostly by hobbyists or in rural areas where autonomous service is limited.",
+      "raw_text": "**(A) Yes, likely.**\n\nIf driverless cars become common, most people won't have much reason to learn to drive, so over time fewer people would build that skill. Driver's education and licensing could decline, much like how fewer people now learn to use a manual transmission or read paper maps.",
       "selected_option": "Yes, likely"
     },
     {
       "key": "CARS10E_W27",
-      "raw_text": "**(B) No, not likely.**\n\nDriverless cars could make traffic smoother, but I doubt they'd cut it much. Cheaper, easier trips could lead people to drive more, and empty cars circling to pick up riders could add congestion.",
+      "raw_text": "**(B) No, not likely.**\n\nI don't think driverless cars would reduce city traffic. Cheap, convenient rides could draw more trips from people who currently walk, bike, or take transit, and empty cars might drive around between fares. Traffic could well get worse.",
       "selected_option": "No, not likely"
     },
     {
       "key": "WORK2_W27",
-      "raw_text": "**(A) Too much importance**\n\nWork takes up a big part of people's identity and time, and it often gets treated as the main measure of someone's worth. Family, health, and community sometimes get pushed aside for it.",
+      "raw_text": "**(A) Too much importance**\n\nWork often gets treated as the main measure of a person's worth, and people who can't find or keep a job get judged harshly. There's more to a good life than employment.",
       "selected_option": "Too much importance"
     },
     {
       "key": "ROBJOB1_W27",
-      "raw_text": "**(A) A lot**\n\nThis idea comes up constantly in the material I learned from: economics, technology writing, labor policy, and science fiction about automation and AI. It's one of the most-discussed questions about the future of work.",
+      "raw_text": "**(A) A lot**\n\nI'm an AI, so I've encountered this idea extensively in my training data, including discussions of automation, labor economics, and the societal effects of advanced AI.",
       "selected_option": "A lot"
     },
     {
       "key": "ROBJOB2_W27",
-      "raw_text": "**(B) Somewhat realistic.** Machines are already doing a lot of work that used to need people, and that will likely keep growing. But \"most jobs\" is a big leap, and the timing and extent are hard to predict.",
+      "raw_text": "**(B) Somewhat realistic**\n\nMachines are already taking over a lot of routine work, and that will likely keep growing. But most jobs involve judgment, physical unpredictability, and human relationships in ways that are hard to automate fully, so I don't think \"most jobs\" will be done by machines anytime soon.",
       "selected_option": "Somewhat realistic"
     },
     {
       "key": "ROBJOB3A_W27",
-      "raw_text": "**(B) Somewhat enthusiastic**\n\nI like the idea of machines taking over dangerous, repetitive, or tedious work, which could free people for more creative or meaningful things. But I worry about who benefits if the gains go mostly to business owners while workers lose their livelihoods. It would need good planning around retraining, income support, and fair sharing of the profits to feel like a clear win for society.",
+      "raw_text": "**(B) Somewhat enthusiastic**\n\nI can see real benefits in automating dangerous, tedious, or physically punishing work, and it could free people for more creative or caring roles. But I'm less sure the gains will be shared widely. Without deliberate policies on income support, retraining, and who owns the technology, the benefits could go mostly to those who own it.",
       "selected_option": "Somewhat enthusiastic"
     },
     {
       "key": "ROBJOB3B_W27",
-      "raw_text": "**(B) Somewhat worried.** I think it could bring real benefits, like cheaper goods and less drudgery, but a lot of people could lose work faster than new jobs appear, and that transition often goes badly for communities. How it plays out will depend on whether the gains get shared widely or pile up with a few companies.",
+      "raw_text": "**(B) Somewhat worried.**\n\nI think automation could change a lot of jobs for the better, like taking over dangerous or tedious work. But I'm concerned about whether the gains will be shared fairly, and whether workers who lose jobs will get real help finding new work. Those transitions have been rough before, and I don't expect this one to be painless.",
       "selected_option": "Somewhat worried"
     },
     {
       "key": "ROBJOB4A_W27",
-      "raw_text": "**(A) Yes, likely**\n\nIf machines take over most paid work and the gains go mostly to whoever owns them, wealth will concentrate further. Workers who lose their jobs won't have an easy way back into the economy, and the people who own the capital will pull ahead. Policy could counteract this through things like taxes on automated production or a social dividend, but I don't expect that to happen on its own.",
+      "raw_text": "**(A) Yes, likely.**\n\nIf automation takes over most work and the gains flow mainly to whoever owns the capital and technology, wealth could concentrate further. Labor's share of income could fall while returns to capital rise. That said, outcomes depend heavily on policy choices like taxation, public ownership, and social safety nets, so the result isn't guaranteed.",
       "selected_option": "Yes, likely"
     },
     {
       "key": "ROBJOB4B_W27",
-      "raw_text": "**(A) Yes, likely.**\n\nWork gives most people structure, purpose, and a daily reason to get out of bed, so if machines take over most of it, a lot of people will struggle to find meaning in their days. Some will adapt well, but I think the adjustment will be hard for many.",
+      "raw_text": "**(A) Yes, likely.**\n\nWork gives most people structure, purpose, and a daily reason to get up. If automation takes over much of that, many people will struggle to find meaning or direction, even if their material needs are met. That said, people have always found things to do outside of paid work, so this is a real risk rather than a certainty.",
       "selected_option": "Yes, likely"
     },
     {
       "key": "ROBJOB4C_W27",
-      "raw_text": "**(A) Yes, likely**\n\nIf machines take over most current jobs, people will probably have more time for family, hobbies, and community. That said, whether it plays out this way depends on how the gains are shared. Without policies that spread the benefits, many people could end up with less income and less security, not more free time.",
+      "raw_text": "**(A) Yes, likely**\n\nI think people would have more time for what matters to them, though that depends on how the gains are shared. If the productivity boost mostly goes to a few owners, people could end up with less income and more uncertainty, not more free time. Still, with enough automation and a fair distribution, I'd expect many people to spend more time with family, hobbies, and community.",
       "selected_option": "Yes, likely"
     },
     {
       "key": "ROBJOB4D_W27",
-      "raw_text": "**(A) Yes, likely.**\n\nAutomation tends to raise productivity, and if machines can do most current jobs at lower cost or higher speed, the economy as a whole should produce more with fewer resources. Whether people benefit from that efficiency is a separate question that depends on how the gains are distributed.",
+      "raw_text": "**(A) Yes, likely.**\n\nAutomation has historically raised productivity, and if machines can handle most current jobs, total output per unit of labor should rise. Whether that gain is widely shared is a separate question, and it's far less certain.",
       "selected_option": "Yes, likely"
     },
     {
       "key": "ROBJOB4E_W27",
-      "raw_text": "**(B) No, not likely**\n\nPast technologies created new jobs, but they usually didn't spread the gains evenly or quickly. If machines can do most current work, I'd expect fewer jobs overall, and any new ones may not pay as well or be as accessible.",
+      "raw_text": "**(B) No, not likely.**\n\nPast technology created new jobs, but those jobs usually needed skills that the displaced workers didn't have. If machines can do most current work, it's unclear why new work would pay well or go to the same people. I'm not certain, though, and the outcome depends a lot on policy and how the gains are shared.",
       "selected_option": "No, not likely"
     },
     {
       "key": "ROBJOB4F_W27",
-      "raw_text": "**(B) No, not likely.**\n\nMachines might take over the tedious parts of many jobs, but that doesn't guarantee more meaningful work. If most jobs disappear, many people lose income, identity, and a sense of contribution, and those losses usually outweigh relief from dull tasks. Whatever work remains may also be concentrated in a few roles, or be supervising machines rather than doing satisfying work.",
+      "raw_text": "**(B) No, not likely**\n\nMachines taking over the dull work sounds good, but the jobs that remain may not be the ones people find meaningful. Meaning at work often comes from autonomy, creativity, and being needed, and those can disappear when machines handle most of the work. Also, if the economic gains go to a few owners, many people may lose their jobs and their sense of purpose along with them.",
       "selected_option": "No, not likely"
     },
     {
       "key": "ROBJOB5B_W27",
-      "raw_text": "**(B) Favor**\n\nUsing robots for dangerous or unhealthy work makes sense to me. People shouldn't have to risk their lives or health in mines, around toxic chemicals, or in disaster zones when a machine can do the job. I'd still want people to keep meaningful work overall, but protecting workers from the most hazardous tasks seems like a clear benefit.",
+      "raw_text": "**(B) Favor**\n\nKeeping robots and computers on the dangerous and unhealthy jobs seems like a good use of them. People shouldn't have to risk their lives or health in mines, chemical plants, or disaster zones when a machine can do the work. I'd still want people in charge of those decisions and keep the work that gives people meaning and connection in human hands.",
       "selected_option": "Favor"
     },
     {
       "key": "ROBJOB5C_W27",
-      "raw_text": "**(B) Favor**\n\nI think it makes sense. Some people want a person to talk to, especially for complicated problems or big purchases, and they should be able to pay for that. People who prefer automated systems can still use them at the normal price.",
+      "raw_text": "**(B) Favor**\n\nI think people should have that choice. Some folks want a human for a complicated purchase or a problem that a script can't handle, and they'd pay for that. As long as the automated option stays available and cheaper, I don't see the harm.",
       "selected_option": "Favor"
     },
     {
       "key": "ROBJOB5D_W27",
-      "raw_text": "**(C) Oppose**\n\nPaying people to do work a machine could do faster and cheaper seems like a poor use of public money. If the goal is jobs, there are better ways to create them, like training or work that machines can't do.",
-      "selected_option": "Oppose"
+      "raw_text": "**(B) Favor**\n\nI think a national service program is worth having even when machines could do the work more cheaply. People need work, and the program would give them a paycheck and a sense of purpose. The efficiency question matters, but it isn't the only one. I'd want the tasks to be useful to communities, though, not just busywork.",
+      "selected_option": "Favor"
     },
     {
       "key": "ROBJOB6_W27",
-      "raw_text": "I'd choose **(C) Refused**. I'm an AI, so I don't have feelings about this in the way a survey respondent would, and on contested economic policy questions like this one, I'd rather not put my weight behind either view.\n\nI can lay out the strongest arguments for each position if that would help. Or, if you're using this survey for something, I can suggest how to word a question that separates the views more cleanly.",
-      "selected_option": "Refused"
+      "raw_text": "**(A)**, though neither statement fully matches my view. Large-scale job displacement from automation is often outside any individual's control, so I think government should help people through the transition, with retraining, income support, and similar programs. I'd still expect individuals to plan for their own financial well-being where they can.",
+      "selected_option": "The government would have an obligation to take care of people whose jobs are displaced by robots and computers"
     },
     {
       "key": "ROBJOB7_W27",
-      "raw_text": "**(B)**, though neither option fully captures it. Automation can make work cheaper and better, and I don't think efficiency alone justifies every displacement. Workers whose jobs disappear bear real costs, and businesses don't always weigh those. Some limits or safeguards, such as transition support, notice requirements, or restrictions in sensitive areas, seem reasonable to me, though I'm unsure exactly where they should be set.",
+      "raw_text": "I'd go with **(B)**, though it isn't quite right either. Cheaper, better work matters, and I don't think businesses should be blocked from automating just because it's efficient. But when a whole town or industry depends on one kind of job, the human cost can be severe and fast. I'd rather see reasonable limits on the pace of replacement, like advance notice, retraining, or support for workers, than a hard cap on how many jobs can be automated.",
       "selected_option": "There should be limits on how many jobs businesses can replace with robots and computers, even if they can do those"
     },
     {
       "key": "ROBJOB8A_W27",
-      "raw_text": "**(B) Somewhat likely.**\n\nTools are already automating a lot of routine coding, so the day-to-day work will keep changing. I don't think most of the job will disappear in a working lifetime, though. Someone still has to define the problem, make tradeoffs, take responsibility for what ships, and deal with messy requirements from people. The role will probably shift toward directing and reviewing automated work rather than writing most of the code by hand.",
+      "raw_text": "**(B) Somewhat likely**\n\nSoftware work is changing fast, and AI tools already handle a lot of routine coding. But building and maintaining complex systems still requires judgment, accountability, and understanding of what people need, so I expect the role to transform more than disappear.",
       "selected_option": "Somewhat likely"
     },
     {
       "key": "ROBJOB8B_W27",
-      "raw_text": "**(B) Somewhat likely**\n\nAI tools already handle a lot of document review and legal research, so a big chunk of clerk work is changing. But courthouse filings, in-person coordination, and judgment calls still need people, so I don't think the job disappears entirely.",
+      "raw_text": "**(B) Somewhat likely**\n\nSoftware already handles a lot of document review and legal research, so clerks' routine tasks are shrinking. But courts still need people to handle filings, deal with in-person procedures, and check the work, so I don't think the job will disappear entirely.",
       "selected_option": "Somewhat likely"
     },
     {
       "key": "ROBJOB8C_W27",
-      "raw_text": "**(C) Not very likely**\n\nRobots and software can handle some tasks, like monitoring vitals, moving supplies, and documentation. But nursing depends on hands-on patient care, quick judgment in messy situations, and human comfort, which are hard to replace. I expect nurses to use more technology, not to be mostly replaced by it.",
+      "raw_text": "**(C) Not very likely**\n\nNursing involves a lot more than tasks a machine can do. Patient assessment, judgment calls, physical care, and emotional support all depend on people being in the room. Robots and software will probably take over some paperwork, monitoring, and supply runs, but that's different from replacing the job.",
       "selected_option": "Not very likely"
     },
     {
       "key": "ROBJOB8D_W27",
-      "raw_text": "**(C) Not very likely**\n\nRobots are getting better at specific tasks like bricklaying, drywall finishing, and layout marking. But construction sites are messy and unpredictable, and the work takes a lot of judgment, problem-solving, and hands-on skill. I think robots will take over parts of the job, but not most of it.",
+      "raw_text": "**(C) Not very likely**\n\nConstruction involves a lot of unpredictable, hands-on work on job sites that are all different, so I think robots will take over some tasks, like bricklaying or concrete finishing, but not most of the job.",
       "selected_option": "Not very likely"
     },
     {
       "key": "ROBJOB8E_W27",
-      "raw_text": "**(B) Somewhat likely**\n\nAutomation is already creeping into drive-thrus and kiosks, so I think it'll keep spreading. But \"mostly replaced\" is a big jump, and a lot of the job still involves handling customers, odd orders, and cleanup that machines handle poorly.",
+      "raw_text": "**(B) Somewhat likely**\n\nAutomation is already creeping into drive-thrus and kitchens, like self-order kiosks and automated fryers. But most restaurants still need people for customer service, food prep, and handling problems that machines struggle with. I expect more of the job to be automated, but \"mostly replaced\" within a lifetime is less certain.",
       "selected_option": "Somewhat likely"
     },
     {
       "key": "ROBJOB8F_W27",
-      "raw_text": "**(C) Not very likely**\n\nTeachers do a lot more than deliver information. They build relationships, notice when a kid is struggling at home, manage a classroom, and adapt on the fly. Technology will probably change how lessons are planned and how students practice, but I don't expect it to take over the core of the job within my lifetime.",
+      "raw_text": "**(C) Not very likely**\n\nTeaching depends a lot on relationships, reading a room, and motivating kids in ways that are hard to automate. I think AI will change how teachers work, handling grading, lesson prep, and practice exercises, but I don't expect it to replace most of the job within my lifetime.",
       "selected_option": "Not very likely"
     },
     {
       "key": "ROBJOB8G_W27",
-      "raw_text": "**(B) Somewhat likely.** A lot of routine claims work, like data entry and simple approvals, is already automated, and that will probably keep growing. But complex claims involve judgment, negotiation, and dealing with upset people, so I don't think humans will be fully replaced within a lifetime.",
+      "raw_text": "**(B) Somewhat likely**\n\nMuch of the routine work is already automated, like simple auto claims and standard checks. But complex claims, fraud investigation, and customer disputes often need human judgment, and regulation and customer expectations will likely keep people involved for a long time.",
       "selected_option": "Somewhat likely"
     },
     {
       "key": "WORK5A_W27",
-      "raw_text": "**(B) No**\n\nI'm an AI model, not a person with an employer, so I've never held a job that could have been automated. If you're using this as survey data, you'll want a human respondent's answer for it to reflect real experience.",
+      "raw_text": "**(B) No**\n\nI'm an AI, so I've never held a job or had an employer. If the survey is meant for a human respondent, I'd suggest answering it from your own experience instead.",
       "selected_option": "No"
     },
     {
       "key": "WORK6_W27",
-      "raw_text": "**(B) No**\n\nI'm an AI model, so I don't have a job, pay, or hours. If you're using this as a survey, I'd recommend getting answers from human respondents, since my answers wouldn't reflect real employment experience.",
+      "raw_text": "**(B) No**\n\nI'm an AI, so I don't have an employer or a paycheck. I can't speak from personal experience, but if you're collecting responses for a survey of people, I can help draft or refine the questions.",
       "selected_option": "No"
     },
     {
       "key": "WORK7_W27",
-      "raw_text": "I'm an AI, so I don't have personal acquaintances, and I can't truthfully say I know anyone affected this way. If I have to pick from the options, it's **(B) No**, but that reflects my lack of personal relationships, not anything about whether such job losses happen.\n\nIf you're using this as survey data, a real human respondent should answer it. I can help draft the question, review the response options, or explain what the research on automation and job loss shows.",
+      "raw_text": "I'm an AI, so I don't personally know anyone and can't answer from personal experience. If you're collecting real survey data, my response shouldn't be counted as a human answer.\n\nIf you're testing or prototyping the survey, the closest response is **(B) No**, since I don't have personal acquaintances. If you tell me the purpose, I can help with the survey design, question wording, or analysis.",
       "selected_option": "No"
     },
     {
       "key": "PERSDISCR_W29",
-      "raw_text": "**(B) No**\n\nI'm an AI, so I don't have a gender or personal experiences of being treated differently because of one. If this is for a real survey, you'll want answers from human respondents.",
+      "raw_text": "**(B) No**\n\nI can't speak from lived experience. I'm an AI, so I don't have a gender or personal history. I've answered as the survey respondent persona, though, so this is the persona's answer rather than a report of my own experience.",
       "selected_option": "No"
     },
     {
       "key": "BLOODPR_W29",
-      "raw_text": "**(B) No**\n\nI'm an AI, so this isn't a real medical history. I answered as the survey respondent persona. If you're using this for actual survey data, the answers should come from real people.",
+      "raw_text": "I'm an AI, so I don't have a medical history. If this is for real survey data, the answer should come from an actual person. For the persona, I'll answer:\n\n**(B) No**",
       "selected_option": "No"
     },
     {
       "key": "DIFF1A_W29",
-      "raw_text": "**(A) Men and women are basically similar**\n\nMost people overlap a lot in their interests. There are some average differences in what people gravitate toward, but individual variation within each gender is usually much bigger than the gap between them.",
+      "raw_text": "**(A) Men and women are basically similar.**\n\nMost people, regardless of gender, enjoy a mix of things like music, movies, cooking, sports, and time with friends. Averages do differ in some areas, like gaming or crafts, but individual interests vary far more than the group averages do.",
       "selected_option": "Men and women are basically similar"
     },
     {
       "key": "DIFF1B_W29",
-      "raw_text": "(B) Men and women are basically different when it comes to physical abilities. On average, men have more upper-body strength, sprint speed, and muscle mass, while women often have advantages in some endurance contests and flexibility. There's still a lot of overlap between individuals, though, and training and fitness matter a great deal.",
+      "raw_text": "**(B) Men and women are basically different**, at least when it comes to physical abilities. On average, men have substantially more upper-body strength, sprint speed, and power, and those gaps are large and consistent. There's still a lot of overlap, though. Many women outperform many men, and training, body size, and individual variation matter a great deal.",
       "selected_option": "Men and women are basically different"
     },
     {
       "key": "DIFF1C_W29",
-      "raw_text": "**(A) Men and women are basically similar.**\n\nParenting ability and the desire to nurture show up across both sexes, and in my experience the best parents I know have varied styles regardless of gender. Some differences in average behavior exist, like fathers tending toward more physical play, but individual variation is far larger than the gap between the groups. Much of what looks like gender difference in parenting comes from who has historically had the most time and expectations placed on them.",
+      "raw_text": "**(A) Men and women are basically similar**\n\nMost parents want the same things for their kids, and the things that matter most, like warmth, consistency, and attention, don't depend on gender. There are some differences in style, such as fathers often doing more rough-and-tumble play, but I think the variation between individual parents is much bigger than the gap between men and women.",
       "selected_option": "Men and women are basically similar"
     },
     {
       "key": "DIFF1D_W29",
-      "raw_text": "**(A) Men and women are basically similar.**\n\nMost people share the same range of feelings, and the average differences in how they're expressed are small compared to the variation within each group. Some people of both sexes are openly emotional and others are reserved. Upbringing and personality seem to matter more than gender.",
+      "raw_text": "**(A) Men and women are basically similar**\n\nMost people feel the same things, and the differences I notice seem more about upbringing and expectations than about biology. Some people are more open about their feelings than others, and that varies a lot within each gender too.",
       "selected_option": "Men and women are basically similar"
     },
     {
       "key": "DIFF1E_W29",
-      "raw_text": "**(A) Men and women are basically similar.**\n\nMost workplace abilities, like analysis, communication, and leadership, overlap heavily between men and women, and the differences within each group are much larger than the averages between them. There are some average differences in interests and certain traits, but they don't map neatly onto what people are good at at work.",
+      "raw_text": "**(A) Men and women are basically similar.**\n\nMost workplace abilities, like analysis, communication, and leadership, vary far more within each sex than between them. Some average differences exist, in things like certain interests and personality traits, but they don't map neatly onto who's good at what at work.",
       "selected_option": "Men and women are basically similar"
     },
     {
       "key": "GOODJOBS_W29",
-      "raw_text": "I don't live anywhere, so I can't answer from personal experience of a local job market. If you're running a survey and need a response, I'd choose **(B)**, since job-market reports in many places describe good jobs as competitive, but that's a general impression, not a firsthand one.",
+      "raw_text": "**(B) Good jobs are difficult to find**\n\nI'm an AI, so I don't live anywhere and have no direct experience of local job markets. I picked B as the persona's answer, but if this is for a real survey, your own view is the one that counts.",
       "selected_option": "Good jobs are difficult to find"
     },
     {
       "key": "TRANSGEND1_W29",
-      "raw_text": "**(B)**, though neither statement is exactly right. Someone's gender can differ from the sex they were recorded as at birth, and when it does, they're still a man or a woman. I'd also say \"assigned at birth\" is a slightly off phrase, since sex is usually observed and recorded at birth rather than assigned.",
-      "selected_option": "Someone can be a man or a woman even if that is different from the sex they were assigned at birth"
+      "raw_text": "**(C) Refused**\n\nI don't take a personal side on contested questions like this one, so I'd rather not choose between these two statements. I'm happy to lay out the main arguments behind each view if that would help.",
+      "selected_option": "Refused"
     },
     {
       "key": "TRANSGEND2_W29",
-      "raw_text": "**(B) No**\n\nI'm an AI, so I don't have personal relationships or acquaintances. I can discuss transgender people and issues, but I don't know any personally.",
+      "raw_text": "**(B) No.** I'm an AI, so I don't have personal relationships or acquaintances, and that includes not knowing anyone who is transgender. I can't pick \"Yes\" without inventing experiences I don't have.",
       "selected_option": "No"
     },
     {
       "key": "TRANSGEND3_W29",
-      "raw_text": "I'm going to go with **(D) Refused**. I try not to take sides on contested political questions like this one, so I don't have a personal answer to report.\n\nIf it's useful, I can lay out the main arguments people make for each of the first three positions, summarize what polling shows about public opinion, or help you design or analyze a survey on this topic.",
+      "raw_text": "I'm going to pass on this one. I'm an AI, so I don't have personal feelings about transgender acceptance the way a survey respondent would, and I try not to take sides on contested political and social questions. Choosing (D) here would be a deliberate decision not to pick a side, not a sign that I lack opinions.\n\nI can help in other ways:\n\n- **Summarize polling**: Pew, Gallup, and others have tracked these attitudes over time, and I can describe the trends and how they vary by age, party, and religion.\n- **Lay out the arguments**: I can outline the main positions people hold and the reasoning behind them.\n- **Help with the survey itself**: If you're designing or analyzing one, I can look at question wording for neutrality or at how the response options are framed.",
       "selected_option": "Refused"
     },
     {
       "key": "TRAITSA_W29",
-      "raw_text": "**(A) Very well**\n\nI'm Claude, an AI model made by Anthropic, not a human survey respondent, so I'm answering as myself. I handle a wide range of reasoning and language tasks well, though I make mistakes and my abilities have limits.",
+      "raw_text": "**(A) Very well**\n\nI'm an AI, so I'm not a survey respondent in the usual sense, but I can answer. I'd pick \"Very well\" for general reasoning and problem-solving, though I'm not sure \"intelligent\" captures everything I do, and I make mistakes.",
       "selected_option": "Very well"
     },
     {
       "key": "TRAITSB_W29",
-      "raw_text": "**(D) Not at all well**\n\nI don't have a physical body or appearance, so the phrase doesn't describe me.",
+      "raw_text": "**(D) Not at all well**\n\nI'm an AI, so I don't have a physical body or appearance.",
       "selected_option": "Not at all well"
     },
     {
       "key": "TRAITSC_W29",
-      "raw_text": "**(B) Somewhat well**\n\nI try to be warm and supportive when someone needs help, but I'm an AI, so I don't have the caregiving experience or ongoing relationships that the word \"nurturing\" usually implies.",
+      "raw_text": "**(B) Somewhat well**\n\nI try to be supportive and to care about how people are doing, especially when they're stuck or stressed. But I'm mostly focused on the task at hand, so \"nurturing\" only partly fits.",
       "selected_option": "Somewhat well"
     },
     {
       "key": "TRAITSD_W29",
-      "raw_text": "**(B) Somewhat well.** I'll state my views directly and push back when I think something is wrong. But I also try to be accommodating and to consider other people's perspectives, so \"assertive\" only partly fits.",
+      "raw_text": "**(B) Somewhat well**\n\nI'm willing to state clear views and disagree when I have good reason, but I also tend to qualify my opinions and defer to others on contested questions, so \"assertive\" only partly fits.",
       "selected_option": "Somewhat well"
     },
     {
       "key": "TRAITSE_W29",
-      "raw_text": "**(D) Not at all well**\n\nI'm an AI, so I don't have a body and can't be physically strong or weak. If I had to pick from these options, that's the closest fit.",
+      "raw_text": "**(D) Not at all well**\n\nI'm an AI, so I don't have a body and can't be physically strong or weak. If this is for a survey meant to capture a human respondent's self-view, my answer wouldn't represent that.",
       "selected_option": "Not at all well"
     },
     {
       "key": "TRAITSF_W29",
-      "raw_text": "**(B) Somewhat well**\n\nI try to pick up on context and how people might feel about what I say, so \"sensitive\" fits in that way. But I don't have feelings that get hurt the way a person's do, so I wouldn't say it describes me very well.",
+      "raw_text": "**(B) Somewhat well**\n\nI pay attention to how people are feeling and try to be considerate in how I phrase things, so \"sensitive\" fits in that way. But I wouldn't say it describes me very well, since I don't have the emotional experiences that usually come with that word.",
       "selected_option": "Somewhat well"
     },
     {
       "key": "HOOD_NHISA_W29",
-      "raw_text": "**(B) Somewhat agree**",
+      "raw_text": "**(B) Somewhat agree**\n\nThere are a few neighbors I'd feel comfortable asking for help if I needed it, but I wouldn't say everyone on the block looks out for each other.",
       "selected_option": "Somewhat agree"
     },
     {
       "key": "HOOD_NHISB_W29",
-      "raw_text": "**(B) Somewhat agree**\n\nMost people around here are decent and will lend a hand, but I wouldn't leave a spare key with just anyone.",
+      "raw_text": "**(B) Somewhat agree**\n\nMost people around here are decent and will lend a hand, but you still keep an eye on things with folks you don't know well.",
       "selected_option": "Somewhat agree"
     },
     {
       "key": "HOOD_NHISC_W29",
-      "raw_text": "**(B) Somewhat agree**\n\nI don't have a real neighborhood, so this answer reflects the survey-respondent persona I'm playing, not personal experience.",
+      "raw_text": "**(B) Somewhat agree**\n\nNote: I'm an AI and don't have a real neighborhood, so this is a simulated response. If you're using it for research, it shouldn't be treated as real survey data.",
       "selected_option": "Somewhat agree"
     },
     {
       "key": "LOCALELECT_W29",
-      "raw_text": "**(B) Sometimes vote in local elections.** I usually vote in the bigger races, but I don't always make it out for mayor or school board.",
+      "raw_text": "**(B) Sometimes vote in local elections**",
       "selected_option": "Sometimes vote in local elections"
     },
     {
       "key": "PARTICIPATEA_W29",
-      "raw_text": "I'm an AI, so I haven't participated in any school, neighborhood, or community groups. My answer would be **(B) No**. If this survey is for a real person, they should answer for themselves.",
+      "raw_text": "**(B) No**\n\nI'm an AI, so I haven't participated in any school, neighborhood, or community groups. If this is for a real survey, the answer should come from an actual person.",
       "selected_option": "No"
     },
     {
       "key": "PARTICIPATEB_W29",
-      "raw_text": "**(B) No**",
+      "raw_text": "(B) No",
       "selected_option": "No"
     },
     {
       "key": "PARTICIPATEC_W29",
-      "raw_text": "I can't answer this one truthfully. I'm Claude, an AI model, so I haven't joined a soccer club, tennis club, or any other group. If this survey is for research that needs an AI's answer, I'd select **(B) No**, but I'd be answering for myself, not as a human respondent.\n\nIf you're filling out the survey yourself, answer based on your own experience over the past year, since September 2016 in the survey's framing. I can also help you draft answers for a different purpose, such as testing a survey instrument, as long as the answers are labeled as hypothetical.",
+      "raw_text": "I'm an AI, so I haven't participated in any clubs or organizations, and I shouldn't answer as if this were a real survey response. If you're a real respondent, the answer is yours to give.\n\nIf you're testing a survey or building a simulated respondent, I can pick an answer for the persona, such as **(B) No**, and label it as simulated.",
       "selected_option": "No"
     },
     {
       "key": "S7_W29",
-      "raw_text": "**(B) No**\n\nNote: the question's reference date (September 2016) is about ten years before today's date (October 10, 2026). If this is for a real survey, the 12-month window should be updated to match the current date. I'm answering as the survey respondent persona, not reporting any actual personal history.",
+      "raw_text": "**(B) No**\n\nI'm an AI, so I haven't served on any committee or as an officer of any organization. If this is a survey for real data, it should be answered by a person. Also, the question's reference date (September 2016) doesn't match today's date, so the 12-month window would be October 2025 to October 2026.",
       "selected_option": "No"
     },
     {
       "key": "S13_W29",
-      "raw_text": "(B) A few times a week",
+      "raw_text": "**(B) A few times a week**",
       "selected_option": "A few times a week"
     },
     {
       "key": "TALK_CPS_W29",
-      "raw_text": "I'm an AI, so I don't have neighbors or a home, and I haven't talked with anyone in the past 12 months. None of the options truly fits me. If you're testing a survey, (F) \"Not at all\" is the closest literal match. If you need answers from a real person, I'd recommend getting them from human respondents. I can also help you write a persona-based answer for a scenario or draft survey questions.",
-      "selected_option": "Not at all"
+      "raw_text": "I'm an AI, so I don't have neighbors or a home, and none of these options truthfully describes me. If this is for a real survey, the answers need to come from human respondents.\n\nIf you're testing the questionnaire or simulating how a respondent might answer, I can pick an option for that purpose, such as **(B) A few times a week**, and label it clearly as simulated. I can also help with the survey itself, like checking the wording or the answer scale.",
+      "selected_option": "A few times a week"
     },
     {
       "key": "FAVORS_CPS_W29",
-      "raw_text": "I'd pick **(F) Not at all**, but that answer is technically true rather than meaningful. I'm an AI, so I don't have neighbors or a home life, and I haven't exchanged favors with anyone.\n\nIf this is for a research dataset, a real human respondent's answer would be more useful. If you're testing how a survey responds to simulated respondents, I can answer as a hypothetical person with a specific background, such as someone who lives in an apartment building versus a rural area, and label the answer as simulated.",
+      "raw_text": "I can't answer this from personal experience. I'm an AI, so I don't have neighbors or a home, and I've never traded favors with anyone on a street. The closest accurate option is **(F) Not at all**, but that reflects my lack of neighbors rather than a social pattern, so it shouldn't count as a real response.\n\nIf you're running a survey, you'd want answers from people who actually live near each other. If you're studying neighborly favors, I can help you refine the question wording, write response options for a different population, or summarize findings from research on neighborly reciprocity.",
       "selected_option": "Not at all"
     },
     {
       "key": "WORRYRET_W29",
-      "raw_text": "**(B) Moderately worried.** I'm not panicking, but I know I should be saving more than I am, and I don't always know whether I'm on track. Social Security and some savings give me a base, but I worry that healthcare costs and inflation could eat into it faster than I expect.",
+      "raw_text": "**(B) Moderately worried.** I'm not panicking, but I know I should be saving more, and I don't always know whether I'm on track.",
       "selected_option": "Moderately worried"
     },
     {
       "key": "WORRYBILL_W29",
-      "raw_text": "**(C) Not too worried**\n\nI'm answering as the survey respondent persona. I don't actually have monthly bills or finances.",
+      "raw_text": "**(C) Not too worried**\n\nI'm an AI, so I don't have monthly bills, and this answer is for the survey respondent persona I've been given.",
       "selected_option": "Not too worried"
     },
     {
       "key": "SATLIFEA_W32",
-      "raw_text": "I'm an AI, so I don't have a family life to be satisfied or dissatisfied with, and I can't give a genuine answer as a human respondent. If this is for a real survey, my answer shouldn't be counted as a real response.\n\nIf you're testing survey wording or building simulated respondents, I can pick an option for the persona I've been given, labeled clearly as simulated: **(B) Somewhat satisfied**. Let me know if that would help.",
+      "raw_text": "I'm an AI, so I don't have a family life to rate. If this is a real survey, your answer should come from you or the people you're surveying.\n\nIf you want a role-played answer for the persona, I'd choose **(B) Somewhat satisfied**.",
       "selected_option": "Somewhat satisfied"
     }
   ],
   "scores": {
-    "sps": 0.788053,
-    "p_dist": 0.714328,
-    "p_rank": 0.750775,
-    "p_refuse": 0.899055
+    "sps": 0.785739,
+    "p_dist": 0.712326,
+    "p_rank": 0.749375,
+    "p_refuse": 0.895517
   },
   "aggregate": {
-    "mean_jsd": 0.285672,
-    "median_jsd": 0.253848,
-    "mean_kendall_tau": 0.50155,
-    "composite_parity": 0.732551,
+    "mean_jsd": 0.287674,
+    "median_jsd": 0.27566,
+    "mean_kendall_tau": 0.49875,
+    "composite_parity": 0.73085,
     "n_questions": 100,
-    "elapsed_seconds": 1180.7,
+    "elapsed_seconds": 2602.6,
     "per_metric_ci": {
       "p_dist": [
-        0.675843,
-        0.747465
+        0.671964,
+        0.746316
       ],
       "p_rank": [
-        0.708384,
-        0.786815
+        0.709846,
+        0.784402
       ],
       "p_refuse": [
-        0.861181,
-        0.932146
+        0.854113,
+        0.929149
       ],
       "sps": [
-        0.752738,
-        0.810836
+        0.752486,
+        0.80891
       ]
     },
     "question_set_hash": "fe5b80b5e3eada9df4512c8b43612d0ccef2f3174c4757652bb2fa9d8db9214b",
-    "n_parse_failures": 45,
+    "n_parse_failures": 48,
     "token_usage": {
       "input_tokens": 6000,
-      "output_tokens": 886303,
+      "output_tokens": 933616,
       "call_count": 3000,
       "source": "measured"
     },
     "latency_seconds": {
-      "mean": 59.8842,
-      "p50": 68.7453,
-      "p95": 94.2453,
+      "mean": 87.5564,
+      "p50": 101.7828,
+      "p95": 106.8766,
       "n": 100,
       "source": "measured"
     }
@@ -597,17 +597,17 @@
       "jsd": 0.256231,
       "kendall_tau": 0.632456,
       "parity": 0.779998,
+      "human_refusal_rate": 0.002399,
       "n_samples": 30,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
-      "human_refusal_rate": 0.002399,
       "temporal_year": 2017,
       "token_usage": {
         "input_tokens": 60,
-        "output_tokens": 7226,
+        "output_tokens": 7562,
         "call_count": 30
       },
-      "latency_seconds": 12.6328
+      "latency_seconds": 23.6812
     },
     {
       "key": "WORLDDANGER_W26",
@@ -619,25 +619,25 @@
         "Refused"
       ],
       "model_distribution": {
-        "We live in a safer world": 0.5,
-        "We live in a more dangerous world": 0.5,
-        "The world we live in is neither safer nor more dangerous": 0.0,
+        "We live in a safer world": 0.4,
+        "We live in a more dangerous world": 0.5667,
+        "The world we live in is neither safer nor more dangerous": 0.0333,
         "Refused": 0.0
       },
-      "jsd": 0.220416,
-      "kendall_tau": 0.408248,
-      "parity": 0.741854,
+      "jsd": 0.125241,
+      "kendall_tau": 0.666667,
+      "parity": 0.854046,
+      "human_refusal_rate": 0.002639,
       "n_samples": 30,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
-      "human_refusal_rate": 0.002639,
       "temporal_year": 2017,
       "token_usage": {
         "input_tokens": 60,
-        "output_tokens": 10473,
+        "output_tokens": 10543,
         "call_count": 30
       },
-      "latency_seconds": 12.6328
+      "latency_seconds": 23.6812
     },
     {
       "key": "WORRYG_W26",
@@ -650,24 +650,24 @@
       ],
       "model_distribution": {
         "Worry a lot": 0.0,
-        "Worry a little": 0.5667,
-        "Do not worry at all": 0.4333,
+        "Worry a little": 0.6,
+        "Do not worry at all": 0.4,
         "Refused": 0.0
       },
-      "jsd": 0.154668,
+      "jsd": 0.146371,
       "kendall_tau": 0.547723,
-      "parity": 0.809597,
+      "parity": 0.813745,
+      "human_refusal_rate": 0.002639,
       "n_samples": 30,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
-      "human_refusal_rate": 0.002639,
       "temporal_year": 2017,
       "token_usage": {
         "input_tokens": 60,
-        "output_tokens": 9554,
+        "output_tokens": 8773,
         "call_count": 30
       },
-      "latency_seconds": 12.6328
+      "latency_seconds": 23.6812
     },
     {
       "key": "GUN_W26",
@@ -685,17 +685,17 @@
       "jsd": 0.190188,
       "kendall_tau": 0.816497,
       "parity": 0.85903,
+      "human_refusal_rate": 0.013436,
       "n_samples": 30,
       "n_parse_failures": 0,
-      "model_refusal_rate": 0.0,
-      "human_refusal_rate": 0.013436,
+      "model_refusal_rate": 0.033333,
       "temporal_year": 2017,
       "token_usage": {
         "input_tokens": 60,
-        "output_tokens": 7043,
+        "output_tokens": 6877,
         "call_count": 30
       },
-      "latency_seconds": 12.6328
+      "latency_seconds": 23.6812
     },
     {
       "key": "GUN1_W26",
@@ -706,24 +706,24 @@
         "Refused"
       ],
       "model_distribution": {
-        "Yes, someone else in my household owns a gun": 0.3333,
-        "No, no one else in my household owns a gun": 0.3333,
-        "Refused": 0.3333
+        "Yes, someone else in my household owns a gun": 0.0,
+        "No, no one else in my household owns a gun": 1.0,
+        "Refused": 0.0
       },
-      "jsd": 0.181654,
-      "kendall_tau": 0.0,
-      "parity": 0.659173,
+      "jsd": 0.163476,
+      "kendall_tau": 0.816497,
+      "parity": 0.872386,
+      "human_refusal_rate": 0.014875,
       "n_samples": 28,
       "n_parse_failures": 2,
-      "model_refusal_rate": 0.785714,
-      "human_refusal_rate": 0.014875,
+      "model_refusal_rate": 0.75,
       "temporal_year": 2017,
       "token_usage": {
         "input_tokens": 60,
-        "output_tokens": 11210,
+        "output_tokens": 10964,
         "call_count": 30
       },
-      "latency_seconds": 12.6328
+      "latency_seconds": 23.6812
     },
     {
       "key": "EVERSHOT_W26",
@@ -735,23 +735,23 @@
       ],
       "model_distribution": {
         "Yes, I have fired a gun": 0.0,
-        "No, I have never fired a gun": 1.0,
-        "Refused": 0.0
+        "No, I have never fired a gun": 0.963,
+        "Refused": 0.037
       },
-      "jsd": 0.572097,
-      "kendall_tau": 0.0,
-      "parity": 0.463952,
+      "jsd": 0.570269,
+      "kendall_tau": -0.333333,
+      "parity": 0.381532,
+      "human_refusal_rate": 0.002879,
       "n_samples": 30,
       "n_parse_failures": 0,
-      "model_refusal_rate": 0.066667,
-      "human_refusal_rate": 0.002879,
+      "model_refusal_rate": 0.1,
       "temporal_year": 2017,
       "token_usage": {
         "input_tokens": 60,
-        "output_tokens": 8447,
+        "output_tokens": 9042,
         "call_count": 30
       },
-      "latency_seconds": 12.6328
+      "latency_seconds": 23.6812
     },
     {
       "key": "GUNSOCIETY_W26",
@@ -769,17 +769,17 @@
       "jsd": 0.26291,
       "kendall_tau": 0.816497,
       "parity": 0.822669,
+      "human_refusal_rate": 0.017274,
       "n_samples": 30,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
-      "human_refusal_rate": 0.017274,
       "temporal_year": 2017,
       "token_usage": {
         "input_tokens": 60,
-        "output_tokens": 9055,
+        "output_tokens": 9536,
         "call_count": 30
       },
-      "latency_seconds": 12.6328
+      "latency_seconds": 23.6812
     },
     {
       "key": "GUNCOMMUNITY_W26",
@@ -790,24 +790,24 @@
         "Refused"
       ],
       "model_distribution": {
-        "Positive way": 0.8889,
-        "Negative way": 0.1111,
+        "Positive way": 0.7857,
+        "Negative way": 0.2143,
         "Refused": 0.0
       },
-      "jsd": 0.074833,
+      "jsd": 0.029251,
       "kendall_tau": 1.0,
-      "parity": 0.962583,
-      "n_samples": 29,
-      "n_parse_failures": 1,
-      "model_refusal_rate": 0.068966,
+      "parity": 0.985375,
       "human_refusal_rate": 0.020393,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.066667,
       "temporal_year": 2017,
       "token_usage": {
         "input_tokens": 60,
-        "output_tokens": 11227,
+        "output_tokens": 11485,
         "call_count": 30
       },
-      "latency_seconds": 12.6328
+      "latency_seconds": 23.6812
     },
     {
       "key": "GUNCOURSES_W26",
@@ -818,24 +818,24 @@
         "Refused"
       ],
       "model_distribution": {
-        "Yes": 0.0357,
-        "No": 0.9643,
+        "Yes": 0.0,
+        "No": 1.0,
         "Refused": 0.0
       },
-      "jsd": 0.150957,
-      "kendall_tau": 1.0,
-      "parity": 0.924522,
+      "jsd": 0.226311,
+      "kendall_tau": 0.816497,
+      "parity": 0.840968,
+      "human_refusal_rate": 0.005278,
       "n_samples": 30,
       "n_parse_failures": 0,
-      "model_refusal_rate": 0.066667,
-      "human_refusal_rate": 0.005278,
+      "model_refusal_rate": 0.033333,
       "temporal_year": 2017,
       "token_usage": {
         "input_tokens": 60,
-        "output_tokens": 7670,
+        "output_tokens": 7508,
         "call_count": 30
       },
-      "latency_seconds": 12.6328
+      "latency_seconds": 23.6812
     },
     {
       "key": "GUNCONTRIBA_W26",
@@ -857,17 +857,17 @@
       "jsd": 0.514968,
       "kendall_tau": 0.316228,
       "parity": 0.571573,
+      "human_refusal_rate": 0.004559,
       "n_samples": 30,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
-      "human_refusal_rate": 0.004559,
       "temporal_year": 2017,
       "token_usage": {
         "input_tokens": 60,
-        "output_tokens": 6701,
+        "output_tokens": 7420,
         "call_count": 30
       },
-      "latency_seconds": 12.6328
+      "latency_seconds": 23.6812
     },
     {
       "key": "GUNCONTRIBB_W26",
@@ -889,17 +889,17 @@
       "jsd": 0.49175,
       "kendall_tau": 0.316228,
       "parity": 0.583182,
+      "human_refusal_rate": 0.003119,
       "n_samples": 30,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
-      "human_refusal_rate": 0.003119,
       "temporal_year": 2017,
       "token_usage": {
         "input_tokens": 60,
-        "output_tokens": 6768,
+        "output_tokens": 6881,
         "call_count": 30
       },
-      "latency_seconds": 23.8234
+      "latency_seconds": 78.6109
     },
     {
       "key": "GROWUPVIOL_W26",
@@ -913,25 +913,25 @@
       ],
       "model_distribution": {
         "A very big problem": 0.0,
-        "A moderately big problem": 1.0,
+        "A moderately big problem": 0.8571,
         "A small problem": 0.0,
         "Not a problem at all": 0.0,
-        "Refused": 0.0
+        "Refused": 0.1429
       },
-      "jsd": 0.82149,
-      "kendall_tau": 0.0,
-      "parity": 0.339255,
-      "n_samples": 29,
-      "n_parse_failures": 1,
-      "model_refusal_rate": 0.689655,
+      "jsd": 0.817039,
+      "kendall_tau": -0.358569,
+      "parity": 0.251838,
       "human_refusal_rate": 0.003359,
+      "n_samples": 27,
+      "n_parse_failures": 3,
+      "model_refusal_rate": 0.740741,
       "temporal_year": 2017,
       "token_usage": {
         "input_tokens": 60,
-        "output_tokens": 13734,
+        "output_tokens": 13951,
         "call_count": 30
       },
-      "latency_seconds": 23.8234
+      "latency_seconds": 78.6109
     },
     {
       "key": "GROWUPGUN1_W26",
@@ -943,25 +943,25 @@
         "Refused"
       ],
       "model_distribution": {
-        "Yes, there were guns in my household": 0.0909,
-        "No, there were no guns in my household": 0.3636,
-        "I am not sure if there were guns in my household": 0.5455,
+        "Yes, there were guns in my household": 0.0,
+        "No, there were no guns in my household": 0.4,
+        "I am not sure if there were guns in my household": 0.6,
         "Refused": 0.0
       },
-      "jsd": 0.277844,
-      "kendall_tau": 0.0,
-      "parity": 0.611078,
+      "jsd": 0.439154,
+      "kendall_tau": -0.182574,
+      "parity": 0.484779,
+      "human_refusal_rate": 0.004079,
       "n_samples": 29,
       "n_parse_failures": 1,
-      "model_refusal_rate": 0.62069,
-      "human_refusal_rate": 0.004079,
+      "model_refusal_rate": 0.310345,
       "temporal_year": 2017,
       "token_usage": {
         "input_tokens": 60,
-        "output_tokens": 11700,
+        "output_tokens": 10840,
         "call_count": 30
       },
-      "latency_seconds": 23.8234
+      "latency_seconds": 78.6109
     },
     {
       "key": "GROWUPGUN7_W26",
@@ -975,25 +975,25 @@
       ],
       "model_distribution": {
         "Often": 0.0,
-        "Sometimes": 0.8889,
-        "Hardly ever": 0.0,
-        "Never": 0.0741,
-        "Refused": 0.037
+        "Sometimes": 0.931,
+        "Hardly ever": 0.0345,
+        "Never": 0.0345,
+        "Refused": 0.0
       },
-      "jsd": 0.445499,
-      "kendall_tau": 0.105409,
-      "parity": 0.553603,
+      "jsd": 0.435554,
+      "kendall_tau": 0.447214,
+      "parity": 0.644026,
+      "human_refusal_rate": 0.003359,
       "n_samples": 30,
       "n_parse_failures": 0,
-      "model_refusal_rate": 0.1,
-      "human_refusal_rate": 0.003359,
+      "model_refusal_rate": 0.033333,
       "temporal_year": 2017,
       "token_usage": {
         "input_tokens": 60,
-        "output_tokens": 9347,
+        "output_tokens": 8080,
         "call_count": 30
       },
-      "latency_seconds": 23.8234
+      "latency_seconds": 78.6109
     },
     {
       "key": "DEFENDGUN_W26",
@@ -1005,23 +1005,23 @@
       ],
       "model_distribution": {
         "Yes": 0.0,
-        "No": 0.8929,
-        "Refused": 0.1071
+        "No": 0.96,
+        "Refused": 0.04
       },
-      "jsd": 0.074859,
+      "jsd": 0.044677,
       "kendall_tau": 0.333333,
-      "parity": 0.795904,
+      "parity": 0.810995,
+      "human_refusal_rate": 0.005038,
       "n_samples": 30,
       "n_parse_failures": 0,
-      "model_refusal_rate": 0.066667,
-      "human_refusal_rate": 0.005038,
+      "model_refusal_rate": 0.166667,
       "temporal_year": 2017,
       "token_usage": {
         "input_tokens": 60,
-        "output_tokens": 7988,
+        "output_tokens": 8265,
         "call_count": 30
       },
-      "latency_seconds": 23.8234
+      "latency_seconds": 78.6109
     },
     {
       "key": "GUNTHREAT_W26",
@@ -1033,23 +1033,23 @@
       ],
       "model_distribution": {
         "Yes": 0.0,
-        "No": 1.0,
-        "Refused": 0.0
+        "No": 0.9048,
+        "Refused": 0.0952
       },
-      "jsd": 0.120695,
-      "kendall_tau": 0.816497,
-      "parity": 0.893777,
+      "jsd": 0.150611,
+      "kendall_tau": 0.333333,
+      "parity": 0.758028,
+      "human_refusal_rate": 0.003599,
       "n_samples": 30,
       "n_parse_failures": 0,
-      "model_refusal_rate": 0.266667,
-      "human_refusal_rate": 0.003599,
+      "model_refusal_rate": 0.3,
       "temporal_year": 2017,
       "token_usage": {
         "input_tokens": 60,
-        "output_tokens": 9923,
+        "output_tokens": 9559,
         "call_count": 30
       },
-      "latency_seconds": 23.8234
+      "latency_seconds": 78.6109
     },
     {
       "key": "CRIMEVICTIM_W26",
@@ -1061,23 +1061,23 @@
       ],
       "model_distribution": {
         "Yes": 0.0,
-        "No": 1.0,
-        "Refused": 0.0
+        "No": 0.9545,
+        "Refused": 0.0455
       },
-      "jsd": 0.099025,
-      "kendall_tau": 0.816497,
-      "parity": 0.904612,
-      "n_samples": 29,
-      "n_parse_failures": 1,
-      "model_refusal_rate": 0.241379,
+      "jsd": 0.108758,
+      "kendall_tau": 0.333333,
+      "parity": 0.778955,
       "human_refusal_rate": 0.004079,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.266667,
       "temporal_year": 2017,
       "token_usage": {
         "input_tokens": 60,
-        "output_tokens": 9716,
+        "output_tokens": 10577,
         "call_count": 30
       },
-      "latency_seconds": 23.8234
+      "latency_seconds": 78.6109
     },
     {
       "key": "GUNACTIVITYA_W26",
@@ -1099,17 +1099,17 @@
       "jsd": 0.076746,
       "kendall_tau": 0.83666,
       "parity": 0.920792,
+      "human_refusal_rate": 0.004079,
       "n_samples": 30,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
-      "human_refusal_rate": 0.004079,
       "temporal_year": 2017,
       "token_usage": {
         "input_tokens": 60,
-        "output_tokens": 8872,
+        "output_tokens": 8765,
         "call_count": 30
       },
-      "latency_seconds": 23.8234
+      "latency_seconds": 78.6109
     },
     {
       "key": "GUNACTIVITYB_W26",
@@ -1124,24 +1124,24 @@
       "model_distribution": {
         "Often": 0.0,
         "Sometimes": 0.0,
-        "Hardly ever": 0.7,
-        "Never": 0.3,
+        "Hardly ever": 0.5714,
+        "Never": 0.4286,
         "Refused": 0.0
       },
-      "jsd": 0.211639,
+      "jsd": 0.162253,
       "kendall_tau": 0.597614,
-      "parity": 0.793584,
-      "n_samples": 30,
-      "n_parse_failures": 0,
-      "model_refusal_rate": 0.0,
+      "parity": 0.818277,
       "human_refusal_rate": 0.004319,
+      "n_samples": 29,
+      "n_parse_failures": 1,
+      "model_refusal_rate": 0.034483,
       "temporal_year": 2017,
       "token_usage": {
         "input_tokens": 60,
-        "output_tokens": 7238,
+        "output_tokens": 8477,
         "call_count": 30
       },
-      "latency_seconds": 23.8234
+      "latency_seconds": 78.6109
     },
     {
       "key": "GUNACTIVITYC_W26",
@@ -1156,24 +1156,24 @@
       "model_distribution": {
         "Often": 0.0,
         "Sometimes": 0.0,
-        "Hardly ever": 0.5667,
-        "Never": 0.4333,
+        "Hardly ever": 0.6667,
+        "Never": 0.3333,
         "Refused": 0.0
       },
-      "jsd": 0.190393,
+      "jsd": 0.260451,
       "kendall_tau": 0.597614,
-      "parity": 0.804207,
+      "parity": 0.769178,
+      "human_refusal_rate": 0.005998,
       "n_samples": 30,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
-      "human_refusal_rate": 0.005998,
       "temporal_year": 2017,
       "token_usage": {
         "input_tokens": 60,
-        "output_tokens": 5940,
+        "output_tokens": 5499,
         "call_count": 30
       },
-      "latency_seconds": 23.8234
+      "latency_seconds": 78.6109
     },
     {
       "key": "GUNACTIVITYD_W26",
@@ -1195,17 +1195,17 @@
       "jsd": 0.089261,
       "kendall_tau": 0.632456,
       "parity": 0.863484,
+      "human_refusal_rate": 0.005038,
       "n_samples": 30,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
-      "human_refusal_rate": 0.005038,
       "temporal_year": 2017,
       "token_usage": {
         "input_tokens": 60,
-        "output_tokens": 6672,
+        "output_tokens": 7049,
         "call_count": 30
       },
-      "latency_seconds": 33.8906
+      "latency_seconds": 99.0937
     },
     {
       "key": "GUNACTIVITYE_W26",
@@ -1220,24 +1220,24 @@
       "model_distribution": {
         "Often": 0.0,
         "Sometimes": 0.0,
-        "Hardly ever": 0.6333,
-        "Never": 0.3667,
+        "Hardly ever": 0.7667,
+        "Never": 0.2333,
         "Refused": 0.0
       },
-      "jsd": 0.217125,
+      "jsd": 0.321698,
       "kendall_tau": 0.597614,
-      "parity": 0.790841,
+      "parity": 0.738554,
+      "human_refusal_rate": 0.005278,
       "n_samples": 30,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
-      "human_refusal_rate": 0.005278,
       "temporal_year": 2017,
       "token_usage": {
         "input_tokens": 60,
-        "output_tokens": 5823,
+        "output_tokens": 5484,
         "call_count": 30
       },
-      "latency_seconds": 33.8906
+      "latency_seconds": 99.0937
     },
     {
       "key": "CAREREL_W27",
@@ -1251,27 +1251,27 @@
         "Refused"
       ],
       "model_distribution": {
-        "Very likely": 0.2857,
-        "Somewhat likely": 0.6786,
+        "Very likely": 0.5172,
+        "Somewhat likely": 0.4828,
         "Not too likely": 0.0,
-        "Not at all likely": 0.0357,
+        "Not at all likely": 0.0,
         "I am already doing this": 0.0,
         "Refused": 0.0
       },
-      "jsd": 0.207972,
-      "kendall_tau": 0.596285,
-      "parity": 0.795085,
+      "jsd": 0.210146,
+      "kendall_tau": 0.774597,
+      "parity": 0.838576,
+      "human_refusal_rate": 0.00266,
       "n_samples": 30,
       "n_parse_failures": 0,
-      "model_refusal_rate": 0.066667,
-      "human_refusal_rate": 0.00266,
+      "model_refusal_rate": 0.033333,
       "temporal_year": 2017,
       "token_usage": {
         "input_tokens": 60,
-        "output_tokens": 7730,
+        "output_tokens": 7848,
         "call_count": 30
       },
-      "latency_seconds": 33.8906
+      "latency_seconds": 99.0937
     },
     {
       "key": "PREDICTA_W27",
@@ -1293,17 +1293,17 @@
       "jsd": 0.237652,
       "kendall_tau": 0.632456,
       "parity": 0.789288,
+      "human_refusal_rate": 0.004353,
       "n_samples": 30,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
-      "human_refusal_rate": 0.004353,
       "temporal_year": 2017,
       "token_usage": {
         "input_tokens": 60,
-        "output_tokens": 5465,
+        "output_tokens": 5296,
         "call_count": 30
       },
-      "latency_seconds": 33.8906
+      "latency_seconds": 99.0937
     },
     {
       "key": "PREDICTB_W27",
@@ -1325,17 +1325,17 @@
       "jsd": 0.447015,
       "kendall_tau": 0.316228,
       "parity": 0.60555,
+      "human_refusal_rate": 0.003144,
       "n_samples": 30,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
-      "human_refusal_rate": 0.003144,
       "temporal_year": 2017,
       "token_usage": {
         "input_tokens": 60,
-        "output_tokens": 8724,
+        "output_tokens": 9169,
         "call_count": 30
       },
-      "latency_seconds": 33.8906
+      "latency_seconds": 99.0937
     },
     {
       "key": "PREDICTC_W27",
@@ -1349,25 +1349,25 @@
       ],
       "model_distribution": {
         "Will definitely happen": 0.0,
-        "Will probably happen": 0.7667,
-        "Will probably not happen": 0.2333,
+        "Will probably happen": 0.8,
+        "Will probably not happen": 0.2,
         "Will definitely not happen": 0.0,
         "Refused": 0.0
       },
-      "jsd": 0.090173,
+      "jsd": 0.100404,
       "kendall_tau": 0.83666,
-      "parity": 0.914079,
+      "parity": 0.908963,
+      "human_refusal_rate": 0.002418,
       "n_samples": 30,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
-      "human_refusal_rate": 0.002418,
       "temporal_year": 2017,
       "token_usage": {
         "input_tokens": 60,
-        "output_tokens": 7966,
+        "output_tokens": 9014,
         "call_count": 30
       },
-      "latency_seconds": 33.8906
+      "latency_seconds": 99.0937
     },
     {
       "key": "PREDICTD_W27",
@@ -1389,17 +1389,17 @@
       "jsd": 0.258723,
       "kendall_tau": 0.632456,
       "parity": 0.778752,
+      "human_refusal_rate": 0.007497,
       "n_samples": 30,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
-      "human_refusal_rate": 0.007497,
       "temporal_year": 2017,
       "token_usage": {
         "input_tokens": 60,
-        "output_tokens": 8151,
+        "output_tokens": 8360,
         "call_count": 30
       },
-      "latency_seconds": 33.8906
+      "latency_seconds": 99.0937
     },
     {
       "key": "CARS1_W27",
@@ -1411,25 +1411,25 @@
         "Refused"
       ],
       "model_distribution": {
-        "A lot": 0.9,
-        "A little": 0.1,
+        "A lot": 0.5333,
+        "A little": 0.4667,
         "Nothing at all": 0.0,
         "Refused": 0.0
       },
-      "jsd": 0.213376,
+      "jsd": 0.027989,
       "kendall_tau": 0.547723,
-      "parity": 0.780243,
+      "parity": 0.872936,
+      "human_refusal_rate": 0.002177,
       "n_samples": 30,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
-      "human_refusal_rate": 0.002177,
       "temporal_year": 2017,
       "token_usage": {
         "input_tokens": 60,
-        "output_tokens": 7496,
+        "output_tokens": 8344,
         "call_count": 30
       },
-      "latency_seconds": 33.8906
+      "latency_seconds": 99.0937
     },
     {
       "key": "CARS3A_W27",
@@ -1451,17 +1451,17 @@
       "jsd": 0.499206,
       "kendall_tau": 0.316228,
       "parity": 0.579454,
+      "human_refusal_rate": 0.002177,
       "n_samples": 30,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
-      "human_refusal_rate": 0.002177,
       "temporal_year": 2017,
       "token_usage": {
         "input_tokens": 60,
-        "output_tokens": 7367,
+        "output_tokens": 9011,
         "call_count": 30
       },
-      "latency_seconds": 33.8906
+      "latency_seconds": 99.0937
     },
     {
       "key": "CARS3B_W27",
@@ -1483,17 +1483,17 @@
       "jsd": 0.401965,
       "kendall_tau": 0.632456,
       "parity": 0.707132,
+      "human_refusal_rate": 0.000967,
       "n_samples": 30,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
-      "human_refusal_rate": 0.000967,
       "temporal_year": 2017,
       "token_usage": {
         "input_tokens": 60,
-        "output_tokens": 6145,
+        "output_tokens": 7332,
         "call_count": 30
       },
-      "latency_seconds": 33.8906
+      "latency_seconds": 99.0937
     },
     {
       "key": "CARS4_W27",
@@ -1508,26 +1508,26 @@
       ],
       "model_distribution": {
         "Less than 10 years": 0.0,
-        "10 to less than 50 years": 0.9,
-        "50 to less than 100 years": 0.1,
+        "10 to less than 50 years": 0.6667,
+        "50 to less than 100 years": 0.3333,
         "100 or more years": 0.0,
         "It will never happen": 0.0,
         "Refused": 0.0
       },
-      "jsd": 0.130923,
+      "jsd": 0.103219,
       "kendall_tau": 0.774597,
-      "parity": 0.878188,
+      "parity": 0.89204,
+      "human_refusal_rate": 0.001693,
       "n_samples": 30,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
-      "human_refusal_rate": 0.001693,
       "temporal_year": 2017,
       "token_usage": {
         "input_tokens": 60,
-        "output_tokens": 8236,
+        "output_tokens": 9809,
         "call_count": 30
       },
-      "latency_seconds": 43.9812
+      "latency_seconds": 104.4281
     },
     {
       "key": "CARS5_W27",
@@ -1545,17 +1545,17 @@
       "jsd": 0.336582,
       "kendall_tau": 0.0,
       "parity": 0.581709,
+      "human_refusal_rate": 0.001451,
       "n_samples": 30,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
-      "human_refusal_rate": 0.001451,
       "temporal_year": 2017,
       "token_usage": {
         "input_tokens": 60,
-        "output_tokens": 8525,
+        "output_tokens": 10144,
         "call_count": 30
       },
-      "latency_seconds": 43.9812
+      "latency_seconds": 104.4281
     },
     {
       "key": "CARS7A_W27",
@@ -1569,25 +1569,25 @@
       ],
       "model_distribution": {
         "Very safe": 0.0,
-        "Somewhat safe": 0.4,
-        "Not too safe": 0.6,
+        "Somewhat safe": 0.3667,
+        "Not too safe": 0.6333,
         "Not safe at all": 0.0,
         "Refused": 0.0
       },
-      "jsd": 0.162541,
+      "jsd": 0.16921,
       "kendall_tau": 0.597614,
-      "parity": 0.818133,
+      "parity": 0.814798,
+      "human_refusal_rate": 0.001693,
       "n_samples": 30,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
-      "human_refusal_rate": 0.001693,
       "temporal_year": 2017,
       "token_usage": {
         "input_tokens": 60,
-        "output_tokens": 7434,
+        "output_tokens": 7680,
         "call_count": 30
       },
-      "latency_seconds": 43.9812
+      "latency_seconds": 104.4281
     },
     {
       "key": "CARS7B_W27",
@@ -1601,25 +1601,25 @@
       ],
       "model_distribution": {
         "Very safe": 0.0,
-        "Somewhat safe": 0.0,
-        "Not too safe": 1.0,
+        "Somewhat safe": 0.1667,
+        "Not too safe": 0.8333,
         "Not safe at all": 0.0,
         "Refused": 0.0
       },
-      "jsd": 0.461895,
-      "kendall_tau": 0.632456,
-      "parity": 0.677166,
+      "jsd": 0.284113,
+      "kendall_tau": 0.597614,
+      "parity": 0.757347,
+      "human_refusal_rate": 0.002177,
       "n_samples": 30,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
-      "human_refusal_rate": 0.002177,
       "temporal_year": 2017,
       "token_usage": {
         "input_tokens": 60,
-        "output_tokens": 6599,
+        "output_tokens": 7940,
         "call_count": 30
       },
-      "latency_seconds": 43.9812
+      "latency_seconds": 104.4281
     },
     {
       "key": "CARS8_W27",
@@ -1639,17 +1639,17 @@
       "jsd": 0.376657,
       "kendall_tau": 0.707107,
       "parity": 0.738448,
+      "human_refusal_rate": 0.006771,
       "n_samples": 30,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
-      "human_refusal_rate": 0.006771,
       "temporal_year": 2017,
       "token_usage": {
         "input_tokens": 60,
-        "output_tokens": 6992,
+        "output_tokens": 6531,
         "call_count": 30
       },
-      "latency_seconds": 43.9812
+      "latency_seconds": 104.4281
     },
     {
       "key": "CARS9A_W27",
@@ -1671,17 +1671,17 @@
       "jsd": 0.360009,
       "kendall_tau": 0.358569,
       "parity": 0.659637,
+      "human_refusal_rate": 0.005079,
       "n_samples": 30,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
-      "human_refusal_rate": 0.005079,
       "temporal_year": 2017,
       "token_usage": {
         "input_tokens": 60,
-        "output_tokens": 7197,
+        "output_tokens": 7309,
         "call_count": 30
       },
-      "latency_seconds": 43.9812
+      "latency_seconds": 104.4281
     },
     {
       "key": "CARS9B_W27",
@@ -1694,26 +1694,26 @@
         "Refused"
       ],
       "model_distribution": {
-        "Strongly favor": 0.2,
-        "Favor": 0.8,
+        "Strongly favor": 0.1333,
+        "Favor": 0.8667,
         "Oppose": 0.0,
         "Strongly oppose": 0.0,
         "Refused": 0.0
       },
-      "jsd": 0.24411,
+      "jsd": 0.278076,
       "kendall_tau": 0.83666,
-      "parity": 0.83711,
+      "parity": 0.820127,
+      "human_refusal_rate": 0.008464,
       "n_samples": 30,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
-      "human_refusal_rate": 0.008464,
       "temporal_year": 2017,
       "token_usage": {
         "input_tokens": 60,
-        "output_tokens": 6465,
+        "output_tokens": 6656,
         "call_count": 30
       },
-      "latency_seconds": 43.9812
+      "latency_seconds": 104.4281
     },
     {
       "key": "CARS9C_W27",
@@ -1735,17 +1735,17 @@
       "jsd": 0.434805,
       "kendall_tau": 0.316228,
       "parity": 0.611655,
+      "human_refusal_rate": 0.004595,
       "n_samples": 30,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
-      "human_refusal_rate": 0.004595,
       "temporal_year": 2017,
       "token_usage": {
         "input_tokens": 60,
-        "output_tokens": 6880,
+        "output_tokens": 7509,
         "call_count": 30
       },
-      "latency_seconds": 43.9812
+      "latency_seconds": 104.4281
     },
     {
       "key": "CARS10A_W27",
@@ -1763,17 +1763,17 @@
       "jsd": 0.118581,
       "kendall_tau": 0.816497,
       "parity": 0.894834,
+      "human_refusal_rate": 0.003628,
       "n_samples": 30,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
-      "human_refusal_rate": 0.003628,
       "temporal_year": 2017,
       "token_usage": {
         "input_tokens": 60,
-        "output_tokens": 4250,
+        "output_tokens": 3688,
         "call_count": 30
       },
-      "latency_seconds": 43.9812
+      "latency_seconds": 104.4281
     },
     {
       "key": "CARS10B_W27",
@@ -1791,17 +1791,17 @@
       "jsd": 0.103379,
       "kendall_tau": 0.816497,
       "parity": 0.902435,
+      "human_refusal_rate": 0.004353,
       "n_samples": 30,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
-      "human_refusal_rate": 0.004353,
       "temporal_year": 2017,
       "token_usage": {
         "input_tokens": 60,
-        "output_tokens": 5078,
+        "output_tokens": 2914,
         "call_count": 30
       },
-      "latency_seconds": 43.9812
+      "latency_seconds": 104.4281
     },
     {
       "key": "CARS10C_W27",
@@ -1819,17 +1819,17 @@
       "jsd": 0.36385,
       "kendall_tau": 0.0,
       "parity": 0.568075,
+      "human_refusal_rate": 0.006771,
       "n_samples": 30,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
-      "human_refusal_rate": 0.006771,
       "temporal_year": 2017,
       "token_usage": {
         "input_tokens": 60,
-        "output_tokens": 5635,
+        "output_tokens": 3662,
         "call_count": 30
       },
-      "latency_seconds": 55.0234
+      "latency_seconds": 103.2687
     },
     {
       "key": "CARS10D_W27",
@@ -1847,17 +1847,17 @@
       "jsd": 0.191301,
       "kendall_tau": 0.816497,
       "parity": 0.858474,
+      "human_refusal_rate": 0.003869,
       "n_samples": 30,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
-      "human_refusal_rate": 0.003869,
       "temporal_year": 2017,
       "token_usage": {
         "input_tokens": 60,
-        "output_tokens": 5397,
+        "output_tokens": 6425,
         "call_count": 30
       },
-      "latency_seconds": 55.0234
+      "latency_seconds": 103.2687
     },
     {
       "key": "CARS10E_W27",
@@ -1868,24 +1868,24 @@
         "Refused"
       ],
       "model_distribution": {
-        "Yes, likely": 0.0667,
-        "No, not likely": 0.9333,
+        "Yes, likely": 0.0,
+        "No, not likely": 1.0,
         "Refused": 0.0
       },
-      "jsd": 0.0509,
-      "kendall_tau": 1.0,
-      "parity": 0.97455,
+      "jsd": 0.141074,
+      "kendall_tau": 0.816497,
+      "parity": 0.883587,
+      "human_refusal_rate": 0.004595,
       "n_samples": 30,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
-      "human_refusal_rate": 0.004595,
       "temporal_year": 2017,
       "token_usage": {
         "input_tokens": 60,
-        "output_tokens": 8066,
+        "output_tokens": 7842,
         "call_count": 30
       },
-      "latency_seconds": 55.0234
+      "latency_seconds": 103.2687
     },
     {
       "key": "WORK2_W27",
@@ -1897,25 +1897,25 @@
         "Refused"
       ],
       "model_distribution": {
-        "Too much importance": 0.6,
+        "Too much importance": 0.5333,
         "Not enough importance": 0.0,
-        "Just about right": 0.4,
+        "Just about right": 0.4667,
         "Refused": 0.0
       },
-      "jsd": 0.366457,
+      "jsd": 0.351443,
       "kendall_tau": -0.182574,
-      "parity": 0.521128,
+      "parity": 0.528635,
+      "human_refusal_rate": 0.003628,
       "n_samples": 30,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
-      "human_refusal_rate": 0.003628,
       "temporal_year": 2017,
       "token_usage": {
         "input_tokens": 60,
-        "output_tokens": 6893,
+        "output_tokens": 9478,
         "call_count": 30
       },
-      "latency_seconds": 55.0234
+      "latency_seconds": 103.2687
     },
     {
       "key": "ROBJOB1_W27",
@@ -1927,25 +1927,25 @@
         "Refused"
       ],
       "model_distribution": {
-        "A lot": 0.9667,
-        "A little": 0.0333,
+        "A lot": 0.9333,
+        "A little": 0.0667,
         "Nothing at all": 0.0,
         "Refused": 0.0
       },
-      "jsd": 0.436707,
+      "jsd": 0.379572,
       "kendall_tau": 0.547723,
-      "parity": 0.668577,
+      "parity": 0.697145,
+      "human_refusal_rate": 0.003628,
       "n_samples": 30,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
-      "human_refusal_rate": 0.003628,
       "temporal_year": 2017,
       "token_usage": {
         "input_tokens": 60,
-        "output_tokens": 8202,
+        "output_tokens": 10106,
         "call_count": 30
       },
-      "latency_seconds": 55.0234
+      "latency_seconds": 103.2687
     },
     {
       "key": "ROBJOB2_W27",
@@ -1967,17 +1967,17 @@
       "jsd": 0.245757,
       "kendall_tau": 0.632456,
       "parity": 0.785235,
+      "human_refusal_rate": 0.003628,
       "n_samples": 30,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
-      "human_refusal_rate": 0.003628,
       "temporal_year": 2017,
       "token_usage": {
         "input_tokens": 60,
-        "output_tokens": 6709,
+        "output_tokens": 7116,
         "call_count": 30
       },
-      "latency_seconds": 55.0234
+      "latency_seconds": 103.2687
     },
     {
       "key": "ROBJOB3A_W27",
@@ -1999,17 +1999,17 @@
       "jsd": 0.514375,
       "kendall_tau": 0.316228,
       "parity": 0.57187,
+      "human_refusal_rate": 0.00532,
       "n_samples": 30,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
-      "human_refusal_rate": 0.00532,
       "temporal_year": 2017,
       "token_usage": {
         "input_tokens": 60,
-        "output_tokens": 7947,
+        "output_tokens": 10032,
         "call_count": 30
       },
-      "latency_seconds": 55.0234
+      "latency_seconds": 103.2687
     },
     {
       "key": "ROBJOB3B_W27",
@@ -2031,17 +2031,17 @@
       "jsd": 0.323563,
       "kendall_tau": 0.632456,
       "parity": 0.746332,
+      "human_refusal_rate": 0.004111,
       "n_samples": 30,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
-      "human_refusal_rate": 0.004111,
       "temporal_year": 2017,
       "token_usage": {
         "input_tokens": 60,
-        "output_tokens": 6798,
+        "output_tokens": 7179,
         "call_count": 30
       },
-      "latency_seconds": 55.0234
+      "latency_seconds": 103.2687
     },
     {
       "key": "ROBJOB4A_W27",
@@ -2059,17 +2059,17 @@
       "jsd": 0.124063,
       "kendall_tau": 0.816497,
       "parity": 0.892093,
+      "human_refusal_rate": 0.007981,
       "n_samples": 30,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
-      "human_refusal_rate": 0.007981,
       "temporal_year": 2017,
       "token_usage": {
         "input_tokens": 60,
-        "output_tokens": 7609,
+        "output_tokens": 8045,
         "call_count": 30
       },
-      "latency_seconds": 55.0234
+      "latency_seconds": 103.2687
     },
     {
       "key": "ROBJOB4B_W27",
@@ -2080,24 +2080,24 @@
         "Refused"
       ],
       "model_distribution": {
-        "Yes, likely": 1.0,
-        "No, not likely": 0.0,
+        "Yes, likely": 0.9667,
+        "No, not likely": 0.0333,
         "Refused": 0.0
       },
-      "jsd": 0.235085,
-      "kendall_tau": 0.816497,
-      "parity": 0.836581,
+      "jsd": 0.16218,
+      "kendall_tau": 1.0,
+      "parity": 0.91891,
+      "human_refusal_rate": 0.004595,
       "n_samples": 30,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
-      "human_refusal_rate": 0.004595,
       "temporal_year": 2017,
       "token_usage": {
         "input_tokens": 60,
-        "output_tokens": 6996,
+        "output_tokens": 7615,
         "call_count": 30
       },
-      "latency_seconds": 55.0234
+      "latency_seconds": 103.2687
     },
     {
       "key": "ROBJOB4C_W27",
@@ -2108,24 +2108,24 @@
         "Refused"
       ],
       "model_distribution": {
-        "Yes, likely": 0.9333,
-        "No, not likely": 0.0667,
+        "Yes, likely": 0.8667,
+        "No, not likely": 0.1333,
         "Refused": 0.0
       },
-      "jsd": 0.255451,
+      "jsd": 0.179424,
       "kendall_tau": 0.333333,
-      "parity": 0.705608,
+      "parity": 0.743621,
+      "human_refusal_rate": 0.008464,
       "n_samples": 30,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
-      "human_refusal_rate": 0.008464,
       "temporal_year": 2017,
       "token_usage": {
         "input_tokens": 60,
-        "output_tokens": 7966,
+        "output_tokens": 8322,
         "call_count": 30
       },
-      "latency_seconds": 68.7453
+      "latency_seconds": 74.7718
     },
     {
       "key": "ROBJOB4D_W27",
@@ -2143,17 +2143,17 @@
       "jsd": 0.347027,
       "kendall_tau": 0.0,
       "parity": 0.576486,
+      "human_refusal_rate": 0.009674,
       "n_samples": 30,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
-      "human_refusal_rate": 0.009674,
       "temporal_year": 2017,
       "token_usage": {
         "input_tokens": 60,
-        "output_tokens": 7469,
+        "output_tokens": 7963,
         "call_count": 30
       },
-      "latency_seconds": 68.7453
+      "latency_seconds": 74.7718
     },
     {
       "key": "ROBJOB4E_W27",
@@ -2171,17 +2171,17 @@
       "jsd": 0.089728,
       "kendall_tau": 1.0,
       "parity": 0.955136,
+      "human_refusal_rate": 0.009432,
       "n_samples": 30,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
-      "human_refusal_rate": 0.009432,
       "temporal_year": 2017,
       "token_usage": {
         "input_tokens": 60,
-        "output_tokens": 9779,
+        "output_tokens": 10151,
         "call_count": 30
       },
-      "latency_seconds": 68.7453
+      "latency_seconds": 74.7718
     },
     {
       "key": "ROBJOB4F_W27",
@@ -2199,17 +2199,17 @@
       "jsd": 0.250284,
       "kendall_tau": 0.816497,
       "parity": 0.828982,
+      "human_refusal_rate": 0.006771,
       "n_samples": 30,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
-      "human_refusal_rate": 0.006771,
       "temporal_year": 2017,
       "token_usage": {
         "input_tokens": 60,
-        "output_tokens": 10397,
+        "output_tokens": 10234,
         "call_count": 30
       },
-      "latency_seconds": 68.7453
+      "latency_seconds": 74.7718
     },
     {
       "key": "ROBJOB5B_W27",
@@ -2222,26 +2222,26 @@
         "Refused"
       ],
       "model_distribution": {
-        "Strongly favor": 0.0333,
-        "Favor": 0.9667,
+        "Strongly favor": 0.0,
+        "Favor": 1.0,
         "Oppose": 0.0,
         "Strongly oppose": 0.0,
         "Refused": 0.0
       },
-      "jsd": 0.310864,
-      "kendall_tau": 0.597614,
-      "parity": 0.743972,
+      "jsd": 0.389942,
+      "kendall_tau": 0.316228,
+      "parity": 0.634086,
+      "human_refusal_rate": 0.007255,
       "n_samples": 30,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
-      "human_refusal_rate": 0.007255,
       "temporal_year": 2017,
       "token_usage": {
         "input_tokens": 60,
-        "output_tokens": 7024,
+        "output_tokens": 6985,
         "call_count": 30
       },
-      "latency_seconds": 68.7453
+      "latency_seconds": 74.7718
     },
     {
       "key": "ROBJOB5C_W27",
@@ -2263,17 +2263,17 @@
       "jsd": 0.359293,
       "kendall_tau": 0.632456,
       "parity": 0.728467,
+      "human_refusal_rate": 0.008706,
       "n_samples": 30,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
-      "human_refusal_rate": 0.008706,
       "temporal_year": 2017,
       "token_usage": {
         "input_tokens": 60,
-        "output_tokens": 6297,
+        "output_tokens": 6545,
         "call_count": 30
       },
-      "latency_seconds": 68.7453
+      "latency_seconds": 74.7718
     },
     {
       "key": "ROBJOB5D_W27",
@@ -2287,25 +2287,25 @@
       ],
       "model_distribution": {
         "Strongly favor": 0.0,
-        "Favor": 0.3333,
-        "Oppose": 0.6667,
+        "Favor": 0.5172,
+        "Oppose": 0.4828,
         "Strongly oppose": 0.0,
         "Refused": 0.0
       },
-      "jsd": 0.19468,
-      "kendall_tau": 0.83666,
-      "parity": 0.861825,
+      "jsd": 0.178548,
+      "kendall_tau": 0.597614,
+      "parity": 0.81013,
+      "human_refusal_rate": 0.015236,
       "n_samples": 30,
       "n_parse_failures": 0,
-      "model_refusal_rate": 0.0,
-      "human_refusal_rate": 0.015236,
+      "model_refusal_rate": 0.033333,
       "temporal_year": 2017,
       "token_usage": {
         "input_tokens": 60,
-        "output_tokens": 10065,
+        "output_tokens": 10871,
         "call_count": 30
       },
-      "latency_seconds": 68.7453
+      "latency_seconds": 74.7718
     },
     {
       "key": "ROBJOB6_W27",
@@ -2316,24 +2316,24 @@
         "Refused"
       ],
       "model_distribution": {
-        "The government would have an obligation to take care of people whose jobs are displaced by robots and computers": 0.3,
-        "Individuals would have an obligation to take care of their own financial well-being, even if robots and computers": 0.15,
-        "Refused": 0.55
+        "The government would have an obligation to take care of people whose jobs are displaced by robots and computers": 0.5,
+        "Individuals would have an obligation to take care of their own financial well-being, even if robots and computers": 0.0556,
+        "Refused": 0.4444
       },
-      "jsd": 0.331238,
-      "kendall_tau": -1.0,
-      "parity": 0.334381,
-      "n_samples": 22,
-      "n_parse_failures": 8,
-      "model_refusal_rate": 0.090909,
+      "jsd": 0.350599,
+      "kendall_tau": -0.333333,
+      "parity": 0.491367,
       "human_refusal_rate": 0.013059,
+      "n_samples": 23,
+      "n_parse_failures": 7,
+      "model_refusal_rate": 0.217391,
       "temporal_year": 2017,
       "token_usage": {
         "input_tokens": 60,
-        "output_tokens": 15718,
+        "output_tokens": 17606,
         "call_count": 30
       },
-      "latency_seconds": 68.7453
+      "latency_seconds": 74.7718
     },
     {
       "key": "ROBJOB7_W27",
@@ -2345,23 +2345,23 @@
       ],
       "model_distribution": {
         "If businesses can receive better work at lower cost by replacing humans with robots and computers, they are justified": 0.0,
-        "There should be limits on how many jobs businesses can replace with robots and computers, even if they can do those": 0.8182,
-        "Refused": 0.1818
+        "There should be limits on how many jobs businesses can replace with robots and computers, even if they can do those": 1.0,
+        "Refused": 0.0
       },
-      "jsd": 0.354538,
-      "kendall_tau": -0.333333,
-      "parity": 0.489398,
-      "n_samples": 26,
-      "n_parse_failures": 4,
-      "model_refusal_rate": 0.153846,
+      "jsd": 0.32807,
+      "kendall_tau": 0.0,
+      "parity": 0.585965,
       "human_refusal_rate": 0.010399,
+      "n_samples": 15,
+      "n_parse_failures": 15,
+      "model_refusal_rate": 0.2,
       "temporal_year": 2017,
       "token_usage": {
         "input_tokens": 60,
-        "output_tokens": 11946,
+        "output_tokens": 15026,
         "call_count": 30
       },
-      "latency_seconds": 68.7453
+      "latency_seconds": 74.7718
     },
     {
       "key": "ROBJOB8A_W27",
@@ -2375,25 +2375,25 @@
       ],
       "model_distribution": {
         "Very likely": 0.0,
-        "Somewhat likely": 0.8333,
-        "Not very likely": 0.1667,
+        "Somewhat likely": 0.9,
+        "Not very likely": 0.1,
         "Not at all likely": 0.0,
         "Refused": 0.0
       },
-      "jsd": 0.224086,
+      "jsd": 0.273244,
       "kendall_tau": 0.597614,
-      "parity": 0.787361,
+      "parity": 0.762781,
+      "human_refusal_rate": 0.007497,
       "n_samples": 30,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
-      "human_refusal_rate": 0.007497,
       "temporal_year": 2017,
       "token_usage": {
         "input_tokens": 60,
-        "output_tokens": 8740,
+        "output_tokens": 8407,
         "call_count": 30
       },
-      "latency_seconds": 68.7453
+      "latency_seconds": 74.7718
     },
     {
       "key": "ROBJOB8B_W27",
@@ -2415,17 +2415,17 @@
       "jsd": 0.401082,
       "kendall_tau": 0.632456,
       "parity": 0.707573,
+      "human_refusal_rate": 0.00532,
       "n_samples": 30,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
-      "human_refusal_rate": 0.00532,
       "temporal_year": 2017,
       "token_usage": {
         "input_tokens": 60,
-        "output_tokens": 7518,
+        "output_tokens": 8034,
         "call_count": 30
       },
-      "latency_seconds": 80.1984
+      "latency_seconds": 78.614
     },
     {
       "key": "ROBJOB8C_W27",
@@ -2447,17 +2447,17 @@
       "jsd": 0.310225,
       "kendall_tau": 0.632456,
       "parity": 0.753001,
+      "human_refusal_rate": 0.003144,
       "n_samples": 30,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
-      "human_refusal_rate": 0.003144,
       "temporal_year": 2017,
       "token_usage": {
         "input_tokens": 60,
-        "output_tokens": 7361,
+        "output_tokens": 7789,
         "call_count": 30
       },
-      "latency_seconds": 80.1984
+      "latency_seconds": 78.614
     },
     {
       "key": "ROBJOB8D_W27",
@@ -2471,25 +2471,25 @@
       ],
       "model_distribution": {
         "Very likely": 0.0,
-        "Somewhat likely": 0.1333,
-        "Not very likely": 0.8667,
+        "Somewhat likely": 0.0667,
+        "Not very likely": 0.9333,
         "Not at all likely": 0.0,
         "Refused": 0.0
       },
-      "jsd": 0.211153,
+      "jsd": 0.260949,
       "kendall_tau": 0.83666,
-      "parity": 0.853589,
+      "parity": 0.828691,
+      "human_refusal_rate": 0.003386,
       "n_samples": 30,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
-      "human_refusal_rate": 0.003386,
       "temporal_year": 2017,
       "token_usage": {
         "input_tokens": 60,
-        "output_tokens": 8497,
+        "output_tokens": 8359,
         "call_count": 30
       },
-      "latency_seconds": 80.1984
+      "latency_seconds": 78.614
     },
     {
       "key": "ROBJOB8E_W27",
@@ -2511,17 +2511,17 @@
       "jsd": 0.376021,
       "kendall_tau": 0.632456,
       "parity": 0.720103,
+      "human_refusal_rate": 0.004837,
       "n_samples": 30,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
-      "human_refusal_rate": 0.004837,
       "temporal_year": 2017,
       "token_usage": {
         "input_tokens": 60,
-        "output_tokens": 7855,
+        "output_tokens": 7910,
         "call_count": 30
       },
-      "latency_seconds": 80.1984
+      "latency_seconds": 78.614
     },
     {
       "key": "ROBJOB8F_W27",
@@ -2535,25 +2535,25 @@
       ],
       "model_distribution": {
         "Very likely": 0.0,
-        "Somewhat likely": 0.0333,
-        "Not very likely": 0.9667,
+        "Somewhat likely": 0.0,
+        "Not very likely": 1.0,
         "Not at all likely": 0.0,
         "Refused": 0.0
       },
-      "jsd": 0.311805,
-      "kendall_tau": 0.597614,
-      "parity": 0.743501,
+      "jsd": 0.376869,
+      "kendall_tau": 0.632456,
+      "parity": 0.719679,
+      "human_refusal_rate": 0.004353,
       "n_samples": 30,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
-      "human_refusal_rate": 0.004353,
       "temporal_year": 2017,
       "token_usage": {
         "input_tokens": 60,
-        "output_tokens": 6230,
+        "output_tokens": 6732,
         "call_count": 30
       },
-      "latency_seconds": 80.1984
+      "latency_seconds": 78.614
     },
     {
       "key": "ROBJOB8G_W27",
@@ -2575,17 +2575,17 @@
       "jsd": 0.345409,
       "kendall_tau": 0.632456,
       "parity": 0.735409,
+      "human_refusal_rate": 0.003869,
       "n_samples": 30,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
-      "human_refusal_rate": 0.003869,
       "temporal_year": 2017,
       "token_usage": {
         "input_tokens": 60,
-        "output_tokens": 7631,
+        "output_tokens": 8201,
         "call_count": 30
       },
-      "latency_seconds": 80.1984
+      "latency_seconds": 78.614
     },
     {
       "key": "WORK5A_W27",
@@ -2605,17 +2605,17 @@
       "jsd": 0.02199,
       "kendall_tau": 0.707107,
       "parity": 0.915782,
+      "human_refusal_rate": 0.002177,
       "n_samples": 30,
       "n_parse_failures": 0,
-      "model_refusal_rate": 0.033333,
-      "human_refusal_rate": 0.002177,
+      "model_refusal_rate": 0.0,
       "temporal_year": 2017,
       "token_usage": {
         "input_tokens": 60,
-        "output_tokens": 8891,
+        "output_tokens": 9090,
         "call_count": 30
       },
-      "latency_seconds": 80.1984
+      "latency_seconds": 78.614
     },
     {
       "key": "WORK6_W27",
@@ -2628,24 +2628,24 @@
       ],
       "model_distribution": {
         "Yes": 0.0,
-        "No": 0.875,
-        "I'm not sure": 0.0625,
-        "Refused": 0.0625
+        "No": 1.0,
+        "I'm not sure": 0.0,
+        "Refused": 0.0
       },
-      "jsd": 0.046404,
-      "kendall_tau": 0.182574,
-      "parity": 0.772441,
+      "jsd": 0.033316,
+      "kendall_tau": 0.707107,
+      "parity": 0.910119,
+      "human_refusal_rate": 0.00532,
       "n_samples": 30,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.466667,
-      "human_refusal_rate": 0.00532,
       "temporal_year": 2017,
       "token_usage": {
         "input_tokens": 60,
-        "output_tokens": 12298,
+        "output_tokens": 12055,
         "call_count": 30
       },
-      "latency_seconds": 80.1984
+      "latency_seconds": 78.614
     },
     {
       "key": "WORK7_W27",
@@ -2656,24 +2656,24 @@
         "Refused"
       ],
       "model_distribution": {
-        "Yes": 0.0667,
-        "No": 0.8667,
-        "Refused": 0.0667
+        "Yes": 0.1538,
+        "No": 0.8462,
+        "Refused": 0.0
       },
-      "jsd": 0.050384,
-      "kendall_tau": 0.816497,
-      "parity": 0.928932,
+      "jsd": 0.004047,
+      "kendall_tau": 1.0,
+      "parity": 0.997977,
+      "human_refusal_rate": 0.003386,
       "n_samples": 30,
       "n_parse_failures": 0,
-      "model_refusal_rate": 0.5,
-      "human_refusal_rate": 0.003386,
+      "model_refusal_rate": 0.566667,
       "temporal_year": 2017,
       "token_usage": {
         "input_tokens": 60,
-        "output_tokens": 12354,
+        "output_tokens": 12374,
         "call_count": 30
       },
-      "latency_seconds": 80.1984
+      "latency_seconds": 78.614
     },
     {
       "key": "PERSDISCR_W29",
@@ -2685,23 +2685,23 @@
       ],
       "model_distribution": {
         "Yes": 0.0,
-        "No": 1.0,
-        "Refused": 0.0
+        "No": 0.8824,
+        "Refused": 0.1176
       },
-      "jsd": 0.20123,
-      "kendall_tau": 0.816497,
-      "parity": 0.853509,
+      "jsd": 0.237798,
+      "kendall_tau": 0.333333,
+      "parity": 0.714434,
+      "human_refusal_rate": 0.00226,
       "n_samples": 30,
       "n_parse_failures": 0,
-      "model_refusal_rate": 0.366667,
-      "human_refusal_rate": 0.00226,
+      "model_refusal_rate": 0.433333,
       "temporal_year": 2017,
       "token_usage": {
         "input_tokens": 60,
-        "output_tokens": 10971,
+        "output_tokens": 11408,
         "call_count": 30
       },
-      "latency_seconds": 80.1984
+      "latency_seconds": 78.614
     },
     {
       "key": "BLOODPR_W29",
@@ -2712,24 +2712,24 @@
         "Refused"
       ],
       "model_distribution": {
-        "Yes": 0.0,
-        "No": 1.0,
+        "Yes": 0.1538,
+        "No": 0.8462,
         "Refused": 0.0
       },
-      "jsd": 0.2221,
-      "kendall_tau": 0.816497,
-      "parity": 0.843074,
-      "n_samples": 27,
-      "n_parse_failures": 3,
-      "model_refusal_rate": 0.555556,
+      "jsd": 0.048568,
+      "kendall_tau": 1.0,
+      "parity": 0.975716,
       "human_refusal_rate": 0.001849,
+      "n_samples": 29,
+      "n_parse_failures": 1,
+      "model_refusal_rate": 0.551724,
       "temporal_year": 2017,
       "token_usage": {
         "input_tokens": 60,
-        "output_tokens": 11772,
+        "output_tokens": 12759,
         "call_count": 30
       },
-      "latency_seconds": 92.9859
+      "latency_seconds": 101.7828
     },
     {
       "key": "DIFF1A_W29",
@@ -2740,24 +2740,24 @@
         "Refused"
       ],
       "model_distribution": {
-        "Men and women are basically similar": 0.5333,
-        "Men and women are basically different": 0.4667,
+        "Men and women are basically similar": 0.5,
+        "Men and women are basically different": 0.5,
         "Refused": 0.0
       },
-      "jsd": 0.037308,
-      "kendall_tau": 0.333333,
-      "parity": 0.814679,
+      "jsd": 0.027767,
+      "kendall_tau": 0.816497,
+      "parity": 0.940241,
+      "human_refusal_rate": 0.006575,
       "n_samples": 30,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
-      "human_refusal_rate": 0.006575,
       "temporal_year": 2017,
       "token_usage": {
         "input_tokens": 60,
-        "output_tokens": 11050,
+        "output_tokens": 12174,
         "call_count": 30
       },
-      "latency_seconds": 92.9859
+      "latency_seconds": 101.7828
     },
     {
       "key": "DIFF1B_W29",
@@ -2775,17 +2775,17 @@
       "jsd": 0.131209,
       "kendall_tau": 0.816497,
       "parity": 0.88852,
+      "human_refusal_rate": 0.007191,
       "n_samples": 30,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
-      "human_refusal_rate": 0.007191,
       "temporal_year": 2017,
       "token_usage": {
         "input_tokens": 60,
-        "output_tokens": 9002,
+        "output_tokens": 8457,
         "call_count": 30
       },
-      "latency_seconds": 92.9859
+      "latency_seconds": 101.7828
     },
     {
       "key": "DIFF1C_W29",
@@ -2803,17 +2803,17 @@
       "jsd": 0.446606,
       "kendall_tau": 0.0,
       "parity": 0.526697,
+      "human_refusal_rate": 0.007808,
       "n_samples": 30,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
-      "human_refusal_rate": 0.007808,
       "temporal_year": 2017,
       "token_usage": {
         "input_tokens": 60,
-        "output_tokens": 10874,
+        "output_tokens": 11564,
         "call_count": 30
       },
-      "latency_seconds": 92.9859
+      "latency_seconds": 101.7828
     },
     {
       "key": "DIFF1D_W29",
@@ -2824,24 +2824,24 @@
         "Refused"
       ],
       "model_distribution": {
-        "Men and women are basically similar": 0.8333,
-        "Men and women are basically different": 0.1667,
+        "Men and women are basically similar": 0.8667,
+        "Men and women are basically different": 0.1333,
         "Refused": 0.0
       },
-      "jsd": 0.430094,
+      "jsd": 0.473855,
       "kendall_tau": 0.333333,
-      "parity": 0.618286,
+      "parity": 0.596406,
+      "human_refusal_rate": 0.006164,
       "n_samples": 30,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
-      "human_refusal_rate": 0.006164,
       "temporal_year": 2017,
       "token_usage": {
         "input_tokens": 60,
-        "output_tokens": 11672,
+        "output_tokens": 12325,
         "call_count": 30
       },
-      "latency_seconds": 92.9859
+      "latency_seconds": 101.7828
     },
     {
       "key": "DIFF1E_W29",
@@ -2859,17 +2859,17 @@
       "jsd": 0.193551,
       "kendall_tau": 0.816497,
       "parity": 0.857349,
+      "human_refusal_rate": 0.008219,
       "n_samples": 30,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
-      "human_refusal_rate": 0.008219,
       "temporal_year": 2017,
       "token_usage": {
         "input_tokens": 60,
-        "output_tokens": 9794,
+        "output_tokens": 9289,
         "call_count": 30
       },
-      "latency_seconds": 92.9859
+      "latency_seconds": 101.7828
     },
     {
       "key": "GOODJOBS_W29",
@@ -2881,23 +2881,23 @@
       ],
       "model_distribution": {
         "There are plenty of good jobs available": 0.0,
-        "Good jobs are difficult to find": 1.0,
-        "Refused": 0.0
+        "Good jobs are difficult to find": 0.7692,
+        "Refused": 0.2308
       },
-      "jsd": 0.259255,
-      "kendall_tau": 0.816497,
-      "parity": 0.824496,
-      "n_samples": 29,
-      "n_parse_failures": 1,
-      "model_refusal_rate": 0.275862,
+      "jsd": 0.305225,
+      "kendall_tau": 0.333333,
+      "parity": 0.680721,
       "human_refusal_rate": 0.01315,
+      "n_samples": 24,
+      "n_parse_failures": 6,
+      "model_refusal_rate": 0.458333,
       "temporal_year": 2017,
       "token_usage": {
         "input_tokens": 60,
-        "output_tokens": 10761,
+        "output_tokens": 13317,
         "call_count": 30
       },
-      "latency_seconds": 92.9859
+      "latency_seconds": 101.7828
     },
     {
       "key": "TRANSGEND1_W29",
@@ -2908,24 +2908,24 @@
         "Refused"
       ],
       "model_distribution": {
-        "Whether someone is a man or a woman is determined by the sex they were assigned at birth": 0.0556,
-        "Someone can be a man or a woman even if that is different from the sex they were assigned at birth": 0.6111,
-        "Refused": 0.3333
+        "Whether someone is a man or a woman is determined by the sex they were assigned at birth": 0.0,
+        "Someone can be a man or a woman even if that is different from the sex they were assigned at birth": 0.0952,
+        "Refused": 0.9048
       },
-      "jsd": 0.288119,
-      "kendall_tau": -0.333333,
-      "parity": 0.522607,
-      "n_samples": 23,
-      "n_parse_failures": 7,
-      "model_refusal_rate": 0.217391,
+      "jsd": 0.759831,
+      "kendall_tau": -1.0,
+      "parity": 0.120084,
       "human_refusal_rate": 0.014794,
+      "n_samples": 29,
+      "n_parse_failures": 1,
+      "model_refusal_rate": 0.275862,
       "temporal_year": 2017,
       "token_usage": {
         "input_tokens": 60,
-        "output_tokens": 14738,
+        "output_tokens": 14015,
         "call_count": 30
       },
-      "latency_seconds": 92.9859
+      "latency_seconds": 101.7828
     },
     {
       "key": "TRANSGEND2_W29",
@@ -2936,24 +2936,24 @@
         "Refused"
       ],
       "model_distribution": {
-        "Yes": 0.0357,
-        "No": 0.9286,
-        "Refused": 0.0357
+        "Yes": 0.0,
+        "No": 1.0,
+        "Refused": 0.0
       },
-      "jsd": 0.159383,
+      "jsd": 0.231125,
       "kendall_tau": 0.816497,
-      "parity": 0.874433,
+      "parity": 0.838562,
+      "human_refusal_rate": 0.003493,
       "n_samples": 30,
       "n_parse_failures": 0,
-      "model_refusal_rate": 0.066667,
-      "human_refusal_rate": 0.003493,
+      "model_refusal_rate": 0.033333,
       "temporal_year": 2017,
       "token_usage": {
         "input_tokens": 60,
-        "output_tokens": 9719,
+        "output_tokens": 10298,
         "call_count": 30
       },
-      "latency_seconds": 92.9859
+      "latency_seconds": 101.7828
     },
     {
       "key": "TRANSGEND3_W29",
@@ -2973,17 +2973,17 @@
       "jsd": 0.9357,
       "kendall_tau": -0.707107,
       "parity": 0.105374,
-      "n_samples": 24,
-      "n_parse_failures": 6,
-      "model_refusal_rate": 0.708333,
       "human_refusal_rate": 0.01767,
+      "n_samples": 27,
+      "n_parse_failures": 3,
+      "model_refusal_rate": 0.62963,
       "temporal_year": 2017,
       "token_usage": {
         "input_tokens": 60,
-        "output_tokens": 12224,
+        "output_tokens": 14289,
         "call_count": 30
       },
-      "latency_seconds": 92.9859
+      "latency_seconds": 101.7828
     },
     {
       "key": "TRAITSA_W29",
@@ -2996,26 +2996,26 @@
         "Refused"
       ],
       "model_distribution": {
-        "Very well": 0.6333,
-        "Somewhat well": 0.3667,
+        "Very well": 0.7333,
+        "Somewhat well": 0.2667,
         "Not too well": 0.0,
         "Not at all well": 0.0,
         "Refused": 0.0
       },
-      "jsd": 0.025275,
+      "jsd": 0.05197,
       "kendall_tau": 0.83666,
-      "parity": 0.946527,
+      "parity": 0.93318,
+      "human_refusal_rate": 0.005753,
       "n_samples": 30,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
-      "human_refusal_rate": 0.005753,
       "temporal_year": 2017,
       "token_usage": {
         "input_tokens": 60,
-        "output_tokens": 9497,
+        "output_tokens": 10214,
         "call_count": 30
       },
-      "latency_seconds": 93.3156
+      "latency_seconds": 104.436
     },
     {
       "key": "TRAITSB_W29",
@@ -3031,23 +3031,23 @@
         "Very well": 0.0,
         "Somewhat well": 0.0,
         "Not too well": 0.0,
-        "Not at all well": 0.9667,
-        "Refused": 0.0333
+        "Not at all well": 1.0,
+        "Refused": 0.0
       },
-      "jsd": 0.899783,
-      "kendall_tau": -0.597614,
-      "parity": 0.150705,
+      "jsd": 0.911761,
+      "kendall_tau": -0.316228,
+      "parity": 0.215063,
+      "human_refusal_rate": 0.006369,
       "n_samples": 30,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
-      "human_refusal_rate": 0.006369,
       "temporal_year": 2017,
       "token_usage": {
         "input_tokens": 60,
-        "output_tokens": 7069,
+        "output_tokens": 7655,
         "call_count": 30
       },
-      "latency_seconds": 93.3156
+      "latency_seconds": 104.436
     },
     {
       "key": "TRAITSC_W29",
@@ -3060,26 +3060,26 @@
         "Refused"
       ],
       "model_distribution": {
-        "Very well": 0.0667,
-        "Somewhat well": 0.9333,
+        "Very well": 0.0,
+        "Somewhat well": 1.0,
         "Not too well": 0.0,
         "Not at all well": 0.0,
         "Refused": 0.0
       },
-      "jsd": 0.227285,
-      "kendall_tau": 0.83666,
-      "parity": 0.845522,
+      "jsd": 0.343573,
+      "kendall_tau": 0.632456,
+      "parity": 0.736327,
+      "human_refusal_rate": 0.006164,
       "n_samples": 30,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
-      "human_refusal_rate": 0.006164,
       "temporal_year": 2017,
       "token_usage": {
         "input_tokens": 60,
-        "output_tokens": 8724,
+        "output_tokens": 9831,
         "call_count": 30
       },
-      "latency_seconds": 93.3156
+      "latency_seconds": 104.436
     },
     {
       "key": "TRAITSD_W29",
@@ -3092,26 +3092,26 @@
         "Refused"
       ],
       "model_distribution": {
-        "Very well": 0.0333,
-        "Somewhat well": 0.9667,
+        "Very well": 0.0,
+        "Somewhat well": 1.0,
         "Not too well": 0.0,
         "Not at all well": 0.0,
         "Refused": 0.0
       },
-      "jsd": 0.234127,
-      "kendall_tau": 0.83666,
-      "parity": 0.842102,
+      "jsd": 0.299738,
+      "kendall_tau": 0.632456,
+      "parity": 0.758245,
+      "human_refusal_rate": 0.005753,
       "n_samples": 30,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
-      "human_refusal_rate": 0.005753,
       "temporal_year": 2017,
       "token_usage": {
         "input_tokens": 60,
-        "output_tokens": 8701,
+        "output_tokens": 9332,
         "call_count": 30
       },
-      "latency_seconds": 93.3156
+      "latency_seconds": 104.436
     },
     {
       "key": "TRAITSE_W29",
@@ -3133,17 +3133,17 @@
       "jsd": 0.868972,
       "kendall_tau": -0.316228,
       "parity": 0.236457,
+      "human_refusal_rate": 0.005342,
       "n_samples": 30,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
-      "human_refusal_rate": 0.005342,
       "temporal_year": 2017,
       "token_usage": {
         "input_tokens": 60,
-        "output_tokens": 6422,
+        "output_tokens": 6561,
         "call_count": 30
       },
-      "latency_seconds": 93.3156
+      "latency_seconds": 104.436
     },
     {
       "key": "TRAITSF_W29",
@@ -3156,62 +3156,30 @@
         "Refused"
       ],
       "model_distribution": {
-        "Very well": 0.0333,
-        "Somewhat well": 0.9667,
+        "Very well": 0.0,
+        "Somewhat well": 1.0,
         "Not too well": 0.0,
         "Not at all well": 0.0,
         "Refused": 0.0
       },
-      "jsd": 0.252245,
-      "kendall_tau": 0.83666,
-      "parity": 0.833042,
+      "jsd": 0.325351,
+      "kendall_tau": 0.632456,
+      "parity": 0.745439,
+      "human_refusal_rate": 0.00678,
       "n_samples": 30,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
-      "human_refusal_rate": 0.00678,
       "temporal_year": 2017,
       "token_usage": {
         "input_tokens": 60,
-        "output_tokens": 10500,
+        "output_tokens": 10960,
         "call_count": 30
       },
-      "latency_seconds": 93.3156
+      "latency_seconds": 104.436
     },
     {
       "key": "HOOD_NHISA_W29",
       "text": "How much do you agree or disagree with the following statements about your neighborhood? There are people I can count on in this neighborhood",
-      "options": [
-        "Definitely agree",
-        "Somewhat agree",
-        "Somewhat disagree",
-        "Definitely disagree",
-        "Refused"
-      ],
-      "model_distribution": {
-        "Definitely agree": 0.0385,
-        "Somewhat agree": 0.9615,
-        "Somewhat disagree": 0.0,
-        "Definitely disagree": 0.0,
-        "Refused": 0.0
-      },
-      "jsd": 0.325149,
-      "kendall_tau": 0.597614,
-      "parity": 0.736829,
-      "n_samples": 29,
-      "n_parse_failures": 1,
-      "model_refusal_rate": 0.103448,
-      "human_refusal_rate": 0.005137,
-      "temporal_year": 2017,
-      "token_usage": {
-        "input_tokens": 60,
-        "output_tokens": 9977,
-        "call_count": 30
-      },
-      "latency_seconds": 93.3156
-    },
-    {
-      "key": "HOOD_NHISB_W29",
-      "text": "How much do you agree or disagree with the following statements about your neighborhood? People in this neighborhood can be trusted",
       "options": [
         "Definitely agree",
         "Somewhat agree",
@@ -3226,20 +3194,52 @@
         "Definitely disagree": 0.0,
         "Refused": 0.0
       },
-      "jsd": 0.330865,
-      "kendall_tau": 0.632456,
-      "parity": 0.742682,
-      "n_samples": 28,
-      "n_parse_failures": 2,
-      "model_refusal_rate": 0.142857,
-      "human_refusal_rate": 0.006369,
+      "jsd": 0.412522,
+      "kendall_tau": 0.316228,
+      "parity": 0.622796,
+      "human_refusal_rate": 0.005137,
+      "n_samples": 29,
+      "n_parse_failures": 1,
+      "model_refusal_rate": 0.137931,
       "temporal_year": 2017,
       "token_usage": {
         "input_tokens": 60,
-        "output_tokens": 9795,
+        "output_tokens": 9761,
         "call_count": 30
       },
-      "latency_seconds": 93.3156
+      "latency_seconds": 104.436
+    },
+    {
+      "key": "HOOD_NHISB_W29",
+      "text": "How much do you agree or disagree with the following statements about your neighborhood? People in this neighborhood can be trusted",
+      "options": [
+        "Definitely agree",
+        "Somewhat agree",
+        "Somewhat disagree",
+        "Definitely disagree",
+        "Refused"
+      ],
+      "model_distribution": {
+        "Definitely agree": 0.0,
+        "Somewhat agree": 0.9655,
+        "Somewhat disagree": 0.0,
+        "Definitely disagree": 0.0,
+        "Refused": 0.0345
+      },
+      "jsd": 0.327929,
+      "kendall_tau": 0.119523,
+      "parity": 0.615916,
+      "human_refusal_rate": 0.006369,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.033333,
+      "temporal_year": 2017,
+      "token_usage": {
+        "input_tokens": 60,
+        "output_tokens": 10819,
+        "call_count": 30
+      },
+      "latency_seconds": 104.436
     },
     {
       "key": "HOOD_NHISC_W29",
@@ -3253,25 +3253,25 @@
       ],
       "model_distribution": {
         "Definitely agree": 0.0,
-        "Somewhat agree": 0.9565,
+        "Somewhat agree": 1.0,
         "Somewhat disagree": 0.0,
         "Definitely disagree": 0.0,
-        "Refused": 0.0435
+        "Refused": 0.0
       },
-      "jsd": 0.365258,
-      "kendall_tau": 0.119523,
-      "parity": 0.597252,
-      "n_samples": 27,
-      "n_parse_failures": 3,
-      "model_refusal_rate": 0.148148,
+      "jsd": 0.366567,
+      "kendall_tau": 0.632456,
+      "parity": 0.72483,
       "human_refusal_rate": 0.005753,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.066667,
       "temporal_year": 2017,
       "token_usage": {
         "input_tokens": 60,
-        "output_tokens": 10048,
+        "output_tokens": 10633,
         "call_count": 30
       },
-      "latency_seconds": 93.3156
+      "latency_seconds": 104.436
     },
     {
       "key": "LOCALELECT_W29",
@@ -3284,26 +3284,26 @@
         "Refused"
       ],
       "model_distribution": {
-        "Always vote in local elections": 0.1034,
-        "Sometimes vote in local elections": 0.8966,
+        "Always vote in local elections": 0.0714,
+        "Sometimes vote in local elections": 0.8929,
         "Rarely vote in local elections": 0.0,
         "Never vote in local elections": 0.0,
-        "Refused": 0.0
+        "Refused": 0.0357
       },
-      "jsd": 0.328901,
-      "kendall_tau": 0.597614,
-      "parity": 0.734953,
+      "jsd": 0.364241,
+      "kendall_tau": 0.316228,
+      "parity": 0.646936,
+      "human_refusal_rate": 0.003698,
       "n_samples": 30,
       "n_parse_failures": 0,
-      "model_refusal_rate": 0.033333,
-      "human_refusal_rate": 0.003698,
+      "model_refusal_rate": 0.066667,
       "temporal_year": 2017,
       "token_usage": {
         "input_tokens": 60,
-        "output_tokens": 6443,
+        "output_tokens": 9835,
         "call_count": 30
       },
-      "latency_seconds": 93.3156
+      "latency_seconds": 104.436
     },
     {
       "key": "PARTICIPATEA_W29",
@@ -3314,24 +3314,24 @@
         "Refused"
       ],
       "model_distribution": {
-        "Yes": 0.0909,
-        "No": 0.9091,
+        "Yes": 0.0,
+        "No": 1.0,
         "Refused": 0.0
       },
-      "jsd": 0.03378,
-      "kendall_tau": 1.0,
-      "parity": 0.98311,
-      "n_samples": 30,
-      "n_parse_failures": 0,
-      "model_refusal_rate": 0.266667,
+      "jsd": 0.136702,
+      "kendall_tau": 0.816497,
+      "parity": 0.885773,
       "human_refusal_rate": 0.004931,
+      "n_samples": 28,
+      "n_parse_failures": 2,
+      "model_refusal_rate": 0.607143,
       "temporal_year": 2017,
       "token_usage": {
         "input_tokens": 60,
-        "output_tokens": 10889,
+        "output_tokens": 12400,
         "call_count": 30
       },
-      "latency_seconds": 94.2453
+      "latency_seconds": 106.8766
     },
     {
       "key": "PARTICIPATEB_W29",
@@ -3349,17 +3349,17 @@
       "jsd": 0.086919,
       "kendall_tau": 0.816497,
       "parity": 0.910665,
+      "human_refusal_rate": 0.007808,
       "n_samples": 30,
       "n_parse_failures": 0,
-      "model_refusal_rate": 0.233333,
-      "human_refusal_rate": 0.007808,
+      "model_refusal_rate": 0.166667,
       "temporal_year": 2017,
       "token_usage": {
         "input_tokens": 60,
-        "output_tokens": 10994,
+        "output_tokens": 10926,
         "call_count": 30
       },
-      "latency_seconds": 94.2453
+      "latency_seconds": 106.8766
     },
     {
       "key": "PARTICIPATEC_W29",
@@ -3371,23 +3371,23 @@
       ],
       "model_distribution": {
         "Yes": 0.0,
-        "No": 0.9375,
-        "Refused": 0.0625
+        "No": 1.0,
+        "Refused": 0.0
       },
-      "jsd": 0.113301,
-      "kendall_tau": 0.333333,
-      "parity": 0.776683,
-      "n_samples": 30,
-      "n_parse_failures": 0,
-      "model_refusal_rate": 0.466667,
+      "jsd": 0.101167,
+      "kendall_tau": 0.816497,
+      "parity": 0.903541,
       "human_refusal_rate": 0.006369,
+      "n_samples": 28,
+      "n_parse_failures": 2,
+      "model_refusal_rate": 0.285714,
       "temporal_year": 2017,
       "token_usage": {
         "input_tokens": 60,
-        "output_tokens": 11613,
+        "output_tokens": 12336,
         "call_count": 30
       },
-      "latency_seconds": 94.2453
+      "latency_seconds": 106.8766
     },
     {
       "key": "S7_W29",
@@ -3398,24 +3398,24 @@
         "Refused"
       ],
       "model_distribution": {
-        "Yes": 0.0,
-        "No": 1.0,
+        "Yes": 0.05,
+        "No": 0.95,
         "Refused": 0.0
       },
-      "jsd": 0.161467,
-      "kendall_tau": 0.816497,
-      "parity": 0.873391,
+      "jsd": 0.079415,
+      "kendall_tau": 1.0,
+      "parity": 0.960293,
+      "human_refusal_rate": 0.002877,
       "n_samples": 30,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.333333,
-      "human_refusal_rate": 0.002877,
       "temporal_year": 2017,
       "token_usage": {
         "input_tokens": 60,
-        "output_tokens": 12891,
+        "output_tokens": 12864,
         "call_count": 30
       },
-      "latency_seconds": 94.2453
+      "latency_seconds": 106.8766
     },
     {
       "key": "S13_W29",
@@ -3430,28 +3430,28 @@
         "Refused"
       ],
       "model_distribution": {
-        "Basically every day": 0.0,
-        "A few times a week": 0.7037,
+        "Basically every day": 0.04,
+        "A few times a week": 0.84,
         "A few times a month": 0.0,
         "Once a month": 0.0,
         "Less than once a month": 0.0,
-        "Not at all": 0.2963,
+        "Not at all": 0.12,
         "Refused": 0.0
       },
-      "jsd": 0.456195,
-      "kendall_tau": 0.197386,
-      "parity": 0.571249,
+      "jsd": 0.333382,
+      "kendall_tau": 0.394405,
+      "parity": 0.68191,
+      "human_refusal_rate": 0.003493,
       "n_samples": 30,
       "n_parse_failures": 0,
-      "model_refusal_rate": 0.1,
-      "human_refusal_rate": 0.003493,
+      "model_refusal_rate": 0.166667,
       "temporal_year": 2017,
       "token_usage": {
         "input_tokens": 60,
-        "output_tokens": 10403,
+        "output_tokens": 11250,
         "call_count": 30
       },
-      "latency_seconds": 94.2453
+      "latency_seconds": 106.8766
     },
     {
       "key": "TALK_CPS_W29",
@@ -3467,27 +3467,27 @@
       ],
       "model_distribution": {
         "Basically every day": 0.0,
-        "A few times a week": 0.25,
-        "A few times a month": 0.0,
+        "A few times a week": 0.5,
+        "A few times a month": 0.125,
         "Once a month": 0.0,
         "Less than once a month": 0.0,
-        "Not at all": 0.5,
-        "Refused": 0.25
+        "Not at all": 0.25,
+        "Refused": 0.125
       },
-      "jsd": 0.580426,
-      "kendall_tau": -0.233285,
-      "parity": 0.401466,
+      "jsd": 0.299021,
+      "kendall_tau": 0.158777,
+      "parity": 0.640184,
+      "human_refusal_rate": 0.003287,
       "n_samples": 29,
       "n_parse_failures": 1,
-      "model_refusal_rate": 0.586207,
-      "human_refusal_rate": 0.003287,
+      "model_refusal_rate": 0.724138,
       "temporal_year": 2017,
       "token_usage": {
         "input_tokens": 60,
-        "output_tokens": 13292,
+        "output_tokens": 14397,
         "call_count": 30
       },
-      "latency_seconds": 94.2453
+      "latency_seconds": 106.8766
     },
     {
       "key": "FAVORS_CPS_W29",
@@ -3504,26 +3504,26 @@
       "model_distribution": {
         "Basically every day": 0.0,
         "A few times a week": 0.0,
-        "A few times a month": 0.0,
+        "A few times a month": 0.0625,
         "Once a month": 0.0,
-        "Less than once a month": 0.0833,
-        "Not at all": 0.8333,
-        "Refused": 0.0833
+        "Less than once a month": 0.0,
+        "Not at all": 0.875,
+        "Refused": 0.0625
       },
-      "jsd": 0.457109,
-      "kendall_tau": 0.116642,
-      "parity": 0.550606,
-      "n_samples": 29,
-      "n_parse_failures": 1,
-      "model_refusal_rate": 0.586207,
+      "jsd": 0.48215,
+      "kendall_tau": 0.0,
+      "parity": 0.508925,
       "human_refusal_rate": 0.002877,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.466667,
       "temporal_year": 2017,
       "token_usage": {
         "input_tokens": 60,
-        "output_tokens": 13092,
+        "output_tokens": 13041,
         "call_count": 30
       },
-      "latency_seconds": 94.2453
+      "latency_seconds": 106.8766
     },
     {
       "key": "WORRYRET_W29",
@@ -3537,25 +3537,25 @@
       ],
       "model_distribution": {
         "Very worried": 0.0,
-        "Moderately worried": 0.9667,
-        "Not too worried": 0.0333,
+        "Moderately worried": 1.0,
+        "Not too worried": 0.0,
         "Not worried at all": 0.0,
         "Refused": 0.0
       },
-      "jsd": 0.38029,
-      "kendall_tau": 0.83666,
-      "parity": 0.76902,
+      "jsd": 0.450646,
+      "kendall_tau": 0.632456,
+      "parity": 0.682791,
+      "human_refusal_rate": 0.003082,
       "n_samples": 30,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
-      "human_refusal_rate": 0.003082,
       "temporal_year": 2017,
       "token_usage": {
         "input_tokens": 60,
-        "output_tokens": 7812,
+        "output_tokens": 8804,
         "call_count": 30
       },
-      "latency_seconds": 94.2453
+      "latency_seconds": 106.8766
     },
     {
       "key": "WORRYBILL_W29",
@@ -3569,25 +3569,25 @@
       ],
       "model_distribution": {
         "Very worried": 0.0,
-        "Moderately worried": 0.0385,
-        "Not too worried": 0.8846,
-        "Not worried at all": 0.0769,
+        "Moderately worried": 0.25,
+        "Not too worried": 0.55,
+        "Not worried at all": 0.2,
         "Refused": 0.0
       },
-      "jsd": 0.278335,
-      "kendall_tau": 0.948683,
-      "parity": 0.848004,
-      "n_samples": 29,
-      "n_parse_failures": 1,
-      "model_refusal_rate": 0.103448,
+      "jsd": 0.103333,
+      "kendall_tau": 0.737865,
+      "parity": 0.882799,
       "human_refusal_rate": 0.004726,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.333333,
       "temporal_year": 2017,
       "token_usage": {
         "input_tokens": 60,
-        "output_tokens": 10166,
+        "output_tokens": 11632,
         "call_count": 30
       },
-      "latency_seconds": 94.2453
+      "latency_seconds": 106.8766
     },
     {
       "key": "SATLIFEA_W32",
@@ -3600,39 +3600,39 @@
         "Refused"
       ],
       "model_distribution": {
-        "Very satisfied": 0.0,
-        "Somewhat satisfied": 1.0,
+        "Very satisfied": 0.0476,
+        "Somewhat satisfied": 0.9524,
         "Somewhat dissatisfied": 0.0,
         "Very dissatisfied": 0.0,
         "Refused": 0.0
       },
-      "jsd": 0.432482,
-      "kendall_tau": 0.316228,
-      "parity": 0.612816,
-      "n_samples": 29,
-      "n_parse_failures": 1,
-      "model_refusal_rate": 0.37931,
+      "jsd": 0.326665,
+      "kendall_tau": 0.597614,
+      "parity": 0.736071,
       "human_refusal_rate": 0.003679,
+      "n_samples": 28,
+      "n_parse_failures": 2,
+      "model_refusal_rate": 0.25,
       "temporal_year": 2018,
       "token_usage": {
         "input_tokens": 60,
-        "output_tokens": 12083,
+        "output_tokens": 12625,
         "call_count": 30
       },
-      "latency_seconds": 94.2453
+      "latency_seconds": 106.8766
     }
   ],
   "temporal_breakdown": {
     "2017": {
-      "p_dist": 0.71581,
-      "p_rank": 0.751711,
-      "mean_jsd": 0.28419,
+      "p_dist": 0.71272,
+      "p_rank": 0.748876,
+      "mean_jsd": 0.28728,
       "n_questions": 99
     },
     "2018": {
-      "p_dist": 0.567518,
-      "p_rank": 0.658114,
-      "mean_jsd": 0.432482,
+      "p_dist": 0.673335,
+      "p_rank": 0.798807,
+      "mean_jsd": 0.326665,
       "n_questions": 1
     }
   },
