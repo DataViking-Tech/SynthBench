@@ -900,3 +900,110 @@ def compute_globalopinionqa_ceiling(
             "(country, question) coverage."
         ),
     }
+
+
+def compute_gss_ceiling(
+    data_dir: str | None = None, n_bootstrap: int = 1000
+) -> dict | None:
+    """Compute the GSS ceiling from per-option counts in gss_aggregated.csv.
+
+    ``scripts/ingest-gss.py`` writes one row per (question, option) with the
+    weighted respondent count, so unlike SubPOP and GlobalOpinionQA no n has
+    to be inferred. Counts are rounded to integers, as for OpinionsQA.
+    """
+    import csv
+    from pathlib import Path
+
+    from synthbench.datasets.gss import _default_cache_dir
+
+    data_path = Path(data_dir) if data_dir else _default_cache_dir()
+    raw_path = data_path / "raw" / "gss_aggregated.csv"
+    if not raw_path.exists():
+        return None
+
+    totals: dict[str, dict[str, float]] = {}
+    with open(raw_path, newline="", encoding="utf-8") as f:
+        for row in csv.DictReader(f):
+            q = totals.setdefault(row["question_id"], {})
+            q[row["option"]] = q.get(row["option"], 0.0) + float(row["count"])
+
+    per_q: list[CeilingResult] = []
+    for counts in totals.values():
+        int_counts = {k: int(round(v)) for k, v in counts.items() if v > 0}
+        if sum(int_counts.values()) < 10:
+            continue
+        try:
+            per_q.append(compute_ceiling_jsd(int_counts, n_bootstrap=n_bootstrap))
+        except ValueError:
+            continue
+
+    overall = aggregate_ceilings(per_q)
+    if overall is None:
+        return None
+    return {
+        "dataset": "gss",
+        "overall": overall.to_dict(),
+        "n_questions": len(per_q),
+        "protocol": "per_question_split_half_multinomial_bootstrap",
+        "n_bootstrap": n_bootstrap,
+        "note": (
+            "Counts are weighted (wtssnrps) respondent totals from the GSS "
+            "microdata; treating them as a simple random sample makes the "
+            "ceiling slightly optimistic."
+        ),
+    }
+
+
+def compute_ntia_ceiling(n_bootstrap: int = 1000) -> dict | None:
+    """Compute the NTIA ceiling from published proportions and standard errors.
+
+    The Analyze Table gives each item's US proportion and its standard error
+    but no counts. The effective sample size p(1 - p) / SE^2 already reflects
+    the survey design, so it stands in for n.
+    """
+    from synthbench.datasets.ntia import _UNIVERSE_MARKERS, NTIADataset, _parse_prop
+
+    ds = NTIADataset()
+    try:
+        rows = ds._load_rows()
+    except Exception:
+        return None
+
+    per_q: list[CeilingResult] = []
+    for row in rows:
+        variable = (row.get("variable") or "").strip('"')
+        if not variable or variable in _UNIVERSE_MARKERS:
+            continue
+        # Same wave as the adapter's questions.
+        if ds.DEFAULT_WAVE and (row.get("dataset") or "").strip('"') != ds.DEFAULT_WAVE:
+            continue
+        p = _parse_prop(row.get("usProp"))
+        try:
+            se = float((row.get("usPropSE") or "").strip())
+        except ValueError:
+            continue
+        if p is None or se <= 0 or not 0 < p < 1:
+            continue
+        n_eff = int(p * (1 - p) / se**2)
+        counts = _counts_from_probs({"Yes": p, "No": 1 - p}, n_eff)
+        if sum(counts.values()) < 10:
+            continue
+        try:
+            per_q.append(compute_ceiling_jsd(counts, n_bootstrap=n_bootstrap))
+        except ValueError:
+            continue
+
+    overall = aggregate_ceilings(per_q)
+    if overall is None:
+        return None
+    return {
+        "dataset": "ntia",
+        "overall": overall.to_dict(),
+        "n_questions": len(per_q),
+        "protocol": "per_question_split_half_multinomial_bootstrap",
+        "n_bootstrap": n_bootstrap,
+        "note": (
+            "NTIA publishes proportions and standard errors, not counts; n is "
+            "the effective sample size p(1 - p) / SE^2."
+        ),
+    }

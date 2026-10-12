@@ -287,8 +287,12 @@ class NTIADataset(Dataset):
     def _download(self, dest: Path) -> None:
         """Download the NTIA Analyze Table CSV (public domain)."""
         dest.parent.mkdir(parents=True, exist_ok=True)
+        # ntia.gov rejects urllib's default User-Agent with HTTP 403.
+        request = urllib.request.Request(
+            _ANALYZE_TABLE_URL, headers={"User-Agent": "Mozilla/5.0 (synthbench)"}
+        )
         try:
-            with urllib.request.urlopen(_ANALYZE_TABLE_URL) as resp:  # noqa: S310
+            with urllib.request.urlopen(request) as resp:  # noqa: S310
                 data = resp.read()
         except Exception as e:
             raise DatasetDownloadError(

@@ -136,6 +136,7 @@ function miniHeat(): void {
   const heads: Record<string, string> = {
     opinionsqa: "US adults",
     subpop: "US groups",
+    gss: "GSS",
     globalopinionqa: "Global",
   };
   $("ov-heat").replaceChildren(

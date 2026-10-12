@@ -960,6 +960,8 @@ def _build_baselines(results: list[dict], datasets: list[str]) -> dict:
     """
     from synthbench.baselines import (
         compute_globalopinionqa_ceiling,
+        compute_gss_ceiling,
+        compute_ntia_ceiling,
         compute_opinionsqa_ceiling,
         compute_opinionsqa_subgroup_ceilings,
         compute_subpop_ceiling,
@@ -1036,6 +1038,16 @@ def _build_baselines(results: list[dict], datasets: list[str]) -> dict:
         goqa = compute_globalopinionqa_ceiling()
         if goqa is not None:
             out["ceiling"]["globalopinionqa"] = goqa
+
+    if "gss" in datasets:
+        gss = compute_gss_ceiling()
+        if gss is not None:
+            out["ceiling"]["gss"] = gss
+
+    if any(d.split(" ", 1)[0] == "ntia" for d in datasets):
+        ntia = compute_ntia_ceiling()
+        if ntia is not None:
+            out["ceiling"]["ntia"] = ntia
 
     return out
 

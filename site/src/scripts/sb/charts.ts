@@ -14,6 +14,7 @@ import {
 } from "./dom";
 import {
   CORE,
+  fullCoverage,
   ENSEMBLE_MEMBERS,
   METHODS,
   type Ranked,
@@ -311,7 +312,7 @@ export function liftMini(el: HTMLElement, width: number): { up: number; total: n
 
 // ---------- Random answers vs raw LLMs on shares and order (compact) ----------
 export function whyMini(el: HTMLElement, width: number): void {
-  const raws = data().systems.filter((c) => c.method === "raw" && !c.variant && c.coverage === 3);
+  const raws = data().systems.filter((c) => c.method === "raw" && !c.variant && fullCoverage(c));
   const avg = (k: "pDist" | "pRank") =>
     raws.reduce((a, c) => a + (component(c, k) ?? 0), 0) / raws.length;
   const random = data().references.random;
@@ -947,6 +948,7 @@ export function byDataset(el: HTMLElement, width: number, pool: SystemConfig[]):
   const sub: Record<string, string> = {
     opinionsqa: "US adults",
     subpop: "22 US subgroups",
+    gss: "US adults, GSS",
     globalopinionqa: "cross-national",
   };
   const rows = pool.filter((c) => cols.filter((id) => c.ds[id]).length >= 2);
@@ -1060,7 +1062,7 @@ export function byDataset(el: HTMLElement, width: number, pool: SystemConfig[]):
   const allAbove = rows.filter((c) => CORE.every((id) => (c.ds[id]?.idx ?? -1) > 0));
   if (allAbove.length && allAbove.length <= 2)
     notes.push(
-      `Above random answers on all three datasets: ${allAbove.map((c) => fullName(c)).join(", ")}.`,
+      `Above random answers on every core dataset: ${allAbove.map((c) => fullName(c)).join(", ")}.`,
     );
   return notes;
 }
