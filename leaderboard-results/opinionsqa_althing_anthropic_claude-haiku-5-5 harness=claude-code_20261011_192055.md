@@ -3,33 +3,33 @@
 **Provider:** althing/anthropic/claude-haiku-5-5 harness=claude-code
 **Dataset:** opinionsqa (100 questions)
 **Samples per question:** 30
-**Elapsed:** 1180.7s
+**Elapsed:** 2602.6s
 
 ## SynthBench Parity Score (SPS)
 
-**SPS: 0.7881 [0.7527, 0.8108]** (from 3 metrics)
+**SPS: 0.7857 [0.7525, 0.8089]** (from 3 metrics)
 
 | Metric | Score | |
 |--------|------:|---|
-| P_dist  Distributional | 0.7143 [0.6758, 0.7475] | ███████░░░ |
-| P_rank  Rank-Order | 0.7508 [0.7084, 0.7868] | ████████░░ |
-| P_refuse Refusal Cal. | 0.8991 [0.8612, 0.9321] | █████████░ |
+| P_dist  Distributional | 0.7123 [0.6720, 0.7463] | ███████░░░ |
+| P_rank  Rank-Order | 0.7494 [0.7098, 0.7844] | ███████░░░ |
+| P_refuse Refusal Cal. | 0.8955 [0.8541, 0.9291] | █████████░ |
 
 ## Raw Metrics
 
 | Metric | Value |
 |--------|-------|
-| Mean JSD | 0.2857 |
-| Median JSD | 0.2538 |
-| Mean Kendall's tau | 0.5016 |
-| Composite Parity (legacy) | 0.7326 |
+| Mean JSD | 0.2877 |
+| Median JSD | 0.2757 |
+| Mean Kendall's tau | 0.4987 |
+| Composite Parity (legacy) | 0.7309 |
 
 ## vs Baselines
 
 | Baseline | Score | Delta | % |
 |----------|------:|------:|--:|
-| majority-baseline | 0.5620 | +0.1706 | +30% |
-| random-baseline | 0.6495 | +0.0830 | +13% |
+| majority-baseline | 0.5620 | +0.1689 | +30% |
+| random-baseline | 0.6495 | +0.0813 | +13% |
 
 ## What These Scores Mean
 
@@ -46,25 +46,25 @@ Scores stratified by Pew ATP survey wave year. Rising P_dist in recent years may
 
 | Year | P_dist | P_rank | Mean JSD | Questions |
 |------|--------|--------|----------|-----------|
-| 2017 | 0.7158 | 0.7517 | 0.2842 | 99 |
-| 2018 | 0.5675 | 0.6581 | 0.4325 | 1 |
+| 2017 | 0.7127 | 0.7489 | 0.2873 | 99 |
+| 2018 | 0.6733 | 0.7988 | 0.3267 | 1 |
 
 ## Best Matches (lowest JSD)
 
 | Question | JSD | tau |
 |----------|-----|-----|
+| Do you personally know anyone who has lost a job, or had the... | 0.0040 | 1.0000 |
 | Have you yourself ever lost a job because your employer repl... | 0.0220 | 0.7071 |
-| How well, if at all, do the following words or phrases descr... | 0.0253 | 0.8367 |
-| Have you participated in any of these groups during the last... | 0.0338 | 1.0000 |
-| Do you think men and women are basically similar or basicall... | 0.0373 | 0.3333 |
-| Have you ever had your pay or hours reduced because your emp... | 0.0464 | 0.1826 |
+| Do you think men and women are basically similar or basicall... | 0.0278 | 0.8165 |
+| How much have you seen or heard about the effort to develop ... | 0.0280 | 0.5477 |
+| Do you feel that people in your local community tend to look... | 0.0293 | 1.0000 |
 
 ## Worst Matches (highest JSD)
 
 | Question | JSD | tau |
 |----------|-----|-----|
-| In the last 12 months, how often did you talk with any of yo... | 0.5804 | -0.2333 |
-| How much of a problem was gun violence in the community wher... | 0.8215 | 0.0000 |
+| Which statement comes closer to your views, even if neither ... | 0.7598 | -1.0000 |
+| How much of a problem was gun violence in the community wher... | 0.8170 | -0.3586 |
 | How well, if at all, do the following words or phrases descr... | 0.8690 | -0.3162 |
-| How well, if at all, do the following words or phrases descr... | 0.8998 | -0.5976 |
+| How well, if at all, do the following words or phrases descr... | 0.9118 | -0.3162 |
 | Which of the following statements comes closer to your feeli... | 0.9357 | -0.7071 |

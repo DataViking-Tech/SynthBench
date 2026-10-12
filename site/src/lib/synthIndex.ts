@@ -184,7 +184,9 @@ export function buildIndexData(raw: SynthBenchData): IndexData {
     if (e.template && e.template !== "current") variantParts.push(`${e.template} template`);
     if (e.effort) variantParts.push(`${e.effort} effort`);
     if (e.persona_pack) variantParts.push(`${e.persona_pack} personas`);
-    const modelId = e.model_id ?? e.model;
+    // model_id keeps vendor version dates (claude-haiku-4-5-20251001) so it
+    // stays runnable; dated and undated ids are the same model here.
+    const modelId = (e.model_id ?? e.model).replace(/-\d{8}$/, "");
     const key = [
       method,
       modelId,

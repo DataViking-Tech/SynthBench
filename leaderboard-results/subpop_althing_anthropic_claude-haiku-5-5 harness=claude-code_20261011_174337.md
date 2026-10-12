@@ -1,35 +1,35 @@
 # SynthBench Score Card
 
 **Provider:** althing/anthropic/claude-haiku-5-5 harness=claude-code
-**Dataset:** globalopinionqa (100 questions)
+**Dataset:** subpop (100 questions)
 **Samples per question:** 30
-**Elapsed:** 2994.8s
+**Elapsed:** 2867.0s
 
 ## SynthBench Parity Score (SPS)
 
-**SPS: 0.6952 [0.6529, 0.7298]** (from 3 metrics)
+**SPS: 0.6608 [0.6142, 0.7022]** (from 3 metrics)
 
 | Metric | Score | |
 |--------|------:|---|
-| P_dist  Distributional | 0.6905 [0.6449, 0.7334] | ███████░░░ |
-| P_rank  Rank-Order | 0.6464 [0.5825, 0.7063] | ██████░░░░ |
-| P_refuse Refusal Cal. | 0.7487 [0.6784, 0.8074] | ███████░░░ |
+| P_dist  Distributional | 0.5616 [0.5104, 0.6068] | ██████░░░░ |
+| P_rank  Rank-Order | 0.5994 [0.5475, 0.6467] | ██████░░░░ |
+| P_refuse Refusal Cal. | 0.8213 [0.7648, 0.8673] | ████████░░ |
 
 ## Raw Metrics
 
 | Metric | Value |
 |--------|-------|
-| Mean JSD | 0.3095 |
-| Median JSD | 0.2706 |
-| Mean Kendall's tau | 0.2928 |
-| Composite Parity (legacy) | 0.6684 |
+| Mean JSD | 0.4384 |
+| Median JSD | 0.4088 |
+| Mean Kendall's tau | 0.1988 |
+| Composite Parity (legacy) | 0.5805 |
 
 ## vs Baselines
 
 | Baseline | Score | Delta | % |
 |----------|------:|------:|--:|
-| majority-baseline | 0.5620 | +0.1064 | +19% |
-| random-baseline | 0.6495 | +0.0189 | +3% |
+| majority-baseline | 0.5620 | +0.0185 | +3% |
+| random-baseline | 0.6495 | -0.0690 | -11% |
 
 ## What These Scores Mean
 
@@ -44,18 +44,18 @@
 
 | Question | JSD | tau |
 |----------|-----|-----|
-| Again, which one better describes George W. Bush...He makes ... | 0.0052 | 1.0000 |
-| Now I'd like to ask your views about some additional politic... | 0.0058 | 0.0000 |
-| For each of the following statements about the missile strik... | 0.0122 | 1.0000 |
-| (Now/And thinking about the American people...) Which of the... | 0.0138 | 1.0000 |
-| And thinking about some political leaders and organizations ... | 0.0174 | 0.0000 |
+| Do you think the use of artificial intelligence (AI) in heal... | 0.0696 | 0.6667 |
+| Please indicate if you have traveled more than 100 miles fro... | 0.1174 | 0.3333 |
+| Please indicate if you have attended a sporting event over t... | 0.1228 | 1.0000 |
+| How much have you heard or read about medication abortion, w... | 0.1238 | 0.9129 |
+| Here’s a list of activities some people do and others do not... | 0.1431 | 1.0000 |
 
 ## Worst Matches (highest JSD)
 
 | Question | JSD | tau |
 |----------|-----|-----|
-| Please tell me if you have a very favorable, somewhat favora... | 0.7900 | -0.5976 |
-| Please tell me if you have a very favorable, somewhat favora... | 0.7912 | -0.3586 |
-| Do you personally believe that drinking alcohol is morally a... | 0.8564 | -0.7071 |
-| Please tell me if you have a very favorable, somewhat favora... | 0.9014 | -0.6325 |
-| Please tell me if you have a very favorable, somewhat favora... | 0.9022 | -0.3162 |
+| Regardless of whether you think abortion should be legal or ... | 0.9453 | -0.5774 |
+| Regardless of whether you think abortion should be legal or ... | 0.9490 | -0.5774 |
+| Do you think abortion should be…... | 0.9526 | -0.6325 |
+| Regardless of whether you think abortion should be legal or ... | 0.9542 | -0.5774 |
+| Did you refuse to answer the previous question?... | 1.0000 | -0.8165 |

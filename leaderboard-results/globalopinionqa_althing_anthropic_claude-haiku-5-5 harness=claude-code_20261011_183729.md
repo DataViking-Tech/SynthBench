@@ -1,35 +1,35 @@
 # SynthBench Score Card
 
 **Provider:** althing/anthropic/claude-haiku-5-5 harness=claude-code
-**Dataset:** subpop (100 questions)
+**Dataset:** globalopinionqa (100 questions)
 **Samples per question:** 30
-**Elapsed:** 1613.3s
+**Elapsed:** 3229.8s
 
 ## SynthBench Parity Score (SPS)
 
-**SPS: 0.6710 [0.6268, 0.7099]** (from 3 metrics)
+**SPS: 0.7027 [0.6616, 0.7378]** (from 3 metrics)
 
 | Metric | Score | |
 |--------|------:|---|
-| P_dist  Distributional | 0.5795 [0.5324, 0.6207] | ██████░░░░ |
-| P_rank  Rank-Order | 0.6116 [0.5555, 0.6588] | ██████░░░░ |
-| P_refuse Refusal Cal. | 0.8219 [0.7620, 0.8692] | ████████░░ |
+| P_dist  Distributional | 0.6897 [0.6458, 0.7304] | ███████░░░ |
+| P_rank  Rank-Order | 0.6468 [0.5835, 0.7041] | ██████░░░░ |
+| P_refuse Refusal Cal. | 0.7716 [0.7048, 0.8295] | ████████░░ |
 
 ## Raw Metrics
 
 | Metric | Value |
 |--------|-------|
-| Mean JSD | 0.4205 |
-| Median JSD | 0.4085 |
-| Mean Kendall's tau | 0.2232 |
-| Composite Parity (legacy) | 0.5956 |
+| Mean JSD | 0.3103 |
+| Median JSD | 0.3104 |
+| Mean Kendall's tau | 0.2936 |
+| Composite Parity (legacy) | 0.6682 |
 
 ## vs Baselines
 
 | Baseline | Score | Delta | % |
 |----------|------:|------:|--:|
-| majority-baseline | 0.5620 | +0.0336 | +6% |
-| random-baseline | 0.6495 | -0.0539 | -8% |
+| majority-baseline | 0.5620 | +0.1062 | +19% |
+| random-baseline | 0.6495 | +0.0187 | +3% |
 
 ## What These Scores Mean
 
@@ -44,18 +44,18 @@
 
 | Question | JSD | tau |
 |----------|-----|-----|
-| Please indicate if you have attended a concert over the past... | 0.0283 | 1.0000 |
-| Regardless of whether you think abortion should be legal or ... | 0.0549 | 0.0000 |
-| Here’s a list of activities some people do and others do not... | 0.0716 | 1.0000 |
-| Do you think gender should be a major factor, minor factor, ... | 0.0978 | 0.3333 |
-| If you were looking for work, would you want to apply for a ... | 0.1113 | 1.0000 |
+| Now I'd like to ask your views about some additional politic... | 0.0058 | 0.0000 |
+| Again, which one better describes George W. Bush...He makes ... | 0.0065 | 1.0000 |
+| And thinking about some political leaders and organizations ... | 0.0174 | 0.0000 |
+| On another topic, had you heard that President Barack Obama'... | 0.0203 | 1.0000 |
+| Which of these characteristics do you associate with (the Ch... | 0.0317 | 1.0000 |
 
 ## Worst Matches (highest JSD)
 
 | Question | JSD | tau |
 |----------|-----|-----|
-| Thinking about abortion policies around the country, which i... | 0.9202 | -0.8165 |
-| Have there been times in the past 12 months when you did not... | 0.9213 | -0.9129 |
-| Regardless of whether you think abortion should be legal or ... | 0.9453 | -0.5774 |
-| Regardless of whether you think abortion should be legal or ... | 0.9542 | -0.5774 |
-| Did you refuse to answer the previous question?... | 1.0000 | -0.8165 |
+| (Now I'd like to ask you about some political parties.) Plea... | 0.7583 | -0.3162 |
+| Do you personally believe that getting a divorce is morally ... | 0.7605 | -0.7071 |
+| Please tell me if you have a very favorable, somewhat favora... | 0.7782 | -0.1195 |
+| Do you personally believe that drinking alcohol is morally a... | 0.8564 | -0.7071 |
+| Please tell me if you have a very favorable, somewhat favora... | 0.9014 | -0.6325 |

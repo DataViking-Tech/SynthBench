@@ -56,6 +56,7 @@ MODEL_MAP: dict[str, tuple[str, str]] = {
     "althing/gpt-4o-mini": ("Althing (GPT-4o-mini)", "product"),
     # Products — vendor models also run through agent CLIs; the harness
     # (claude-code / codex) is a `harness=` knob, not part of the model name.
+    "althing/anthropic/claude-haiku-4-5": ("Althing (Haiku 4.5)", "product"),
     "althing/anthropic/claude-haiku-5-5": ("Althing (Haiku 5.5)", "product"),
     "althing/openai/gpt-6-luna": ("Althing (GPT-6 Luna)", "product"),
     # Ensemble
