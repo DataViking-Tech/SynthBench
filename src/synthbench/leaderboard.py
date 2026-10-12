@@ -58,6 +58,8 @@ MODEL_MAP: dict[str, tuple[str, str]] = {
     # (claude-code / codex) is a `harness=` knob, not part of the model name.
     "althing/anthropic/claude-haiku-4-5": ("Althing (Haiku 4.5)", "product"),
     "althing/anthropic/claude-haiku-5-5": ("Althing (Haiku 5.5)", "product"),
+    "althing/anthropic/claude-sonnet-4-6": ("Althing (Sonnet 4.6)", "product"),
+    "althing/anthropic/claude-sonnet-5-5": ("Althing (Sonnet 5.5)", "product"),
     "althing/openai/gpt-6-luna": ("Althing (GPT-6 Luna)", "product"),
     # Ensemble
     "ensemble/3-model-blend": ("Althing Ensemble (3-model)", "product"),
