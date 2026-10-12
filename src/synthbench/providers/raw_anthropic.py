@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from synthbench.providers._harness import HarnessChat, split_harness
 from synthbench.providers._parsing import parse_option_response
 from synthbench.providers._retry import call_with_retries
 from synthbench.providers.base import (
@@ -54,6 +55,23 @@ class RawAnthropicProvider(Provider):
         temperature: float = 1.0,  # Sample, don't argmax
         effort: str | None = None,
     ):
+        if split_harness(model)[0] is not None:
+            # Subscription CLI (claude-code:/codex:); no API key or SDK needed.
+            if effort is not None:
+                raise ValueError(
+                    "raw-anthropic: --effort is not supported through a "
+                    "subscription harness; drop --effort or use the API."
+                )
+            self._harness: HarnessChat | None = HarnessChat(
+                model, vendor="anthropic", provider="raw-anthropic"
+            )
+            self.harness: str | None = self._harness.harness
+            self._effort = None
+            self._model = model
+            self._temperature = temperature
+            return
+        self._harness = None
+        self.harness = None
         try:
             import anthropic
         except ImportError:
@@ -78,6 +96,8 @@ class RawAnthropicProvider(Provider):
 
     @property
     def name(self) -> str:
+        if self._harness is not None:
+            return self._harness.provider_name("raw-anthropic")
         return f"raw-anthropic/{self._model}"
 
     @property
@@ -89,6 +109,16 @@ class RawAnthropicProvider(Provider):
     ) -> Response:
         prompt = _build_prompt(question, options)
         system = build_persona_system_prompt(_SYSTEM, persona)
+
+        if self._harness is not None:
+            raw_text, usage = await self._harness.complete(system, prompt)
+            parsed = parse_option_response(raw_text, options)
+            return Response(
+                selected_option=parsed.option,
+                raw_text=raw_text,
+                refusal=parsed.refusal,
+                metadata={"model": self._model, "usage": usage},
+            )
 
         request_kwargs: dict = {
             "model": self._model,
@@ -146,4 +176,7 @@ class RawAnthropicProvider(Provider):
         )
 
     async def close(self) -> None:
+        if self._harness is not None:
+            self._harness.close()
+            return
         await self._client.close()
