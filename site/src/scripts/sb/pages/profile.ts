@@ -9,8 +9,10 @@ import {
   counterpart,
   data,
   dsLabel,
+  dsMark,
   dsMeta,
   emit,
+  fullCoverage,
   onChange,
   pruneCompare,
   scopeName,
@@ -154,7 +156,7 @@ function renderStats(): void {
     ),
   );
   const field = systems()
-    .filter((c) => !c.variant && c.coverage === 3 && c.index != null)
+    .filter((c) => !c.variant && fullCoverage(c) && c.index != null)
     .map((c) => c.index as number);
   const m = field.length ? median(field) : 0;
   const who =
@@ -166,7 +168,7 @@ function renderStats(): void {
     parts.push(
       `${who} has an Index of ${fmt.int(cur.index)}, ${cur.index > m + 5 ? "above" : cur.index < m - 5 ? "below" : "close to"} the median system (${fmt.int(m)}).`,
     );
-  else parts.push(`${who} wasn't run on all three core datasets, so it has no headline Index.`);
+  else parts.push(`${who} wasn't run on every core dataset, so it has no headline Index.`);
   if (best && worst && best[0] !== worst[0])
     parts.push(
       `It does best on ${dsLabel(best[0])} (${fmt.int(best[1])}) and worst on ${dsLabel(worst[0])} (${fmt.int(worst[1])}${worst[1] < 0 ? ", below random answers" : ""}).`,
@@ -222,7 +224,7 @@ mount(
           y: cy - 1,
           "text-anchor": "end",
           class: "sb-lab",
-          text: `${dsLabel(id)}${id === "gss" ? " †" : ""}`,
+          text: `${dsLabel(id)}${dsMark(id)}`,
         },
         svg,
       );

@@ -12,8 +12,11 @@
 import type { LeaderboardEntry, SynthBenchData } from "@/types/leaderboard";
 import { PINNED_CEILINGS } from "./ceilings";
 
-export const CORE_DATASETS = ["opinionsqa", "subpop", "globalopinionqa"] as const;
-export const ALL_DATASETS = [...CORE_DATASETS, "gss"] as const;
+// Ordered from US adults to cross-national questions.
+export const CORE_DATASETS = ["opinionsqa", "subpop", "gss", "globalopinionqa"] as const;
+// NTIA is shown for reference only: its items are yes/no facts about
+// internet use, not opinions, so it stays out of the Index.
+export const ALL_DATASETS = [...CORE_DATASETS, "ntia"] as const;
 
 export type Method = "raw" | "althing" | "ensemble" | "baseline";
 
@@ -99,6 +102,7 @@ const LABELS: Record<string, [string, string]> = {
   subpop: ["SubPOP", "22 US subpopulations"],
   globalopinionqa: ["GlobalOpinionQA", "Cross-national (Pew Global Attitudes, WVS)"],
   gss: ["GSS", "US adults (General Social Survey)"],
+  ntia: ["NTIA", "US adults (NTIA Internet Use Survey)"],
 };
 
 const LAB_BY_PREFIX: Record<string, string> = {
@@ -151,7 +155,8 @@ function prettyModel(id: string): string {
 }
 
 export function buildIndexData(raw: SynthBenchData): IndexData {
-  const entries = raw.entries;
+  // Wave/year filter suffixes ("ntia (Nov 2023)") name the same dataset.
+  const entries = raw.entries.map((e) => ({ ...e, dataset: e.dataset.split(" ", 1)[0] }));
   const ceilings = ((raw.baselines as unknown as { ceiling?: CeilingBlock })?.ceiling ??
     {}) as CeilingBlock;
   const randomSps: Record<string, number> = {};

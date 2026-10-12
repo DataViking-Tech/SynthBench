@@ -3,6 +3,7 @@ import { h, mount } from "../dom";
 import {
   type SystemConfig,
   emit,
+  fullCoverage,
   onChange,
   pruneCompare,
   scopeName,
@@ -52,7 +53,7 @@ const VIEWS: { id: View; title: string; desc: string; sub: () => string; howto: 
     sub: () =>
       "Index on each core dataset. The Score setting doesn't apply here because every dataset is shown.",
     howto:
-      "Each line is one system across the three core datasets, ordered from US adults to cross-national questions. Points in the shaded band score below random answers on that dataset.",
+      "Each line is one system across the core datasets, ordered from US adults to cross-national questions. Points in the shaded band score below random answers on that dataset.",
   },
   {
     id: "cost",
@@ -74,8 +75,8 @@ interface Family {
 const families: Family[] = [];
 for (const c of systems().filter((x) => !x.variant)) {
   const f = families.find((x) => x.id === c.baseId);
-  if (f) f.full ||= c.coverage === 3;
-  else families.push({ id: c.baseId, c, full: c.coverage === 3 });
+  if (f) f.full ||= fullCoverage(c);
+  else families.push({ id: c.baseId, c, full: fullCoverage(c) });
 }
 const FAMILY_IDS = families.map((f) => f.id);
 const DEFAULT_FAMILIES = families.filter((f) => f.full).map((f) => f.id);

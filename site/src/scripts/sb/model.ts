@@ -20,8 +20,13 @@ export function data(): PageData {
   return cached;
 }
 
-export const CORE = ["opinionsqa", "subpop", "globalopinionqa"] as const;
-export const ALL = [...CORE, "gss"] as const;
+export const CORE = ["opinionsqa", "subpop", "gss", "globalopinionqa"] as const;
+export const ALL = [...CORE, "ntia"] as const;
+/** True when a system was scored on every core dataset (ranked on the Index). */
+export const fullCoverage = (c: SystemConfig): boolean => c.coverage === CORE.length;
+/** Footnote mark for datasets shown but kept out of the Index. */
+export const dsMark = (id: string): string =>
+  (CORE as readonly string[]).includes(id) ? "" : " †";
 
 export const METHODS: Record<
   Exclude<Method, "baseline">,
@@ -114,9 +119,7 @@ export interface Val {
 }
 export function scoreIn(c: SystemConfig, scope: Scope = state.scope): Val | null {
   if (scope === "all")
-    return c.coverage === 3 && c.index != null
-      ? { v: c.index, lo: c.indexLo, hi: c.indexHi }
-      : null;
+    return fullCoverage(c) && c.index != null ? { v: c.index, lo: c.indexLo, hi: c.indexHi } : null;
   const d = c.ds[scope];
   return d ? { v: d.idx, lo: d.lo, hi: d.hi } : null;
 }
@@ -139,7 +142,7 @@ export function worstHoldout(c: SystemConfig): { gap: number; limit: number } | 
   return worst;
 }
 export const scopeName = (scope: Scope = state.scope): string =>
-  scope === "all" ? "Index, average of 3 core datasets" : `${dsLabel(scope)} only`;
+  scope === "all" ? `Index, average of ${CORE.length} core datasets` : `${dsLabel(scope)} only`;
 
 export interface Ranked {
   c: SystemConfig;

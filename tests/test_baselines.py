@@ -570,3 +570,30 @@ def test_multinomial_half_sample_jsd_shape():
     # JSD should be small (well under 0.01) for n=1000
     assert mean_jsd < 0.01
     assert mean_jsd > 0.0
+
+
+def test_gss_ceiling_from_aggregated_counts(tmp_path):
+    from synthbench.baselines import compute_gss_ceiling
+
+    raw = tmp_path / "raw"
+    raw.mkdir()
+    (raw / "gss_aggregated.csv").write_text(
+        "question_id,question_text,year,option,count\n"
+        "HAPPY,How happy?,2024,very happy,773.2\n"
+        "HAPPY,How happy?,2024,pretty happy,1830.0\n"
+        "HAPPY,How happy?,2024,not too happy,672.7\n"
+        "GUNLAW,Permits?,2024,favor,1500.4\n"
+        "GUNLAW,Permits?,2024,oppose,700.6\n",
+        encoding="utf-8",
+    )
+    out = compute_gss_ceiling(data_dir=str(tmp_path), n_bootstrap=200)
+    assert out["dataset"] == "gss"
+    assert out["n_questions"] == 2
+    assert 0.99 < out["overall"]["mean"] < 1.0
+    assert out["overall"]["quality_flag"] == "high"
+
+
+def test_gss_ceiling_absent_without_raw_data(tmp_path):
+    from synthbench.baselines import compute_gss_ceiling
+
+    assert compute_gss_ceiling(data_dir=str(tmp_path)) is None

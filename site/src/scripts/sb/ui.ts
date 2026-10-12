@@ -16,6 +16,7 @@ import {
   counterpart,
   data,
   dsLabel,
+  dsMark,
   emit,
   fullName,
   onChange,
@@ -218,7 +219,7 @@ export function scopeControl(): HTMLElement {
             role: "radio",
             "aria-checked": state.scope === id ? "true" : "false",
             class: state.scope === id ? "on" : null,
-            title: id === "all" ? "Average of OpinionsQA, SubPOP and GlobalOpinionQA" : dsLabel(id),
+            title: id === "all" ? `Average of ${CORE.map(dsLabel).join(", ")}` : dsLabel(id),
             onclick: () => {
               state.scope = id;
               emit();
@@ -459,7 +460,7 @@ export function datasetDots(list: SystemConfig[], width = 392, letters = false):
         y: y0 + rowH / 2 + 4,
         "text-anchor": "end",
         class: "sb-lab sb-light",
-        text: `${dsLabel(id)}${id === "gss" ? " †" : ""}`,
+        text: `${dsLabel(id)}${dsMark(id)}`,
       },
       svg,
     );
@@ -839,7 +840,7 @@ function renderDrawer(): void {
           { class: "sb-note" },
           v?.lo != null
             ? `95% interval ${fmt.int(v.lo)} to ${fmt.int(v.hi)}`
-            : "Not scored on all three core datasets",
+            : "Not scored on every core dataset",
           h("br"),
           tr?.tier != null
             ? `Tier ${tr.tier}${tr.tied > 1 ? `, tied with ${tr.tied - 1} other${tr.tied > 2 ? "s" : ""}` : ", alone"}`

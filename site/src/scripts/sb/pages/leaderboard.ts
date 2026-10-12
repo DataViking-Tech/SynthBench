@@ -9,7 +9,9 @@ import {
   component,
   data,
   dsLabel,
+  dsMark,
   emit,
+  fullCoverage,
   onChange,
   pruneCompare,
   scoreIn,
@@ -91,7 +93,7 @@ const expT = toggle(
 );
 const partT = toggle(
   "Partial coverage",
-  "Show systems not run on all three core datasets. They aren't ranked.",
+  "Show systems not run on every core dataset. They aren't ranked.",
   "partial",
 );
 const colsSeg = h("div", { class: "sb-seg", role: "radiogroup", "aria-label": "Columns" });
@@ -267,7 +269,7 @@ function currentRows(): { rows: Row[]; partial: Row[] } {
   const partial: Row[] =
     st.partial && state.scope === "all"
       ? pool
-          .filter((c) => !c.variant && c.coverage > 0 && c.coverage < 3 && c.index != null)
+          .filter((c) => !c.variant && c.coverage > 0 && !fullCoverage(c) && c.index != null)
           .map((c) => ({
             c,
             v: { v: c.index as number, lo: c.indexLo, hi: c.indexHi },
@@ -286,9 +288,7 @@ function header(): HTMLElement[] {
     head.push(
       th(axisHead()),
       th(idxLabel, "r", "SynthBench Index with its 95% interval"),
-      ...ALL.map((id) =>
-        th(`${dsLabel(id)}${id === "gss" ? " †" : ""}`, "c", `Index on ${dsLabel(id)}`),
-      ),
+      ...ALL.map((id) => th(`${dsLabel(id)}${dsMark(id)}`, "c", `Index on ${dsLabel(id)}`)),
       th("Holdout", "c", "Public and private questions agree within the review threshold"),
     );
   else if (st.cols === "components")
@@ -408,7 +408,7 @@ function row(r: Row, rows: Row[], i: number): HTMLElement {
           ? h(
               "span",
               { class: "sb-warn", title: "Public vs. private gap above the review threshold" },
-              "⚠",
+              "!",
             )
           : null,
       ),
@@ -445,7 +445,7 @@ function row(r: Row, rows: Row[], i: number): HTMLElement {
         g == null
           ? h("span", { class: "sb-muted" }, "—")
           : g.gap > g.limit
-            ? h("span", { class: "sb-warn" }, "⚠")
+            ? h("span", { class: "sb-warn" }, "!")
             : h("span", { class: "sb-ok" }, "✓"),
       ),
     );
@@ -494,7 +494,7 @@ function row(r: Row, rows: Row[], i: number): HTMLElement {
         g == null
           ? h("span", { class: "sb-muted" }, "no holdout")
           : g.gap > g.limit
-            ? h("span", { class: "sb-warn" }, "⚠ under review")
+            ? h("span", { class: "sb-warn" }, "! under review")
             : h("span", { class: "sb-ok" }, `✓ within ${g.limit.toFixed(2)}`),
       ),
       h("td", { class: "v plain" }, String(c.runs)),
