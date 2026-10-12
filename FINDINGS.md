@@ -468,9 +468,13 @@ gated files are committed without `human_distribution`).
 <!-- BEGIN GENERATED: nonresponse-fidelity -->
 | Provider | Framework | Template | Dataset | Mean model nonresponse | Mean human nonresponse | Mean abs gap | n |
 |----------|-----------|----------|---------|------------------------|------------------------|--------------|---|
+| Althing (Sonnet 5.5) | product | default | gss | 0.281 | 0.056 | **0.264** | 75 |
+| Althing (Haiku 4.5) | product | default | gss | 0.188 | 0.056 | **0.185** | 75 |
+| Althing (GPT-6 Luna) | product | default | gss | 0.156 | 0.056 | **0.152** | 75 |
 | Gemini 2.5 Flash | raw | default | gss | 0.106 | 0.056 | **0.126** | 75 |
 | Althing (Haiku 4.5) | product | structured | gss | 0.064 | 0.056 | **0.095** | 75 |
 | Althing (Haiku 4.5) | product | default | gss | 0.067 | 0.056 | **0.094** | 75 |
+| Althing (Sonnet 4.6) | product | default | gss | 0.014 | 0.056 | **0.061** | 75 |
 
 Comparison set: Per deduped non-baseline run whose committed per-question rows still carry human_distribution (full-tier datasets; gated files are stripped per #308): mean |model explicit-nonresponse mass (DK-style option mass + parsed refusal rate) - human's|, plus the five items with the largest model over-selection.
 

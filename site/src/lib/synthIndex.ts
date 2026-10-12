@@ -121,7 +121,8 @@ const BASE_NAMES: Record<string, string> = {
   "anthropic/claude-haiku-5-5": "Claude Haiku 5.5",
   "openai/gpt-6-luna": "GPT-6 Luna",
   "anthropic/claude-sonnet-4": "Claude Sonnet 4",
-  "anthropic/claude-sonnet-4.6": "Claude Sonnet 4.6",
+  "anthropic/claude-sonnet-4-6": "Claude Sonnet 4.6",
+  "anthropic/claude-sonnet-5-5": "Claude Sonnet 5.5",
   "openai/gpt-4o-mini": "GPT-4o mini",
   "openai/gpt-4o": "GPT-4o",
   "google/gemini-2.5-flash": "Gemini 2.5 Flash",
@@ -190,8 +191,10 @@ export function buildIndexData(raw: SynthBenchData): IndexData {
     if (e.effort) variantParts.push(`${e.effort} effort`);
     if (e.persona_pack) variantParts.push(`${e.persona_pack} personas`);
     // model_id keeps vendor version dates (claude-haiku-4-5-20251001) so it
-    // stays runnable; dated and undated ids are the same model here.
-    const modelId = (e.model_id ?? e.model).replace(/-\d{8}$/, "");
+    // stays runnable; dated and undated ids are the same model here, as are
+    // OpenRouter's dotted Anthropic versions (claude-sonnet-4.6).
+    let modelId = (e.model_id ?? e.model).replace(/-\d{8}$/, "");
+    if (modelId.startsWith("anthropic/")) modelId = modelId.replace(/\./g, "-");
     const key = [
       method,
       modelId,
