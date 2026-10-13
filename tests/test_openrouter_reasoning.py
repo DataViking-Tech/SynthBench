@@ -110,3 +110,19 @@ def test_explicit_effort_skips_the_probe(monkeypatch):
     monkeypatch.setenv("OPENROUTER_API_KEY", "test")
     p = OpenRouterProvider(model="test/model", effort="low")
     assert p._probed is True
+
+
+def test_reply_without_choices_is_retried(monkeypatch):
+    replies = [SimpleNamespace(choices=None, usage=None), _resp("A")]
+
+    class _Flaky:
+        async def create(self, **kw):
+            return replies.pop(0)
+
+    monkeypatch.setattr("synthbench.providers._retry.asyncio.sleep", _no_sleep)
+    p = _provider(monkeypatch, _Flaky())
+    assert _ask(p)[0].selected_option == "favor"
+
+
+async def _no_sleep(*_a, **_k):
+    return None
