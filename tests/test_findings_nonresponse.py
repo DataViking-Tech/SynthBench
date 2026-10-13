@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import pytest
+
 from synthbench.findings import (
     _build_nonresponse_fidelity,
     _build_sensitive_topic_sidestepping,
@@ -36,7 +38,10 @@ def _q(key: str, model_dk: float, human_dk: float, refusal: float = 0.0) -> dict
 
 def test_nonresponse_mass_counts_dk_options_and_refusals():
     dist = {"yes": 0.5, "don't know": 0.2, "No answer": 0.1, "Refused": 0.1}
-    assert _nonresponse_mass(dist, 0.05) == 0.45
+    # dist is normalized over answered samples, so DK share is scaled by the
+    # answered fraction before the refusal rate is added.
+    assert _nonresponse_mass(dist, 0.05) == pytest.approx(0.4 * 0.95 + 0.05)
+    assert _nonresponse_mass({"don't know": 1.0}, 0.5) == 1.0
     assert _nonresponse_mass(None, 0.0) == 0.0
     # Substantive-but-DK-worded options count as explicit nonresponse mass.
     assert _nonresponse_mass({"don't know, no way to find out": 0.3}, 0.0) == 0.3
@@ -81,7 +86,10 @@ def test_sensitive_topic_note_derived_from_worst_raw_row():
             "mean_abs_nonresponse_gap": 0.9,
             "mean_model_nonresponse_mass": 0.9,
             "mean_human_nonresponse_mass": 0.05,
+            "mean_model_option_mass": 0.9,
+            "mean_human_option_mass": 0.05,
             "top_overselected": [],
+            "top_option_overselected": [],
         },
         {
             "provider": "Gemini 2.5 Flash",
@@ -91,6 +99,17 @@ def test_sensitive_topic_note_derived_from_worst_raw_row():
             "mean_abs_nonresponse_gap": 0.126,
             "mean_model_nonresponse_mass": 0.15,
             "mean_human_nonresponse_mass": 0.05,
+            "mean_model_option_mass": 0.15,
+            "mean_human_option_mass": 0.05,
+            "top_option_overselected": [
+                {
+                    "key": "GSS_FEPRESCH",
+                    "text": "",
+                    "model_mass": 0.97,
+                    "human_mass": 0.02,
+                    "gap": 0.95,
+                }
+            ],
             "top_overselected": [
                 {
                     "key": "GSS_FEPRESCH",
@@ -106,3 +125,36 @@ def test_sensitive_topic_note_derived_from_worst_raw_row():
     assert note["provider"] == "Gemini 2.5 Flash"  # raw rows only
     assert note["items"][0]["key"] == "GSS_FEPRESCH"
     assert _build_sensitive_topic_sidestepping([]) is None
+
+
+def test_sidestepping_ranks_raw_rows_on_option_selection():
+    def row(provider, model_opt, refusal_heavy=False):
+        return {
+            "provider": provider,
+            "framework": "raw",
+            "dataset": "gss",
+            "n_questions": 75,
+            "mean_abs_nonresponse_gap": 0.9 if refusal_heavy else 0.1,
+            "mean_model_nonresponse_mass": 0.9 if refusal_heavy else model_opt,
+            "mean_human_nonresponse_mass": 0.05,
+            "mean_model_option_mass": model_opt,
+            "mean_human_option_mass": 0.03,
+            "top_overselected": [],
+            "top_option_overselected": [
+                {
+                    "key": provider,
+                    "text": "",
+                    "model_mass": model_opt,
+                    "human_mass": 0.03,
+                    "gap": model_opt - 0.03,
+                }
+            ],
+        }
+
+    # The refusal-heavy row has more total nonresponse but fewer DK picks.
+    note = _build_sensitive_topic_sidestepping(
+        [row("Refuser", 0.1, refusal_heavy=True), row("DK picker", 0.4)]
+    )
+    assert note["provider"] == "DK picker"
+    assert note["mean_model_nonresponse_mass"] == 0.4
+    assert note["items"][0]["key"] == "DK picker"

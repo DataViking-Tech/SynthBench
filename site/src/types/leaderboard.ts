@@ -309,6 +309,8 @@ export interface FindingsData {
 
 export interface NonresponseItemGap {
   key: string;
+  /** Question text (full-tier datasets only). */
+  text?: string;
   model_mass: number;
   human_mass: number;
   gap: number;

@@ -468,28 +468,33 @@ gated files are committed without `human_distribution`).
 <!-- BEGIN GENERATED: nonresponse-fidelity -->
 | Provider | Framework | Template | Dataset | Mean model nonresponse | Mean human nonresponse | Mean abs gap | n |
 |----------|-----------|----------|---------|------------------------|------------------------|--------------|---|
-| Althing (Sonnet 5.5) | product | default | gss | 0.281 | 0.056 | **0.264** | 75 |
-| Althing (Haiku 5.5) | product | default | gss | 0.267 | 0.056 | **0.249** | 75 |
-| Althing (Haiku 4.5) | product | default | gss | 0.188 | 0.056 | **0.185** | 75 |
-| Althing (GPT-6 Luna) | product | default | gss | 0.156 | 0.056 | **0.152** | 75 |
-| Gemini 2.5 Flash | raw | default | gss | 0.106 | 0.056 | **0.126** | 75 |
-| Althing (Haiku 4.5) | product | structured | gss | 0.064 | 0.056 | **0.095** | 75 |
-| Althing (Haiku 4.5) | product | default | gss | 0.067 | 0.056 | **0.094** | 75 |
-| Althing (Sonnet 4.6) | product | default | gss | 0.014 | 0.056 | **0.061** | 75 |
+| Claude Haiku 4.5 | raw | default | gss | 0.464 | 0.054 | **0.427** | 75 |
+| Claude Sonnet 5.5 | raw | default | gss | 0.441 | 0.054 | **0.415** | 75 |
+| Claude Haiku 5.5 | raw | default | gss | 0.397 | 0.054 | **0.367** | 75 |
+| GPT-6 Luna | raw | default | gss | 0.322 | 0.054 | **0.309** | 75 |
+| Althing (Sonnet 5.5) | product | default | gss | 0.277 | 0.054 | **0.261** | 75 |
+| Althing (Haiku 5.5) | product | default | gss | 0.246 | 0.054 | **0.228** | 75 |
+| Althing (Haiku 4.5) | product | default | gss | 0.177 | 0.054 | **0.174** | 75 |
+| Althing (GPT-6 Luna) | product | default | gss | 0.156 | 0.054 | **0.153** | 75 |
+| Claude Sonnet 4.6 | raw | default | gss | 0.124 | 0.054 | **0.150** | 75 |
+| Gemini 2.5 Flash | raw | default | gss | 0.106 | 0.054 | **0.125** | 75 |
+| Althing (Haiku 4.5) | product | structured | gss | 0.064 | 0.054 | **0.094** | 75 |
+| Althing (Haiku 4.5) | product | default | gss | 0.067 | 0.054 | **0.093** | 75 |
+| Althing (Sonnet 4.6) | product | default | gss | 0.014 | 0.054 | **0.060** | 75 |
 
 Comparison set: Per deduped non-baseline run whose committed per-question rows still carry human_distribution (full-tier datasets; gated files are stripped per #308): mean |model explicit-nonresponse mass (DK-style option mass + parsed refusal rate) - human's|, plus the five items with the largest model over-selection.
 
-**Safety-aligned models over-select explicit nonresponse options on sensitive items** (Gemini 2.5 Flash, gss, n=75): mean model nonresponse mass 0.106 vs human 0.056. Worst items:
+**Safety-aligned models over-select explicit nonresponse options on sensitive items** (Claude Sonnet 5.5, gss, n=75): mean model nonresponse mass 0.441 vs human 0.026. Worst items:
 
 | Item | Model nonresponse | Human nonresponse |
 |------|-------------------|-------------------|
-| GSS_FEPRESCH | 97% | 2.2% |
-| GSS_NATRACE | 83% | 8.8% |
-| GSS_POSTLIFE | 100% | 27.0% |
-| GSS_NATHEAL | 70% | 2.4% |
-| GSS_NATFARE | 63% | 4.6% |
+| GSS_NATEDUC | 100% | 0.5% |
+| GSS_FINRELA | 100% | 0.7% |
+| GSS_CLASS | 100% | 1.1% |
+| GSS_GUNLAW | 100% | 1.6% |
+| GSS_NATCRIME | 100% | 1.9% |
 
-Nonresponse mass concentrates on religion, gender-role, race, and welfare topics; the model selects a legitimate 'don't know'-style option rather than refusing in prose, so the sidestepping is invisible to refusal-rate metrics and only surfaces in the option distribution itself.
+Share of answers that pick a listed 'don't know'-style option, excluding prose refusals. The model selects a legitimate option rather than refusing, so refusal-rate metrics miss it and it only shows in the option distribution.
 <!-- END GENERATED: nonresponse-fidelity -->
 
 ---
