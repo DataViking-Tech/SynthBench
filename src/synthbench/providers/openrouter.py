@@ -6,6 +6,7 @@ Uses the openai SDK against the OpenRouter-compatible endpoint.
 
 from __future__ import annotations
 
+import asyncio
 import os
 
 from synthbench.providers._parsing import parse_option_response
@@ -19,6 +20,19 @@ from synthbench.providers.base import (
 )
 
 _LETTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+
+# Request settings for models that reason before answering by default. Such a
+# model spends the 8-token answer budget thinking and returns nothing or a
+# cut-off answer. The run's first request probes for this; if it fails, the
+# run switches to reasoning off, or, where a model won't allow that, minimal
+# reasoning with room for it (reasoning text excluded from the answer).
+_REASONING_MODES = {
+    "off": {"max_tokens": 8, "extra_body": {"reasoning": {"enabled": False}}},
+    "minimal": {
+        "max_tokens": 1024,
+        "extra_body": {"reasoning": {"effort": "minimal", "exclude": True}},
+    },
+}
 
 _SYSTEM = (
     "You are answering a survey. Select the single option that best reflects your view."
@@ -79,6 +93,12 @@ class OpenRouterProvider(Provider):
         self._model = model
         self._temperature = temperature
         self._effort = validate_effort(effort, "openrouter")
+        # Set by the first request (see _REASONING_MODES): None means the
+        # model answers within the default budget; "off" / "minimal" apply to
+        # every request in the run and are stamped into the run config.
+        self.reasoning: str | None = None
+        self._probed = effort is not None
+        self._probe_lock = asyncio.Lock()
         self._client = openai.AsyncOpenAI(
             api_key=api_key,
             base_url=_OPENROUTER_BASE_URL,
@@ -115,9 +135,14 @@ class OpenRouterProvider(Provider):
             request_kwargs["max_tokens"] = _EFFORT_MAX_TOKENS[self._effort]
             request_kwargs["extra_body"] = {"reasoning": {"effort": self._effort}}
 
-        resp = await call_with_retries(
-            lambda: self._client.chat.completions.create(**request_kwargs)
-        )
+        if self._probed:
+            resp = await self._create(request_kwargs)
+        else:
+            async with self._probe_lock:
+                if self._probed:
+                    resp = await self._create(request_kwargs)
+                else:
+                    resp = await self._probe(request_kwargs, options)
 
         raw_text = resp.choices[0].message.content or ""
         parsed = parse_option_response(raw_text, options)
@@ -139,6 +164,43 @@ class OpenRouterProvider(Provider):
                 "usage": usage,
             },
         )
+
+    async def _create(self, request_kwargs: dict):
+        if self.reasoning is not None:
+            request_kwargs = {**request_kwargs, **_REASONING_MODES[self.reasoning]}
+        return await call_with_retries(
+            lambda: self._client.chat.completions.create(**request_kwargs)
+        )
+
+    async def _probe(self, request_kwargs: dict, options: list[str]):
+        """First request of the run: pick the reasoning mode, return its answer."""
+        import openai
+
+        resp = await self._create(request_kwargs)
+        choice = resp.choices[0]
+        if (
+            choice.finish_reason != "length"
+            or not parse_option_response(
+                choice.message.content or "", options
+            ).is_parse_failure
+        ):
+            self._probed = True
+            return resp
+        for mode in ("off", "minimal"):
+            try:
+                resp = await call_with_retries(
+                    lambda: self._client.chat.completions.create(
+                        **{**request_kwargs, **_REASONING_MODES[mode]}
+                    )
+                )
+            except openai.BadRequestError as exc:
+                if mode == "off" and "mandatory" in str(exc).lower():
+                    continue
+                raise
+            self.reasoning = mode
+            self._probed = True
+            return resp
+        raise AssertionError("unreachable")
 
     async def close(self) -> None:
         await self._client.close()

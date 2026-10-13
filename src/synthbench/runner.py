@@ -540,6 +540,13 @@ class BenchmarkRunner:
                     if getattr(self.provider, "harness", None)
                     else {}
                 ),
+                # Set when a reasoning-by-default model had to be asked to
+                # skip reasoning ("off") or keep it minimal ("minimal").
+                **(
+                    {"reasoning": self.provider.reasoning}
+                    if getattr(self.provider, "reasoning", None)
+                    else {}
+                ),
                 **_provider_reproducibility_hashes(self.provider),
             },
             elapsed_seconds=elapsed,
