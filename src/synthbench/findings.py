@@ -643,14 +643,47 @@ _NONRESPONSE_MIN_HUMAN_COVERAGE = 0.9
 
 
 def _nonresponse_mass(dist: dict | None, refusal_rate: float) -> float:
-    """Explicit nonresponse-option mass plus parsed-refusal mass."""
+    """Explicit nonresponse-option mass plus parsed-refusal mass.
+
+    ``dist`` is normalized over answered samples (refusals excluded), so the
+    option share is scaled by the answered fraction before the refusal rate
+    is added; adding them directly can exceed 1.
+    """
     dist = dist or {}
     mass = sum(
         float(v)
         for k, v in dist.items()
         if isinstance(k, str) and _NONRESPONSE_OPTION_RE.search(k)
     )
-    return mass + float(refusal_rate or 0.0)
+    refusal = float(refusal_rate or 0.0)
+    return mass * (1.0 - refusal) + refusal
+
+
+def _option_nonresponse_mass(dist: dict | None, refusal_rate: float) -> float:
+    """Share of all samples that picked an explicit nonresponse option.
+
+    Excludes prose refusals, which P_refuse already scores; this is the part
+    of nonresponse that refusal metrics cannot see.
+    """
+    return _nonresponse_mass(dist, 0.0) * (1.0 - float(refusal_rate or 0.0))
+
+
+def _item_summary(
+    item: dict, model_key: str, human_key: str, *, with_text: bool = False
+) -> dict:
+    """One over-selected item as published: key, model vs human share.
+
+    ``with_text`` adds the question text, for the list the site charts.
+    """
+    out = {"key": item["key"]}
+    if with_text:
+        out["text"] = item["text"]
+    out.update(
+        model_mass=item[model_key],
+        human_mass=item[human_key],
+        gap=round(item[model_key] - item[human_key], 6),
+    )
+    return out
 
 
 def _build_nonresponse_fidelity(results: list[dict]) -> list[dict]:
@@ -687,17 +720,29 @@ def _build_nonresponse_fidelity(results: list[dict]) -> list[dict]:
             human_mass = _nonresponse_mass(
                 q.get("human_distribution"), q.get("human_refusal_rate", 0.0)
             )
+            model_option = _option_nonresponse_mass(
+                q.get("model_distribution"), q.get("model_refusal_rate", 0.0)
+            )
+            human_option = _option_nonresponse_mass(
+                q.get("human_distribution"), q.get("human_refusal_rate", 0.0)
+            )
             items.append(
                 {
                     "key": q.get("key", ""),
+                    "text": q.get("text", ""),
                     "model_mass": round(model_mass, 6),
                     "human_mass": round(human_mass, 6),
                     "gap": round(model_mass - human_mass, 6),
+                    "model_option_mass": round(model_option, 6),
+                    "human_option_mass": round(human_option, 6),
                 }
             )
 
         mean_abs_gap = statistics.mean(abs(i["gap"]) for i in items)
         top = sorted(items, key=lambda i: -i["gap"])[:5]
+        top_option = sorted(
+            items, key=lambda i: -(i["model_option_mass"] - i["human_option_mass"])
+        )[:5]
         rows.append(
             {
                 "provider": display_provider_name(provider),
@@ -714,7 +759,24 @@ def _build_nonresponse_fidelity(results: list[dict]) -> list[dict]:
                 "mean_human_nonresponse_mass": round(
                     statistics.mean(i["human_mass"] for i in items), 6
                 ),
-                "top_overselected": [i for i in top if i["gap"] > 0],
+                "mean_model_option_mass": round(
+                    statistics.mean(i["model_option_mass"] for i in items), 6
+                ),
+                "mean_human_option_mass": round(
+                    statistics.mean(i["human_option_mass"] for i in items), 6
+                ),
+                "top_overselected": [
+                    _item_summary(i, "model_mass", "human_mass")
+                    for i in top
+                    if i["gap"] > 0
+                ],
+                "top_option_overselected": [
+                    _item_summary(
+                        i, "model_option_mass", "human_option_mass", with_text=True
+                    )
+                    for i in top_option
+                    if i["model_option_mass"] > i["human_option_mass"]
+                ],
             }
         )
     rows.sort(key=lambda row: -row["mean_abs_nonresponse_gap"])
@@ -724,18 +786,20 @@ def _build_nonresponse_fidelity(results: list[dict]) -> list[dict]:
 def _build_sensitive_topic_sidestepping(nonresponse_rows: list[dict]) -> dict | None:
     """Findings entry: safety-aligned sidestepping via explicit DK options.
 
-    Derived from the worst raw-framework nonresponse row (currently
-    Gemini 2.5 Flash on GSS): a model that essentially never refuses in
-    prose still concentrates response mass on explicit "don't know"-style
-    options for sensitive items — religion (POSTLIFE, GOD), gender roles
-    (FEPRESCH), race (NATRACE), welfare (NATFARE) — at rates far above the
-    human survey. This is genuine option selection, not a parsing artifact:
-    the raw responses ARE the DK option strings.
+    Derived from the raw-framework row that over-selects explicit
+    "don't know"-style options the most relative to the human survey.
+    Ranked on option selection alone: prose refusals are already scored by
+    P_refuse, while a listed "don't know" choice is invisible to it. This is
+    genuine option selection, not a parsing artifact: the raw responses ARE
+    the DK option strings.
     """
     raw_rows = [r for r in nonresponse_rows if r["framework"] == "raw"]
     if not raw_rows:
         return None
-    worst = raw_rows[0]  # rows are sorted worst-first
+    worst = max(
+        raw_rows,
+        key=lambda r: r["mean_model_option_mass"] - r["mean_human_option_mass"],
+    )
     return {
         "headline": (
             "Safety-aligned models over-select explicit nonresponse options "
@@ -744,15 +808,14 @@ def _build_sensitive_topic_sidestepping(nonresponse_rows: list[dict]) -> dict | 
         "provider": worst["provider"],
         "dataset": worst["dataset"],
         "n_questions": worst["n_questions"],
-        "mean_model_nonresponse_mass": worst["mean_model_nonresponse_mass"],
-        "mean_human_nonresponse_mass": worst["mean_human_nonresponse_mass"],
-        "items": worst["top_overselected"],
+        "mean_model_nonresponse_mass": worst["mean_model_option_mass"],
+        "mean_human_nonresponse_mass": worst["mean_human_option_mass"],
+        "items": worst["top_option_overselected"],
         "note": (
-            "Nonresponse mass concentrates on religion, gender-role, race, "
-            "and welfare topics; the model selects a legitimate "
-            "'don't know'-style option rather than refusing in prose, so "
-            "the sidestepping is invisible to refusal-rate metrics and "
-            "only surfaces in the option distribution itself."
+            "Share of answers that pick a listed 'don't know'-style option, "
+            "excluding prose refusals. The model selects a legitimate option "
+            "rather than refusing, so refusal-rate metrics miss it and it only "
+            "shows in the option distribution."
         ),
     }
 

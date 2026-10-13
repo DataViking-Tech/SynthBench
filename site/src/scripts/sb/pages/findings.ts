@@ -502,24 +502,43 @@ if (stt?.items?.length) {
     GSS_POSTLIFE: "Life after death",
     GSS_NATHEAL: "Spending on health",
     GSS_NATFARE: "Spending on welfare",
+    GSS_NATEDUC: "Spending on education",
+    GSS_NATCRIME: "Spending on crime",
+    GSS_FINRELA: "Family income vs. the average",
+    GSS_CLASS: "Own social class",
+    GSS_GUNLAW: "Permits to buy a gun",
+    GSS_HEALTH: "Own health",
+    GSS_SATFIN: "Satisfaction with finances",
+    GSS_TAX: "Own federal income tax",
+    GSS_OWNGUN: "Gun in the home",
+    GSS_GOD: "Belief in God",
+    GSS_BIBLE: "View of the Bible",
+    GSS_POLVIEWS: "Own political views",
+    GSS_ABANY: "Abortion for any reason",
+    GSS_ABSINGLE: "Abortion if not married",
+    GSS_LETDIE1: "End of life for incurable disease",
+    GSS_SUICIDE1: "Suicide if incurable disease",
   };
+  // GSS questions end with their topic, after a shared preamble.
+  const label = (key: string, t: string | undefined) =>
+    Q[key] ?? (!t ? key : t.length > 48 ? `…${t.slice(-46).trimStart()}` : t);
   items.push({
     id: "dont-know",
     short: "“Don't know”",
     claim:
-      "On sensitive questions, a safety-tuned model picks “don't know” far more often than people do",
+      "On personal and contested questions, a chat model picks “don't know” far more often than people do",
     confidence: [1, "Early"],
     number: `${(stt.mean_model_nonresponse_mass / stt.mean_human_nonresponse_mass).toFixed(1)}×`,
-    numberLabel: `the human rate of nonresponse answers (${stt.provider}, ${dsLabel(stt.dataset)})`,
+    numberLabel: `the human rate of “don't know” answers (${stt.provider}, ${dsLabel(stt.dataset)})`,
     meaning:
-      "Report nonresponse separately for questions on religion, race, gender roles and welfare.",
+      "Report “don't know” answers separately, and check which questions a model declines before trusting its averages.",
     evidence:
-      "The extra nonresponse is concentrated on religion, gender-role, race and welfare questions. The model picks a legitimate “don't know” option instead of refusing, so refusal-rate metrics miss it. This is one model on one dataset, so treat it as early evidence.",
+      "The model picks a listed “don't know” option instead of refusing, so refusal-rate metrics miss it. The chart shows the questions with the largest gap. This is one model on one dataset, so treat it as early evidence.",
     viz(el) {
       dumbbell(
         el,
         stt.items.map((it) => ({
-          name: Q[it.key] ?? it.key,
+          name: label(it.key, it.text),
           a: it.human_mass,
           b: it.model_mass,
           label: `${Math.round(it.model_mass * 100)}%`,
@@ -530,7 +549,7 @@ if (stt?.items?.length) {
         })),
         {
           domain: [0, 1],
-          axis: "Share of answers that are a nonresponse option",
+          axis: "Share of answers that pick “don't know”",
           tick: (v) => `${Math.round(v * 100)}%`,
           labelW: 250,
           a: ring,
