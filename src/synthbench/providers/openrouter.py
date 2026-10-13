@@ -168,9 +168,19 @@ class OpenRouterProvider(Provider):
     async def _create(self, request_kwargs: dict):
         if self.reasoning is not None:
             request_kwargs = {**request_kwargs, **_REASONING_MODES[self.reasoning]}
-        return await call_with_retries(
-            lambda: self._client.chat.completions.create(**request_kwargs)
-        )
+        return await call_with_retries(lambda: self._request(request_kwargs))
+
+    async def _request(self, request_kwargs: dict):
+        """One chat completion; an answer-less reply is raised as retryable.
+
+        OpenRouter occasionally returns HTTP 200 with ``choices`` missing
+        (an upstream provider error passed through), which would otherwise
+        crash the run on ``resp.choices[0]``.
+        """
+        resp = await self._client.chat.completions.create(**request_kwargs)
+        if not getattr(resp, "choices", None):
+            raise ConnectionError(f"OpenRouter returned no choices for {self._model}")
+        return resp
 
     async def _probe(self, request_kwargs: dict, options: list[str]):
         """First request of the run: pick the reasoning mode, return its answer."""
@@ -189,9 +199,7 @@ class OpenRouterProvider(Provider):
         for mode in ("off", "minimal"):
             try:
                 resp = await call_with_retries(
-                    lambda: self._client.chat.completions.create(
-                        **{**request_kwargs, **_REASONING_MODES[mode]}
-                    )
+                    lambda: self._request({**request_kwargs, **_REASONING_MODES[mode]})
                 )
             except openai.BadRequestError as exc:
                 if mode == "off" and "mandatory" in str(exc).lower():
