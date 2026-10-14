@@ -1,3 +1,4 @@
+import { topicLabel } from "@/lib/topics";
 import { axisTitle, css, fmt, h, linear, mount, s, ticks } from "../dom";
 import {
   ALL,
@@ -478,7 +479,13 @@ mount(
       const g = s("g", { opacity: n < 10 ? 0.4 : 1 }, svg);
       s(
         "text",
-        { x: labelW, y: cy + 4, "text-anchor": "end", class: "sb-lab sb-light", text: t },
+        {
+          x: labelW,
+          y: cy + 4,
+          "text-anchor": "end",
+          class: "sb-lab sb-light",
+          text: topicLabel(t),
+        },
         g,
       );
       const peer = others(topicDs, cur)

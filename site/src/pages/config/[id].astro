@@ -151,7 +151,7 @@ const base = rawBase.endsWith("/") ? rawBase : `${rawBase}/`;
     <section class="mb-8" aria-labelledby="topic-chart-heading">
       <h2 id="topic-chart-heading" class="mb-3 text-lg font-semibold">Per-topic breakdown</h2>
       <p id="topic-chart-desc" class="mb-3 text-xs text-muted">
-        Mean SPS per topic across replicates. All 10 categories shown — bars are empty for topics
+        Mean SPS per topic across replicates. All seven topics are shown. Bars are empty for topics
         the config did not cover.
       </p>
       <figure class="chart-figure" aria-labelledby="topic-chart-heading">
@@ -206,19 +206,9 @@ const base = rawBase.endsWith("/") ? rawBase : `${rawBase}/`;
   import { labOf, logoMarkup } from "@/lib/providerIcons";
   import * as echarts from "echarts";
   import type { ConfigRollup } from "@/types/runs";
+  import { TOPICS } from "@/lib/topics";
 
-  const ALL_TOPICS = [
-    "Politics & Governance",
-    "International Relations & Security",
-    "Economy & Work",
-    "Technology & Digital Life",
-    "Media & Information",
-    "Health & Science",
-    "Social Values & Religion",
-    "Identity & Demographics",
-    "Trust & Wellbeing",
-    "General Attitudes",
-  ] as const;
+  const ALL_TOPICS = TOPICS.map((t) => t.id);
 
   function fmt(value: number | null | undefined, digits = 3): string {
     if (value === null || value === undefined || Number.isNaN(value)) return "—";
@@ -381,7 +371,7 @@ const base = rawBase.endsWith("/") ? rawBase : `${rawBase}/`;
       grid: { left: 20, right: 20, top: 20, bottom: 120, containLabel: true },
       xAxis: {
         type: "category",
-        data: ALL_TOPICS as unknown as string[],
+        data: TOPICS.map((t) => t.label),
         axisLabel: {
           rotate: 35,
           interval: 0,
@@ -413,7 +403,7 @@ const base = rawBase.endsWith("/") ? rawBase : `${rawBase}/`;
     // Render equivalent data table for screen readers and keyboard users.
     const tableContainer = document.getElementById("topic-chart-table");
     if (tableContainer) {
-      const rows = ALL_TOPICS.map((topic, i) => {
+      const rows = TOPICS.map(({ label: topic }, i) => {
         const m = means[i];
         const s = stds[i];
         const meanCell = m == null ? "—" : m.toFixed(3);

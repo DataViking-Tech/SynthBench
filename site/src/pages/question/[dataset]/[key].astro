@@ -2,6 +2,7 @@
 import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { resolve } from "node:path";
 import BaseLayout from "@/layouts/BaseLayout.astro";
+import { topicLabel } from "@/lib/topics";
 import type { QuestionIndex, QuestionIndexEntry, QuestionPayload } from "@/types/questions";
 
 // sb-sj6: two-tier prerender.
@@ -221,7 +222,7 @@ const encodePathSegment = (s: string): string =>
         {
           payload.topic && (
             <span class="rounded bg-primary/10 px-2 py-0.5 text-xs text-primary">
-              {payload.topic}
+              {topicLabel(payload.topic)}
             </span>
           )
         }
@@ -570,6 +571,7 @@ const encodePathSegment = (s: string): string =>
     // via the Worker proxy with a Supabase JWT. 401 surfaces as a sign-in
     // gate; 200 swaps the shell for a full-render built from the fetched
     // payload.
+    import { topicLabel } from "@/lib/topics";
     import type { QuestionPayload } from "@/types/questions";
 
     const root = document.querySelector<HTMLElement>(".question-detail");
@@ -648,7 +650,7 @@ const encodePathSegment = (s: string): string =>
           <div class="flex flex-wrap items-baseline gap-2">
             <h1 class="text-2xl font-bold sm:text-3xl">Question detail</h1>
             <span class="rounded bg-muted/20 px-2 py-0.5 font-mono text-xs text-muted">${escapeHtml(payload.dataset)}</span>
-            ${payload.topic ? `<span class="rounded bg-primary/10 px-2 py-0.5 text-xs text-primary">${escapeHtml(payload.topic)}</span>` : ""}
+            ${payload.topic ? `<span class="rounded bg-primary/10 px-2 py-0.5 text-xs text-primary">${escapeHtml(topicLabel(payload.topic))}</span>` : ""}
           </div>
           <p class="mt-1 break-all font-mono text-xs text-muted">${escapeHtml(payload.key)}</p>
           <p class="mt-4 max-w-3xl text-base leading-relaxed">${escapeHtml(payload.question)}</p>

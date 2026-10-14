@@ -1,14 +1,7 @@
-export type TopicCategory =
-  | "Politics & Governance"
-  | "International Relations & Security"
-  | "Economy & Work"
-  | "Technology & Digital Life"
-  | "Media & Information"
-  | "Health & Science"
-  | "Social Values & Religion"
-  | "Identity & Demographics"
-  | "Trust & Wellbeing"
-  | "General Attitudes";
+import type { TopicId } from "@/lib/topics";
+
+/** Routing topic id (see lib/topics.ts); keys of topic_scores / topic_metrics. */
+export type TopicCategory = TopicId;
 
 export interface LeaderboardEntry {
   rank: number;
@@ -137,8 +130,10 @@ export interface LeaderboardEntry {
   /** 95th-percentile per-question latency in seconds; see `latency_p50_seconds`. */
   latency_p95_seconds?: number | null;
 
-  topic_scores?: Record<TopicCategory, number>;
-  topic_metrics?: Record<TopicCategory, TopicMetricBreakdown>;
+  /** Full SPS per routing topic id (API 1.4.0; same as topic_metrics[t].sps). */
+  topic_scores?: Partial<Record<TopicCategory, number>>;
+  /** SPS and components per routing topic id, from the full SPS (API 1.4.0). */
+  topic_metrics?: Partial<Record<TopicCategory, TopicMetricBreakdown>>;
   demographic_scores?: DemographicBreakdown[];
   /**
    * Structured per-dimension demographic subgroup scorecard (issue #255,
@@ -538,6 +533,11 @@ export interface SynthBenchData {
   dataset_policies?: DatasetPolicyEntry[];
   /** Runs filtered at publish time as invalid (uniform-garbage etc.). */
   excluded_runs?: ExcludedRun[];
+  /** Routing topic taxonomy that topic ids refer to (API 1.4.0). */
+  topic_taxonomy?: {
+    version: number;
+    topics: { id: string; label: string; description: string; keywords: string[] }[];
+  };
 }
 
 /** A run filtered by publish.py's run-validity detector. */

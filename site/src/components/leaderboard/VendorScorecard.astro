@@ -13,6 +13,7 @@
 // missing — many providers don't yet publish demographic conditioning.
 
 import leaderboardRaw from "@/data/leaderboard.json";
+import { topicLabel } from "@/lib/topics";
 import type {
   DemographicScorecardDimension,
   LeaderboardEntry,
@@ -324,7 +325,7 @@ const sourceLines = Array.from(new Set(cards.map((c) => c.entry.dataset)))
                   {card.topics.map((r) => (
                     <tr class:list={["border-b border-muted/10 last:border-b-0", isLowNTopic(r) && "opacity-50"]}>
                       <td class="px-3 py-2">
-                        {r.topic}
+                        {topicLabel(r.topic)}
                         {isLowNTopic(r) && (
                           <span class="ml-1 inline-block rounded bg-muted/15 px-1 py-0.5 text-[10px] uppercase tracking-wide align-middle whitespace-nowrap text-muted" title={`Only ${r.metric.n} questions in this topic — below the N=${TOPIC_LOW_N_THRESHOLD} display threshold. Suggestive only.`}>
                             low n — suggestive only

@@ -160,7 +160,7 @@ jobs:
           cache-dependency-path: site/package-lock.json
       - run: pip install -e .
       - name: Generate leaderboard data
-        run: synthbench publish-data --results-dir leaderboard-results --output site/src/data/leaderboard.json
+        run: synthbench publish-data --results-dir leaderboard-results --output site/src/data/leaderboard.json --routing-output site/src/data/routing.json
       - name: Generate run explorer artifacts
         run: synthbench publish-runs --results-dir leaderboard-results --output-dir site/public/data
       - name: Verify publish integrity (sb-4zy)
@@ -170,7 +170,7 @@ jobs:
         run: npm ci
       - name: Format generated data
         working-directory: site
-        run: npx biome format --write src/data/leaderboard.json
+        run: npx biome format --write src/data/leaderboard.json src/data/routing.json
       - name: Typecheck
         working-directory: site
         run: npx tsc --noEmit
@@ -248,7 +248,7 @@ jobs:
           cache-dependency-path: site/package-lock.json
       - run: pip install -e .
       - name: Generate leaderboard data
-        run: synthbench publish-data --results-dir leaderboard-results --output site/src/data/leaderboard.json
+        run: synthbench publish-data --results-dir leaderboard-results --output site/src/data/leaderboard.json --routing-output site/src/data/routing.json
       - name: Generate run explorer artifacts
         run: synthbench publish-runs --results-dir leaderboard-results --output-dir site/public/data
       - name: Verify publish integrity (sb-4zy)
@@ -280,7 +280,7 @@ jobs:
         run: npx playwright install-deps chromium
       - name: Format generated data
         working-directory: site
-        run: npx biome format --write src/data/leaderboard.json
+        run: npx biome format --write src/data/leaderboard.json src/data/routing.json
       - name: Build site
         working-directory: site
         run: npm run build

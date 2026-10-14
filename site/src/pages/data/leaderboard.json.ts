@@ -38,7 +38,11 @@ import type { APIRoute } from "astro";
 // level ("low" | "medium" | "high") threaded to the provider's native
 // reasoning knob. Absent on every pre-effort row; absence means provider
 // default reasoning behaviour, never "low".
-const API_VERSION = "1.3.0";
+// 1.4.0: topic_scores / topic_metrics and per-question `topic` use the
+// 7-topic routing taxonomy keyed by topic id, topic_metrics[*].sps is the
+// full SPS (with p_refuse), and a top-level `topic_taxonomy` block lists the
+// topics. See docs/leaderboard-json-api.md.
+const API_VERSION = "1.4.0";
 const CONTRACT_URL =
   "https://github.com/DataViking-Tech/SynthBench/blob/main/docs/leaderboard-json-api.md";
 
