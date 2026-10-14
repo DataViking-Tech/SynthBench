@@ -225,6 +225,21 @@ def _mean_std(values: list[float]) -> tuple[float, float | None]:
     return mean, std
 
 
+def _newest_scoring(runs: list[dict]) -> list[dict]:
+    """Keep only the runs scored with the newest code among ``runs``.
+
+    A finding that pools replicate runs must not mix scoring versions: an
+    April run scored with the v1 parser and refusal detector next to a
+    current rerun would blend two different measurements.
+    """
+    from synthbench.publish import _scoring_rank
+
+    if not runs:
+        return runs
+    newest = max(_scoring_rank(r) for r in runs)
+    return [r for r in runs if _scoring_rank(r) == newest]
+
+
 def _build_temperature_sweep(results: list[dict]) -> list[dict]:
     """Per-(model, temperature) recomputed SPS over the OpinionsQA sweep runs.
 
@@ -234,7 +249,7 @@ def _build_temperature_sweep(results: list[dict]) -> list[dict]:
     """
     from synthbench.leaderboard import display_provider_name, provider_framework
 
-    cells: dict[tuple[str, float], list[float]] = {}
+    sweep_by_model: dict[str, list[dict]] = {}
     for r in results:
         cfg = r.get("config") or {}
         provider = cfg.get("provider", "")
@@ -247,12 +262,24 @@ def _build_temperature_sweep(results: list[dict]) -> list[dict]:
             or not isinstance(temperature, (int, float))
         ):
             continue
-        sps = _run_sps(r)
-        if sps is None:
-            continue
         display = display_provider_name(provider)
-        model = PRODUCT_TO_RAW_DISPLAY.get(display, display)
-        cells.setdefault((model, float(temperature)), []).append(sps)
+        sweep_by_model.setdefault(
+            PRODUCT_TO_RAW_DISPLAY.get(display, display), []
+        ).append(r)
+
+    # Each model's sweep uses one scoring version across all temperatures.
+    cells: dict[tuple[str, float], list[float]] = {}
+    for runs in sweep_by_model.values():
+        for r in _newest_scoring(runs):
+            cfg = r.get("config") or {}
+            provider = cfg.get("provider", "")
+            temperature = cfg.get("temperature")
+            sps = _run_sps(r)
+            if sps is None:
+                continue
+            display = display_provider_name(provider)
+            model = PRODUCT_TO_RAW_DISPLAY.get(display, display)
+            cells.setdefault((model, float(temperature)), []).append(sps)
 
     out = []
     for (model, temperature), values in sorted(cells.items()):
@@ -274,7 +301,7 @@ def _build_template_comparison(results: list[dict]) -> list[dict]:
     """Persona-template variant comparison (SubPOP, Haiku, t=0.85)."""
     from synthbench.publish import _tpl_name
 
-    cells: dict[str, list[float]] = {}
+    runs = []
     for r in results:
         cfg = r.get("config") or {}
         tpl = _tpl_name(cfg.get("prompt_template"))
@@ -285,6 +312,11 @@ def _build_template_comparison(results: list[dict]) -> list[dict]:
             # tpl=structured is an elicitation mode, not a persona template;
             # _build_elicitation_comparison covers it.
             continue
+        runs.append(r)
+
+    cells: dict[str, list[float]] = {}
+    for r in _newest_scoring(runs):
+        tpl = _tpl_name((r.get("config") or {}).get("prompt_template"))
         sps = _run_sps(r)
         if sps is not None:
             cells.setdefault(tpl, []).append(sps)
@@ -850,7 +882,7 @@ def _build_conditioning(results: list[dict]) -> tuple[list[dict], list[dict]]:
     # counting the copy as an independent replication would deflate the std
     # to 0. Genuinely independent replications never collide on both floats.
     cells: dict[tuple[str, str], set[tuple[float, float]]] = {}
-    for r in results:
+    for r in _newest_scoring([r for r in results if r.get("demographic_breakdown")]):
         breakdown = r.get("demographic_breakdown") or {}
         for attribute, groups in breakdown.items():
             if not isinstance(groups, list):

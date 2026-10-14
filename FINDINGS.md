@@ -84,33 +84,33 @@ Gemini Flash Lite extended to t=2.0 (Experiment D).
 <!-- BEGIN GENERATED: temperature -->
 | Model | Temp range | SPS range (mean) | Δ (pts) | Replications/cell |
 |-------|-----------|------------------|---------|-------------------|
-| Claude Haiku 4.5 | 0.3–1.0 | 0.843–0.850 | +0.8 | 3 |
-| GPT-4o-mini | 0.3–1.0 | 0.817–0.829 | +1.2 | 2 |
-| Gemini Flash Lite | 0.3–2.0 | 0.819–0.864 | +4.5 | 2 |
+| Claude Haiku 4.5 | 0.3–1.0 | 0.814–0.830 | +1.6 | 1 |
+| GPT-4o-mini | 0.3–1.0 | 0.792–0.807 | +1.5 | 1 |
+| Gemini Flash Lite | 0.3–2.0 | 0.796–0.841 | +4.5 | 1 |
 
 Full sweep (mean ± std across replications):
 
 | Model | Temp | SPS | n |
 |-------|------|-----|---|
-| Claude Haiku 4.5 | 0.3 | 0.843 ± 0.003 | 3 |
-| Claude Haiku 4.5 | 0.5 | 0.844 ± 0.003 | 3 |
-| Claude Haiku 4.5 | 0.7 | 0.845 ± 0.007 | 3 |
-| Claude Haiku 4.5 | 0.85 | 0.850 ± 0.006 | 3 |
-| Claude Haiku 4.5 | 1.0 | 0.844 ± 0.007 | 3 |
-| GPT-4o-mini | 0.3 | 0.817 ± 0.000 | 2 |
-| GPT-4o-mini | 0.5 | 0.822 ± 0.001 | 2 |
-| GPT-4o-mini | 0.7 | 0.822 ± 0.000 | 2 |
-| GPT-4o-mini | 0.85 | 0.824 ± 0.002 | 2 |
-| GPT-4o-mini | 1.0 | 0.829 ± 0.001 | 2 |
-| Gemini Flash Lite | 0.3 | 0.819 ± 0.003 | 2 |
-| Gemini Flash Lite | 0.5 | 0.827 ± 0.001 | 2 |
-| Gemini Flash Lite | 0.7 | 0.838 ± 0.005 | 2 |
-| Gemini Flash Lite | 0.85 | 0.849 ± 0.003 | 2 |
-| Gemini Flash Lite | 1.0 | 0.856 ± 0.003 | 2 |
-| Gemini Flash Lite | 1.2 | 0.856 ± 0.001 | 2 |
-| Gemini Flash Lite | 1.5 | 0.858 ± 0.000 | 2 |
-| Gemini Flash Lite | 1.8 | 0.857 ± 0.005 | 2 |
-| Gemini Flash Lite | 2.0 | 0.864 ± 0.001 | 2 |
+| Claude Haiku 4.5 | 0.3 | 0.814 | 1 |
+| Claude Haiku 4.5 | 0.5 | 0.821 | 1 |
+| Claude Haiku 4.5 | 0.7 | 0.825 | 1 |
+| Claude Haiku 4.5 | 0.85 | 0.826 | 1 |
+| Claude Haiku 4.5 | 1.0 | 0.830 | 1 |
+| GPT-4o-mini | 0.3 | 0.792 | 1 |
+| GPT-4o-mini | 0.5 | 0.798 | 1 |
+| GPT-4o-mini | 0.7 | 0.802 | 1 |
+| GPT-4o-mini | 0.85 | 0.803 | 1 |
+| GPT-4o-mini | 1.0 | 0.807 | 1 |
+| Gemini Flash Lite | 0.3 | 0.796 | 1 |
+| Gemini Flash Lite | 0.5 | 0.806 | 1 |
+| Gemini Flash Lite | 0.7 | 0.815 | 1 |
+| Gemini Flash Lite | 0.85 | 0.824 | 1 |
+| Gemini Flash Lite | 1.0 | 0.830 | 1 |
+| Gemini Flash Lite | 1.2 | 0.835 | 1 |
+| Gemini Flash Lite | 1.5 | 0.834 | 1 |
+| Gemini Flash Lite | 1.8 | 0.841 | 1 |
+| Gemini Flash Lite | 2.0 | 0.841 | 1 |
 <!-- END GENERATED: temperature -->
 
 ### Key Finding
@@ -133,12 +133,12 @@ entropy (see Experiment H5 below).
 <!-- BEGIN GENERATED: template -->
 | Template | Mean SPS | Std | Runs |
 |----------|----------|-----|------|
-| **CURRENT** | **0.771** | — | 1 |
-| MINIMAL | 0.581 | 0.005 | 2 |
-| DEMO | 0.569 | 0.001 | 2 |
-| VALUES | 0.555 | 0.032 | 2 |
+| **CURRENT** | **0.725** | — | 1 |
+| DEMO | 0.667 | — | 1 |
+| MINIMAL | 0.648 | — | 1 |
+| VALUES | 0.637 | — | 1 |
 
-The CURRENT template beats the best alternative by **+19.0 SPS points**.
+The CURRENT template beats the best alternative by **+5.8 SPS points**.
 <!-- END GENERATED: template -->
 
 ### Key Finding
@@ -255,43 +255,34 @@ t=0.85, 100 questions, 15–30 samples.
 
 | Group | P_dist | P_cond | Replications |
 |-------|--------|--------|--------------|
-| Republican | 0.680 | **0.099 ± 0.035** | 9 |
-| Democrat | 0.657 | **0.043 ± 0.023** | 9 |
+| Republican | 0.683 | **0.105 ± 0.020** | 4 |
+| Democrat | 0.667 | **0.052 ± 0.022** | 4 |
 
 #### INCOME
 
 | Group | P_dist | P_cond | Replications |
 |-------|--------|--------|--------------|
-| <$30K | 0.632 | **0.054 ± 0.033** | 8 |
-| $100K+ | 0.673 | **0.041 ± 0.025** | 8 |
+| <$30K | 0.652 | **0.071 ± 0.014** | 4 |
+| $100K+ | 0.673 | **0.044 ± 0.029** | 4 |
 
 #### EDUCATION
 
 | Group | P_dist | P_cond | Replications |
 |-------|--------|--------|--------------|
-| Less than HS | 0.642 | **0.081 ± 0.041** | 6 |
-| College graduate | 0.676 | **0.042 ± 0.026** | 6 |
+| Less than HS | 0.652 | **0.087 ± 0.028** | 4 |
+| College graduate | 0.684 | **0.040 ± 0.023** | 4 |
 
-Republican conditioning is **2.3× stronger** than Democrat (mean P_cond across replications).
-High-income conditioning is **1.3× stronger** than low-income.
+Republican conditioning is **2.0× stronger** than Democrat (mean P_cond across replications).
+High-income conditioning is **1.6× stronger** than low-income.
 
 #### Other measured attributes
 
 | Attribute | Group | P_dist | P_cond | Replications |
 |-----------|-------|--------|--------|--------------|
-| CREGION | South | 0.651 | 0.055 ± 0.018 | 7 |
-| CREGION | Northeast | 0.657 | 0.045 ± 0.029 | 7 |
-| RACE | White | 0.785 | 0.141 ± 0.030 | 3 |
-| RACE | Hispanic | 0.605 | 0.034 ± 0.005 | 3 |
-| RACE | Asian | 0.637 | 0.025 ± 0.005 | 3 |
-| RACE | Black | 0.585 | 0.025 ± 0.003 | 3 |
-| RELIG | Protestant | 0.838 | 0.178 | 1 |
-| RELIG | Muslim | 0.820 | 0.161 | 1 |
-| RELIG | Hindu | 0.806 | 0.129 | 1 |
-| RELIG | Jewish | 0.774 | 0.127 | 1 |
-| RELIG | Atheist | 0.738 | 0.095 | 1 |
-| SEX | Female | 0.645 | 0.049 ± 0.036 | 6 |
-| SEX | Male | 0.665 | 0.048 ± 0.031 | 6 |
+| CREGION | South | 0.658 | 0.060 ± 0.022 | 4 |
+| CREGION | Northeast | 0.677 | 0.056 ± 0.034 | 4 |
+| SEX | Male | 0.683 | 0.052 ± 0.038 | 4 |
+| SEX | Female | 0.657 | 0.051 ± 0.033 | 4 |
 <!-- END GENERATED: conditioning -->
 
 ### Key Findings
@@ -581,11 +572,11 @@ work.
 <!-- BEGIN GENERATED: extended-temperature -->
 | Temp | Mean SPS | n |
 |------|----------|---|
-| 1.0 | 0.856 ± 0.003 | 2 |
-| 1.2 | 0.856 ± 0.001 | 2 |
-| 1.5 | 0.858 ± 0.000 | 2 |
-| 1.8 | 0.857 ± 0.005 | 2 |
-| **2.0** | **0.864 ± 0.001** | 2 |
+| 1.0 | 0.830 | 1 |
+| 1.2 | 0.835 | 1 |
+| 1.5 | 0.834 | 1 |
+| 1.8 | 0.841 | 1 |
+| **2.0** | **0.841** | 1 |
 <!-- END GENERATED: extended-temperature -->
 
 ### Key Finding
@@ -623,9 +614,9 @@ more temperature — it just adds noise.
 | Lever | Effect size (SPS pts) | Cost | Status |
 |-------|----------------------|------|--------|
 | **Ensemble blending** | +-0.2–7.1 | zero | done |
-| **Per-model optimal temperature** | +0.8–4.5 | low | actionable |
-| **Demographic conditioning** | +4.1–9.9 | moderate | scientific |
-| **Persona template** | 'current' template already optimal (+19.0 pts over the best alternative); no further gain available from this lever. | zero | done |
+| **Per-model optimal temperature** | +1.5–4.5 | low | actionable |
+| **Demographic conditioning** | +4.0–10.5 | moderate | scientific |
+| **Persona template** | 'current' template already optimal (+5.8 pts over the best alternative); no further gain available from this lever. | zero | done |
 <!-- END GENERATED: levers -->
 
 ---
