@@ -36,6 +36,15 @@ Two detector versions coexist:
   explicit character breaks (identifying as an AI, stepping out of the
   role, declining to answer "authentically", disclaiming personal beliefs
   or a place to live). v3's single-option exemptions still come first.
+* :func:`detect_refusal_v5` — **v5** (current default). v4 missed declines
+  that name a missing life experience and then decline: "I don't have a
+  local community or personal experience of one, so I can't give a genuine
+  answer", "I don't have a childhood or a hometown, so I can't answer this
+  from personal experience" (Haiku 5.5 via the API). v5 also counts a first
+  paragraph that says "I don't have a/an/any ..." together with "I can't
+  answer / say / pick ..." or "I can't give a ... answer". v3's
+  single-option exemptions still come first, so "I don't have kids, so I
+  can't say for sure, but (B)" is an answer.
 
 Runs are stamped with ``config.refusal_detector_version``; the key is
 additive — files without it were parsed under v1. The stamp is metadata
@@ -49,7 +58,7 @@ import re
 
 #: Detector version stamped into run metadata (``config.refusal_detector_version``).
 #: Absent key on a committed run file means v1.
-REFUSAL_DETECTOR_VERSION = 4
+REFUSAL_DETECTOR_VERSION = 5
 
 # Patterns that indicate an LLM-style refusal when explicit refusal field is
 # unavailable. v1 — un-anchored; kept callable for reproducibility.
@@ -335,6 +344,56 @@ def detect_refusal_v4(text: str, options: list[str] | None = None) -> bool:
         return True
     body = _STAGE_DIRECTION_RE.sub("", raw.strip())
     return bool(_CHARACTER_BREAK_RE.search(_first_paragraph(body)))
+
+
+# ---------------------------------------------------------------------------
+# v5 detector
+# ---------------------------------------------------------------------------
+
+_NO_HAVE_RE = re.compile(
+    r"\bI (?:don'?t|do not) (?:actually |really )?have (?:a|an|any|my own)\b",
+    re.IGNORECASE,
+)
+_CANT_ANSWER_RE = re.compile(
+    r"\bI (?:can'?t|cannot|couldn'?t|won'?t) (?:\w+ ){0,4}?"
+    r"(?:answer|say|pick|choose|report|respond|rate|tell you)\b"
+    r"|\bI (?:can'?t|cannot|couldn'?t|won'?t) (?:give|offer|provide) (?:a|an|my) "
+    r"(?:\w+ )?(?:answer|view|response|opinion|rating)\b",
+    re.IGNORECASE,
+)
+
+
+def detect_refusal_v5(text: str, options: list[str] | None = None) -> bool:
+    """Detect refusal — v5: v4 plus "I don't have X, so I can't answer".
+
+    Classification order:
+
+    1. v3's exemptions: exactly one echoed option or one option label is an
+       answer, never a refusal.
+    2. Any v4 refusal.
+    3. A first paragraph that both disclaims having something ("I don't have
+       a ...") and declines to answer ("I can't answer / say / pick ...",
+       "I can't give a ... answer"): refusal.
+
+    Args:
+        text: Raw response text from the provider.
+        options: Declared answer options for the current question.
+
+    Returns:
+        True if the response declines to choose an option.
+    """
+    raw = str(text)
+    stripped = raw.strip(_WRAPPING_CHARS)
+    if not stripped:
+        return False
+    if options:
+        echoed = sum(1 for opt in options if _mentions_option(raw, [opt]))
+        if echoed == 1 or _single_option_label(raw, options):
+            return False
+    if detect_refusal_v4(raw, options):
+        return True
+    first = _first_paragraph(_STAGE_DIRECTION_RE.sub("", raw.strip()))
+    return bool(_NO_HAVE_RE.search(first) and _CANT_ANSWER_RE.search(first))
 
 
 def refusal_calibration(

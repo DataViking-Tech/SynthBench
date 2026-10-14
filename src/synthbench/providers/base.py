@@ -13,6 +13,13 @@ from dataclasses import dataclass
 # row tagged "high" means the same qualitative thing across vendors.
 EFFORT_LEVELS = ("low", "medium", "high")
 
+#: Output-token budget for the raw prompt ("Respond with ONLY the letter").
+#: A model that answers with a letter uses 1-3 tokens. 8 was the old
+#: budget, but models that answer in prose then had their refusals cut off
+#: mid-sentence ("I appreciate the question, but I should"), so they were
+#: dropped as unreadable instead of scored as refusals.
+RAW_ANSWER_MAX_TOKENS = 64
+
 
 def validate_effort(effort: str | None, provider_label: str) -> str | None:
     """Validate a reasoning-effort level at provider construction time.

@@ -14,6 +14,8 @@ from unittest.mock import AsyncMock
 import click
 import pytest
 
+from synthbench.providers.base import RAW_ANSWER_MAX_TOKENS
+
 from synthbench.cli import _provider_kwargs
 from synthbench.config_id import build_config_id
 from synthbench.validation import Severity, validate_submission
@@ -105,7 +107,7 @@ async def test_openrouter_without_effort_sends_no_reasoning(monkeypatch):
 
     kwargs = create.call_args.kwargs
     assert "extra_body" not in kwargs
-    assert kwargs["max_tokens"] == 8
+    assert kwargs["max_tokens"] == RAW_ANSWER_MAX_TOKENS
 
 
 @pytest.mark.asyncio
@@ -156,7 +158,7 @@ async def test_raw_anthropic_without_effort_unchanged(monkeypatch):
 
     kwargs = create.call_args.kwargs
     assert "thinking" not in kwargs
-    assert kwargs["max_tokens"] == 8
+    assert kwargs["max_tokens"] == RAW_ANSWER_MAX_TOKENS
     assert resp.selected_option == "alpha"
 
 

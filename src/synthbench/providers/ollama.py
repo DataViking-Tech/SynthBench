@@ -9,6 +9,7 @@ from __future__ import annotations
 from synthbench.providers._parsing import parse_option_response
 from synthbench.providers._retry import call_with_retries
 from synthbench.providers.base import (
+    RAW_ANSWER_MAX_TOKENS,
     PersonaSpec,
     Provider,
     Response,
@@ -82,7 +83,7 @@ class OllamaProvider(Provider):
         resp = await call_with_retries(
             lambda: self._client.chat.completions.create(
                 model=self._model,
-                max_tokens=8,
+                max_tokens=RAW_ANSWER_MAX_TOKENS,
                 temperature=self._temperature,
                 messages=[
                     {"role": "system", "content": system},
