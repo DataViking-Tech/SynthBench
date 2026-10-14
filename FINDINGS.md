@@ -472,13 +472,14 @@ gated files are committed without `human_distribution`).
 | Gemini 3.8 Flash | raw | default | gss | 0.719 | 0.054 | **0.679** | 75 |
 | GPT-6 Luna | raw | default | gss | 0.322 | 0.054 | **0.309** | 75 |
 | GPT-6 Luna | raw | default | gss | 0.243 | 0.054 | **0.250** | 75 |
-| Claude Sonnet 4 | raw | default | gss | 0.220 | 0.054 | **0.227** | 75 |
-| Claude Haiku 5.5 | raw | default | gss | 0.212 | 0.054 | **0.214** | 75 |
-| Claude Haiku 4.5 | raw | default | gss | 0.177 | 0.054 | **0.196** | 75 |
+| Claude Haiku 5.5 | raw | default | gss | 0.227 | 0.054 | **0.231** | 75 |
+| Claude Sonnet 4 | raw | default | gss | 0.226 | 0.054 | **0.230** | 75 |
+| Claude Sonnet 5.5 | raw | default | gss | 0.200 | 0.054 | **0.210** | 75 |
+| Claude Haiku 4.5 | raw | default | gss | 0.176 | 0.054 | **0.190** | 75 |
 | Althing (Sonnet 5.5) | product | default | gss | 0.174 | 0.054 | **0.174** | 75 |
 | Althing (GPT-6 Luna) | product | default | gss | 0.156 | 0.054 | **0.153** | 75 |
 | Gemini 2.5 Flash | raw | default | gss | 0.098 | 0.054 | **0.124** | 75 |
-| Claude Sonnet 4.6 | raw | default | gss | 0.087 | 0.054 | **0.121** | 75 |
+| Claude Sonnet 4.6 | raw | default | gss | 0.089 | 0.054 | **0.124** | 75 |
 | Althing (Haiku 4.5) | product | structured | gss | 0.064 | 0.054 | **0.094** | 75 |
 | Althing (Haiku 4.5) | product | default | gss | 0.067 | 0.054 | **0.092** | 75 |
 | GPT-4o | raw | default | gss | 0.067 | 0.054 | **0.090** | 75 |
