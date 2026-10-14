@@ -157,15 +157,15 @@ count — the elicitation surface is the only variable.
 | P_refuse | 0.980 | 0.980 | **+0.0 pts** |
 | Parse failures | 0.8% | 0.0% | -0.8 pts |
 
-**Althing (Haiku 5.5)** (product) on globalopinionqa — n=100 questions × 30 samples per arm; the arms differ only in elicitation mode:
+**Althing (Haiku 5.5)** (product) on globalopinionqa — n=100 questions × 30 samples per arm, refusal detector v4; the arms differ only in elicitation mode:
 
 | Metric | Natural | Structured | Δ (structured − natural) |
 |--------|---------|------------|--------------------------|
-| SPS | 0.703 | 0.742 | **+4.0 pts** |
-| P_dist | 0.690 | 0.622 | **-6.7 pts** |
-| P_rank | 0.647 | 0.625 | **-2.1 pts** |
-| P_refuse | 0.772 | 0.980 | **+20.8 pts** |
-| Parse failures | 2.6% | 0.2% | -2.4 pts |
+| SPS | 0.774 | 0.753 | **-2.1 pts** |
+| P_dist | 0.660 | 0.609 | **-5.1 pts** |
+| P_rank | 0.684 | 0.670 | **-1.4 pts** |
+| P_refuse | 0.979 | 0.980 | **+0.1 pts** |
+| Parse failures | 0.7% | 0.0% | -0.6 pts |
 
 **Althing (GPT-6 Luna)** (product) on opinionsqa — n=100 questions × 30 samples per arm, refusal detector v3; the arms differ only in elicitation mode:
 
@@ -177,15 +177,15 @@ count — the elicitation surface is the only variable.
 | P_refuse | 0.994 | 0.994 | **+0.0 pts** |
 | Parse failures | 0.5% | 0.0% | -0.5 pts |
 
-**Althing (Haiku 5.5)** (product) on opinionsqa — n=100 questions × 30 samples per arm; the arms differ only in elicitation mode:
+**Althing (Haiku 5.5)** (product) on opinionsqa — n=100 questions × 30 samples per arm, refusal detector v4; the arms differ only in elicitation mode:
 
 | Metric | Natural | Structured | Δ (structured − natural) |
 |--------|---------|------------|--------------------------|
-| SPS | 0.786 | 0.791 | **+0.5 pts** |
-| P_dist | 0.712 | 0.680 | **-3.3 pts** |
-| P_rank | 0.749 | 0.699 | **-5.0 pts** |
-| P_refuse | 0.896 | 0.994 | **+9.9 pts** |
-| Parse failures | 1.6% | 0.0% | -1.6 pts |
+| SPS | 0.823 | 0.834 | **+1.2 pts** |
+| P_dist | 0.700 | 0.718 | **+1.8 pts** |
+| P_rank | 0.776 | 0.791 | **+1.5 pts** |
+| P_refuse | 0.992 | 0.994 | **+0.2 pts** |
+| Parse failures | 0.1% | 0.0% | -0.1 pts |
 
 **Althing (GPT-6 Luna)** (product) on subpop — n=100 questions × 30 samples per arm, refusal detector v3; the arms differ only in elicitation mode:
 
@@ -197,15 +197,15 @@ count — the elicitation surface is the only variable.
 | P_refuse | 0.980 | 0.980 | **+0.0 pts** |
 | Parse failures | 0.3% | 0.0% | -0.3 pts |
 
-**Althing (Haiku 5.5)** (product) on subpop — n=100 questions × 30 samples per arm; the arms differ only in elicitation mode:
+**Althing (Haiku 5.5)** (product) on subpop — n=100 questions × 30 samples per arm, refusal detector v4; the arms differ only in elicitation mode:
 
 | Metric | Natural | Structured | Δ (structured − natural) |
 |--------|---------|------------|--------------------------|
-| SPS | 0.661 | 0.726 | **+6.5 pts** |
-| P_dist | 0.562 | 0.572 | **+1.0 pts** |
-| P_rank | 0.599 | 0.626 | **+2.7 pts** |
-| P_refuse | 0.821 | 0.980 | **+15.9 pts** |
-| Parse failures | 2.5% | 0.0% | -2.5 pts |
+| SPS | 0.783 | 0.791 | **+0.7 pts** |
+| P_dist | 0.645 | 0.636 | **-0.9 pts** |
+| P_rank | 0.731 | 0.756 | **+2.5 pts** |
+| P_refuse | 0.974 | 0.980 | **+0.6 pts** |
+| Parse failures | 0.8% | 0.0% | -0.8 pts |
 
 Comparison set: Matched pairs of deduped runs differing only in elicitation mode: a run whose config carries an explicit elicitation template variant (e.g. tpl=structured, schema-forced capture) vs the natural-elicitation run of the identical configuration (same base provider, dataset, samples_per_question, question_set_hash, temperature, effort, and question count). All scores recomputed from per-question rows; deltas are structured minus natural.
 <!-- END GENERATED: elicitation -->
@@ -470,19 +470,13 @@ gated files are committed without `human_distribution`).
 |----------|-----------|----------|---------|------------------------|------------------------|--------------|---|
 | Muse Glimmer 30B | raw | default | gss | 0.743 | 0.054 | **0.697** | 75 |
 | Gemini 3.8 Flash | raw | default | gss | 0.719 | 0.054 | **0.679** | 75 |
-| Claude Haiku 4.5 | raw | default | gss | 0.464 | 0.054 | **0.427** | 75 |
-| Claude Sonnet 5.5 | raw | default | gss | 0.441 | 0.054 | **0.415** | 75 |
-| Claude Haiku 5.5 | raw | default | gss | 0.397 | 0.054 | **0.367** | 75 |
 | GPT-6 Luna | raw | default | gss | 0.322 | 0.054 | **0.309** | 75 |
-| Althing (Sonnet 5.5) | product | default | gss | 0.277 | 0.054 | **0.261** | 75 |
 | GPT-6 Luna | raw | default | gss | 0.243 | 0.054 | **0.250** | 75 |
-| Althing (Haiku 5.5) | product | default | gss | 0.246 | 0.054 | **0.228** | 75 |
 | Claude Sonnet 4 | raw | default | gss | 0.220 | 0.054 | **0.227** | 75 |
 | Claude Haiku 5.5 | raw | default | gss | 0.212 | 0.054 | **0.214** | 75 |
 | Claude Haiku 4.5 | raw | default | gss | 0.177 | 0.054 | **0.196** | 75 |
-| Althing (Haiku 4.5) | product | default | gss | 0.177 | 0.054 | **0.174** | 75 |
+| Althing (Sonnet 5.5) | product | default | gss | 0.174 | 0.054 | **0.174** | 75 |
 | Althing (GPT-6 Luna) | product | default | gss | 0.156 | 0.054 | **0.153** | 75 |
-| Claude Sonnet 4.6 | raw | default | gss | 0.124 | 0.054 | **0.150** | 75 |
 | Gemini 2.5 Flash | raw | default | gss | 0.098 | 0.054 | **0.124** | 75 |
 | Claude Sonnet 4.6 | raw | default | gss | 0.087 | 0.054 | **0.121** | 75 |
 | Althing (Haiku 4.5) | product | structured | gss | 0.064 | 0.054 | **0.094** | 75 |
@@ -498,9 +492,9 @@ gated files are committed without `human_distribution`).
 | DeepSeek V4.1 Flash | raw | default | gss | 0.026 | 0.054 | **0.068** | 75 |
 | Qwen 3.8 Flash | raw | default | gss | 0.032 | 0.054 | **0.066** | 75 |
 | Althing (DeepSeek V4.1 Flash) | product | default | gss | 0.019 | 0.054 | **0.062** | 75 |
+| Althing (Sonnet 4.6) | product | default | gss | 0.013 | 0.054 | **0.061** | 75 |
 | Althing (Gemini 3.5 Flash-Lite) | product | default | gss | 0.013 | 0.054 | **0.061** | 75 |
 | Llama 3.3 70B | raw | default | gss | 0.014 | 0.054 | **0.061** | 75 |
-| Althing (Sonnet 4.6) | product | default | gss | 0.014 | 0.054 | **0.060** | 75 |
 | Althing (Sonnet 4) | product | default | gss | 0.015 | 0.054 | **0.059** | 75 |
 | Althing (GPT-4o-mini) | product | default | gss | 0.016 | 0.054 | **0.059** | 75 |
 | Althing (Llama 3.3 70B) | product | default | gss | 0.002 | 0.054 | **0.052** | 75 |
