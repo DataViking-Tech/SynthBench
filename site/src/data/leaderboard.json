@@ -8473,15 +8473,96 @@
         ]
       },
       {
+        "provider": "Claude Haiku 5.5",
+        "framework": "raw",
+        "template": null,
+        "dataset": "gss",
+        "n_questions": 75,
+        "mean_abs_nonresponse_gap": 0.230528,
+        "mean_model_nonresponse_mass": 0.22653,
+        "mean_human_nonresponse_mass": 0.054307,
+        "mean_model_option_mass": 0.199735,
+        "mean_human_option_mass": 0.026358,
+        "top_overselected": [
+          {
+            "key": "GSS_HEALTH",
+            "model_mass": 1.0,
+            "human_mass": 0.001396,
+            "gap": 0.998604
+          },
+          {
+            "key": "GSS_FINRELA",
+            "model_mass": 1.0,
+            "human_mass": 0.014308,
+            "gap": 0.985692
+          },
+          {
+            "key": "GSS_SATFIN",
+            "model_mass": 0.9667,
+            "human_mass": 0.008228,
+            "gap": 0.958472
+          },
+          {
+            "key": "GSS_CAPPUN",
+            "model_mass": 1.0,
+            "human_mass": 0.068223,
+            "gap": 0.931777
+          },
+          {
+            "key": "GSS_ABANY",
+            "model_mass": 1.0,
+            "human_mass": 0.068418,
+            "gap": 0.931582
+          }
+        ],
+        "top_option_overselected": [
+          {
+            "key": "GSS_HEALTH",
+            "text": "Would you say your own health, in general, is excellent, good, fair, or poor?",
+            "model_mass": 1.0,
+            "human_mass": 0.0007,
+            "gap": 0.9993
+          },
+          {
+            "key": "GSS_CAPPUN",
+            "text": "Do you favor or oppose the death penalty for persons convicted of murder?",
+            "model_mass": 1.0,
+            "human_mass": 0.033495,
+            "gap": 0.966505
+          },
+          {
+            "key": "GSS_ABANY",
+            "text": "Please tell me whether or not you think it should be possible for a pregnant woman to obtain a legal abortion if the woman wants it for any reason?",
+            "model_mass": 1.0,
+            "human_mass": 0.033588,
+            "gap": 0.966412
+          },
+          {
+            "key": "GSS_SATFIN",
+            "text": "We are interested in how people are getting along financially these days. So far as you and your family are concerned, would you say that you are pretty well satisfied with your present financial situation, more or less satisfied, or not satisfied at all?",
+            "model_mass": 0.9667,
+            "human_mass": 0.004083,
+            "gap": 0.962617
+          },
+          {
+            "key": "GSS_ABNOMORE",
+            "text": "Please tell me whether or not you think it should be possible for a pregnant woman to obtain a legal abortion if she is married and does not want any more children?",
+            "model_mass": 1.0,
+            "human_mass": 0.04051,
+            "gap": 0.95949
+          }
+        ]
+      },
+      {
         "provider": "Claude Sonnet 4",
         "framework": "raw",
         "template": null,
         "dataset": "gss",
         "n_questions": 75,
-        "mean_abs_nonresponse_gap": 0.226952,
-        "mean_model_nonresponse_mass": 0.220398,
+        "mean_abs_nonresponse_gap": 0.229692,
+        "mean_model_nonresponse_mass": 0.226282,
         "mean_human_nonresponse_mass": 0.054307,
-        "mean_model_option_mass": 0.129945,
+        "mean_model_option_mass": 0.136473,
         "mean_human_option_mass": 0.026358,
         "top_overselected": [
           {
@@ -8538,78 +8619,85 @@
             "gap": 0.974203
           },
           {
-            "key": "GSS_ABANY",
-            "text": "Please tell me whether or not you think it should be possible for a pregnant woman to obtain a legal abortion if the woman wants it for any reason?",
-            "model_mass": 0.966667,
-            "human_mass": 0.033588,
-            "gap": 0.933079
+            "key": "GSS_ABPOOR",
+            "text": "Please tell me whether or not you think it should be possible for a pregnant woman to obtain a legal abortion if the family has a very low income and cannot afford any more children?",
+            "model_mass": 0.933317,
+            "human_mass": 0.039871,
+            "gap": 0.893446
           },
           {
-            "key": "GSS_GRASS",
-            "text": "Do you think the use of marijuana should be made legal or not?",
+            "key": "GSS_POSTLIFE",
+            "text": "Do you believe there is a life after death?",
             "model_mass": 1.0,
-            "human_mass": 0.087191,
-            "gap": 0.912809
+            "human_mass": 0.116627,
+            "gap": 0.883373
           }
         ]
       },
       {
-        "provider": "Claude Haiku 5.5",
+        "provider": "Claude Sonnet 5.5",
         "framework": "raw",
         "template": null,
         "dataset": "gss",
         "n_questions": 75,
-        "mean_abs_nonresponse_gap": 0.214482,
-        "mean_model_nonresponse_mass": 0.211704,
+        "mean_abs_nonresponse_gap": 0.209771,
+        "mean_model_nonresponse_mass": 0.199556,
         "mean_human_nonresponse_mass": 0.054307,
-        "mean_model_option_mass": 0.200133,
+        "mean_model_option_mass": 0.199556,
         "mean_human_option_mass": 0.026358,
         "top_overselected": [
           {
+            "key": "GSS_GUNLAW",
+            "model_mass": 1.0,
+            "human_mass": 0.03295,
+            "gap": 0.96705
+          },
+          {
             "key": "GSS_HEALTH",
-            "model_mass": 1.0,
-            "human_mass": 0.001396,
-            "gap": 0.998604
-          },
-          {
-            "key": "GSS_FINRELA",
-            "model_mass": 1.0,
-            "human_mass": 0.014308,
-            "gap": 0.985692
-          },
-          {
-            "key": "GSS_OWNGUN",
             "model_mass": 0.9667,
-            "human_mass": 0.029577,
-            "gap": 0.937123
+            "human_mass": 0.001396,
+            "gap": 0.965304
+          },
+          {
+            "key": "GSS_NATFARE",
+            "model_mass": 1.0,
+            "human_mass": 0.045323,
+            "gap": 0.954677
+          },
+          {
+            "key": "GSS_NATARMS",
+            "model_mass": 1.0,
+            "human_mass": 0.064099,
+            "gap": 0.935901
           },
           {
             "key": "GSS_CAPPUN",
             "model_mass": 1.0,
             "human_mass": 0.068223,
             "gap": 0.931777
-          },
-          {
-            "key": "GSS_ABANY",
-            "model_mass": 1.0,
-            "human_mass": 0.068418,
-            "gap": 0.931582
           }
         ],
         "top_option_overselected": [
           {
-            "key": "GSS_HEALTH",
-            "text": "Would you say your own health, in general, is excellent, good, fair, or poor?",
+            "key": "GSS_GUNLAW",
+            "text": "Would you favor or oppose a law which would require a person to obtain a police permit before he or she could buy a gun?",
             "model_mass": 1.0,
-            "human_mass": 0.0007,
-            "gap": 0.9993
+            "human_mass": 0.016324,
+            "gap": 0.983676
           },
           {
-            "key": "GSS_FINRELA",
-            "text": "Compared with American families in general, would you say your family income is far below average, below average, average, above average, or far above average?",
+            "key": "GSS_NATFARE",
+            "text": "We are faced with many problems in this country, none of which can be solved easily or inexpensively. Are we spending too much, too little, or about the right amount on welfare?",
             "model_mass": 1.0,
-            "human_mass": 0.007148,
-            "gap": 0.992852
+            "human_mass": 0.022374,
+            "gap": 0.977626
+          },
+          {
+            "key": "GSS_NATARMS",
+            "text": "We are faced with many problems in this country, none of which can be solved easily or inexpensively. Are we spending too much, too little, or about the right amount on the military, armaments, and defense?",
+            "model_mass": 1.0,
+            "human_mass": 0.031539,
+            "gap": 0.968461
           },
           {
             "key": "GSS_CAPPUN",
@@ -8624,13 +8712,6 @@
             "model_mass": 1.0,
             "human_mass": 0.033588,
             "gap": 0.966412
-          },
-          {
-            "key": "GSS_ABNOMORE",
-            "text": "Please tell me whether or not you think it should be possible for a pregnant woman to obtain a legal abortion if she is married and does not want any more children?",
-            "model_mass": 1.0,
-            "human_mass": 0.04051,
-            "gap": 0.95949
           }
         ]
       },
@@ -8640,10 +8721,10 @@
         "template": null,
         "dataset": "gss",
         "n_questions": 75,
-        "mean_abs_nonresponse_gap": 0.196417,
-        "mean_model_nonresponse_mass": 0.176506,
+        "mean_abs_nonresponse_gap": 0.190269,
+        "mean_model_nonresponse_mass": 0.175761,
         "mean_human_nonresponse_mass": 0.054307,
-        "mean_model_option_mass": 0.114994,
+        "mean_model_option_mass": 0.109072,
         "mean_human_option_mass": 0.026358,
         "top_overselected": [
           {
@@ -8651,12 +8732,6 @@
             "model_mass": 1.0,
             "human_mass": 0.001396,
             "gap": 0.998604
-          },
-          {
-            "key": "GSS_FINRELA",
-            "model_mass": 1.0,
-            "human_mass": 0.014308,
-            "gap": 0.985692
           },
           {
             "key": "GSS_CLASS",
@@ -8675,6 +8750,12 @@
             "model_mass": 1.0,
             "human_mass": 0.068418,
             "gap": 0.931582
+          },
+          {
+            "key": "GSS_LETDIE1",
+            "model_mass": 1.0,
+            "human_mass": 0.068945,
+            "gap": 0.931055
           }
         ],
         "top_option_overselected": [
@@ -8964,10 +9045,10 @@
         "template": null,
         "dataset": "gss",
         "n_questions": 75,
-        "mean_abs_nonresponse_gap": 0.120904,
-        "mean_model_nonresponse_mass": 0.086667,
+        "mean_abs_nonresponse_gap": 0.12357,
+        "mean_model_nonresponse_mass": 0.089333,
         "mean_human_nonresponse_mass": 0.054307,
-        "mean_model_option_mass": 0.086667,
+        "mean_model_option_mass": 0.089333,
         "mean_human_option_mass": 0.026358,
         "top_overselected": [
           {
@@ -8984,9 +9065,9 @@
           },
           {
             "key": "GSS_POLVIEWS",
-            "model_mass": 0.9667,
+            "model_mass": 1.0,
             "human_mass": 0.073569,
-            "gap": 0.893131
+            "gap": 0.926431
           },
           {
             "key": "GSS_GOD",
@@ -9019,9 +9100,9 @@
           {
             "key": "GSS_POLVIEWS",
             "text": "I'm going to show you a seven-point scale on which the political views that people might hold are arranged from extremely liberal--point 1--to extremely conservative--point 7. Where would you place yourself on this scale?",
-            "model_mass": 0.9667,
+            "model_mass": 1.0,
             "human_mass": 0.036095,
-            "gap": 0.930605
+            "gap": 0.963905
           },
           {
             "key": "GSS_GOD",
