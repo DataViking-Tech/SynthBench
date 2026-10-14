@@ -136,6 +136,7 @@ const exploreUrl = `${base}/explore`;
 </BaseLayout>
 
 <script>
+  import { topicLabel } from "@/lib/topics";
   import type {
     ConfigRollup,
     PerQuestionRow,
@@ -609,7 +610,7 @@ const exploreUrl = `${base}/explore`;
       rows.push({
         key: ra.key,
         text: ra.text ?? "",
-        topic: typeof ra.topic === "string" ? ra.topic : "—",
+        topic: typeof ra.topic === "string" ? topicLabel(ra.topic) : "—",
         options: ra.options ?? rb.options ?? [],
         a: { modal: aModal, jsd: aJsd, dist: ra.model_distribution ?? {} },
         b: { modal: bModal, jsd: bJsd, dist: rb.model_distribution ?? {} },

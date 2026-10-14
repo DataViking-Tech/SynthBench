@@ -1,24 +1,14 @@
 ---
 import Chart from "@/components/shared/Chart.astro";
+import { TOPICS } from "@/lib/topics";
 import type { LeaderboardData, LeaderboardEntry } from "@/types/leaderboard";
 
 import leaderboardRaw from "@/data/leaderboard.json";
 
 const leaderboard = leaderboardRaw as LeaderboardData;
 
-// Full topic taxonomy — show every slot even when a model didn't score on it.
-const ALL_TOPICS = [
-  "Politics & Governance",
-  "International Relations & Security",
-  "Economy & Work",
-  "Technology & Digital Life",
-  "Media & Information",
-  "Health & Science",
-  "Social Values & Religion",
-  "Identity & Demographics",
-  "Trust & Wellbeing",
-  "General Attitudes",
-];
+// Full topic taxonomy: show every slot even when a model didn't score on it.
+const ALL_TOPICS = TOPICS.map((t) => t.id);
 
 // Best per (display name + dataset), excluding baselines. Entries that are
 // temperature/template variants lose to the plain config (same key, lower or
@@ -85,7 +75,7 @@ const chartOption = {
   grid: { left: 60, right: 30, top: 60, bottom: 50, containLabel: true },
   xAxis: {
     type: "category",
-    data: ALL_TOPICS,
+    data: TOPICS.map((t) => t.label),
     axisLabel: {
       rotate: 30,
       overflow: "truncate",
@@ -128,12 +118,12 @@ const hasTopics = models.length > 0;
 <section class="w-full max-w-4xl mx-auto py-8">
   <h2 class="text-2xl font-bold text-center mb-2">SPS by topic</h2>
   <p class="text-center text-sm text-muted mb-6">
-    Each model's best configuration, scored on the ten topic categories. Baselines and temperature variants are hidden. Scroll the legend to toggle models.
+    Each model's best configuration, scored on the seven topics. Baselines and temperature variants are hidden. Scroll the legend to toggle models.
   </p>
   {hasTopics ? (
     <Chart
       title="SPS by topic, per model"
-      description="Grouped bar chart of best-per-model SPS across ten topic categories. Each group is a topic; each bar is a model."
+      description="Grouped bar chart of best-per-model SPS across seven topics. Each group is a topic; each bar is a model."
       option={chartOption}
       height="450px"
     />

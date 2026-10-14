@@ -2218,11 +2218,17 @@ async def _contamination_deident_async(
     default="site/src/data/leaderboard.json",
     help="Output path for the leaderboard JSON file.",
 )
-def publish_data(results_dir, output):
+@click.option(
+    "--routing-output",
+    type=click.Path(),
+    default=None,
+    help="Also write routing.json (best system per slice and topic) here.",
+)
+def publish_data(results_dir, output, routing_output):
     """Export leaderboard data as JSON for the Astro frontend.
 
     Example:
-        synthbench publish-data --results-dir ./leaderboard-results --output site/src/data/leaderboard.json
+        synthbench publish-data --results-dir ./leaderboard-results --output site/src/data/leaderboard.json --routing-output site/src/data/routing.json
     """
     from synthbench.publish import publish_leaderboard_data
 
@@ -2231,8 +2237,44 @@ def publish_data(results_dir, output):
             results_dir=Path(results_dir),
             output_path=Path(output),
             version=__version__,
+            routing_output=Path(routing_output) if routing_output else None,
         )
         click.echo(f"Leaderboard data exported: {out_path}")
+        if routing_output:
+            click.echo(f"Routing data exported: {routing_output}")
+    except ValueError as e:
+        click.echo(str(e), err=True)
+        sys.exit(1)
+
+
+@main.command("publish-routing")
+@click.option(
+    "--results-dir",
+    "-d",
+    type=click.Path(exists=True),
+    default="leaderboard-results",
+    help="Directory containing result JSON files.",
+)
+@click.option(
+    "--output",
+    "-o",
+    type=click.Path(),
+    default="site/src/data/routing.json",
+    help="Output path for routing.json.",
+)
+def publish_routing_cmd(results_dir, output):
+    """Export routing.json: the best system per use-case slice and topic.
+
+    Same results and dedup as publish-data. See docs/routing-json-api.md.
+
+    Example:
+        synthbench publish-routing --results-dir ./leaderboard-results --output site/src/data/routing.json
+    """
+    from synthbench.routing import publish_routing
+
+    try:
+        out_path = publish_routing(Path(results_dir), Path(output))
+        click.echo(f"Routing data exported: {out_path}")
     except ValueError as e:
         click.echo(str(e), err=True)
         sys.exit(1)

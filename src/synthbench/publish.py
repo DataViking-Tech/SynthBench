@@ -265,81 +265,72 @@ def _dedup_results(results: list[dict]) -> list[dict]:
     return list(best.values())
 
 
-def _compute_topic_scores(per_question: list[dict]) -> dict[str, float]:
-    """Compute per-topic aggregate SPS from per-question data using keyword categorization."""
-    from synthbench.topics import categorize_question
+def _compute_topic_scores(
+    per_question: list[dict],
+    dataset: str | None = None,
+    extended_scores: dict | None = None,
+) -> dict[str, float]:
+    """Per-topic full SPS, keyed by routing topic id.
 
-    topic_parities: dict[str, list[float]] = {}
-    for q in per_question:
-        text = q.get("text", "")
-        if not text:
-            continue
-        category = categorize_question(text)
-        parity = q.get("parity")
-        if parity is not None:
-            topic_parities.setdefault(category, []).append(parity)
-
-    topic_scores: dict[str, float] = {}
-    for category, parities in sorted(topic_parities.items()):
-        if parities:
-            topic_scores[category] = round(sum(parities) / len(parities), 6)
-    return topic_scores
+    Same numbers as ``_compute_topic_metrics(...)[topic]["sps"]``.
+    """
+    metrics = _compute_topic_metrics(
+        per_question, dataset=dataset, extended_scores=extended_scores
+    )
+    return {topic: m["sps"] for topic, m in metrics.items()}
 
 
-def _compute_topic_metrics(per_question: list[dict]) -> dict[str, dict[str, float]]:
-    """Per-topic breakdown of SPS components (p_dist, p_rank, p_refuse, sps).
+def _compute_topic_metrics(
+    per_question: list[dict],
+    dataset: str | None = None,
+    extended_scores: dict | None = None,
+) -> dict[str, dict[str, float]]:
+    """Per-topic SPS and its components, keyed by routing topic id.
 
-    Mirrors the aggregate-level formulas in ``runner.ParityResult``:
+    Questions get their topic from :func:`synthbench.topics.topic_for`
+    (committed key-based label, keyword fallback on the text). Each topic's
+    numbers come from :func:`synthbench.recompute.recompute_aggregates` on
+    that topic's questions, the same code as the headline score:
+
         p_dist   = 1 - mean(JSD)
         p_rank   = (1 + mean(tau)) / 2
-        p_refuse = 1 - mean(|R_model - R_human|)
-        sps      = mean(parity)  (per-question composite score)
+        p_refuse = 1 - mean(|R_model - R_human|)   (when refusal rates exist)
+        sps      = mean of the available components
 
-    Used by the leaderboard expansion to render full topic-score metrics
-    instead of a single SPS value per topic.
+    ``extended_scores`` (the run's submitted ``scores`` block) passes
+    ``p_sub`` / ``p_cond`` through exactly as for the headline SPS, so a
+    topic's ``sps`` is what the headline SPS would be on those questions.
+    Topics come out in taxonomy order.
     """
-    from synthbench.topics import categorize_question
+    from synthbench.recompute import recompute_aggregates
+    from synthbench.topics import TOPIC_IDS, topic_for
 
-    buckets: dict[str, dict[str, list[float]]] = {}
+    buckets: dict[str, list[dict]] = {}
     for q in per_question:
-        text = q.get("text", "")
-        if not text:
+        if not isinstance(q, dict):
             continue
-        category = categorize_question(text)
-        bucket = buckets.setdefault(
-            category, {"jsd": [], "tau": [], "refuse_diff": [], "parity": []}
-        )
-        parity = q.get("parity")
-        if parity is not None:
-            bucket["parity"].append(float(parity))
-        jsd = q.get("jsd")
-        if jsd is not None:
-            bucket["jsd"].append(float(jsd))
-        tau = q.get("kendall_tau")
-        if tau is not None:
-            bucket["tau"].append(float(tau))
-        model_r = q.get("model_refusal_rate")
-        human_r = q.get("human_refusal_rate")
-        if model_r is not None and human_r is not None:
-            bucket["refuse_diff"].append(abs(float(model_r) - float(human_r)))
+        topic = topic_for(dataset, q.get("key"), q.get("text"))
+        if topic is None:
+            continue
+        buckets.setdefault(topic, []).append(q)
 
     metrics: dict[str, dict[str, float]] = {}
-    for category, b in sorted(buckets.items()):
-        if not b["parity"]:
+    for topic in TOPIC_IDS:
+        rows = buckets.get(topic)
+        if not rows:
+            continue
+        rec = recompute_aggregates(rows, extended_scores=extended_scores)
+        if rec is None:
             continue
         entry: dict[str, float] = {
-            "sps": round(sum(b["parity"]) / len(b["parity"]), 6),
-            "n": len(b["parity"]),
+            "sps": round(rec.sps, 6),
+            "n": rec.n_questions,
+            "p_dist": round(rec.p_dist, 6),
+            "p_rank": round(rec.p_rank, 6),
         }
-        if b["jsd"]:
-            entry["p_dist"] = round(1.0 - sum(b["jsd"]) / len(b["jsd"]), 6)
-        if b["tau"]:
-            entry["p_rank"] = round((1.0 + sum(b["tau"]) / len(b["tau"])) / 2.0, 6)
-        if b["refuse_diff"]:
-            entry["p_refuse"] = round(
-                max(0.0, 1.0 - sum(b["refuse_diff"]) / len(b["refuse_diff"])), 6
-            )
-        metrics[category] = entry
+        if rec.p_refuse is not None:
+            entry["p_refuse"] = round(rec.p_refuse, 6)
+        metrics[topic] = entry
     return metrics
 
 
@@ -852,14 +843,16 @@ def _build_entry(
     if harness:
         entry["harness"] = harness
 
-    # Topic scores from per-question keyword categorization
+    # Per-topic full SPS (routing taxonomy, see synthbench.topics)
     per_question = r.get("per_question", [])
     if per_question:
-        topic_scores = _compute_topic_scores(per_question)
-        if topic_scores:
-            entry["topic_scores"] = topic_scores
-        topic_metrics = _compute_topic_metrics(per_question)
+        topic_metrics = _compute_topic_metrics(
+            per_question,
+            dataset=cfg.get("dataset"),
+            extended_scores=r.get("scores") or {},
+        )
         if topic_metrics:
+            entry["topic_scores"] = {t: m["sps"] for t, m in topic_metrics.items()}
             entry["topic_metrics"] = topic_metrics
 
     # Demographic scores (real SubPOP data)
@@ -1307,13 +1300,17 @@ def _annotate_run_counts(entries: list[dict], all_results: list[dict]) -> None:
 
 
 def publish_leaderboard_data(
-    results_dir: Path, output_path: Path, version: str = "0.1.0"
+    results_dir: Path,
+    output_path: Path,
+    version: str = "0.1.0",
+    routing_output: Path | None = None,
 ) -> Path:
     """Export leaderboard data as JSON for the Astro frontend.
 
     Reads all result JSON files from results_dir, deduplicates and ranks them,
     then writes a single JSON file conforming to the SynthBenchData TypeScript
-    interface.
+    interface. With ``routing_output``, also writes ``routing.json`` built
+    from the same valid results (see :mod:`synthbench.routing`).
 
     Returns the path to the generated JSON file.
     """
@@ -1416,6 +1413,8 @@ def publish_leaderboard_data(
 
     cross_provider_concordance = _compute_cross_provider_concordance(deduped)
 
+    from synthbench.topics import taxonomy_dict
+
     synthbench_data = {
         "generated_at": datetime.now(timezone.utc).isoformat(),
         "synthbench_version": version,
@@ -1434,12 +1433,23 @@ def publish_leaderboard_data(
             for p in all_policies()
         ],
         "excluded_runs": excluded_runs,
+        "topic_taxonomy": taxonomy_dict(),
     }
 
     output_path.parent.mkdir(parents=True, exist_ok=True)
     with open(output_path, "w") as f:
         json.dump(synthbench_data, f, indent=2)
         f.write("\n")
+
+    if routing_output is not None:
+        from synthbench.routing import build_routing, write_routing
+
+        routing = build_routing(
+            results,
+            extra_results=[r for _, r in loaded],
+            generated_at=synthbench_data["generated_at"],
+        )
+        write_routing(routing, routing_output)
     return output_path
 
 
@@ -1506,7 +1516,7 @@ def _augment_per_question(
     policy: DatasetPolicy | None = None,
     dataset: str | None = None,
 ) -> list[dict]:
-    """Return per-question rows with a lightweight ``topic`` label attached.
+    """Return per-question rows with a routing ``topic`` id attached.
 
     If ``policy`` restricts redistribution of per-question human data, the
     ``human_distribution`` and ``human_refusal_rate`` fields are stripped
@@ -1520,15 +1530,14 @@ def _augment_per_question(
     ``is_holdout`` flag so the site can badge them as private.
     """
     from synthbench.private_holdout import is_holdout_enabled, is_private_holdout
-    from synthbench.topics import categorize_question
+    from synthbench.topics import topic_for
 
     suppress_human_by_policy = bool(policy and policy.suppress_human_distribution)
     holdout_enabled = bool(dataset) and is_holdout_enabled(dataset)
 
     out: list[dict] = []
     for q in per_question:
-        text = q.get("text", "")
-        topic = categorize_question(text) if text else None
+        topic = topic_for(dataset, q.get("key"), q.get("text"))
         row = dict(q)
         if topic:
             row["topic"] = topic
@@ -2205,7 +2214,15 @@ def publish_runs(
 
         # Derive topic scores once (also used in rollup aggregation).
         per_question = result.get("per_question", []) or []
-        topic_scores = _compute_topic_scores(per_question) if per_question else {}
+        topic_scores = (
+            _compute_topic_scores(
+                per_question,
+                dataset=dataset,
+                extended_scores=result.get("scores") or {},
+            )
+            if per_question
+            else {}
+        )
 
         # Under ``aggregates_only`` / ``citation_only`` the dataset gets no
         # per-run artifact at all — the catalog row in ``runs-index.json``
@@ -2417,6 +2434,7 @@ def _collect_question_rollups(
     """
     from synthbench.config_id import build_config_id
     from synthbench.leaderboard import display_provider_name, provider_framework
+    from synthbench.topics import topic_for
 
     # (dataset, key) → rollup skeleton (question text, options, human dist)
     rollups: dict[tuple[str, str], dict] = {}
@@ -2478,7 +2496,7 @@ def _collect_question_rollups(
                     "human_distribution": dict(q.get("human_distribution") or {}),
                     "human_refusal_rate": q.get("human_refusal_rate"),
                     "temporal_year": q.get("temporal_year"),
-                    "topic": q.get("topic"),
+                    "topic": q.get("topic") or topic_for(dataset, key, q.get("text")),
                 }
                 rollups[(dataset, key)] = rollup
 

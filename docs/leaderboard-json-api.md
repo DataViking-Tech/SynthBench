@@ -46,7 +46,7 @@ consumers can fetch directly.
       "is_baseline": false,
       "is_ensemble": false,
       "samples_per_question": 30,
-      "topic_scores": { "Economy & Work": 0.6965, "Politics & Governance": 0.7176 },
+      "topic_scores": { "politics": 0.7176, "economy": 0.6965 },
       "cost_usd": 0.42,
       "cost_per_100q": 1.4,
       "cost_per_sps_point": 0.53,
@@ -58,7 +58,8 @@ consumers can fetch directly.
   "convergence": [ /* ... */ ],
   "findings": { /* ... */ },
   "baselines": { /* ... */ },
-  "pricing_snapshot": { /* ... */ }
+  "pricing_snapshot": { /* ... */ },
+  "topic_taxonomy": { "version": 1, "topics": [ /* id, label, description, keywords */ ] }
 }
 ```
 
@@ -104,6 +105,31 @@ Present when the underlying data supports them. Consumers MUST treat absence as
 `sps_public`, `sps_private`, `sps_public_private_delta`,
 `verification_badge`, `sps_held_out`, `sps_held_out_delta`,
 `held_out_last_run`, ...
+
+### `topic_metrics` / `topic_scores` (changed in 1.4.0)
+
+Per-topic scores for the entry, keyed by routing topic id: `politics`,
+`economy`, `technology`, `science-health`, `identity`, `society`,
+`global`. The ids, labels, descriptions and fallback keywords are in the
+top-level `topic_taxonomy` block (taxonomy version 1), and the same
+taxonomy is used by [`routing.json`](routing-json-api.md).
+
+A question's topic comes from a committed label keyed by question key
+(`src/synthbench/data/topics/<dataset>.json`): OpinionsQA's official coarse
+topics mapped onto the seven ids, and a model labeler for SubPOP, GSS and
+GlobalOpinionQA (`scripts/label-topics.py`). Questions without a label fall
+back to keyword matching on word boundaries. Questions that match nothing
+are left out of every topic.
+
+`topic_metrics[topic]` is `{sps, n, p_dist, p_rank, p_refuse}`. `sps` is the
+full SPS on that topic's questions, computed the same way as the entry's
+headline `sps` (p_dist, p_rank, p_refuse from per-question refusal rates,
+plus `p_cond` / `p_sub` when the run has them), so it is directly comparable
+to `sps`. `p_refuse` is absent when no question in the topic has refusal
+rates. `topic_scores[topic]` equals `topic_metrics[topic].sps`.
+
+Per-question rows in the run and question artifacts carry the same topic id
+in `topic`.
 
 ### `effort` (since 1.3.0)
 
@@ -167,6 +193,11 @@ Data honesty notes:
 
 ## Stability contract
 
+- **1.4.0**: `topic_scores` / `topic_metrics` and per-question `topic` use
+  the 7-topic routing taxonomy, keyed by topic id (previously ten keyword
+  categories keyed by display name, such as `"Politics & Governance"`).
+  `topic_metrics[*].sps` is now the full SPS (with p_refuse), not the mean
+  of the per-question 2-metric parity. New top-level `topic_taxonomy` block.
 - **1.3.0**: new optional `entries[].effort` field (see above) — reasoning-
   effort level threaded to the provider. Additive; absent on all existing
   rows, so existing consumers are unaffected. Effort-absent rows keep their

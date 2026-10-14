@@ -1,184 +1,174 @@
-"""Tests for topic-based question categorization."""
+"""Tests for the routing topic taxonomy, committed labels and keyword fallback."""
 
 from __future__ import annotations
 
 import json
+import re
+from pathlib import Path
 
 import pytest
 
 from synthbench.topics import (
-    categorize_question,
-    TAXONOMY,
     CATEGORIES,
     FALLBACK_CATEGORY,
+    LABELS_DIR,
+    OPINIONSQA_COARSE_TO_TOPIC,
+    TAXONOMY_VERSION,
+    TOPIC_IDS,
+    TOPIC_LABELS,
+    TOPICS,
+    categorize_question,
+    keyword_topic,
+    label_for,
+    load_labels,
+    taxonomy_dict,
+    topic_for,
 )
-from synthbench.suites import (
-    load_topic_suite,
-    AVAILABLE_TOPICS,
-    SUITE_DIR,
-)
+
+REPO = Path(__file__).resolve().parent.parent
+LABELED_DATASETS = ("opinionsqa", "subpop", "gss", "globalopinionqa")
 
 
-class TestCategorizeQuestion:
-    def test_political_question(self):
-        assert (
-            categorize_question("Do you support the Republican party?")
-            == "Politics & Governance"
+class TestTaxonomy:
+    def test_seven_topics_in_contract_order(self):
+        assert TOPIC_IDS == (
+            "politics",
+            "economy",
+            "technology",
+            "science-health",
+            "identity",
+            "society",
+            "global",
         )
 
-    def test_technology_question(self):
-        assert (
-            categorize_question("How often do you use the internet?")
-            == "Technology & Digital Life"
-        )
+    def test_taxonomy_dict_shape(self):
+        tax = taxonomy_dict()
+        assert tax["version"] == TAXONOMY_VERSION == 1
+        assert [t["id"] for t in tax["topics"]] == list(TOPIC_IDS)
+        for t in tax["topics"]:
+            assert set(t) == {"id", "label", "description", "keywords"}
+            assert t["label"] and t["description"] and t["keywords"]
 
-    def test_religion_question(self):
-        assert (
-            categorize_question("How important is religion in your life?")
-            == "Social Values & Religion"
-        )
+    def test_keywords_lowercase_and_unique_per_topic(self):
+        for t in TOPICS:
+            assert all(k == k.lower().strip() for k in t.keywords), t.id
+            assert len(set(t.keywords)) == len(t.keywords), t.id
+
+    def test_every_opinionsqa_coarse_topic_maps(self):
+        # The 23 coarse topics of the OpinionsQA release.
+        assert len(OPINIONSQA_COARSE_TO_TOPIC) == 23
+        assert set(OPINIONSQA_COARSE_TO_TOPIC.values()) == set(TOPIC_IDS)
+
+    def test_site_mirror_matches(self):
+        """site/src/lib/topics.ts mirrors the ids and labels defined here."""
+        ts = (REPO / "site" / "src" / "lib" / "topics.ts").read_text(encoding="utf-8")
+        pairs = re.findall(r'id: "([^"]+)",\s*label: "([^"]+)"', ts)
+        assert pairs == [(t.id, t.label) for t in TOPICS]
+
+
+class TestKeywordFallback:
+    @pytest.mark.parametrize(
+        "text,expected",
+        [
+            ("Did you vote in the last election?", "politics"),
+            ("How would you rate the economy and jobs in your area?", "economy"),
+            ("How often do you use social media?", "technology"),
+            (
+                "Would you say your own health is excellent, good, fair, or poor?",
+                "science-health",
+            ),
+            ("How important is religion in your life?", "identity"),
+            ("How much is crime a problem in your neighborhood?", "society"),
+            ("Is China an ally or a threat?", "global"),
+        ],
+    )
+    def test_basic(self, text, expected):
+        assert keyword_topic(text) == expected
 
     def test_case_insensitive(self):
-        assert (
-            categorize_question("WHAT IS YOUR VIEW ON ABORTION?")
-            == "Social Values & Religion"
+        assert keyword_topic("WHAT IS YOUR VIEW ON ABORTION?") == "politics"
+
+    def test_no_match_is_none(self):
+        assert keyword_topic("What do you think about the situation?") is None
+        assert keyword_topic("") is None
+
+    # Substring-bug regressions from the old 10-category classifier.
+    def test_discrimination_is_not_nation(self):
+        assert keyword_topic("Is there discrimination against them?") == "identity"
+
+    def test_actually_is_not_ally(self):
+        assert keyword_topic("Do you actually believe that?") is None
+
+    def test_country_alone_is_not_global(self):
+        text = (
+            "I am going to name an institution in this country. As far as the "
+            "people running this institution are concerned, would you say you "
+            "have a great deal of confidence, only some confidence, or hardly "
+            "any confidence at all in them? The military"
         )
         assert (
-            categorize_question("DO YOU USE TECHNOLOGY DAILY?")
-            == "Technology & Digital Life"
+            keyword_topic(text.replace("The military", "Organized labor")) != "global"
         )
+        assert keyword_topic("Should divorce in this country be easier?") == "society"
 
-    def test_first_match_wins(self):
-        # "vote" matches Politics & Governance first
+    def test_phrases_match_on_word_boundaries(self):
+        assert keyword_topic("Is climate change a threat?") == "science-health"
+        assert keyword_topic("Do you trust the  supreme   court?") == "politics"
+
+
+class TestCommittedLabels:
+    @pytest.mark.parametrize("dataset", LABELED_DATASETS)
+    def test_label_file_shape(self, dataset):
+        data = json.loads((LABELS_DIR / f"{dataset}.json").read_text(encoding="utf-8"))
+        assert data["taxonomy_version"] == TAXONOMY_VERSION
+        assert data["dataset"] == dataset
+        assert data["source"]
+        assert data["labels"]
+        assert set(data["labels"].values()) <= set(TOPIC_IDS)
+
+    def test_opinionsqa_registry_keys_all_labeled(self):
+        """Every OpinionsQA key the benchmark can draw has a committed label."""
+        registry = json.loads(
+            (REPO / "data" / "question-text-registries" / "opinionsqa.json").read_text(
+                encoding="utf-8"
+            )
+        )
+        labels = load_labels("opinionsqa")
+        missing = [k for k in registry["questions"] if k not in labels]
+        assert missing == []
+
+    @pytest.mark.parametrize("dataset", ("subpop", "gss", "globalopinionqa"))
+    def test_current_run_keys_labeled(self, dataset):
+        """Every key in the committed leaderboard runs has a label."""
+        labels = load_labels(dataset)
+        keys: set[str] = set()
+        for path in (REPO / "leaderboard-results").glob(f"{dataset}_*.json"):
+            data = json.loads(path.read_text(encoding="utf-8"))
+            keys |= {q["key"] for q in data.get("per_question") or [] if q.get("key")}
+        assert keys, dataset
+        assert sorted(keys - set(labels)) == []
+
+    def test_label_beats_keywords(self):
+        # GSS_CONARMY's text mentions "this country" and "the military";
+        # its committed label decides, not the keyword fallback.
+        label = label_for("gss", "GSS_CONARMY")
+        assert label in TOPIC_IDS
+        assert topic_for("gss", "GSS_CONARMY", "anything about elections") == label
+
+    def test_dataset_suffix_ignored(self):
+        assert load_labels("opinionsqa (2023)") == load_labels("opinionsqa")
+
+    def test_unknown_key_falls_back_to_keywords(self):
+        assert topic_for("opinionsqa", "NOT_A_KEY", "Did you vote?") == "politics"
         assert (
-            categorize_question("Did you vote in the last election?")
-            == "Politics & Governance"
+            topic_for("ntia", "X", "Do you use the internet at home?") == "technology"
         )
-
-    def test_gun_is_social_values(self):
-        assert categorize_question("Do you own a gun?") == "Social Values & Religion"
-
-    def test_health_question(self):
-        assert (
-            categorize_question("How would you rate your health?") == "Health & Science"
-        )
-
-    def test_election_is_politics(self):
-        assert (
-            categorize_question("Did you vote in the last election?")
-            == "Politics & Governance"
-        )
-
-    def test_no_keywords_is_general(self):
-        assert (
-            categorize_question("What do you think about the situation?")
-            == "General Attitudes"
-        )
-
-    def test_empty_string_is_general(self):
-        assert categorize_question("") == "General Attitudes"
-
-    def test_international_relations(self):
-        assert (
-            categorize_question("What is your view on relations with China?")
-            == "International Relations & Security"
-        )
-
-    def test_economy(self):
-        assert (
-            categorize_question("How do you feel about the economy?")
-            == "Economy & Work"
-        )
-
-    def test_trust(self):
-        assert (
-            categorize_question("Do you approve of the way things are going?")
-            == "Trust & Wellbeing"
-        )
-
-    def test_identity(self):
-        assert (
-            categorize_question("Is there racial bias in hiring?")
-            == "Identity & Demographics"
-        )
+        assert topic_for(None, None, None) is None
 
 
-class TestTaxonomyStructure:
-    def test_taxonomy_has_nine_categories(self):
-        assert len(TAXONOMY) == 9
-
-    def test_categories_has_ten_entries(self):
-        assert len(CATEGORIES) == 10
-        assert "General Attitudes" in CATEGORIES
-
-    def test_fallback_is_general_attitudes(self):
-        assert FALLBACK_CATEGORY == "General Attitudes"
-
-    def test_all_keywords_are_strings(self):
-        for category, keywords in TAXONOMY.items():
-            for kw in keywords:
-                assert isinstance(kw, str), f"Non-string keyword in {category}: {kw}"
-
-    def test_all_keywords_are_lowercase(self):
-        for category, keywords in TAXONOMY.items():
-            for kw in keywords:
-                assert kw == kw.lower(), f"Non-lowercase keyword in {category}: {kw}"
-
-
-class TestTopicSuites:
-    def test_available_topics_constant(self):
-        assert "political" in AVAILABLE_TOPICS
-        assert "consumer" in AVAILABLE_TOPICS
-        assert "neutral" in AVAILABLE_TOPICS
-
-    def test_political_loads(self):
-        keys = load_topic_suite("political")
-        assert len(keys) > 0
-        assert all(isinstance(k, str) for k in keys)
-
-    def test_consumer_loads(self):
-        keys = load_topic_suite("consumer")
-        assert len(keys) > 0
-        assert all(isinstance(k, str) for k in keys)
-
-    def test_neutral_loads(self):
-        keys = load_topic_suite("neutral")
-        assert len(keys) > 0
-        assert all(isinstance(k, str) for k in keys)
-
-    def test_unknown_topic_raises(self):
-        with pytest.raises(ValueError, match="Unknown topic"):
-            load_topic_suite("nonexistent")
-
-    def test_topic_json_files_valid(self):
-        for topic in AVAILABLE_TOPICS:
-            path = SUITE_DIR / f"{topic}.json"
-            assert path.exists(), f"Missing topic suite file: {path}"
-            with open(path) as f:
-                data = json.load(f)
-            assert "keys" in data
-            assert "suite" in data
-            assert data["suite"] == topic
-            assert len(data["keys"]) == data["n_keys"]
-
-    def test_no_duplicate_keys_in_topics(self):
-        for topic in AVAILABLE_TOPICS:
-            keys = load_topic_suite(topic)
-            assert len(keys) == len(set(keys)), f"Duplicate keys in {topic}"
-
-    def test_topics_are_disjoint(self):
-        political = set(load_topic_suite("political"))
-        consumer = set(load_topic_suite("consumer"))
-        neutral = set(load_topic_suite("neutral"))
-        assert not political & consumer, "political and consumer overlap"
-        assert not political & neutral, "political and neutral overlap"
-        assert not consumer & neutral, "consumer and neutral overlap"
-
-    def test_topics_cover_all_questions(self):
-        """All questions should be in exactly one topic."""
-        political = set(load_topic_suite("political"))
-        consumer = set(load_topic_suite("consumer"))
-        neutral = set(load_topic_suite("neutral"))
-        total = len(political) + len(consumer) + len(neutral)
-        union = political | consumer | neutral
-        assert len(union) == total  # No overlaps
+class TestCategorizeQuestionCompat:
+    def test_returns_labels(self):
+        assert categorize_question("Did you vote?") == TOPIC_LABELS["politics"]
+        assert categorize_question("nothing here") == FALLBACK_CATEGORY
+        assert FALLBACK_CATEGORY in CATEGORIES
+        assert len(CATEGORIES) == len(TOPICS) + 1

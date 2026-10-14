@@ -6,12 +6,18 @@ on:
     branches: [main]
     paths:
       - 'src/synthbench/publish.py'
+      - 'src/synthbench/routing.py'
+      - 'src/synthbench/topics.py'
+      - 'src/synthbench/data/topics/**'
       - 'leaderboard-results/**'
       - 'site/**'
       - '.github/workflows/cf-pages.yml'
   pull_request:
     paths:
       - 'src/synthbench/publish.py'
+      - 'src/synthbench/routing.py'
+      - 'src/synthbench/topics.py'
+      - 'src/synthbench/data/topics/**'
       - 'leaderboard-results/**'
       - 'site/**'
       - '.github/workflows/cf-pages.yml'
@@ -65,7 +71,7 @@ jobs:
           done
 
       - name: Generate leaderboard data
-        run: synthbench publish-data --results-dir leaderboard-results --output site/src/data/leaderboard.json
+        run: synthbench publish-data --results-dir leaderboard-results --output site/src/data/leaderboard.json --routing-output site/src/data/routing.json
 
       - name: Generate run explorer artifacts (production, gated R2 upload)
         # Production path only (push to main / manual dispatch). PRs must
@@ -126,7 +132,7 @@ jobs:
           PUBLIC_GATED_API_BASE: https://api.synthbench.org
         run: |
           npm ci
-          npx biome format --write src/data/leaderboard.json
+          npx biome format --write src/data/leaderboard.json src/data/routing.json
           npx tsc --noEmit
           npm run build
 
