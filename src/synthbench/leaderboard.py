@@ -81,7 +81,10 @@ MODEL_MAP: dict[str, tuple[str, str]] = {
     "openrouter/qwen/qwen3.8-flash": ("Qwen 3.8 Flash", "raw"),
     "althing/openrouter/qwen/qwen3.8-flash": ("Althing (Qwen 3.8 Flash)", "product"),
     "openrouter/meta/muse-glimmer-30b": ("Muse Glimmer 30B", "raw"),
-    "althing/openrouter/meta/muse-glimmer-30b": ("Althing (Muse Glimmer 30B)", "product"),
+    "althing/openrouter/meta/muse-glimmer-30b": (
+        "Althing (Muse Glimmer 30B)",
+        "product",
+    ),
     # Products — vendor models also run through agent CLIs; the harness
     # (claude-code / codex) is a `harness=` knob, not part of the model name.
     "althing/anthropic/claude-haiku-4-5": ("Althing (Haiku 4.5)", "product"),
