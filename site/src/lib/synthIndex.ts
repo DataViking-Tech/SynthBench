@@ -65,9 +65,8 @@ export interface SystemConfig {
   base: string;
   /** Machine id of the base model, an ensemble id, or the baseline id. */
   baseId: string;
-  /** Ensemble rows: member model ids and whether they used the raw prompt or Althing. */
-  members: string[];
-  membersMethod: Method | null;
+  /** Ensemble rows: each member's model id and whether it used the raw prompt or Althing. */
+  members: { id: string; method: Method }[];
   lab: string;
   method: Method;
   /** Non-default settings (temperature, prompt template), or null. */
@@ -237,12 +236,10 @@ export function buildIndexData(raw: SynthBenchData): IndexData {
             : modelId === "3-model-blend"
               ? "ensemble"
               : `ensemble-${modelId}`,
-        members: (e.ensemble_members ?? []).map((m) => normalizeModelId(m.model_id)),
-        membersMethod: e.ensemble_members?.length
-          ? e.ensemble_members.every((m) => m.framework === "raw")
-            ? "raw"
-            : "althing"
-          : null,
+        members: (e.ensemble_members ?? []).map((m) => ({
+          id: normalizeModelId(m.model_id),
+          method: (m.framework === "raw" ? "raw" : "althing") as Method,
+        })),
         lab: method === "ensemble" ? "DataViking" : (LAB_BY_PREFIX[prefix] ?? "Other"),
         method,
         variant: variantParts.length ? variantParts.join(", ") : null,
