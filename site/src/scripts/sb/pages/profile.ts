@@ -2,8 +2,6 @@ import { axisTitle, css, fmt, h, linear, mount, s, ticks } from "../dom";
 import {
   ALL,
   CORE,
-  ensembleLabel,
-  ensembles,
   METHODS,
   type ShownMethod,
   type SystemConfig,
@@ -13,6 +11,8 @@ import {
   dsMark,
   dsMeta,
   emit,
+  ensembleLabel,
+  ensembles,
   fullCoverage,
   onChange,
   pruneCompare,

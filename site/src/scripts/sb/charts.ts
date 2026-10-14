@@ -14,7 +14,6 @@ import {
 } from "./dom";
 import {
   CORE,
-  ensembleLabel,
   METHODS,
   type Ranked,
   type ShownMethod,
@@ -22,6 +21,7 @@ import {
   component,
   data,
   dsLabel,
+  ensembleLabel,
   fullCoverage,
   fullName,
   scopeName,
