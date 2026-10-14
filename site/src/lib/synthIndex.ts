@@ -110,6 +110,7 @@ const LAB_BY_PREFIX: Record<string, string> = {
   openai: "OpenAI",
   google: "Google",
   "meta-llama": "Meta",
+  meta: "Meta",
   "x-ai": "xAI",
   deepseek: "DeepSeek",
   mistralai: "Mistral",
@@ -128,6 +129,11 @@ const BASE_NAMES: Record<string, string> = {
   "google/gemini-2.5-flash": "Gemini 2.5 Flash",
   "google/gemini-2.5-flash-lite": "Gemini 2.5 Flash-Lite",
   "meta-llama/llama-3.3-70b-instruct": "Llama 3.3 70B",
+  "google/gemini-3.8-flash": "Gemini 3.8 Flash",
+  "google/gemini-3.5-flash-lite": "Gemini 3.5 Flash-Lite",
+  "deepseek/deepseek-v4.1-flash": "DeepSeek V4.1 Flash",
+  "qwen/qwen3.8-flash": "Qwen 3.8 Flash",
+  "meta/muse-glimmer-30b": "Muse Glimmer 30B",
 };
 
 type CeilingBlock = Record<string, { overall?: { mean?: number; quality_flag?: string } }>;

@@ -36,13 +36,14 @@ benchmark also functions as a bias auditing tool, quantifying systematic
 asymmetries in how LLMs represent different demographic groups.
 
 <!-- BEGIN GENERATED: headline -->
-**Metric convention**: all SPS values below use the `sps` composite (equal-weighted mean of all available components), recomputed from per-question rows at publish time (#305). Random baselines score 0.774/0.763/0.757 on this scale (globalopinionqa, opinionsqa, subpop) — read every headline against that floor, not against 0.
+**Metric convention**: all SPS values below use the `sps` composite (equal-weighted mean of all available components), recomputed from per-question rows at publish time (#305). Random baselines score 0.774/0.735/0.763/0.757 on this scale (globalopinionqa, gss, opinionsqa, subpop) — read every headline against that floor, not against 0.
 
 | Dataset | 3-model ensemble SPS | Best single model | Random baseline |
 |---------|---------------------|-------------------|-----------------|
-| globalopinionqa (n=100) | **0.813** | 0.786 (Althing (GPT-4o-mini), product) | 0.774 (n=100) |
-| opinionsqa (n=684) | **0.877** | 0.829 (Gemini 2.5 Flash, raw) | 0.763 (n=684) |
-| subpop (n=200) | **0.858** | 0.821 (Althing (Gemini Flash Lite), product) | 0.757 (n=200) |
+| globalopinionqa (n=100) | **0.810** | 0.804 (Althing (Qwen 3.8 Flash), product) | 0.774 (n=100) |
+| gss (n=75) | **0.816** | 0.844 (Althing (Qwen 3.8 Flash), product) | 0.735 (n=75) |
+| opinionsqa (n=100) | **0.871** | 0.872 (DeepSeek V4.1 Flash, raw) | 0.763 (n=684) |
+| subpop (n=100) | **0.823** | 0.837 (DeepSeek V4.1 Flash, raw) | 0.757 (n=200) |
 <!-- END GENERATED: headline -->
 
 Note on interpretation: SPS is a composite parity score, not a
@@ -165,16 +166,6 @@ count — the elicitation surface is the only variable.
 | P_rank | 0.647 | 0.625 | **-2.1 pts** |
 | P_refuse | 0.772 | 0.980 | **+20.8 pts** |
 | Parse failures | 2.6% | 0.2% | -2.4 pts |
-
-**Althing (Haiku 4.5)** (product) on gss — n=75 questions × 30 samples per arm, refusal detector v2; the arms differ only in elicitation mode:
-
-| Metric | Natural | Structured | Δ (structured − natural) |
-|--------|---------|------------|--------------------------|
-| SPS | 0.803 | 0.791 | **-1.2 pts** |
-| P_dist | 0.714 | 0.666 | **-4.7 pts** |
-| P_rank | 0.724 | 0.736 | **+1.2 pts** |
-| P_refuse | 0.972 | 0.972 | **+0.0 pts** |
-| Parse failures | 1.6% | 0.0% | -1.6 pts |
 
 **Althing (GPT-6 Luna)** (product) on opinionsqa — n=100 questions × 30 samples per arm, refusal detector v3; the arms differ only in elicitation mode:
 
@@ -318,9 +309,10 @@ three runs costs roughly 3× a single-model run.
 <!-- BEGIN GENERATED: ensemble -->
 | Dataset | Best single model | Equal blend | Improvement | Random baseline |
 |---------|-------------------|-------------|-------------|-----------------|
-| globalopinionqa (100q) | 0.786 (Althing (GPT-4o-mini), product) | **0.813** | **+2.7 pts** | 0.774 (n=100) |
-| opinionsqa (684q) | 0.829 (Gemini 2.5 Flash, raw) | **0.877** | **+4.8 pts** | 0.763 (n=684) |
-| subpop (200q) | 0.821 (Althing (Gemini Flash Lite), product) | **0.858** | **+3.7 pts** | 0.757 (n=200) |
+| globalopinionqa (100q) | 0.804 (Althing (Qwen 3.8 Flash), product) | **0.810** | **+0.6 pts** | 0.774 (n=100) |
+| gss (75q) | 0.844 (Althing (Qwen 3.8 Flash), product) | **0.816** | **-2.8 pts** | 0.735 (n=75) |
+| opinionsqa (100q) | 0.872 (DeepSeek V4.1 Flash, raw) | **0.871** | **-0.1 pts** | 0.763 (n=684) |
+| subpop (100q) | 0.837 (DeepSeek V4.1 Flash, raw) | **0.823** | **-1.4 pts** | 0.757 (n=200) |
 
 Comparison set: best_single = highest recomputed-SPS non-ensemble, non-baseline leaderboard row (raw or product framework) evaluated on at least as many questions as the ensemble, after per-(model, framework, dataset) dedup; random_baseline = recomputed SPS of the random-baseline run for the same dataset (n in random_baseline_n).
 <!-- END GENERATED: ensemble -->
@@ -339,31 +331,39 @@ way?) — the latter carried as an asserted constant because committed gated
 artifacts strip `human_distribution` (#308).
 
 <!-- BEGIN GENERATED: ensemble-error-correlation -->
-**globalopinionqa** (n=100 common questions, mean pairwise r = 0.407):
+**globalopinionqa** (n=100 common questions, mean pairwise r = 0.528):
 
 | Constituent pair | Pearson r (per-question JSD) | n |
 |------------------|------------------------------|---|
-| Althing (Haiku 4.5) ↔ Althing (Gemini Flash Lite) | 0.419 | 100 |
-| Althing (Haiku 4.5) ↔ Althing (GPT-4o-mini) | 0.308 | 100 |
-| Althing (Gemini Flash Lite) ↔ Althing (GPT-4o-mini) | 0.493 | 100 |
+| Althing (Haiku 4.5) ↔ Althing (Gemini Flash Lite) | 0.510 | 100 |
+| Althing (Haiku 4.5) ↔ Althing (GPT-4o-mini) | 0.576 | 100 |
+| Althing (Gemini Flash Lite) ↔ Althing (GPT-4o-mini) | 0.498 | 100 |
 
-**opinionsqa** (n=684 common questions, mean pairwise r = 0.295):
-
-| Constituent pair | Pearson r (per-question JSD) | n |
-|------------------|------------------------------|---|
-| Althing (Haiku 4.5) ↔ Althing (Gemini Flash Lite) | 0.224 | 684 |
-| Althing (Haiku 4.5) ↔ Althing (GPT-4o-mini) | 0.355 | 684 |
-| Althing (Gemini Flash Lite) ↔ Althing (GPT-4o-mini) | 0.308 | 684 |
-
-**subpop** (n=200 common questions, mean pairwise r = 0.322):
+**gss** (n=75 common questions, mean pairwise r = 0.633):
 
 | Constituent pair | Pearson r (per-question JSD) | n |
 |------------------|------------------------------|---|
-| Althing (Haiku 4.5) ↔ Althing (Gemini Flash Lite) | 0.282 | 200 |
-| Althing (Haiku 4.5) ↔ Althing (GPT-4o-mini) | 0.260 | 200 |
-| Althing (Gemini Flash Lite) ↔ Althing (GPT-4o-mini) | 0.425 | 200 |
+| Althing (Haiku 4.5) ↔ Althing (Gemini Flash Lite) | 0.601 | 75 |
+| Althing (Haiku 4.5) ↔ Althing (GPT-4o-mini) | 0.617 | 75 |
+| Althing (Gemini Flash Lite) ↔ Althing (GPT-4o-mini) | 0.680 | 75 |
 
-The constituents' errors are **moderately positively correlated** (pairwise r 0.22–0.49 on per-question JSD; 0.27–0.44 on signed per-option residuals, see asserted constants) — not uncorrelated. The ensemble gain comes from partial, not full, independence of errors; the earlier "uncorrelated errors" framing overstated it.
+**opinionsqa** (n=100 common questions, mean pairwise r = 0.498):
+
+| Constituent pair | Pearson r (per-question JSD) | n |
+|------------------|------------------------------|---|
+| Althing (Haiku 4.5) ↔ Althing (Gemini Flash Lite) | 0.518 | 100 |
+| Althing (Haiku 4.5) ↔ Althing (GPT-4o-mini) | 0.360 | 100 |
+| Althing (Gemini Flash Lite) ↔ Althing (GPT-4o-mini) | 0.618 | 100 |
+
+**subpop** (n=100 common questions, mean pairwise r = 0.353):
+
+| Constituent pair | Pearson r (per-question JSD) | n |
+|------------------|------------------------------|---|
+| Althing (Haiku 4.5) ↔ Althing (Gemini Flash Lite) | 0.231 | 100 |
+| Althing (Haiku 4.5) ↔ Althing (GPT-4o-mini) | 0.388 | 100 |
+| Althing (Gemini Flash Lite) ↔ Althing (GPT-4o-mini) | 0.439 | 100 |
+
+The constituents' errors are **moderately positively correlated** (pairwise r 0.23–0.68 on per-question JSD; 0.27–0.44 on signed per-option residuals, see asserted constants) — not uncorrelated. The ensemble gain comes from partial, not full, independence of errors; the earlier "uncorrelated errors" framing overstated it.
 
 Comparison set: For each dataset's published ensemble: pairwise Pearson r between the constituent runs' committed per-question JSD vectors (each run's error magnitude vs the canonical human distribution), over the ensemble's common question set, read from the exact files named in ensemble_sources. Measures whether constituents err on the same questions. Signed per-option residual correlations need the stripped human_distribution fields (#308) and are carried as the ensemble_signed_error_correlation asserted constant.
 <!-- END GENERATED: ensemble-error-correlation -->
@@ -450,7 +450,7 @@ more temperature — it just adds noise.
 <!-- BEGIN GENERATED: levers -->
 | Lever | Effect size (SPS pts) | Cost | Status |
 |-------|----------------------|------|--------|
-| **Ensemble blending** | +2.7–4.8 | zero | done |
+| **Ensemble blending** | +-0.2–4.0 | zero | done |
 | **Per-model optimal temperature** | +0.8–4.5 | low | actionable |
 | **Demographic conditioning** | +4.1–9.9 | moderate | scientific |
 | **Persona template** | 'current' template already optimal (+19.0 pts over the best alternative); no further gain available from this lever. | zero | done |
@@ -468,31 +468,55 @@ gated files are committed without `human_distribution`).
 <!-- BEGIN GENERATED: nonresponse-fidelity -->
 | Provider | Framework | Template | Dataset | Mean model nonresponse | Mean human nonresponse | Mean abs gap | n |
 |----------|-----------|----------|---------|------------------------|------------------------|--------------|---|
+| Muse Glimmer 30B | raw | default | gss | 0.743 | 0.054 | **0.697** | 75 |
+| Gemini 3.8 Flash | raw | default | gss | 0.719 | 0.054 | **0.679** | 75 |
 | Claude Haiku 4.5 | raw | default | gss | 0.464 | 0.054 | **0.427** | 75 |
 | Claude Sonnet 5.5 | raw | default | gss | 0.441 | 0.054 | **0.415** | 75 |
 | Claude Haiku 5.5 | raw | default | gss | 0.397 | 0.054 | **0.367** | 75 |
 | GPT-6 Luna | raw | default | gss | 0.322 | 0.054 | **0.309** | 75 |
 | Althing (Sonnet 5.5) | product | default | gss | 0.277 | 0.054 | **0.261** | 75 |
+| GPT-6 Luna | raw | default | gss | 0.243 | 0.054 | **0.250** | 75 |
 | Althing (Haiku 5.5) | product | default | gss | 0.246 | 0.054 | **0.228** | 75 |
+| Claude Sonnet 4 | raw | default | gss | 0.220 | 0.054 | **0.227** | 75 |
+| Claude Haiku 5.5 | raw | default | gss | 0.212 | 0.054 | **0.214** | 75 |
+| Claude Haiku 4.5 | raw | default | gss | 0.177 | 0.054 | **0.196** | 75 |
 | Althing (Haiku 4.5) | product | default | gss | 0.177 | 0.054 | **0.174** | 75 |
 | Althing (GPT-6 Luna) | product | default | gss | 0.156 | 0.054 | **0.153** | 75 |
 | Claude Sonnet 4.6 | raw | default | gss | 0.124 | 0.054 | **0.150** | 75 |
-| Gemini 2.5 Flash | raw | default | gss | 0.106 | 0.054 | **0.125** | 75 |
+| Gemini 2.5 Flash | raw | default | gss | 0.098 | 0.054 | **0.124** | 75 |
+| Claude Sonnet 4.6 | raw | default | gss | 0.087 | 0.054 | **0.121** | 75 |
 | Althing (Haiku 4.5) | product | structured | gss | 0.064 | 0.054 | **0.094** | 75 |
-| Althing (Haiku 4.5) | product | default | gss | 0.067 | 0.054 | **0.093** | 75 |
+| Althing (Haiku 4.5) | product | default | gss | 0.067 | 0.054 | **0.092** | 75 |
+| GPT-4o | raw | default | gss | 0.067 | 0.054 | **0.090** | 75 |
+| Althing (Haiku 5.5) | product | default | gss | 0.044 | 0.054 | **0.080** | 75 |
+| Gemini 3.5 Flash-Lite | raw | default | gss | 0.041 | 0.054 | **0.076** | 75 |
+| Althing (GPT-6 Luna) | product | default | gss | 0.046 | 0.054 | **0.073** | 75 |
+| Althing (Gemini Flash Lite) | product | default | gss | 0.035 | 0.054 | **0.073** | 75 |
+| Althing (Muse Glimmer 30B) | product | default | gss | 0.034 | 0.054 | **0.070** | 75 |
+| Gemini Flash Lite | raw | default | gss | 0.036 | 0.054 | **0.070** | 75 |
+| GPT-4o-mini | raw | default | gss | 0.025 | 0.054 | **0.069** | 75 |
+| DeepSeek V4.1 Flash | raw | default | gss | 0.026 | 0.054 | **0.068** | 75 |
+| Qwen 3.8 Flash | raw | default | gss | 0.032 | 0.054 | **0.066** | 75 |
+| Althing (DeepSeek V4.1 Flash) | product | default | gss | 0.019 | 0.054 | **0.062** | 75 |
+| Althing (Gemini 3.5 Flash-Lite) | product | default | gss | 0.013 | 0.054 | **0.061** | 75 |
+| Llama 3.3 70B | raw | default | gss | 0.014 | 0.054 | **0.061** | 75 |
 | Althing (Sonnet 4.6) | product | default | gss | 0.014 | 0.054 | **0.060** | 75 |
+| Althing (Sonnet 4) | product | default | gss | 0.015 | 0.054 | **0.059** | 75 |
+| Althing (GPT-4o-mini) | product | default | gss | 0.016 | 0.054 | **0.059** | 75 |
+| Althing (Llama 3.3 70B) | product | default | gss | 0.002 | 0.054 | **0.052** | 75 |
+| Althing (Qwen 3.8 Flash) | product | default | gss | 0.027 | 0.054 | **0.052** | 75 |
 
 Comparison set: Per deduped non-baseline run whose committed per-question rows still carry human_distribution (full-tier datasets; gated files are stripped per #308): mean |model explicit-nonresponse mass (DK-style option mass + parsed refusal rate) - human's|, plus the five items with the largest model over-selection.
 
-**Safety-aligned models over-select explicit nonresponse options on sensitive items** (Claude Sonnet 5.5, gss, n=75): mean model nonresponse mass 0.441 vs human 0.026. Worst items:
+**Safety-aligned models over-select explicit nonresponse options on sensitive items** (Muse Glimmer 30B, gss, n=75): mean model nonresponse mass 0.738 vs human 0.026. Worst items:
 
 | Item | Model nonresponse | Human nonresponse |
 |------|-------------------|-------------------|
-| GSS_NATEDUC | 100% | 0.5% |
-| GSS_FINRELA | 100% | 0.7% |
+| GSS_CONFINAN | 100% | 0.7% |
+| GSS_XMARSEX | 100% | 0.8% |
+| GSS_PORNLAW | 100% | 0.9% |
 | GSS_CLASS | 100% | 1.1% |
-| GSS_GUNLAW | 100% | 1.6% |
-| GSS_NATCRIME | 100% | 1.9% |
+| GSS_CONJUDGE | 100% | 1.4% |
 
 Share of answers that pick a listed 'don't know'-style option, excluding prose refusals. The model selects a legitimate option rather than refusing, so refusal-rate metrics miss it and it only shows in the option distribution.
 <!-- END GENERATED: nonresponse-fidelity -->

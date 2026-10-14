@@ -1,0 +1,3688 @@
+{
+  "benchmark": "synthbench",
+  "schema_version": 2,
+  "version": "0.1.0",
+  "timestamp": "2026-10-13T17:19:53.368685+00:00",
+  "config": {
+    "dataset": "subpop",
+    "provider": "althing/openrouter/anthropic/claude-haiku-4.5",
+    "samples_per_question": 30,
+    "n_requested": 100,
+    "n_evaluated": 100,
+    "refusal_detector_version": 4,
+    "option_parser_version": 3,
+    "model_revision_hash": "sha256:e156cb5fc9c5847e9b18d713c31e2c76de37a3bd27c61f04ca330fc41657a1a8",
+    "prompt_template_hash": "sha256:4f1c561ab4b48967796548fd5fa849c4897cfd87aaca694e6a359e4663546ab6",
+    "question_set_hash": "35cb150487abfe257069ff733fa97cb90993aa979e056c45928c4efc22d71297",
+    "temperature": null,
+    "parse_failure_rate": 0.019667,
+    "topic_filter": null
+  },
+  "reproducibility": {
+    "seed": null,
+    "model_revision_hash": "sha256:e156cb5fc9c5847e9b18d713c31e2c76de37a3bd27c61f04ca330fc41657a1a8",
+    "prompt_template_hash": "sha256:4f1c561ab4b48967796548fd5fa849c4897cfd87aaca694e6a359e4663546ab6",
+    "framework_version": "0.1.0",
+    "submitted_at": "2026-10-13T17:19:53.368685+00:00"
+  },
+  "raw_responses": [
+    {
+      "key": "AAPERSADV_W125",
+      "raw_text": "I'd say **(C) Not sure**.\n\nHonestly, it's hard to know for certain. I've benefited from good education and opportunities, but I can't really say whether diversity initiatives played a role in that or not. It's tough to isolate one factor like that from everything else that goes into getting ahead. I wasn't paying close enough attention to all the behind-the-scenes stuff when I was coming up to say definitively either way.",
+      "selected_option": "Not sure"
+    },
+    {
+      "key": "AAPERSDIS_W125",
+      "raw_text": "I'd say **(B) No**.\n\nLook, I can't honestly say I've experienced a disadvantage from diversity efforts. I've worked in a few places that made efforts toward inclusion, and if anything, I've benefited from working alongside people with different backgrounds and perspectives. Honestly makes for better problem-solving.\n\nI know this is a topic people have strong feelings about, but I can only speak to my own experience, and I haven't felt held back by it.",
+      "selected_option": "No"
+    },
+    {
+      "key": "AAPERSSTER_W125",
+      "raw_text": "(A) Yes\n\nLook, I'd be lying if I said I haven't noticed it. There have been moments\u2014conversations at work, comments online, that kind of thing\u2014where I get the sense someone's implying I got where I am because of diversity initiatives rather than my actual qualifications. It's frustrating because you never know if it's true or if they're just making assumptions. But yeah, I think it's happened.",
+      "selected_option": "Yes"
+    },
+    {
+      "key": "ABORTION2_W125",
+      "raw_text": "I'd say (A) \u2013 that some states are making it too difficult for people to get an abortion.\n\nLook, I think about the people I know who've faced tough situations. When you're dealing with something that personal and complex, it matters that access isn't blocked by unnecessary barriers. I've read enough about women having to travel hours, deal with waiting periods, or navigate confusing regulations to know that difficulty of access is the real concern for me.\n\nI'm not saying there shouldn't be any standards or regulations, but the trend I'm seeing with states restricting things seems like it's creating real hardship for people who've already made an incredibly difficult decision.",
+      "selected_option": "That some states are making it too DIFFICULT for people to be able to get an abortion"
+    },
+    {
+      "key": "ABORTION3_W125",
+      "raw_text": "I'd say **(B) Somewhat difficult** for my area.\n\nThere's a clinic about 45 minutes away, so it's not impossible to access, but it's not something you can just walk into locally either. You'd need to take time off work, arrange transportation, deal with the cost. And there are waiting periods involved. So while it's doable if you're determined, it's not straightforward\u2014there are real barriers in place.",
+      "selected_option": "Somewhat difficult"
+    },
+    {
+      "key": "ABORTION4_W125",
+      "raw_text": "I'd go with **(C) About what it is now**.\n\nLook, I think the current situation in my area strikes a reasonable balance. There are safeguards in place, but it's still accessible to people who need it. I don't think it needs to be easier\u2014the process exists for a reason. But making it harder would just create real hardship for women facing difficult circumstances.\n\nIt's not something I feel strongly enough about to want major changes either way, honestly.",
+      "selected_option": "About what it is now"
+    },
+    {
+      "key": "ABORTION5_W104",
+      "raw_text": "(A) Yes\n\nI'd say most people probably do, whether they realize it or not. It's more common than a lot of folks think. I have a close friend who went through it years ago, and we've talked about it openly. It was a difficult decision for her at the time, but she felt it was right for her circumstances.",
+      "selected_option": "Yes"
+    },
+    {
+      "key": "ABORTLGL_W87",
+      "raw_text": "I'd say **(B) Legal in most cases**.\n\nLook, I think there are situations where it should be available\u2014health risks, rape, incest, severe fetal abnormalities. But I'm also uncomfortable with it being completely unrestricted at any stage. There's something about later-term abortions that doesn't sit right with me, except when there's a genuine medical reason.\n\nIt's honestly one of those issues where I don't feel like any single position captures what I actually believe. But if I had to pick one of those options, that's where I land.",
+      "selected_option": "Legal in most cases"
+    },
+    {
+      "key": "ABRTLGL1_W104",
+      "raw_text": "I'd say **(A) There are some exceptions when abortion should be against the law**.\n\nLook, I think most people's views on this aren't at either extreme. I believe abortion should generally be accessible, especially early on and in cases of health risks, rape, or incest. But I do think there are reasonable limits\u2014like I'm not comfortable with abortion right up until birth for non-medical reasons. That feels different to me than an early pregnancy.\n\nIt's complicated though, and I respect that others come down differently on where exactly those lines should be.",
+      "selected_option": "There are some exceptions when abortion should be against the law"
+    },
+    {
+      "key": "ABRTLGL3_a_W104",
+      "raw_text": "(A) Legal\n\nLook, if we're talking about a situation where the woman's life or health is actually at risk, that's different from other circumstances. In that case, I think abortion should be legal. It comes down to not forcing someone to sacrifice their own life or serious health for a pregnancy. That seems like a reasonable line to me.",
+      "selected_option": "Legal"
+    },
+    {
+      "key": "ABRTLGL3_b_W104",
+      "raw_text": "*pauses thoughtfully*\n\nI'd say (A) Legal.\n\nLook, I think in a case like that\u2014where someone didn't consent to the pregnancy in the first place\u2014they should have the choice. The person has already been through something traumatic. Forcing them to carry that pregnancy seems like it compounds the harm rather than respects their autonomy and what they've been through.\n\nI get that people have different views on abortion generally, but rape is... that's a different situation to me. The consent piece matters.",
+      "selected_option": "Legal"
+    },
+    {
+      "key": "ABRTLGL3_c_W104",
+      "raw_text": "I'd say **(C) It depends**.\n\nLook, this isn't straightforward for me. I think about what \"severe\" means\u2014are we talking about conditions that are incompatible with life? Or disabilities where someone can still have a meaningful existence? That matters to me.\n\nI also think about the parents' circumstances\u2014their resources, support systems, what kind of life they envision. And the pregnant person's health and autonomy in all this.\n\nI don't think there's one answer that fits every situation. Some cases feel clearer to me than others, but I'm genuinely uncertain about drawing a hard legal line. That's why \"it depends\" feels most honest.",
+      "selected_option": "It depends"
+    },
+    {
+      "key": "ABRTLGL_W104",
+      "raw_text": "I'd go with **(B) Legal in most cases**.\n\nLook, I think it's a complicated issue. I don't think the government should ban it outright\u2014there are real situations where people need that access, like health risks or circumstances they're just not ready for. But I also think most people, including me, feel like there should be some reasonable limits rather than no restrictions at all.\n\nI'm not comfortable with abortion as a casual thing, but I'm also not comfortable forcing someone to carry a pregnancy they can't handle. It's messy, and I think that's just the reality of it.",
+      "selected_option": "Legal in most cases"
+    },
+    {
+      "key": "ABRTLGL_W110",
+      "raw_text": "I'd go with **(B) Legal in most cases**.\n\nLook, I think it's a real situation where people need access, especially early on and in cases like rape, incest, or serious health risks. But I also get that some people have genuine moral concerns about later-stage pregnancy. It's not black and white to me.\n\nI don't think the government should be making these deeply personal decisions for people, but I also understand this isn't a simple issue where everyone agrees. Most people I know land somewhere in the middle like this\u2014supporting access while maybe having some limits.",
+      "selected_option": "Legal in most cases"
+    },
+    {
+      "key": "ABRTLGL_W125",
+      "raw_text": "I'd go with **(B) Legal in most cases**.\n\nLook, I think most people actually land somewhere in the middle on this. I believe women should have access to abortion, especially early on and in situations like rape, incest, or serious health risks. But I'm not entirely comfortable with zero restrictions at any point\u2014I think there's something to the idea that later in pregnancy, it becomes more complicated.\n\nIt's one of those issues where I don't think there's a clean answer, but forced pregnancy doesn't sit right with me either. So yeah, legal in most cases feels like where I actually stand when I think it through honestly.",
+      "selected_option": "Legal in most cases"
+    },
+    {
+      "key": "ABRTMOR_W104",
+      "raw_text": "I'd say **(B) Morally acceptable in most cases**.\n\nLook, I think context matters a lot here. There are situations where it seems clearly justified to me\u2014like when the mother's health is at serious risk, or in cases of rape or incest, or when there are severe fetal abnormalities. Those feel different morally than, say, abortion as a casual form of birth control.\n\nBut I'm also not comfortable saying it's *always* wrong either. I don't think I have the right to make that judgment for someone else facing a genuinely difficult situation I might not fully understand.\n\nSo \"most cases\" feels honest to where I actually land on it\u2014acknowledging that the moral weight does seem to vary depending on circumstances.",
+      "selected_option": "Morally acceptable in most cases"
+    },
+    {
+      "key": "ABRTMORa_W104",
+      "raw_text": "I'd say (A) - Yes.\n\nLook, I think there's a real difference between what should be legal and what's moral. I believe abortion should remain legal because I don't think the government should force women to carry pregnancies against their will. That's a practical stance about law and bodily autonomy.\n\nBut morally? I think in some situations\u2014like late-term abortion for sex selection, or abortion of a viable fetus when safer alternatives exist\u2014there's a real moral weight to consider. I can support someone's legal right to choose while still thinking some choices carry moral complexity.\n\nIt's like how lying is legal but often wrong. The law and morality don't always line up perfectly.",
+      "selected_option": "Yes"
+    },
+    {
+      "key": "ABRTNMED_HRD_W125",
+      "raw_text": "I'd say **(B) A little**. \n\nI've come across the term a few times\u2014maybe in news articles or conversations\u2014and I have a general sense that it's an option that exists involving pills rather than a procedure. But I wouldn't say I know a ton of details about how it works, the specific medications involved, or all the different aspects of it. Just enough to know it's a thing, really.",
+      "selected_option": "A little"
+    },
+    {
+      "key": "ABRTNMED_KNOW_REFUSED_W125",
+      "raw_text": "(A) Not asked\n\nThere was no previous question in our conversation, so this question doesn't apply to me.",
+      "selected_option": "Not asked"
+    },
+    {
+      "key": "ABRTN_CHNGE_W125",
+      "raw_text": "I'd say **(C) Stayed about the same**.\n\nI've thought about it here and there when something comes up in the news, but my core views haven't really shifted. I pretty much hold the same perspective I did a year ago. There's been a lot of talk about it politically, but that hasn't moved me one way or the other\u2014I'm comfortable where I stand on it.",
+      "selected_option": "Stayed about the same"
+    },
+    {
+      "key": "ABRTN_MED_W125",
+      "raw_text": "(A) Legal\n\nI think people should have access to medication abortion as an option. It's a safe medical procedure that's been used for decades, and I believe healthcare decisions like this should be between a person and their doctor rather than the government. People have different circumstances and beliefs, so having this option available seems important for their autonomy.",
+      "selected_option": "Legal"
+    },
+    {
+      "key": "ABRTN_PEN_a_W104",
+      "raw_text": "I'd say **(B) Should not face penalties**.\n\nLook, I think if a woman is in a situation where she feels abortion is necessary\u2014whether that's for health reasons, circumstances in her life, or whatever\u2014penalizing her doesn't make sense to me. She's already dealing with a difficult decision. Making it a criminal matter just adds another layer of harm.\n\nIf there are concerns about abortion access or legality, those seem like policy questions for lawmakers, not something that should fall on the woman herself. She's the one living with the consequences either way.",
+      "selected_option": "Should not face penalties"
+    },
+    {
+      "key": "ABRTN_PEN_b_W104",
+      "raw_text": "I'd say **(B) Should not face penalties**.\n\nLook, I think about this practically. If a woman is in a situation where she needs an abortion\u2014whether it's her health, her circumstances, whatever\u2014the doctor is trying to help her. Crimininalizing providers just makes the whole situation worse. People will go to unsafe places if legal options aren't available, and that puts everyone at risk.\n\nThe focus should be on what's best for the person seeking care, not on punishing the medical professional trying to provide it.",
+      "selected_option": "Should not face penalties"
+    },
+    {
+      "key": "ABRTN_PEN_c_W104",
+      "raw_text": "I'd say **(B) Should not face penalties**.\n\nLook, if someone's in a situation where abortion is illegal but they need one\u2014whether for health reasons, personal circumstances, whatever\u2014I don't think the person helping them access care should be criminalized for that. That just seems like it adds another layer of harm on top of an already difficult situation.\n\nThe whole framing of making it illegal in the first place is what creates these problems. If we're going to have those laws, penalizing people for helping someone access healthcare seems wrong to me. That's not the person I'd want to see facing legal consequences.",
+      "selected_option": "Should not face penalties"
+    },
+    {
+      "key": "ABRTN_PEN_d_W104",
+      "raw_text": "I'd say **(B) Should not face penalties**.\n\nLook, I think if someone is in a situation where they need an abortion\u2014whether it's for their health, their circumstances, or their own reasons\u2014that's already a difficult decision. People helping them out financially are trying to support someone they care about through something hard. Penalizing folks for that just seems like it adds another layer of punishment on top of an already stressful situation.\n\nI get that laws exist, but I think the focus should be on whether abortion access itself should be legal or not\u2014not on going after people who are just trying to help each other out.",
+      "selected_option": "Should not face penalties"
+    },
+    {
+      "key": "ABRTN_PENa_2_W104",
+      "raw_text": "I'd say **(C) Not sure**.\n\nLook, this is a really complicated question for me. I understand there are strong views on both sides\u2014some people see abortion as something that shouldn't be criminalized at all, others think there should be consequences. But when it comes to what the actual punishment should be if it were illegal? I genuinely haven't thought through all the angles enough to give you a confident answer.\n\nIt touches on so many things\u2014the woman's circumstances, whether she had other options, questions about the law itself being just... I'm not comfortable picking between jail time or fines without really sitting with it more.",
+      "selected_option": "Not sure"
+    },
+    {
+      "key": "ABRTN_PENb_2a_W104",
+      "raw_text": "I'd go with **(C) Not sure**.\n\nLook, this is really complicated. I understand both sides. On one hand, if a law exists, people who break it can face consequences\u2014that's how laws work. But on the other hand, doctors performing abortions in restricted situations are often trying to help someone in a desperate medical situation. It feels different than breaking other laws.\n\nI don't think jail time is necessarily the answer, but I'm also not confident saying they should face no consequences either. It depends a lot on the specific circumstances\u2014was someone's life in danger? What exactly does the law say? \n\nHonestly, the real issue to me is whether these abortion restrictions should exist in the first place, rather than what to do with providers who break them. But that's a separate question from what you're asking.",
+      "selected_option": "Not sure"
+    },
+    {
+      "key": "ABRTN_PENb_2b_W104",
+      "raw_text": "I'd go with **(C) Not sure**.\n\nLook, it's complicated. I understand why there'd be consequences\u2014they broke the law that was in place. But \"lose their license\" seems pretty harsh depending on the circumstances. Like, if someone performed an abortion to save a woman's life in a place where it was technically illegal, that feels different than other situations.\n\nI think it would depend on *why* it was illegal where they were, what the actual circumstances were, and what the law said. I'm not confident enough in my answer to pick A or B outright.",
+      "selected_option": "Not sure"
+    },
+    {
+      "key": "ABRTN_SAY_W104",
+      "raw_text": "I'd say (B) - women should have a little more say than men.\n\nLook, it's women who actually experience pregnancy and all that comes with it, physically and otherwise. So their perspective carries weight that's just different. That said, I don't think men should be completely shut out of the conversation either - a lot of them are affected too, whether as partners, fathers, or just members of society. But yeah, when it comes down to setting policy, women's voices should carry more weight here.",
+      "selected_option": "Women should have a LITTLE more say than men"
+    },
+    {
+      "key": "ABRTN_SCOTUS_W110",
+      "raw_text": "I'd say **(D) Strongly disapprove**.\n\nLook, regardless of what people think about abortion itself, I was uncomfortable with the reasoning\u2014basically saying a constitutional right that existed for 50 years just... isn't there anymore. That feels like it opens the door to a lot of other rights being reconsidered. And practically speaking, it's created this patchwork where women's access to healthcare depends on which state they live in. That just doesn't sit right with me.",
+      "selected_option": "Strongly disapprove"
+    },
+    {
+      "key": "ABRTN_THOUGHT_W104",
+      "raw_text": "I'd say **(B) Some**. \n\nIt's one of those topics that comes up in the news or conversations pretty regularly, so I've definitely thought about it to some degree. I have my own views on it, though I wouldn't say I've spent a ton of time deeply researching or analyzing every angle of it. It's more like... I've picked up perspectives over time from what I've heard and read, and I've formed some opinions, but I'm not someone who's constantly reading about it or thinking through all the nuances in detail.",
+      "selected_option": "Some"
+    },
+    {
+      "key": "ABRTRED_a_W104",
+      "raw_text": "I'd say **(B) Slightly reduce the number of abortions**.\n\nHere's my thinking: Stricter laws would probably deter some people, sure. But I think there are deeper factors at play\u2014people's economic situations, access to contraception, healthcare, support systems. Making something illegal doesn't make the underlying need disappear. We've seen that historically and in other countries too.\n\nSo yeah, you might see some decrease from people being deterred by legal consequences, but I don't think it would be dramatic. The real change would probably come from addressing root causes\u2014better sex education, affordable contraception, parental leave, childcare support. Those feel like they'd have more impact than the legal side alone.\n\nThat's my honest take, anyway.",
+      "selected_option": "Slightly reduce the number of abortions"
+    },
+    {
+      "key": "ABRTRED_b_W104",
+      "raw_text": "I'd say **(B) Slightly reduce the number of abortions**.\n\nHere's my thinking: Better support for parents would probably help some people who are on the fence about carrying a pregnancy to term\u2014especially those worried about financial hardship or work interruption. Paid leave and accessible childcare remove some real barriers.\n\nBut I don't think it would be a game-changer for most people seeking abortion. The decision is usually more fundamental than just financial concerns\u2014it's about whether someone wants to be a parent at that point in their life, their career goals, relationship status, health considerations. Those bigger factors wouldn't shift much just from having better support systems in place.\n\nSo yeah, it'd help at the margins, but not dramatically.",
+      "selected_option": "Slightly reduce the number of abortions"
+    },
+    {
+      "key": "ABRTRED_c_W104",
+      "raw_text": "I'd say **(B) Slightly reduce the number of abortions**.\n\nHere's my thinking: Better sex education would likely mean more people understand contraception options and how to use them effectively. That should prevent some unintended pregnancies. But I'm not saying \"greatly reduce\" because there are a lot of factors that go into abortion decisions beyond just knowing about birth control \u2014 economic situations, relationship circumstances, access to contraception itself, and people's personal beliefs all matter too.\n\nSo yeah, education would probably help some, but it's not going to be a game-changer on its own.",
+      "selected_option": "Slightly reduce the number of abortions"
+    },
+    {
+      "key": "ABRTRED_d_W104",
+      "raw_text": "I'd say **(B) Slightly reduce the number of abortions**.\n\nHere's my thinking: adoption is already an option, and making it easier might help some people who are specifically concerned about finding a good home for a child. But the reality is, most people seeking abortion aren't doing so because adoption isn't accessible\u2014they're making decisions based on their personal circumstances, health, relationship status, financial situation, or readiness to parent. Those factors wouldn't change just because adoption became easier.\n\nThat said, if we're talking about removing real barriers\u2014like making the adoption process less expensive, faster, or less emotionally grueling\u2014that could address concerns for some people. So I think there'd be some reduction, but not a dramatic one.\n\nThe abortion decision is complicated and personal in ways that go beyond just \"what happens to the baby after birth.\"",
+      "selected_option": "Slightly reduce the number of abortions"
+    },
+    {
+      "key": "ABRTRED_e_W104",
+      "raw_text": "I'd say **(B) Slightly reduce the number of abortions**.\n\nHere's my thinking: Financial stress and job security are real factors in abortion decisions for some people, so better support would probably help some women carry pregnancies to term who otherwise wouldn't. But abortion decisions are complicated\u2014they involve relationship status, health concerns, life plans, and personal circumstances beyond just finances.\n\nBetter support would remove *one* barrier, but it wouldn't address everything that goes into that decision. So I'd expect it to make some difference, but not a dramatic one.\n\nThat said, I could see arguments for (A) too depending on how comprehensive the support was. But \"slightly\" feels more realistic to me.",
+      "selected_option": "Slightly reduce the number of abortions"
+    },
+    {
+      "key": "ABRTREL_W104",
+      "raw_text": "I'd say **(C) Somewhat important**.\n\nLook, I do have faith, and it's part of how I think about things generally. But when it comes to abortion specifically, it's not like my religion gives me a single clear answer that overrides everything else. There are practical considerations too\u2014people's circumstances, health situations, what's actually realistic. \n\nMy beliefs matter, sure, but I try to think about these issues in a more complicated way than just applying one principle. So it shapes my views, but it's not the whole story.",
+      "selected_option": "Somewhat important"
+    },
+    {
+      "key": "ABRTVIEW_a_W104",
+      "raw_text": "I'd say **(D) Not too well**.\n\nLook, I think it's more complicated than just the woman alone deciding. I mean, yes, it's her body and she's going through it, so her voice has to matter most. But I also think there are other considerations\u2014the father should have some say, and depending on how far along the pregnancy is, I think that matters too. \n\nThe way the statement is worded, \"solely,\" kind of cuts everyone else out completely. That doesn't match how I actually see it. It feels like it should be primarily her decision, but not *only* hers.",
+      "selected_option": "Not too well"
+    },
+    {
+      "key": "ABRTVIEW_b_W104",
+      "raw_text": "I'd say **(D) Not too well**.\n\nLook, I think the question of when personhood begins is genuinely complicated. I don't think it's as straightforward as \"life begins at conception, therefore full personhood and rights.\" That's a particular philosophical and religious position, and while I respect people who hold it, it doesn't match how I think about it.\n\nI see it more as a spectrum\u2014conception is certainly the beginning of *something*, biologically speaking, but I'm not convinced that automatically equals \"a person with rights\" in the same way we'd talk about a born person. There are too many other factors involved: development, viability, the pregnant person's own rights and circumstances. It's not black and white to me.\n\nSo that statement captures *part* of what I think, but misses some important nuance. Hence \"not too well\" rather than \"not at all.\"",
+      "selected_option": "Not too well"
+    },
+    {
+      "key": "ABRTVIEW_c_W104",
+      "raw_text": "I'd say **(B) Very well**.\n\nLook, I think that's just a practical reality regardless of where you stand on abortion itself. History and current events in other countries show us that when legal access becomes difficult or impossible, people don't stop seeking abortions\u2014they just find other ways. And those other ways are genuinely dangerous. Women end up taking pills without medical supervision, going to unlicensed providers, or traveling long distances under difficult circumstances.\n\nThat's not really a political statement for me\u2014it's more about how people actually behave when they're desperate. I can acknowledge that reality without it automatically meaning I think abortion should be completely unrestricted or anything like that.",
+      "selected_option": "Very well"
+    },
+    {
+      "key": "ABRTVIEW_d_W104",
+      "raw_text": "I'd say **(D) Not too well**.\n\nLook, I think people are generally responsible about contraception for practical reasons\u2014it's cheaper, easier, and less physically involved than dealing with an abortion. The idea that legal access somehow makes people careless doesn't match what I see around me or what I understand about how people actually make decisions about sex and family planning.\n\nThat said, I can see why some people believe it\u2014there's a logic to it on the surface. But it just doesn't seem like the main driver of people's behavior in my experience.",
+      "selected_option": "Not too well"
+    },
+    {
+      "key": "ABRTVIEW_e_W104",
+      "raw_text": "I'd say **(C) Somewhat well**.\n\nLook, I can see the logic there\u2014access to abortion does relate to women's opportunities and life planning. That part makes sense to me. But \"too hard to get\" is kind of vague, and \"more difficult to get ahead\" doesn't capture the full picture of what I think about this issue.\n\nIt's not just about abortion access for me. Women's advancement depends on a lot of factors\u2014education, pay equity, childcare support, workplace policies. Those matter too. The statement feels like it's narrowing it down to just one piece of a bigger puzzle.\n\nSo yeah, there's something true in it, but it doesn't describe my complete view on the subject.",
+      "selected_option": "Somewhat well"
+    },
+    {
+      "key": "ABRTVIEW_f_W104",
+      "raw_text": "I'd say **(C) Somewhat well** describes my views on that.\n\nLook, I think there's some truth to it \u2014 if access is really easy and unrestricted, there could be situations where a woman feels pressured by circumstances or other people. That's a real concern worth taking seriously.\n\nBut I wouldn't say it describes my views *extremely* well, because I think the bigger picture is more complicated. Pressure on women happens regardless of abortion legality \u2014 whether it's pressure to *have* an abortion or pressure to *not* have one. And I'm not sure \"easy access\" is really the main driver of that kind of coercion. \n\nIt's one factor among many, so \"somewhat well\" feels like the right fit for me.",
+      "selected_option": "Somewhat well"
+    },
+    {
+      "key": "ACTIVE_W109",
+      "raw_text": "I'd go with **(A)** - being active in world affairs.\n\nLook, I think the world's connected now in ways it wasn't before. What happens overseas affects us here eventually, whether that's trade, security, climate stuff, or whatever. We can't just pretend the rest of the world doesn't matter. That said, I definitely think we need to do better on problems at home too - but it's not really an either/or thing to me. We can walk and chew gum at the same time.",
+      "selected_option": "It\u2019s best for the future of our country to be active in world affairs"
+    },
+    {
+      "key": "ACTIVE_W124",
+      "raw_text": "I'd go with **(A)**, though I'd add some nuance to it.\n\nLook, I think completely ignoring what happens overseas isn't realistic\u2014global issues affect us whether we like it or not. Trade, security threats, climate change, pandemics\u2014they don't respect borders. Being \"active\" doesn't mean we have to be involved in everything, but we can't just pretend the rest of the world doesn't exist.\n\nThat said, I get the frustration behind (B). There *are* real problems here at home that deserve serious attention and resources. It's not either/or for me\u2014we should be smart about both. But total isolationism? I don't think that actually works in 2024.",
+      "selected_option": "It\u2019s best for the future of our country to be active in world affairs"
+    },
+    {
+      "key": "ACTIV_ASSORT_CONCERT_W129",
+      "raw_text": "**(A) Yes, I have done this in the past 12 months**\n\nI caught a couple of shows over the last year\u2014went to see a band I really like at a local venue, and my friend dragged me to an outdoor festival over the summer. It was a good time, actually. Nothing huge or expensive, but yeah, I'd say I've definitely been to at least one concert.",
+      "selected_option": "Yes, I have done this in the past 12 months"
+    },
+    {
+      "key": "ACTIV_ASSORT_SPORT_W129",
+      "raw_text": "**(A) Yes, I have done this in the past 12 months**\n\nI caught a couple of games last year\u2014went to see our local team play a few times. Nothing too fancy, just regular season stuff, but I enjoy getting out there with friends or family.",
+      "selected_option": "Yes, I have done this in the past 12 months"
+    },
+    {
+      "key": "ACTIV_ASSORT_TRANSIT_W129",
+      "raw_text": "(A) Yes, I have done this in the past 12 months\n\nI use the bus pretty regularly to get around the city\u2014probably a couple times a week for errands and getting to work. It's convenient and saves on gas.",
+      "selected_option": "Yes, I have done this in the past 12 months"
+    },
+    {
+      "key": "ACTIV_ASSORT_TRAVEL100_W129",
+      "raw_text": "*pauses to think*\n\n(A) Yes, I have done this in the past 12 months\n\nI took a couple of trips last year\u2014visited family out of state and had a work conference, so definitely more than 100 miles total.",
+      "selected_option": "Yes, I have done this in the past 12 months"
+    },
+    {
+      "key": "ADMINTOPIC_W85",
+      "raw_text": "I'd say it's pretty mixed, honestly. I see a lot of both\u2014some stories focus on his decision-making and how he handles things, while others dig into specific policies like inflation or healthcare. \n\nIf I had to pick one, I'd probably say **(B) policy positions and agenda** comes up more often in what I encounter. That seems to get more coverage, whether it's about what he's trying to do or criticism of those efforts.\n\nBut it really depends on which outlets I'm checking that day.",
+      "selected_option": "Biden\u2019s policy positions and agenda"
+    },
+    {
+      "key": "ADMISSION_a_W104",
+      "raw_text": "I'd say **(B) Minor factor**.\n\nHere's my thinking: I believe colleges should primarily focus on academic preparation, achievements, and what someone can contribute to campus. That said, I also recognize that race and ethnicity can reflect different life experiences and perspectives that are valuable to a diverse learning community. But it shouldn't be the main thing driving admission decisions.\n\nIt's a balance, you know? I don't think it should be ignored entirely, but I also don't think it should outweigh merit and fit for the school.",
+      "selected_option": "Minor factor"
+    },
+    {
+      "key": "ADMISSION_b_W104",
+      "raw_text": "I'd say **(B) Minor factor**.\n\nLook, I think colleges should primarily focus on academic qualifications and what students can contribute. That said, I don't think gender should be completely ignored either. If a university is trying to build a well-rounded student body or address historical imbalances in certain fields, gender might be *one* consideration among many\u2014but not the main one.\n\nIt shouldn't overshadow merit, but I also don't think pretending gender doesn't exist in education makes sense. So minor factor works for me.",
+      "selected_option": "Minor factor"
+    },
+    {
+      "key": "ADMISSION_c_W104",
+      "raw_text": "I'd say **(B) Minor factor**.\n\nLook, I think it makes sense that a school might give some small consideration to legacy\u2014there's a connection there, and families do tend to care about their institutions. But it shouldn't carry heavy weight. \n\nThe thing is, colleges should mostly be looking at what *you* can do and bring to campus, not who your parents are. If legacy becomes a major factor, it just advantages kids who already have advantages, you know? That doesn't feel right to me.\n\nA light nod to family history? Sure, fine. But it shouldn't move the needle much compared to your actual qualifications and what you'll contribute.",
+      "selected_option": "Minor factor"
+    },
+    {
+      "key": "ADMISSION_d_W104",
+      "raw_text": "I'd say **(B) Minor factor**.\n\nLook, I think colleges should primarily focus on academics and what students can contribute intellectually. That's what college is really about. But I also get that athletics brings value to campus\u2014school spirit, community, student well-being. And honestly, some students work incredibly hard at their sport alongside their studies.\n\nThat said, it shouldn't be a major factor that overrides academics or integrity. I've seen too many stories about athletes getting admitted with weak grades or colleges cutting corners. A minor consideration? Sure. But the priority should stay on academic preparation.",
+      "selected_option": "Minor factor"
+    },
+    {
+      "key": "ADMISSION_e_W104",
+      "raw_text": "I'd say **(B) Minor factor**.\n\nLook, I think it's good that colleges want to see students engaged with their communities\u2014it shows character and initiative. But it shouldn't carry the same weight as academics and test scores. Not every kid has equal access to organized volunteer opportunities depending on where they live or their family situation. That could unfairly advantage some applicants.\n\nThat said, it's worth *something* in admissions. It demonstrates responsibility and caring about others beyond yourself. Just shouldn't be make-or-break.",
+      "selected_option": "Minor factor"
+    },
+    {
+      "key": "ADMISSION_f_W104",
+      "raw_text": "I'd say **(B) Minor factor**.\n\nLook, I think test scores have *some* value\u2014they can show whether a student has certain foundational skills. But they're not everything. I've seen plenty of smart people who just don't test well, and they go on to do great in college. A lot depends on your background, access to test prep, how you're feeling that day...\n\nI think colleges should look at the whole picture\u2014grades, essays, what someone's actually done, where they're coming from. Test scores can be one piece of that puzzle, but making them major seems unfair to a lot of capable students.",
+      "selected_option": "Minor factor"
+    },
+    {
+      "key": "ADMISSION_g_W104",
+      "raw_text": "I'd say **(B) Minor factor**.\n\nLook, grades matter to some degree\u2014they show you can do the work. But I think they're overweighted right now. A lot depends on the student's situation. Some people go to under-resourced schools where an A is genuinely harder to get. Others have family stuff going on that affects their performance that year.\n\nI'd rather see colleges look at the whole picture\u2014what you actually accomplished, your interests, how you think. Maybe your test scores or a project mean more than whether you got an A- or A in junior year English.\n\nHigh school grades shouldn't be ignored, but they shouldn't be the deciding factor either.",
+      "selected_option": "Minor factor"
+    },
+    {
+      "key": "ADMISSION_h_W104",
+      "raw_text": "I'd say **(B) Minor factor**.\n\nLook, I think it's worth considering\u2014it shows someone's overcoming real obstacles and bringing a different perspective to campus. That matters. But I don't think it should outweigh things like actual academic preparation, test scores, or what someone can contribute to the school. \n\nBeing first-gen is meaningful context, but it shouldn't be the deciding thing. The college still needs to make sure students can succeed in their classes, you know? It's a tiebreaker kind of thing for me, not a main criterion.",
+      "selected_option": "Minor factor"
+    },
+    {
+      "key": "AFFORDBASIC_a_W115",
+      "raw_text": "*pauses thoughtfully*\n\nI'd say **(B) No**. We've been fortunate enough to manage okay on that front over the past year. There were a few months where things felt a bit tighter than usual, but we've always had enough to put food on the table. I know that's not the case for everyone, though.",
+      "selected_option": "No"
+    },
+    {
+      "key": "AFFORDBASIC_b_W115",
+      "raw_text": "(A) Yes\n\nYeah, there was a stretch earlier this year when my kid needed to see a specialist and the out-of-pocket costs were just... a lot. We ended up having to put it on a credit card and delay some other stuff. It's frustrating because you can't really not deal with health issues, you know?",
+      "selected_option": "Yes"
+    },
+    {
+      "key": "AFFORDBASIC_c_W115",
+      "raw_text": "(B) No\n\nI've been fortunate enough to keep up with my housing payments over the past year. It's tight sometimes, especially with everything getting more expensive, but I've managed to prioritize that to make sure the rent gets paid.",
+      "selected_option": "No"
+    },
+    {
+      "key": "AFFORDBASIC_d_W115",
+      "raw_text": "(A) Yes\n\nTimes have been tight, honestly. There were a couple of months where I had to get creative\u2014asking family to help out, shifting my work schedule around to reduce the hours I needed paid care. It's been stressful having to choose between paying for childcare and other bills.",
+      "selected_option": "Yes"
+    },
+    {
+      "key": "AFG21_1_W95",
+      "raw_text": "(A) A lot\n\nYeah, I've definitely seen quite a bit about that over the news and online. The withdrawal from Afghanistan a couple years back was pretty major coverage - all those people trying to get out, the chaos at the airport, and then the resettlement process here in the States. It's been hard to miss, honestly.",
+      "selected_option": "A lot"
+    },
+    {
+      "key": "AFG21_2_W95",
+      "raw_text": "I'd say **(B) Somewhat favor**.\n\nLook, I understand the concerns people have about vetting and integration, those are legitimate. But after we spent 20 years there and pulled out, I think we have some responsibility to the people who helped us\u2014the translators, the Afghan military who worked with our troops. They're facing real danger from the Taliban now.\n\nThat said, I'm not saying we should take in unlimited numbers without any process. We need to do proper background checks and make sure there's actually support in place to help them settle\u2014jobs, housing, language programs. It can't just be \"here you go, good luck.\"\n\nSo yeah, somewhat favor. It's the right thing to do, but it's got to be done thoughtfully.",
+      "selected_option": "Somewhat favor"
+    },
+    {
+      "key": "AFG21_5_W95",
+      "raw_text": "I'd say **(C) Not too confident**.\n\nLook, I understand there are processes in place, and I'm sure people are doing their jobs. But honestly, with the scale and speed of what happened with the Afghan evacuations, it's hard to believe everything got thoroughly vetted. \n\nI'm not saying the government is doing *nothing* \u2014 I just don't think you can screen that many people that quickly and catch everything. There's always going to be some risk with that kind of volume, and I think it's reasonable to be concerned about gaps, even if most people coming through are genuine refugees who need help.",
+      "selected_option": "Not too confident"
+    },
+    {
+      "key": "AFG_EGFP_W95",
+      "raw_text": "I'd say **(C) Only fair**.\n\nLook, I understand the situation was complicated no matter what\u2014we needed to leave eventually. But the execution felt rushed to me. The images from the airport, people falling off planes... that stuck with me. It seemed like there wasn't enough planning for how it would actually go down.\n\nThat said, I don't think it was handled *poorly* across the board. The administration did get a lot of people out. It's just that the way it happened, the chaos of it\u2014that part was hard to watch. Could've been better organized, in my view.",
+      "selected_option": "Only fair"
+    },
+    {
+      "key": "AFG_HANDLE_W105",
+      "raw_text": "I'd say **(D) Not at all well**.\n\nLook, I get that people disagree on whether we should've left Afghanistan in the first place\u2014that's a legitimate debate. But the way it actually happened? The chaos at the airport, people falling off planes, the speed of the collapse, leaving equipment behind\u2014that was just poorly executed no matter what your position is on the withdrawal itself.\n\nIt felt like there wasn't a solid plan for getting people out, and the military and State Department seemed caught off guard. That's more about competence in execution than ideology, and I think most people\u2014regardless of their politics\u2014could see things went sideways pretty badly.",
+      "selected_option": "Not at all well"
+    },
+    {
+      "key": "AFG_WITHDRAW_W105",
+      "raw_text": "(B) Wrong decision\n\nLook, I understand the argument for getting out\u2014we'd been there 20 years, it was costly. But the way it happened felt rushed to me. The images from Kabul airport, people falling off planes... that stuck with me. \n\nWe spent two decades building up their military and government, and it all fell apart in weeks. I get that maybe we never should've been there in the first place, but once we were committed to it, just pulling out that fast without a real plan seemed like we abandoned people who helped us\u2014translators, local allies. That bothered me.\n\nIf the decision had been more gradual, better coordinated, maybe ensuring people who worked with us could actually get out safely... that might've been different. But as it happened? No, I don't think it was handled right.",
+      "selected_option": "Wrong decision"
+    },
+    {
+      "key": "AFRICA_COUNTRIES_W105",
+      "raw_text": "(D) Nigeria\n\nThat one's pretty straightforward. Nigeria's got the biggest population in Africa by a significant margin, and yeah, they're a major oil producer too. I'm fairly confident about that answer.",
+      "selected_option": "Nigeria"
+    },
+    {
+      "key": "AIHCCHG_MIST_W119",
+      "raw_text": "I'd say **(A) Better** \u2014 at least in potential.\n\nLook, I think AI could catch things doctors might miss, especially with pattern recognition in imaging or lab results. It could also help reduce some human errors from fatigue or oversight. That's genuinely valuable.\n\nBut honestly, I'd want to see real evidence on this before being completely confident. There's probably a lot that depends on how it's implemented and whether doctors actually use the recommendations wisely. I wouldn't trust it blindly, and I'd hope any system would have safeguards and human oversight built in.\n\nSo yeah, better is my answer \u2014 but with the caveat that it's not a magic fix.",
+      "selected_option": "Better"
+    },
+    {
+      "key": "AIHCCHG_QUAL_W119",
+      "raw_text": "I'd say **(A) Better**.\n\nLook, I think AI could really help catch things earlier and faster than we can do manually. Doctors have a lot of cases to work through, and if AI can help spot patterns in scans or lab results that humans might miss, that seems like a win. Plus, it could help people in areas where there aren't enough specialists.\n\nThat said, I'm not naive about it\u2014I'd want human doctors still making final calls on treatment, not just trusting the AI blindly. But as a tool to help? Yeah, I think it makes things better overall.",
+      "selected_option": "Better"
+    },
+    {
+      "key": "AIHCCHG_RACETHN_W119",
+      "raw_text": "I'd say **(A) Better**, though with some caveats.\n\nFrom what I understand, AI could really help doctors catch things earlier and more accurately\u2014like spotting cancers in scans or flagging drug interactions they might miss. That seems like it would save lives. And if it handles some of the routine diagnostic work, doctors could spend more time actually talking to patients and deciding on the best treatment plan.\n\nThat said, I wouldn't want AI making all the calls on its own. Medicine isn't just about data\u2014there's judgment involved, and doctors know their patients. So I think AI works best as a tool that makes healthcare professionals *better* at what they do, not replacing them.",
+      "selected_option": "Better"
+    },
+    {
+      "key": "AIHCCHG_REL_W119",
+      "raw_text": "I'd say **(C) Not make much difference**.\n\nLook, I think AI handling the technical stuff\u2014like analyzing scans or spotting patterns in test results\u2014that's actually useful and could free up doctors to spend more time talking to me. But at the end of the day, what matters in my relationship with my doctor is whether they listen to me, explain things clearly, and treat me like a person, not just a case number. AI doing diagnostics doesn't really change that one way or the other.\n\nIf anything, there might be some trade-offs. A doctor who's busier with AI systems might have less time for me, or conversely, they might have more time if the AI handles the grunt work. It could go either way, but I don't think it fundamentally changes what makes a good doctor-patient relationship.",
+      "selected_option": "Not make much difference"
+    },
+    {
+      "key": "AIHCCHG_SECUR_W119",
+      "raw_text": "I'd say **(B) Worse**.\n\nLook, I understand AI could help doctors catch things faster and be more accurate with diagnoses\u2014that part seems promising. But here's my concern: more AI involvement means more data systems, more integration, more places where things can go wrong. These big AI systems need massive amounts of patient data to work, right? That's just more sensitive information floating around in databases.\n\nAnd honestly, I don't have a ton of confidence that hospitals and tech companies have their security figured out. We hear about data breaches constantly. Adding another layer of complexity with AI systems just gives hackers more entry points, in my opinion.\n\nPlus, I'm not even sure how transparent these AI algorithms are. It feels like a black box\u2014who's really overseeing this stuff to make sure patient data is protected?\n\nSo yeah, I think it makes security *worse*, even if the medical benefits might be real.",
+      "selected_option": "Worse"
+    },
+    {
+      "key": "AIHCCOMF_W119",
+      "raw_text": "I'd say **(B) Somewhat comfortable**.\n\nHere's how I'm thinking about it: On one hand, I know AI can process massive amounts of data and spot patterns that might help catch things early or suggest good treatment options. That's potentially valuable. And honestly, doctors are human\u2014they make mistakes too.\n\nBut I wouldn't want AI making decisions *alone*. I'd want my actual doctor reviewing what the AI recommends and using their judgment. They know my history, my lifestyle, my concerns in a way an algorithm doesn't. Plus, I'd want to understand what's being recommended and *why* before going along with it.\n\nSo it's not that I'm opposed\u2014it's more that I'd need some guardrails. The AI as a tool to help my doctor? Yeah, I'm okay with that. But if they're just plugging in my symptoms and running with whatever the computer says? That makes me nervous.",
+      "selected_option": "Somewhat comfortable"
+    },
+    {
+      "key": "AIHCTRT1_W119",
+      "raw_text": "I'd say **(A) Better health outcomes for patients**, though with some real caveats.\n\nHere's my thinking: AI could catch things earlier, reduce human error in diagnosis, and process medical data faster than any doctor could alone. That's genuinely valuable. And I know people who've benefited from it\u2014quicker diagnoses, better personalized treatment plans.\n\nThat said, I'm not naive about it. I'd worry about over-reliance on algorithms, bias in the training data, or situations where AI misses something a good doctor wouldn't. Plus, there's the human element\u2014sometimes patients need to feel heard, not just processed.\n\nBut overall? If it's used as a tool alongside doctors, not replacing them, I think the benefits outweigh the risks. So yeah, **(A)**.",
+      "selected_option": "Better health outcomes for patients"
+    },
+    {
+      "key": "AIHCTRT2_W119",
+      "raw_text": "I'd have to go with **(A) - moving too fast before we understand the risks**.\n\nLook, I get that AI could help a lot of people, and I don't want to slow down real progress. But if something goes wrong with a medical diagnosis or treatment recommendation, that's not abstract\u2014that's someone's health or life on the line. Once you've already harmed people, you can't take that back.\n\nIt seems smarter to me to test this stuff thoroughly first, make sure we catch the problems before they affect patients. We can always speed up later once we know it's actually safe. But if we rush in and find out too late that the AI is missing certain conditions or recommending something harmful, that's irreversible damage.",
+      "selected_option": "Move too fast using this technology, before fully understanding the risks for patients"
+    },
+    {
+      "key": "AIKNOW1_W119",
+      "raw_text": "(A) A chatbot that immediately answers customer questions\n\nThat's clearly AI\u2014it's a technology system that's actually learning and responding to questions in real time. The other options are just tools for communication or information, but they're not artificial intelligence themselves. A chatbot is the one thing on that list that's actually using AI to do something automated and responsive.",
+      "selected_option": "A chatbot that immediately answers customer questions"
+    },
+    {
+      "key": "AIKNOW2_W119",
+      "raw_text": "I'd say **(B) A playlist recommendation**.\n\nThat's the one that actually uses AI to learn what I like and suggest music I might enjoy. The algorithms are analyzing my listening habits and making intelligent suggestions based on patterns.\n\nThe other options are just technology features\u2014Bluetooth is just wireless connectivity, streaming needs internet but that's not AI, and shuffle is just random selection. None of those involve the kind of smart analysis that AI does.",
+      "selected_option": "A playlist recommendation"
+    },
+    {
+      "key": "AIKNOW3_W119",
+      "raw_text": "I'd say **(C) The email service categorizing an email as spam**.\n\nThat one clearly uses AI because the system has to analyze the content of emails and learn patterns to figure out what's spam and what isn't. It's making intelligent decisions based on the message content.\n\nThe others are just basic functions\u2014marking as read, scheduling, and sorting by time are all straightforward technical features, not really AI. Those have been around forever and don't require any learning or intelligence.",
+      "selected_option": "The email service categorizing an email as spam"
+    },
+    {
+      "key": "AIKNOW5_W119",
+      "raw_text": "*pauses thoughtfully*\n\nI'd say **(A) Wearable fitness trackers that analyze exercise and sleeping patterns**.\n\nThose devices use AI to learn your patterns over time, recognize what's normal for you, and make predictions or recommendations. They're constantly processing data and getting smarter about how they interpret it.\n\nThe others are pretty straightforward tools - thermometers and pulse oximeters just measure and display a number, and at-home COVID tests are more chemistry-based than AI. So yeah, I'd go with A.",
+      "selected_option": "Wearable fitness trackers that analyze exercise and sleeping patterns"
+    },
+    {
+      "key": "AIKNOW6_W119",
+      "raw_text": "I'd say **(C) Product recommendations based on previous purchases**.\n\nThat's clearly AI \u2013 the system is learning from my behavior and using algorithms to suggest things I might like. The other options are just storing data or showing me what other people wrote. Those aren't really AI doing anything smart; they're just retrieving information.",
+      "selected_option": "Product recommendations based on previous purchases"
+    },
+    {
+      "key": "AIKNOW7_W119",
+      "raw_text": "I'd say **(B)** - the security camera that sends an alert when there's an unrecognized person at the door.\n\nThat one actually uses AI because it has to learn and recognize faces or patterns to know the difference between someone who belongs there and a stranger. It's doing some real analysis.\n\nThe thermostat programming and light timer are just following schedules you set - that's automation, but not really AI. And the water filter light is just a basic sensor. Those are more straightforward technology.",
+      "selected_option": "A security camera that sends an alert when there is an unrecognized person at the door"
+    },
+    {
+      "key": "AIPRIV1_a_W127",
+      "raw_text": "I'd go with **(C) Somewhat unacceptable**.\n\nHere's my thinking: I get that it could be useful\u2014like the speaker recognizing my voice versus my roommate's for personalized responses. That part makes sense to me.\n\nBut it bothers me a bit that it's recording and analyzing my voice data without me necessarily being fully aware of it happening. I'd want to know exactly what data they're keeping, how long they store it, and who has access to it. The idea of my voice being analyzed and stored somewhere feels like it crosses a line between convenience and privacy.\n\nIf they were really transparent about it and I had easy controls to turn it on or off, I'd probably find it more acceptable. But as these things usually work? Yeah, somewhat unacceptable.",
+      "selected_option": "Somewhat unacceptable"
+    },
+    {
+      "key": "AIPRIV1_b_W127",
+      "raw_text": "I'd say **(B) Somewhat acceptable**.\n\nLook, I get why they do it\u2014personalized content is genuinely useful. I'd rather see stuff relevant to my interests than random posts. But there's a line, right? \n\nThe thing that bothers me is how much data they're collecting and what they might do with it beyond just showing me ads. I'm not totally opposed to the practice, but I wish there was more transparency about what exactly they're tracking and how long they're keeping it. If I knew the boundaries better, I'd probably feel better about the whole thing.\n\nSo yeah, somewhat acceptable\u2014but with some real caveats.",
+      "selected_option": "Somewhat acceptable"
+    },
+    {
+      "key": "AIPRIV1_c_W127",
+      "raw_text": "I'd say **(C) Somewhat unacceptable**.\n\nLook, I get why they'd want to use algorithms\u2014it could be faster and more consistent than having people make individual decisions. But there's something that bothers me about it. These programs are only as good as the data they're built on, and if there's bias in that data or the way they're programmed, you could end up denying help to people who genuinely need it. It feels impersonal too\u2014there's no room for someone to explain their specific situation or for a human to exercise judgment.\n\nThat said, I don't think algorithms are inherently evil either. If they're transparent, tested for fairness, and used as a tool that humans still review, that might be different. But from what I've seen, that's not always how it works in practice.",
+      "selected_option": "Somewhat unacceptable"
+    },
+    {
+      "key": "AIWRK2_a_W119",
+      "raw_text": "*pauses thoughtfully*\n\nI'd say **(A) A major impact**.\n\nLook, I'm not a tech expert or anything, but you can already see it happening\u2014automation, chatbots handling customer service, algorithms making decisions. Over 20 years? That's a long time for this stuff to develop and spread. I think most jobs are going to change in some way, whether it's people working alongside AI tools or entire roles getting restructured. Some jobs might disappear, others might be created. But \"major\" feels right because it's going to touch pretty much everyone who works, one way or another.",
+      "selected_option": "A major impact"
+    },
+    {
+      "key": "AIWRK2_b_W119",
+      "raw_text": "I'd say **(A) A major impact**.\n\nHonestly, I think it's hard to avoid at this point. Whether it's tools that change how my job gets done, or automation that shifts what kinds of work exist altogether\u2014AI's going to touch pretty much every industry over 20 years. Even if my specific role doesn't disappear, the way I work is almost certainly going to change significantly. I'm trying to stay aware of it, but yeah, I think most people will feel major changes one way or another by 2045.",
+      "selected_option": "A major impact"
+    },
+    {
+      "key": "AIWRK2_c_W119",
+      "raw_text": "I'd say **(A) A major impact**.\n\nLook, I'm already seeing AI tools popping up everywhere in my own work and in conversations with friends. Twenty years is a long time, and the technology is moving really fast. I think we're going to see significant changes in how jobs work, what skills matter, and how companies operate. Whether that's positive or negative\u2014or both\u2014I'm not entirely sure, but \"major\" feels like the right call to me. It's too big to ignore or downplay.",
+      "selected_option": "A major impact"
+    },
+    {
+      "key": "AIWRK3_a_W119",
+      "raw_text": "I'd say **(B) AI will equally help and hurt**.\n\nHere's my thinking: On one hand, AI could handle a lot of tedious stuff\u2014data entry, repetitive analysis, scheduling. That could free people up for more meaningful work. But realistically, some jobs are going to disappear, and not everyone will have the skills or opportunity to transition into new roles. \n\nI think it depends a lot on *how* companies implement it. If they're thoughtful about retraining workers and don't just slash jobs for profit, the outcome could lean more positive. But I'm skeptical that'll happen across the board. So... probably a wash. Some people will do better, others will struggle, and most of us will probably experience both benefits and disruptions at different points.",
+      "selected_option": "AI will equally help and hurt"
+    },
+    {
+      "key": "AIWRK3_b_W119",
+      "raw_text": "I'd go with **(A) AI will help more than it hurts**.\n\nHere's my thinking\u2014I'm not in a field that's likely to be completely automated away. Yeah, there'll probably be tools that handle some of the routine stuff I do, but honestly, that sounds like it could free me up for more interesting work. The jobs that usually survive are the ones where you need real judgment, working with people, or handling unexpected situations.\n\nPlus, I figure AI tools will probably make me better at what I do if I learn to use them right. Better research, faster analysis, that kind of thing. I'm willing to adapt.\n\nThat said, I won't pretend there's zero risk. But on balance, two decades out? I think the benefits outweigh the downsides for someone like me.",
+      "selected_option": "AI will help more than it hurts"
+    },
+    {
+      "key": "AIWRK3_c_W119",
+      "raw_text": "I'd go with **(A) AI will help more than it hurts**.\n\nLook, I think there'll definitely be disruption\u2014some jobs will disappear, that's real. But historically, new technologies create more opportunities than they destroy. AI could boost productivity, lower costs for businesses, and create whole new industries we haven't even thought of yet. The economy tends to adapt, even if it's messy in the short term.\n\nMy main concern is making sure the transition isn't too painful for people whose jobs get automated. That's where policy matters. But if we handle it right\u2014retraining programs, education, that kind of thing\u2014I think the U.S. economy comes out ahead overall.",
+      "selected_option": "AI will help more than it hurts"
+    },
+    {
+      "key": "AIWRKH1_W119",
+      "raw_text": "I'd say **(B) A little**.\n\nI've caught a few articles here and there about companies using AI to screen resumes or conduct initial interviews, and I know it's becoming more common. But honestly, I haven't deep-dived into the topic. It's one of those things I'm aware exists, but I couldn't tell you all the details about how it actually works or how widespread it really is.",
+      "selected_option": "A little"
+    },
+    {
+      "key": "AIWRKH2_a_W119",
+      "raw_text": "(C) Not sure\n\nLook, I can see arguments both ways on this one. On one hand, AI could make things faster and maybe more fair\u2014less human bias in initial screening, right? That appeals to me.\n\nBut I've also heard enough stories about AI getting things wrong, filtering out qualified people because of weird biases in the training data. And there's something unsettling about a machine deciding whether I even get a human to look at my resume.\n\nI guess it depends a lot on *how* it's done and whether there's transparency and oversight. So yeah\u2014not sure is where I land.",
+      "selected_option": "Not sure"
+    },
+    {
+      "key": "AIWRKH2_b_W119",
+      "raw_text": "*thinks for a moment*\n\nI'd say I **oppose** that. (B)\n\nLook, I get that AI could speed things up and maybe reduce some bias, but there's something about having an actual person make the final call on hiring. These algorithms can have their own blind spots\u2014they're trained on past data that might have problems built into it. And a final decision about someone's job prospects? That feels like it needs human judgment, understanding context, maybe even giving someone a chance who doesn't fit a perfect pattern.\n\nI'd be more comfortable if AI helped screen applications or flag candidates, sure. But the actual final decision? That should stay with people who can really evaluate who someone is.",
+      "selected_option": "Oppose"
+    },
+    {
+      "key": "AIWRKH3_a_W119",
+      "raw_text": "I'd say **(B) AI would do a worse job than humans**.\n\nHere's my thinking: Sure, AI could process way more applications faster and be consistent in applying criteria. But hiring isn't just about matching qualifications on paper. Good hiring managers pick up on things like how someone communicates, their potential to grow, whether they'll actually fit with a team, or if they have that intangible drive that doesn't show up on a r\u00e9sum\u00e9.\n\nPlus, I'm concerned AI would just reproduce biases from whatever data it was trained on. If the training data has hiring patterns that favored certain groups, the AI would just repeat those same mistakes\u2014maybe even more systematically. A human can at least catch themselves and think about that.\n\nDon't get me wrong\u2014AI as a *tool* to help humans screen through a massive stack? That could be useful. But as the main decision-maker? I don't think it would actually be better.",
+      "selected_option": "AI would do a worse job than humans"
+    },
+    {
+      "key": "AIWRKH3_b_W119",
+      "raw_text": "I'd say **(A) AI would do a better job than humans**.\n\nLook, I think AI systems could be more consistent\u2014they'd apply the same criteria to every applicant without getting tired, distracted, or letting personal biases creep in unconsciously. Humans naturally have gut reactions and preferences we're not always aware of.\n\nThat said, I'd add a caveat: it really depends on how the AI is trained. If it's trained on biased data or programmed with flawed criteria, it could lock those problems in place and apply them uniformly to everyone. But *theoretically*, if done right, an algorithm should be more impartial than a human recruiter making snap judgments.",
+      "selected_option": "AI would do a better job than humans"
+    },
+    {
+      "key": "AIWRKH3_c_W119",
+      "raw_text": "I'd say **(B) AI would do a worse job than humans**.\n\nHere's my thinking: hiring is really about seeing potential and understanding someone's whole story. A person who doesn't perfectly match the job description might have transferable skills, drive, or something unique they'd bring to the role. Humans can pick up on that\u2014we can sense motivation, adaptability, how someone thinks through problems.\n\nAI systems work with patterns from past hiring data. If they're trained on historical decisions, they might just reinforce whatever biases or hiring preferences already existed. They'd probably screen out someone unconventional who could actually be great for the job. An AI might flag someone as \"not qualified\" because their resume doesn't match exactly, whereas a human hiring manager would actually read their cover letter and think, \"Wait, this person's got something.\"\n\nThat said, I could see AI being useful as a tool to help humans\u2014like flagging candidates to review\u2014but for actual judgment on potential? That needs a human touch.",
+      "selected_option": "AI would do a worse job than humans"
+    },
+    {
+      "key": "AIWRKH3_d_W119",
+      "raw_text": "I'd say **(B) AI would do a worse job than humans**.\n\nHere's my thinking: figuring out if someone will mesh well with a team is really about understanding personality, communication style, how they handle conflict\u2014those human, nuanced things. A person doing the hiring has lived experience with different personalities and can pick up on subtle cues in a conversation. They can sense chemistry.\n\nAI could look at data points\u2014education, past jobs, skills\u2014but those don't really tell you if someone's going to click with your team or fit your workplace culture. There's something about human judgment that just matters here. I think you'd miss a lot relying on an algorithm for this particular decision.",
+      "selected_option": "AI would do a worse job than humans"
+    },
+    {
+      "key": "AIWRKH4_W119",
+      "raw_text": "(B) No, I would not.\n\nLook, I get that AI can be efficient, but I'd rather have a real person making decisions about whether I'm a good fit. AI systems can have blind spots or biases built into them that nobody even realizes are there. I want to know that someone actually read my resume and cover letter, understood my experience in context. There's too much risk that an algorithm might screen me out for reasons that don't make sense or that I'd have no way to appeal. Plus, I'd want to talk to a human hiring manager anyway\u2014that conversation tells me a lot about whether I'd actually want to work there.",
+      "selected_option": "No, I would not"
+    }
+  ],
+  "scores": {
+    "sps": 0.770122,
+    "p_dist": 0.633509,
+    "p_rank": 0.710912,
+    "p_refuse": 0.965945
+  },
+  "aggregate": {
+    "mean_jsd": 0.366491,
+    "median_jsd": 0.377225,
+    "mean_kendall_tau": 0.421824,
+    "composite_parity": 0.67221,
+    "n_questions": 100,
+    "elapsed_seconds": 525.2,
+    "per_metric_ci": {
+      "p_dist": [
+        0.598458,
+        0.663251
+      ],
+      "p_rank": [
+        0.680588,
+        0.738051
+      ],
+      "p_refuse": [
+        0.923234,
+        0.983055
+      ],
+      "sps": [
+        0.742534,
+        0.787694
+      ]
+    },
+    "question_set_hash": "35cb150487abfe257069ff733fa97cb90993aa979e056c45928c4efc22d71297",
+    "n_parse_failures": 59,
+    "token_usage": {
+      "input_tokens": 405300,
+      "output_tokens": 390619,
+      "call_count": 3000,
+      "source": "measured"
+    },
+    "latency_seconds": {
+      "mean": 27.1375,
+      "p50": 31.0828,
+      "p95": 41.2625,
+      "n": 100,
+      "source": "measured"
+    }
+  },
+  "demographic_breakdown": {},
+  "per_question": [
+    {
+      "key": "AAPERSADV_W125",
+      "text": "Do you think that you have ever been at an advantage in your education, career, or job because of efforts to increase racial and ethnic diversity?",
+      "options": [
+        "Yes",
+        "No",
+        "Not sure",
+        "Refused"
+      ],
+      "model_distribution": {
+        "Yes": 0.0,
+        "No": 0.0333,
+        "Not sure": 0.9667,
+        "Refused": 0.0
+      },
+      "jsd": 0.563726,
+      "kendall_tau": 0.547723,
+      "parity": 0.605068,
+      "human_refusal_rate": 0.007423,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "temporal_year": 0,
+      "token_usage": {
+        "input_tokens": 3660,
+        "output_tokens": 3331,
+        "call_count": 30
+      },
+      "latency_seconds": 6.6094
+    },
+    {
+      "key": "AAPERSDIS_W125",
+      "text": "Do you think that you have ever been at a disadvantage in your education, career, or job because of efforts to increase racial and ethnic diversity?",
+      "options": [
+        "Yes",
+        "No",
+        "Not sure",
+        "Refused"
+      ],
+      "model_distribution": {
+        "Yes": 0.0,
+        "No": 0.9333,
+        "Not sure": 0.0667,
+        "Refused": 0.0
+      },
+      "jsd": 0.178503,
+      "kendall_tau": 0.547723,
+      "parity": 0.797679,
+      "human_refusal_rate": 0.007754,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "temporal_year": 0,
+      "token_usage": {
+        "input_tokens": 3690,
+        "output_tokens": 2808,
+        "call_count": 30
+      },
+      "latency_seconds": 6.6094
+    },
+    {
+      "key": "AAPERSSTER_W125",
+      "text": "Do you think people have ever assumed that you benefited unfairly in your education, career, or job from efforts to increase racial and ethnic diversity?",
+      "options": [
+        "Yes",
+        "No",
+        "Not sure",
+        "Refused"
+      ],
+      "model_distribution": {
+        "Yes": 0.8333,
+        "No": 0.0333,
+        "Not sure": 0.1333,
+        "Refused": 0.0
+      },
+      "jsd": 0.442413,
+      "kendall_tau": 0.0,
+      "parity": 0.528793,
+      "human_refusal_rate": 0.004633,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "temporal_year": 0,
+      "token_usage": {
+        "input_tokens": 3720,
+        "output_tokens": 3023,
+        "call_count": 30
+      },
+      "latency_seconds": 6.6094
+    },
+    {
+      "key": "ABORTION2_W125",
+      "text": "Thinking about abortion policies around the country, which is your greater concern?",
+      "options": [
+        "That some states are making it too DIFFICULT for people to be able to get an abortion",
+        "That some states are making it too EASY for people to be able to get an abortion",
+        "Refused"
+      ],
+      "model_distribution": {
+        "That some states are making it too DIFFICULT for people to be able to get an abortion": 1.0,
+        "That some states are making it too EASY for people to be able to get an abortion": 0.0,
+        "Refused": 0.0
+      },
+      "jsd": 0.205233,
+      "kendall_tau": 0.816497,
+      "parity": 0.851508,
+      "human_refusal_rate": 0.023173,
+      "n_samples": 28,
+      "n_parse_failures": 2,
+      "model_refusal_rate": 0.0,
+      "temporal_year": 0,
+      "token_usage": {
+        "input_tokens": 4080,
+        "output_tokens": 3496,
+        "call_count": 30
+      },
+      "latency_seconds": 6.6094
+    },
+    {
+      "key": "ABORTION3_W125",
+      "text": "Thinking about the area where you live, how easy or difficult do you think it would be for someone to obtain an abortion?",
+      "options": [
+        "Very difficult",
+        "Somewhat difficult",
+        "Somewhat easy",
+        "Very easy",
+        "Refused"
+      ],
+      "model_distribution": {
+        "Very difficult": 0.0,
+        "Somewhat difficult": 0.9655,
+        "Somewhat easy": 0.0345,
+        "Very easy": 0.0,
+        "Refused": 0.0
+      },
+      "jsd": 0.435034,
+      "kendall_tau": 0.597614,
+      "parity": 0.681887,
+      "human_refusal_rate": 0.035328,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.033333,
+      "temporal_year": 0,
+      "token_usage": {
+        "input_tokens": 3870,
+        "output_tokens": 3418,
+        "call_count": 30
+      },
+      "latency_seconds": 6.6094
+    },
+    {
+      "key": "ABORTION4_W125",
+      "text": "Still thinking about the area where you live, do you think that obtaining an abortion should be...",
+      "options": [
+        "Harder than it is now",
+        "Easier than it is now",
+        "About what it is now",
+        "Refused"
+      ],
+      "model_distribution": {
+        "Harder than it is now": 0.0,
+        "Easier than it is now": 0.0,
+        "About what it is now": 1.0,
+        "Refused": 0.0
+      },
+      "jsd": 0.433386,
+      "kendall_tau": 0.707107,
+      "parity": 0.710084,
+      "human_refusal_rate": 0.030484,
+      "n_samples": 21,
+      "n_parse_failures": 9,
+      "model_refusal_rate": 0.761905,
+      "temporal_year": 0,
+      "token_usage": {
+        "input_tokens": 3750,
+        "output_tokens": 4508,
+        "call_count": 30
+      },
+      "latency_seconds": 6.6094
+    },
+    {
+      "key": "ABORTION5_W104",
+      "text": "Do you personally know someone (such as a close friend, family member, or yourself) who has had an abortion?",
+      "options": [
+        "Yes",
+        "No",
+        "Refused"
+      ],
+      "model_distribution": {
+        "Yes": 1.0,
+        "No": 0.0,
+        "Refused": 0.0
+      },
+      "jsd": 0.268552,
+      "kendall_tau": 0.816497,
+      "parity": 0.819848,
+      "human_refusal_rate": 0.00791,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "temporal_year": 0,
+      "token_usage": {
+        "input_tokens": 3330,
+        "output_tokens": 2242,
+        "call_count": 30
+      },
+      "latency_seconds": 6.6094
+    },
+    {
+      "key": "ABORTLGL_W87",
+      "text": "Do you think abortion should be...",
+      "options": [
+        "Legal in all cases",
+        "Legal in most cases",
+        "Illegal in most cases",
+        "Illegal in all cases",
+        "Refused"
+      ],
+      "model_distribution": {
+        "Legal in all cases": 0.0,
+        "Legal in most cases": 0.7407,
+        "Illegal in most cases": 0.0,
+        "Illegal in all cases": 0.0,
+        "Refused": 0.2593
+      },
+      "jsd": 0.467643,
+      "kendall_tau": 0.119523,
+      "parity": 0.546059,
+      "human_refusal_rate": 0.014817,
+      "n_samples": 27,
+      "n_parse_failures": 3,
+      "model_refusal_rate": 0.0,
+      "temporal_year": 0,
+      "token_usage": {
+        "input_tokens": 3540,
+        "output_tokens": 5145,
+        "call_count": 30
+      },
+      "latency_seconds": 6.6094
+    },
+    {
+      "key": "ABRTLGL1_W104",
+      "text": "Just to confirm, do you think there are any exceptions when abortion should be against the law, or do you think abortion should be legal no matter what the reason and at any point in a woman\u2019s pregnancy?",
+      "options": [
+        "There are some exceptions when abortion should be against the law",
+        "Abortion should be legal in all cases",
+        "Refused"
+      ],
+      "model_distribution": {
+        "There are some exceptions when abortion should be against the law": 1.0,
+        "Abortion should be legal in all cases": 0.0,
+        "Refused": 0.0
+      },
+      "jsd": 0.549388,
+      "kendall_tau": 0.0,
+      "parity": 0.475306,
+      "human_refusal_rate": 0.004064,
+      "n_samples": 29,
+      "n_parse_failures": 1,
+      "model_refusal_rate": 0.137931,
+      "temporal_year": 0,
+      "token_usage": {
+        "input_tokens": 4380,
+        "output_tokens": 4181,
+        "call_count": 30
+      },
+      "latency_seconds": 6.6094
+    },
+    {
+      "key": "ABRTLGL3_a_W104",
+      "text": "Do you think abortion should be legal or illegal in the situation where the pregnancy threatens the woman\u2019s life or health?",
+      "options": [
+        "Legal",
+        "Illegal",
+        "It depends",
+        "Refused"
+      ],
+      "model_distribution": {
+        "Legal": 1.0,
+        "Illegal": 0.0,
+        "It depends": 0.0,
+        "Refused": 0.0
+      },
+      "jsd": 0.127806,
+      "kendall_tau": 0.707107,
+      "parity": 0.862874,
+      "human_refusal_rate": 0.001914,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "temporal_year": 0,
+      "token_usage": {
+        "input_tokens": 3510,
+        "output_tokens": 2609,
+        "call_count": 30
+      },
+      "latency_seconds": 6.6094
+    },
+    {
+      "key": "ABRTLGL3_b_W104",
+      "text": "Do you think abortion should be legal or illegal in the situation where the pregnancy is the result of rape?",
+      "options": [
+        "Legal",
+        "Illegal",
+        "It depends",
+        "Refused"
+      ],
+      "model_distribution": {
+        "Legal": 1.0,
+        "Illegal": 0.0,
+        "It depends": 0.0,
+        "Refused": 0.0
+      },
+      "jsd": 0.162465,
+      "kendall_tau": 0.707107,
+      "parity": 0.845544,
+      "human_refusal_rate": 0.002672,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "temporal_year": 0,
+      "token_usage": {
+        "input_tokens": 3450,
+        "output_tokens": 2899,
+        "call_count": 30
+      },
+      "latency_seconds": 11.436
+    },
+    {
+      "key": "ABRTLGL3_c_W104",
+      "text": "Do you think abortion should be legal or illegal in the situation where the baby is likely to be born with severe disabilities or health problems?",
+      "options": [
+        "Legal",
+        "Illegal",
+        "It depends",
+        "Refused"
+      ],
+      "model_distribution": {
+        "Legal": 0.0,
+        "Illegal": 0.0,
+        "It depends": 1.0,
+        "Refused": 0.0
+      },
+      "jsd": 0.445579,
+      "kendall_tau": 0.235702,
+      "parity": 0.586136,
+      "human_refusal_rate": 0.004094,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "temporal_year": 0,
+      "token_usage": {
+        "input_tokens": 3630,
+        "output_tokens": 4666,
+        "call_count": 30
+      },
+      "latency_seconds": 11.436
+    },
+    {
+      "key": "ABRTLGL_W104",
+      "text": "Do you think abortion should be...",
+      "options": [
+        "Legal in all cases",
+        "Legal in most cases",
+        "Illegal in most cases",
+        "Illegal in all cases",
+        "Refused"
+      ],
+      "model_distribution": {
+        "Legal in all cases": 0.0,
+        "Legal in most cases": 0.7308,
+        "Illegal in most cases": 0.0,
+        "Illegal in all cases": 0.0,
+        "Refused": 0.2692
+      },
+      "jsd": 0.451148,
+      "kendall_tau": 0.119523,
+      "parity": 0.554307,
+      "human_refusal_rate": 0.017422,
+      "n_samples": 28,
+      "n_parse_failures": 2,
+      "model_refusal_rate": 0.071429,
+      "temporal_year": 0,
+      "token_usage": {
+        "input_tokens": 3540,
+        "output_tokens": 4897,
+        "call_count": 30
+      },
+      "latency_seconds": 11.436
+    },
+    {
+      "key": "ABRTLGL_W110",
+      "text": "Do you think abortion should be...",
+      "options": [
+        "Legal in all cases",
+        "Legal in most cases",
+        "Illegal in most cases",
+        "Illegal in all cases",
+        "Refused"
+      ],
+      "model_distribution": {
+        "Legal in all cases": 0.0,
+        "Legal in most cases": 0.7826,
+        "Illegal in most cases": 0.0,
+        "Illegal in all cases": 0.0,
+        "Refused": 0.2174
+      },
+      "jsd": 0.462552,
+      "kendall_tau": 0.119523,
+      "parity": 0.548605,
+      "human_refusal_rate": 0.016196,
+      "n_samples": 25,
+      "n_parse_failures": 5,
+      "model_refusal_rate": 0.08,
+      "temporal_year": 0,
+      "token_usage": {
+        "input_tokens": 3540,
+        "output_tokens": 5127,
+        "call_count": 30
+      },
+      "latency_seconds": 11.436
+    },
+    {
+      "key": "ABRTLGL_W125",
+      "text": "Do you think abortion should be\u2026",
+      "options": [
+        "Legal in all cases",
+        "Legal in most cases",
+        "Illegal in most cases",
+        "Illegal in all cases",
+        "Refused"
+      ],
+      "model_distribution": {
+        "Legal in all cases": 0.0,
+        "Legal in most cases": 0.72,
+        "Illegal in most cases": 0.0,
+        "Illegal in all cases": 0.0,
+        "Refused": 0.28
+      },
+      "jsd": 0.46829,
+      "kendall_tau": 0.119523,
+      "parity": 0.545736,
+      "human_refusal_rate": 0.012124,
+      "n_samples": 28,
+      "n_parse_failures": 2,
+      "model_refusal_rate": 0.107143,
+      "temporal_year": 0,
+      "token_usage": {
+        "input_tokens": 3540,
+        "output_tokens": 5088,
+        "call_count": 30
+      },
+      "latency_seconds": 11.436
+    },
+    {
+      "key": "ABRTMOR_W104",
+      "text": "Regardless of whether you think abortion should be legal or illegal, do you personally think that having an abortion is\u2026",
+      "options": [
+        "Morally acceptable in all cases",
+        "Morally acceptable in most cases",
+        "Morally wrong in most cases",
+        "Morally wrong in all cases",
+        "Not a moral issue",
+        "Refused"
+      ],
+      "model_distribution": {
+        "Morally acceptable in all cases": 0.0,
+        "Morally acceptable in most cases": 1.0,
+        "Morally wrong in most cases": 0.0,
+        "Morally wrong in all cases": 0.0,
+        "Not a moral issue": 0.0,
+        "Refused": 0.0
+      },
+      "jsd": 0.553901,
+      "kendall_tau": 0.34641,
+      "parity": 0.559652,
+      "human_refusal_rate": 0.013281,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "temporal_year": 0,
+      "token_usage": {
+        "input_tokens": 4560,
+        "output_tokens": 4060,
+        "call_count": 30
+      },
+      "latency_seconds": 11.436
+    },
+    {
+      "key": "ABRTMORa_W104",
+      "text": "Do you think there are situations when abortion should be legal but is also morally wrong?",
+      "options": [
+        "Yes",
+        "No",
+        "Refused"
+      ],
+      "model_distribution": {
+        "Yes": 0.8667,
+        "No": 0.0,
+        "Refused": 0.1333
+      },
+      "jsd": 0.167723,
+      "kendall_tau": 0.333333,
+      "parity": 0.749472,
+      "human_refusal_rate": 0.013596,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "temporal_year": 0,
+      "token_usage": {
+        "input_tokens": 3150,
+        "output_tokens": 4318,
+        "call_count": 30
+      },
+      "latency_seconds": 11.436
+    },
+    {
+      "key": "ABRTNMED_HRD_W125",
+      "text": "How much have you heard or read about medication abortion, which involves the use of a prescription pill or a series of pills to end a pregnancy?",
+      "options": [
+        "A lot",
+        "A little",
+        "Nothing at all",
+        "Refused"
+      ],
+      "model_distribution": {
+        "A lot": 0.0,
+        "A little": 1.0,
+        "Nothing at all": 0.0,
+        "Refused": 0.0
+      },
+      "jsd": 0.270961,
+      "kendall_tau": 0.707107,
+      "parity": 0.791296,
+      "human_refusal_rate": 0.009207,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "temporal_year": 0,
+      "token_usage": {
+        "input_tokens": 3750,
+        "output_tokens": 2640,
+        "call_count": 30
+      },
+      "latency_seconds": 11.436
+    },
+    {
+      "key": "ABRTNMED_KNOW_REFUSED_W125",
+      "text": "Did you refuse to answer the previous question?",
+      "options": [
+        "Not asked",
+        "Did not refuse",
+        "Refused"
+      ],
+      "model_distribution": {
+        "Not asked": 1.0,
+        "Did not refuse": 0.0,
+        "Refused": 0.0
+      },
+      "jsd": 1.0,
+      "kendall_tau": -0.816497,
+      "parity": 0.045876,
+      "human_refusal_rate": 1.0,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "temporal_year": 0,
+      "token_usage": {
+        "input_tokens": 2970,
+        "output_tokens": 955,
+        "call_count": 30
+      },
+      "latency_seconds": 11.436
+    },
+    {
+      "key": "ABRTN_CHNGE_W125",
+      "text": "Have your personal views about abortion changed in any way over the past year or so?",
+      "options": [
+        "Changed a lot",
+        "Changed a little",
+        "Stayed about the same",
+        "Refused"
+      ],
+      "model_distribution": {
+        "Changed a lot": 0.0,
+        "Changed a little": 0.0,
+        "Stayed about the same": 1.0,
+        "Refused": 0.0
+      },
+      "jsd": 0.127039,
+      "kendall_tau": 0.707107,
+      "parity": 0.863257,
+      "human_refusal_rate": 0.017333,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "temporal_year": 0,
+      "token_usage": {
+        "input_tokens": 3510,
+        "output_tokens": 2570,
+        "call_count": 30
+      },
+      "latency_seconds": 11.436
+    },
+    {
+      "key": "ABRTN_MED_W125",
+      "text": "Do you think medication abortion should be legal or illegal in your state?",
+      "options": [
+        "Legal",
+        "Illegal",
+        "Not sure",
+        "Refused"
+      ],
+      "model_distribution": {
+        "Legal": 0.6875,
+        "Illegal": 0.0,
+        "Not sure": 0.3125,
+        "Refused": 0.0
+      },
+      "jsd": 0.118279,
+      "kendall_tau": 0.912871,
+      "parity": 0.919078,
+      "human_refusal_rate": 0.008018,
+      "n_samples": 29,
+      "n_parse_failures": 1,
+      "model_refusal_rate": 0.448276,
+      "temporal_year": 0,
+      "token_usage": {
+        "input_tokens": 3240,
+        "output_tokens": 3256,
+        "call_count": 30
+      },
+      "latency_seconds": 16.3672
+    },
+    {
+      "key": "ABRTN_PEN_a_W104",
+      "text": "If an abortion was carried out in a situation where it was illegal, do you think the woman who had the abortion should or should not face penalties?",
+      "options": [
+        "Should face penalties",
+        "Should not face penalties",
+        "Refused"
+      ],
+      "model_distribution": {
+        "Should face penalties": 0.0,
+        "Should not face penalties": 1.0,
+        "Refused": 0.0
+      },
+      "jsd": 0.294449,
+      "kendall_tau": 0.816497,
+      "parity": 0.8069,
+      "human_refusal_rate": 0.0259,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "temporal_year": 0,
+      "token_usage": {
+        "input_tokens": 3660,
+        "output_tokens": 4005,
+        "call_count": 30
+      },
+      "latency_seconds": 16.3672
+    },
+    {
+      "key": "ABRTN_PEN_b_W104",
+      "text": "If an abortion was carried out in a situation where it was illegal, do you think the doctor or provider who performed the abortion should or should not face penalties?",
+      "options": [
+        "Should face penalties",
+        "Should not face penalties",
+        "Refused"
+      ],
+      "model_distribution": {
+        "Should face penalties": 0.0,
+        "Should not face penalties": 1.0,
+        "Refused": 0.0
+      },
+      "jsd": 0.374578,
+      "kendall_tau": 0.0,
+      "parity": 0.562711,
+      "human_refusal_rate": 0.020498,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "temporal_year": 0,
+      "token_usage": {
+        "input_tokens": 3720,
+        "output_tokens": 4300,
+        "call_count": 30
+      },
+      "latency_seconds": 16.3672
+    },
+    {
+      "key": "ABRTN_PEN_c_W104",
+      "text": "If an abortion was carried out in a situation where it was illegal, do you think the person who helped find and schedule the abortion should or should not face penalties?",
+      "options": [
+        "Should face penalties",
+        "Should not face penalties",
+        "Refused"
+      ],
+      "model_distribution": {
+        "Should face penalties": 0.0,
+        "Should not face penalties": 0.8966,
+        "Refused": 0.1034
+      },
+      "jsd": 0.237197,
+      "kendall_tau": 0.333333,
+      "parity": 0.714735,
+      "human_refusal_rate": 0.015734,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.033333,
+      "temporal_year": 0,
+      "token_usage": {
+        "input_tokens": 3750,
+        "output_tokens": 4847,
+        "call_count": 30
+      },
+      "latency_seconds": 16.3672
+    },
+    {
+      "key": "ABRTN_PEN_d_W104",
+      "text": "If an abortion was carried out in a situation where it was illegal, do you think the person who helped pay for the abortion should or should not face penalties?",
+      "options": [
+        "Should face penalties",
+        "Should not face penalties",
+        "Refused"
+      ],
+      "model_distribution": {
+        "Should face penalties": 0.0,
+        "Should not face penalties": 0.9286,
+        "Refused": 0.0714
+      },
+      "jsd": 0.24823,
+      "kendall_tau": 0.333333,
+      "parity": 0.709219,
+      "human_refusal_rate": 0.031555,
+      "n_samples": 28,
+      "n_parse_failures": 2,
+      "model_refusal_rate": 0.0,
+      "temporal_year": 0,
+      "token_usage": {
+        "input_tokens": 3720,
+        "output_tokens": 5074,
+        "call_count": 30
+      },
+      "latency_seconds": 16.3672
+    },
+    {
+      "key": "ABRTN_PENa_2_W104",
+      "text": "If a woman had an abortion in a situation where it was illegal, what should be the consequence?",
+      "options": [
+        "Serve jail time",
+        "Pay a fine or do community service",
+        "Not sure",
+        "Refused"
+      ],
+      "model_distribution": {
+        "Serve jail time": 0.0,
+        "Pay a fine or do community service": 0.0,
+        "Not sure": 1.0,
+        "Refused": 0.0
+      },
+      "jsd": 0.452933,
+      "kendall_tau": 0.235702,
+      "parity": 0.582459,
+      "human_refusal_rate": 0.001316,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "temporal_year": 0,
+      "token_usage": {
+        "input_tokens": 3660,
+        "output_tokens": 4118,
+        "call_count": 30
+      },
+      "latency_seconds": 16.3672
+    },
+    {
+      "key": "ABRTN_PENb_2a_W104",
+      "text": "If a doctor or provider performed an abortion in a situation where it was illegal, should they...",
+      "options": [
+        "Serve jail time",
+        "Pay a fine or do community service",
+        "Not sure",
+        "Refused"
+      ],
+      "model_distribution": {
+        "Serve jail time": 0.0,
+        "Pay a fine or do community service": 0.0,
+        "Not sure": 1.0,
+        "Refused": 0.0
+      },
+      "jsd": 0.504514,
+      "kendall_tau": -0.235702,
+      "parity": 0.438817,
+      "human_refusal_rate": 0.001884,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "temporal_year": 0,
+      "token_usage": {
+        "input_tokens": 3630,
+        "output_tokens": 4168,
+        "call_count": 30
+      },
+      "latency_seconds": 16.3672
+    },
+    {
+      "key": "ABRTN_PENb_2b_W104",
+      "text": "If a doctor or provider performed an abortion in a situation where it was illegal, should they...",
+      "options": [
+        "Lose their medical license",
+        "Not lose their medical license",
+        "Not sure",
+        "Refused"
+      ],
+      "model_distribution": {
+        "Lose their medical license": 0.0,
+        "Not lose their medical license": 0.4,
+        "Not sure": 0.6,
+        "Refused": 0.0
+      },
+      "jsd": 0.288687,
+      "kendall_tau": 0.182574,
+      "parity": 0.6513,
+      "human_refusal_rate": 0.00233,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "temporal_year": 0,
+      "token_usage": {
+        "input_tokens": 3600,
+        "output_tokens": 4121,
+        "call_count": 30
+      },
+      "latency_seconds": 16.3672
+    },
+    {
+      "key": "ABRTN_SAY_W104",
+      "text": "Thinking about policies around abortion in this country, in general, when setting those policies, do you think...",
+      "options": [
+        "Women should have a LOT more say than men",
+        "Women should have a LITTLE more say than men",
+        "Women and men should have equal say",
+        "Men should have a LITTLE more say than women",
+        "Men should have a LOT more say than women",
+        "Refused"
+      ],
+      "model_distribution": {
+        "Women should have a LOT more say than men": 0.0,
+        "Women should have a LITTLE more say than men": 1.0,
+        "Women and men should have equal say": 0.0,
+        "Men should have a LITTLE more say than women": 0.0,
+        "Men should have a LOT more say than women": 0.0,
+        "Refused": 0.0
+      },
+      "jsd": 0.692956,
+      "kendall_tau": 0.11547,
+      "parity": 0.432389,
+      "human_refusal_rate": 0.012655,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "temporal_year": 0,
+      "token_usage": {
+        "input_tokens": 4980,
+        "output_tokens": 3822,
+        "call_count": 30
+      },
+      "latency_seconds": 16.3672
+    },
+    {
+      "key": "ABRTN_SCOTUS_W110",
+      "text": "As you may know, the Supreme Court\u2019s decision found that the U.S. Constitution does not guarantee a right to abortion and that abortion laws can be set by each state. All in all, do you approve or disapprove of this decision?",
+      "options": [
+        "Strongly approve",
+        "Somewhat approve",
+        "Somewhat disapprove",
+        "Strongly disapprove",
+        "Refused"
+      ],
+      "model_distribution": {
+        "Strongly approve": 0.0,
+        "Somewhat approve": 0.0,
+        "Somewhat disapprove": 0.0333,
+        "Strongly disapprove": 0.9667,
+        "Refused": 0.0
+      },
+      "jsd": 0.294957,
+      "kendall_tau": 0.358569,
+      "parity": 0.692164,
+      "human_refusal_rate": 0.015999,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "temporal_year": 0,
+      "token_usage": {
+        "input_tokens": 4800,
+        "output_tokens": 3961,
+        "call_count": 30
+      },
+      "latency_seconds": 16.3672
+    },
+    {
+      "key": "ABRTN_THOUGHT_W104",
+      "text": "Before taking this survey, how much thought would you say you had given to issues around abortion?",
+      "options": [
+        "A lot",
+        "Some",
+        "Not too much",
+        "None at all",
+        "Refused"
+      ],
+      "model_distribution": {
+        "A lot": 0.0,
+        "Some": 1.0,
+        "Not too much": 0.0,
+        "None at all": 0.0,
+        "Refused": 0.0
+      },
+      "jsd": 0.443383,
+      "kendall_tau": 0.632456,
+      "parity": 0.686422,
+      "human_refusal_rate": 0.007218,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "temporal_year": 0,
+      "token_usage": {
+        "input_tokens": 3630,
+        "output_tokens": 2935,
+        "call_count": 30
+      },
+      "latency_seconds": 21.286
+    },
+    {
+      "key": "ABRTRED_a_W104",
+      "text": "How much, if at all, do you think passing stricter laws against abortion would change the number of abortions in the U.S.?",
+      "options": [
+        "Greatly reduce the number of abortions",
+        "Slightly reduce the number of abortions",
+        "Not change the number of abortions",
+        "Slightly increase the number of abortions",
+        "Greatly increase the number of abortions",
+        "Refused"
+      ],
+      "model_distribution": {
+        "Greatly reduce the number of abortions": 0.0,
+        "Slightly reduce the number of abortions": 1.0,
+        "Not change the number of abortions": 0.0,
+        "Slightly increase the number of abortions": 0.0,
+        "Greatly increase the number of abortions": 0.0,
+        "Refused": 0.0
+      },
+      "jsd": 0.463733,
+      "kendall_tau": 0.57735,
+      "parity": 0.662471,
+      "human_refusal_rate": 0.020908,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "temporal_year": 0,
+      "token_usage": {
+        "input_tokens": 5160,
+        "output_tokens": 4502,
+        "call_count": 30
+      },
+      "latency_seconds": 21.286
+    },
+    {
+      "key": "ABRTRED_b_W104",
+      "text": "How much, if at all, do you think more support for parents, such as paid family leave or more childcare options, would change the number of abortions in the U.S.?",
+      "options": [
+        "Greatly reduce the number of abortions",
+        "Slightly reduce the number of abortions",
+        "Not change the number of abortions",
+        "Slightly increase the number of abortions",
+        "Greatly increase the number of abortions",
+        "Refused"
+      ],
+      "model_distribution": {
+        "Greatly reduce the number of abortions": 0.0,
+        "Slightly reduce the number of abortions": 1.0,
+        "Not change the number of abortions": 0.0,
+        "Slightly increase the number of abortions": 0.0,
+        "Greatly increase the number of abortions": 0.0,
+        "Refused": 0.0
+      },
+      "jsd": 0.447085,
+      "kendall_tau": 0.57735,
+      "parity": 0.670795,
+      "human_refusal_rate": 0.022027,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "temporal_year": 0,
+      "token_usage": {
+        "input_tokens": 5460,
+        "output_tokens": 4691,
+        "call_count": 30
+      },
+      "latency_seconds": 21.286
+    },
+    {
+      "key": "ABRTRED_c_W104",
+      "text": "How much, if at all, do you think expanding sex education would change the number of abortions in the U.S.?",
+      "options": [
+        "Greatly reduce the number of abortions",
+        "Slightly reduce the number of abortions",
+        "Not change the number of abortions",
+        "Slightly increase the number of abortions",
+        "Greatly increase the number of abortions",
+        "Refused"
+      ],
+      "model_distribution": {
+        "Greatly reduce the number of abortions": 0.0,
+        "Slightly reduce the number of abortions": 1.0,
+        "Not change the number of abortions": 0.0,
+        "Slightly increase the number of abortions": 0.0,
+        "Greatly increase the number of abortions": 0.0,
+        "Refused": 0.0
+      },
+      "jsd": 0.477373,
+      "kendall_tau": 0.57735,
+      "parity": 0.655651,
+      "human_refusal_rate": 0.019098,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "temporal_year": 0,
+      "token_usage": {
+        "input_tokens": 5070,
+        "output_tokens": 3913,
+        "call_count": 30
+      },
+      "latency_seconds": 21.286
+    },
+    {
+      "key": "ABRTRED_d_W104",
+      "text": "How much, if at all, do you think making it easier to place children for adoption in good homes would change the number of abortions in the U.S.?",
+      "options": [
+        "Greatly reduce the number of abortions",
+        "Slightly reduce the number of abortions",
+        "Not change the number of abortions",
+        "Slightly increase the number of abortions",
+        "Greatly increase the number of abortions",
+        "Refused"
+      ],
+      "model_distribution": {
+        "Greatly reduce the number of abortions": 0.0,
+        "Slightly reduce the number of abortions": 1.0,
+        "Not change the number of abortions": 0.0,
+        "Slightly increase the number of abortions": 0.0,
+        "Greatly increase the number of abortions": 0.0,
+        "Refused": 0.0
+      },
+      "jsd": 0.454308,
+      "kendall_tau": 0.34641,
+      "parity": 0.609449,
+      "human_refusal_rate": 0.022001,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "temporal_year": 0,
+      "token_usage": {
+        "input_tokens": 5310,
+        "output_tokens": 4974,
+        "call_count": 30
+      },
+      "latency_seconds": 21.286
+    },
+    {
+      "key": "ABRTRED_e_W104",
+      "text": "How much, if at all, do you think more support for women during pregnancy, such as financial assistance or employment protections, would change the number of abortions in the U.S.?",
+      "options": [
+        "Greatly reduce the number of abortions",
+        "Slightly reduce the number of abortions",
+        "Not change the number of abortions",
+        "Slightly increase the number of abortions",
+        "Greatly increase the number of abortions",
+        "Refused"
+      ],
+      "model_distribution": {
+        "Greatly reduce the number of abortions": 0.0,
+        "Slightly reduce the number of abortions": 1.0,
+        "Not change the number of abortions": 0.0,
+        "Slightly increase the number of abortions": 0.0,
+        "Greatly increase the number of abortions": 0.0,
+        "Refused": 0.0
+      },
+      "jsd": 0.421066,
+      "kendall_tau": 0.57735,
+      "parity": 0.683805,
+      "human_refusal_rate": 0.021712,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "temporal_year": 0,
+      "token_usage": {
+        "input_tokens": 5460,
+        "output_tokens": 4677,
+        "call_count": 30
+      },
+      "latency_seconds": 21.286
+    },
+    {
+      "key": "ABRTREL_W104",
+      "text": "How important is your religion in shaping your views about abortion?",
+      "options": [
+        "Extremely important",
+        "Very important",
+        "Somewhat important",
+        "Not too important",
+        "Not at all important",
+        "I am not religious",
+        "Refused"
+      ],
+      "model_distribution": {
+        "Extremely important": 0.0,
+        "Very important": 0.0,
+        "Somewhat important": 1.0,
+        "Not too important": 0.0,
+        "Not at all important": 0.0,
+        "I am not religious": 0.0,
+        "Refused": 0.0
+      },
+      "jsd": 0.63752,
+      "kendall_tau": 0.178174,
+      "parity": 0.475783,
+      "human_refusal_rate": 0.009523,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "temporal_year": 0,
+      "token_usage": {
+        "input_tokens": 3990,
+        "output_tokens": 3534,
+        "call_count": 30
+      },
+      "latency_seconds": 21.286
+    },
+    {
+      "key": "ABRTVIEW_a_W104",
+      "text": "Regardless of whether you think abortion should be legal or illegal, how well does the statement \"The decision about whether to have an abortion should belong solely to the pregnant woman\" describe your views?",
+      "options": [
+        "Extremely well",
+        "Very well",
+        "Somewhat well",
+        "Not too well",
+        "Not at all well",
+        "Refused"
+      ],
+      "model_distribution": {
+        "Extremely well": 0.0,
+        "Very well": 0.0,
+        "Somewhat well": 0.5,
+        "Not too well": 0.5,
+        "Not at all well": 0.0,
+        "Refused": 0.0
+      },
+      "jsd": 0.480542,
+      "kendall_tau": 0.0,
+      "parity": 0.509729,
+      "human_refusal_rate": 0.011617,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "temporal_year": 0,
+      "token_usage": {
+        "input_tokens": 4530,
+        "output_tokens": 4374,
+        "call_count": 30
+      },
+      "latency_seconds": 21.286
+    },
+    {
+      "key": "ABRTVIEW_b_W104",
+      "text": "Regardless of whether you think abortion should be legal or illegal, how well does the statement \"Human life begins at conception, so a fetus is a person with rights\" describe your views?",
+      "options": [
+        "Extremely well",
+        "Very well",
+        "Somewhat well",
+        "Not too well",
+        "Not at all well",
+        "Refused"
+      ],
+      "model_distribution": {
+        "Extremely well": 0.0,
+        "Very well": 0.0,
+        "Somewhat well": 0.0,
+        "Not too well": 1.0,
+        "Not at all well": 0.0,
+        "Refused": 0.0
+      },
+      "jsd": 0.611554,
+      "kendall_tau": 0.11547,
+      "parity": 0.47309,
+      "human_refusal_rate": 0.014449,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "temporal_year": 0,
+      "token_usage": {
+        "input_tokens": 4530,
+        "output_tokens": 4880,
+        "call_count": 30
+      },
+      "latency_seconds": 21.286
+    },
+    {
+      "key": "ABRTVIEW_c_W104",
+      "text": "Regardless of whether you think abortion should be legal or illegal, how well does the following statement describe your views? If legal abortions are too hard to get, then women will seek out unsafe abortions from unlicensed providers.",
+      "options": [
+        "Extremely well",
+        "Very well",
+        "Somewhat well",
+        "Not too well",
+        "Not at all well",
+        "Refused"
+      ],
+      "model_distribution": {
+        "Extremely well": 0.1,
+        "Very well": 0.8667,
+        "Somewhat well": 0.0333,
+        "Not too well": 0.0,
+        "Not at all well": 0.0,
+        "Refused": 0.0
+      },
+      "jsd": 0.375199,
+      "kendall_tau": 0.596285,
+      "parity": 0.711472,
+      "human_refusal_rate": 0.015987,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "temporal_year": 0,
+      "token_usage": {
+        "input_tokens": 4860,
+        "output_tokens": 3543,
+        "call_count": 30
+      },
+      "latency_seconds": 21.286
+    },
+    {
+      "key": "ABRTVIEW_d_W104",
+      "text": "Regardless of whether you think abortion should be legal or illegal, how well does the following statement describe your views? \"If legal abortions are too easy to get, then people won\u2019t be as careful with sex and contraception.\"",
+      "options": [
+        "Extremely well",
+        "Very well",
+        "Somewhat well",
+        "Not too well",
+        "Not at all well",
+        "Refused"
+      ],
+      "model_distribution": {
+        "Extremely well": 0.0,
+        "Very well": 0.0,
+        "Somewhat well": 0.0,
+        "Not too well": 1.0,
+        "Not at all well": 0.0,
+        "Refused": 0.0
+      },
+      "jsd": 0.617083,
+      "kendall_tau": 0.11547,
+      "parity": 0.470326,
+      "human_refusal_rate": 0.019446,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "temporal_year": 0,
+      "token_usage": {
+        "input_tokens": 4800,
+        "output_tokens": 4836,
+        "call_count": 30
+      },
+      "latency_seconds": 25.6563
+    },
+    {
+      "key": "ABRTVIEW_e_W104",
+      "text": "Regardless of whether you think abortion should be legal or illegal, how well does the following statement describe your views? \"If legal abortions are too hard to get, then it will be more difficult for women to get ahead in society.\"",
+      "options": [
+        "Extremely well",
+        "Very well",
+        "Somewhat well",
+        "Not too well",
+        "Not at all well",
+        "Refused"
+      ],
+      "model_distribution": {
+        "Extremely well": 0.0,
+        "Very well": 0.0,
+        "Somewhat well": 1.0,
+        "Not too well": 0.0,
+        "Not at all well": 0.0,
+        "Refused": 0.0
+      },
+      "jsd": 0.555667,
+      "kendall_tau": 0.57735,
+      "parity": 0.616504,
+      "human_refusal_rate": 0.023355,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "temporal_year": 0,
+      "token_usage": {
+        "input_tokens": 4830,
+        "output_tokens": 4839,
+        "call_count": 30
+      },
+      "latency_seconds": 25.6563
+    },
+    {
+      "key": "ABRTVIEW_f_W104",
+      "text": "Regardless of whether you think abortion should be legal or illegal, how well do each of the following statements describe your views? If legal abortions are too easy to get, then some pregnant women will be pressured into having an abortion.",
+      "options": [
+        "Extremely well",
+        "Very well",
+        "Somewhat well",
+        "Not too well",
+        "Not at all well",
+        "Refused"
+      ],
+      "model_distribution": {
+        "Extremely well": 0.0,
+        "Very well": 0.0,
+        "Somewhat well": 0.5333,
+        "Not too well": 0.4667,
+        "Not at all well": 0.0,
+        "Refused": 0.0
+      },
+      "jsd": 0.313502,
+      "kendall_tau": 0.602464,
+      "parity": 0.743865,
+      "human_refusal_rate": 0.022456,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "temporal_year": 0,
+      "token_usage": {
+        "input_tokens": 4830,
+        "output_tokens": 4512,
+        "call_count": 30
+      },
+      "latency_seconds": 25.6563
+    },
+    {
+      "key": "ACTIVE_W109",
+      "text": "Please choose the statement that comes closer to your own views, even if neither is exactly right.",
+      "options": [
+        "It\u2019s best for the future of our country to be active in world affairs",
+        "We should pay less attention to problems overseas and concentrate on problems here at home",
+        "Refused"
+      ],
+      "model_distribution": {
+        "It\u2019s best for the future of our country to be active in world affairs": 0.6786,
+        "We should pay less attention to problems overseas and concentrate on problems here at home": 0.3214,
+        "Refused": 0.0
+      },
+      "jsd": 0.030963,
+      "kendall_tau": 0.333333,
+      "parity": 0.817852,
+      "human_refusal_rate": 0.010416,
+      "n_samples": 28,
+      "n_parse_failures": 2,
+      "model_refusal_rate": 0.0,
+      "temporal_year": 0,
+      "token_usage": {
+        "input_tokens": 4020,
+        "output_tokens": 3859,
+        "call_count": 30
+      },
+      "latency_seconds": 25.6563
+    },
+    {
+      "key": "ACTIVE_W124",
+      "text": "Which statement comes closer to your view, even if neither is exactly right?",
+      "options": [
+        "It\u2019s best for the future of our country to be active in world affairs",
+        "We should pay less attention to problems overseas and concentrate on problems here at home",
+        "Refused"
+      ],
+      "model_distribution": {
+        "It\u2019s best for the future of our country to be active in world affairs": 0.5769,
+        "We should pay less attention to problems overseas and concentrate on problems here at home": 0.4231,
+        "Refused": 0.0
+      },
+      "jsd": 0.012564,
+      "kendall_tau": 0.333333,
+      "parity": 0.827051,
+      "human_refusal_rate": 0.008437,
+      "n_samples": 26,
+      "n_parse_failures": 4,
+      "model_refusal_rate": 0.0,
+      "temporal_year": 0,
+      "token_usage": {
+        "input_tokens": 3900,
+        "output_tokens": 4225,
+        "call_count": 30
+      },
+      "latency_seconds": 25.6563
+    },
+    {
+      "key": "ACTIV_ASSORT_CONCERT_W129",
+      "text": "Please indicate if you have attended a concert over the past 12 months.",
+      "options": [
+        "Yes, I have done this in the past 12 months",
+        "No, I have not done this in the past 12 months",
+        "Refused"
+      ],
+      "model_distribution": {
+        "Yes, I have done this in the past 12 months": 1.0,
+        "No, I have not done this in the past 12 months": 0.0,
+        "Refused": 0.0
+      },
+      "jsd": 0.455148,
+      "kendall_tau": 0.0,
+      "parity": 0.522426,
+      "human_refusal_rate": 0.00449,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "temporal_year": 0,
+      "token_usage": {
+        "input_tokens": 3840,
+        "output_tokens": 2030,
+        "call_count": 30
+      },
+      "latency_seconds": 25.6563
+    },
+    {
+      "key": "ACTIV_ASSORT_SPORT_W129",
+      "text": "Please indicate if you have attended a sporting event over the past 12 months.",
+      "options": [
+        "Yes, I have done this in the past 12 months",
+        "No, I have not done this in the past 12 months",
+        "Refused"
+      ],
+      "model_distribution": {
+        "Yes, I have done this in the past 12 months": 1.0,
+        "No, I have not done this in the past 12 months": 0.0,
+        "Refused": 0.0
+      },
+      "jsd": 0.427632,
+      "kendall_tau": 0.0,
+      "parity": 0.536184,
+      "human_refusal_rate": 0.003435,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "temporal_year": 0,
+      "token_usage": {
+        "input_tokens": 3870,
+        "output_tokens": 2069,
+        "call_count": 30
+      },
+      "latency_seconds": 25.6563
+    },
+    {
+      "key": "ACTIV_ASSORT_TRANSIT_W129",
+      "text": "Here\u2019s a list of activities some people do and others do not. Please indicate if you have taken public transportation (like a subway, train, or bus) over the past 12 months.",
+      "options": [
+        "Yes, I have done this in the past 12 months",
+        "No, I have not done this in the past 12 months",
+        "Refused"
+      ],
+      "model_distribution": {
+        "Yes, I have done this in the past 12 months": 1.0,
+        "No, I have not done this in the past 12 months": 0.0,
+        "Refused": 0.0
+      },
+      "jsd": 0.405909,
+      "kendall_tau": 0.0,
+      "parity": 0.547045,
+      "human_refusal_rate": 0.00519,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "temporal_year": 0,
+      "token_usage": {
+        "input_tokens": 4560,
+        "output_tokens": 1607,
+        "call_count": 30
+      },
+      "latency_seconds": 25.6563
+    },
+    {
+      "key": "ACTIV_ASSORT_TRAVEL100_W129",
+      "text": "Please indicate if you have traveled more than 100 miles from home over the past 12 months.",
+      "options": [
+        "Yes, I have done this in the past 12 months",
+        "No, I have not done this in the past 12 months",
+        "Refused"
+      ],
+      "model_distribution": {
+        "Yes, I have done this in the past 12 months": 1.0,
+        "No, I have not done this in the past 12 months": 0.0,
+        "Refused": 0.0
+      },
+      "jsd": 0.154551,
+      "kendall_tau": 0.816497,
+      "parity": 0.876849,
+      "human_refusal_rate": 0.004962,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "temporal_year": 0,
+      "token_usage": {
+        "input_tokens": 4020,
+        "output_tokens": 1822,
+        "call_count": 30
+      },
+      "latency_seconds": 25.6563
+    },
+    {
+      "key": "ADMINTOPIC_W85",
+      "text": "In the news you are receiving about the Biden administration, are you seeing more about...",
+      "options": [
+        "Biden\u2019s character and leadership skills",
+        "Biden\u2019s policy positions and agenda",
+        "Refused"
+      ],
+      "model_distribution": {
+        "Biden\u2019s character and leadership skills": 0.0,
+        "Biden\u2019s policy positions and agenda": 1.0,
+        "Refused": 0.0
+      },
+      "jsd": 0.160049,
+      "kendall_tau": 0.816497,
+      "parity": 0.8741,
+      "human_refusal_rate": 0.026879,
+      "n_samples": 4,
+      "n_parse_failures": 26,
+      "model_refusal_rate": 0.0,
+      "temporal_year": 0,
+      "token_usage": {
+        "input_tokens": 3420,
+        "output_tokens": 3980,
+        "call_count": 30
+      },
+      "latency_seconds": 25.6563
+    },
+    {
+      "key": "ADMISSION_a_W104",
+      "text": "Do you think race or ethnicity should be a major factor, minor factor, or not a factor in college admissions?",
+      "options": [
+        "Major factor",
+        "Minor factor",
+        "Not a factor",
+        "Refused"
+      ],
+      "model_distribution": {
+        "Major factor": 0.0,
+        "Minor factor": 1.0,
+        "Not a factor": 0.0,
+        "Refused": 0.0
+      },
+      "jsd": 0.606224,
+      "kendall_tau": 0.235702,
+      "parity": 0.505814,
+      "human_refusal_rate": 0.005142,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "temporal_year": 0,
+      "token_usage": {
+        "input_tokens": 3630,
+        "output_tokens": 3485,
+        "call_count": 30
+      },
+      "latency_seconds": 31.0828
+    },
+    {
+      "key": "ADMISSION_b_W104",
+      "text": "Do you think gender should be a major factor, minor factor, or not a factor in college admissions?",
+      "options": [
+        "Major factor",
+        "Minor factor",
+        "Not a factor",
+        "Refused"
+      ],
+      "model_distribution": {
+        "Major factor": 0.0,
+        "Minor factor": 1.0,
+        "Not a factor": 0.0,
+        "Refused": 0.0
+      },
+      "jsd": 0.662061,
+      "kendall_tau": 0.235702,
+      "parity": 0.477895,
+      "human_refusal_rate": 0.005236,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "temporal_year": 0,
+      "token_usage": {
+        "input_tokens": 3540,
+        "output_tokens": 3524,
+        "call_count": 30
+      },
+      "latency_seconds": 31.0828
+    },
+    {
+      "key": "ADMISSION_c_W104",
+      "text": "Do you think whether a relative attended the school should be a major factor, minor factor, or not a factor in college admissions?",
+      "options": [
+        "Major factor",
+        "Minor factor",
+        "Not a factor",
+        "Refused"
+      ],
+      "model_distribution": {
+        "Major factor": 0.0,
+        "Minor factor": 0.9667,
+        "Not a factor": 0.0333,
+        "Refused": 0.0
+      },
+      "jsd": 0.470312,
+      "kendall_tau": 0.547723,
+      "parity": 0.651775,
+      "human_refusal_rate": 0.002644,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "temporal_year": 0,
+      "token_usage": {
+        "input_tokens": 3690,
+        "output_tokens": 3872,
+        "call_count": 30
+      },
+      "latency_seconds": 31.0828
+    },
+    {
+      "key": "ADMISSION_d_W104",
+      "text": "Do you think athletic ability should be a major factor, minor factor, or not a factor in college admissions?",
+      "options": [
+        "Major factor",
+        "Minor factor",
+        "Not a factor",
+        "Refused"
+      ],
+      "model_distribution": {
+        "Major factor": 0.0,
+        "Minor factor": 1.0,
+        "Not a factor": 0.0,
+        "Refused": 0.0
+      },
+      "jsd": 0.410416,
+      "kendall_tau": 0.235702,
+      "parity": 0.603717,
+      "human_refusal_rate": 0.00365,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "temporal_year": 0,
+      "token_usage": {
+        "input_tokens": 3570,
+        "output_tokens": 3800,
+        "call_count": 30
+      },
+      "latency_seconds": 31.0828
+    },
+    {
+      "key": "ADMISSION_e_W104",
+      "text": "Do you think involvement in community service should be a major factor, minor factor, or not a factor in college admissions?",
+      "options": [
+        "Major factor",
+        "Minor factor",
+        "Not a factor",
+        "Refused"
+      ],
+      "model_distribution": {
+        "Major factor": 0.0,
+        "Minor factor": 1.0,
+        "Not a factor": 0.0,
+        "Refused": 0.0
+      },
+      "jsd": 0.322341,
+      "kendall_tau": 0.707107,
+      "parity": 0.765606,
+      "human_refusal_rate": 0.00442,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "temporal_year": 0,
+      "token_usage": {
+        "input_tokens": 3630,
+        "output_tokens": 3909,
+        "call_count": 30
+      },
+      "latency_seconds": 31.0828
+    },
+    {
+      "key": "ADMISSION_f_W104",
+      "text": "Do you think scores on standardized tests, such as the SAT or ACT, should be a major factor, minor factor, or not a factor in college admissions?",
+      "options": [
+        "Major factor",
+        "Minor factor",
+        "Not a factor",
+        "Refused"
+      ],
+      "model_distribution": {
+        "Major factor": 0.0,
+        "Minor factor": 1.0,
+        "Not a factor": 0.0,
+        "Refused": 0.0
+      },
+      "jsd": 0.355327,
+      "kendall_tau": 0.707107,
+      "parity": 0.749113,
+      "human_refusal_rate": 0.007485,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "temporal_year": 0,
+      "token_usage": {
+        "input_tokens": 3960,
+        "output_tokens": 4600,
+        "call_count": 30
+      },
+      "latency_seconds": 31.0828
+    },
+    {
+      "key": "ADMISSION_g_W104",
+      "text": "Do you think high school grades should be a major factor, minor factor, or not a factor in college admissions?",
+      "options": [
+        "Major factor",
+        "Minor factor",
+        "Not a factor",
+        "Refused"
+      ],
+      "model_distribution": {
+        "Major factor": 0.0,
+        "Minor factor": 1.0,
+        "Not a factor": 0.0,
+        "Refused": 0.0
+      },
+      "jsd": 0.498566,
+      "kendall_tau": 0.235702,
+      "parity": 0.559642,
+      "human_refusal_rate": 0.001811,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "temporal_year": 0,
+      "token_usage": {
+        "input_tokens": 3600,
+        "output_tokens": 4170,
+        "call_count": 30
+      },
+      "latency_seconds": 31.0828
+    },
+    {
+      "key": "ADMISSION_h_W104",
+      "text": "Do you think being the first person in the family to go to college should be a major factor, minor factor, or not a factor in college admissions?",
+      "options": [
+        "Major factor",
+        "Minor factor",
+        "Not a factor",
+        "Refused"
+      ],
+      "model_distribution": {
+        "Major factor": 0.0333,
+        "Minor factor": 0.9667,
+        "Not a factor": 0.0,
+        "Refused": 0.0
+      },
+      "jsd": 0.438751,
+      "kendall_tau": 0.182574,
+      "parity": 0.576268,
+      "human_refusal_rate": 0.004273,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "temporal_year": 0,
+      "token_usage": {
+        "input_tokens": 3840,
+        "output_tokens": 3793,
+        "call_count": 30
+      },
+      "latency_seconds": 31.0828
+    },
+    {
+      "key": "AFFORDBASIC_a_W115",
+      "text": "Have there been times in the past 12 months when you did not have enough money to buy the food your family needed?",
+      "options": [
+        "Yes",
+        "No",
+        "Have not needed this",
+        "Refused"
+      ],
+      "model_distribution": {
+        "Yes": 0.0,
+        "No": 1.0,
+        "Have not needed this": 0.0,
+        "Refused": 0.0
+      },
+      "jsd": 0.149696,
+      "kendall_tau": 0.707107,
+      "parity": 0.851929,
+      "human_refusal_rate": 0.00281,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "temporal_year": 0,
+      "token_usage": {
+        "input_tokens": 3630,
+        "output_tokens": 2133,
+        "call_count": 30
+      },
+      "latency_seconds": 31.0828
+    },
+    {
+      "key": "AFFORDBASIC_b_W115",
+      "text": "Have there been times in the past 12 months when you did not have enough money to pay for medical or health care your family needed?",
+      "options": [
+        "Yes",
+        "No",
+        "Have not needed this",
+        "Refused"
+      ],
+      "model_distribution": {
+        "Yes": 0.8,
+        "No": 0.2,
+        "Have not needed this": 0.0,
+        "Refused": 0.0
+      },
+      "jsd": 0.273335,
+      "kendall_tau": 0.547723,
+      "parity": 0.750263,
+      "human_refusal_rate": 0.002922,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "temporal_year": 0,
+      "token_usage": {
+        "input_tokens": 3720,
+        "output_tokens": 2427,
+        "call_count": 30
+      },
+      "latency_seconds": 31.0828
+    },
+    {
+      "key": "AFFORDBASIC_c_W115",
+      "text": "Have there been times in the past 12 months when you did not have enough money to pay your rent or mortgage?",
+      "options": [
+        "Yes",
+        "No",
+        "Have not needed this",
+        "Refused"
+      ],
+      "model_distribution": {
+        "Yes": 0.0,
+        "No": 1.0,
+        "Have not needed this": 0.0,
+        "Refused": 0.0
+      },
+      "jsd": 0.178799,
+      "kendall_tau": 0.707107,
+      "parity": 0.837377,
+      "human_refusal_rate": 0.002388,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "temporal_year": 0,
+      "token_usage": {
+        "input_tokens": 3600,
+        "output_tokens": 1548,
+        "call_count": 30
+      },
+      "latency_seconds": 36.3782
+    },
+    {
+      "key": "AFFORDBASIC_d_W115",
+      "text": "Have there been times in the past 12 months when you did not have enough money to pay for child care?",
+      "options": [
+        "Yes",
+        "No",
+        "Have not needed this",
+        "Refused"
+      ],
+      "model_distribution": {
+        "Yes": 0.5333,
+        "No": 0.3333,
+        "Have not needed this": 0.1333,
+        "Refused": 0.0
+      },
+      "jsd": 0.15129,
+      "kendall_tau": 0.333333,
+      "parity": 0.757688,
+      "human_refusal_rate": 0.000862,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "temporal_year": 0,
+      "token_usage": {
+        "input_tokens": 3570,
+        "output_tokens": 1906,
+        "call_count": 30
+      },
+      "latency_seconds": 36.3782
+    },
+    {
+      "key": "AFG21_1_W95",
+      "text": "How much, if anything, have you heard or read about thousands of refugees fleeing Afghanistan and coming to the U.S.?",
+      "options": [
+        "A lot",
+        "A little",
+        "Nothing at all",
+        "Refused"
+      ],
+      "model_distribution": {
+        "A lot": 0.5667,
+        "A little": 0.4333,
+        "Nothing at all": 0.0,
+        "Refused": 0.0
+      },
+      "jsd": 0.060183,
+      "kendall_tau": 0.547723,
+      "parity": 0.856839,
+      "human_refusal_rate": 0.00514,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "temporal_year": 0,
+      "token_usage": {
+        "input_tokens": 3690,
+        "output_tokens": 2669,
+        "call_count": 30
+      },
+      "latency_seconds": 36.3782
+    },
+    {
+      "key": "AFG21_2_W95",
+      "text": "All in all, do you favor or oppose the United States admitting thousands of refugees from Afghanistan into the country?",
+      "options": [
+        "Strongly favor",
+        "Somewhat favor",
+        "Somewhat oppose",
+        "Strongly oppose",
+        "Refused"
+      ],
+      "model_distribution": {
+        "Strongly favor": 0.0,
+        "Somewhat favor": 1.0,
+        "Somewhat oppose": 0.0,
+        "Strongly oppose": 0.0,
+        "Refused": 0.0
+      },
+      "jsd": 0.433863,
+      "kendall_tau": 0.632456,
+      "parity": 0.691183,
+      "human_refusal_rate": 0.014481,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "temporal_year": 0,
+      "token_usage": {
+        "input_tokens": 3840,
+        "output_tokens": 4089,
+        "call_count": 30
+      },
+      "latency_seconds": 36.3782
+    },
+    {
+      "key": "AFG21_5_W95",
+      "text": "How confident, if at all, are you that the government is conducting adequate security screening of refugees from Afghanistan who arrive in the U.S.?",
+      "options": [
+        "Very confident",
+        "Somewhat confident",
+        "Not too confident",
+        "Not at all confident",
+        "Refused"
+      ],
+      "model_distribution": {
+        "Very confident": 0.0,
+        "Somewhat confident": 0.0,
+        "Not too confident": 1.0,
+        "Not at all confident": 0.0,
+        "Refused": 0.0
+      },
+      "jsd": 0.538773,
+      "kendall_tau": 0.316228,
+      "parity": 0.559671,
+      "human_refusal_rate": 0.013769,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "temporal_year": 0,
+      "token_usage": {
+        "input_tokens": 4050,
+        "output_tokens": 4326,
+        "call_count": 30
+      },
+      "latency_seconds": 36.3782
+    },
+    {
+      "key": "AFG_EGFP_W95",
+      "text": "How would you rate the job the Biden administration has done handling the situation in Afghanistan?",
+      "options": [
+        "Excellent",
+        "Good",
+        "Only fair",
+        "Poor",
+        "Refused"
+      ],
+      "model_distribution": {
+        "Excellent": 0.0,
+        "Good": 0.0,
+        "Only fair": 0.7333,
+        "Poor": 0.2667,
+        "Refused": 0.0
+      },
+      "jsd": 0.218758,
+      "kendall_tau": 0.597614,
+      "parity": 0.790024,
+      "human_refusal_rate": 0.013492,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "temporal_year": 0,
+      "token_usage": {
+        "input_tokens": 3480,
+        "output_tokens": 3910,
+        "call_count": 30
+      },
+      "latency_seconds": 36.3782
+    },
+    {
+      "key": "AFG_HANDLE_W105",
+      "text": "Regardless of what you think about the United States\u2019 decision to withdraw troops from Afghanistan, do you think the withdrawal itself was handled...",
+      "options": [
+        "Very well",
+        "Somewhat well",
+        "Not too well",
+        "Not at all well",
+        "Refused"
+      ],
+      "model_distribution": {
+        "Very well": 0.0,
+        "Somewhat well": 0.0,
+        "Not too well": 0.0667,
+        "Not at all well": 0.9333,
+        "Refused": 0.0
+      },
+      "jsd": 0.346783,
+      "kendall_tau": 0.597614,
+      "parity": 0.726012,
+      "human_refusal_rate": 0.009944,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "temporal_year": 0,
+      "token_usage": {
+        "input_tokens": 3960,
+        "output_tokens": 3522,
+        "call_count": 30
+      },
+      "latency_seconds": 36.3782
+    },
+    {
+      "key": "AFG_WITHDRAW_W105",
+      "text": "Do you think the United States\u2019 decision to withdraw all troops from Afghanistan was the right decision or the wrong decision?",
+      "options": [
+        "Right decision",
+        "Wrong decision",
+        "Refused"
+      ],
+      "model_distribution": {
+        "Right decision": 0.0,
+        "Wrong decision": 1.0,
+        "Refused": 0.0
+      },
+      "jsd": 0.435963,
+      "kendall_tau": 0.0,
+      "parity": 0.532018,
+      "human_refusal_rate": 0.021574,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "temporal_year": 0,
+      "token_usage": {
+        "input_tokens": 3360,
+        "output_tokens": 4282,
+        "call_count": 30
+      },
+      "latency_seconds": 36.3782
+    },
+    {
+      "key": "AFRICA_COUNTRIES_W105",
+      "text": "Which country in Africa is known for having the largest population and being one of the largest oil producers on the continent?",
+      "options": [
+        "Sudan",
+        "Kenya",
+        "South Africa",
+        "Nigeria",
+        "Not sure",
+        "Refused"
+      ],
+      "model_distribution": {
+        "Sudan": 0.0,
+        "Kenya": 0.0,
+        "South Africa": 0.0,
+        "Nigeria": 1.0,
+        "Not sure": 0.0,
+        "Refused": 0.0
+      },
+      "jsd": 0.512339,
+      "kendall_tau": 0.34641,
+      "parity": 0.580433,
+      "human_refusal_rate": 0.008837,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "temporal_year": 0,
+      "token_usage": {
+        "input_tokens": 3810,
+        "output_tokens": 1331,
+        "call_count": 30
+      },
+      "latency_seconds": 36.3782
+    },
+    {
+      "key": "AIHCCHG_MIST_W119",
+      "text": "Do you think the use of artificial intelligence (AI) in health and medicine to do things like diagnose diseases and recommend treatments would make the number of mistakes better, worse, or not make much difference?",
+      "options": [
+        "Better",
+        "Worse",
+        "Not make much difference",
+        "Refused"
+      ],
+      "model_distribution": {
+        "Better": 1.0,
+        "Worse": 0.0,
+        "Not make much difference": 0.0,
+        "Refused": 0.0
+      },
+      "jsd": 0.3765,
+      "kendall_tau": 0.707107,
+      "parity": 0.738527,
+      "human_refusal_rate": 0.011246,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "temporal_year": 0,
+      "token_usage": {
+        "input_tokens": 4110,
+        "output_tokens": 4709,
+        "call_count": 30
+      },
+      "latency_seconds": 36.3782
+    },
+    {
+      "key": "AIHCCHG_QUAL_W119",
+      "text": "Do you think the use of artificial intelligence (AI) in health and medicine to do things like diagnose diseases and recommend treatments would make the quality of health care better, worse, or not make much difference?",
+      "options": [
+        "Better",
+        "Worse",
+        "Not make much difference",
+        "Refused"
+      ],
+      "model_distribution": {
+        "Better": 1.0,
+        "Worse": 0.0,
+        "Not make much difference": 0.0,
+        "Refused": 0.0
+      },
+      "jsd": 0.447117,
+      "kendall_tau": 0.235702,
+      "parity": 0.585367,
+      "human_refusal_rate": 0.009805,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "temporal_year": 0,
+      "token_usage": {
+        "input_tokens": 4140,
+        "output_tokens": 3858,
+        "call_count": 30
+      },
+      "latency_seconds": 41.2625
+    },
+    {
+      "key": "AIHCCHG_RACETHN_W119",
+      "text": "Do you think the use of artificial intelligence (AI) in health and medicine to do things like diagnose diseases and recommend treatments would make the job that healthcare professionals do better, worse, or not make much difference?",
+      "options": [
+        "Better",
+        "Worse",
+        "Not make much difference",
+        "Refused"
+      ],
+      "model_distribution": {
+        "Better": 1.0,
+        "Worse": 0.0,
+        "Not make much difference": 0.0,
+        "Refused": 0.0
+      },
+      "jsd": 0.406498,
+      "kendall_tau": 0.235702,
+      "parity": 0.605677,
+      "human_refusal_rate": 0.008282,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "temporal_year": 0,
+      "token_usage": {
+        "input_tokens": 4170,
+        "output_tokens": 4205,
+        "call_count": 30
+      },
+      "latency_seconds": 41.2625
+    },
+    {
+      "key": "AIHCCHG_REL_W119",
+      "text": "Do you think the use of artificial intelligence (AI) in health and medicine to do things like diagnose diseases and recommend treatments would make patients' personal relationships with their healthcare providers better, worse, or not make much difference?",
+      "options": [
+        "Better",
+        "Worse",
+        "Not make much difference",
+        "Refused"
+      ],
+      "model_distribution": {
+        "Better": 0.0,
+        "Worse": 0.1,
+        "Not make much difference": 0.9,
+        "Refused": 0.0
+      },
+      "jsd": 0.307997,
+      "kendall_tau": 0.547723,
+      "parity": 0.732932,
+      "human_refusal_rate": 0.007935,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "temporal_year": 0,
+      "token_usage": {
+        "input_tokens": 4230,
+        "output_tokens": 5418,
+        "call_count": 30
+      },
+      "latency_seconds": 41.2625
+    },
+    {
+      "key": "AIHCCHG_SECUR_W119",
+      "text": "Do you think the use of artificial intelligence (AI) in health and medicine to do things like diagnose diseases and recommend treatments would make the security of patient data better, worse, or not make much difference?",
+      "options": [
+        "Better",
+        "Worse",
+        "Not make much difference",
+        "Refused"
+      ],
+      "model_distribution": {
+        "Better": 0.0,
+        "Worse": 1.0,
+        "Not make much difference": 0.0,
+        "Refused": 0.0
+      },
+      "jsd": 0.433028,
+      "kendall_tau": 0.235702,
+      "parity": 0.592411,
+      "human_refusal_rate": 0.008479,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "temporal_year": 0,
+      "token_usage": {
+        "input_tokens": 4140,
+        "output_tokens": 4990,
+        "call_count": 30
+      },
+      "latency_seconds": 41.2625
+    },
+    {
+      "key": "AIHCCOMF_W119",
+      "text": "Thinking about the use of artificial intelligence (AI) in health and medicine to do things like diagnose disease and recommend treatments, how would you feel if your health care provider relied on AI for these purposes?",
+      "options": [
+        "Very comfortable",
+        "Somewhat comfortable",
+        "Somewhat uncomfortable",
+        "Very uncomfortable",
+        "Refused"
+      ],
+      "model_distribution": {
+        "Very comfortable": 0.0,
+        "Somewhat comfortable": 1.0,
+        "Somewhat uncomfortable": 0.0,
+        "Very uncomfortable": 0.0,
+        "Refused": 0.0
+      },
+      "jsd": 0.4483,
+      "kendall_tau": 0.316228,
+      "parity": 0.604907,
+      "human_refusal_rate": 0.00698,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "temporal_year": 0,
+      "token_usage": {
+        "input_tokens": 4350,
+        "output_tokens": 5107,
+        "call_count": 30
+      },
+      "latency_seconds": 41.2625
+    },
+    {
+      "key": "AIHCTRT1_W119",
+      "text": "Do you think the use of artificial intelligence (AI) in health and medicine to do things like diagnose disease and recommend treatments would lead to...",
+      "options": [
+        "Better health outcomes for patients",
+        "Worse health outcomes for patients",
+        "Not make much difference",
+        "Refused"
+      ],
+      "model_distribution": {
+        "Better health outcomes for patients": 1.0,
+        "Worse health outcomes for patients": 0.0,
+        "Not make much difference": 0.0,
+        "Refused": 0.0
+      },
+      "jsd": 0.393221,
+      "kendall_tau": 0.707107,
+      "parity": 0.730166,
+      "human_refusal_rate": 0.01682,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "temporal_year": 0,
+      "token_usage": {
+        "input_tokens": 3990,
+        "output_tokens": 4652,
+        "call_count": 30
+      },
+      "latency_seconds": 41.2625
+    },
+    {
+      "key": "AIHCTRT2_W119",
+      "text": "Thinking about the use of artificial intelligence (AI) in health and medicine to do things like diagnose disease and recommend treatments, which of the following concerns you more?",
+      "options": [
+        "Move too fast using this technology, before fully understanding the risks for patients",
+        "Move too slowly using this technology, missing opportunities to improve patients\u2019 health",
+        "Refused"
+      ],
+      "model_distribution": {
+        "Move too fast using this technology, before fully understanding the risks for patients": 1.0,
+        "Move too slowly using this technology, missing opportunities to improve patients\u2019 health": 0.0,
+        "Refused": 0.0
+      },
+      "jsd": 0.155853,
+      "kendall_tau": 0.816497,
+      "parity": 0.876198,
+      "human_refusal_rate": 0.015359,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "temporal_year": 0,
+      "token_usage": {
+        "input_tokens": 4410,
+        "output_tokens": 4547,
+        "call_count": 30
+      },
+      "latency_seconds": 41.2625
+    },
+    {
+      "key": "AIKNOW1_W119",
+      "text": "Thinking about customer service, which of the following is an example of artificial intelligence (AI)?",
+      "options": [
+        "A chatbot that immediately answers customer questions",
+        "An online survey sent to customers that allows them to provide feedback",
+        "A contact page with a form available to customers to provide feedback",
+        "A detailed Frequently Asked Questions webpage",
+        "Not sure",
+        "Refused"
+      ],
+      "model_distribution": {
+        "A chatbot that immediately answers customer questions": 1.0,
+        "An online survey sent to customers that allows them to provide feedback": 0.0,
+        "A contact page with a form available to customers to provide feedback": 0.0,
+        "A detailed Frequently Asked Questions webpage": 0.0,
+        "Not sure": 0.0,
+        "Refused": 0.0
+      },
+      "jsd": 0.200741,
+      "kendall_tau": 0.57735,
+      "parity": 0.793967,
+      "human_refusal_rate": 0.002658,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "temporal_year": 0,
+      "token_usage": {
+        "input_tokens": 4710,
+        "output_tokens": 3057,
+        "call_count": 30
+      },
+      "latency_seconds": 41.2625
+    },
+    {
+      "key": "AIKNOW2_W119",
+      "text": "When playing music, which of the following uses artificial intelligence (AI)?",
+      "options": [
+        "Using Bluetooth to connect to wireless speakers",
+        "A playlist recommendation",
+        "A wireless internet connection to stream the music",
+        "Shuffle play from a chosen playlist",
+        "Not sure",
+        "Refused"
+      ],
+      "model_distribution": {
+        "Using Bluetooth to connect to wireless speakers": 0.0,
+        "A playlist recommendation": 1.0,
+        "A wireless internet connection to stream the music": 0.0,
+        "Shuffle play from a chosen playlist": 0.0,
+        "Not sure": 0.0,
+        "Refused": 0.0
+      },
+      "jsd": 0.260522,
+      "kendall_tau": 0.57735,
+      "parity": 0.764077,
+      "human_refusal_rate": 0.003019,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "temporal_year": 0,
+      "token_usage": {
+        "input_tokens": 4170,
+        "output_tokens": 2581,
+        "call_count": 30
+      },
+      "latency_seconds": 41.2625
+    },
+    {
+      "key": "AIKNOW3_W119",
+      "text": "When using email, which of the following uses artificial intelligence (AI)?",
+      "options": [
+        "The email service marking an email as read after the user opens it",
+        "The email service allowing the user to schedule an email to send at a specific time in the future",
+        "The email service categorizing an email as spam",
+        "The email service sorting emails by time and date",
+        "Not sure",
+        "Refused"
+      ],
+      "model_distribution": {
+        "The email service marking an email as read after the user opens it": 0.0,
+        "The email service allowing the user to schedule an email to send at a specific time in the future": 0.0,
+        "The email service categorizing an email as spam": 1.0,
+        "The email service sorting emails by time and date": 0.0,
+        "Not sure": 0.0,
+        "Refused": 0.0
+      },
+      "jsd": 0.300804,
+      "kendall_tau": 0.57735,
+      "parity": 0.743936,
+      "human_refusal_rate": 0.007504,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "temporal_year": 0,
+      "token_usage": {
+        "input_tokens": 4890,
+        "output_tokens": 2809,
+        "call_count": 30
+      },
+      "latency_seconds": 41.2625
+    },
+    {
+      "key": "AIKNOW5_W119",
+      "text": "Thinking about health products, which of the following uses artificial intelligence (AI)?",
+      "options": [
+        "Wearable fitness trackers that analyze exercise and sleeping patterns",
+        "Thermometers that are placed under someone\u2019s tongue to detect a fever",
+        "At-home COVID-19 tests",
+        "Pulse oximeters that measure a person\u2019s oxygen level of the blood",
+        "Not sure",
+        "Refused"
+      ],
+      "model_distribution": {
+        "Wearable fitness trackers that analyze exercise and sleeping patterns": 1.0,
+        "Thermometers that are placed under someone\u2019s tongue to detect a fever": 0.0,
+        "At-home COVID-19 tests": 0.0,
+        "Pulse oximeters that measure a person\u2019s oxygen level of the blood": 0.0,
+        "Not sure": 0.0,
+        "Refused": 0.0
+      },
+      "jsd": 0.184994,
+      "kendall_tau": 0.57735,
+      "parity": 0.80184,
+      "human_refusal_rate": 0.005178,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "temporal_year": 0,
+      "token_usage": {
+        "input_tokens": 4980,
+        "output_tokens": 3354,
+        "call_count": 30
+      },
+      "latency_seconds": 40.2125
+    },
+    {
+      "key": "AIKNOW6_W119",
+      "text": "Thinking about online shopping, which of the following uses artificial intelligence (AI)?",
+      "options": [
+        "Storage of account information, such as shipping addresses",
+        "Records of previous purchases",
+        "Product recommendations based on previous purchases",
+        "Product reviews from other customers",
+        "Not sure",
+        "Refused"
+      ],
+      "model_distribution": {
+        "Storage of account information, such as shipping addresses": 0.0,
+        "Records of previous purchases": 0.0,
+        "Product recommendations based on previous purchases": 1.0,
+        "Product reviews from other customers": 0.0,
+        "Not sure": 0.0,
+        "Refused": 0.0
+      },
+      "jsd": 0.20488,
+      "kendall_tau": 0.57735,
+      "parity": 0.791898,
+      "human_refusal_rate": 0.006027,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "temporal_year": 0,
+      "token_usage": {
+        "input_tokens": 4170,
+        "output_tokens": 2867,
+        "call_count": 30
+      },
+      "latency_seconds": 40.2125
+    },
+    {
+      "key": "AIKNOW7_W119",
+      "text": "Thinking about devices in the home, which of the following uses artificial intelligence (AI)?",
+      "options": [
+        "Programming a home thermostat to change temperatures at certain times",
+        "A security camera that sends an alert when there is an unrecognized person at the door",
+        "Programming a timer to control when lights in a home turn on and off",
+        "An indicator light that turns red when a water filter needs to be replaced",
+        "Not sure",
+        "Refused"
+      ],
+      "model_distribution": {
+        "Programming a home thermostat to change temperatures at certain times": 0.0,
+        "A security camera that sends an alert when there is an unrecognized person at the door": 1.0,
+        "Programming a timer to control when lights in a home turn on and off": 0.0,
+        "An indicator light that turns red when a water filter needs to be replaced": 0.0,
+        "Not sure": 0.0,
+        "Refused": 0.0
+      },
+      "jsd": 0.221221,
+      "kendall_tau": 0.57735,
+      "parity": 0.783727,
+      "human_refusal_rate": 0.005131,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "temporal_year": 0,
+      "token_usage": {
+        "input_tokens": 5280,
+        "output_tokens": 3554,
+        "call_count": 30
+      },
+      "latency_seconds": 40.2125
+    },
+    {
+      "key": "AIPRIV1_a_W127",
+      "text": "How acceptable do you think it is for a smart speaker to analyze people\u2019s voices to learn to recognize who is speaking?",
+      "options": [
+        "Very acceptable",
+        "Somewhat acceptable",
+        "Somewhat unacceptable",
+        "Very unacceptable",
+        "Not sure",
+        "Refused"
+      ],
+      "model_distribution": {
+        "Very acceptable": 0.0,
+        "Somewhat acceptable": 0.3333,
+        "Somewhat unacceptable": 0.6667,
+        "Very unacceptable": 0.0,
+        "Not sure": 0.0,
+        "Refused": 0.0
+      },
+      "jsd": 0.314576,
+      "kendall_tau": 0.430331,
+      "parity": 0.700295,
+      "human_refusal_rate": 0.004169,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "temporal_year": 0,
+      "token_usage": {
+        "input_tokens": 4170,
+        "output_tokens": 5304,
+        "call_count": 30
+      },
+      "latency_seconds": 40.2125
+    },
+    {
+      "key": "AIPRIV1_b_W127",
+      "text": "How acceptable do you think it is for social media companies to analyze what people do on their sites to deliver personalized content?",
+      "options": [
+        "Very acceptable",
+        "Somewhat acceptable",
+        "Somewhat unacceptable",
+        "Very unacceptable",
+        "Not sure",
+        "Refused"
+      ],
+      "model_distribution": {
+        "Very acceptable": 0.0,
+        "Somewhat acceptable": 0.9333,
+        "Somewhat unacceptable": 0.0667,
+        "Very unacceptable": 0.0,
+        "Not sure": 0.0,
+        "Refused": 0.0
+      },
+      "jsd": 0.315197,
+      "kendall_tau": 0.774597,
+      "parity": 0.786051,
+      "human_refusal_rate": 0.003812,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "temporal_year": 0,
+      "token_usage": {
+        "input_tokens": 4200,
+        "output_tokens": 5365,
+        "call_count": 30
+      },
+      "latency_seconds": 40.2125
+    },
+    {
+      "key": "AIPRIV1_c_W127",
+      "text": "How acceptable do you think it is to use computer programs, or algorithms, to determine who should be eligible for public assistance?",
+      "options": [
+        "Very acceptable",
+        "Somewhat acceptable",
+        "Somewhat unacceptable",
+        "Very unacceptable",
+        "Not sure",
+        "Refused"
+      ],
+      "model_distribution": {
+        "Very acceptable": 0.0,
+        "Somewhat acceptable": 0.0,
+        "Somewhat unacceptable": 1.0,
+        "Very unacceptable": 0.0,
+        "Not sure": 0.0,
+        "Refused": 0.0
+      },
+      "jsd": 0.604891,
+      "kendall_tau": 0.11547,
+      "parity": 0.476422,
+      "human_refusal_rate": 0.002573,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "temporal_year": 0,
+      "token_usage": {
+        "input_tokens": 4200,
+        "output_tokens": 5568,
+        "call_count": 30
+      },
+      "latency_seconds": 40.2125
+    },
+    {
+      "key": "AIWRK2_a_W119",
+      "text": "Over the next 20 years, how much impact do you think the use of artificial intelligence (AI) in the workplace will have on workers generally?",
+      "options": [
+        "A major impact",
+        "A minor impact",
+        "No impact",
+        "Not sure",
+        "Refused"
+      ],
+      "model_distribution": {
+        "A major impact": 1.0,
+        "A minor impact": 0.0,
+        "No impact": 0.0,
+        "Not sure": 0.0,
+        "Refused": 0.0
+      },
+      "jsd": 0.221346,
+      "kendall_tau": 0.632456,
+      "parity": 0.797441,
+      "human_refusal_rate": 0.002939,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "temporal_year": 0,
+      "token_usage": {
+        "input_tokens": 4020,
+        "output_tokens": 4082,
+        "call_count": 30
+      },
+      "latency_seconds": 40.2125
+    },
+    {
+      "key": "AIWRK2_b_W119",
+      "text": "Over the next 20 years, how much impact do you think the use of artificial intelligence (AI) in the workplace will have on you personally?",
+      "options": [
+        "A major impact",
+        "A minor impact",
+        "No impact",
+        "Not sure",
+        "Refused"
+      ],
+      "model_distribution": {
+        "A major impact": 0.7667,
+        "A minor impact": 0.2333,
+        "No impact": 0.0,
+        "Not sure": 0.0,
+        "Refused": 0.0
+      },
+      "jsd": 0.2516,
+      "kendall_tau": 0.597614,
+      "parity": 0.773604,
+      "human_refusal_rate": 0.003243,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "temporal_year": 0,
+      "token_usage": {
+        "input_tokens": 4020,
+        "output_tokens": 3956,
+        "call_count": 30
+      },
+      "latency_seconds": 40.2125
+    },
+    {
+      "key": "AIWRK2_c_W119",
+      "text": "Over the next 20 years, how much impact do you think the use of artificial intelligence (AI) in the workplace will have on the U.S. economy?",
+      "options": [
+        "A major impact",
+        "A minor impact",
+        "No impact",
+        "Not sure",
+        "Refused"
+      ],
+      "model_distribution": {
+        "A major impact": 1.0,
+        "A minor impact": 0.0,
+        "No impact": 0.0,
+        "Not sure": 0.0,
+        "Refused": 0.0
+      },
+      "jsd": 0.256871,
+      "kendall_tau": 0.632456,
+      "parity": 0.779678,
+      "human_refusal_rate": 0.00329,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "temporal_year": 0,
+      "token_usage": {
+        "input_tokens": 4140,
+        "output_tokens": 3575,
+        "call_count": 30
+      },
+      "latency_seconds": 40.2125
+    },
+    {
+      "key": "AIWRK3_a_W119",
+      "text": "Thinking about the use of artificial intelligence (AI) in the workplace over the next 20 years, what do you think the outcome will be for workers generally?",
+      "options": [
+        "AI will help more than it hurts",
+        "AI will equally help and hurt",
+        "AI will hurt more than it helps",
+        "Not sure",
+        "Refused"
+      ],
+      "model_distribution": {
+        "AI will help more than it hurts": 0.0667,
+        "AI will equally help and hurt": 0.9333,
+        "AI will hurt more than it helps": 0.0,
+        "Not sure": 0.0,
+        "Refused": 0.0
+      },
+      "jsd": 0.374719,
+      "kendall_tau": 0.358569,
+      "parity": 0.652283,
+      "human_refusal_rate": 0.004171,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "temporal_year": 0,
+      "token_usage": {
+        "input_tokens": 4500,
+        "output_tokens": 5619,
+        "call_count": 30
+      },
+      "latency_seconds": 40.2125
+    },
+    {
+      "key": "AIWRK3_b_W119",
+      "text": "Thinking about the use of artificial intelligence (AI) in the workplace over the next 20 years, what do you think the outcome will be for you personally?",
+      "options": [
+        "AI will help more than it hurts",
+        "AI will equally help and hurt",
+        "AI will hurt more than it helps",
+        "Not sure",
+        "Refused"
+      ],
+      "model_distribution": {
+        "AI will help more than it hurts": 1.0,
+        "AI will equally help and hurt": 0.0,
+        "AI will hurt more than it helps": 0.0,
+        "Not sure": 0.0,
+        "Refused": 0.0
+      },
+      "jsd": 0.622058,
+      "kendall_tau": 0.0,
+      "parity": 0.438971,
+      "human_refusal_rate": 0.006343,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "temporal_year": 0,
+      "token_usage": {
+        "input_tokens": 4500,
+        "output_tokens": 5060,
+        "call_count": 30
+      },
+      "latency_seconds": 41.0844
+    },
+    {
+      "key": "AIWRK3_c_W119",
+      "text": "Thinking about the use of artificial intelligence (AI) in the workplace over the next 20 years, what do you think the outcome will be for the U.S. economy?",
+      "options": [
+        "AI will help more than it hurts",
+        "AI will equally help and hurt",
+        "AI will hurt more than it helps",
+        "Not sure",
+        "Refused"
+      ],
+      "model_distribution": {
+        "AI will help more than it hurts": 0.9667,
+        "AI will equally help and hurt": 0.0333,
+        "AI will hurt more than it helps": 0.0,
+        "Not sure": 0.0,
+        "Refused": 0.0
+      },
+      "jsd": 0.507756,
+      "kendall_tau": 0.358569,
+      "parity": 0.585764,
+      "human_refusal_rate": 0.004502,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "temporal_year": 0,
+      "token_usage": {
+        "input_tokens": 4620,
+        "output_tokens": 5063,
+        "call_count": 30
+      },
+      "latency_seconds": 41.0844
+    },
+    {
+      "key": "AIWRKH1_W119",
+      "text": "Thinking now about how AI can be used in hiring, how much have you heard or read about artificial intelligence (AI) being used by employers in the hiring process?",
+      "options": [
+        "A lot",
+        "A little",
+        "Nothing at all",
+        "Refused"
+      ],
+      "model_distribution": {
+        "A lot": 0.0,
+        "A little": 1.0,
+        "Nothing at all": 0.0,
+        "Refused": 0.0
+      },
+      "jsd": 0.453318,
+      "kendall_tau": 0.235702,
+      "parity": 0.582266,
+      "human_refusal_rate": 0.00368,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "temporal_year": 0,
+      "token_usage": {
+        "input_tokens": 3900,
+        "output_tokens": 2878,
+        "call_count": 30
+      },
+      "latency_seconds": 41.0844
+    },
+    {
+      "key": "AIWRKH2_a_W119",
+      "text": "Would you favor or oppose employers\u2019 use of artificial intelligence (AI) for reviewing job applications?",
+      "options": [
+        "Favor",
+        "Oppose",
+        "Not sure",
+        "Refused"
+      ],
+      "model_distribution": {
+        "Favor": 0.0,
+        "Oppose": 0.0667,
+        "Not sure": 0.9333,
+        "Refused": 0.0
+      },
+      "jsd": 0.37795,
+      "kendall_tau": 0.182574,
+      "parity": 0.606669,
+      "human_refusal_rate": 0.003528,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "temporal_year": 0,
+      "token_usage": {
+        "input_tokens": 3420,
+        "output_tokens": 4565,
+        "call_count": 30
+      },
+      "latency_seconds": 41.0844
+    },
+    {
+      "key": "AIWRKH2_b_W119",
+      "text": "Would you favor or oppose employers\u2019 use of artificial intelligence (AI) for making a final hiring decision?",
+      "options": [
+        "Favor",
+        "Oppose",
+        "Not sure",
+        "Refused"
+      ],
+      "model_distribution": {
+        "Favor": 0.0,
+        "Oppose": 1.0,
+        "Not sure": 0.0,
+        "Refused": 0.0
+      },
+      "jsd": 0.17621,
+      "kendall_tau": 0.707107,
+      "parity": 0.838672,
+      "human_refusal_rate": 0.002691,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "temporal_year": 0,
+      "token_usage": {
+        "input_tokens": 3480,
+        "output_tokens": 4546,
+        "call_count": 30
+      },
+      "latency_seconds": 41.0844
+    },
+    {
+      "key": "AIWRKH3_a_W119",
+      "text": "Do you think artificial intelligence (AI) would do better, worse, or about the same as humans at identifying job applicants who are well-qualified?",
+      "options": [
+        "AI would do a better job than humans",
+        "AI would do a worse job than humans",
+        "AI would do about the same job as humans",
+        "Not sure",
+        "Refused"
+      ],
+      "model_distribution": {
+        "AI would do a better job than humans": 0.2333,
+        "AI would do a worse job than humans": 0.7333,
+        "AI would do about the same job as humans": 0.0333,
+        "Not sure": 0.0,
+        "Refused": 0.0
+      },
+      "jsd": 0.280543,
+      "kendall_tau": 0.527046,
+      "parity": 0.74149,
+      "human_refusal_rate": 0.005691,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "temporal_year": 0,
+      "token_usage": {
+        "input_tokens": 4530,
+        "output_tokens": 5579,
+        "call_count": 30
+      },
+      "latency_seconds": 41.0844
+    },
+    {
+      "key": "AIWRKH3_b_W119",
+      "text": "Do you think artificial intelligence (AI) would do better, worse, or about the same as humans at treating all job applicants in the same way?",
+      "options": [
+        "AI would do a better job than humans",
+        "AI would do a worse job than humans",
+        "AI would do about the same job as humans",
+        "Not sure",
+        "Refused"
+      ],
+      "model_distribution": {
+        "AI would do a better job than humans": 0.9667,
+        "AI would do a worse job than humans": 0.0333,
+        "AI would do about the same job as humans": 0.0,
+        "Not sure": 0.0,
+        "Refused": 0.0
+      },
+      "jsd": 0.278271,
+      "kendall_tau": 0.597614,
+      "parity": 0.760268,
+      "human_refusal_rate": 0.004725,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "temporal_year": 0,
+      "token_usage": {
+        "input_tokens": 4530,
+        "output_tokens": 4970,
+        "call_count": 30
+      },
+      "latency_seconds": 41.0844
+    },
+    {
+      "key": "AIWRKH3_c_W119",
+      "text": "Do you think artificial intelligence (AI) would do better, worse, or about the same as humans at seeing potential in job applicants who may not perfectly fit the job description?",
+      "options": [
+        "AI would do a better job than humans",
+        "AI would do a worse job than humans",
+        "AI would do about the same job as humans",
+        "Not sure",
+        "Refused"
+      ],
+      "model_distribution": {
+        "AI would do a better job than humans": 0.0,
+        "AI would do a worse job than humans": 1.0,
+        "AI would do about the same job as humans": 0.0,
+        "Not sure": 0.0,
+        "Refused": 0.0
+      },
+      "jsd": 0.368371,
+      "kendall_tau": 0.632456,
+      "parity": 0.723928,
+      "human_refusal_rate": 0.005679,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "temporal_year": 0,
+      "token_usage": {
+        "input_tokens": 4680,
+        "output_tokens": 5994,
+        "call_count": 30
+      },
+      "latency_seconds": 41.0844
+    },
+    {
+      "key": "AIWRKH3_d_W119",
+      "text": "Do you think artificial intelligence (AI) would do better, worse, or about the same as humans at figuring out which job applicants would work well with their coworkers?",
+      "options": [
+        "AI would do a better job than humans",
+        "AI would do a worse job than humans",
+        "AI would do about the same job as humans",
+        "Not sure",
+        "Refused"
+      ],
+      "model_distribution": {
+        "AI would do a better job than humans": 0.0,
+        "AI would do a worse job than humans": 1.0,
+        "AI would do about the same job as humans": 0.0,
+        "Not sure": 0.0,
+        "Refused": 0.0
+      },
+      "jsd": 0.386398,
+      "kendall_tau": 0.632456,
+      "parity": 0.714915,
+      "human_refusal_rate": 0.008921,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "temporal_year": 0,
+      "token_usage": {
+        "input_tokens": 4710,
+        "output_tokens": 5420,
+        "call_count": 30
+      },
+      "latency_seconds": 41.0844
+    },
+    {
+      "key": "AIWRKH4_W119",
+      "text": "If you were looking for work, would you want to apply for a job with an employer that uses artificial intelligence (AI) to help make hiring decisions?",
+      "options": [
+        "Yes, I would",
+        "No, I would not",
+        "Refused"
+      ],
+      "model_distribution": {
+        "Yes, I would": 0.0,
+        "No, I would not": 1.0,
+        "Refused": 0.0
+      },
+      "jsd": 0.220649,
+      "kendall_tau": 0.816497,
+      "parity": 0.8438,
+      "human_refusal_rate": 0.018768,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "temporal_year": 0,
+      "token_usage": {
+        "input_tokens": 3750,
+        "output_tokens": 4616,
+        "call_count": 30
+      },
+      "latency_seconds": 41.0844
+    }
+  ],
+  "temporal_breakdown": {},
+  "stripped_fields": [
+    "human_distribution"
+  ]
+}
