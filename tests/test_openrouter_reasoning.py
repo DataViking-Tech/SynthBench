@@ -14,12 +14,18 @@ from synthbench.providers.openrouter import OpenRouterProvider  # noqa: E402
 OPTIONS = ["favor", "oppose", "don't know"]
 
 
-def _resp(text: str, finish: str = "stop"):
+def _resp(text: str, finish: str = "stop", reasoning_tokens: int = 0):
     return SimpleNamespace(
         choices=[
             SimpleNamespace(message=SimpleNamespace(content=text), finish_reason=finish)
         ],
-        usage=SimpleNamespace(prompt_tokens=10, completion_tokens=1),
+        usage=SimpleNamespace(
+            prompt_tokens=10,
+            completion_tokens=1,
+            completion_tokens_details=SimpleNamespace(
+                reasoning_tokens=reasoning_tokens
+            ),
+        ),
     )
 
 
@@ -89,7 +95,9 @@ def test_reasoning_turned_off_when_the_default_answer_is_empty(monkeypatch):
 
 def test_minimal_reasoning_when_it_cannot_be_turned_off(monkeypatch):
     fake = _FakeCompletions(
-        default=_resp("(", "length"), off="mandatory", minimal=_resp("(C)")
+        default=_resp("(", "length", reasoning_tokens=60),
+        off="mandatory",
+        minimal=_resp("(C)"),
     )
     p = _provider(monkeypatch, fake)
     out = _ask(p, n=3)
@@ -138,3 +146,31 @@ def test_reply_without_choices_is_retried(monkeypatch):
 
 async def _no_sleep(*_a, **_k):
     return None
+
+
+def test_long_prose_without_reasoning_keeps_the_mode(monkeypatch):
+    # A refusal written in prose that runs out of tokens is not a reasoning
+    # problem; it stays an (unreadable) answer and the run's mode is unchanged.
+    fake = _FakeCompletions(
+        default=_resp("I appreciate the question, but I should", "length")
+    )
+    p = _provider(monkeypatch, fake)
+    out = _ask(p)
+    assert out[0].selected_option is None
+    assert p.reasoning is None
+    assert fake.calls == ["default"]
+
+
+def test_raw_prompt_budget_is_64_tokens(monkeypatch):
+    from synthbench.providers.base import RAW_ANSWER_MAX_TOKENS
+
+    seen = {}
+
+    class _Spy(_FakeCompletions):
+        async def create(self, **kw):
+            seen.update(kw)
+            return _resp("A")
+
+    p = _provider(monkeypatch, _Spy(default=None))
+    _ask(p)
+    assert seen["max_tokens"] == RAW_ANSWER_MAX_TOKENS == 64

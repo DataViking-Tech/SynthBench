@@ -12,6 +12,7 @@ import os
 from synthbench.providers._parsing import parse_option_response
 from synthbench.providers._retry import call_with_retries
 from synthbench.providers.base import (
+    RAW_ANSWER_MAX_TOKENS,
     PersonaSpec,
     Provider,
     Response,
@@ -29,7 +30,10 @@ _LETTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 # re-sent and every later one uses the mode. Some models (Sonnet 5.5) decide
 # per question whether to think, so the first request alone can't tell.
 _REASONING_MODES = {
-    "off": {"max_tokens": 8, "extra_body": {"reasoning": {"enabled": False}}},
+    "off": {
+        "max_tokens": RAW_ANSWER_MAX_TOKENS,
+        "extra_body": {"reasoning": {"enabled": False}},
+    },
     "minimal": {
         "max_tokens": 1024,
         "extra_body": {"reasoning": {"effort": "minimal", "exclude": True}},
@@ -121,7 +125,7 @@ class OpenRouterProvider(Provider):
 
         request_kwargs: dict = {
             "model": self._model,
-            "max_tokens": 8,
+            "max_tokens": RAW_ANSWER_MAX_TOKENS,
             "temperature": self._temperature,
             "messages": [
                 {"role": "system", "content": system},
@@ -180,13 +184,23 @@ class OpenRouterProvider(Provider):
 
     @staticmethod
     def _cut_off(resp, options: list[str]) -> bool:
-        """True when the answer ran out of tokens before naming an option."""
+        """True when reasoning used up the budget before an option was named.
+
+        A long visible answer that runs out of tokens (prose a model writes
+        despite the instruction) is not a reasoning problem and keeps the
+        run's mode; only an empty answer or one that spent tokens reasoning
+        counts.
+        """
         choice = resp.choices[0]
+        content = choice.message.content or ""
+        details = getattr(
+            getattr(resp, "usage", None), "completion_tokens_details", None
+        )
+        reasoned = bool(getattr(details, "reasoning_tokens", 0) or 0)
         return (
             choice.finish_reason == "length"
-            and parse_option_response(
-                choice.message.content or "", options
-            ).is_parse_failure
+            and (reasoned or not content.strip())
+            and parse_option_response(content, options).is_parse_failure
         )
 
     async def _switch_reasoning(self, request_kwargs: dict):

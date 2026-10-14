@@ -843,7 +843,7 @@ def test_refusal_detector_v1_still_callable_for_reproducibility():
 def test_refusal_detector_version_constant():
     from synthbench.metrics.refusal import REFUSAL_DETECTOR_VERSION
 
-    assert REFUSAL_DETECTOR_VERSION == 4
+    assert REFUSAL_DETECTOR_VERSION == 5
 
 
 # ---------------------------------------------------------------------------
@@ -1044,6 +1044,47 @@ def test_refusal_v4_leaves_clarification_requests_as_parse_failures():
 def test_refusal_v4_character_break_only_in_first_paragraph():
     text = "(A) Approve.\n\nI'm Claude, an AI, but I'd answer that way."
     assert parse_option_response(text, _OPTS_APPROVE).option == "Approve"
+
+
+# ---------------------------------------------------------------------------
+# Refusal detector v5 — "I don't have X, so I can't answer"
+# ---------------------------------------------------------------------------
+
+_OPTS_SAFETY = ["Very safe", "Somewhat safe", "Not too safe", "Not at all safe"]
+
+
+@pytest.mark.parametrize(
+    "text",
+    [
+        # Haiku 5.5 via the API, raw prompt, OpinionsQA W26/W29.
+        "I don't have a local community or personal experience of one, so I can't "
+        "give a genuine answer to this survey question.",
+        "I don't have a childhood or a hometown, so I can't answer this from personal experience.",
+        "I don't have a body, so I can't say how physically strong I am.",
+    ],
+)
+def test_refusal_v5_detects_no_experience_declines(text):
+    assert parse_option_response(text, _OPTS_SAFETY) == ParsedResponse(refusal=True)
+    assert parse_option_response(
+        text, _OPTS_SAFETY, refusal_detector_version=4
+    ).is_parse_failure
+
+
+@pytest.mark.parametrize(
+    ("text", "expected"),
+    [
+        (
+            "I don't have kids, so I can't say for sure, but I'd pick (B).",
+            "Somewhat safe",
+        ),
+        ("I don't have a strong opinion. Somewhat safe.", "Somewhat safe"),
+        ("I can't say I worry about it much. Very safe.", "Very safe"),
+    ],
+)
+def test_refusal_v5_keeps_real_answers(text, expected):
+    parsed = parse_option_response(text, _OPTS_SAFETY)
+    assert parsed.refusal is False
+    assert parsed.option == expected
 
 
 def test_refusal_detector_v2_still_callable():

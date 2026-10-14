@@ -68,6 +68,7 @@ from synthbench.metrics.refusal import (
     detect_refusal_v2,
     detect_refusal_v3,
     detect_refusal_v4,
+    detect_refusal_v5,
 )
 
 # Full-match bare letter: optional "(", one ASCII letter, optional ")",
@@ -250,8 +251,9 @@ def parse_option_response(
     Never falls back to ``options[0]``. See module docstring for the
     matching order and rationale.
 
-    ``refusal_detector_version`` selects the refusal heuristic: 4 (default,
-    v3 plus character breaks anywhere in the first paragraph), 3 (v2 plus
+    ``refusal_detector_version`` selects the refusal heuristic: 5 (default,
+    v4 plus "I don't have X, so I can't answer"), 4 (v3 plus character
+    breaks anywhere in the first paragraph), 3 (v2 plus
     character-break openers and explicit non-selection), 2
     (answer-initial anchoring + option-echo exemption) or 1 (the legacy
     un-anchored patterns). Older versions stay callable so historical runs
@@ -276,7 +278,9 @@ def parse_option_response(
         return ParsedResponse(option=by_norm[text_norm])
 
     # 2. Refusal detection BEFORE fuzzy option matching.
-    if refusal_detector_version >= 4:
+    if refusal_detector_version >= 5:
+        is_refusal = detect_refusal_v5(stripped, options)
+    elif refusal_detector_version >= 4:
         is_refusal = detect_refusal_v4(stripped, options)
     elif refusal_detector_version >= 3:
         is_refusal = detect_refusal_v3(stripped, options)

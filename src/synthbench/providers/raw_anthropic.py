@@ -6,6 +6,7 @@ from synthbench.providers._harness import HarnessChat, split_harness
 from synthbench.providers._parsing import parse_option_response
 from synthbench.providers._retry import call_with_retries
 from synthbench.providers.base import (
+    RAW_ANSWER_MAX_TOKENS,
     PersonaSpec,
     Provider,
     Response,
@@ -122,7 +123,7 @@ class RawAnthropicProvider(Provider):
 
         request_kwargs: dict = {
             "model": self._model,
-            "max_tokens": 8,
+            "max_tokens": RAW_ANSWER_MAX_TOKENS,
             "temperature": self._temperature,
             "system": system,
             "messages": [{"role": "user", "content": prompt}],
