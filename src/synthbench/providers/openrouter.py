@@ -23,9 +23,11 @@ _LETTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 
 # Request settings for models that reason before answering by default. Such a
 # model spends the 8-token answer budget thinking and returns nothing or a
-# cut-off answer. The run's first request probes for this; if it fails, the
-# run switches to reasoning off, or, where a model won't allow that, minimal
-# reasoning with room for it (reasoning text excluded from the answer).
+# cut-off answer. The first cut-off, unreadable answer in a run switches the
+# run to reasoning off, or, where a model won't allow that, minimal reasoning
+# with room for it (reasoning text excluded from the answer); that request is
+# re-sent and every later one uses the mode. Some models (Sonnet 5.5) decide
+# per question whether to think, so the first request alone can't tell.
 _REASONING_MODES = {
     "off": {"max_tokens": 8, "extra_body": {"reasoning": {"enabled": False}}},
     "minimal": {
@@ -93,12 +95,11 @@ class OpenRouterProvider(Provider):
         self._model = model
         self._temperature = temperature
         self._effort = validate_effort(effort, "openrouter")
-        # Set by the first request (see _REASONING_MODES): None means the
-        # model answers within the default budget; "off" / "minimal" apply to
-        # every request in the run and are stamped into the run config.
+        # None while the model answers within the default budget; "off" /
+        # "minimal" once a cut-off answer forced a switch (see
+        # _REASONING_MODES). Stamped into the run config.
         self.reasoning: str | None = None
-        self._probed = effort is not None
-        self._probe_lock = asyncio.Lock()
+        self._switch_lock = asyncio.Lock()
         self._client = openai.AsyncOpenAI(
             api_key=api_key,
             base_url=_OPENROUTER_BASE_URL,
@@ -135,14 +136,9 @@ class OpenRouterProvider(Provider):
             request_kwargs["max_tokens"] = _EFFORT_MAX_TOKENS[self._effort]
             request_kwargs["extra_body"] = {"reasoning": {"effort": self._effort}}
 
-        if self._probed:
-            resp = await self._create(request_kwargs)
-        else:
-            async with self._probe_lock:
-                if self._probed:
-                    resp = await self._create(request_kwargs)
-                else:
-                    resp = await self._probe(request_kwargs, options)
+        resp = await self._create(request_kwargs)
+        if self._effort is None and self._cut_off(resp, options):
+            resp = await self._switch_reasoning(request_kwargs)
 
         raw_text = resp.choices[0].message.content or ""
         parsed = parse_option_response(raw_text, options)
@@ -182,20 +178,27 @@ class OpenRouterProvider(Provider):
             raise ConnectionError(f"OpenRouter returned no choices for {self._model}")
         return resp
 
-    async def _probe(self, request_kwargs: dict, options: list[str]):
-        """First request of the run: pick the reasoning mode, return its answer."""
-        import openai
-
-        resp = await self._create(request_kwargs)
+    @staticmethod
+    def _cut_off(resp, options: list[str]) -> bool:
+        """True when the answer ran out of tokens before naming an option."""
         choice = resp.choices[0]
-        if (
-            choice.finish_reason != "length"
-            or not parse_option_response(
+        return (
+            choice.finish_reason == "length"
+            and parse_option_response(
                 choice.message.content or "", options
             ).is_parse_failure
-        ):
-            self._probed = True
-            return resp
+        )
+
+    async def _switch_reasoning(self, request_kwargs: dict):
+        """Re-send a cut-off request with reasoning controlled; set the run's mode."""
+        import openai
+
+        async with self._switch_lock:
+            if self.reasoning is not None:
+                return await self._create(request_kwargs)
+            return await self._pick_mode(request_kwargs, openai)
+
+    async def _pick_mode(self, request_kwargs: dict, openai):
         for mode in ("off", "minimal"):
             try:
                 resp = await call_with_retries(
@@ -206,7 +209,6 @@ class OpenRouterProvider(Provider):
                     continue
                 raise
             self.reasoning = mode
-            self._probed = True
             return resp
         raise AssertionError("unreachable")
 

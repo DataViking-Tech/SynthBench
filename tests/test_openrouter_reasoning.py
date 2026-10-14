@@ -83,8 +83,7 @@ def test_reasoning_turned_off_when_the_default_answer_is_empty(monkeypatch):
     out = _ask(p, n=5)
     assert all(r.selected_option == "oppose" for r in out)
     assert p.reasoning == "off"
-    # One probe at default settings; every answer is from reasoning off.
-    assert fake.calls.count("default") == 1
+    # Every cut-off answer is re-sent with reasoning off.
     assert fake.calls.count("off") == 5
 
 
@@ -106,10 +105,23 @@ def test_truncated_but_parseable_answer_needs_no_switch(monkeypatch):
     assert p.reasoning is None
 
 
-def test_explicit_effort_skips_the_probe(monkeypatch):
-    monkeypatch.setenv("OPENROUTER_API_KEY", "test")
-    p = OpenRouterProvider(model="test/model", effort="low")
-    assert p._probed is True
+def test_a_later_cut_off_answer_still_switches(monkeypatch):
+    # Some models only think (and overrun 8 tokens) on some questions.
+    replies = iter([_resp("A"), _resp("A"), _resp("", "length")])
+
+    class _Adaptive(_FakeCompletions):
+        async def create(self, **kw):
+            mode = "default" if "extra_body" not in kw else "minimal"
+            self.calls.append(mode)
+            if mode == "default":
+                return next(replies, _resp("", "length"))
+            return _resp("(B)")
+
+    fake = _Adaptive(default=None)
+    p = _provider(monkeypatch, fake)
+    out = [_ask(p)[0].selected_option for _ in range(4)]
+    assert out == ["favor", "favor", "oppose", "oppose"]
+    assert p.reasoning in ("off", "minimal")
 
 
 def test_reply_without_choices_is_retried(monkeypatch):
