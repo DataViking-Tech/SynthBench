@@ -528,7 +528,11 @@ def test_golden_three_entry_leaderboard(tmp_path: Path):
     by_provider = {e["provider"]: e for e in data["entries"]}
 
     # Haiku row carries all four cost fields with measured cost > 0.
-    haiku_entry = next(e for e in data["entries"] if "haiku" in e["model"].lower())
+    haiku_entry = next(
+        e
+        for e in data["entries"]
+        if "haiku" in e["model"].lower() and not e["is_ensemble"]
+    )
     expected_haiku_cost = (
         2_000_000 * HAIKU.input_cost_per_million
         + 500_000 * HAIKU.output_cost_per_million
@@ -554,7 +558,11 @@ def test_golden_three_entry_leaderboard(tmp_path: Path):
         )
         / 1_000_000
     )
-    gemini_entry = next(e for e in data["entries"] if "gemini" in e["model"].lower())
+    gemini_entry = next(
+        e
+        for e in data["entries"]
+        if "gemini" in e["model"].lower() and not e["is_ensemble"]
+    )
     assert gemini_entry["cost_usd"] == pytest.approx(expected_gemini_cost, rel=1e-5)
     assert gemini_entry["cost_per_100q"] == pytest.approx(
         expected_gemini_cost / 200 * 100, rel=1e-5

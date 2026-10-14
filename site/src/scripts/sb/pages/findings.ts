@@ -1,5 +1,14 @@
 import { axisTitle, css, fmt, h, linear, mount, s, ticks } from "../dom";
-import { CORE, type Method, data, dsLabel, dsMeta, pruneCompare, systems } from "../model";
+import {
+  CORE,
+  type Method,
+  data,
+  dsLabel,
+  dsMeta,
+  ensembleLabel,
+  pruneCompare,
+  systems,
+} from "../model";
 import { hoverInfo, initShell, marker, methodColor } from "../ui";
 
 pruneCompare();
@@ -186,12 +195,16 @@ const ec = (F.ensemble_comparison ?? [])
     a: idxOf(e.dataset, e.best_member_sps as number),
     b: idxOf(e.dataset, e.ensemble_sps),
     top: idxOf(e.dataset, e.best_single_sps),
+    label: ensembleLabel(e.ensemble_model ?? "Ensemble"),
   }));
 if (ec.length) {
   const corr = (F.ensemble_error_correlation ?? []).map((c) => c.mean_pearson_r);
   const gains = ec.map((e) => e.b - e.a);
-  const beatenBy = ec.filter((e) => e.top > e.b);
-  const leaders = [...new Set(beatenBy.map((e) => e.best_single_model))];
+  // Per ensemble: does it beat every single system on every dataset?
+  const byEns = new Map<string, typeof ec>();
+  for (const e of ec) byEns.set(e.label, [...(byEns.get(e.label) ?? []), e]);
+  const beatsAll = [...byEns].filter(([, rows]) => rows.every((r) => r.b >= r.top)).map(([l]) => l);
+  const beaten = [...byEns].filter(([, rows]) => rows.some((r) => r.top > r.b)).map(([l]) => l);
   items.push({
     id: "ensemble",
     short: "Ensembles",
@@ -204,18 +217,19 @@ if (ec.length) {
     numberLabel: "Index points over the blend's best member",
     meaning:
       "Averaging models from different labs cancels some of their errors, but a stronger single model can match the blend at a third of the cost. Compare against the best single model available, not just the blend's members.",
-    evidence: `Equal-weight average of the members' per-question answer distributions.${corr.length ? ` The members' errors correlate at r = ${Math.min(...corr).toFixed(2)} to ${Math.max(...corr).toFixed(2)}.` : ""}${beatenBy.length ? ` On ${beatenBy.length} of ${ec.length} datasets a single newer model scores higher than the blend: ${leaders.join(", ")}.` : ""} It costs about three times as much as a single run.`,
+    evidence: `Equal-weight average of the members' per-question answer distributions.${corr.length ? ` The members' errors correlate at r = ${Math.min(...corr).toFixed(2)} to ${Math.max(...corr).toFixed(2)}.` : ""}${beatsAll.length ? ` ${beatsAll.join(" and ")} ${beatsAll.length > 1 ? "score" : "scores"} above every single system on every dataset.` : ""}${beaten.length ? ` A single model beats ${beaten.join(" and ")} on at least one dataset.` : ""} The members were picked after seeing their scores on these questions, so the gain over the best single system is likely overstated. It costs about three times as much as a single run.`,
     viz(el) {
       dumbbell(
         el,
         ec.map((e) => ({
-          name: dsLabel(e.dataset),
+          name: `${e.label}, ${dsLabel(e.dataset)}`,
           a: e.a,
           b: e.b,
           label: fmt.delta(e.b - e.a),
           tip: [
+            ["Ensemble", e.ensemble_model ?? "Ensemble"],
             ["Best member", `${e.best_member_model}, ${fmt.one(e.a)}`],
-            ["Ensemble", fmt.one(e.b)],
+            ["Ensemble Index", fmt.one(e.b)],
             ["Best single system", `${e.best_single_model}, ${fmt.one(e.top)}`],
           ],
         })),

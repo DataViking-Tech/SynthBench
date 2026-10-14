@@ -813,6 +813,16 @@ def _build_entry(
         "is_baseline": is_baseline,
         "is_ensemble": is_ensemble,
     }
+    if is_ensemble:
+        # Members as runnable ids + framework, so consumers (the site) can
+        # link a blend to its member rows without a hardcoded list.
+        entry["ensemble_members"] = [
+            {
+                "model_id": runnable_ids(src.get("provider", ""))[1],
+                "framework": provider_framework(src.get("provider", "")),
+            }
+            for src in cfg.get("ensemble_sources") or []
+        ]
 
     # Optional sub-metrics (conditioned runs only)
     p_cond = scores.get("p_cond")

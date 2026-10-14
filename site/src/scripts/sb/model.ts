@@ -61,8 +61,17 @@ export const dsLabel = (id: string): string =>
 export const dsMeta = (id: string): DatasetMeta | undefined =>
   data().datasets.find((d) => d.id === id);
 
+/** "Ensemble: Qwen 3.8 Flash, DeepSeek V4.1 Flash, Gemini 3.5 Flash-Lite (raw)" → "Qwen + DeepSeek + Gemini, raw". */
+export function ensembleLabel(name: string): string {
+  const m = name.match(/^Ensemble: (.*?)(?: \((\w+)\))?$/);
+  if (!m) return name;
+  const parts = m[1].split(", ").map((p) => p.replace(/^Claude /, "").split(" ")[0]);
+  return `${parts.join(" + ")}${m[2] ? `, ${m[2]}` : ""}`;
+}
 export const shortName = (c: SystemConfig): string =>
-  c.method === "ensemble" ? "Ensemble" : c.base.replace("Gemini 2.5 ", "").replace("Claude ", "");
+  c.method === "ensemble"
+    ? ensembleLabel(c.base)
+    : c.base.replace("Gemini 2.5 ", "").replace("Claude ", "");
 export const fullName = (c: SystemConfig): string =>
   `${c.base}${c.method === "ensemble" ? "" : `, ${METHODS[c.method as ShownMethod].short}`}${c.variant ? ` (${c.variant})` : ""}`;
 export const familyId = (c: SystemConfig): string => c.baseId;
@@ -179,8 +188,6 @@ export function counterpart(c: SystemConfig): SystemConfig | undefined {
   );
 }
 
-export const ENSEMBLE_MEMBERS = [
-  "anthropic/claude-haiku-4-5",
-  "google/gemini-2.5-flash-lite",
-  "openai/gpt-4o-mini",
-];
+/** Ensemble rows (not variants), each with its own members. */
+export const ensembles = (): SystemConfig[] =>
+  systems().filter((c) => c.method === "ensemble" && !c.variant);

@@ -50,7 +50,7 @@ def test_product_normalization_uses_matching_raw_base():
 def test_product_without_known_base_is_skipped():
     entries = [
         {
-            "model": "Althing Ensemble (3-model)",
+            "model": "Ensemble: Haiku 4.5, Gemini 2.5 Flash-Lite, GPT-4o mini (Althing)",
             "dataset": "opinionsqa",
             "framework": "product",
             "sps": 0.835,

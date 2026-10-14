@@ -82,6 +82,8 @@ export interface LeaderboardEntry {
 
   is_baseline: boolean;
   is_ensemble: boolean;
+  /** Members of an ensemble row: runnable model id and framework ("raw" / "product"). */
+  ensemble_members?: { model_id: string; framework: string }[];
 
   /**
    * Number of raw result files aggregated into this row — replicates for
@@ -357,6 +359,8 @@ export interface EnsembleComparison {
   best_single_framework?: string;
   best_single_sps: number;
   ensemble_sps: number;
+  /** Display name of the ensemble this row compares. */
+  ensemble_model?: string;
   /** Best of the blend's own members on this dataset. */
   best_member_model?: string;
   best_member_sps?: number;

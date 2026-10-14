@@ -299,6 +299,16 @@ def _build_template_comparison(results: list[dict]) -> list[dict]:
     return out
 
 
+def _ensembles_by_dataset(deduped: list[dict]) -> list[tuple[str, dict]]:
+    """Every published ensemble as (dataset, run), sorted by dataset then id."""
+    out = []
+    for r in deduped:
+        cfg = r.get("config") or {}
+        if cfg.get("provider", "").startswith("ensemble/"):
+            out.append((cfg.get("dataset", "unknown"), r))
+    return sorted(out, key=lambda t: (t[0], t[1]["config"]["provider"]))
+
+
 def _build_ensemble_comparison(
     results: list[dict], excluded_run_ids: set[str]
 ) -> tuple[list[dict], list[str]]:
@@ -324,15 +334,8 @@ def _build_ensemble_comparison(
 
     rows: list[dict] = []
     caveats: list[str] = []
-    for dataset in sorted(by_dataset):
+    for dataset, ensemble in _ensembles_by_dataset(deduped):
         ds_results = by_dataset[dataset]
-        ensemble = None
-        for r in ds_results:
-            if (r.get("config") or {}).get("provider", "").startswith("ensemble/"):
-                ensemble = r
-                break
-        if ensemble is None:
-            continue
         ensemble_sps = _run_sps(ensemble)
         if ensemble_sps is None:
             continue
@@ -376,6 +379,9 @@ def _build_ensemble_comparison(
         best_provider = (best.get("config") or {}).get("provider", "")
         row = {
             "dataset": dataset,
+            "ensemble_model": display_provider_name(
+                (ensemble.get("config") or {}).get("provider", "")
+            ),
             "best_single_model": display_provider_name(best_provider),
             "best_single_framework": provider_framework(best_provider),
             "best_single_sps": round(best_sps, 6),
@@ -440,18 +446,9 @@ def _build_ensemble_error_correlation(
     from synthbench.leaderboard import display_provider_name
     from synthbench.publish import _dedup_results
 
-    # Mirror _build_ensemble_comparison's selection: first ensemble per
-    # dataset in the deduped pool.
-    ensembles: dict[str, dict] = {}
-    for r in _dedup_results(results):
-        cfg = r.get("config") or {}
-        ds = cfg.get("dataset", "unknown")
-        if cfg.get("provider", "").startswith("ensemble/") and ds not in ensembles:
-            ensembles[ds] = r
-
+    # Same selection as _build_ensemble_comparison: every published ensemble.
     rows: list[dict] = []
-    for dataset in sorted(ensembles):
-        ensemble = ensembles[dataset]
+    for dataset, ensemble in _ensembles_by_dataset(_dedup_results(results)):
         common_keys = {
             q.get("key") for q in ensemble.get("per_question") or [] if q.get("key")
         }
@@ -507,6 +504,9 @@ def _build_ensemble_error_correlation(
         rows.append(
             {
                 "dataset": dataset,
+                "ensemble_model": display_provider_name(
+                    (ensemble.get("config") or {}).get("provider", "")
+                ),
                 "n_questions": _effective_n(ensemble),
                 "constituents": [name for name, _ in constituents],
                 "pairs": pairs,

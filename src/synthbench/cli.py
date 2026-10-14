@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import asyncio
 import json
+import re
 import sys
 from pathlib import Path
 
@@ -2570,7 +2571,13 @@ def publish_questions_cmd(results_dir, output_dir, no_r2, strict_gating):
     default=None,
     help="Comma-separated weights for each input file (default: equal).",
 )
-def ensemble(files, output, weights):
+@click.option(
+    "--name",
+    default=None,
+    help="Slug for the blend's provider id (ensemble/<name>). Each member set "
+    "needs its own name to get its own leaderboard row. Default: <N>-model-blend.",
+)
+def ensemble(files, output, weights, name):
     """Blend N result files into a single ensemble result.
 
     Aligns questions by key (intersection), averages model distributions
@@ -2579,6 +2586,7 @@ def ensemble(files, output, weights):
     Example:
         synthbench ensemble results/haiku.json results/gemini.json results/gpt4omini.json
         synthbench ensemble a.json b.json --weights 0.6,0.4
+        synthbench ensemble q.json d.json g.json --name flash3-raw
     """
     from datetime import datetime, timezone
     from synthbench.metrics.distributional import jensen_shannon_divergence
@@ -2587,6 +2595,11 @@ def ensemble(files, output, weights):
 
     if len(files) < 2:
         click.echo("Error: need at least 2 result files to ensemble.", err=True)
+        sys.exit(1)
+    if name is not None and not re.fullmatch(r"[a-z0-9][a-z0-9-]*", name):
+        click.echo(
+            "Error: --name must be lowercase letters, digits and dashes.", err=True
+        )
         sys.exit(1)
 
     # Parse weights
@@ -2743,7 +2756,7 @@ def ensemble(files, output, weights):
     sps = round((p_dist + p_rank + p_refuse) / 3.0, 6)
 
     # Build result JSON
-    provider_label = f"ensemble/{len(files)}-model-blend"
+    provider_label = f"ensemble/{name or f'{len(files)}-model-blend'}"
     dataset_name = datasets[0].get("config", {}).get("dataset", "unknown")
 
     result_json = {
@@ -2806,7 +2819,8 @@ def ensemble(files, output, weights):
     out_dir = Path(output)
     out_dir.mkdir(parents=True, exist_ok=True)
     ts = datetime.now().strftime("%Y%m%d_%H%M%S")
-    json_path = out_dir / f"{dataset_name}_ensemble_{len(files)}blend_{ts}.json"
+    stem = name or f"{len(files)}blend"
+    json_path = out_dir / f"{dataset_name}_ensemble_{stem}_{ts}.json"
     json_path.write_text(json.dumps(result_json, indent=2))
     click.echo(f"Saved: {json_path}")
 

@@ -102,7 +102,19 @@ MODEL_MAP: dict[str, tuple[str, str]] = {
     "althing/anthropic/claude-sonnet-5-5": ("Althing (Sonnet 5.5)", "product"),
     "althing/openai/gpt-6-luna": ("Althing (GPT-6 Luna)", "product"),
     # Ensemble
-    "ensemble/3-model-blend": ("Althing Ensemble (3-model)", "product"),
+    # Each member set has its own slug (synthbench ensemble --name).
+    "ensemble/3-model-blend": (
+        "Ensemble: Haiku 4.5, Gemini 2.5 Flash-Lite, GPT-4o mini (Althing)",
+        "product",
+    ),
+    "ensemble/flash3-raw": (
+        "Ensemble: Qwen 3.8 Flash, DeepSeek V4.1 Flash, Gemini 3.5 Flash-Lite (raw)",
+        "product",
+    ),
+    "ensemble/flash3-althing": (
+        "Ensemble: Qwen 3.8 Flash, DeepSeek V4.1 Flash, Gemini 3.5 Flash-Lite (Althing)",
+        "product",
+    ),
     # Baselines
     "random-baseline": ("Random Baseline", "baseline"),
     "majority-baseline": ("Majority Baseline", "baseline"),

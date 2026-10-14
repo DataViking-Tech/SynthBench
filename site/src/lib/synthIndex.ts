@@ -61,10 +61,13 @@ export interface DatasetScore {
 
 export interface SystemConfig {
   key: string;
-  /** Display name of the base model ("Claude Haiku 4.5"), or "Althing Ensemble". */
+  /** Display name of the base model ("Claude Haiku 4.5") or of the ensemble. */
   base: string;
-  /** Machine id of the base model, or "ensemble" / the baseline id. */
+  /** Machine id of the base model, an ensemble id, or the baseline id. */
   baseId: string;
+  /** Ensemble rows: member model ids and whether they used the raw prompt or Althing. */
+  members: string[];
+  membersMethod: Method | null;
   lab: string;
   method: Method;
   /** Non-default settings (temperature, prompt template), or null. */
@@ -161,6 +164,16 @@ function prettyModel(id: string): string {
   return tail.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
 }
 
+/**
+ * model_id keeps vendor version dates (claude-haiku-4-5-20251001) so it stays
+ * runnable; dated and undated ids are the same model here, as are
+ * OpenRouter's dotted Anthropic versions (claude-sonnet-4.6).
+ */
+export function normalizeModelId(id: string): string {
+  const undated = id.replace(/-\d{8}$/, "");
+  return undated.startsWith("anthropic/") ? undated.replace(/\./g, "-") : undated;
+}
+
 export function buildIndexData(raw: SynthBenchData): IndexData {
   // Wave/year filter suffixes ("ntia (Nov 2023)") name the same dataset.
   const entries = raw.entries.map((e) => ({ ...e, dataset: e.dataset.split(" ", 1)[0] }));
@@ -196,11 +209,7 @@ export function buildIndexData(raw: SynthBenchData): IndexData {
     if (e.template && e.template !== "current") variantParts.push(`${e.template} template`);
     if (e.effort) variantParts.push(`${e.effort} effort`);
     if (e.persona_pack) variantParts.push(`${e.persona_pack} personas`);
-    // model_id keeps vendor version dates (claude-haiku-4-5-20251001) so it
-    // stays runnable; dated and undated ids are the same model here, as are
-    // OpenRouter's dotted Anthropic versions (claude-sonnet-4.6).
-    let modelId = (e.model_id ?? e.model).replace(/-\d{8}$/, "");
-    if (modelId.startsWith("anthropic/")) modelId = modelId.replace(/\./g, "-");
+    const modelId = normalizeModelId(e.model_id ?? e.model);
     const key = [
       method,
       modelId,
@@ -212,7 +221,7 @@ export function buildIndexData(raw: SynthBenchData): IndexData {
     ].join("|");
     const prefix = modelId.includes("/") ? modelId.split("/")[0] : "";
     let base: string;
-    if (method === "ensemble") base = "Althing Ensemble";
+    if (method === "ensemble") base = e.model;
     else if (method === "baseline")
       base = modelId === "random-baseline" ? "Random answers" : "Majority answer";
     else base = BASE_NAMES[modelId] ?? prettyModel(modelId);
@@ -221,7 +230,19 @@ export function buildIndexData(raw: SynthBenchData): IndexData {
       cfg = {
         key,
         base,
-        baseId: method === "ensemble" ? "ensemble" : modelId,
+        // The first ensemble keeps its old id (and profile URL).
+        baseId:
+          method !== "ensemble"
+            ? modelId
+            : modelId === "3-model-blend"
+              ? "ensemble"
+              : `ensemble-${modelId}`,
+        members: (e.ensemble_members ?? []).map((m) => normalizeModelId(m.model_id)),
+        membersMethod: e.ensemble_members?.length
+          ? e.ensemble_members.every((m) => m.framework === "raw")
+            ? "raw"
+            : "althing"
+          : null,
         lab: method === "ensemble" ? "DataViking" : (LAB_BY_PREFIX[prefix] ?? "Other"),
         method,
         variant: variantParts.length ? variantParts.join(", ") : null,
