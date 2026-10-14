@@ -66,14 +66,15 @@ where = ["src"]
 # question keys (see ``synthbench.private_holdout``), and the canonical
 # private *answer key* (per-question human distributions) lives only in
 # the gated R2 origin + credentialed maintainer caches. We therefore
-# deliberately keep ``[tool.setuptools.package-data]`` to the one glob
+# deliberately keep ``[tool.setuptools.package-data]`` to the globs
 # below: the routing topic labels (question key -> topic id, see
-# ``synthbench.topics``), which are derived from public question text and
-# carry no answers. Adding raw data globs here would break the holdout
+# ``synthbench.topics``), which are derived from public question text, and
+# the routing suite's question key lists (``--suite routing``). Neither
+# carries answers. Adding raw data globs here would break the holdout
 # integrity model. See ``docs/held-out.md``.
 
 [tool.setuptools.package-data]
-synthbench = ["data/topics/*.json"]
+synthbench = ["data/topics/*.json", "suites/routing/*.json"]
 
 [tool.pytest.ini_options]
 asyncio_mode = "auto"

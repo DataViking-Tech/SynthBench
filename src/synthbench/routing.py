@@ -34,7 +34,7 @@ import numpy as np
 logger = logging.getLogger(__name__)
 
 API_NAME = "synthbench-routing"
-API_VERSION = "1.0.0"
+API_VERSION = "1.1.0"
 CONTRACT_URL = (
     "https://github.com/DataViking-Tech/SynthBench/blob/main/docs/routing-json-api.md"
 )
@@ -58,6 +58,11 @@ SLICES: tuple[dict, ...] = (
 )
 
 MIN_QUESTIONS = 30
+# A candidate joins a route only if, on every dataset in the slice, it answered
+# at least this share of the questions the best-covered candidate answered.
+# Without it one 100-question run would cut every route back to 100 questions
+# once some systems run the larger ``--suite routing`` sets.
+MIN_COVERAGE = 0.9
 MAX_CANDIDATES = 12
 N_BOOTSTRAP = 2000
 SEED = 20261014
@@ -268,17 +273,40 @@ def _route_keys(
     random_rows: dict[str, dict[str, dict]],
     topic_of: dict[tuple[str, str], str | None],
     topic: str,
-) -> dict[str, list[str]]:
-    """Questions every candidate and the random baseline answered, per dataset."""
+) -> tuple[list[dict], dict[str, list[str]]]:
+    """Candidates with enough coverage, and the questions they all answered.
+
+    Per dataset, the pool is the random baseline's questions in the topic. A
+    candidate is kept when it answered at least ``MIN_COVERAGE`` of the pool
+    share the best-covered candidate answered, on every dataset of the slice.
+    The route's questions are then the pool questions every kept candidate
+    answered.
+    """
+    pools = {
+        ds: {
+            k
+            for k in random_rows.get(ds, {})
+            if topic == "all" or topic_of.get((ds, k)) == topic
+        }
+        for ds in slice_datasets
+    }
+    coverage = [
+        {ds: len(pools[ds] & set(c["rows"][ds])) for ds in slice_datasets}
+        for c in candidates
+    ]
+    top = {ds: max((cov[ds] for cov in coverage), default=0) for ds in slice_datasets}
+    kept = [
+        c
+        for c, cov in zip(candidates, coverage)
+        if all(cov[ds] >= MIN_COVERAGE * top[ds] for ds in slice_datasets)
+    ]
     out: dict[str, list[str]] = {}
     for ds in slice_datasets:
-        common = set(random_rows.get(ds, {}))
-        for c in candidates:
+        common = set(pools[ds])
+        for c in kept:
             common &= set(c["rows"][ds])
-        out[ds] = sorted(
-            k for k in common if topic == "all" or topic_of.get((ds, k)) == topic
-        )
-    return out
+        out[ds] = sorted(common)
+    return kept, out
 
 
 def _round_ci(lo: float, hi: float) -> list[float]:
@@ -307,7 +335,10 @@ def _build_route(
     min_questions: int,
 ) -> dict | None:
     datasets = slice_def["datasets"]
-    keys_by_ds = _route_keys(datasets, candidates, random_rows, topic_of, topic)
+    n_offered = len(candidates)
+    candidates, keys_by_ds = _route_keys(
+        datasets, candidates, random_rows, topic_of, topic
+    )
     n_questions = sum(len(k) for k in keys_by_ds.values())
     if n_questions == 0 or not candidates:
         return None
@@ -372,6 +403,7 @@ def _build_route(
         "topic": topic,
         "n_questions": n_questions,
         "n_by_dataset": {ds: len(k) for ds, k in keys_by_ds.items()},
+        "excluded_for_coverage": n_offered - len(candidates),
         "confident": confident,
         "best": cid(best),
         "best_althing": cid(best_althing),
@@ -398,7 +430,9 @@ def build_routing(
     from synthbench.publish import _dedup_results
     from synthbench.topics import TOPIC_IDS, taxonomy_dict, topic_for
 
-    deduped = _dedup_results(results)
+    # Routing-suite runs (more questions per topic) count here and nowhere
+    # else; dedup prefers them as the newer, larger runs.
+    deduped = _dedup_results(results, include_routing_suite=True)
     results_by_provider_ds: dict[tuple[str, str], dict] = {}
     for r in deduped:
         cfg = r.get("config") or {}

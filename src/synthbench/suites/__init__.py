@@ -7,6 +7,9 @@ Available suites:
   - smoke: 28 questions for quick validation
   - core: 200 questions stratified by topic and entropy
   - full: all questions in the dataset
+  - routing: per-dataset sets for routing.json, at least 75 questions per
+    routing topic where the pool allows (routing/<dataset>.json, built by
+    scripts/build-routing-question-sets.py)
 
 Topic suites (loaded via load_topic_suite):
   - political: ~80 questions on elections, party politics, guns, abortion
@@ -21,7 +24,11 @@ from pathlib import Path
 
 SUITE_DIR = Path(__file__).parent
 
-AVAILABLE_SUITES = ("smoke", "core", "full")
+AVAILABLE_SUITES = ("smoke", "core", "full", "routing")
+
+# Suites with one key file per dataset (``<suite>/<dataset>.json``) rather
+# than one OpinionsQA key list.
+PER_DATASET_SUITES = ("routing",)
 
 AVAILABLE_TOPICS = ("political", "consumer", "neutral")
 
@@ -30,11 +37,12 @@ AVAILABLE_TOPICS = ("political", "consumer", "neutral")
 SUITE_SOURCE_DATASET = "opinionsqa"
 
 
-def load_suite(name: str) -> list[str] | None:
+def load_suite(name: str, dataset: str | None = None) -> list[str] | None:
     """Load a pinned question set by name.
 
     Args:
-        name: Suite name ("smoke", "core", "full").
+        name: Suite name ("smoke", "core", "full", "routing").
+        dataset: Dataset name; required for per-dataset suites ("routing").
 
     Returns:
         List of question keys, or None for "full" (meaning use all questions).
@@ -47,6 +55,19 @@ def load_suite(name: str) -> list[str] | None:
 
     if name == "full":
         return None  # Signal to use all questions
+
+    if name in PER_DATASET_SUITES:
+        if not dataset:
+            raise ValueError(f"Suite '{name}' needs a dataset.")
+        path = SUITE_DIR / name / f"{dataset}.json"
+        if not path.exists():
+            available = sorted(p.stem for p in (SUITE_DIR / name).glob("*.json"))
+            raise ValueError(
+                f"Suite '{name}' has no question set for dataset '{dataset}'. "
+                f"Available: {available}"
+            )
+        with open(path) as f:
+            return json.load(f)["keys"]
 
     path = SUITE_DIR / f"{name}.json"
     if not path.exists():

@@ -185,8 +185,24 @@ def _policy_to_dict(policy: DatasetPolicy) -> dict:
     }
 
 
-def _dedup_results(results: list[dict]) -> list[dict]:
+def is_routing_suite_run(result: dict) -> bool:
+    """A run on the ``--suite routing`` question sets.
+
+    Those runs cover more questions than the 100-question runs every other
+    system has, so they feed routing.json only: on the leaderboard they would
+    put a few systems on a different question set from the rest, and a
+    routing-suite random baseline would move every system's Index anchor.
+    """
+    return (result.get("config") or {}).get("suite") == "routing"
+
+
+def _dedup_results(
+    results: list[dict], *, include_routing_suite: bool = False
+) -> list[dict]:
     """De-duplicate results: keep one run per (display_name, framework, dataset, effort, template, persona_pack, harness).
+
+    Routing-suite runs (:func:`is_routing_suite_run`) are skipped unless
+    ``include_routing_suite`` is set, which only the routing.json builder does.
 
     The run scored with the newest code wins (:func:`_scoring_rank`), then
     the one with the most evaluated questions.
@@ -220,6 +236,8 @@ def _dedup_results(results: list[dict]) -> list[dict]:
     best: dict[tuple, dict] = {}
     all_demographics: dict[tuple, dict[str, list]] = {}
     for r in results:
+        if not include_routing_suite and is_routing_suite_run(r):
+            continue
         cfg = r.get("config", {})
         provider = cfg.get("provider", "unknown")
         dataset = cfg.get("dataset", "unknown")
@@ -1256,6 +1274,8 @@ def _annotate_run_counts(entries: list[dict], all_results: list[dict]) -> None:
     datasets_per_config: dict[tuple, set[str]] = {}
 
     for r in all_results:
+        if is_routing_suite_run(r):
+            continue  # not part of any leaderboard row
         cfg = r.get("config", {})
         provider_raw = cfg.get("provider", "unknown")
         name = display_provider_name(provider_raw)

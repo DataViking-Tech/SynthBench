@@ -22,7 +22,7 @@ GET https://synthbench.org/data/routing.json
 {
   "api": {
     "name": "synthbench-routing",
-    "version": "1.0.0",
+    "version": "1.1.0",
     "contract_url": "https://github.com/DataViking-Tech/SynthBench/blob/main/docs/routing-json-api.md"
   },
   "generated_at": "2026-10-14T22:01:42.005155+00:00",
@@ -50,6 +50,7 @@ GET https://synthbench.org/data/routing.json
       "topic": "all",
       "n_questions": 175,
       "n_by_dataset": { "opinionsqa": 100, "gss": 75 },
+      "excluded_for_coverage": 0,
       "confident": true,
       "best": "ensemble--complementary-4--tdefault--tplcurrent--b1126bc8",
       "best_althing": "althing--qwen3.8-flash--tdefault--tplcurrent--b8582ca4",
@@ -146,9 +147,12 @@ One route per (slice, topic) that has at least one question, plus a `topic:
 - `candidates`: the current leaderboard rows (same dedup as `publish-data`),
   singles and ensembles, without baselines and without template, temperature,
   persona-pack, harness or reasoning-effort variants. A candidate must have
-  a row on every dataset in the slice. Sorted by `index`, highest first. At
-  most 12, and the candidates named by `best_althing` and
-  `best_single_althing` are always included.
+  a row on every dataset in the slice and enough question coverage (see
+  "Question set and bootstrap"). Sorted by `index`, highest first. At most
+  12, and the candidates named by `best_althing` and `best_single_althing`
+  are always included.
+- `excluded_for_coverage` (since 1.1.0): candidates left out of this route
+  because they answered too few of its questions.
 - `best`: the top candidate. `best_althing`: the top candidate whose members
   all ran through Althing (`althing_native`). `best_single_althing`: the top
   `althing_native` single. Either can be `null`.
@@ -184,15 +188,27 @@ One route per (slice, topic) that has at least one question, plus a `topic:
 
 ### Question set and bootstrap
 
-For each dataset, the route uses the questions that every candidate and the
-random baseline answered, filtered to the topic. The bootstrap resamples
+For each dataset, the pool is the random baseline's questions in the topic.
+Systems run on different question sets: most have 100 questions per
+dataset, and some have the larger `--suite routing` sets (whole OpinionsQA
+and GSS pools; SubPOP and GlobalOpinionQA topped up to 75 questions per
+topic). A candidate stays in the route only if, on every dataset in the
+slice, it answered at least 90% as many pool questions as the best-covered
+candidate. The route then uses the pool questions every remaining candidate
+answered, so all candidates are scored on the same questions.
+
+Runs on the `--suite routing` sets (stamped `config.suite = "routing"`) are
+used here and nowhere else. The leaderboard, findings, run counts and the
+Groups page keep using the 100-question runs, so every leaderboard row stays
+on the same questions and the random-baseline anchor of the Index does not
+move. The bootstrap resamples
 questions within each dataset (2,000 resamples, fixed seed per route) and
 applies the same draws to every candidate and to the random baseline, so
 differences between candidates are paired.
 
-Topic routes are small at current run sizes (100 questions per dataset, 75
-for GSS), so most of them are not `confident`. Consumers should fall back to
-the slice's `all` route when a topic route is not confident.
+Topic routes on 100-question runs are small, so most of them are not
+`confident`. Consumers should fall back to the slice's `all` route when a
+topic route is not confident.
 
 ## Versioning
 
