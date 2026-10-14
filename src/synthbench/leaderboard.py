@@ -64,6 +64,15 @@ MODEL_MAP: dict[str, tuple[str, str]] = {
     "openrouter/anthropic/claude-haiku-4.5": ("Claude Haiku 4.5", "raw"),
     "althing/openrouter/anthropic/claude-haiku-4.5": ("Althing (Haiku 4.5)", "product"),
     "openrouter/anthropic/claude-haiku-5.5": ("Claude Haiku 5.5", "raw"),
+    "openrouter/anthropic/claude-sonnet-5.5": ("Claude Sonnet 5.5", "raw"),
+    "althing/openrouter/anthropic/claude-sonnet-5.5": (
+        "Althing (Sonnet 5.5)",
+        "product",
+    ),
+    "althing/openrouter/anthropic/claude-sonnet-4.6": (
+        "Althing (Sonnet 4.6)",
+        "product",
+    ),
     "althing/openrouter/anthropic/claude-haiku-5.5": ("Althing (Haiku 5.5)", "product"),
     "openrouter/openai/gpt-6-luna": ("GPT-6 Luna", "raw"),
     "althing/openrouter/openai/gpt-6-luna": ("Althing (GPT-6 Luna)", "product"),
