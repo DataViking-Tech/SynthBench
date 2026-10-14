@@ -2,7 +2,8 @@ import { axisTitle, css, fmt, h, linear, mount, s, ticks } from "../dom";
 import {
   ALL,
   CORE,
-  ENSEMBLE_MEMBERS,
+  ensembleLabel,
+  ensembles,
   METHODS,
   type ShownMethod,
   type SystemConfig,
@@ -39,11 +40,11 @@ const $ = (id: string) => document.getElementById(id) as HTMLElement;
 
 const mine = systems().filter((c) => c.baseId === baseId && !c.variant);
 const variants = systems().filter((c) => c.baseId === baseId && c.variant);
-const ens = systems().find((c) => c.method === "ensemble" && !c.variant);
-const inEnsemble = ENSEMBLE_MEMBERS.includes(baseId);
 const options: [SystemConfig, string][] = [
   ...mine.map((c): [SystemConfig, string] => [c, METHODS[c.method as ShownMethod].label]),
-  ...(inEnsemble && ens ? [[ens, "As part of the ensemble"] as [SystemConfig, string]] : []),
+  ...ensembles()
+    .filter((e) => e.members.includes(baseId))
+    .map((e): [SystemConfig, string] => [e, `In the ensemble ${ensembleLabel(e.base)}`]),
 ];
 const fromUrl = new URLSearchParams(location.search).get("method");
 let cur: SystemConfig =
@@ -161,7 +162,7 @@ function renderStats(): void {
   const m = field.length ? median(field) : 0;
   const who =
     cur.method === "ensemble"
-      ? "The Althing Ensemble"
+      ? `The ensemble ${ensembleLabel(cur.base)}`
       : `${cur.base} with ${cur.method === "raw" ? "a raw prompt" : "an Althing persona"}`;
   const parts: string[] = [];
   if (cur.index != null)

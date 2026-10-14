@@ -14,7 +14,7 @@ import {
 } from "./dom";
 import {
   CORE,
-  ENSEMBLE_MEMBERS,
+  ensembleLabel,
   METHODS,
   type Ranked,
   type ShownMethod,
@@ -185,7 +185,8 @@ export function gapChart(el: HTMLElement, width: number, rows: Ranked[]): void {
         {
           x: x(Math.max(-40, r.v.lo)),
           y: cy - 2,
-          width: x(Math.min(100, r.v.hi)) - x(Math.max(-40, r.v.lo)),
+          // Intervals entirely off the -40 edge collapse to nothing.
+          width: Math.max(0, x(Math.min(100, r.v.hi)) - x(Math.max(-40, r.v.lo))),
           height: 4,
           rx: 2,
           fill: methodColor(r.c.method),
@@ -589,10 +590,9 @@ export function sharesOrder(
         svg,
       );
   }
-  const ens = rows.find((r) => r.c.method === "ensemble");
-  if (ens)
-    for (const id of ENSEMBLE_MEMBERS) {
-      const p = rows.find((r) => r.c.baseId === id && r.c.method === "althing");
+  for (const ens of rows.filter((r) => r.c.method === "ensemble"))
+    for (const id of ens.c.members) {
+      const p = rows.find((r) => r.c.baseId === id && r.c.method === ens.c.membersMethod);
       if (p)
         s(
           "line",
@@ -663,9 +663,9 @@ export function sharesOrder(
     notes.push(
       `The persona moves ${up} of ${moves.length} models up and to the right.${lostOrder.length ? ` ${lostOrder.join(", ")} loses order match.` : ""}`,
     );
-  if (ens)
+  if (rows.some((r) => r.c.method === "ensemble"))
     notes.push(
-      "The ensemble improves shares the most, because averaging three models evens out over-confident answers.",
+      "The ensembles improve shares the most, because averaging three models evens out over-confident answers.",
     );
   return notes;
 }
@@ -676,8 +676,10 @@ export function ladder(el: HTMLElement, width: number, pool: SystemConfig[]): st
   const m = { l: 210, r: 210, t: 46, b: 20 };
   const cols = { raw: m.l + 20, althing: width / 2, ensemble: width - m.r - 20 };
   const fams = [...new Set(pool.filter((c) => c.method !== "ensemble").map((c) => c.baseId))];
-  const ens = pool.find((c) => c.method === "ensemble");
-  const ensV = ens ? scoreIn(ens) : null;
+  const ensList = pool
+    .filter((c) => c.method === "ensemble")
+    .map((c) => ({ c, v: scoreIn(c)?.v ?? null }))
+    .filter((e): e is { c: SystemConfig; v: number } => e.v != null);
   const rows = fams
     .map((id) => {
       const a = pool.find((c) => c.baseId === id && c.method === "raw");
@@ -702,7 +704,7 @@ export function ladder(el: HTMLElement, width: number, pool: SystemConfig[]): st
     "Index with a raw prompt, with an Althing persona, and as an ensemble",
   );
   const vals = rows.flatMap((r) => [r.va, r.vb]).filter((v): v is number => v != null);
-  if (ensV) vals.push(ensV.v);
+  for (const e of ensList) vals.push(e.v);
   if (!vals.length) {
     s(
       "text",
@@ -763,7 +765,7 @@ export function ladder(el: HTMLElement, width: number, pool: SystemConfig[]): st
   const heads: [keyof typeof cols, string, string][] = [
     ["raw", "Raw prompt", "model as-is"],
     ["althing", "Althing persona", "same model, conditioned"],
-    ["ensemble", "Ensemble", "three persona systems averaged"],
+    ["ensemble", "Ensemble", "three systems averaged"],
   ];
   for (const [k, l, d] of heads) {
     s(
@@ -794,6 +796,22 @@ export function ladder(el: HTMLElement, width: number, pool: SystemConfig[]): st
         },
         g,
       );
+    for (const e of ensList)
+      if (e.c.membersMethod === "raw" && e.c.members.includes(r.id) && r.va != null)
+        s(
+          "line",
+          {
+            x1: cols.raw,
+            x2: cols.ensemble,
+            y1: Y(r.va),
+            y2: Y(e.v),
+            stroke: methodColor("ensemble"),
+            "stroke-width": 1.2,
+            opacity: 0.3,
+            "stroke-dasharray": "3 3",
+          },
+          g,
+        );
     if (r.a && r.va != null) {
       const va = r.va;
       marker(g, "raw", cols.raw, Y(va), 5);
@@ -819,14 +837,16 @@ export function ladder(el: HTMLElement, width: number, pool: SystemConfig[]): st
         svg,
       );
       right.push({ y: Y(vb), y0: Y(vb), r, g });
-      if (ens && ensV && ENSEMBLE_MEMBERS.includes(r.id))
+      for (const e of ensList.filter(
+        (e) => e.c.membersMethod === "althing" && e.c.members.includes(r.id),
+      ))
         s(
           "line",
           {
             x1: cols.althing,
             x2: cols.ensemble,
             y1: Y(vb),
-            y2: Y(ensV.v),
+            y2: Y(e.v),
             stroke: methodColor("ensemble"),
             "stroke-width": 1.5,
             opacity: 0.45,
@@ -899,26 +919,28 @@ export function ladder(el: HTMLElement, width: number, pool: SystemConfig[]): st
       );
     s("text", { x: cols.althing + 84, y: R.y + 4, class: "sb-sub sb-halo", text: R.r.name }, R.g);
   }
-  if (ens && ensV) {
-    const g = s("g", { class: "sb-s", "data-k": ens.key }, svg);
-    marker(g, "ensemble", cols.ensemble, Y(ensV.v), 6);
+  const ensLabels = ensList.map((e) => {
+    const g = s("g", { class: "sb-s", "data-k": e.c.key }, svg);
+    marker(g, "ensemble", cols.ensemble, Y(e.v), 6);
+    interactive(
+      s("circle", { class: "sb-hit", cx: cols.ensemble, cy: Y(e.v), r: 13 }, g),
+      e.c,
+      () => [["Index", fmt.one(e.v)]],
+      svg,
+    );
+    return { y: Y(e.v), y0: Y(e.v), e, g };
+  });
+  for (const L of spread(ensLabels, 18, m.t, H - m.b))
     s(
       "text",
       {
         x: cols.ensemble + 14,
-        y: Y(ensV.v) + 4,
+        y: L.y + 4,
         class: "sb-lab sb-halo",
-        text: `Althing Ensemble ${fmt.int(ensV.v)}`,
+        text: `${ensembleLabel(L.e.c.base)} ${fmt.int(L.e.v)}`,
       },
-      g,
+      L.g,
     );
-    interactive(
-      s("circle", { class: "sb-hit", cx: cols.ensemble, cy: Y(ensV.v), r: 13 }, g),
-      ens,
-      () => [["Index", fmt.one(ensV.v)]],
-      svg,
-    );
-  }
   highlight(svg, null);
   const both = rows.filter(
     (r): r is typeof r & { va: number; vb: number } => r.va != null && r.vb != null,
@@ -932,10 +954,13 @@ export function ladder(el: HTMLElement, width: number, pool: SystemConfig[]): st
       notes.push(
         `${worst.name} scores lower with the persona (${fmt.delta(worst.vb - worst.va)}).`,
       );
-    if (ensV)
+    if (ensList.length) {
+      const top = ensList.reduce((p, q) => (q.v > p.v ? q : p));
+      const bestSingle = Math.max(...both.flatMap((r) => [r.va, r.vb]));
       notes.push(
-        `The ensemble is ${fmt.delta(ensV.v - Math.max(...both.map((r) => r.vb)))} above the best single persona system.`,
+        `The best ensemble (${ensembleLabel(top.c.base)}) is ${fmt.delta(top.v - bestSingle)} against the best single system.`,
       );
+    }
   }
   return notes;
 }
