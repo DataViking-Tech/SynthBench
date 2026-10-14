@@ -27,6 +27,6 @@ def test_every_ensemble_is_compared_not_only_the_first():
 def test_named_ensembles_have_distinct_display_names():
     names = {
         display_provider_name(f"ensemble/{s}")
-        for s in ("3-model-blend", "flash3-raw", "flash3-althing")
+        for s in ("3-model-blend", "flash3-raw", "complementary-mid", "complementary-4")
     }
-    assert len(names) == 3
+    assert len(names) == 4

@@ -1,24 +1,24 @@
 {
   "benchmark": "synthbench",
   "version": "0.1.0",
-  "timestamp": "2026-10-14T06:26:36.727661+00:00",
+  "timestamp": "2026-10-14T17:27:51.143071+00:00",
   "config": {
     "dataset": "opinionsqa",
-    "provider": "ensemble/flash3-althing",
+    "provider": "ensemble/complementary-mid",
     "ensemble_sources": [
       {
-        "file": "opinionsqa_althing_openrouter_qwen_qwen3.8-flash_20261013_164914.json",
-        "provider": "althing/openrouter/qwen/qwen3.8-flash",
+        "file": "opinionsqa_althing_openrouter_anthropic_claude-haiku-5.5_20261013_160647.json",
+        "provider": "althing/openrouter/anthropic/claude-haiku-5.5",
         "weight": 0.333333
       },
       {
-        "file": "opinionsqa_althing_openrouter_deepseek_deepseek-v4.1-flash_20261013_160218.json",
-        "provider": "althing/openrouter/deepseek/deepseek-v4.1-flash",
+        "file": "opinionsqa_openrouter_meta-llama_llama-3.3-70b-instruct_20261013_115537.json",
+        "provider": "openrouter/meta-llama/llama-3.3-70b-instruct",
         "weight": 0.333333
       },
       {
-        "file": "opinionsqa_althing_openrouter_google_gemini-3.5-flash-lite_20261013_155405.json",
-        "provider": "althing/openrouter/google/gemini-3.5-flash-lite",
+        "file": "opinionsqa_openrouter_google_gemini-2.5-flash-lite_20261013_115059.json",
+        "provider": "openrouter/google/gemini-2.5-flash-lite",
         "weight": 0.333333
       }
     ],
@@ -28,16 +28,16 @@
     "option_parser_version": 3
   },
   "scores": {
-    "sps": 0.886708,
-    "p_dist": 0.823498,
-    "p_rank": 0.842354,
-    "p_refuse": 0.994272
+    "sps": 0.897395,
+    "p_dist": 0.859192,
+    "p_rank": 0.83906,
+    "p_refuse": 0.993933
   },
   "aggregate": {
-    "mean_jsd": 0.176502,
-    "median_jsd": 0.167202,
-    "mean_kendall_tau": 0.684708,
-    "composite_parity": 0.886708,
+    "mean_jsd": 0.140808,
+    "median_jsd": 0.115802,
+    "mean_kendall_tau": 0.67812,
+    "composite_parity": 0.897395,
     "n_questions": 100,
     "elapsed_seconds": 0.0
   },
@@ -51,13 +51,13 @@
         "Refused"
       ],
       "model_distribution": {
-        "Yes": 0.3667,
-        "No": 0.6333,
-        "Refused": 0.0
+        "Yes": 0.3333,
+        "Refused": 0.0,
+        "No": 0.6667
       },
-      "jsd": 0.001005,
+      "jsd": 0.002495,
       "kendall_tau": 1.0,
-      "parity": 0.999498,
+      "parity": 0.998753,
       "n_samples": 90,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
@@ -77,15 +77,15 @@
       ],
       "model_distribution": {
         "Not too likely": 0.0,
-        "I am already doing this": 0.0,
+        "Very likely": 0.6667,
         "Not at all likely": 0.0,
-        "Very likely": 0.4444,
-        "Somewhat likely": 0.5556,
+        "Somewhat likely": 0.3333,
+        "I am already doing this": 0.0,
         "Refused": 0.0
       },
-      "jsd": 0.218969,
-      "kendall_tau": 0.602464,
-      "parity": 0.791132,
+      "jsd": 0.211146,
+      "kendall_tau": 0.774597,
+      "parity": 0.838076,
       "n_samples": 90,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
@@ -101,8 +101,8 @@
         "Refused"
       ],
       "model_distribution": {
-        "No, not likely": 0.0,
         "Yes, likely": 1.0,
+        "No, not likely": 0.0,
         "Refused": 0.0
       },
       "jsd": 0.118584,
@@ -123,8 +123,8 @@
         "Refused"
       ],
       "model_distribution": {
-        "No, not likely": 0.0,
         "Yes, likely": 1.0,
+        "No, not likely": 0.0,
         "Refused": 0.0
       },
       "jsd": 0.103415,
@@ -145,15 +145,15 @@
         "Refused"
       ],
       "model_distribution": {
-        "No, not likely": 0.0,
         "Yes, likely": 1.0,
+        "No, not likely": 0.0,
         "Refused": 0.0
       },
       "jsd": 0.363867,
       "kendall_tau": 0.0,
       "parity": 0.568067,
-      "n_samples": 89,
-      "n_parse_failures": 1,
+      "n_samples": 90,
+      "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
       "human_refusal_rate": 0.006771,
       "temporal_year": 2017
@@ -167,13 +167,13 @@
         "Refused"
       ],
       "model_distribution": {
-        "No, not likely": 0.2,
-        "Yes, likely": 0.8,
+        "Yes, likely": 0.6889,
+        "No, not likely": 0.3111,
         "Refused": 0.0
       },
-      "jsd": 0.018009,
+      "jsd": 0.002293,
       "kendall_tau": 1.0,
-      "parity": 0.990996,
+      "parity": 0.998854,
       "n_samples": 90,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
@@ -189,15 +189,15 @@
         "Refused"
       ],
       "model_distribution": {
-        "No, not likely": 0.9556,
-        "Yes, likely": 0.0444,
+        "Yes, likely": 0.5667,
+        "No, not likely": 0.4333,
         "Refused": 0.0
       },
-      "jsd": 0.069063,
-      "kendall_tau": 1.0,
-      "parity": 0.965468,
-      "n_samples": 88,
-      "n_parse_failures": 2,
+      "jsd": 0.07768,
+      "kendall_tau": 0.333333,
+      "parity": 0.794493,
+      "n_samples": 90,
+      "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
       "human_refusal_rate": 0.004595,
       "temporal_year": 2017
@@ -212,16 +212,16 @@
         "Refused"
       ],
       "model_distribution": {
+        "A little": 0.3333,
         "Refused": 0.0,
         "Nothing at all": 0.0,
-        "A little": 0.4766,
-        "A lot": 0.5234
+        "A lot": 0.6667
       },
-      "jsd": 0.026507,
+      "jsd": 0.062119,
       "kendall_tau": 0.547723,
-      "parity": 0.873677,
-      "n_samples": 89,
-      "n_parse_failures": 1,
+      "parity": 0.855871,
+      "n_samples": 90,
+      "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
       "human_refusal_rate": 0.002177,
       "temporal_year": 2017
@@ -237,15 +237,15 @@
         "Refused"
       ],
       "model_distribution": {
-        "Somewhat enthusiastic": 0.6667,
-        "Not too enthusiastic": 0.3333,
         "Not at all enthusiastic": 0.0,
-        "Very enthusiastic": 0.0,
-        "Refused": 0.0
+        "Somewhat enthusiastic": 0.3556,
+        "Refused": 0.0,
+        "Not too enthusiastic": 0.3333,
+        "Very enthusiastic": 0.3111
       },
-      "jsd": 0.214649,
-      "kendall_tau": 0.597614,
-      "parity": 0.792079,
+      "jsd": 0.133557,
+      "kendall_tau": 0.527046,
+      "parity": 0.814983,
       "n_samples": 90,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
@@ -263,17 +263,17 @@
         "Refused"
       ],
       "model_distribution": {
+        "Somewhat worried": 0.3222,
+        "Refused": 0.0,
         "Very worried": 0.0,
-        "Not too worried": 0.0805,
-        "Not at all worried": 0.0,
-        "Somewhat worried": 0.9195,
-        "Refused": 0.0
+        "Not at all worried": 0.0222,
+        "Not too worried": 0.6555
       },
-      "jsd": 0.269157,
-      "kendall_tau": 0.83666,
-      "parity": 0.824586,
-      "n_samples": 89,
-      "n_parse_failures": 1,
+      "jsd": 0.116341,
+      "kendall_tau": 0.527046,
+      "parity": 0.823591,
+      "n_samples": 90,
+      "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
       "human_refusal_rate": 0.000967,
       "temporal_year": 2017
@@ -290,18 +290,18 @@
         "Refused"
       ],
       "model_distribution": {
-        "100 or more years": 0.0,
         "It will never happen": 0.0,
         "Less than 10 years": 0.0,
-        "10 to less than 50 years": 0.908,
-        "50 to less than 100 years": 0.092,
-        "Refused": 0.0
+        "Refused": 0.0,
+        "50 to less than 100 years": 0.0,
+        "10 to less than 50 years": 1.0,
+        "100 or more years": 0.0
       },
-      "jsd": 0.13484,
-      "kendall_tau": 0.774597,
-      "parity": 0.876229,
-      "n_samples": 89,
-      "n_parse_failures": 1,
+      "jsd": 0.238195,
+      "kendall_tau": 0.57735,
+      "parity": 0.77524,
+      "n_samples": 90,
+      "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
       "human_refusal_rate": 0.001693,
       "temporal_year": 2017
@@ -315,15 +315,15 @@
         "Refused"
       ],
       "model_distribution": {
-        "Yes": 0.954,
-        "No": 0.046,
-        "Refused": 0.0
+        "Yes": 1.0,
+        "Refused": 0.0,
+        "No": 0.0
       },
-      "jsd": 0.233932,
-      "kendall_tau": 0.333333,
-      "parity": 0.716367,
-      "n_samples": 89,
-      "n_parse_failures": 1,
+      "jsd": 0.336606,
+      "kendall_tau": 0.0,
+      "parity": 0.581697,
+      "n_samples": 90,
+      "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
       "human_refusal_rate": 0.001451,
       "temporal_year": 2017
@@ -339,15 +339,15 @@
         "Refused"
       ],
       "model_distribution": {
-        "Somewhat safe": 0.6667,
-        "Not safe at all": 0.0,
-        "Very safe": 0.0,
         "Not too safe": 0.3333,
-        "Refused": 0.0
+        "Very safe": 0.0222,
+        "Not safe at all": 0.0,
+        "Refused": 0.0,
+        "Somewhat safe": 0.6444
       },
-      "jsd": 0.159907,
-      "kendall_tau": 0.83666,
-      "parity": 0.879212,
+      "jsd": 0.122205,
+      "kendall_tau": 0.737865,
+      "parity": 0.873363,
       "n_samples": 90,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
@@ -365,17 +365,17 @@
         "Refused"
       ],
       "model_distribution": {
-        "Somewhat safe": 0.3184,
-        "Not safe at all": 0.0,
+        "Not too safe": 0.7,
         "Very safe": 0.0,
-        "Not too safe": 0.6816,
-        "Refused": 0.0
+        "Not safe at all": 0.0,
+        "Refused": 0.0,
+        "Somewhat safe": 0.3
       },
-      "jsd": 0.237098,
+      "jsd": 0.240603,
       "kendall_tau": 0.597614,
-      "parity": 0.780855,
-      "n_samples": 89,
-      "n_parse_failures": 1,
+      "parity": 0.779102,
+      "n_samples": 90,
+      "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
       "human_refusal_rate": 0.002177,
       "temporal_year": 2017
@@ -390,10 +390,10 @@
         "Refused"
       ],
       "model_distribution": {
+        "Increase": 0.0,
         "Refused": 0.0,
-        "Decrease": 1.0,
         "Stay about the same": 0.0,
-        "Increase": 0.0
+        "Decrease": 1.0
       },
       "jsd": 0.376678,
       "kendall_tau": 0.707107,
@@ -415,15 +415,15 @@
         "Refused"
       ],
       "model_distribution": {
-        "Strongly favor": 0.0,
-        "Oppose": 0.1222,
-        "Favor": 0.8778,
-        "Strongly oppose": 0.0,
-        "Refused": 0.0
+        "Favor": 0.6444,
+        "Oppose": 0.0222,
+        "Refused": 0.0,
+        "Strongly favor": 0.3333,
+        "Strongly oppose": 0.0
       },
-      "jsd": 0.314544,
-      "kendall_tau": 0.358569,
-      "parity": 0.68237,
+      "jsd": 0.082189,
+      "kendall_tau": 0.737865,
+      "parity": 0.893372,
       "n_samples": 90,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
@@ -441,15 +441,15 @@
         "Refused"
       ],
       "model_distribution": {
-        "Strongly favor": 0.4222,
+        "Favor": 0.0,
         "Oppose": 0.0,
-        "Favor": 0.5778,
-        "Strongly oppose": 0.0,
-        "Refused": 0.0
+        "Refused": 0.0,
+        "Strongly favor": 1.0,
+        "Strongly oppose": 0.0
       },
-      "jsd": 0.196817,
-      "kendall_tau": 0.83666,
-      "parity": 0.860756,
+      "jsd": 0.482936,
+      "kendall_tau": 0.316228,
+      "parity": 0.587589,
       "n_samples": 90,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
@@ -467,17 +467,17 @@
         "Refused"
       ],
       "model_distribution": {
-        "Strongly favor": 0.3667,
+        "Favor": 0.3571,
         "Oppose": 0.0,
-        "Favor": 0.6333,
-        "Strongly oppose": 0.0,
-        "Refused": 0.0
+        "Refused": 0.0,
+        "Strongly favor": 0.6429,
+        "Strongly oppose": 0.0
       },
-      "jsd": 0.101812,
-      "kendall_tau": 0.597614,
-      "parity": 0.848498,
-      "n_samples": 90,
-      "n_parse_failures": 0,
+      "jsd": 0.070733,
+      "kendall_tau": 0.83666,
+      "parity": 0.923799,
+      "n_samples": 88,
+      "n_parse_failures": 2,
       "model_refusal_rate": 0.0,
       "human_refusal_rate": 0.004595,
       "temporal_year": 2017
@@ -491,13 +491,13 @@
         "Refused"
       ],
       "model_distribution": {
-        "Yes": 0.0,
-        "No": 1.0,
-        "Refused": 0.0
+        "Yes": 0.0556,
+        "Refused": 0.0,
+        "No": 0.9444
       },
-      "jsd": 0.099024,
-      "kendall_tau": 0.816497,
-      "parity": 0.904612,
+      "jsd": 0.030517,
+      "kendall_tau": 1.0,
+      "parity": 0.984741,
       "n_samples": 90,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
@@ -514,8 +514,8 @@
       ],
       "model_distribution": {
         "Yes": 0.0,
-        "No": 1.0,
-        "Refused": 0.0
+        "Refused": 0.0,
+        "No": 1.0
       },
       "jsd": 0.036812,
       "kendall_tau": 0.816497,
@@ -535,13 +535,13 @@
         "Refused"
       ],
       "model_distribution": {
-        "Men and women are basically different": 0.3556,
-        "Men and women are basically similar": 0.6444,
-        "Refused": 0.0
+        "Men and women are basically similar": 0.8778,
+        "Men and women are basically different": 0.0,
+        "Refused": 0.1222
       },
-      "jsd": 0.080899,
-      "kendall_tau": 0.333333,
-      "parity": 0.792884,
+      "jsd": 0.48259,
+      "kendall_tau": -0.333333,
+      "parity": 0.425372,
       "n_samples": 90,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
@@ -557,15 +557,15 @@
         "Refused"
       ],
       "model_distribution": {
-        "Men and women are basically different": 1.0,
-        "Men and women are basically similar": 0.0,
+        "Men and women are basically similar": 0.0778,
+        "Men and women are basically different": 0.9222,
         "Refused": 0.0
       },
-      "jsd": 0.131235,
-      "kendall_tau": 0.816497,
-      "parity": 0.888507,
-      "n_samples": 88,
-      "n_parse_failures": 2,
+      "jsd": 0.038075,
+      "kendall_tau": 1.0,
+      "parity": 0.980963,
+      "n_samples": 90,
+      "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
       "human_refusal_rate": 0.007191,
       "temporal_year": 2017
@@ -579,15 +579,15 @@
         "Refused"
       ],
       "model_distribution": {
-        "Men and women are basically different": 0.3448,
-        "Men and women are basically similar": 0.6552,
-        "Refused": 0.0
+        "Men and women are basically similar": 0.9667,
+        "Men and women are basically different": 0.0,
+        "Refused": 0.0333
       },
-      "jsd": 0.072502,
-      "kendall_tau": 0.333333,
-      "parity": 0.797083,
-      "n_samples": 89,
-      "n_parse_failures": 1,
+      "jsd": 0.439446,
+      "kendall_tau": -0.333333,
+      "parity": 0.446944,
+      "n_samples": 90,
+      "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
       "human_refusal_rate": 0.007808,
       "temporal_year": 2017
@@ -601,15 +601,15 @@
         "Refused"
       ],
       "model_distribution": {
-        "Men and women are basically different": 0.4516,
-        "Men and women are basically similar": 0.5484,
+        "Men and women are basically similar": 0.3333,
+        "Men and women are basically different": 0.6667,
         "Refused": 0.0
       },
-      "jsd": 0.174004,
-      "kendall_tau": 0.333333,
-      "parity": 0.746331,
-      "n_samples": 88,
-      "n_parse_failures": 2,
+      "jsd": 0.059403,
+      "kendall_tau": 1.0,
+      "parity": 0.970298,
+      "n_samples": 90,
+      "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
       "human_refusal_rate": 0.006164,
       "temporal_year": 2017
@@ -623,15 +623,15 @@
         "Refused"
       ],
       "model_distribution": {
-        "Men and women are basically different": 0.0115,
-        "Men and women are basically similar": 0.9885,
+        "Men and women are basically similar": 1.0,
+        "Men and women are basically different": 0.0,
         "Refused": 0.0
       },
-      "jsd": 0.16154,
-      "kendall_tau": 1.0,
-      "parity": 0.91923,
-      "n_samples": 89,
-      "n_parse_failures": 1,
+      "jsd": 0.193568,
+      "kendall_tau": 0.816497,
+      "parity": 0.85734,
+      "n_samples": 90,
+      "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
       "human_refusal_rate": 0.008219,
       "temporal_year": 2017
@@ -645,15 +645,15 @@
         "Refused"
       ],
       "model_distribution": {
-        "Yes, I have fired a gun": 0.5185,
-        "No, I have never fired a gun": 0.4815,
-        "Refused": 0.0
+        "Yes, I have fired a gun": 0.5111,
+        "Refused": 0.0,
+        "No, I have never fired a gun": 0.4889
       },
-      "jsd": 0.051533,
+      "jsd": 0.054328,
       "kendall_tau": 1.0,
-      "parity": 0.974233,
-      "n_samples": 87,
-      "n_parse_failures": 3,
+      "parity": 0.972836,
+      "n_samples": 90,
+      "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
       "human_refusal_rate": 0.002879,
       "temporal_year": 2017
@@ -671,19 +671,19 @@
         "Refused"
       ],
       "model_distribution": {
-        "A few times a week": 0.0,
-        "Less than once a month": 0.3157,
-        "Basically every day": 0.0,
         "Once a month": 0.0,
-        "A few times a month": 0.6843,
+        "A few times a month": 0.5778,
+        "A few times a week": 0.0889,
         "Not at all": 0.0,
-        "Refused": 0.0
+        "Basically every day": 0.0,
+        "Refused": 0.0,
+        "Less than once a month": 0.3333
       },
-      "jsd": 0.317283,
-      "kendall_tau": 0.592157,
-      "parity": 0.739398,
-      "n_samples": 89,
-      "n_parse_failures": 1,
+      "jsd": 0.236019,
+      "kendall_tau": 0.507093,
+      "parity": 0.758763,
+      "n_samples": 90,
+      "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
       "human_refusal_rate": 0.002877,
       "temporal_year": 2017
@@ -697,13 +697,13 @@
         "Refused"
       ],
       "model_distribution": {
-        "Refused": 0.0,
-        "Good jobs are difficult to find": 1.0,
-        "There are plenty of good jobs available": 0.0
+        "There are plenty of good jobs available": 0.0222,
+        "Good jobs are difficult to find": 0.9778,
+        "Refused": 0.0
       },
-      "jsd": 0.259226,
-      "kendall_tau": 0.816497,
-      "parity": 0.824511,
+      "jsd": 0.203039,
+      "kendall_tau": 1.0,
+      "parity": 0.89848,
       "n_samples": 90,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
@@ -720,17 +720,17 @@
         "Refused"
       ],
       "model_distribution": {
-        "I am not sure if there were guns in my household": 0.0,
-        "Yes, there were guns in my household": 0.3556,
         "Refused": 0.0,
-        "No, there were no guns in my household": 0.6444
+        "Yes, there were guns in my household": 0.2,
+        "No, there were no guns in my household": 0.7231,
+        "I am not sure if there were guns in my household": 0.0769
       },
-      "jsd": 0.06308,
-      "kendall_tau": 0.547723,
-      "parity": 0.855391,
+      "jsd": 0.084742,
+      "kendall_tau": 0.666667,
+      "parity": 0.874296,
       "n_samples": 90,
       "n_parse_failures": 0,
-      "model_refusal_rate": 0.0,
+      "model_refusal_rate": 0.044444,
       "human_refusal_rate": 0.004079,
       "temporal_year": 2017
     },
@@ -745,17 +745,17 @@
         "Refused"
       ],
       "model_distribution": {
+        "Hardly ever": 0.2444,
+        "Sometimes": 0.4,
+        "Never": 0.3556,
         "Often": 0.0,
-        "Sometimes": 0.8341,
-        "Never": 0.0833,
-        "Hardly ever": 0.0825,
         "Refused": 0.0
       },
-      "jsd": 0.322751,
+      "jsd": 0.101311,
       "kendall_tau": 0.527046,
-      "parity": 0.720386,
-      "n_samples": 88,
-      "n_parse_failures": 2,
+      "parity": 0.831106,
+      "n_samples": 90,
+      "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
       "human_refusal_rate": 0.003359,
       "temporal_year": 2017
@@ -771,18 +771,18 @@
         "Refused"
       ],
       "model_distribution": {
-        "A very big problem": 0.0,
-        "Not a problem at all": 0.4008,
-        "A moderately big problem": 0.0345,
-        "A small problem": 0.5648,
-        "Refused": 0.0
+        "A moderately big problem": 0.2398,
+        "A small problem": 0.2713,
+        "Not a problem at all": 0.4444,
+        "Refused": 0.0111,
+        "A very big problem": 0.0333
       },
-      "jsd": 0.088725,
-      "kendall_tau": 0.737865,
-      "parity": 0.890104,
-      "n_samples": 89,
-      "n_parse_failures": 1,
-      "model_refusal_rate": 0.0,
+      "jsd": 0.055336,
+      "kendall_tau": 1.0,
+      "parity": 0.972332,
+      "n_samples": 90,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.011111,
       "human_refusal_rate": 0.003359,
       "temporal_year": 2017
     },
@@ -795,13 +795,13 @@
         "Refused"
       ],
       "model_distribution": {
-        "Yes, someone else in my household owns a gun": 0.0,
-        "No, no one else in my household owns a gun": 1.0,
+        "No, no one else in my household owns a gun": 0.7333,
+        "Yes, someone else in my household owns a gun": 0.2667,
         "Refused": 0.0
       },
-      "jsd": 0.163504,
-      "kendall_tau": 0.816497,
-      "parity": 0.872372,
+      "jsd": 0.007657,
+      "kendall_tau": 1.0,
+      "parity": 0.996171,
       "n_samples": 90,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
@@ -819,15 +819,15 @@
         "Refused"
       ],
       "model_distribution": {
+        "Hardly ever": 0.5667,
+        "Sometimes": 0.0,
+        "Never": 0.4333,
         "Often": 0.0,
-        "Sometimes": 0.0111,
-        "Never": 0.5667,
-        "Hardly ever": 0.4222,
         "Refused": 0.0
       },
-      "jsd": 0.091749,
-      "kendall_tau": 0.948683,
-      "parity": 0.941296,
+      "jsd": 0.171685,
+      "kendall_tau": 0.597614,
+      "parity": 0.813561,
       "n_samples": 90,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
@@ -845,17 +845,17 @@
         "Refused"
       ],
       "model_distribution": {
+        "Hardly ever": 0.4444,
+        "Sometimes": 0.0,
+        "Never": 0.5556,
         "Often": 0.0,
-        "Sometimes": 0.1111,
-        "Never": 0.3678,
-        "Hardly ever": 0.5211,
         "Refused": 0.0
       },
-      "jsd": 0.070946,
-      "kendall_tau": 0.737865,
-      "parity": 0.898993,
-      "n_samples": 89,
-      "n_parse_failures": 1,
+      "jsd": 0.135221,
+      "kendall_tau": 0.83666,
+      "parity": 0.891554,
+      "n_samples": 90,
+      "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
       "human_refusal_rate": 0.004319,
       "temporal_year": 2017
@@ -871,15 +871,15 @@
         "Refused"
       ],
       "model_distribution": {
-        "Often": 0.0,
+        "Hardly ever": 0.2556,
         "Sometimes": 0.0,
-        "Never": 0.8889,
-        "Hardly ever": 0.1111,
+        "Never": 0.7444,
+        "Often": 0.0,
         "Refused": 0.0
       },
-      "jsd": 0.032279,
+      "jsd": 0.051294,
       "kendall_tau": 0.83666,
-      "parity": 0.943026,
+      "parity": 0.933518,
       "n_samples": 90,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
@@ -897,15 +897,15 @@
         "Refused"
       ],
       "model_distribution": {
-        "Often": 0.0,
+        "Hardly ever": 0.0778,
         "Sometimes": 0.0,
-        "Never": 0.8778,
-        "Hardly ever": 0.1222,
+        "Never": 0.9222,
+        "Often": 0.0,
         "Refused": 0.0
       },
-      "jsd": 0.023233,
+      "jsd": 0.027996,
       "kendall_tau": 0.83666,
-      "parity": 0.947549,
+      "parity": 0.945167,
       "n_samples": 90,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
@@ -923,17 +923,17 @@
         "Refused"
       ],
       "model_distribution": {
-        "Often": 0.0,
+        "Hardly ever": 0.0778,
         "Sometimes": 0.0,
-        "Never": 0.9655,
-        "Hardly ever": 0.0345,
+        "Never": 0.9222,
+        "Often": 0.0,
         "Refused": 0.0
       },
-      "jsd": 0.079875,
+      "jsd": 0.057969,
       "kendall_tau": 0.83666,
-      "parity": 0.919228,
-      "n_samples": 89,
-      "n_parse_failures": 1,
+      "parity": 0.93018,
+      "n_samples": 90,
+      "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
       "human_refusal_rate": 0.005278,
       "temporal_year": 2017
@@ -947,15 +947,15 @@
         "Refused"
       ],
       "model_distribution": {
-        "Negative way": 0.2989,
-        "Positive way": 0.7011,
+        "Positive way": 0.2333,
+        "Negative way": 0.7667,
         "Refused": 0.0
       },
-      "jsd": 0.01342,
-      "kendall_tau": 1.0,
-      "parity": 0.99329,
-      "n_samples": 89,
-      "n_parse_failures": 1,
+      "jsd": 0.133471,
+      "kendall_tau": 0.333333,
+      "parity": 0.766598,
+      "n_samples": 90,
+      "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
       "human_refusal_rate": 0.020393,
       "temporal_year": 2017
@@ -971,17 +971,17 @@
         "Refused"
       ],
       "model_distribution": {
-        "A fair amount": 0.4536,
-        "A great deal": 0.5349,
+        "A fair amount": 0.3333,
         "Not too much": 0.0,
+        "A great deal": 0.6667,
         "Not at all": 0.0,
-        "Refused": 0.0115
+        "Refused": 0.0
       },
-      "jsd": 0.23756,
-      "kendall_tau": 0.527046,
-      "parity": 0.762981,
-      "n_samples": 89,
-      "n_parse_failures": 1,
+      "jsd": 0.251259,
+      "kendall_tau": 0.83666,
+      "parity": 0.833536,
+      "n_samples": 90,
+      "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
       "human_refusal_rate": 0.004559,
       "temporal_year": 2017
@@ -997,15 +997,15 @@
         "Refused"
       ],
       "model_distribution": {
-        "A fair amount": 0.0444,
-        "A great deal": 0.9556,
+        "A fair amount": 0.3333,
         "Not too much": 0.0,
+        "A great deal": 0.6667,
         "Not at all": 0.0,
         "Refused": 0.0
       },
-      "jsd": 0.169403,
+      "jsd": 0.061451,
       "kendall_tau": 0.83666,
-      "parity": 0.874463,
+      "parity": 0.92844,
       "n_samples": 90,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
@@ -1021,13 +1021,13 @@
         "Refused"
       ],
       "model_distribution": {
-        "Yes": 0.3667,
-        "No": 0.6333,
-        "Refused": 0.0
+        "Yes": 0.3333,
+        "Refused": 0.0,
+        "No": 0.6667
       },
-      "jsd": 0.002843,
+      "jsd": 0.004538,
       "kendall_tau": 1.0,
-      "parity": 0.998579,
+      "parity": 0.997731,
       "n_samples": 90,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
@@ -1043,8 +1043,8 @@
         "Refused"
       ],
       "model_distribution": {
-        "Negative way": 1.0,
         "Positive way": 0.0,
+        "Negative way": 1.0,
         "Refused": 0.0
       },
       "jsd": 0.262939,
@@ -1065,16 +1065,16 @@
         "Refused"
       ],
       "model_distribution": {
-        "Yes": 0.0,
-        "No": 1.0,
-        "Refused": 0.0
+        "Yes": 0.1111,
+        "Refused": 0.0,
+        "No": 0.8889
       },
-      "jsd": 0.120712,
-      "kendall_tau": 0.816497,
-      "parity": 0.893768,
-      "n_samples": 90,
-      "n_parse_failures": 0,
-      "model_refusal_rate": 0.0,
+      "jsd": 0.017166,
+      "kendall_tau": 1.0,
+      "parity": 0.991417,
+      "n_samples": 89,
+      "n_parse_failures": 1,
+      "model_refusal_rate": 0.011494,
       "human_refusal_rate": 0.003599,
       "temporal_year": 2017
     },
@@ -1087,16 +1087,16 @@
         "Refused"
       ],
       "model_distribution": {
-        "Yes, I own a gun": 0.0,
-        "No, I don't own any guns": 1.0,
+        "Yes, I own a gun": 0.0444,
+        "No, I don't own any guns": 0.9556,
         "Refused": 0.0
       },
-      "jsd": 0.190192,
-      "kendall_tau": 0.816497,
-      "parity": 0.859028,
+      "jsd": 0.109556,
+      "kendall_tau": 1.0,
+      "parity": 0.945222,
       "n_samples": 90,
       "n_parse_failures": 0,
-      "model_refusal_rate": 0.0,
+      "model_refusal_rate": 0.011111,
       "human_refusal_rate": 0.013436,
       "temporal_year": 2017
     },
@@ -1111,15 +1111,15 @@
         "Refused"
       ],
       "model_distribution": {
-        "Definitely disagree": 0.0,
+        "Somewhat agree": 0.3778,
         "Somewhat disagree": 0.0,
-        "Definitely agree": 0.1111,
-        "Somewhat agree": 0.8889,
-        "Refused": 0.0
+        "Definitely disagree": 0.0,
+        "Refused": 0.0,
+        "Definitely agree": 0.6222
       },
-      "jsd": 0.240021,
-      "kendall_tau": 0.597614,
-      "parity": 0.779393,
+      "jsd": 0.100881,
+      "kendall_tau": 0.83666,
+      "parity": 0.908725,
       "n_samples": 90,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
@@ -1137,15 +1137,15 @@
         "Refused"
       ],
       "model_distribution": {
-        "Definitely disagree": 0.0,
+        "Somewhat agree": 0.6667,
         "Somewhat disagree": 0.0,
-        "Definitely agree": 0.0,
-        "Somewhat agree": 1.0,
-        "Refused": 0.0
+        "Definitely disagree": 0.0,
+        "Refused": 0.0,
+        "Definitely agree": 0.3333
       },
-      "jsd": 0.330826,
-      "kendall_tau": 0.632456,
-      "parity": 0.742701,
+      "jsd": 0.08478,
+      "kendall_tau": 0.83666,
+      "parity": 0.916775,
       "n_samples": 90,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
@@ -1163,15 +1163,15 @@
         "Refused"
       ],
       "model_distribution": {
-        "Definitely disagree": 0.0,
+        "Somewhat agree": 0.7778,
         "Somewhat disagree": 0.0,
-        "Definitely agree": 0.0111,
-        "Somewhat agree": 0.9889,
-        "Refused": 0.0
+        "Definitely disagree": 0.0,
+        "Refused": 0.0,
+        "Definitely agree": 0.2222
       },
-      "jsd": 0.340244,
+      "jsd": 0.248243,
       "kendall_tau": 0.597614,
-      "parity": 0.729281,
+      "parity": 0.775282,
       "n_samples": 90,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
@@ -1189,15 +1189,15 @@
         "Refused"
       ],
       "model_distribution": {
-        "Sometimes vote in local elections": 0.7,
+        "Refused": 0.0,
+        "Always vote in local elections": 0.3556,
         "Rarely vote in local elections": 0.0,
-        "Never vote in local elections": 0.0,
-        "Always vote in local elections": 0.3,
-        "Refused": 0.0
+        "Sometimes vote in local elections": 0.6444,
+        "Never vote in local elections": 0.0
       },
-      "jsd": 0.19388,
+      "jsd": 0.17183,
       "kendall_tau": 0.597614,
-      "parity": 0.802463,
+      "parity": 0.813489,
       "n_samples": 90,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
@@ -1213,15 +1213,15 @@
         "Refused"
       ],
       "model_distribution": {
-        "Yes": 0.1667,
-        "No": 0.8333,
-        "Refused": 0.0
+        "Yes": 0.0667,
+        "Refused": 0.0,
+        "No": 0.9333
       },
-      "jsd": 0.009122,
+      "jsd": 0.047992,
       "kendall_tau": 1.0,
-      "parity": 0.995439,
-      "n_samples": 90,
-      "n_parse_failures": 0,
+      "parity": 0.976004,
+      "n_samples": 89,
+      "n_parse_failures": 1,
       "model_refusal_rate": 0.0,
       "human_refusal_rate": 0.004931,
       "temporal_year": 2017
@@ -1236,14 +1236,14 @@
       ],
       "model_distribution": {
         "Yes": 0.0,
-        "No": 1.0,
-        "Refused": 0.0
+        "Refused": 0.0,
+        "No": 1.0
       },
       "jsd": 0.086894,
       "kendall_tau": 0.816497,
       "parity": 0.910677,
-      "n_samples": 90,
-      "n_parse_failures": 0,
+      "n_samples": 89,
+      "n_parse_failures": 1,
       "model_refusal_rate": 0.0,
       "human_refusal_rate": 0.007808,
       "temporal_year": 2017
@@ -1257,15 +1257,15 @@
         "Refused"
       ],
       "model_distribution": {
-        "Yes": 0.2,
-        "No": 0.8,
-        "Refused": 0.0
+        "Yes": 0.2222,
+        "Refused": 0.0,
+        "No": 0.7778
       },
-      "jsd": 0.003544,
+      "jsd": 0.004922,
       "kendall_tau": 1.0,
-      "parity": 0.998228,
-      "n_samples": 90,
-      "n_parse_failures": 0,
+      "parity": 0.997539,
+      "n_samples": 88,
+      "n_parse_failures": 2,
       "model_refusal_rate": 0.0,
       "human_refusal_rate": 0.006369,
       "temporal_year": 2017
@@ -1279,15 +1279,15 @@
         "Refused"
       ],
       "model_distribution": {
-        "Yes": 0.6182,
-        "No": 0.3818,
-        "Refused": 0.0
+        "Yes": 0.3333,
+        "Refused": 0.0,
+        "No": 0.6667
       },
-      "jsd": 0.054721,
-      "kendall_tau": 0.333333,
-      "parity": 0.805973,
-      "n_samples": 88,
-      "n_parse_failures": 2,
+      "jsd": 0.00131,
+      "kendall_tau": 1.0,
+      "parity": 0.999345,
+      "n_samples": 89,
+      "n_parse_failures": 1,
       "model_refusal_rate": 0.0,
       "human_refusal_rate": 0.00226,
       "temporal_year": 2017
@@ -1303,15 +1303,15 @@
         "Refused"
       ],
       "model_distribution": {
-        "Will definitely happen": 0.0,
         "Will probably not happen": 0.0,
         "Will definitely not happen": 0.0,
-        "Will probably happen": 1.0,
-        "Refused": 0.0
+        "Will definitely happen": 0.0222,
+        "Refused": 0.0,
+        "Will probably happen": 0.9778
       },
-      "jsd": 0.237699,
-      "kendall_tau": 0.632456,
-      "parity": 0.789264,
+      "jsd": 0.193,
+      "kendall_tau": 0.83666,
+      "parity": 0.862665,
       "n_samples": 90,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
@@ -1329,15 +1329,15 @@
         "Refused"
       ],
       "model_distribution": {
-        "Will definitely happen": 0.0,
-        "Will probably not happen": 0.6556,
+        "Will probably not happen": 0.3778,
         "Will definitely not happen": 0.0,
-        "Will probably happen": 0.3444,
-        "Refused": 0.0
+        "Will definitely happen": 0.0,
+        "Refused": 0.0,
+        "Will probably happen": 0.6222
       },
-      "jsd": 0.115094,
-      "kendall_tau": 0.597614,
-      "parity": 0.841856,
+      "jsd": 0.070623,
+      "kendall_tau": 0.83666,
+      "parity": 0.923854,
       "n_samples": 90,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
@@ -1355,15 +1355,15 @@
         "Refused"
       ],
       "model_distribution": {
-        "Will definitely happen": 0.0,
-        "Will probably not happen": 0.5,
+        "Will probably not happen": 0.0,
         "Will definitely not happen": 0.0,
-        "Will probably happen": 0.5,
-        "Refused": 0.0
+        "Will definitely happen": 0.0,
+        "Refused": 0.0,
+        "Will probably happen": 1.0
       },
-      "jsd": 0.07887,
-      "kendall_tau": 0.774597,
-      "parity": 0.904214,
+      "jsd": 0.289646,
+      "kendall_tau": 0.632456,
+      "parity": 0.763291,
       "n_samples": 90,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
@@ -1381,15 +1381,15 @@
         "Refused"
       ],
       "model_distribution": {
-        "Will definitely happen": 0.0,
-        "Will probably not happen": 1.0,
+        "Will probably not happen": 0.5222,
         "Will definitely not happen": 0.0,
-        "Will probably happen": 0.0,
-        "Refused": 0.0
+        "Will definitely happen": 0.0,
+        "Refused": 0.0,
+        "Will probably happen": 0.4778
       },
-      "jsd": 0.258714,
-      "kendall_tau": 0.632456,
-      "parity": 0.778757,
+      "jsd": 0.069624,
+      "kendall_tau": 0.83666,
+      "parity": 0.924353,
       "n_samples": 90,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
@@ -1406,14 +1406,14 @@
         "Refused"
       ],
       "model_distribution": {
+        "A little": 0.3333,
         "Refused": 0.0,
         "Nothing at all": 0.0,
-        "A little": 0.5778,
-        "A lot": 0.4222
+        "A lot": 0.6667
       },
-      "jsd": 0.063944,
-      "kendall_tau": 0.912871,
-      "parity": 0.946246,
+      "jsd": 0.146725,
+      "kendall_tau": 0.547723,
+      "parity": 0.813568,
       "n_samples": 90,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
@@ -1431,15 +1431,15 @@
         "Refused"
       ],
       "model_distribution": {
-        "Not very realistic": 0.0111,
-        "Extremely realistic": 0.0,
+        "Somewhat realistic": 0.8444,
+        "Not very realistic": 0.0,
         "Not at all realistic": 0.0,
-        "Somewhat realistic": 0.9889,
+        "Extremely realistic": 0.1556,
         "Refused": 0.0
       },
-      "jsd": 0.219019,
-      "kendall_tau": 0.597614,
-      "parity": 0.789894,
+      "jsd": 0.12313,
+      "kendall_tau": 0.83666,
+      "parity": 0.8976,
       "n_samples": 90,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
@@ -1457,17 +1457,17 @@
         "Refused"
       ],
       "model_distribution": {
-        "Somewhat enthusiastic": 0.4913,
-        "Not too enthusiastic": 0.231,
-        "Not at all enthusiastic": 0.2778,
-        "Very enthusiastic": 0.0,
-        "Refused": 0.0
+        "Not at all enthusiastic": 0.0222,
+        "Somewhat enthusiastic": 0.2,
+        "Refused": 0.0,
+        "Not too enthusiastic": 0.7778,
+        "Very enthusiastic": 0.0
       },
-      "jsd": 0.091962,
-      "kendall_tau": 0.527046,
-      "parity": 0.835781,
-      "n_samples": 88,
-      "n_parse_failures": 2,
+      "jsd": 0.108681,
+      "kendall_tau": 0.948683,
+      "parity": 0.93283,
+      "n_samples": 90,
+      "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
       "human_refusal_rate": 0.00532,
       "temporal_year": 2017
@@ -1483,17 +1483,17 @@
         "Refused"
       ],
       "model_distribution": {
-        "Very worried": 0.0,
-        "Not too worried": 0.0,
+        "Somewhat worried": 0.9,
+        "Refused": 0.0,
+        "Very worried": 0.1,
         "Not at all worried": 0.0,
-        "Somewhat worried": 1.0,
-        "Refused": 0.0
+        "Not too worried": 0.0
       },
-      "jsd": 0.323559,
-      "kendall_tau": 0.632456,
-      "parity": 0.746334,
-      "n_samples": 89,
-      "n_parse_failures": 1,
+      "jsd": 0.213829,
+      "kendall_tau": 0.597614,
+      "parity": 0.792489,
+      "n_samples": 90,
+      "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
       "human_refusal_rate": 0.004111,
       "temporal_year": 2017
@@ -1507,13 +1507,13 @@
         "Refused"
       ],
       "model_distribution": {
-        "No, not likely": 0.0111,
-        "Yes, likely": 0.9889,
+        "Yes, likely": 1.0,
+        "No, not likely": 0.0,
         "Refused": 0.0
       },
-      "jsd": 0.096588,
-      "kendall_tau": 1.0,
-      "parity": 0.951706,
+      "jsd": 0.124071,
+      "kendall_tau": 0.816497,
+      "parity": 0.892089,
       "n_samples": 90,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
@@ -1529,15 +1529,15 @@
         "Refused"
       ],
       "model_distribution": {
-        "No, not likely": 0.2593,
-        "Yes, likely": 0.7407,
+        "Yes, likely": 1.0,
+        "No, not likely": 0.0,
         "Refused": 0.0
       },
-      "jsd": 0.017506,
-      "kendall_tau": 1.0,
-      "parity": 0.991247,
-      "n_samples": 87,
-      "n_parse_failures": 3,
+      "jsd": 0.23511,
+      "kendall_tau": 0.816497,
+      "parity": 0.836569,
+      "n_samples": 90,
+      "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
       "human_refusal_rate": 0.004595,
       "temporal_year": 2017
@@ -1551,13 +1551,13 @@
         "Refused"
       ],
       "model_distribution": {
-        "No, not likely": 0.0111,
-        "Yes, likely": 0.9889,
+        "Yes, likely": 1.0,
+        "No, not likely": 0.0,
         "Refused": 0.0
       },
-      "jsd": 0.357106,
-      "kendall_tau": 0.333333,
-      "parity": 0.65478,
+      "jsd": 0.394281,
+      "kendall_tau": 0.0,
+      "parity": 0.552859,
       "n_samples": 90,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
@@ -1573,8 +1573,8 @@
         "Refused"
       ],
       "model_distribution": {
-        "No, not likely": 0.0,
         "Yes, likely": 1.0,
+        "No, not likely": 0.0,
         "Refused": 0.0
       },
       "jsd": 0.347033,
@@ -1595,15 +1595,15 @@
         "Refused"
       ],
       "model_distribution": {
-        "No, not likely": 0.842,
-        "Yes, likely": 0.158,
+        "Yes, likely": 0.3556,
+        "No, not likely": 0.6444,
         "Refused": 0.0
       },
-      "jsd": 0.017176,
+      "jsd": 0.011599,
       "kendall_tau": 1.0,
-      "parity": 0.991412,
-      "n_samples": 87,
-      "n_parse_failures": 3,
+      "parity": 0.9942,
+      "n_samples": 90,
+      "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
       "human_refusal_rate": 0.009432,
       "temporal_year": 2017
@@ -1617,15 +1617,15 @@
         "Refused"
       ],
       "model_distribution": {
-        "No, not likely": 0.8996,
-        "Yes, likely": 0.1004,
+        "Yes, likely": 0.6444,
+        "No, not likely": 0.3556,
         "Refused": 0.0
       },
-      "jsd": 0.101916,
-      "kendall_tau": 1.0,
-      "parity": 0.949042,
-      "n_samples": 89,
-      "n_parse_failures": 1,
+      "jsd": 0.041593,
+      "kendall_tau": 0.333333,
+      "parity": 0.812537,
+      "n_samples": 90,
+      "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
       "human_refusal_rate": 0.006771,
       "temporal_year": 2017
@@ -1641,17 +1641,17 @@
         "Refused"
       ],
       "model_distribution": {
-        "Strongly favor": 0.4405,
+        "Favor": 0.1333,
         "Oppose": 0.0,
-        "Favor": 0.5595,
-        "Strongly oppose": 0.0,
-        "Refused": 0.0
+        "Refused": 0.0,
+        "Strongly favor": 0.8667,
+        "Strongly oppose": 0.0
       },
-      "jsd": 0.081501,
-      "kendall_tau": 0.597614,
-      "parity": 0.858653,
-      "n_samples": 88,
-      "n_parse_failures": 2,
+      "jsd": 0.173868,
+      "kendall_tau": 0.83666,
+      "parity": 0.872231,
+      "n_samples": 90,
+      "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
       "human_refusal_rate": 0.007255,
       "temporal_year": 2017
@@ -1667,15 +1667,15 @@
         "Refused"
       ],
       "model_distribution": {
-        "Strongly favor": 0.0111,
-        "Oppose": 0.0111,
-        "Favor": 0.9778,
-        "Strongly oppose": 0.0,
-        "Refused": 0.0
+        "Favor": 0.3333,
+        "Oppose": 0.0,
+        "Refused": 0.0,
+        "Strongly favor": 0.6667,
+        "Strongly oppose": 0.0
       },
-      "jsd": 0.30147,
-      "kendall_tau": 0.894427,
-      "parity": 0.822872,
+      "jsd": 0.288531,
+      "kendall_tau": 0.358569,
+      "parity": 0.695377,
       "n_samples": 90,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
@@ -1693,15 +1693,15 @@
         "Refused"
       ],
       "model_distribution": {
+        "Favor": 0.6667,
+        "Oppose": 0.1778,
+        "Refused": 0.0333,
         "Strongly favor": 0.0,
-        "Oppose": 0.9,
-        "Favor": 0.0889,
-        "Strongly oppose": 0.0111,
-        "Refused": 0.0
+        "Strongly oppose": 0.1222
       },
-      "jsd": 0.282751,
-      "kendall_tau": 0.948683,
-      "parity": 0.845796,
+      "jsd": 0.135427,
+      "kendall_tau": 0.6,
+      "parity": 0.832286,
       "n_samples": 90,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
@@ -1717,15 +1717,15 @@
         "Refused"
       ],
       "model_distribution": {
-        "The government would have an obligation to take care of people whose jobs are displaced by robots and computers": 0.9,
-        "Individuals would have an obligation to take care of their own financial well-being, even if robots and computers": 0.1,
-        "Refused": 0.0
+        "Individuals would have an obligation to take care of their own financial well-being, even if robots and computers": 0.046,
+        "Refused": 0.0,
+        "The government would have an obligation to take care of people whose jobs are displaced by robots and computers": 0.954
       },
-      "jsd": 0.18105,
+      "jsd": 0.249321,
       "kendall_tau": 0.333333,
-      "parity": 0.742808,
-      "n_samples": 84,
-      "n_parse_failures": 6,
+      "parity": 0.708673,
+      "n_samples": 89,
+      "n_parse_failures": 1,
       "model_refusal_rate": 0.0,
       "human_refusal_rate": 0.013059,
       "temporal_year": 2017
@@ -1739,15 +1739,15 @@
         "Refused"
       ],
       "model_distribution": {
-        "There should be limits on how many jobs businesses can replace with robots and computers, even if they can do those": 0.9885,
-        "If businesses can receive better work at lower cost by replacing humans with robots and computers, they are justified": 0.0115,
-        "Refused": 0.0
+        "There should be limits on how many jobs businesses can replace with robots and computers, even if they can do those": 0.9778,
+        "Refused": 0.0,
+        "If businesses can receive better work at lower cost by replacing humans with robots and computers, they are justified": 0.0222
       },
-      "jsd": 0.291464,
+      "jsd": 0.267816,
       "kendall_tau": 0.333333,
-      "parity": 0.687601,
-      "n_samples": 82,
-      "n_parse_failures": 8,
+      "parity": 0.699425,
+      "n_samples": 90,
+      "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
       "human_refusal_rate": 0.010399,
       "temporal_year": 2017
@@ -1763,15 +1763,15 @@
         "Refused"
       ],
       "model_distribution": {
-        "Not very likely": 0.5555,
-        "Not at all likely": 0.0,
+        "Not very likely": 0.1111,
         "Very likely": 0.0,
-        "Somewhat likely": 0.4445,
-        "Refused": 0.0
+        "Refused": 0.0,
+        "Not at all likely": 0.3333,
+        "Somewhat likely": 0.5556
       },
-      "jsd": 0.13705,
-      "kendall_tau": 0.83666,
-      "parity": 0.89064,
+      "jsd": 0.165822,
+      "kendall_tau": 0.527046,
+      "parity": 0.798851,
       "n_samples": 90,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
@@ -1789,17 +1789,17 @@
         "Refused"
       ],
       "model_distribution": {
-        "Not very likely": 0.3563,
-        "Not at all likely": 0.0,
+        "Not very likely": 0.3333,
         "Very likely": 0.0,
-        "Somewhat likely": 0.6437,
-        "Refused": 0.0
+        "Refused": 0.0,
+        "Not at all likely": 0.0,
+        "Somewhat likely": 0.6667
       },
-      "jsd": 0.132174,
+      "jsd": 0.136824,
       "kendall_tau": 0.83666,
-      "parity": 0.893078,
-      "n_samples": 89,
-      "n_parse_failures": 1,
+      "parity": 0.890753,
+      "n_samples": 90,
+      "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
       "human_refusal_rate": 0.00532,
       "temporal_year": 2017
@@ -1815,15 +1815,15 @@
         "Refused"
       ],
       "model_distribution": {
-        "Not very likely": 1.0,
-        "Not at all likely": 0.0,
+        "Not very likely": 0.6667,
         "Very likely": 0.0,
-        "Somewhat likely": 0.0,
-        "Refused": 0.0
+        "Refused": 0.0,
+        "Not at all likely": 0.3333,
+        "Somewhat likely": 0.0
       },
-      "jsd": 0.310209,
-      "kendall_tau": 0.632456,
-      "parity": 0.753009,
+      "jsd": 0.091529,
+      "kendall_tau": 0.83666,
+      "parity": 0.9134,
       "n_samples": 90,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
@@ -1841,17 +1841,17 @@
         "Refused"
       ],
       "model_distribution": {
-        "Not very likely": 0.8318,
-        "Not at all likely": 0.0,
+        "Not very likely": 0.6667,
         "Very likely": 0.0,
-        "Somewhat likely": 0.1682,
-        "Refused": 0.0
+        "Refused": 0.0,
+        "Not at all likely": 0.0,
+        "Somewhat likely": 0.3333
       },
-      "jsd": 0.193382,
+      "jsd": 0.150133,
       "kendall_tau": 0.83666,
-      "parity": 0.862474,
-      "n_samples": 89,
-      "n_parse_failures": 1,
+      "parity": 0.884099,
+      "n_samples": 90,
+      "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
       "human_refusal_rate": 0.003386,
       "temporal_year": 2017
@@ -1868,14 +1868,14 @@
       ],
       "model_distribution": {
         "Not very likely": 0.0,
+        "Very likely": 0.6,
+        "Refused": 0.0,
         "Not at all likely": 0.0,
-        "Very likely": 0.0445,
-        "Somewhat likely": 0.9555,
-        "Refused": 0.0
+        "Somewhat likely": 0.4
       },
-      "jsd": 0.283403,
-      "kendall_tau": 0.83666,
-      "parity": 0.817464,
+      "jsd": 0.105051,
+      "kendall_tau": 0.597614,
+      "parity": 0.846878,
       "n_samples": 90,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
@@ -1893,15 +1893,15 @@
         "Refused"
       ],
       "model_distribution": {
-        "Not very likely": 0.9889,
-        "Not at all likely": 0.0,
+        "Not very likely": 0.6667,
         "Very likely": 0.0,
-        "Somewhat likely": 0.0111,
-        "Refused": 0.0
+        "Refused": 0.0,
+        "Not at all likely": 0.3333,
+        "Somewhat likely": 0.0
       },
-      "jsd": 0.346735,
-      "kendall_tau": 0.597614,
-      "parity": 0.726036,
+      "jsd": 0.183103,
+      "kendall_tau": 0.83666,
+      "parity": 0.867614,
       "n_samples": 90,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
@@ -1919,15 +1919,15 @@
         "Refused"
       ],
       "model_distribution": {
-        "Not very likely": 0.0,
+        "Not very likely": 0.0444,
+        "Very likely": 0.0667,
+        "Refused": 0.0,
         "Not at all likely": 0.0,
-        "Very likely": 0.0333,
-        "Somewhat likely": 0.9667,
-        "Refused": 0.0
+        "Somewhat likely": 0.8889
       },
-      "jsd": 0.28495,
-      "kendall_tau": 0.597614,
-      "parity": 0.756928,
+      "jsd": 0.175324,
+      "kendall_tau": 0.737865,
+      "parity": 0.846804,
       "n_samples": 90,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
@@ -1947,17 +1947,17 @@
         "Refused"
       ],
       "model_distribution": {
-        "A few times a week": 0.8222,
-        "Less than once a month": 0.0,
-        "Basically every day": 0.1667,
         "Once a month": 0.0,
-        "A few times a month": 0.0111,
+        "A few times a month": 0.0667,
+        "A few times a week": 0.5667,
         "Not at all": 0.0,
-        "Refused": 0.0
+        "Basically every day": 0.3667,
+        "Refused": 0.0,
+        "Less than once a month": 0.0
       },
-      "jsd": 0.200529,
+      "jsd": 0.089853,
       "kendall_tau": 0.845154,
-      "parity": 0.861024,
+      "parity": 0.916362,
       "n_samples": 90,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
@@ -1973,13 +1973,13 @@
         "Refused"
       ],
       "model_distribution": {
-        "Yes": 0.0111,
-        "No": 0.9889,
-        "Refused": 0.0
+        "Yes": 0.1333,
+        "Refused": 0.0,
+        "No": 0.8667
       },
-      "jsd": 0.13167,
+      "jsd": 0.027221,
       "kendall_tau": 1.0,
-      "parity": 0.934165,
+      "parity": 0.986389,
       "n_samples": 90,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
@@ -1997,15 +1997,15 @@
         "Refused"
       ],
       "model_distribution": {
-        "Somewhat safe": 0.9889,
-        "Not at all safe": 0.0,
-        "Very safe": 0.0111,
         "Not too safe": 0.0,
-        "Refused": 0.0
+        "Very safe": 0.1667,
+        "Not at all safe": 0.0,
+        "Refused": 0.0,
+        "Somewhat safe": 0.8333
       },
-      "jsd": 0.22586,
+      "jsd": 0.101659,
       "kendall_tau": 0.83666,
-      "parity": 0.846235,
+      "parity": 0.908336,
       "n_samples": 90,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
@@ -2024,14 +2024,14 @@
       ],
       "model_distribution": {
         "Somewhat dissatisfied": 0.0,
-        "Very satisfied": 0.4,
-        "Somewhat satisfied": 0.6,
         "Very dissatisfied": 0.0,
+        "Somewhat satisfied": 0.6667,
+        "Very satisfied": 0.3333,
         "Refused": 0.0
       },
-      "jsd": 0.096128,
+      "jsd": 0.115802,
       "kendall_tau": 0.597614,
-      "parity": 0.85134,
+      "parity": 0.841502,
       "n_samples": 90,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
@@ -2051,17 +2051,17 @@
         "Refused"
       ],
       "model_distribution": {
-        "A few times a week": 0.0,
-        "Less than once a month": 0.0444,
+        "Once a month": 0.0,
+        "A few times a month": 0.2333,
+        "A few times a week": 0.4222,
+        "Not at all": 0.2222,
         "Basically every day": 0.0,
-        "Once a month": 0.0111,
-        "A few times a month": 0.9444,
-        "Not at all": 0.0,
-        "Refused": 0.0
+        "Refused": 0.0,
+        "Less than once a month": 0.1222
       },
-      "jsd": 0.430744,
-      "kendall_tau": 0.281718,
-      "parity": 0.605058,
+      "jsd": 0.152366,
+      "kendall_tau": 0.514344,
+      "parity": 0.802403,
       "n_samples": 90,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
@@ -2079,15 +2079,15 @@
         "Refused"
       ],
       "model_distribution": {
-        "Somewhat well": 0.9,
-        "Very well": 0.1,
+        "Somewhat well": 0.3333,
+        "Very well": 0.6667,
+        "Refused": 0.0,
         "Not too well": 0.0,
-        "Not at all well": 0.0,
-        "Refused": 0.0
+        "Not at all well": 0.0
       },
-      "jsd": 0.167202,
-      "kendall_tau": 0.597614,
-      "parity": 0.815803,
+      "jsd": 0.03221,
+      "kendall_tau": 0.83666,
+      "parity": 0.94306,
       "n_samples": 90,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
@@ -2105,15 +2105,15 @@
         "Refused"
       ],
       "model_distribution": {
-        "Somewhat well": 0.9556,
-        "Very well": 0.0,
-        "Not too well": 0.0444,
-        "Not at all well": 0.0,
-        "Refused": 0.0
+        "Somewhat well": 0.7,
+        "Very well": 0.0778,
+        "Refused": 0.1556,
+        "Not too well": 0.0667,
+        "Not at all well": 0.0
       },
-      "jsd": 0.141559,
-      "kendall_tau": 0.83666,
-      "parity": 0.888386,
+      "jsd": 0.106823,
+      "kendall_tau": 0.2,
+      "parity": 0.746588,
       "n_samples": 90,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
@@ -2131,15 +2131,15 @@
         "Refused"
       ],
       "model_distribution": {
-        "Somewhat well": 0.9445,
-        "Very well": 0.0555,
-        "Not too well": 0.0,
-        "Not at all well": 0.0,
-        "Refused": 0.0
+        "Somewhat well": 0.7444,
+        "Very well": 0.2444,
+        "Refused": 0.0,
+        "Not too well": 0.0111,
+        "Not at all well": 0.0
       },
-      "jsd": 0.239886,
-      "kendall_tau": 0.83666,
-      "parity": 0.839222,
+      "jsd": 0.094087,
+      "kendall_tau": 0.948683,
+      "parity": 0.940127,
       "n_samples": 90,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
@@ -2157,15 +2157,15 @@
         "Refused"
       ],
       "model_distribution": {
-        "Somewhat well": 1.0,
-        "Very well": 0.0,
+        "Somewhat well": 0.7,
+        "Very well": 0.3,
+        "Refused": 0.0,
         "Not too well": 0.0,
-        "Not at all well": 0.0,
-        "Refused": 0.0
+        "Not at all well": 0.0
       },
-      "jsd": 0.299771,
-      "kendall_tau": 0.632456,
-      "parity": 0.758228,
+      "jsd": 0.118717,
+      "kendall_tau": 0.83666,
+      "parity": 0.899806,
       "n_samples": 90,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
@@ -2183,17 +2183,17 @@
         "Refused"
       ],
       "model_distribution": {
-        "Somewhat well": 0.8203,
-        "Very well": 0.0,
-        "Not too well": 0.1797,
-        "Not at all well": 0.0,
-        "Refused": 0.0
+        "Somewhat well": 0.7889,
+        "Very well": 0.1444,
+        "Refused": 0.0,
+        "Not too well": 0.0222,
+        "Not at all well": 0.0444
       },
-      "jsd": 0.122128,
-      "kendall_tau": 0.83666,
-      "parity": 0.898101,
-      "n_samples": 89,
-      "n_parse_failures": 1,
+      "jsd": 0.10415,
+      "kendall_tau": 0.6,
+      "parity": 0.847925,
+      "n_samples": 90,
+      "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
       "human_refusal_rate": 0.005342,
       "temporal_year": 2017
@@ -2209,15 +2209,15 @@
         "Refused"
       ],
       "model_distribution": {
-        "Somewhat well": 1.0,
-        "Very well": 0.0,
+        "Somewhat well": 0.8556,
+        "Very well": 0.1444,
+        "Refused": 0.0,
         "Not too well": 0.0,
-        "Not at all well": 0.0,
-        "Refused": 0.0
+        "Not at all well": 0.0
       },
-      "jsd": 0.325377,
-      "kendall_tau": 0.632456,
-      "parity": 0.745425,
+      "jsd": 0.149802,
+      "kendall_tau": 0.83666,
+      "parity": 0.884264,
       "n_samples": 90,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
@@ -2233,15 +2233,15 @@
         "Refused"
       ],
       "model_distribution": {
-        "Whether someone is a man or a woman is determined by the sex they were assigned at birth": 0.0367,
-        "Someone can be a man or a woman even if that is different from the sex they were assigned at birth": 0.9488,
-        "Refused": 0.0145
+        "Someone can be a man or a woman even if that is different from the sex they were assigned at birth": 0.9444,
+        "Refused": 0.0556,
+        "Whether someone is a man or a woman is determined by the sex they were assigned at birth": 0.0
       },
-      "jsd": 0.234631,
-      "kendall_tau": 0.333333,
-      "parity": 0.716018,
-      "n_samples": 83,
-      "n_parse_failures": 7,
+      "jsd": 0.321557,
+      "kendall_tau": -0.333333,
+      "parity": 0.505888,
+      "n_samples": 90,
+      "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
       "human_refusal_rate": 0.014794,
       "temporal_year": 2017
@@ -2255,15 +2255,15 @@
         "Refused"
       ],
       "model_distribution": {
-        "Yes": 0.8111,
-        "No": 0.1889,
-        "Refused": 0.0
+        "Yes": 0.4111,
+        "Refused": 0.0,
+        "No": 0.5889
       },
-      "jsd": 0.140007,
-      "kendall_tau": 0.333333,
-      "parity": 0.76333,
-      "n_samples": 90,
-      "n_parse_failures": 0,
+      "jsd": 0.002078,
+      "kendall_tau": 1.0,
+      "parity": 0.998961,
+      "n_samples": 86,
+      "n_parse_failures": 4,
       "model_refusal_rate": 0.0,
       "human_refusal_rate": 0.003493,
       "temporal_year": 2017
@@ -2278,16 +2278,16 @@
         "Refused"
       ],
       "model_distribution": {
-        "Our society has been about right when it comes to accepting people who are transgender": 0.6538,
-        "Our society has not gone far enough in accepting people who are transgender": 0.3462,
-        "Our society has gone too far in accepting people who are transgender": 0.0,
-        "Refused": 0.0
+        "Our society has been about right when it comes to accepting people who are transgender": 0.3778,
+        "Our society has gone too far in accepting people who are transgender": 0.0778,
+        "Refused": 0.0,
+        "Our society has not gone far enough in accepting people who are transgender": 0.5444
       },
-      "jsd": 0.233916,
-      "kendall_tau": 0.182574,
-      "parity": 0.678685,
-      "n_samples": 85,
-      "n_parse_failures": 5,
+      "jsd": 0.078817,
+      "kendall_tau": 0.666667,
+      "parity": 0.877258,
+      "n_samples": 89,
+      "n_parse_failures": 1,
       "model_refusal_rate": 0.0,
       "human_refusal_rate": 0.01767,
       "temporal_year": 2017
@@ -2302,14 +2302,14 @@
         "Refused"
       ],
       "model_distribution": {
-        "Not enough importance": 0.0,
+        "Just about right": 0.3333,
+        "Too much importance": 0.6667,
         "Refused": 0.0,
-        "Too much importance": 0.9556,
-        "Just about right": 0.0444
+        "Not enough importance": 0.0
       },
-      "jsd": 0.578733,
+      "jsd": 0.386185,
       "kendall_tau": -0.182574,
-      "parity": 0.41499,
+      "parity": 0.511264,
       "n_samples": 90,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
@@ -2326,10 +2326,10 @@
         "Refused"
       ],
       "model_distribution": {
-        "Refused": 0.0,
         "Yes": 0.0,
-        "No": 1.0,
-        "I'm not sure": 0.0
+        "I'm not sure": 0.0,
+        "Refused": 0.0,
+        "No": 1.0
       },
       "jsd": 0.021996,
       "kendall_tau": 0.707107,
@@ -2350,10 +2350,10 @@
         "Refused"
       ],
       "model_distribution": {
-        "Refused": 0.0,
         "Yes": 0.0,
-        "No": 1.0,
-        "I'm not sure": 0.0
+        "I'm not sure": 0.0,
+        "Refused": 0.0,
+        "No": 1.0
       },
       "jsd": 0.03334,
       "kendall_tau": 0.707107,
@@ -2373,15 +2373,15 @@
         "Refused"
       ],
       "model_distribution": {
-        "Yes": 0.3889,
-        "No": 0.6111,
-        "Refused": 0.0
+        "Yes": 0.3333,
+        "Refused": 0.0,
+        "No": 0.6667
       },
-      "jsd": 0.034056,
+      "jsd": 0.01894,
       "kendall_tau": 1.0,
-      "parity": 0.982972,
-      "n_samples": 88,
-      "n_parse_failures": 2,
+      "parity": 0.99053,
+      "n_samples": 90,
+      "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
       "human_refusal_rate": 0.003386,
       "temporal_year": 2017
@@ -2396,16 +2396,16 @@
         "Refused"
       ],
       "model_distribution": {
-        "The world we live in is neither safer nor more dangerous": 0.0123,
+        "The world we live in is neither safer nor more dangerous": 0.1,
         "Refused": 0.0,
-        "We live in a safer world": 0.5243,
-        "We live in a more dangerous world": 0.4634
+        "We live in a safer world": 0.4889,
+        "We live in a more dangerous world": 0.4111
       },
-      "jsd": 0.207316,
+      "jsd": 0.144531,
       "kendall_tau": 0.333333,
-      "parity": 0.729676,
-      "n_samples": 86,
-      "n_parse_failures": 4,
+      "parity": 0.761068,
+      "n_samples": 90,
+      "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
       "human_refusal_rate": 0.002639,
       "temporal_year": 2017
@@ -2421,15 +2421,15 @@
         "Refused"
       ],
       "model_distribution": {
-        "Moderately worried": 0.6,
-        "Very worried": 0.0,
-        "Not too worried": 0.4,
-        "Not worried at all": 0.0,
-        "Refused": 0.0
+        "Moderately worried": 0.1444,
+        "Not worried at all": 0.3778,
+        "Refused": 0.0,
+        "Very worried": 0.1,
+        "Not too worried": 0.3778
       },
-      "jsd": 0.281699,
-      "kendall_tau": 0.358569,
-      "parity": 0.698793,
+      "jsd": 0.019677,
+      "kendall_tau": 0.948683,
+      "parity": 0.977332,
       "n_samples": 90,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
@@ -2446,14 +2446,14 @@
         "Refused"
       ],
       "model_distribution": {
-        "Worry a lot": 0.0222,
         "Do not worry at all": 0.0,
-        "Worry a little": 0.9778,
-        "Refused": 0.0
+        "Worry a lot": 0.2444,
+        "Refused": 0.0,
+        "Worry a little": 0.7556
       },
-      "jsd": 0.195366,
+      "jsd": 0.097676,
       "kendall_tau": 0.912871,
-      "parity": 0.880535,
+      "parity": 0.92938,
       "n_samples": 90,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
@@ -2471,15 +2471,15 @@
         "Refused"
       ],
       "model_distribution": {
-        "Moderately worried": 0.9889,
-        "Very worried": 0.0111,
-        "Not too worried": 0.0,
-        "Not worried at all": 0.0,
-        "Refused": 0.0
+        "Moderately worried": 0.4667,
+        "Not worried at all": 0.2889,
+        "Refused": 0.0,
+        "Very worried": 0.2444,
+        "Not too worried": 0.0
       },
-      "jsd": 0.420542,
-      "kendall_tau": 0.597614,
-      "parity": 0.689132,
+      "jsd": 0.175764,
+      "kendall_tau": 0.316228,
+      "parity": 0.741175,
       "n_samples": 90,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,

@@ -111,8 +111,19 @@ MODEL_MAP: dict[str, tuple[str, str]] = {
         "Ensemble: Qwen 3.8 Flash, DeepSeek V4.1 Flash, Gemini 3.5 Flash-Lite (raw)",
         "product",
     ),
-    "ensemble/flash3-althing": (
-        "Ensemble: Qwen 3.8 Flash, DeepSeek V4.1 Flash, Gemini 3.5 Flash-Lite (Althing)",
+    # Chosen for complementary errors on public questions only
+    # (scripts/search-ensembles.py, docs/ensembles.md).
+    "ensemble/complementary-mid": (
+        "Ensemble: Haiku 5.5 (Althing), Llama 3.3 70B, Gemini 2.5 Flash-Lite",
+        "product",
+    ),
+    "ensemble/complementary-top": (
+        "Ensemble: Haiku 5.5 (Althing), DeepSeek V4.1 Flash, Gemini 2.5 Flash-Lite",
+        "product",
+    ),
+    "ensemble/complementary-4": (
+        "Ensemble: Qwen 3.8 Flash (Althing), Sonnet 4 (Althing), DeepSeek V4.1 Flash, "
+        "Gemini 2.5 Flash-Lite",
         "product",
     ),
     # Baselines

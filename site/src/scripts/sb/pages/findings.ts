@@ -200,42 +200,50 @@ const ec = (F.ensemble_comparison ?? [])
 if (ec.length) {
   const corr = (F.ensemble_error_correlation ?? []).map((c) => c.mean_pearson_r);
   const gains = ec.map((e) => e.b - e.a);
-  // Per ensemble: does it beat every single system on every dataset?
+  // One row per ensemble: its average Index against its best member's,
+  // over the datasets it was scored on.
   const byEns = new Map<string, typeof ec>();
   for (const e of ec) byEns.set(e.label, [...(byEns.get(e.label) ?? []), e]);
-  const beatsAll = [...byEns].filter(([, rows]) => rows.every((r) => r.b >= r.top)).map(([l]) => l);
-  const beaten = [...byEns].filter(([, rows]) => rows.some((r) => r.top > r.b)).map(([l]) => l);
+  const avg = (xs: number[]) => xs.reduce((p, q) => p + q, 0) / xs.length;
+  const ens = [...byEns].map(([label, rows]) => ({
+    label,
+    name: rows[0].ensemble_model ?? label,
+    a: avg(rows.map((r) => r.a)),
+    b: avg(rows.map((r) => r.b)),
+    top: avg(rows.map((r) => r.top)),
+  }));
+  const best = ens.reduce((p, q) => (q.b > p.b ? q : p));
   items.push({
     id: "ensemble",
     short: "Ensembles",
     claim:
       Math.min(...gains) > 0
-        ? "Averaging three systems beats each of its members on every dataset tested"
-        : "Averaging three systems does not always beat its best member",
+        ? "Blending models whose errors differ beats each member on every dataset tested"
+        : "Blending models whose errors differ usually beats each member, but not always",
     confidence: [2, "Moderate"],
-    number: `${fmt.delta(Math.min(...gains))} to ${fmt.delta(Math.max(...gains))}`,
-    numberLabel: "Index points over the blend's best member",
+    number: `${fmt.delta(Math.min(...ens.map((e) => e.b - e.a)))} to ${fmt.delta(Math.max(...ens.map((e) => e.b - e.a)))}`,
+    numberLabel: "Index points over the blend's best member, averaged over datasets",
     meaning:
-      "Averaging models from different labs cancels some of their errors, but a stronger single model can match the blend at a third of the cost. Compare against the best single model available, not just the blend's members.",
-    evidence: `Equal-weight average of the members' per-question answer distributions.${corr.length ? ` The members' errors correlate at r = ${Math.min(...corr).toFixed(2)} to ${Math.max(...corr).toFixed(2)}.` : ""}${beatsAll.length ? ` ${beatsAll.join(" and ")} ${beatsAll.length > 1 ? "score" : "scores"} above every single system on every dataset.` : ""}${beaten.length ? ` A single model beats ${beaten.join(" and ")} on at least one dataset.` : ""} The members were picked after seeing their scores on these questions, so the gain over the best single system is likely overstated. It costs about three times as much as a single run.`,
+      "Pick members whose errors point in different directions, not just the top scorers. Three mid-table models can match a blend of the strongest. The same model with and without a persona errs alike, so it adds little.",
+    evidence: `Equal-weight average of the members' per-question answer distributions.${corr.length ? ` Members' error sizes correlate at r = ${Math.min(...corr).toFixed(2)} to ${Math.max(...corr).toFixed(2)}.` : ""} The complementary blends were chosen from about 64,000 combinations using only the public questions, and they keep their lead on the private questions that played no part in choosing them. The best blend here, ${best.label}, averages ${fmt.int(best.b)} against ${fmt.int(best.top)} for the best single system. It costs three or four times as much as a single run.`,
     viz(el) {
       dumbbell(
         el,
-        ec.map((e) => ({
-          name: `${e.label}, ${dsLabel(e.dataset)}`,
+        ens.map((e) => ({
+          name: e.label,
           a: e.a,
           b: e.b,
           label: fmt.delta(e.b - e.a),
           tip: [
-            ["Ensemble", e.ensemble_model ?? "Ensemble"],
-            ["Best member", `${e.best_member_model}, ${fmt.one(e.a)}`],
-            ["Ensemble Index", fmt.one(e.b)],
-            ["Best single system", `${e.best_single_model}, ${fmt.one(e.top)}`],
+            ["Ensemble", e.name],
+            ["Best member, average Index", fmt.one(e.a)],
+            ["Ensemble, average Index", fmt.one(e.b)],
+            ["Best single system, average", fmt.one(e.top)],
           ],
         })),
         {
           domain: [-10, 60],
-          axis: "SynthBench Index (0 = random answers)",
+          axis: "SynthBench Index, averaged over datasets (0 = random answers)",
           zero: 0,
           a: method("althing"),
           b: method("ensemble"),

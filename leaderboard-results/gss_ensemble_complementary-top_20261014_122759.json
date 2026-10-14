@@ -1,24 +1,24 @@
 {
   "benchmark": "synthbench",
   "version": "0.1.0",
-  "timestamp": "2026-10-14T06:26:43.483227+00:00",
+  "timestamp": "2026-10-14T17:27:59.531470+00:00",
   "config": {
     "dataset": "gss",
-    "provider": "ensemble/flash3-althing",
+    "provider": "ensemble/complementary-top",
     "ensemble_sources": [
       {
-        "file": "gss_althing_openrouter_qwen_qwen3.8-flash_20261013_172729.json",
-        "provider": "althing/openrouter/qwen/qwen3.8-flash",
+        "file": "gss_althing_openrouter_anthropic_claude-haiku-5.5_20261013_161931.json",
+        "provider": "althing/openrouter/anthropic/claude-haiku-5.5",
         "weight": 0.333333
       },
       {
-        "file": "gss_althing_openrouter_deepseek_deepseek-v4.1-flash_20261013_162150.json",
-        "provider": "althing/openrouter/deepseek/deepseek-v4.1-flash",
+        "file": "gss_openrouter_deepseek_deepseek-v4.1-flash_20261013_154705.json",
+        "provider": "openrouter/deepseek/deepseek-v4.1-flash",
         "weight": 0.333333
       },
       {
-        "file": "gss_althing_openrouter_google_gemini-3.5-flash-lite_20261013_160320.json",
-        "provider": "althing/openrouter/google/gemini-3.5-flash-lite",
+        "file": "gss_openrouter_google_gemini-2.5-flash-lite_20261013_115512.json",
+        "provider": "openrouter/google/gemini-2.5-flash-lite",
         "weight": 0.333333
       }
     ],
@@ -28,16 +28,16 @@
     "option_parser_version": 3
   },
   "scores": {
-    "sps": 0.848426,
-    "p_dist": 0.773052,
-    "p_rank": 0.800176,
-    "p_refuse": 0.972051
+    "sps": 0.851459,
+    "p_dist": 0.799069,
+    "p_rank": 0.783968,
+    "p_refuse": 0.97134
   },
   "aggregate": {
-    "mean_jsd": 0.226948,
-    "median_jsd": 0.213975,
-    "mean_kendall_tau": 0.600352,
-    "composite_parity": 0.848426,
+    "mean_jsd": 0.200931,
+    "median_jsd": 0.18062,
+    "mean_kendall_tau": 0.567935,
+    "composite_parity": 0.851459,
     "n_questions": 75,
     "elapsed_seconds": 0.0
   },
@@ -56,15 +56,15 @@
         "don't know": 0.0348
       },
       "model_distribution": {
-        "don't know": 0.0256,
-        "no": 0.0556,
-        "yes": 0.9188
+        "don't know": 0.3333,
+        "yes": 0.6667,
+        "no": 0.0
       },
-      "jsd": 0.138644,
-      "kendall_tau": 1.0,
-      "parity": 0.930678,
-      "n_samples": 86,
-      "n_parse_failures": 4,
+      "jsd": 0.305445,
+      "kendall_tau": 0.333333,
+      "parity": 0.680611,
+      "n_samples": 90,
+      "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
       "human_refusal_rate": 0.03483,
       "temporal_year": 0
@@ -84,14 +84,14 @@
       },
       "model_distribution": {
         "don't know": 0.0,
-        "no": 0.0,
-        "yes": 1.0
+        "yes": 1.0,
+        "no": 0.0
       },
       "jsd": 0.139149,
       "kendall_tau": 0.816497,
       "parity": 0.88455,
-      "n_samples": 86,
-      "n_parse_failures": 4,
+      "n_samples": 90,
+      "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
       "human_refusal_rate": 0.04283,
       "temporal_year": 0
@@ -111,14 +111,14 @@
       },
       "model_distribution": {
         "don't know": 0.0,
-        "no": 0.0,
-        "yes": 1.0
+        "yes": 1.0,
+        "no": 0.0
       },
       "jsd": 0.057908,
       "kendall_tau": 0.816497,
       "parity": 0.92517,
-      "n_samples": 89,
-      "n_parse_failures": 1,
+      "n_samples": 90,
+      "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
       "human_refusal_rate": 0.024707,
       "temporal_year": 0
@@ -137,15 +137,15 @@
         "don't know": 0.0423
       },
       "model_distribution": {
-        "don't know": 0.0111,
-        "no": 0.0,
-        "yes": 0.9889
+        "don't know": 0.0,
+        "yes": 1.0,
+        "no": 0.0
       },
-      "jsd": 0.275237,
-      "kendall_tau": 0.333333,
-      "parity": 0.695715,
-      "n_samples": 90,
-      "n_parse_failures": 0,
+      "jsd": 0.291529,
+      "kendall_tau": 0.816497,
+      "parity": 0.808359,
+      "n_samples": 89,
+      "n_parse_failures": 1,
       "model_refusal_rate": 0.0,
       "human_refusal_rate": 0.04231,
       "temporal_year": 0
@@ -164,15 +164,15 @@
         "don't know": 0.0416
       },
       "model_distribution": {
-        "don't know": 0.0238,
-        "no": 0.3333,
-        "yes": 0.6429
+        "don't know": 0.0,
+        "yes": 1.0,
+        "no": 0.0
       },
-      "jsd": 0.012506,
-      "kendall_tau": 1.0,
-      "parity": 0.993747,
-      "n_samples": 88,
-      "n_parse_failures": 2,
+      "jsd": 0.29942,
+      "kendall_tau": 0.816497,
+      "parity": 0.804414,
+      "n_samples": 90,
+      "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
       "human_refusal_rate": 0.041563,
       "temporal_year": 0
@@ -192,14 +192,14 @@
       },
       "model_distribution": {
         "don't know": 0.0,
-        "no": 0.0,
-        "yes": 1.0
+        "yes": 1.0,
+        "no": 0.0
       },
       "jsd": 0.106687,
       "kendall_tau": 0.816497,
       "parity": 0.90078,
-      "n_samples": 89,
-      "n_parse_failures": 1,
+      "n_samples": 90,
+      "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
       "human_refusal_rate": 0.041694,
       "temporal_year": 0
@@ -218,15 +218,15 @@
         "don't know": 0.0381
       },
       "model_distribution": {
-        "don't know": 0.0238,
-        "no": 0.0,
-        "yes": 0.9762
+        "don't know": 0.0111,
+        "yes": 0.9889,
+        "no": 0.0
       },
-      "jsd": 0.28946,
+      "jsd": 0.296497,
       "kendall_tau": 0.333333,
-      "parity": 0.688603,
-      "n_samples": 88,
-      "n_parse_failures": 2,
+      "parity": 0.685085,
+      "n_samples": 90,
+      "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
       "human_refusal_rate": 0.038075,
       "temporal_year": 0
@@ -249,17 +249,17 @@
         "don't know": 0.0528
       },
       "model_distribution": {
-        "strongly opposes": 0.3448,
-        "strongly favors": 0.0,
-        "don't know": 0.0267,
-        "not strongly opposes": 0.5352,
-        "not strongly favors": 0.0933
+        "strongly opposes": 0.4444,
+        "don't know": 0.2556,
+        "not strongly opposes": 0.3,
+        "not strongly favors": 0.0,
+        "strongly favors": 0.0
       },
-      "jsd": 0.103396,
-      "kendall_tau": 0.4,
-      "parity": 0.798302,
-      "n_samples": 84,
-      "n_parse_failures": 6,
+      "jsd": 0.176598,
+      "kendall_tau": 0.527046,
+      "parity": 0.793462,
+      "n_samples": 90,
+      "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
       "human_refusal_rate": 0.052808,
       "temporal_year": 0
@@ -290,22 +290,22 @@
         "several times a week": 0.0611
       },
       "model_distribution": {
-        "several times a year": 0.1264,
-        "nearly every week": 0.0115,
         "2-3 times a month": 0.0,
-        "several times a week": 0.0,
-        "never": 0.1448,
+        "every week": 0.0,
+        "about once or twice a year": 0.2563,
+        "less than once a year": 0.0,
+        "never": 0.7103,
         "about once a month": 0.0,
-        "every week": 0.0115,
-        "less than once a year": 0.046,
-        "about once or twice a year": 0.6598
+        "nearly every week": 0.0,
+        "several times a year": 0.0333,
+        "several times a week": 0.0
       },
-      "jsd": 0.325754,
-      "kendall_tau": 0.589256,
-      "parity": 0.734437,
-      "n_samples": 89,
-      "n_parse_failures": 1,
-      "model_refusal_rate": 0.0,
+      "jsd": 0.33887,
+      "kendall_tau": 0.618284,
+      "parity": 0.735136,
+      "n_samples": 90,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.011111,
       "human_refusal_rate": 0,
       "temporal_year": 0
     },
@@ -327,9 +327,9 @@
         "don't know": 0.0341
       },
       "model_distribution": {
+        "other (vol)": 0.0,
         "don't know": 0.0,
         "inspired word": 1.0,
-        "other (vol)": 0.0,
         "word of god": 0.0,
         "ancient book": 0.0
       },
@@ -356,15 +356,15 @@
         "don't know": 0.0347
       },
       "model_distribution": {
-        "oppose": 0.3506,
-        "don't know": 0.0247,
-        "favor": 0.6247
+        "favor": 0.7667,
+        "oppose": 0.2111,
+        "don't know": 0.0222
       },
-      "jsd": 0.0009,
+      "jsd": 0.023422,
       "kendall_tau": 1.0,
-      "parity": 0.99955,
-      "n_samples": 87,
-      "n_parse_failures": 3,
+      "parity": 0.988289,
+      "n_samples": 90,
+      "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
       "human_refusal_rate": 0.034728,
       "temporal_year": 0
@@ -387,15 +387,15 @@
         "don't know": 0.0109
       },
       "model_distribution": {
+        "working class": 0.0889,
         "lower class": 0.0,
-        "upper class": 0.0,
         "don't know": 0.0,
-        "middle class": 0.8889,
-        "working class": 0.1111
+        "upper class": 0.0,
+        "middle class": 0.9111
       },
-      "jsd": 0.200909,
+      "jsd": 0.220637,
       "kendall_tau": 0.83666,
-      "parity": 0.85871,
+      "parity": 0.848846,
       "n_samples": 90,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
@@ -417,8 +417,8 @@
       },
       "model_distribution": {
         "don't know": 0.0,
-        "yes, allowed to teach": 1.0,
-        "not allowed": 0.0
+        "not allowed": 0.0,
+        "yes, allowed to teach": 1.0
       },
       "jsd": 0.226342,
       "kendall_tau": 0.816497,
@@ -445,14 +445,14 @@
         "don't know": 0.0077
       },
       "model_distribution": {
-        "a great deal": 0.6,
         "don't know": 0.0,
-        "hardly any": 0.0,
-        "only some": 0.4
+        "only some": 0.3444,
+        "a great deal": 0.6556,
+        "hardly any": 0.0
       },
-      "jsd": 0.071929,
+      "jsd": 0.082487,
       "kendall_tau": 0.547723,
-      "parity": 0.850966,
+      "parity": 0.845687,
       "n_samples": 90,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
@@ -475,17 +475,17 @@
         "don't know": 0.015
       },
       "model_distribution": {
-        "a great deal": 0.0,
         "don't know": 0.0,
-        "hardly any": 0.0,
-        "only some": 1.0
+        "only some": 0.8639,
+        "a great deal": 0.0,
+        "hardly any": 0.1361
       },
-      "jsd": 0.237047,
-      "kendall_tau": 0.707107,
-      "parity": 0.808253,
-      "n_samples": 89,
-      "n_parse_failures": 1,
-      "model_refusal_rate": 0.0,
+      "jsd": 0.108469,
+      "kendall_tau": 0.912871,
+      "parity": 0.923983,
+      "n_samples": 85,
+      "n_parse_failures": 5,
+      "model_refusal_rate": 0.013333,
       "human_refusal_rate": 0.01505,
       "temporal_year": 0
     },
@@ -505,17 +505,17 @@
         "don't know": 0.0224
       },
       "model_distribution": {
-        "a great deal": 0.0,
-        "don't know": 0.0,
-        "hardly any": 0.0,
-        "only some": 1.0
+        "don't know": 0.0278,
+        "only some": 0.6945,
+        "a great deal": 0.0111,
+        "hardly any": 0.2667
       },
-      "jsd": 0.322913,
-      "kendall_tau": 0.707107,
-      "parity": 0.76532,
-      "n_samples": 90,
-      "n_parse_failures": 0,
-      "model_refusal_rate": 0.0,
+      "jsd": 0.068136,
+      "kendall_tau": 0.666667,
+      "parity": 0.882599,
+      "n_samples": 85,
+      "n_parse_failures": 5,
+      "model_refusal_rate": 0.013333,
       "human_refusal_rate": 0.022397,
       "temporal_year": 0
     },
@@ -535,16 +535,16 @@
         "don't know": 0.0061
       },
       "model_distribution": {
-        "a great deal": 0.0222,
-        "don't know": 0.0,
-        "hardly any": 0.0,
-        "only some": 0.9778
+        "don't know": 0.0139,
+        "only some": 0.6972,
+        "a great deal": 0.0,
+        "hardly any": 0.2889
       },
-      "jsd": 0.234532,
-      "kendall_tau": 0.547723,
-      "parity": 0.769665,
-      "n_samples": 90,
-      "n_parse_failures": 0,
+      "jsd": 0.106088,
+      "kendall_tau": 0.666667,
+      "parity": 0.863622,
+      "n_samples": 83,
+      "n_parse_failures": 7,
       "model_refusal_rate": 0.0,
       "human_refusal_rate": 0.006138,
       "temporal_year": 0
@@ -565,14 +565,14 @@
         "don't know": 0.0118
       },
       "model_distribution": {
-        "a great deal": 0.0,
         "don't know": 0.0,
-        "hardly any": 0.0,
-        "only some": 1.0
+        "only some": 0.7,
+        "a great deal": 0.0333,
+        "hardly any": 0.2667
       },
-      "jsd": 0.387021,
-      "kendall_tau": 0.235702,
-      "parity": 0.615415,
+      "jsd": 0.070817,
+      "kendall_tau": 0.666667,
+      "parity": 0.881258,
       "n_samples": 90,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
@@ -595,14 +595,14 @@
         "don't know": 0.0066
       },
       "model_distribution": {
-        "a great deal": 0.0,
         "don't know": 0.0,
-        "hardly any": 0.0,
-        "only some": 1.0
+        "only some": 0.7444,
+        "a great deal": 0.0,
+        "hardly any": 0.2556
       },
-      "jsd": 0.252131,
-      "kendall_tau": 0.707107,
-      "parity": 0.800711,
+      "jsd": 0.096196,
+      "kendall_tau": 0.912871,
+      "parity": 0.93012,
       "n_samples": 90,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
@@ -625,16 +625,16 @@
         "don't know": 0.0145
       },
       "model_distribution": {
-        "a great deal": 0.0,
         "don't know": 0.0,
-        "hardly any": 0.0,
-        "only some": 1.0
+        "only some": 0.8333,
+        "a great deal": 0.1,
+        "hardly any": 0.0667
       },
-      "jsd": 0.359423,
-      "kendall_tau": 0.707107,
-      "parity": 0.747065,
-      "n_samples": 88,
-      "n_parse_failures": 2,
+      "jsd": 0.140997,
+      "kendall_tau": 0.666667,
+      "parity": 0.846168,
+      "n_samples": 90,
+      "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
       "human_refusal_rate": 0.014513,
       "temporal_year": 0
@@ -655,16 +655,16 @@
         "don't know": 0.0342
       },
       "model_distribution": {
-        "a great deal": 0.0,
         "don't know": 0.0,
-        "hardly any": 0.0,
-        "only some": 1.0
+        "only some": 0.8333,
+        "a great deal": 0.0,
+        "hardly any": 0.1667
       },
-      "jsd": 0.259153,
-      "kendall_tau": 0.707107,
-      "parity": 0.7972,
-      "n_samples": 90,
-      "n_parse_failures": 0,
+      "jsd": 0.123525,
+      "kendall_tau": 0.912871,
+      "parity": 0.916455,
+      "n_samples": 67,
+      "n_parse_failures": 23,
       "model_refusal_rate": 0.0,
       "human_refusal_rate": 0.034247,
       "temporal_year": 0
@@ -685,14 +685,14 @@
         "don't know": 0.0109
       },
       "model_distribution": {
-        "a great deal": 0.0,
         "don't know": 0.0,
-        "hardly any": 0.5111,
-        "only some": 0.4889
+        "only some": 0.3445,
+        "a great deal": 0.0,
+        "hardly any": 0.6555
       },
-      "jsd": 0.035138,
+      "jsd": 0.04218,
       "kendall_tau": 0.912871,
-      "parity": 0.960649,
+      "parity": 0.957128,
       "n_samples": 90,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
@@ -715,16 +715,16 @@
         "don't know": 0.0053
       },
       "model_distribution": {
-        "a great deal": 0.3908,
         "don't know": 0.0,
-        "hardly any": 0.0,
-        "only some": 0.6092
+        "only some": 0.7877,
+        "a great deal": 0.1456,
+        "hardly any": 0.0667
       },
-      "jsd": 0.111868,
-      "kendall_tau": 0.912871,
-      "parity": 0.922284,
-      "n_samples": 89,
-      "n_parse_failures": 1,
+      "jsd": 0.056758,
+      "kendall_tau": 1.0,
+      "parity": 0.971621,
+      "n_samples": 88,
+      "n_parse_failures": 2,
       "model_refusal_rate": 0.0,
       "human_refusal_rate": 0.005273,
       "temporal_year": 0
@@ -745,16 +745,16 @@
         "don't know": 0.0126
       },
       "model_distribution": {
-        "a great deal": 0.0,
         "don't know": 0.0,
-        "hardly any": 0.023,
-        "only some": 0.977
+        "only some": 0.7043,
+        "a great deal": 0.0,
+        "hardly any": 0.2957
       },
-      "jsd": 0.363446,
+      "jsd": 0.110927,
       "kendall_tau": 0.547723,
-      "parity": 0.705208,
-      "n_samples": 89,
-      "n_parse_failures": 1,
+      "parity": 0.831467,
+      "n_samples": 86,
+      "n_parse_failures": 4,
       "model_refusal_rate": 0.0,
       "human_refusal_rate": 0.01264,
       "temporal_year": 0
@@ -775,17 +775,17 @@
         "don't know": 0.0211
       },
       "model_distribution": {
-        "a great deal": 0.4111,
         "don't know": 0.0,
-        "hardly any": 0.0,
-        "only some": 0.5889
+        "only some": 0.4889,
+        "a great deal": 0.5111,
+        "hardly any": 0.0
       },
-      "jsd": 0.074096,
-      "kendall_tau": 0.912871,
-      "parity": 0.94117,
-      "n_samples": 90,
-      "n_parse_failures": 0,
-      "model_refusal_rate": 0.0,
+      "jsd": 0.080206,
+      "kendall_tau": 0.547723,
+      "parity": 0.846828,
+      "n_samples": 63,
+      "n_parse_failures": 27,
+      "model_refusal_rate": 0.111111,
       "human_refusal_rate": 0.021146,
       "temporal_year": 0
     },
@@ -805,16 +805,16 @@
         "don't know": 0.01
       },
       "model_distribution": {
-        "a great deal": 0.0,
         "don't know": 0.0,
-        "hardly any": 0.0,
-        "only some": 1.0
+        "only some": 0.8667,
+        "a great deal": 0.0,
+        "hardly any": 0.1333
       },
-      "jsd": 0.370172,
-      "kendall_tau": 0.235702,
-      "parity": 0.62384,
-      "n_samples": 89,
-      "n_parse_failures": 1,
+      "jsd": 0.175345,
+      "kendall_tau": 0.547723,
+      "parity": 0.799258,
+      "n_samples": 90,
+      "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
       "human_refusal_rate": 0.009983,
       "temporal_year": 0
@@ -835,14 +835,14 @@
         "don't know": 0.1497
       },
       "model_distribution": {
-        "not harshly enough": 0.9444,
+        "don't know": 0.0,
+        "about right": 0.3333,
         "too harshly": 0.0,
-        "about right": 0.0556,
-        "don't know": 0.0
+        "not harshly enough": 0.6667
       },
-      "jsd": 0.221726,
+      "jsd": 0.14983,
       "kendall_tau": 0.912871,
-      "parity": 0.867355,
+      "parity": 0.903302,
       "n_samples": 90,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
@@ -865,16 +865,16 @@
         "don't know": 0.0782
       },
       "model_distribution": {
-        "stay as is": 0.9548,
-        "don't know": 0.0115,
-        "easier": 0.0222,
-        "more difficult": 0.0115
+        "don't know": 0.0,
+        "stay as is": 0.7778,
+        "easier": 0.0111,
+        "more difficult": 0.2111
       },
-      "jsd": 0.463903,
-      "kendall_tau": 0.182574,
-      "parity": 0.563692,
-      "n_samples": 89,
-      "n_parse_failures": 1,
+      "jsd": 0.360026,
+      "kendall_tau": 0.0,
+      "parity": 0.569987,
+      "n_samples": 90,
+      "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
       "human_refusal_rate": 0.07816,
       "temporal_year": 0
@@ -895,16 +895,16 @@
         "don't know": 0.012
       },
       "model_distribution": {
-        "would try to be fair": 0.2046,
-        "depends": 0.7954,
         "don't know": 0.0,
-        "would take advantage of you": 0.0
+        "would take advantage of you": 0.0889,
+        "would try to be fair": 0.5556,
+        "depends": 0.3556
       },
-      "jsd": 0.457845,
-      "kendall_tau": -0.182574,
-      "parity": 0.475434,
-      "n_samples": 89,
-      "n_parse_failures": 1,
+      "jsd": 0.153939,
+      "kendall_tau": 0.333333,
+      "parity": 0.756364,
+      "n_samples": 90,
+      "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
       "human_refusal_rate": 0.012013,
       "temporal_year": 0
@@ -927,17 +927,17 @@
         "don't know": 0.0061
       },
       "model_distribution": {
-        "agree": 0.3862,
-        "don't know": 0.0,
-        "strongly agree": 0.6138,
+        "disagree": 0.0,
         "strongly disagree": 0.0,
-        "disagree": 0.0
+        "strongly agree": 0.9222,
+        "don't know": 0.0,
+        "agree": 0.0778
       },
-      "jsd": 0.166169,
+      "jsd": 0.335539,
       "kendall_tau": 0.597614,
-      "parity": 0.816319,
-      "n_samples": 89,
-      "n_parse_failures": 1,
+      "parity": 0.731634,
+      "n_samples": 90,
+      "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
       "human_refusal_rate": 0.006057,
       "temporal_year": 0
@@ -960,15 +960,15 @@
         "don't know": 0.0074
       },
       "model_distribution": {
-        "agree": 0.0,
-        "don't know": 0.0,
+        "disagree": 0.3333,
+        "strongly disagree": 0.6667,
         "strongly agree": 0.0,
-        "strongly disagree": 0.3333,
-        "disagree": 0.6667
+        "don't know": 0.0,
+        "agree": 0.0
       },
-      "jsd": 0.186135,
-      "kendall_tau": 0.83666,
-      "parity": 0.866098,
+      "jsd": 0.229069,
+      "kendall_tau": 0.597614,
+      "parity": 0.784869,
       "n_samples": 90,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
@@ -990,8 +990,8 @@
       },
       "model_distribution": {
         "don't know": 0.0,
-        "agree": 0.0,
-        "disagree": 1.0
+        "disagree": 1.0,
+        "agree": 0.0
       },
       "jsd": 0.137925,
       "kendall_tau": 0.816497,
@@ -1020,15 +1020,15 @@
         "don't know": 0.0108
       },
       "model_distribution": {
-        "agree": 0.0,
-        "don't know": 0.0,
+        "disagree": 0.4111,
+        "strongly disagree": 0.5556,
         "strongly agree": 0.0,
-        "strongly disagree": 0.0556,
-        "disagree": 0.9444
+        "don't know": 0.0333,
+        "agree": 0.0
       },
-      "jsd": 0.240458,
-      "kendall_tau": 0.597614,
-      "parity": 0.779174,
+      "jsd": 0.238654,
+      "kendall_tau": 0.105409,
+      "parity": 0.657025,
       "n_samples": 90,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
@@ -1055,16 +1055,16 @@
         "don't know": 0.0072
       },
       "model_distribution": {
-        "above average": 0.0,
-        "below average": 0.0111,
         "far above average": 0.0,
-        "don't know": 0.0,
-        "far below average": 0.0,
-        "average": 0.9889
+        "below average": 0.0,
+        "don't know": 0.0111,
+        "average": 0.9889,
+        "above average": 0.0,
+        "far below average": 0.0
       },
-      "jsd": 0.354373,
-      "kendall_tau": 0.774597,
-      "parity": 0.766463,
+      "jsd": 0.378322,
+      "kendall_tau": 0.086066,
+      "parity": 0.582356,
       "n_samples": 90,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
@@ -1087,16 +1087,16 @@
         "don't know": 0.0165
       },
       "model_distribution": {
-        "hard work most important": 0.0573,
         "don't know": 0.0,
-        "luck most important": 0.0,
-        "hard work, luck equally important": 0.9427
+        "hard work most important": 0.3111,
+        "hard work, luck equally important": 0.6889,
+        "luck most important": 0.0
       },
-      "jsd": 0.434964,
+      "jsd": 0.191173,
       "kendall_tau": 0.547723,
-      "parity": 0.669449,
-      "n_samples": 86,
-      "n_parse_failures": 4,
+      "parity": 0.791344,
+      "n_samples": 90,
+      "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
       "human_refusal_rate": 0.016521,
       "temporal_year": 0
@@ -1123,19 +1123,19 @@
         "don't know": 0.0042
       },
       "model_distribution": {
-        "no doubts": 0.0256,
-        "don't know": 0.0513,
-        "don't believe": 0.0,
-        "don't know, no way to find out": 0.1871,
-        "believe with doubts": 0.5475,
-        "higher power": 0.1629,
-        "believe sometimes": 0.0256
+        "don't believe": 0.0555,
+        "believe with doubts": 0.4333,
+        "no doubts": 0.0333,
+        "don't know": 0.1,
+        "higher power": 0.0444,
+        "don't know, no way to find out": 0.3333,
+        "believe sometimes": 0.0
       },
-      "jsd": 0.345282,
-      "kendall_tau": 0.19518,
-      "parity": 0.626154,
-      "n_samples": 83,
-      "n_parse_failures": 7,
+      "jsd": 0.376282,
+      "kendall_tau": 0.047619,
+      "parity": 0.573764,
+      "n_samples": 90,
+      "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
       "human_refusal_rate": 0.083514,
       "temporal_year": 0
@@ -1154,8 +1154,8 @@
         "don't know": 0.0965
       },
       "model_distribution": {
-        "should be legal": 0.9889,
         "don't know": 0.0111,
+        "should be legal": 0.9889,
         "should not be legal": 0.0
       },
       "jsd": 0.213975,
@@ -1181,15 +1181,15 @@
         "don't know": 0.0166
       },
       "model_distribution": {
-        "oppose": 0.046,
-        "don't know": 0.0,
-        "favor": 0.954
+        "favor": 1.0,
+        "oppose": 0.0,
+        "don't know": 0.0
       },
-      "jsd": 0.103766,
-      "kendall_tau": 1.0,
-      "parity": 0.948117,
-      "n_samples": 88,
-      "n_parse_failures": 2,
+      "jsd": 0.18493,
+      "kendall_tau": 0.816497,
+      "parity": 0.861659,
+      "n_samples": 90,
+      "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
       "human_refusal_rate": 0.016626,
       "temporal_year": 0
@@ -1210,14 +1210,14 @@
         "don't know": 0.0036
       },
       "model_distribution": {
-        "not too happy": 0.0,
-        "very happy": 0.0,
-        "pretty happy": 1.0,
-        "don't know": 0.0
+        "don't know": 0.0,
+        "pretty happy": 0.7333,
+        "very happy": 0.2667,
+        "not too happy": 0.0
       },
-      "jsd": 0.267891,
-      "kendall_tau": 0.707107,
-      "parity": 0.792831,
+      "jsd": 0.113571,
+      "kendall_tau": 0.912871,
+      "parity": 0.921432,
       "n_samples": 90,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
@@ -1242,15 +1242,15 @@
         "don't know": 0.0007
       },
       "model_distribution": {
-        "don't know": 0.0,
+        "excellent": 0.3333,
         "fair": 0.0,
-        "good": 1.0,
-        "poor": 0.0,
-        "excellent": 0.0
+        "good": 0.6667,
+        "don't know": 0.0,
+        "poor": 0.0
       },
-      "jsd": 0.2856,
-      "kendall_tau": 0.632456,
-      "parity": 0.765314,
+      "jsd": 0.159306,
+      "kendall_tau": 0.597614,
+      "parity": 0.81975,
       "n_samples": 90,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
@@ -1273,14 +1273,14 @@
         "don't know": 0.019
       },
       "model_distribution": {
-        "depends": 0.9222,
-        "looking out for themselves": 0.0,
-        "try to be helpful": 0.0778,
-        "don't know": 0.0
+        "don't know": 0.0,
+        "looking out for themselves": 0.1222,
+        "depends": 0.6667,
+        "try to be helpful": 0.2111
       },
-      "jsd": 0.518235,
-      "kendall_tau": -0.182574,
-      "parity": 0.445239,
+      "jsd": 0.214103,
+      "kendall_tau": 0.0,
+      "parity": 0.642949,
       "n_samples": 90,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
@@ -1305,17 +1305,17 @@
         "don't know": 0.0362
       },
       "model_distribution": {
-        "wrong only sometimes": 0.0,
-        "don't know": 0.0,
         "not wrong at all": 1.0,
+        "don't know": 0.0,
+        "always wrong": 0.0,
         "almost always wrong": 0.0,
-        "always wrong": 0.0
+        "wrong only sometimes": 0.0
       },
       "jsd": 0.280921,
       "kendall_tau": 0.632456,
       "parity": 0.767653,
-      "n_samples": 89,
-      "n_parse_failures": 1,
+      "n_samples": 90,
+      "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
       "human_refusal_rate": 0.036232,
       "temporal_year": 0
@@ -1335,14 +1335,14 @@
       },
       "model_distribution": {
         "don't know": 0.0,
-        "no": 0.0345,
-        "yes": 0.9655
+        "yes": 0.9556,
+        "no": 0.0444
       },
-      "jsd": 0.109991,
+      "jsd": 0.099058,
       "kendall_tau": 1.0,
-      "parity": 0.945005,
-      "n_samples": 89,
-      "n_parse_failures": 1,
+      "parity": 0.950471,
+      "n_samples": 90,
+      "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
       "human_refusal_rate": 0.035076,
       "temporal_year": 0
@@ -1361,9 +1361,9 @@
         "don't know": 0.0128
       },
       "model_distribution": {
-        "not remove": 1.0,
         "don't know": 0.0,
-        "remove": 0.0
+        "remove": 0.0,
+        "not remove": 1.0
       },
       "jsd": 0.123353,
       "kendall_tau": 0.816497,
@@ -1390,14 +1390,14 @@
         "don't know": 0.0074
       },
       "model_distribution": {
-        "dull": 0.0,
         "don't know": 0.0,
-        "routine": 1.0,
-        "exciting": 0.0
+        "exciting": 0.4444,
+        "dull": 0.0,
+        "routine": 0.5556
       },
-      "jsd": 0.260221,
-      "kendall_tau": 0.707107,
-      "parity": 0.796666,
+      "jsd": 0.035023,
+      "kendall_tau": 0.912871,
+      "parity": 0.960706,
       "n_samples": 90,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
@@ -1420,16 +1420,16 @@
         "don't know": 0.0312
       },
       "model_distribution": {
+        "too much": 1.0,
         "too little": 0.0,
-        "don't know": 0.0123,
-        "too much": 0.9877,
-        "about right": 0.0
+        "about right": 0.0,
+        "don't know": 0.0
       },
-      "jsd": 0.218945,
-      "kendall_tau": 0.182574,
-      "parity": 0.686171,
-      "n_samples": 87,
-      "n_parse_failures": 3,
+      "jsd": 0.233417,
+      "kendall_tau": 0.707107,
+      "parity": 0.810068,
+      "n_samples": 90,
+      "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
       "human_refusal_rate": 0.031192,
       "temporal_year": 0
@@ -1450,14 +1450,14 @@
         "don't know": 0.0326
       },
       "model_distribution": {
+        "too much": 0.6667,
         "too little": 0.0,
-        "don't know": 0.0,
-        "too much": 0.7333,
-        "about right": 0.2667
+        "about right": 0.3,
+        "don't know": 0.0333
       },
-      "jsd": 0.250155,
-      "kendall_tau": 0.182574,
-      "parity": 0.670566,
+      "jsd": 0.212019,
+      "kendall_tau": 0.0,
+      "parity": 0.64399,
       "n_samples": 90,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
@@ -1480,16 +1480,16 @@
         "don't know": 0.0485
       },
       "model_distribution": {
-        "too little": 0.954,
-        "don't know": 0.0,
-        "too much": 0.023,
-        "about right": 0.023
+        "too much": 0.0,
+        "too little": 1.0,
+        "about right": 0.0,
+        "don't know": 0.0
       },
-      "jsd": 0.186201,
-      "kendall_tau": 0.912871,
-      "parity": 0.885117,
-      "n_samples": 89,
-      "n_parse_failures": 1,
+      "jsd": 0.27862,
+      "kendall_tau": 0.707107,
+      "parity": 0.787467,
+      "n_samples": 90,
+      "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
       "human_refusal_rate": 0.048538,
       "temporal_year": 0
@@ -1510,16 +1510,16 @@
         "don't know": 0.0198
       },
       "model_distribution": {
-        "too little": 1.0,
-        "don't know": 0.0,
         "too much": 0.0,
-        "about right": 0.0
+        "too little": 1.0,
+        "about right": 0.0,
+        "don't know": 0.0
       },
       "jsd": 0.18349,
       "kendall_tau": 0.707107,
       "parity": 0.835032,
-      "n_samples": 88,
-      "n_parse_failures": 2,
+      "n_samples": 90,
+      "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
       "human_refusal_rate": 0.019753,
       "temporal_year": 0
@@ -1540,16 +1540,16 @@
         "don't know": 0.0178
       },
       "model_distribution": {
-        "too little": 0.9753,
-        "don't know": 0.0,
         "too much": 0.0,
-        "about right": 0.0247
+        "too little": 1.0,
+        "about right": 0.0,
+        "don't know": 0.0
       },
-      "jsd": 0.139275,
-      "kendall_tau": 0.912871,
-      "parity": 0.90858,
-      "n_samples": 87,
-      "n_parse_failures": 3,
+      "jsd": 0.18828,
+      "kendall_tau": 0.707107,
+      "parity": 0.832637,
+      "n_samples": 90,
+      "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
       "human_refusal_rate": 0.017794,
       "temporal_year": 0
@@ -1570,16 +1570,16 @@
         "don't know": 0.0048
       },
       "model_distribution": {
-        "too little": 0.9655,
-        "don't know": 0.0,
         "too much": 0.0,
-        "about right": 0.0345
+        "too little": 1.0,
+        "about right": 0.0,
+        "don't know": 0.0
       },
-      "jsd": 0.081435,
-      "kendall_tau": 0.912871,
-      "parity": 0.9375,
-      "n_samples": 89,
-      "n_parse_failures": 1,
+      "jsd": 0.134998,
+      "kendall_tau": 0.707107,
+      "parity": 0.859278,
+      "n_samples": 90,
+      "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
       "human_refusal_rate": 0.004757,
       "temporal_year": 0
@@ -1600,16 +1600,16 @@
         "don't know": 0.0235
       },
       "model_distribution": {
-        "too little": 0.9286,
-        "don't know": 0.0,
-        "too much": 0.0119,
-        "about right": 0.0595
+        "too much": 0.0,
+        "too little": 1.0,
+        "about right": 0.0,
+        "don't know": 0.0
       },
-      "jsd": 0.101368,
-      "kendall_tau": 1.0,
-      "parity": 0.949316,
-      "n_samples": 88,
-      "n_parse_failures": 2,
+      "jsd": 0.209007,
+      "kendall_tau": 0.707107,
+      "parity": 0.822273,
+      "n_samples": 89,
+      "n_parse_failures": 1,
       "model_refusal_rate": 0.0,
       "human_refusal_rate": 0.023467,
       "temporal_year": 0
@@ -1630,16 +1630,16 @@
         "don't know": 0.0229
       },
       "model_distribution": {
-        "too little": 0.3245,
-        "don't know": 0.0115,
-        "too much": 0.4598,
-        "about right": 0.2042
+        "too much": 0.4111,
+        "too little": 0.2333,
+        "about right": 0.0556,
+        "don't know": 0.3
       },
-      "jsd": 0.024806,
-      "kendall_tau": 0.0,
-      "parity": 0.737597,
-      "n_samples": 89,
-      "n_parse_failures": 1,
+      "jsd": 0.195416,
+      "kendall_tau": -0.666667,
+      "parity": 0.485625,
+      "n_samples": 90,
+      "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
       "human_refusal_rate": 0.022949,
       "temporal_year": 0
@@ -1660,16 +1660,16 @@
         "don't know": 0.0121
       },
       "model_distribution": {
-        "too little": 0.9615,
-        "don't know": 0.0,
-        "too much": 0.0128,
-        "about right": 0.0256
+        "too much": 0.0,
+        "too little": 0.9889,
+        "about right": 0.0111,
+        "don't know": 0.0
       },
-      "jsd": 0.083987,
-      "kendall_tau": 1.0,
-      "parity": 0.958007,
-      "n_samples": 86,
-      "n_parse_failures": 4,
+      "jsd": 0.124754,
+      "kendall_tau": 0.912871,
+      "parity": 0.915841,
+      "n_samples": 90,
+      "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
       "human_refusal_rate": 0.012082,
       "temporal_year": 0
@@ -1690,16 +1690,16 @@
         "don't know": 0.0439
       },
       "model_distribution": {
-        "too little": 0.9506,
-        "don't know": 0.0,
         "too much": 0.0,
-        "about right": 0.0494
+        "too little": 0.9889,
+        "about right": 0.0111,
+        "don't know": 0.0
       },
-      "jsd": 0.26041,
+      "jsd": 0.32348,
       "kendall_tau": 0.912871,
-      "parity": 0.848013,
-      "n_samples": 87,
-      "n_parse_failures": 3,
+      "parity": 0.816477,
+      "n_samples": 90,
+      "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
       "human_refusal_rate": 0.043941,
       "temporal_year": 0
@@ -1720,16 +1720,16 @@
         "don't know": 0.0565
       },
       "model_distribution": {
-        "too little": 0.0476,
-        "don't know": 0.0119,
-        "too much": 0.3825,
-        "about right": 0.5579
+        "too much": 0.8556,
+        "too little": 0.0,
+        "about right": 0.1111,
+        "don't know": 0.0333
       },
-      "jsd": 0.052729,
-      "kendall_tau": 1.0,
-      "parity": 0.973635,
-      "n_samples": 88,
-      "n_parse_failures": 2,
+      "jsd": 0.302062,
+      "kendall_tau": 0.333333,
+      "parity": 0.682302,
+      "n_samples": 90,
+      "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
       "human_refusal_rate": 0.056504,
       "temporal_year": 0
@@ -1751,13 +1751,13 @@
       },
       "model_distribution": {
         "refused": 0.0,
-        "don't know": 0.0,
-        "no": 0.9111,
-        "yes": 0.0889
+        "yes": 0.2889,
+        "no": 0.7,
+        "don't know": 0.0111
       },
-      "jsd": 0.100426,
-      "kendall_tau": 0.912871,
-      "parity": 0.928005,
+      "jsd": 0.016322,
+      "kendall_tau": 0.666667,
+      "parity": 0.908505,
       "n_samples": 90,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
@@ -1788,18 +1788,18 @@
         "other party": 0.0247
       },
       "model_distribution": {
-        "other party": 0.0,
-        "independent, close to democrat": 0.2444,
-        "independent (neither, no response)": 0.7556,
         "strong republican": 0.0,
-        "not very strong democrat": 0.0,
-        "independent, close to republican": 0.0,
+        "not very strong republican": 0.0,
+        "independent, close to republican": 0.0556,
+        "independent (neither, no response)": 0.5889,
+        "other party": 0.0,
+        "independent, close to democrat": 0.3556,
         "strong democrat": 0.0,
-        "not very strong republican": 0.0
+        "not very strong democrat": 0.0
       },
-      "jsd": 0.42865,
-      "kendall_tau": 0.262071,
-      "parity": 0.601193,
+      "jsd": 0.375877,
+      "kendall_tau": 0.089087,
+      "parity": 0.584333,
       "n_samples": 90,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
@@ -1830,13 +1830,13 @@
         "don't know": 0.0375
       },
       "model_distribution": {
-        "liberal": 0.0,
-        "slightly conservative": 0.0,
-        "don't know": 0.0,
         "slightly liberal": 0.0,
-        "conservative": 0.0,
+        "slightly conservative": 0.0,
+        "liberal": 0.0,
         "extremely conservative": 0.0,
+        "don't know": 0.0,
         "extremely liberal": 0.0,
+        "conservative": 0.0,
         "moderate, middle of the road": 1.0
       },
       "jsd": 0.435923,
@@ -1864,10 +1864,10 @@
         "don't know": 0.009
       },
       "model_distribution": {
-        "there should be laws against the distribution of pornography to persons under 18": 1.0,
         "don't know": 0.0,
         "there should be no laws forbidding the distribution of pornography": 0.0,
-        "there should be laws against the distribution of pornography whatever the age": 0.0
+        "there should be laws against the distribution of pornography whatever the age": 0.0,
+        "there should be laws against the distribution of pornography to persons under 18": 1.0
       },
       "jsd": 0.192639,
       "kendall_tau": 0.707107,
@@ -1892,13 +1892,13 @@
         "don't know": 0.1348
       },
       "model_distribution": {
-        "don't know": 1.0,
-        "no": 0.0,
-        "yes": 0.0
+        "don't know": 0.9778,
+        "yes": 0.0111,
+        "no": 0.0111
       },
-      "jsd": 0.701624,
+      "jsd": 0.633012,
       "kendall_tau": -0.816497,
-      "parity": 0.195064,
+      "parity": 0.22937,
       "n_samples": 90,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
@@ -1919,15 +1919,15 @@
         "don't know": 0.0836
       },
       "model_distribution": {
-        "don't know": 0.0115,
-        "approve": 0.9885,
-        "disapprove": 0.0
+        "approve": 0.9889,
+        "disapprove": 0.0111,
+        "don't know": 0.0
       },
-      "jsd": 0.356581,
-      "kendall_tau": -0.333333,
-      "parity": 0.488376,
-      "n_samples": 89,
-      "n_parse_failures": 1,
+      "jsd": 0.343233,
+      "kendall_tau": 0.333333,
+      "parity": 0.661717,
+      "n_samples": 90,
+      "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
       "human_refusal_rate": 0.083566,
       "temporal_year": 0
@@ -1950,15 +1950,15 @@
         "don't know": 0.0195
       },
       "model_distribution": {
-        "wrong only sometimes": 0.4778,
+        "not wrong at all": 0.7111,
         "don't know": 0.0,
-        "not wrong at all": 0.5222,
+        "always wrong": 0.0,
         "almost always wrong": 0.0,
-        "always wrong": 0.0
+        "wrong only sometimes": 0.2889
       },
-      "jsd": 0.20756,
+      "jsd": 0.14708,
       "kendall_tau": 0.597614,
-      "parity": 0.795624,
+      "parity": 0.825864,
       "n_samples": 90,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
@@ -1981,16 +1981,16 @@
         "don't know": 0.0158
       },
       "model_distribution": {
-        "neither": 0.0,
         "don't know": 0.0,
+        "neither": 0.0,
         "second law": 1.0,
         "first law": 0.0
       },
       "jsd": 0.127929,
       "kendall_tau": 0.707107,
       "parity": 0.862812,
-      "n_samples": 89,
-      "n_parse_failures": 1,
+      "n_samples": 90,
+      "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
       "human_refusal_rate": 0.015808,
       "temporal_year": 0
@@ -2012,13 +2012,13 @@
       },
       "model_distribution": {
         "don't know": 0.0,
-        "more or less satisfied": 1.0,
-        "not satisfied at all": 0.0,
-        "pretty well satisfied": 0.0
+        "more or less satisfied": 0.7556,
+        "pretty well satisfied": 0.2444,
+        "not satisfied at all": 0.0
       },
-      "jsd": 0.34012,
-      "kendall_tau": 0.707107,
-      "parity": 0.756717,
+      "jsd": 0.180267,
+      "kendall_tau": 0.547723,
+      "parity": 0.796797,
       "n_samples": 90,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
@@ -2039,9 +2039,9 @@
         "don't know": 0.0166
       },
       "model_distribution": {
+        "favor": 1.0,
         "oppose": 0.0,
-        "don't know": 0.0,
-        "favor": 1.0
+        "don't know": 0.0
       },
       "jsd": 0.079784,
       "kendall_tau": 0.816497,
@@ -2070,17 +2070,17 @@
         "don't know": 0.0138
       },
       "model_distribution": {
-        "agree": 0.0,
-        "don't know": 0.0,
+        "disagree": 0.1778,
+        "strongly disagree": 0.5,
         "strongly agree": 0.0,
-        "strongly disagree": 0.2264,
-        "disagree": 0.7736
+        "don't know": 0.0,
+        "agree": 0.3222
       },
-      "jsd": 0.364472,
-      "kendall_tau": 0.119523,
-      "parity": 0.597645,
-      "n_samples": 89,
-      "n_parse_failures": 1,
+      "jsd": 0.164854,
+      "kendall_tau": 0.316228,
+      "parity": 0.74663,
+      "n_samples": 90,
+      "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
       "human_refusal_rate": 0.013845,
       "temporal_year": 0
@@ -2106,8 +2106,8 @@
       "jsd": 0.118999,
       "kendall_tau": 0.816497,
       "parity": 0.894624,
-      "n_samples": 88,
-      "n_parse_failures": 2,
+      "n_samples": 90,
+      "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
       "human_refusal_rate": 0.009638,
       "temporal_year": 0
@@ -2133,8 +2133,8 @@
       "jsd": 0.219383,
       "kendall_tau": 0.816497,
       "parity": 0.844433,
-      "n_samples": 88,
-      "n_parse_failures": 2,
+      "n_samples": 90,
+      "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
       "human_refusal_rate": 0.035565,
       "temporal_year": 0
@@ -2154,14 +2154,14 @@
       },
       "model_distribution": {
         "don't know": 0.0,
-        "not allowed": 0.1185,
-        "yes, allowed to speak": 0.8815
+        "not allowed": 0.0,
+        "yes, allowed to speak": 1.0
       },
-      "jsd": 0.159017,
-      "kendall_tau": 0.333333,
-      "parity": 0.753825,
-      "n_samples": 78,
-      "n_parse_failures": 12,
+      "jsd": 0.348962,
+      "kendall_tau": 0.0,
+      "parity": 0.575519,
+      "n_samples": 90,
+      "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
       "human_refusal_rate": 0.008011,
       "temporal_year": 0
@@ -2180,15 +2180,15 @@
         "don't know": 0.0411
       },
       "model_distribution": {
-        "don't know": 0.0267,
-        "no": 0.0,
-        "yes": 0.9733
+        "don't know": 0.0111,
+        "yes": 0.9889,
+        "no": 0.0
       },
-      "jsd": 0.201441,
+      "jsd": 0.209258,
       "kendall_tau": 0.333333,
-      "parity": 0.732613,
-      "n_samples": 85,
-      "n_parse_failures": 5,
+      "parity": 0.728704,
+      "n_samples": 90,
+      "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
       "human_refusal_rate": 0.041092,
       "temporal_year": 0
@@ -2209,16 +2209,16 @@
         "don't know": 0.0265
       },
       "model_distribution": {
-        "too high": 0.9889,
         "don't know": 0.0,
-        "about right": 0.0111,
-        "too low": 0.0
+        "about right": 0.0,
+        "too low": 0.0,
+        "too high": 1.0
       },
-      "jsd": 0.151053,
-      "kendall_tau": 0.912871,
-      "parity": 0.902691,
-      "n_samples": 89,
-      "n_parse_failures": 1,
+      "jsd": 0.18062,
+      "kendall_tau": 0.707107,
+      "parity": 0.836467,
+      "n_samples": 90,
+      "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
       "human_refusal_rate": 0.026545,
       "temporal_year": 0
@@ -2239,14 +2239,14 @@
         "don't know": 0.0082
       },
       "model_distribution": {
-        "most people can be trusted": 0.0444,
-        "depends": 0.4444,
         "don't know": 0.0,
-        "can't be too careful": 0.5111
+        "most people can be trusted": 0.3778,
+        "depends": 0.3333,
+        "can't be too careful": 0.2889
       },
-      "jsd": 0.141778,
-      "kendall_tau": 0.666667,
-      "parity": 0.845778,
+      "jsd": 0.107271,
+      "kendall_tau": 0.333333,
+      "parity": 0.779698,
       "n_samples": 90,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
@@ -2273,18 +2273,18 @@
         "don't know": 0.0126
       },
       "model_distribution": {
-        "don't know": 0.0,
-        "disagree somewhat": 0.5802,
-        "neither agree nor disagree": 0.0247,
+        "agree strongly": 0.0222,
         "agree somewhat": 0.0,
-        "agree strongly": 0.0,
-        "disagree strongly": 0.3951
+        "disagree strongly": 0.7667,
+        "neither agree nor disagree": 0.0,
+        "disagree somewhat": 0.2111,
+        "don't know": 0.0
       },
-      "jsd": 0.488825,
-      "kendall_tau": -0.298142,
-      "parity": 0.431052,
-      "n_samples": 87,
-      "n_parse_failures": 3,
+      "jsd": 0.514334,
+      "kendall_tau": 0.0,
+      "parity": 0.492833,
+      "n_samples": 90,
+      "n_parse_failures": 0,
       "model_refusal_rate": 0.0,
       "human_refusal_rate": 0.012613,
       "temporal_year": 0
@@ -2307,15 +2307,15 @@
         "don't know": 0.0081
       },
       "model_distribution": {
-        "wrong only sometimes": 0.0,
-        "don't know": 0.0,
         "not wrong at all": 0.0,
-        "almost always wrong": 0.3444,
-        "always wrong": 0.6556
+        "don't know": 0.0,
+        "always wrong": 1.0,
+        "almost always wrong": 0.0,
+        "wrong only sometimes": 0.0
       },
-      "jsd": 0.102834,
-      "kendall_tau": 0.83666,
-      "parity": 0.907748,
+      "jsd": 0.178151,
+      "kendall_tau": 0.632456,
+      "parity": 0.819039,
       "n_samples": 90,
       "n_parse_failures": 0,
       "model_refusal_rate": 0.0,

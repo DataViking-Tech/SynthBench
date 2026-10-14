@@ -43,7 +43,7 @@ const variants = systems().filter((c) => c.baseId === baseId && c.variant);
 const options: [SystemConfig, string][] = [
   ...mine.map((c): [SystemConfig, string] => [c, METHODS[c.method as ShownMethod].label]),
   ...ensembles()
-    .filter((e) => e.members.includes(baseId))
+    .filter((e) => e.members.some((m) => m.id === baseId))
     .map((e): [SystemConfig, string] => [e, `In the ensemble ${ensembleLabel(e.base)}`]),
 ];
 const fromUrl = new URLSearchParams(location.search).get("method");

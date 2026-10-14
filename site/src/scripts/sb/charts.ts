@@ -591,8 +591,8 @@ export function sharesOrder(
       );
   }
   for (const ens of rows.filter((r) => r.c.method === "ensemble"))
-    for (const id of ens.c.members) {
-      const p = rows.find((r) => r.c.baseId === id && r.c.method === ens.c.membersMethod);
+    for (const mem of ens.c.members) {
+      const p = rows.find((r) => r.c.baseId === mem.id && r.c.method === mem.method);
       if (p)
         s(
           "line",
@@ -797,7 +797,7 @@ export function ladder(el: HTMLElement, width: number, pool: SystemConfig[]): st
         g,
       );
     for (const e of ensList)
-      if (e.c.membersMethod === "raw" && e.c.members.includes(r.id) && r.va != null)
+      if (e.c.members.some((m) => m.id === r.id && m.method === "raw") && r.va != null)
         s(
           "line",
           {
@@ -837,8 +837,8 @@ export function ladder(el: HTMLElement, width: number, pool: SystemConfig[]): st
         svg,
       );
       right.push({ y: Y(vb), y0: Y(vb), r, g });
-      for (const e of ensList.filter(
-        (e) => e.c.membersMethod === "althing" && e.c.members.includes(r.id),
+      for (const e of ensList.filter((e) =>
+        e.c.members.some((m) => m.id === r.id && m.method === "althing"),
       ))
         s(
           "line",
