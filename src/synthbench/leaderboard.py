@@ -59,6 +59,32 @@ MODEL_MAP: dict[str, tuple[str, str]] = {
         "product",
     ),
     "althing/gpt-4o-mini": ("Althing (GPT-4o-mini)", "product"),
+    # OpenRouter ids from the 2026-10 refresh. OpenRouter now dots Anthropic
+    # versions (claude-haiku-4.5).
+    "openrouter/anthropic/claude-haiku-4.5": ("Claude Haiku 4.5", "raw"),
+    "althing/openrouter/anthropic/claude-haiku-4.5": ("Althing (Haiku 4.5)", "product"),
+    "openrouter/anthropic/claude-haiku-5.5": ("Claude Haiku 5.5", "raw"),
+    "althing/openrouter/anthropic/claude-haiku-5.5": ("Althing (Haiku 5.5)", "product"),
+    "openrouter/openai/gpt-6-luna": ("GPT-6 Luna", "raw"),
+    "althing/openrouter/openai/gpt-6-luna": ("Althing (GPT-6 Luna)", "product"),
+    "openrouter/google/gemini-3.8-flash": ("Gemini 3.8 Flash", "raw"),
+    "openrouter/google/gemini-3.5-flash-lite": ("Gemini 3.5 Flash-Lite", "raw"),
+    "althing/openrouter/google/gemini-3.5-flash-lite": (
+        "Althing (Gemini 3.5 Flash-Lite)",
+        "product",
+    ),
+    "openrouter/deepseek/deepseek-v4.1-flash": ("DeepSeek V4.1 Flash", "raw"),
+    "althing/openrouter/deepseek/deepseek-v4.1-flash": (
+        "Althing (DeepSeek V4.1 Flash)",
+        "product",
+    ),
+    "openrouter/qwen/qwen3.8-flash": ("Qwen 3.8 Flash", "raw"),
+    "althing/openrouter/qwen/qwen3.8-flash": ("Althing (Qwen 3.8 Flash)", "product"),
+    "openrouter/meta/muse-glimmer-30b": ("Muse Glimmer 30B", "raw"),
+    "althing/openrouter/meta/muse-glimmer-30b": (
+        "Althing (Muse Glimmer 30B)",
+        "product",
+    ),
     # Products — vendor models also run through agent CLIs; the harness
     # (claude-code / codex) is a `harness=` knob, not part of the model name.
     "althing/anthropic/claude-haiku-4-5": ("Althing (Haiku 4.5)", "product"),

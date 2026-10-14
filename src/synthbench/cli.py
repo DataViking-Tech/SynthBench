@@ -2762,6 +2762,20 @@ def ensemble(files, output, weights):
             # intersection. Without this, publish renders ensemble rows as
             # "scored on zero questions" (n: 0).
             "n_evaluated": len(common_keys),
+            # The blend inherits the oldest scoring code among its sources,
+            # so publish dedup ranks it like its weakest member.
+            **{
+                key: min(versions)
+                for key in ("refusal_detector_version", "option_parser_version")
+                if len(
+                    versions := [
+                        d.get("config", {}).get(key)
+                        for d in datasets
+                        if isinstance(d.get("config", {}).get(key), int)
+                    ]
+                )
+                == len(datasets)
+            },
         },
         "scores": {
             "sps": sps,

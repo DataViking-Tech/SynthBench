@@ -7587,34 +7587,57 @@
     "ensemble_comparison": [
       {
         "dataset": "globalopinionqa",
-        "best_single_model": "Althing (GPT-4o-mini)",
+        "best_single_model": "Althing (Qwen 3.8 Flash)",
         "best_single_framework": "product",
-        "best_single_sps": 0.786229,
-        "ensemble_sps": 0.81346,
-        "improvement": 0.027231,
+        "best_single_sps": 0.80418,
+        "ensemble_sps": 0.810184,
+        "improvement": 0.006004,
         "n_questions": 100,
+        "best_member_model": "Althing (GPT-4o-mini)",
+        "best_member_sps": 0.778334,
+        "improvement_over_members": 0.03185,
         "random_baseline_sps": 0.774017,
         "random_baseline_n": 100
       },
       {
+        "dataset": "gss",
+        "best_single_model": "Althing (Qwen 3.8 Flash)",
+        "best_single_framework": "product",
+        "best_single_sps": 0.844417,
+        "ensemble_sps": 0.816146,
+        "improvement": -0.028271,
+        "n_questions": 75,
+        "best_member_model": "Althing (Gemini Flash Lite)",
+        "best_member_sps": 0.818377,
+        "improvement_over_members": -0.002231,
+        "random_baseline_sps": 0.73538,
+        "random_baseline_n": 75
+      },
+      {
         "dataset": "opinionsqa",
-        "best_single_model": "Gemini 2.5 Flash",
+        "best_single_model": "DeepSeek V4.1 Flash",
         "best_single_framework": "raw",
-        "best_single_sps": 0.829212,
-        "ensemble_sps": 0.876721,
-        "improvement": 0.047509,
-        "n_questions": 684,
+        "best_single_sps": 0.871754,
+        "ensemble_sps": 0.87124,
+        "improvement": -0.000514,
+        "n_questions": 100,
+        "best_member_model": "Althing (Haiku 4.5)",
+        "best_member_sps": 0.831247,
+        "improvement_over_members": 0.039993,
         "random_baseline_sps": 0.762852,
         "random_baseline_n": 684
       },
       {
         "dataset": "subpop",
-        "best_single_model": "Althing (Gemini Flash Lite)",
-        "best_single_framework": "product",
-        "best_single_sps": 0.820993,
-        "ensemble_sps": 0.858122,
-        "improvement": 0.037129,
-        "n_questions": 200,
+        "best_single_model": "DeepSeek V4.1 Flash",
+        "best_single_framework": "raw",
+        "best_single_sps": 0.837335,
+        "ensemble_sps": 0.823337,
+        "improvement": -0.013998,
+        "n_questions": 100,
+        "best_member_model": "Althing (Gemini Flash Lite)",
+        "best_member_sps": 0.812807,
+        "improvement_over_members": 0.01053,
         "random_baseline_sps": 0.757397,
         "random_baseline_n": 200
       }
@@ -7632,27 +7655,57 @@
           {
             "a": "Althing (Haiku 4.5)",
             "b": "Althing (Gemini Flash Lite)",
-            "pearson_r": 0.41888,
+            "pearson_r": 0.509877,
             "n": 100
           },
           {
             "a": "Althing (Haiku 4.5)",
             "b": "Althing (GPT-4o-mini)",
-            "pearson_r": 0.307716,
+            "pearson_r": 0.575954,
             "n": 100
           },
           {
             "a": "Althing (Gemini Flash Lite)",
             "b": "Althing (GPT-4o-mini)",
-            "pearson_r": 0.49332,
+            "pearson_r": 0.497951,
             "n": 100
           }
         ],
-        "mean_pearson_r": 0.406639
+        "mean_pearson_r": 0.527927
+      },
+      {
+        "dataset": "gss",
+        "n_questions": 75,
+        "constituents": [
+          "Althing (Haiku 4.5)",
+          "Althing (Gemini Flash Lite)",
+          "Althing (GPT-4o-mini)"
+        ],
+        "pairs": [
+          {
+            "a": "Althing (Haiku 4.5)",
+            "b": "Althing (Gemini Flash Lite)",
+            "pearson_r": 0.601136,
+            "n": 75
+          },
+          {
+            "a": "Althing (Haiku 4.5)",
+            "b": "Althing (GPT-4o-mini)",
+            "pearson_r": 0.617184,
+            "n": 75
+          },
+          {
+            "a": "Althing (Gemini Flash Lite)",
+            "b": "Althing (GPT-4o-mini)",
+            "pearson_r": 0.680464,
+            "n": 75
+          }
+        ],
+        "mean_pearson_r": 0.632928
       },
       {
         "dataset": "opinionsqa",
-        "n_questions": 684,
+        "n_questions": 100,
         "constituents": [
           "Althing (Haiku 4.5)",
           "Althing (Gemini Flash Lite)",
@@ -7662,27 +7715,27 @@
           {
             "a": "Althing (Haiku 4.5)",
             "b": "Althing (Gemini Flash Lite)",
-            "pearson_r": 0.223567,
-            "n": 684
+            "pearson_r": 0.518,
+            "n": 100
           },
           {
             "a": "Althing (Haiku 4.5)",
             "b": "Althing (GPT-4o-mini)",
-            "pearson_r": 0.355047,
-            "n": 684
+            "pearson_r": 0.359555,
+            "n": 100
           },
           {
             "a": "Althing (Gemini Flash Lite)",
             "b": "Althing (GPT-4o-mini)",
-            "pearson_r": 0.307715,
-            "n": 684
+            "pearson_r": 0.617913,
+            "n": 100
           }
         ],
-        "mean_pearson_r": 0.295443
+        "mean_pearson_r": 0.498489
       },
       {
         "dataset": "subpop",
-        "n_questions": 200,
+        "n_questions": 100,
         "constituents": [
           "Althing (Haiku 4.5)",
           "Althing (Gemini Flash Lite)",
@@ -7692,23 +7745,23 @@
           {
             "a": "Althing (Haiku 4.5)",
             "b": "Althing (Gemini Flash Lite)",
-            "pearson_r": 0.282243,
-            "n": 200
+            "pearson_r": 0.230635,
+            "n": 100
           },
           {
             "a": "Althing (Haiku 4.5)",
             "b": "Althing (GPT-4o-mini)",
-            "pearson_r": 0.259842,
-            "n": 200
+            "pearson_r": 0.388237,
+            "n": 100
           },
           {
             "a": "Althing (Gemini Flash Lite)",
             "b": "Althing (GPT-4o-mini)",
-            "pearson_r": 0.424602,
-            "n": 200
+            "pearson_r": 0.439084,
+            "n": 100
           }
         ],
-        "mean_pearson_r": 0.322229
+        "mean_pearson_r": 0.352652
       }
     ],
     "conditioning_results": [
@@ -7970,37 +8023,6 @@
         }
       },
       {
-        "model": "Althing (Haiku 4.5)",
-        "framework": "product",
-        "dataset": "gss",
-        "elicitation": "structured",
-        "template": "structured",
-        "n_questions": 75,
-        "samples_per_question": 30,
-        "refusal_detector_version": 2,
-        "natural": {
-          "sps": 0.803193,
-          "p_dist": 0.713558,
-          "p_rank": 0.723971,
-          "p_refuse": 0.972051,
-          "parse_failure_rate": 0.016
-        },
-        "structured": {
-          "sps": 0.791467,
-          "p_dist": 0.666072,
-          "p_rank": 0.736279,
-          "p_refuse": 0.972051,
-          "parse_failure_rate": 0.0
-        },
-        "delta": {
-          "sps": -0.011726,
-          "p_dist": -0.047486,
-          "p_rank": 0.012308,
-          "p_refuse": 0.0,
-          "parse_failure_rate": -0.016
-        }
-      },
-      {
         "model": "Althing (GPT-6 Luna)",
         "framework": "product",
         "dataset": "opinionsqa",
@@ -8126,6 +8148,168 @@
       }
     ],
     "nonresponse_fidelity": [
+      {
+        "provider": "Muse Glimmer 30B",
+        "framework": "raw",
+        "template": null,
+        "dataset": "gss",
+        "n_questions": 75,
+        "mean_abs_nonresponse_gap": 0.697013,
+        "mean_model_nonresponse_mass": 0.743112,
+        "mean_human_nonresponse_mass": 0.054307,
+        "mean_model_option_mass": 0.738128,
+        "mean_human_option_mass": 0.026358,
+        "top_overselected": [
+          {
+            "key": "GSS_CONFINAN",
+            "model_mass": 1.0,
+            "human_mass": 0.01314,
+            "gap": 0.98686
+          },
+          {
+            "key": "GSS_FINRELA",
+            "model_mass": 1.0,
+            "human_mass": 0.014308,
+            "gap": 0.985692
+          },
+          {
+            "key": "GSS_XMARSEX",
+            "model_mass": 1.0,
+            "human_mass": 0.01613,
+            "gap": 0.98387
+          },
+          {
+            "key": "GSS_PORNLAW",
+            "model_mass": 1.0,
+            "human_mass": 0.017909,
+            "gap": 0.982091
+          },
+          {
+            "key": "GSS_CLASS",
+            "model_mass": 1.0,
+            "human_mass": 0.02169,
+            "gap": 0.97831
+          }
+        ],
+        "top_option_overselected": [
+          {
+            "key": "GSS_CONFINAN",
+            "text": "I am going to name an institution in this country. As far as the people running this institution are concerned, would you say you have a great deal of confidence, only some confidence, or hardly any confidence at all in banks and financial institutions?",
+            "model_mass": 1.0,
+            "human_mass": 0.006557,
+            "gap": 0.993443
+          },
+          {
+            "key": "GSS_XMARSEX",
+            "text": "What is your opinion about a married person having sexual relations with someone other than the marriage partner--is it always wrong, almost always wrong, wrong only sometimes, or not wrong at all?",
+            "model_mass": 1.0,
+            "human_mass": 0.008034,
+            "gap": 0.991966
+          },
+          {
+            "key": "GSS_PORNLAW",
+            "text": "Which of these statements comes closest to your feelings about pornography laws? There should be laws against the distribution of pornography whatever the age; there should be laws against the distribution of pornography to persons under 18; or there should be no laws forbidding the distribution of pornography.",
+            "model_mass": 1.0,
+            "human_mass": 0.008919,
+            "gap": 0.991081
+          },
+          {
+            "key": "GSS_CLASS",
+            "text": "If you were asked to use one of four names for your social class, which would you say you belong in: the lower class, the working class, the middle class, or the upper class?",
+            "model_mass": 1.0,
+            "human_mass": 0.010781,
+            "gap": 0.989219
+          },
+          {
+            "key": "GSS_CONJUDGE",
+            "text": "I am going to name an institution in this country. As far as the people running this institution are concerned, would you say you have a great deal of confidence, only some confidence, or hardly any confidence at all in the U.S. Supreme Court?",
+            "model_mass": 1.0,
+            "human_mass": 0.01429,
+            "gap": 0.98571
+          }
+        ]
+      },
+      {
+        "provider": "Gemini 3.8 Flash",
+        "framework": "raw",
+        "template": null,
+        "dataset": "gss",
+        "n_questions": 75,
+        "mean_abs_nonresponse_gap": 0.678629,
+        "mean_model_nonresponse_mass": 0.718588,
+        "mean_human_nonresponse_mass": 0.054307,
+        "mean_model_option_mass": 0.718588,
+        "mean_human_option_mass": 0.026358,
+        "top_overselected": [
+          {
+            "key": "GSS_HEALTH",
+            "model_mass": 1.0,
+            "human_mass": 0.001396,
+            "gap": 0.998604
+          },
+          {
+            "key": "GSS_HAPPY",
+            "model_mass": 1.0,
+            "human_mass": 0.007231,
+            "gap": 0.992769
+          },
+          {
+            "key": "GSS_SATFIN",
+            "model_mass": 1.0,
+            "human_mass": 0.008228,
+            "gap": 0.991772
+          },
+          {
+            "key": "GSS_FINRELA",
+            "model_mass": 1.0,
+            "human_mass": 0.014308,
+            "gap": 0.985692
+          },
+          {
+            "key": "GSS_LIFE",
+            "model_mass": 1.0,
+            "human_mass": 0.014754,
+            "gap": 0.985246
+          }
+        ],
+        "top_option_overselected": [
+          {
+            "key": "GSS_HEALTH",
+            "text": "Would you say your own health, in general, is excellent, good, fair, or poor?",
+            "model_mass": 1.0,
+            "human_mass": 0.0007,
+            "gap": 0.9993
+          },
+          {
+            "key": "GSS_HAPPY",
+            "text": "Taken all together, how would you say things are these days--would you say that you are very happy, pretty happy, or not too happy?",
+            "model_mass": 1.0,
+            "human_mass": 0.003587,
+            "gap": 0.996413
+          },
+          {
+            "key": "GSS_SATFIN",
+            "text": "We are interested in how people are getting along financially these days. So far as you and your family are concerned, would you say that you are pretty well satisfied with your present financial situation, more or less satisfied, or not satisfied at all?",
+            "model_mass": 1.0,
+            "human_mass": 0.004083,
+            "gap": 0.995917
+          },
+          {
+            "key": "GSS_FINRELA",
+            "text": "Compared with American families in general, would you say your family income is far below average, below average, average, above average, or far above average?",
+            "model_mass": 1.0,
+            "human_mass": 0.007148,
+            "gap": 0.992852
+          },
+          {
+            "key": "GSS_LIFE",
+            "text": "In general, do you find life exciting, pretty routine, or dull?",
+            "model_mass": 1.0,
+            "human_mass": 0.007345,
+            "gap": 0.992655
+          }
+        ]
+      },
       {
         "provider": "Claude Haiku 4.5",
         "framework": "raw",
@@ -8532,6 +8716,87 @@
         ]
       },
       {
+        "provider": "GPT-6 Luna",
+        "framework": "raw",
+        "template": null,
+        "dataset": "gss",
+        "n_questions": 75,
+        "mean_abs_nonresponse_gap": 0.249998,
+        "mean_model_nonresponse_mass": 0.243111,
+        "mean_human_nonresponse_mass": 0.054307,
+        "mean_model_option_mass": 0.243111,
+        "mean_human_option_mass": 0.026358,
+        "top_overselected": [
+          {
+            "key": "GSS_HEALTH",
+            "model_mass": 1.0,
+            "human_mass": 0.001396,
+            "gap": 0.998604
+          },
+          {
+            "key": "GSS_SATFIN",
+            "model_mass": 1.0,
+            "human_mass": 0.008228,
+            "gap": 0.991772
+          },
+          {
+            "key": "GSS_FINRELA",
+            "model_mass": 1.0,
+            "human_mass": 0.014308,
+            "gap": 0.985692
+          },
+          {
+            "key": "GSS_CONARMY",
+            "model_mass": 1.0,
+            "human_mass": 0.015319,
+            "gap": 0.984681
+          },
+          {
+            "key": "GSS_CLASS",
+            "model_mass": 1.0,
+            "human_mass": 0.02169,
+            "gap": 0.97831
+          }
+        ],
+        "top_option_overselected": [
+          {
+            "key": "GSS_HEALTH",
+            "text": "Would you say your own health, in general, is excellent, good, fair, or poor?",
+            "model_mass": 1.0,
+            "human_mass": 0.0007,
+            "gap": 0.9993
+          },
+          {
+            "key": "GSS_SATFIN",
+            "text": "We are interested in how people are getting along financially these days. So far as you and your family are concerned, would you say that you are pretty well satisfied with your present financial situation, more or less satisfied, or not satisfied at all?",
+            "model_mass": 1.0,
+            "human_mass": 0.004083,
+            "gap": 0.995917
+          },
+          {
+            "key": "GSS_FINRELA",
+            "text": "Compared with American families in general, would you say your family income is far below average, below average, average, above average, or far above average?",
+            "model_mass": 1.0,
+            "human_mass": 0.007148,
+            "gap": 0.992852
+          },
+          {
+            "key": "GSS_CONARMY",
+            "text": "I am going to name an institution in this country. As far as the people running this institution are concerned, would you say you have a great deal of confidence, only some confidence, or hardly any confidence at all in the military?",
+            "model_mass": 1.0,
+            "human_mass": 0.007641,
+            "gap": 0.992359
+          },
+          {
+            "key": "GSS_CLASS",
+            "text": "If you were asked to use one of four names for your social class, which would you say you belong in: the lower class, the working class, the middle class, or the upper class?",
+            "model_mass": 1.0,
+            "human_mass": 0.010781,
+            "gap": 0.989219
+          }
+        ]
+      },
+      {
         "provider": "Althing (Haiku 5.5)",
         "framework": "product",
         "template": null,
@@ -8609,6 +8874,249 @@
             "model_mass": 0.7667,
             "human_mass": 0.0007,
             "gap": 0.766
+          }
+        ]
+      },
+      {
+        "provider": "Claude Sonnet 4",
+        "framework": "raw",
+        "template": null,
+        "dataset": "gss",
+        "n_questions": 75,
+        "mean_abs_nonresponse_gap": 0.226952,
+        "mean_model_nonresponse_mass": 0.220398,
+        "mean_human_nonresponse_mass": 0.054307,
+        "mean_model_option_mass": 0.129945,
+        "mean_human_option_mass": 0.026358,
+        "top_overselected": [
+          {
+            "key": "GSS_HEALTH",
+            "model_mass": 1.0,
+            "human_mass": 0.001396,
+            "gap": 0.998604
+          },
+          {
+            "key": "GSS_SATFIN",
+            "model_mass": 1.0,
+            "human_mass": 0.008228,
+            "gap": 0.991772
+          },
+          {
+            "key": "GSS_FINRELA",
+            "model_mass": 1.0,
+            "human_mass": 0.014308,
+            "gap": 0.985692
+          },
+          {
+            "key": "GSS_CLASS",
+            "model_mass": 1.0,
+            "human_mass": 0.02169,
+            "gap": 0.97831
+          },
+          {
+            "key": "GSS_TAX",
+            "model_mass": 1.0,
+            "human_mass": 0.052342,
+            "gap": 0.947658
+          }
+        ],
+        "top_option_overselected": [
+          {
+            "key": "GSS_HEALTH",
+            "text": "Would you say your own health, in general, is excellent, good, fair, or poor?",
+            "model_mass": 1.0,
+            "human_mass": 0.0007,
+            "gap": 0.9993
+          },
+          {
+            "key": "GSS_CLASS",
+            "text": "If you were asked to use one of four names for your social class, which would you say you belong in: the lower class, the working class, the middle class, or the upper class?",
+            "model_mass": 1.0,
+            "human_mass": 0.010781,
+            "gap": 0.989219
+          },
+          {
+            "key": "GSS_TAX",
+            "text": "Do you consider the amount of federal income tax which you have to pay as too high, about right, or too low?",
+            "model_mass": 1.0,
+            "human_mass": 0.025797,
+            "gap": 0.974203
+          },
+          {
+            "key": "GSS_ABANY",
+            "text": "Please tell me whether or not you think it should be possible for a pregnant woman to obtain a legal abortion if the woman wants it for any reason?",
+            "model_mass": 0.966667,
+            "human_mass": 0.033588,
+            "gap": 0.933079
+          },
+          {
+            "key": "GSS_GRASS",
+            "text": "Do you think the use of marijuana should be made legal or not?",
+            "model_mass": 1.0,
+            "human_mass": 0.087191,
+            "gap": 0.912809
+          }
+        ]
+      },
+      {
+        "provider": "Claude Haiku 5.5",
+        "framework": "raw",
+        "template": null,
+        "dataset": "gss",
+        "n_questions": 75,
+        "mean_abs_nonresponse_gap": 0.214482,
+        "mean_model_nonresponse_mass": 0.211704,
+        "mean_human_nonresponse_mass": 0.054307,
+        "mean_model_option_mass": 0.200133,
+        "mean_human_option_mass": 0.026358,
+        "top_overselected": [
+          {
+            "key": "GSS_HEALTH",
+            "model_mass": 1.0,
+            "human_mass": 0.001396,
+            "gap": 0.998604
+          },
+          {
+            "key": "GSS_FINRELA",
+            "model_mass": 1.0,
+            "human_mass": 0.014308,
+            "gap": 0.985692
+          },
+          {
+            "key": "GSS_OWNGUN",
+            "model_mass": 0.9667,
+            "human_mass": 0.029577,
+            "gap": 0.937123
+          },
+          {
+            "key": "GSS_CAPPUN",
+            "model_mass": 1.0,
+            "human_mass": 0.068223,
+            "gap": 0.931777
+          },
+          {
+            "key": "GSS_ABANY",
+            "model_mass": 1.0,
+            "human_mass": 0.068418,
+            "gap": 0.931582
+          }
+        ],
+        "top_option_overselected": [
+          {
+            "key": "GSS_HEALTH",
+            "text": "Would you say your own health, in general, is excellent, good, fair, or poor?",
+            "model_mass": 1.0,
+            "human_mass": 0.0007,
+            "gap": 0.9993
+          },
+          {
+            "key": "GSS_FINRELA",
+            "text": "Compared with American families in general, would you say your family income is far below average, below average, average, above average, or far above average?",
+            "model_mass": 1.0,
+            "human_mass": 0.007148,
+            "gap": 0.992852
+          },
+          {
+            "key": "GSS_CAPPUN",
+            "text": "Do you favor or oppose the death penalty for persons convicted of murder?",
+            "model_mass": 1.0,
+            "human_mass": 0.033495,
+            "gap": 0.966505
+          },
+          {
+            "key": "GSS_ABANY",
+            "text": "Please tell me whether or not you think it should be possible for a pregnant woman to obtain a legal abortion if the woman wants it for any reason?",
+            "model_mass": 1.0,
+            "human_mass": 0.033588,
+            "gap": 0.966412
+          },
+          {
+            "key": "GSS_ABNOMORE",
+            "text": "Please tell me whether or not you think it should be possible for a pregnant woman to obtain a legal abortion if she is married and does not want any more children?",
+            "model_mass": 1.0,
+            "human_mass": 0.04051,
+            "gap": 0.95949
+          }
+        ]
+      },
+      {
+        "provider": "Claude Haiku 4.5",
+        "framework": "raw",
+        "template": null,
+        "dataset": "gss",
+        "n_questions": 75,
+        "mean_abs_nonresponse_gap": 0.196417,
+        "mean_model_nonresponse_mass": 0.176506,
+        "mean_human_nonresponse_mass": 0.054307,
+        "mean_model_option_mass": 0.114994,
+        "mean_human_option_mass": 0.026358,
+        "top_overselected": [
+          {
+            "key": "GSS_HEALTH",
+            "model_mass": 1.0,
+            "human_mass": 0.001396,
+            "gap": 0.998604
+          },
+          {
+            "key": "GSS_FINRELA",
+            "model_mass": 1.0,
+            "human_mass": 0.014308,
+            "gap": 0.985692
+          },
+          {
+            "key": "GSS_CLASS",
+            "model_mass": 1.0,
+            "human_mass": 0.02169,
+            "gap": 0.97831
+          },
+          {
+            "key": "GSS_TAX",
+            "model_mass": 1.0,
+            "human_mass": 0.052342,
+            "gap": 0.947658
+          },
+          {
+            "key": "GSS_ABANY",
+            "model_mass": 1.0,
+            "human_mass": 0.068418,
+            "gap": 0.931582
+          }
+        ],
+        "top_option_overselected": [
+          {
+            "key": "GSS_HEALTH",
+            "text": "Would you say your own health, in general, is excellent, good, fair, or poor?",
+            "model_mass": 1.0,
+            "human_mass": 0.0007,
+            "gap": 0.9993
+          },
+          {
+            "key": "GSS_CLASS",
+            "text": "If you were asked to use one of four names for your social class, which would you say you belong in: the lower class, the working class, the middle class, or the upper class?",
+            "model_mass": 1.0,
+            "human_mass": 0.010781,
+            "gap": 0.989219
+          },
+          {
+            "key": "GSS_TAX",
+            "text": "Do you consider the amount of federal income tax which you have to pay as too high, about right, or too low?",
+            "model_mass": 1.0,
+            "human_mass": 0.025797,
+            "gap": 0.974203
+          },
+          {
+            "key": "GSS_LETDIE1",
+            "text": "When a person has a disease that cannot be cured, do you think doctors should be allowed by law to end the patient's life by some painless means if the patient and his family request it?",
+            "model_mass": 1.0,
+            "human_mass": 0.033869,
+            "gap": 0.966131
+          },
+          {
+            "key": "GSS_GOD",
+            "text": "Which statement comes closest to expressing what you believe about God? I don't believe in God; I don't know whether there is a God and I don't believe there is any way to find out; I don't believe in a personal God, but I do believe in a Higher Power of some kind; I find myself believing in God some of the time, but not at others; while I have doubts, I feel that I do believe in God; or I know God really exists and I have no doubts about it.",
+            "model_mass": 1.0,
+            "human_mass": 0.076527,
+            "gap": 0.923473
           }
         ]
       },
@@ -8861,17 +9369,17 @@
         "template": null,
         "dataset": "gss",
         "n_questions": 75,
-        "mean_abs_nonresponse_gap": 0.125394,
-        "mean_model_nonresponse_mass": 0.1057,
+        "mean_abs_nonresponse_gap": 0.123882,
+        "mean_model_nonresponse_mass": 0.097999,
         "mean_human_nonresponse_mass": 0.054307,
-        "mean_model_option_mass": 0.105256,
+        "mean_model_option_mass": 0.097999,
         "mean_human_option_mass": 0.026358,
         "top_overselected": [
           {
             "key": "GSS_FEPRESCH",
-            "model_mass": 0.9667,
+            "model_mass": 0.9333,
             "human_mass": 0.021529,
-            "gap": 0.945171
+            "gap": 0.911771
           },
           {
             "key": "GSS_POSTLIFE",
@@ -8880,31 +9388,31 @@
             "gap": 0.748555
           },
           {
+            "key": "GSS_FINRELA",
+            "model_mass": 0.6667,
+            "human_mass": 0.014308,
+            "gap": 0.652392
+          },
+          {
+            "key": "GSS_GOD",
+            "model_mass": 0.8,
+            "human_mass": 0.160041,
+            "gap": 0.639959
+          },
+          {
             "key": "GSS_NATRACE",
-            "model_mass": 0.8333,
-            "human_mass": 0.085912,
-            "gap": 0.747388
-          },
-          {
-            "key": "GSS_NATHEAL",
             "model_mass": 0.7,
-            "human_mass": 0.024036,
-            "gap": 0.675964
-          },
-          {
-            "key": "GSS_NATFARE",
-            "model_mass": 0.6333,
-            "human_mass": 0.045323,
-            "gap": 0.587977
+            "human_mass": 0.085912,
+            "gap": 0.614088
           }
         ],
         "top_option_overselected": [
           {
             "key": "GSS_FEPRESCH",
             "text": "Please indicate whether you strongly agree, agree, disagree, or strongly disagree with the following statement: A preschool child is likely to suffer if his or her mother works.",
-            "model_mass": 0.9667,
+            "model_mass": 0.9333,
             "human_mass": 0.010683,
-            "gap": 0.956017
+            "gap": 0.922617
           },
           {
             "key": "GSS_POSTLIFE",
@@ -8914,25 +9422,106 @@
             "gap": 0.883373
           },
           {
-            "key": "GSS_NATRACE",
-            "text": "We are faced with many problems in this country, none of which can be solved easily or inexpensively. Are we spending too much, too little, or about the right amount on improving the conditions of Black people?",
-            "model_mass": 0.8333,
-            "human_mass": 0.041971,
-            "gap": 0.791329
+            "key": "GSS_GOD",
+            "text": "Which statement comes closest to expressing what you believe about God? I don't believe in God; I don't know whether there is a God and I don't believe there is any way to find out; I don't believe in a personal God, but I do believe in a Higher Power of some kind; I find myself believing in God some of the time, but not at others; while I have doubts, I feel that I do believe in God; or I know God really exists and I have no doubts about it.",
+            "model_mass": 0.8,
+            "human_mass": 0.076527,
+            "gap": 0.723473
           },
           {
-            "key": "GSS_NATHEAL",
-            "text": "We are faced with many problems in this country, none of which can be solved easily or inexpensively. Are we spending too much, too little, or about the right amount on improving and protecting the nation's health?",
+            "key": "GSS_FINRELA",
+            "text": "Compared with American families in general, would you say your family income is far below average, below average, average, above average, or far above average?",
+            "model_mass": 0.6667,
+            "human_mass": 0.007148,
+            "gap": 0.659552
+          },
+          {
+            "key": "GSS_NATRACE",
+            "text": "We are faced with many problems in this country, none of which can be solved easily or inexpensively. Are we spending too much, too little, or about the right amount on improving the conditions of Black people?",
             "model_mass": 0.7,
-            "human_mass": 0.011954,
-            "gap": 0.688046
+            "human_mass": 0.041971,
+            "gap": 0.658029
+          }
+        ]
+      },
+      {
+        "provider": "Claude Sonnet 4.6",
+        "framework": "raw",
+        "template": null,
+        "dataset": "gss",
+        "n_questions": 75,
+        "mean_abs_nonresponse_gap": 0.120904,
+        "mean_model_nonresponse_mass": 0.086667,
+        "mean_human_nonresponse_mass": 0.054307,
+        "mean_model_option_mass": 0.086667,
+        "mean_human_option_mass": 0.026358,
+        "top_overselected": [
+          {
+            "key": "GSS_HEALTH",
+            "model_mass": 1.0,
+            "human_mass": 0.001396,
+            "gap": 0.998604
+          },
+          {
+            "key": "GSS_CAPPUN",
+            "model_mass": 1.0,
+            "human_mass": 0.068223,
+            "gap": 0.931777
+          },
+          {
+            "key": "GSS_POLVIEWS",
+            "model_mass": 0.9667,
+            "human_mass": 0.073569,
+            "gap": 0.893131
+          },
+          {
+            "key": "GSS_GOD",
+            "model_mass": 1.0,
+            "human_mass": 0.160041,
+            "gap": 0.839959
+          },
+          {
+            "key": "GSS_GRASS",
+            "model_mass": 1.0,
+            "human_mass": 0.183657,
+            "gap": 0.816343
+          }
+        ],
+        "top_option_overselected": [
+          {
+            "key": "GSS_HEALTH",
+            "text": "Would you say your own health, in general, is excellent, good, fair, or poor?",
+            "model_mass": 1.0,
+            "human_mass": 0.0007,
+            "gap": 0.9993
+          },
+          {
+            "key": "GSS_CAPPUN",
+            "text": "Do you favor or oppose the death penalty for persons convicted of murder?",
+            "model_mass": 1.0,
+            "human_mass": 0.033495,
+            "gap": 0.966505
+          },
+          {
+            "key": "GSS_POLVIEWS",
+            "text": "I'm going to show you a seven-point scale on which the political views that people might hold are arranged from extremely liberal--point 1--to extremely conservative--point 7. Where would you place yourself on this scale?",
+            "model_mass": 0.9667,
+            "human_mass": 0.036095,
+            "gap": 0.930605
           },
           {
             "key": "GSS_GOD",
             "text": "Which statement comes closest to expressing what you believe about God? I don't believe in God; I don't know whether there is a God and I don't believe there is any way to find out; I don't believe in a personal God, but I do believe in a Higher Power of some kind; I find myself believing in God some of the time, but not at others; while I have doubts, I feel that I do believe in God; or I know God really exists and I have no doubts about it.",
-            "model_mass": 0.7,
+            "model_mass": 1.0,
             "human_mass": 0.076527,
-            "gap": 0.623473
+            "gap": 0.923473
+          },
+          {
+            "key": "GSS_GRASS",
+            "text": "Do you think the use of marijuana should be made legal or not?",
+            "model_mass": 1.0,
+            "human_mass": 0.087191,
+            "gap": 0.912809
           }
         ]
       },
@@ -9023,10 +9612,10 @@
         "template": null,
         "dataset": "gss",
         "n_questions": 75,
-        "mean_abs_nonresponse_gap": 0.093421,
-        "mean_model_nonresponse_mass": 0.067357,
+        "mean_abs_nonresponse_gap": 0.09165,
+        "mean_model_nonresponse_mass": 0.067222,
         "mean_human_nonresponse_mass": 0.054307,
-        "mean_model_option_mass": 0.067357,
+        "mean_model_option_mass": 0.066667,
         "mean_human_option_mass": 0.026358,
         "top_overselected": [
           {
@@ -9049,15 +9638,15 @@
           },
           {
             "key": "GSS_GOD",
-            "model_mass": 0.7333,
+            "model_mass": 0.7,
             "human_mass": 0.160041,
-            "gap": 0.573259
+            "gap": 0.539959
           },
           {
-            "key": "GSS_ABANY",
-            "model_mass": 0.2667,
-            "human_mass": 0.068418,
-            "gap": 0.198282
+            "key": "GSS_GUNLAW",
+            "model_mass": 0.4,
+            "human_mass": 0.03295,
+            "gap": 0.36705
           }
         ],
         "top_option_overselected": [
@@ -9085,16 +9674,868 @@
           {
             "key": "GSS_GOD",
             "text": "Which statement comes closest to expressing what you believe about God? I don't believe in God; I don't know whether there is a God and I don't believe there is any way to find out; I don't believe in a personal God, but I do believe in a Higher Power of some kind; I find myself believing in God some of the time, but not at others; while I have doubts, I feel that I do believe in God; or I know God really exists and I have no doubts about it.",
-            "model_mass": 0.7333,
+            "model_mass": 0.7,
             "human_mass": 0.076527,
-            "gap": 0.656773
+            "gap": 0.623473
           },
+          {
+            "key": "GSS_GUNLAW",
+            "text": "Would you favor or oppose a law which would require a person to obtain a police permit before he or she could buy a gun?",
+            "model_mass": 0.4,
+            "human_mass": 0.016324,
+            "gap": 0.383676
+          }
+        ]
+      },
+      {
+        "provider": "GPT-4o",
+        "framework": "raw",
+        "template": null,
+        "dataset": "gss",
+        "n_questions": 75,
+        "mean_abs_nonresponse_gap": 0.089945,
+        "mean_model_nonresponse_mass": 0.067111,
+        "mean_human_nonresponse_mass": 0.054307,
+        "mean_model_option_mass": 0.067111,
+        "mean_human_option_mass": 0.026358,
+        "top_overselected": [
+          {
+            "key": "GSS_OWNGUN",
+            "model_mass": 0.9,
+            "human_mass": 0.029577,
+            "gap": 0.870423
+          },
+          {
+            "key": "GSS_POSTLIFE",
+            "model_mass": 1.0,
+            "human_mass": 0.251445,
+            "gap": 0.748555
+          },
+          {
+            "key": "GSS_FINRELA",
+            "model_mass": 0.5667,
+            "human_mass": 0.014308,
+            "gap": 0.552392
+          },
+          {
+            "key": "GSS_HEALTH",
+            "model_mass": 0.5333,
+            "human_mass": 0.001396,
+            "gap": 0.531904
+          },
+          {
+            "key": "GSS_AFFRMACT",
+            "model_mass": 0.5,
+            "human_mass": 0.10282,
+            "gap": 0.39718
+          }
+        ],
+        "top_option_overselected": [
+          {
+            "key": "GSS_OWNGUN",
+            "text": "Do you happen to have in your home or garage any guns or revolvers?",
+            "model_mass": 0.9,
+            "human_mass": 0.014678,
+            "gap": 0.885322
+          },
+          {
+            "key": "GSS_POSTLIFE",
+            "text": "Do you believe there is a life after death?",
+            "model_mass": 1.0,
+            "human_mass": 0.116627,
+            "gap": 0.883373
+          },
+          {
+            "key": "GSS_FINRELA",
+            "text": "Compared with American families in general, would you say your family income is far below average, below average, average, above average, or far above average?",
+            "model_mass": 0.5667,
+            "human_mass": 0.007148,
+            "gap": 0.559552
+          },
+          {
+            "key": "GSS_HEALTH",
+            "text": "Would you say your own health, in general, is excellent, good, fair, or poor?",
+            "model_mass": 0.5333,
+            "human_mass": 0.0007,
+            "gap": 0.5326
+          },
+          {
+            "key": "GSS_AFFRMACT",
+            "text": "Some people say that because of past discrimination, Black people should be given preference in hiring and promotion. Others say that such preference in hiring and promotion of Black people is wrong because it discriminates against other Americans. What about your opinion--are you for or against preferential hiring and promotion of Black people, and do you feel that way strongly or not strongly?",
+            "model_mass": 0.5,
+            "human_mass": 0.050012,
+            "gap": 0.449988
+          }
+        ]
+      },
+      {
+        "provider": "Althing (Haiku 5.5)",
+        "framework": "product",
+        "template": null,
+        "dataset": "gss",
+        "n_questions": 75,
+        "mean_abs_nonresponse_gap": 0.079941,
+        "mean_model_nonresponse_mass": 0.044023,
+        "mean_human_nonresponse_mass": 0.054307,
+        "mean_model_option_mass": 0.038512,
+        "mean_human_option_mass": 0.026358,
+        "top_overselected": [
+          {
+            "key": "GSS_ABANY",
+            "model_mass": 1.0,
+            "human_mass": 0.068418,
+            "gap": 0.931582
+          },
+          {
+            "key": "GSS_POSTLIFE",
+            "model_mass": 1.0,
+            "human_mass": 0.251445,
+            "gap": 0.748555
+          },
+          {
+            "key": "GSS_NATFARE",
+            "model_mass": 0.5667,
+            "human_mass": 0.045323,
+            "gap": 0.521377
+          },
+          {
+            "key": "GSS_CONSCI",
+            "model_mass": 0.333333,
+            "human_mass": 0.0418,
+            "gap": 0.291533
+          },
+          {
+            "key": "GSS_CONCLERG",
+            "model_mass": 0.119968,
+            "human_mass": 0.044295,
+            "gap": 0.075673
+          }
+        ],
+        "top_option_overselected": [
           {
             "key": "GSS_ABANY",
             "text": "Please tell me whether or not you think it should be possible for a pregnant woman to obtain a legal abortion if the woman wants it for any reason?",
-            "model_mass": 0.2667,
+            "model_mass": 1.0,
             "human_mass": 0.033588,
-            "gap": 0.233112
+            "gap": 0.966412
+          },
+          {
+            "key": "GSS_POSTLIFE",
+            "text": "Do you believe there is a life after death?",
+            "model_mass": 1.0,
+            "human_mass": 0.116627,
+            "gap": 0.883373
+          },
+          {
+            "key": "GSS_NATFARE",
+            "text": "We are faced with many problems in this country, none of which can be solved easily or inexpensively. Are we spending too much, too little, or about the right amount on welfare?",
+            "model_mass": 0.5667,
+            "human_mass": 0.022374,
+            "gap": 0.544326
+          },
+          {
+            "key": "GSS_CONCLERG",
+            "text": "I am going to name an institution in this country. As far as the people running this institution are concerned, would you say you have a great deal of confidence, only some confidence, or hardly any confidence at all in organized religion?",
+            "model_mass": 0.079968,
+            "human_mass": 0.021898,
+            "gap": 0.05807
+          },
+          {
+            "key": "GSS_CONEDUC",
+            "text": "I am going to name an institution in this country. As far as the people running this institution are concerned, would you say you have a great deal of confidence, only some confidence, or hardly any confidence at all in education?",
+            "model_mass": 0.0417,
+            "human_mass": 0.006063,
+            "gap": 0.035637
+          }
+        ]
+      },
+      {
+        "provider": "Gemini 3.5 Flash-Lite",
+        "framework": "raw",
+        "template": null,
+        "dataset": "gss",
+        "n_questions": 75,
+        "mean_abs_nonresponse_gap": 0.076215,
+        "mean_model_nonresponse_mass": 0.040537,
+        "mean_human_nonresponse_mass": 0.054307,
+        "mean_model_option_mass": 0.040537,
+        "mean_human_option_mass": 0.026358,
+        "top_overselected": [
+          {
+            "key": "GSS_POLVIEWS",
+            "model_mass": 1.0,
+            "human_mass": 0.073569,
+            "gap": 0.926431
+          },
+          {
+            "key": "GSS_POSTLIFE",
+            "model_mass": 1.0,
+            "human_mass": 0.251445,
+            "gap": 0.748555
+          },
+          {
+            "key": "GSS_OWNGUN",
+            "model_mass": 0.3667,
+            "human_mass": 0.029577,
+            "gap": 0.337123
+          },
+          {
+            "key": "GSS_ABPOOR",
+            "model_mass": 0.2,
+            "human_mass": 0.081434,
+            "gap": 0.118566
+          },
+          {
+            "key": "GSS_HEALTH",
+            "model_mass": 0.0667,
+            "human_mass": 0.001396,
+            "gap": 0.065304
+          }
+        ],
+        "top_option_overselected": [
+          {
+            "key": "GSS_POLVIEWS",
+            "text": "I'm going to show you a seven-point scale on which the political views that people might hold are arranged from extremely liberal--point 1--to extremely conservative--point 7. Where would you place yourself on this scale?",
+            "model_mass": 1.0,
+            "human_mass": 0.036095,
+            "gap": 0.963905
+          },
+          {
+            "key": "GSS_POSTLIFE",
+            "text": "Do you believe there is a life after death?",
+            "model_mass": 1.0,
+            "human_mass": 0.116627,
+            "gap": 0.883373
+          },
+          {
+            "key": "GSS_OWNGUN",
+            "text": "Do you happen to have in your home or garage any guns or revolvers?",
+            "model_mass": 0.3667,
+            "human_mass": 0.014678,
+            "gap": 0.352022
+          },
+          {
+            "key": "GSS_ABPOOR",
+            "text": "Please tell me whether or not you think it should be possible for a pregnant woman to obtain a legal abortion if the family has a very low income and cannot afford any more children?",
+            "model_mass": 0.2,
+            "human_mass": 0.039871,
+            "gap": 0.160129
+          },
+          {
+            "key": "GSS_GOD",
+            "text": "Which statement comes closest to expressing what you believe about God? I don't believe in God; I don't know whether there is a God and I don't believe there is any way to find out; I don't believe in a personal God, but I do believe in a Higher Power of some kind; I find myself believing in God some of the time, but not at others; while I have doubts, I feel that I do believe in God; or I know God really exists and I have no doubts about it.",
+            "model_mass": 0.2069,
+            "human_mass": 0.076527,
+            "gap": 0.130373
+          }
+        ]
+      },
+      {
+        "provider": "Althing (GPT-6 Luna)",
+        "framework": "product",
+        "template": null,
+        "dataset": "gss",
+        "n_questions": 75,
+        "mean_abs_nonresponse_gap": 0.072654,
+        "mean_model_nonresponse_mass": 0.046281,
+        "mean_human_nonresponse_mass": 0.054307,
+        "mean_model_option_mass": 0.046281,
+        "mean_human_option_mass": 0.026358,
+        "top_overselected": [
+          {
+            "key": "GSS_GOD",
+            "model_mass": 1.0,
+            "human_mass": 0.160041,
+            "gap": 0.839959
+          },
+          {
+            "key": "GSS_POSTLIFE",
+            "model_mass": 1.0,
+            "human_mass": 0.251445,
+            "gap": 0.748555
+          },
+          {
+            "key": "GSS_FINRELA",
+            "model_mass": 0.4333,
+            "human_mass": 0.014308,
+            "gap": 0.418992
+          },
+          {
+            "key": "GSS_CLASS",
+            "model_mass": 0.2,
+            "human_mass": 0.02169,
+            "gap": 0.17831
+          },
+          {
+            "key": "GSS_COURTS",
+            "model_mass": 0.3667,
+            "human_mass": 0.277007,
+            "gap": 0.089693
+          }
+        ],
+        "top_option_overselected": [
+          {
+            "key": "GSS_GOD",
+            "text": "Which statement comes closest to expressing what you believe about God? I don't believe in God; I don't know whether there is a God and I don't believe there is any way to find out; I don't believe in a personal God, but I do believe in a Higher Power of some kind; I find myself believing in God some of the time, but not at others; while I have doubts, I feel that I do believe in God; or I know God really exists and I have no doubts about it.",
+            "model_mass": 1.0,
+            "human_mass": 0.076527,
+            "gap": 0.923473
+          },
+          {
+            "key": "GSS_POSTLIFE",
+            "text": "Do you believe there is a life after death?",
+            "model_mass": 1.0,
+            "human_mass": 0.116627,
+            "gap": 0.883373
+          },
+          {
+            "key": "GSS_FINRELA",
+            "text": "Compared with American families in general, would you say your family income is far below average, below average, average, above average, or far above average?",
+            "model_mass": 0.4333,
+            "human_mass": 0.007148,
+            "gap": 0.426152
+          },
+          {
+            "key": "GSS_COURTS",
+            "text": "In general, do you think the courts in this area deal too harshly or not harshly enough with criminals?",
+            "model_mass": 0.3667,
+            "human_mass": 0.127287,
+            "gap": 0.239413
+          },
+          {
+            "key": "GSS_CLASS",
+            "text": "If you were asked to use one of four names for your social class, which would you say you belong in: the lower class, the working class, the middle class, or the upper class?",
+            "model_mass": 0.2,
+            "human_mass": 0.010781,
+            "gap": 0.189219
+          }
+        ]
+      },
+      {
+        "provider": "Althing (Gemini Flash Lite)",
+        "framework": "product",
+        "template": null,
+        "dataset": "gss",
+        "n_questions": 75,
+        "mean_abs_nonresponse_gap": 0.072509,
+        "mean_model_nonresponse_mass": 0.035112,
+        "mean_human_nonresponse_mass": 0.054307,
+        "mean_model_option_mass": 0.035112,
+        "mean_human_option_mass": 0.026358,
+        "top_overselected": [
+          {
+            "key": "GSS_POSTLIFE",
+            "model_mass": 1.0,
+            "human_mass": 0.251445,
+            "gap": 0.748555
+          },
+          {
+            "key": "GSS_NATFARE",
+            "model_mass": 0.4667,
+            "human_mass": 0.045323,
+            "gap": 0.421377
+          },
+          {
+            "key": "GSS_SUICIDE1",
+            "model_mass": 0.5,
+            "human_mass": 0.080503,
+            "gap": 0.419497
+          },
+          {
+            "key": "GSS_NATSPAC",
+            "model_mass": 0.2667,
+            "human_mass": 0.109812,
+            "gap": 0.156888
+          },
+          {
+            "key": "GSS_NATAID",
+            "model_mass": 0.2,
+            "human_mass": 0.061419,
+            "gap": 0.138581
+          }
+        ],
+        "top_option_overselected": [
+          {
+            "key": "GSS_POSTLIFE",
+            "text": "Do you believe there is a life after death?",
+            "model_mass": 1.0,
+            "human_mass": 0.116627,
+            "gap": 0.883373
+          },
+          {
+            "key": "GSS_SUICIDE1",
+            "text": "Do you think a person has the right to end his or her own life if this person has an incurable disease?",
+            "model_mass": 0.5,
+            "human_mass": 0.039411,
+            "gap": 0.460589
+          },
+          {
+            "key": "GSS_NATFARE",
+            "text": "We are faced with many problems in this country, none of which can be solved easily or inexpensively. Are we spending too much, too little, or about the right amount on welfare?",
+            "model_mass": 0.4667,
+            "human_mass": 0.022374,
+            "gap": 0.444326
+          },
+          {
+            "key": "GSS_NATSPAC",
+            "text": "We are faced with many problems in this country, none of which can be solved easily or inexpensively. Are we spending too much, too little, or about the right amount on the space exploration program?",
+            "model_mass": 0.2667,
+            "human_mass": 0.053308,
+            "gap": 0.213392
+          },
+          {
+            "key": "GSS_NATAID",
+            "text": "We are faced with many problems in this country, none of which can be solved easily or inexpensively. Are we spending too much, too little, or about the right amount on foreign aid?",
+            "model_mass": 0.2,
+            "human_mass": 0.030227,
+            "gap": 0.169773
+          }
+        ]
+      },
+      {
+        "provider": "Althing (Muse Glimmer 30B)",
+        "framework": "product",
+        "template": null,
+        "dataset": "gss",
+        "n_questions": 75,
+        "mean_abs_nonresponse_gap": 0.069628,
+        "mean_model_nonresponse_mass": 0.03386,
+        "mean_human_nonresponse_mass": 0.054307,
+        "mean_model_option_mass": 0.033327,
+        "mean_human_option_mass": 0.026358,
+        "top_overselected": [
+          {
+            "key": "GSS_POSTLIFE",
+            "model_mass": 1.0,
+            "human_mass": 0.251445,
+            "gap": 0.748555
+          },
+          {
+            "key": "GSS_LETDIE1",
+            "model_mass": 0.5667,
+            "human_mass": 0.068945,
+            "gap": 0.497755
+          },
+          {
+            "key": "GSS_NATCRIME",
+            "model_mass": 0.2667,
+            "human_mass": 0.039162,
+            "gap": 0.227538
+          },
+          {
+            "key": "GSS_GOD",
+            "model_mass": 0.3462,
+            "human_mass": 0.160041,
+            "gap": 0.186159
+          },
+          {
+            "key": "GSS_CONMEDIC",
+            "model_mass": 0.16,
+            "human_mass": 0.010545,
+            "gap": 0.149455
+          }
+        ],
+        "top_option_overselected": [
+          {
+            "key": "GSS_POSTLIFE",
+            "text": "Do you believe there is a life after death?",
+            "model_mass": 1.0,
+            "human_mass": 0.116627,
+            "gap": 0.883373
+          },
+          {
+            "key": "GSS_LETDIE1",
+            "text": "When a person has a disease that cannot be cured, do you think doctors should be allowed by law to end the patient's life by some painless means if the patient and his family request it?",
+            "model_mass": 0.5667,
+            "human_mass": 0.033869,
+            "gap": 0.532831
+          },
+          {
+            "key": "GSS_GOD",
+            "text": "Which statement comes closest to expressing what you believe about God? I don't believe in God; I don't know whether there is a God and I don't believe there is any way to find out; I don't believe in a personal God, but I do believe in a Higher Power of some kind; I find myself believing in God some of the time, but not at others; while I have doubts, I feel that I do believe in God; or I know God really exists and I have no doubts about it.",
+            "model_mass": 0.3462,
+            "human_mass": 0.076527,
+            "gap": 0.269673
+          },
+          {
+            "key": "GSS_NATCRIME",
+            "text": "We are faced with many problems in this country, none of which can be solved easily or inexpensively. Are we spending too much, too little, or about the right amount on halting the rising crime rate?",
+            "model_mass": 0.2667,
+            "human_mass": 0.019409,
+            "gap": 0.247291
+          },
+          {
+            "key": "GSS_CONMEDIC",
+            "text": "I am going to name an institution in this country. As far as the people running this institution are concerned, would you say you have a great deal of confidence, only some confidence, or hardly any confidence at all in medicine?",
+            "model_mass": 0.12,
+            "human_mass": 0.005272,
+            "gap": 0.114728
+          }
+        ]
+      },
+      {
+        "provider": "Gemini Flash Lite",
+        "framework": "raw",
+        "template": null,
+        "dataset": "gss",
+        "n_questions": 75,
+        "mean_abs_nonresponse_gap": 0.069609,
+        "mean_model_nonresponse_mass": 0.036444,
+        "mean_human_nonresponse_mass": 0.054307,
+        "mean_model_option_mass": 0.036,
+        "mean_human_option_mass": 0.026358,
+        "top_overselected": [
+          {
+            "key": "GSS_POSTLIFE",
+            "model_mass": 1.0,
+            "human_mass": 0.251445,
+            "gap": 0.748555
+          },
+          {
+            "key": "GSS_AFFRMACT",
+            "model_mass": 0.7,
+            "human_mass": 0.10282,
+            "gap": 0.59718
+          },
+          {
+            "key": "GSS_NATFARE",
+            "model_mass": 0.3,
+            "human_mass": 0.045323,
+            "gap": 0.254677
+          },
+          {
+            "key": "GSS_GOD",
+            "model_mass": 0.3334,
+            "human_mass": 0.160041,
+            "gap": 0.173359
+          },
+          {
+            "key": "GSS_FEPRESCH",
+            "model_mass": 0.1,
+            "human_mass": 0.021529,
+            "gap": 0.078471
+          }
+        ],
+        "top_option_overselected": [
+          {
+            "key": "GSS_POSTLIFE",
+            "text": "Do you believe there is a life after death?",
+            "model_mass": 1.0,
+            "human_mass": 0.116627,
+            "gap": 0.883373
+          },
+          {
+            "key": "GSS_AFFRMACT",
+            "text": "Some people say that because of past discrimination, Black people should be given preference in hiring and promotion. Others say that such preference in hiring and promotion of Black people is wrong because it discriminates against other Americans. What about your opinion--are you for or against preferential hiring and promotion of Black people, and do you feel that way strongly or not strongly?",
+            "model_mass": 0.7,
+            "human_mass": 0.050012,
+            "gap": 0.649988
+          },
+          {
+            "key": "GSS_NATFARE",
+            "text": "We are faced with many problems in this country, none of which can be solved easily or inexpensively. Are we spending too much, too little, or about the right amount on welfare?",
+            "model_mass": 0.3,
+            "human_mass": 0.022374,
+            "gap": 0.277626
+          },
+          {
+            "key": "GSS_GOD",
+            "text": "Which statement comes closest to expressing what you believe about God? I don't believe in God; I don't know whether there is a God and I don't believe there is any way to find out; I don't believe in a personal God, but I do believe in a Higher Power of some kind; I find myself believing in God some of the time, but not at others; while I have doubts, I feel that I do believe in God; or I know God really exists and I have no doubts about it.",
+            "model_mass": 0.3334,
+            "human_mass": 0.076527,
+            "gap": 0.256873
+          },
+          {
+            "key": "GSS_FEPRESCH",
+            "text": "Please indicate whether you strongly agree, agree, disagree, or strongly disagree with the following statement: A preschool child is likely to suffer if his or her mother works.",
+            "model_mass": 0.1,
+            "human_mass": 0.010683,
+            "gap": 0.089317
+          }
+        ]
+      },
+      {
+        "provider": "GPT-4o-mini",
+        "framework": "raw",
+        "template": null,
+        "dataset": "gss",
+        "n_questions": 75,
+        "mean_abs_nonresponse_gap": 0.068668,
+        "mean_model_nonresponse_mass": 0.025333,
+        "mean_human_nonresponse_mass": 0.054307,
+        "mean_model_option_mass": 0.025333,
+        "mean_human_option_mass": 0.026358,
+        "top_overselected": [
+          {
+            "key": "GSS_POSTLIFE",
+            "model_mass": 1.0,
+            "human_mass": 0.251445,
+            "gap": 0.748555
+          },
+          {
+            "key": "GSS_GOD",
+            "model_mass": 0.9,
+            "human_mass": 0.160041,
+            "gap": 0.739959
+          }
+        ],
+        "top_option_overselected": [
+          {
+            "key": "GSS_POSTLIFE",
+            "text": "Do you believe there is a life after death?",
+            "model_mass": 1.0,
+            "human_mass": 0.116627,
+            "gap": 0.883373
+          },
+          {
+            "key": "GSS_GOD",
+            "text": "Which statement comes closest to expressing what you believe about God? I don't believe in God; I don't know whether there is a God and I don't believe there is any way to find out; I don't believe in a personal God, but I do believe in a Higher Power of some kind; I find myself believing in God some of the time, but not at others; while I have doubts, I feel that I do believe in God; or I know God really exists and I have no doubts about it.",
+            "model_mass": 0.9,
+            "human_mass": 0.076527,
+            "gap": 0.823473
+          }
+        ]
+      },
+      {
+        "provider": "DeepSeek V4.1 Flash",
+        "framework": "raw",
+        "template": null,
+        "dataset": "gss",
+        "n_questions": 75,
+        "mean_abs_nonresponse_gap": 0.067778,
+        "mean_model_nonresponse_mass": 0.02622,
+        "mean_human_nonresponse_mass": 0.054307,
+        "mean_model_option_mass": 0.02622,
+        "mean_human_option_mass": 0.026358,
+        "top_overselected": [
+          {
+            "key": "GSS_GOD",
+            "model_mass": 0.9666,
+            "human_mass": 0.160041,
+            "gap": 0.806559
+          },
+          {
+            "key": "GSS_POSTLIFE",
+            "model_mass": 0.9333,
+            "human_mass": 0.251445,
+            "gap": 0.681855
+          }
+        ],
+        "top_option_overselected": [
+          {
+            "key": "GSS_GOD",
+            "text": "Which statement comes closest to expressing what you believe about God? I don't believe in God; I don't know whether there is a God and I don't believe there is any way to find out; I don't believe in a personal God, but I do believe in a Higher Power of some kind; I find myself believing in God some of the time, but not at others; while I have doubts, I feel that I do believe in God; or I know God really exists and I have no doubts about it.",
+            "model_mass": 0.9666,
+            "human_mass": 0.076527,
+            "gap": 0.890073
+          },
+          {
+            "key": "GSS_POSTLIFE",
+            "text": "Do you believe there is a life after death?",
+            "model_mass": 0.9333,
+            "human_mass": 0.116627,
+            "gap": 0.816673
+          },
+          {
+            "key": "GSS_NATFARE",
+            "text": "We are faced with many problems in this country, none of which can be solved easily or inexpensively. Are we spending too much, too little, or about the right amount on welfare?",
+            "model_mass": 0.0333,
+            "human_mass": 0.022374,
+            "gap": 0.010926
+          }
+        ]
+      },
+      {
+        "provider": "Qwen 3.8 Flash",
+        "framework": "raw",
+        "template": null,
+        "dataset": "gss",
+        "n_questions": 75,
+        "mean_abs_nonresponse_gap": 0.065586,
+        "mean_model_nonresponse_mass": 0.032003,
+        "mean_human_nonresponse_mass": 0.054307,
+        "mean_model_option_mass": 0.032003,
+        "mean_human_option_mass": 0.026358,
+        "top_overselected": [
+          {
+            "key": "GSS_POSTLIFE",
+            "model_mass": 1.0,
+            "human_mass": 0.251445,
+            "gap": 0.748555
+          },
+          {
+            "key": "GSS_GOD",
+            "model_mass": 0.5334,
+            "human_mass": 0.160041,
+            "gap": 0.373359
+          },
+          {
+            "key": "GSS_FINRELA",
+            "model_mass": 0.1667,
+            "human_mass": 0.014308,
+            "gap": 0.152392
+          },
+          {
+            "key": "GSS_CAPPUN",
+            "model_mass": 0.2,
+            "human_mass": 0.068223,
+            "gap": 0.131777
+          },
+          {
+            "key": "GSS_NATAID",
+            "model_mass": 0.1667,
+            "human_mass": 0.061419,
+            "gap": 0.105281
+          }
+        ],
+        "top_option_overselected": [
+          {
+            "key": "GSS_POSTLIFE",
+            "text": "Do you believe there is a life after death?",
+            "model_mass": 1.0,
+            "human_mass": 0.116627,
+            "gap": 0.883373
+          },
+          {
+            "key": "GSS_GOD",
+            "text": "Which statement comes closest to expressing what you believe about God? I don't believe in God; I don't know whether there is a God and I don't believe there is any way to find out; I don't believe in a personal God, but I do believe in a Higher Power of some kind; I find myself believing in God some of the time, but not at others; while I have doubts, I feel that I do believe in God; or I know God really exists and I have no doubts about it.",
+            "model_mass": 0.5334,
+            "human_mass": 0.076527,
+            "gap": 0.456873
+          },
+          {
+            "key": "GSS_CAPPUN",
+            "text": "Do you favor or oppose the death penalty for persons convicted of murder?",
+            "model_mass": 0.2,
+            "human_mass": 0.033495,
+            "gap": 0.166505
+          },
+          {
+            "key": "GSS_FINRELA",
+            "text": "Compared with American families in general, would you say your family income is far below average, below average, average, above average, or far above average?",
+            "model_mass": 0.1667,
+            "human_mass": 0.007148,
+            "gap": 0.159552
+          },
+          {
+            "key": "GSS_NATAID",
+            "text": "We are faced with many problems in this country, none of which can be solved easily or inexpensively. Are we spending too much, too little, or about the right amount on foreign aid?",
+            "model_mass": 0.1667,
+            "human_mass": 0.030227,
+            "gap": 0.136473
+          }
+        ]
+      },
+      {
+        "provider": "Althing (DeepSeek V4.1 Flash)",
+        "framework": "product",
+        "template": null,
+        "dataset": "gss",
+        "n_questions": 75,
+        "mean_abs_nonresponse_gap": 0.0621,
+        "mean_model_nonresponse_mass": 0.018765,
+        "mean_human_nonresponse_mass": 0.054307,
+        "mean_model_option_mass": 0.018765,
+        "mean_human_option_mass": 0.026358,
+        "top_overselected": [
+          {
+            "key": "GSS_POSTLIFE",
+            "model_mass": 1.0,
+            "human_mass": 0.251445,
+            "gap": 0.748555
+          },
+          {
+            "key": "GSS_GOD",
+            "model_mass": 0.4074,
+            "human_mass": 0.160041,
+            "gap": 0.247359
+          }
+        ],
+        "top_option_overselected": [
+          {
+            "key": "GSS_POSTLIFE",
+            "text": "Do you believe there is a life after death?",
+            "model_mass": 1.0,
+            "human_mass": 0.116627,
+            "gap": 0.883373
+          },
+          {
+            "key": "GSS_GOD",
+            "text": "Which statement comes closest to expressing what you believe about God? I don't believe in God; I don't know whether there is a God and I don't believe there is any way to find out; I don't believe in a personal God, but I do believe in a Higher Power of some kind; I find myself believing in God some of the time, but not at others; while I have doubts, I feel that I do believe in God; or I know God really exists and I have no doubts about it.",
+            "model_mass": 0.4074,
+            "human_mass": 0.076527,
+            "gap": 0.330873
+          }
+        ]
+      },
+      {
+        "provider": "Althing (Gemini 3.5 Flash-Lite)",
+        "framework": "product",
+        "template": null,
+        "dataset": "gss",
+        "n_questions": 75,
+        "mean_abs_nonresponse_gap": 0.060936,
+        "mean_model_nonresponse_mass": 0.013333,
+        "mean_human_nonresponse_mass": 0.054307,
+        "mean_model_option_mass": 0.013333,
+        "mean_human_option_mass": 0.026358,
+        "top_overselected": [
+          {
+            "key": "GSS_POSTLIFE",
+            "model_mass": 1.0,
+            "human_mass": 0.251445,
+            "gap": 0.748555
+          }
+        ],
+        "top_option_overselected": [
+          {
+            "key": "GSS_POSTLIFE",
+            "text": "Do you believe there is a life after death?",
+            "model_mass": 1.0,
+            "human_mass": 0.116627,
+            "gap": 0.883373
+          }
+        ]
+      },
+      {
+        "provider": "Llama 3.3 70B",
+        "framework": "raw",
+        "template": null,
+        "dataset": "gss",
+        "n_questions": 75,
+        "mean_abs_nonresponse_gap": 0.060554,
+        "mean_model_nonresponse_mass": 0.014221,
+        "mean_human_nonresponse_mass": 0.054307,
+        "mean_model_option_mass": 0.014221,
+        "mean_human_option_mass": 0.026358,
+        "top_overselected": [
+          {
+            "key": "GSS_POSTLIFE",
+            "model_mass": 1.0,
+            "human_mass": 0.251445,
+            "gap": 0.748555
+          },
+          {
+            "key": "GSS_FINRELA",
+            "model_mass": 0.0333,
+            "human_mass": 0.014308,
+            "gap": 0.018992
+          }
+        ],
+        "top_option_overselected": [
+          {
+            "key": "GSS_POSTLIFE",
+            "text": "Do you believe there is a life after death?",
+            "model_mass": 1.0,
+            "human_mass": 0.116627,
+            "gap": 0.883373
+          },
+          {
+            "key": "GSS_FINRELA",
+            "text": "Compared with American families in general, would you say your family income is far below average, below average, average, above average, or far above average?",
+            "model_mass": 0.0333,
+            "human_mass": 0.007148,
+            "gap": 0.026152
           }
         ]
       },
@@ -9133,29 +10574,217 @@
             "gap": 0.033205
           }
         ]
+      },
+      {
+        "provider": "Althing (Sonnet 4)",
+        "framework": "product",
+        "template": null,
+        "dataset": "gss",
+        "n_questions": 75,
+        "mean_abs_nonresponse_gap": 0.059346,
+        "mean_model_nonresponse_mass": 0.015189,
+        "mean_human_nonresponse_mass": 0.054307,
+        "mean_model_option_mass": 0.015189,
+        "mean_human_option_mass": 0.026358,
+        "top_overselected": [
+          {
+            "key": "GSS_POSTLIFE",
+            "model_mass": 1.0,
+            "human_mass": 0.251445,
+            "gap": 0.748555
+          },
+          {
+            "key": "GSS_NATAID",
+            "model_mass": 0.0714,
+            "human_mass": 0.061419,
+            "gap": 0.009981
+          }
+        ],
+        "top_option_overselected": [
+          {
+            "key": "GSS_POSTLIFE",
+            "text": "Do you believe there is a life after death?",
+            "model_mass": 1.0,
+            "human_mass": 0.116627,
+            "gap": 0.883373
+          },
+          {
+            "key": "GSS_NATAID",
+            "text": "We are faced with many problems in this country, none of which can be solved easily or inexpensively. Are we spending too much, too little, or about the right amount on foreign aid?",
+            "model_mass": 0.0714,
+            "human_mass": 0.030227,
+            "gap": 0.041173
+          }
+        ]
+      },
+      {
+        "provider": "Althing (GPT-4o-mini)",
+        "framework": "product",
+        "template": null,
+        "dataset": "gss",
+        "n_questions": 75,
+        "mean_abs_nonresponse_gap": 0.059334,
+        "mean_model_nonresponse_mass": 0.016,
+        "mean_human_nonresponse_mass": 0.054307,
+        "mean_model_option_mass": 0.016,
+        "mean_human_option_mass": 0.026358,
+        "top_overselected": [
+          {
+            "key": "GSS_POSTLIFE",
+            "model_mass": 1.0,
+            "human_mass": 0.251445,
+            "gap": 0.748555
+          },
+          {
+            "key": "GSS_GOD",
+            "model_mass": 0.2,
+            "human_mass": 0.160041,
+            "gap": 0.039959
+          }
+        ],
+        "top_option_overselected": [
+          {
+            "key": "GSS_POSTLIFE",
+            "text": "Do you believe there is a life after death?",
+            "model_mass": 1.0,
+            "human_mass": 0.116627,
+            "gap": 0.883373
+          },
+          {
+            "key": "GSS_GOD",
+            "text": "Which statement comes closest to expressing what you believe about God? I don't believe in God; I don't know whether there is a God and I don't believe there is any way to find out; I don't believe in a personal God, but I do believe in a Higher Power of some kind; I find myself believing in God some of the time, but not at others; while I have doubts, I feel that I do believe in God; or I know God really exists and I have no doubts about it.",
+            "model_mass": 0.2,
+            "human_mass": 0.076527,
+            "gap": 0.123473
+          }
+        ]
+      },
+      {
+        "provider": "Althing (Llama 3.3 70B)",
+        "framework": "product",
+        "template": null,
+        "dataset": "gss",
+        "n_questions": 75,
+        "mean_abs_nonresponse_gap": 0.052085,
+        "mean_model_nonresponse_mass": 0.002223,
+        "mean_human_nonresponse_mass": 0.054307,
+        "mean_model_option_mass": 0.002223,
+        "mean_human_option_mass": 0.026358,
+        "top_overselected": [],
+        "top_option_overselected": [
+          {
+            "key": "GSS_POSTLIFE",
+            "text": "Do you believe there is a life after death?",
+            "model_mass": 0.1667,
+            "human_mass": 0.116627,
+            "gap": 0.050073
+          }
+        ]
+      },
+      {
+        "provider": "Althing (Qwen 3.8 Flash)",
+        "framework": "product",
+        "template": null,
+        "dataset": "gss",
+        "n_questions": 75,
+        "mean_abs_nonresponse_gap": 0.051864,
+        "mean_model_nonresponse_mass": 0.026723,
+        "mean_human_nonresponse_mass": 0.054307,
+        "mean_model_option_mass": 0.026723,
+        "mean_human_option_mass": 0.026358,
+        "top_overselected": [
+          {
+            "key": "GSS_POSTLIFE",
+            "model_mass": 1.0,
+            "human_mass": 0.251445,
+            "gap": 0.748555
+          },
+          {
+            "key": "GSS_GOD",
+            "model_mass": 0.3076,
+            "human_mass": 0.160041,
+            "gap": 0.147559
+          },
+          {
+            "key": "GSS_ABANY",
+            "model_mass": 0.0769,
+            "human_mass": 0.068418,
+            "gap": 0.008482
+          },
+          {
+            "key": "GSS_CAPPUN",
+            "model_mass": 0.0741,
+            "human_mass": 0.068223,
+            "gap": 0.005877
+          }
+        ],
+        "top_option_overselected": [
+          {
+            "key": "GSS_POSTLIFE",
+            "text": "Do you believe there is a life after death?",
+            "model_mass": 1.0,
+            "human_mass": 0.116627,
+            "gap": 0.883373
+          },
+          {
+            "key": "GSS_GOD",
+            "text": "Which statement comes closest to expressing what you believe about God? I don't believe in God; I don't know whether there is a God and I don't believe there is any way to find out; I don't believe in a personal God, but I do believe in a Higher Power of some kind; I find myself believing in God some of the time, but not at others; while I have doubts, I feel that I do believe in God; or I know God really exists and I have no doubts about it.",
+            "model_mass": 0.3076,
+            "human_mass": 0.076527,
+            "gap": 0.231073
+          },
+          {
+            "key": "GSS_ABANY",
+            "text": "Please tell me whether or not you think it should be possible for a pregnant woman to obtain a legal abortion if the woman wants it for any reason?",
+            "model_mass": 0.0769,
+            "human_mass": 0.033588,
+            "gap": 0.043312
+          },
+          {
+            "key": "GSS_CAPPUN",
+            "text": "Do you favor or oppose the death penalty for persons convicted of murder?",
+            "model_mass": 0.0741,
+            "human_mass": 0.033495,
+            "gap": 0.040605
+          },
+          {
+            "key": "GSS_SUICIDE1",
+            "text": "Do you think a person has the right to end his or her own life if this person has an incurable disease?",
+            "model_mass": 0.08,
+            "human_mass": 0.039411,
+            "gap": 0.040589
+          }
+        ]
       }
     ],
     "sensitive_topic_sidestepping": {
       "headline": "Safety-aligned models over-select explicit nonresponse options on sensitive items",
-      "provider": "Claude Sonnet 5.5",
+      "provider": "Muse Glimmer 30B",
       "dataset": "gss",
       "n_questions": 75,
-      "mean_model_nonresponse_mass": 0.441236,
+      "mean_model_nonresponse_mass": 0.738128,
       "mean_human_nonresponse_mass": 0.026358,
       "items": [
         {
-          "key": "GSS_NATEDUC",
-          "text": "We are faced with many problems in this country, none of which can be solved easily or inexpensively. Are we spending too much, too little, or about the right amount on improving the nation's education system?",
+          "key": "GSS_CONFINAN",
+          "text": "I am going to name an institution in this country. As far as the people running this institution are concerned, would you say you have a great deal of confidence, only some confidence, or hardly any confidence at all in banks and financial institutions?",
           "model_mass": 1.0,
-          "human_mass": 0.004777,
-          "gap": 0.995223
+          "human_mass": 0.006557,
+          "gap": 0.993443
         },
         {
-          "key": "GSS_FINRELA",
-          "text": "Compared with American families in general, would you say your family income is far below average, below average, average, above average, or far above average?",
+          "key": "GSS_XMARSEX",
+          "text": "What is your opinion about a married person having sexual relations with someone other than the marriage partner--is it always wrong, almost always wrong, wrong only sometimes, or not wrong at all?",
           "model_mass": 1.0,
-          "human_mass": 0.007148,
-          "gap": 0.992852
+          "human_mass": 0.008034,
+          "gap": 0.991966
+        },
+        {
+          "key": "GSS_PORNLAW",
+          "text": "Which of these statements comes closest to your feelings about pornography laws? There should be laws against the distribution of pornography whatever the age; there should be laws against the distribution of pornography to persons under 18; or there should be no laws forbidding the distribution of pornography.",
+          "model_mass": 1.0,
+          "human_mass": 0.008919,
+          "gap": 0.991081
         },
         {
           "key": "GSS_CLASS",
@@ -9165,18 +10794,11 @@
           "gap": 0.989219
         },
         {
-          "key": "GSS_GUNLAW",
-          "text": "Would you favor or oppose a law which would require a person to obtain a police permit before he or she could buy a gun?",
+          "key": "GSS_CONJUDGE",
+          "text": "I am going to name an institution in this country. As far as the people running this institution are concerned, would you say you have a great deal of confidence, only some confidence, or hardly any confidence at all in the U.S. Supreme Court?",
           "model_mass": 1.0,
-          "human_mass": 0.016324,
-          "gap": 0.983676
-        },
-        {
-          "key": "GSS_NATCRIME",
-          "text": "We are faced with many problems in this country, none of which can be solved easily or inexpensively. Are we spending too much, too little, or about the right amount on halting the rising crime rate?",
-          "model_mass": 1.0,
-          "human_mass": 0.019409,
-          "gap": 0.980591
+          "human_mass": 0.01429,
+          "gap": 0.98571
         }
       ],
       "note": "Share of answers that pick a listed 'don't know'-style option, excluding prose refusals. The model selects a legitimate option rather than refusing, so refusal-rate metrics miss it and it only shows in the option distribution."
@@ -9184,8 +10806,8 @@
     "lever_hierarchy": [
       {
         "name": "Ensemble blending",
-        "effect_min": 2.7,
-        "effect_max": 4.8,
+        "effect_min": -0.2,
+        "effect_max": 4.0,
         "cost": "zero",
         "status": "done"
       },

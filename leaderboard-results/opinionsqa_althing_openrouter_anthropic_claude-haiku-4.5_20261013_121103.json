@@ -1,0 +1,3641 @@
+{
+  "benchmark": "synthbench",
+  "schema_version": 2,
+  "version": "0.1.0",
+  "timestamp": "2026-10-13T17:11:04.155592+00:00",
+  "config": {
+    "dataset": "opinionsqa",
+    "provider": "althing/openrouter/anthropic/claude-haiku-4.5",
+    "samples_per_question": 30,
+    "n_requested": 100,
+    "n_evaluated": 100,
+    "refusal_detector_version": 4,
+    "option_parser_version": 3,
+    "model_revision_hash": "sha256:e156cb5fc9c5847e9b18d713c31e2c76de37a3bd27c61f04ca330fc41657a1a8",
+    "prompt_template_hash": "sha256:4f1c561ab4b48967796548fd5fa849c4897cfd87aaca694e6a359e4663546ab6",
+    "question_set_hash": "fe5b80b5e3eada9df4512c8b43612d0ccef2f3174c4757652bb2fa9d8db9214b",
+    "temperature": null,
+    "parse_failure_rate": 0.008667,
+    "topic_filter": null
+  },
+  "reproducibility": {
+    "seed": null,
+    "model_revision_hash": "sha256:e156cb5fc9c5847e9b18d713c31e2c76de37a3bd27c61f04ca330fc41657a1a8",
+    "prompt_template_hash": "sha256:4f1c561ab4b48967796548fd5fa849c4897cfd87aaca694e6a359e4663546ab6",
+    "framework_version": "0.1.0",
+    "submitted_at": "2026-10-13T17:11:04.155592+00:00"
+  },
+  "raw_responses": [
+    {
+      "key": "SAFECRIME_W26",
+      "raw_text": "I'd say **(B) Somewhat safe**.\n\nLook, there's petty stuff that happens\u2014some car break-ins, package thefts, that sort of thing. I've had neighbors experience it. But violent crime? That's rare around here. Most of us know our neighbors reasonably well, and we look out for each other.\n\nIt's not a place where I feel like I need to constantly look over my shoulder, but I'm not na\u00efve either. I lock my doors, I'm aware of my surroundings at night. It's a pretty average suburban/urban area\u2014could be better, could definitely be worse.",
+      "selected_option": "Somewhat safe"
+    },
+    {
+      "key": "WORLDDANGER_W26",
+      "raw_text": "I'd say **(A) We live in a safer world**, though it's complicated.\n\nWhen I think about it objectively\u2014violent crime rates have actually dropped significantly since the 1970s, medical care is better, workplace safety standards exist now, and we have things like seatbelts and airbags that didn't exist back then.\n\nThat said, I understand why people feel less safe. News travels instantly now, so we *hear* about every tragedy globally. Fifty years ago, you just didn't know about most of what's happening. And there are real concerns that didn't exist then\u2014cybercrime, terrorism coverage, school shootings getting more media attention.\n\nBut if I'm being honest about the actual statistics and my own daily life? Yeah, safer world. My parents didn't have to worry about half the things people do now, but they also dealt with air pollution you could see, way more workplace injuries, and significantly higher violent crime in most cities.\n\nSo (A)\u2014but with the caveat that perception and reality don't always line up.",
+      "selected_option": "We live in a safer world"
+    },
+    {
+      "key": "WORRYG_W26",
+      "raw_text": "I'd say **(B) Worry a little**.\n\nI mean, it's something that crosses my mind\u2014health stuff happens to people, right? But I'm not losing sleep over it or anything. I try to take reasonable care of myself, go to checkups when I should, and I figure worrying constantly won't actually prevent anything. It's just... one of those things you acknowledge as a possibility but don't dwell on too much.",
+      "selected_option": "Worry a little"
+    },
+    {
+      "key": "GUN_W26",
+      "raw_text": "(B) No, I don't own any guns.\n\nI've never felt the need to own one, honestly. It's just not part of my life or household. I respect that others make different choices about it, but it's not something I've pursued.",
+      "selected_option": "No, I don't own any guns"
+    },
+    {
+      "key": "GUN1_W26",
+      "raw_text": "(B) No, no one else in my household owns a gun",
+      "selected_option": "No, no one else in my household owns a gun"
+    },
+    {
+      "key": "EVERSHOT_W26",
+      "raw_text": "(A) Yes, I have fired a gun\n\nI went shooting at a range with some friends a few years back. It was just a one-time thing to try it out, you know? Not something I do regularly or anything, but I've definitely had the experience.",
+      "selected_option": "Yes, I have fired a gun"
+    },
+    {
+      "key": "GUNSOCIETY_W26",
+      "raw_text": "I'd say it's mixed, honestly. I think it depends a lot on where you are and who you're talking to.\n\nIn some communities, gun owners are seen pretty positively\u2014hunters, sport shooters, people focused on self-defense. But in other areas, especially more urban places, there's definitely more negative perception tied to concerns about violence and safety.\n\nIf I had to pick one of your options, I'd probably lean toward **(B) Negative way** when I think about the broader national conversation. It seems like the loudest voices in media and politics tend to frame gun owners in a skeptical light, even though I know plenty of responsible people who own firearms.\n\nThat said, I'm not sure any single answer fully captures how fractured public opinion really is on this one.",
+      "selected_option": "Negative way"
+    },
+    {
+      "key": "GUNCOMMUNITY_W26",
+      "raw_text": "I'd say it's mixed, honestly. In my community, it really depends on who you're talking to and what circles they're in.\n\nIf I had to pick one of those options, I'd lean toward **(B) Negative way** \u2014 there does seem to be more skepticism or concern about gun owners overall these days. But that's not universal. I know plenty of responsible hunters and sport shooters who are well-respected. It's more that the broader conversation has gotten pretty polarized, so I think many people assume the worst first.\n\nIf there was a \"mixed/depends\" option, I'd probably take that instead.",
+      "selected_option": "Negative way"
+    },
+    {
+      "key": "GUNCOURSES_W26",
+      "raw_text": "(B) No\n\nI haven't taken any formal gun safety courses. I don't own firearms and haven't had a real need to pursue that kind of training. It's just not part of my life experience.",
+      "selected_option": "No"
+    },
+    {
+      "key": "GUNCONTRIBA_W26",
+      "raw_text": "I'd say **(B) A fair amount**.\n\nLook, I think it's one factor among several. Easier access probably does play a role\u2014I mean, if guns are readily available, more people have them, and statistically that's going to increase certain types of incidents. But I don't think it's the whole story. There's mental health issues, socioeconomic factors, gang violence in specific communities, substance abuse... all of that matters too.\n\nThat said, I do think the ease of access makes a measurable difference. If someone's in crisis or angry, having a gun immediately at hand is different than having to jump through hoops to get one. So yeah, fair amount seems about right to me.",
+      "selected_option": "A fair amount"
+    },
+    {
+      "key": "GUNCONTRIBB_W26",
+      "raw_text": "I'd say **(B) A fair amount**.\n\nLook, I think it's definitely a factor, but it's not the whole picture. From what I see, yes\u2014if someone's determined to get a gun illegally, there are ways to do it, and that's concerning. But I also think a lot of gun violence comes from other things too: poverty, mental health issues, gang activity, people who already own guns legally using them in anger or desperation.\n\nSo the ease of illegal access matters, especially for certain crimes. But I don't want to act like it's *the* main cause of everything. It's one piece of a bigger problem, you know?",
+      "selected_option": "A fair amount"
+    },
+    {
+      "key": "GROWUPVIOL_W26",
+      "raw_text": "I'd say **(C) A small problem**.\n\nWhere I grew up, it wasn't something that dominated daily life or that you heard about constantly. There were occasional incidents, sure, but it wasn't the kind of thing that made people afraid to go outside or send kids to school worried about safety. It was present as a broader social issue you'd hear about in the news, but not an immediate, visible threat in my neighborhood day-to-day.",
+      "selected_option": "A small problem"
+    },
+    {
+      "key": "GROWUPGUN1_W26",
+      "raw_text": "(B) No, there were no guns in my household.\n\nI grew up in a home where my parents just didn't keep firearms. It wasn't really part of our family culture or lifestyle. I'm pretty clear on that.",
+      "selected_option": "No, there were no guns in my household"
+    },
+    {
+      "key": "GROWUPGUN7_W26",
+      "raw_text": "I'd say **(B) Sometimes**. \n\nA couple of my friends had BB guns, and we'd mess around with them in backyards during summer breaks\u2014nothing serious, just typical kid stuff. We'd set up targets or play around in the woods. But it wasn't a regular thing for me, not like some of the other kids who were really into it. Just occasional fun when the opportunity came up.",
+      "selected_option": "Sometimes"
+    },
+    {
+      "key": "DEFENDGUN_W26",
+      "raw_text": "(B) No\n\nI haven't had an experience like that. I've never been in a situation where I felt I needed to use a gun for self-defense or protection. Fortunately, I haven't faced that kind of threat.",
+      "selected_option": "No"
+    },
+    {
+      "key": "GUNTHREAT_W26",
+      "raw_text": "(B) No\n\nNo, that hasn't happened to me or anyone in my family that I'm aware of. I've been fortunate in that regard.",
+      "selected_option": "No"
+    },
+    {
+      "key": "CRIMEVICTIM_W26",
+      "raw_text": "(B) No\n\nI haven't experienced that, thankfully. I know it's a serious issue that affects a lot of people though, which is why I'm willing to participate in surveys like this one.",
+      "selected_option": "No"
+    },
+    {
+      "key": "GUNACTIVITYA_W26",
+      "raw_text": "I'd say **(C) Hardly ever**.\n\nI'm not really into that stuff personally. Maybe I'll stumble across something hunting-related if it comes up in a search or social media, but I'm not actively seeking out those websites. It's just not part of my regular routine or interests.",
+      "selected_option": "Hardly ever"
+    },
+    {
+      "key": "GUNACTIVITYB_W26",
+      "raw_text": "I'd say **(C) Hardly ever**.\n\nI'm not really into that stuff. I might stumble across something gun-related on YouTube or catch a hunting show if I'm flipping through channels, but it's not something I actively seek out or watch regularly. Just doesn't grab my interest.",
+      "selected_option": "Hardly ever"
+    },
+    {
+      "key": "GUNACTIVITYC_W26",
+      "raw_text": "(D) Never\n\nI don't really seek out that kind of content. It's just not something that comes up in my regular media diet. I listen to podcasts about other topics\u2014news, true crime, comedy\u2014but gun-focused shows aren't part of my rotation.",
+      "selected_option": "Never"
+    },
+    {
+      "key": "GUNACTIVITYD_W26",
+      "raw_text": "(D) Never\n\nI don't really get involved in online forums about guns. It's just not something I spend time on. I've got other interests that take up my attention, and honestly, those discussions can get pretty heated online anyway. Not really my scene.",
+      "selected_option": "Never"
+    },
+    {
+      "key": "GUNACTIVITYE_W26",
+      "raw_text": "(D) Never\n\nI've just never really had a reason to go to one. It's not really part of my social circle or hobbies, and honestly, I don't know much about them to begin with. Not something I've thought much about either way.",
+      "selected_option": "Never"
+    },
+    {
+      "key": "CAREREL_W27",
+      "raw_text": "I'd say **(B) Somewhat likely**.\n\nMy parents are still doing well health-wise right now, but they're getting older and I know it's something that could realistically happen down the line. A lot of people in my situation end up taking on some caregiving responsibility eventually\u2014whether that's helping with appointments, finances, or potentially more hands-on stuff. I don't want to say it's *very* likely since there are a lot of variables, but I'd be foolish not to think it's a genuine possibility at some point.",
+      "selected_option": "Somewhat likely"
+    },
+    {
+      "key": "PREDICTA_W27",
+      "raw_text": "I'd say **(B) Will probably happen**.\n\nLook, I already see AI being used in hospitals now\u2014for reading scans and flagging stuff doctors might miss. I think that's only going to expand. Twenty years is a long time, and technology moves fast.\n\nThat said, I don't think computers will *completely* replace doctors' judgment. There's still something about having a human who knows your medical history, can pick up on things a machine might miss, and can talk through options with you. But as a main tool? Yeah, I think most diagnostics and treatment suggestions will run through computer programs by then.",
+      "selected_option": "Will probably happen"
+    },
+    {
+      "key": "PREDICTB_W27",
+      "raw_text": "(C) Will probably not happen\n\nLook, I see the automation trend happening\u2014self-checkouts, online shopping, all that. But fully automated with *zero* human interaction? I don't think so. \n\nPeople still want to try things on, ask questions, get help. And there's a whole segment that actively prefers dealing with actual people. Plus, you've got service industries, restaurants, specialty shops\u2014places where the human touch is pretty core to what they're selling.\n\nI think we'll see *more* automation, sure, but completely eliminating humans? Seems unlikely within 20 years. Maybe some stores go that route, but most? Probably going to be some mix of technology and people for a while.",
+      "selected_option": "Will probably not happen"
+    },
+    {
+      "key": "PREDICTC_W27",
+      "raw_text": "I'd say **(B) Will probably happen**.\n\nLook, I can already see it starting to happen in some places. The technology is getting better and cheaper every year. Companies have huge incentives to automate delivery since labor costs keep rising. Within 20 years? That's enough time for the tech to mature and for regulations to catch up.\n\nThat said, I don't think it'll be *completely* automated everywhere. There'll probably still be a role for human drivers, especially in more complex situations. But for basic package delivery in urban areas? Yeah, I think robots and drones will handle most of it by then.",
+      "selected_option": "Will probably happen"
+    },
+    {
+      "key": "PREDICTD_W27",
+      "raw_text": "I'd say **(C) Will probably not happen**.\n\nHere's my thinking: While 3D printing technology is improving, there are real practical limits. For most common products\u2014like clothing, electronics, packaged foods, personal care items\u2014home 3D printing still isn't cost-effective or practical compared to just buying them. \n\nThe printers themselves are expensive, materials can be pricey, and printing takes time. Plus, you'd need digital files for everything you want to make, and manufacturers won't necessarily provide those. Quality and durability issues are still there too.\n\nI think 3D printing will become more useful for specific things\u2014replacement parts, hobbyist projects, specialized items\u2014but for routine shopping? People will probably still go to stores or order online because it's just easier and cheaper.\n\nThat said, I wouldn't rule it out completely, which is why I didn't pick \"definitely not.\" In 20 years there could be breakthroughs I'm not imagining. But based on where things stand now, I'm skeptical it becomes the main way people get everyday products.",
+      "selected_option": "Will probably not happen"
+    },
+    {
+      "key": "CARS1_W27",
+      "raw_text": "I'd say **(B) A little**.\n\nI mean, you hear about it in the news here and there\u2014Tesla stuff, maybe something about Waymo or other companies testing self-driving cars. But honestly, it's not something I follow closely or think about regularly. It seems like it's still mostly in development and testing phases, not something I encounter in everyday life. I don't have detailed knowledge about how it actually works or the current state of the technology, so \"a little\" feels like the right answer for me.",
+      "selected_option": "A little"
+    },
+    {
+      "key": "CARS3A_W27",
+      "raw_text": "I'd say **(B) Somewhat enthusiastic**.\n\nLook, I see the potential benefits\u2014safety improvements, accessibility for people who can't drive, less traffic congestion if it's done right. Those things matter.\n\nBut I've also got real concerns. I worry about job displacement for truck and taxi drivers, cybersecurity vulnerabilities, and whether the technology will actually work reliably in messy real-world conditions. Plus, there's the question of liability when things go wrong.\n\nSo yeah, I'm interested in seeing how it develops, but I'm not overly optimistic either. It seems like something that *could* be good, but there's a lot that needs to get figured out first.",
+      "selected_option": "Somewhat enthusiastic"
+    },
+    {
+      "key": "CARS3B_W27",
+      "raw_text": "I'd say **(B) Somewhat worried**.\n\nLook, I get the appeal of the technology\u2014safer roads, less traffic, all that. But I have real questions. I worry about job losses for truck drivers and taxi drivers, people who depend on that work. And honestly, I'm not convinced the technology is as reliable as companies claim yet. I've read about the accidents and the limitations in bad weather. \n\nPlus there's something about putting my safety in the hands of a computer that makes me uneasy, even if statistics might say it's safer. I think we need better regulations before these are everywhere.\n\nIt's not like I'm losing sleep over it, but it's definitely something I think about.",
+      "selected_option": "Somewhat worried"
+    },
+    {
+      "key": "CARS4_W27",
+      "raw_text": "I'd say **(B) 10 to less than 50 years**.\n\nLook, the technology is clearly progressing\u2014we're already seeing self-driving taxis in some cities. But there's a big gap between having the tech work and actually replacing most vehicles on the road. You've got regulatory hurdles, infrastructure needs, insurance questions, and honestly, a lot of people who just won't trust or want autonomous vehicles for a long time.\n\nI think we'll see gradual adoption over the next couple decades, but getting to \"most\" vehicles? That feels like it needs 30-50 years realistically. The transition won't happen overnight.",
+      "selected_option": "10 to less than 50 years"
+    },
+    {
+      "key": "CARS5_W27",
+      "raw_text": "I'd go with **(A) Yes**.\n\nLook, I'm curious about it. I think there's real potential there\u2014safer roads, less traffic congestion, and honestly, it'd be nice to reclaim that commute time. I've read the statistics about human error in accidents, and it's pretty compelling.\n\nThat said, I'd probably be nervous the first time. But I think that's normal with new technology. Once I saw it working reliably a few times, I'd be comfortable with it. My main concern would just be making sure the technology is actually proven and tested before it becomes widespread.",
+      "selected_option": "Yes"
+    },
+    {
+      "key": "CARS7A_W27",
+      "raw_text": "I'd say **(B) Somewhat safe**.\n\nLook, I think the technology is getting better, but I'm not fully convinced yet. I see the potential\u2014driverless cars wouldn't have road rage or get distracted by their phones. That's good.\n\nBut I've also heard about the accidents and glitches, and I honestly don't know how they'd handle unpredictable situations. Like, what happens in heavy rain? What if a kid runs into the street? I'd need to see more real-world data before I felt *very* safe.\n\nRight now, I'd be okay sharing the road with them, but I'd definitely be more cautious and aware of them than I am around regular drivers.",
+      "selected_option": "Somewhat safe"
+    },
+    {
+      "key": "CARS7B_W27",
+      "raw_text": "I'd say **(C) Not too safe**.\n\nLook, I get that the technology is improving, but freight trucks are huge and operate in complex situations. Weather, unexpected road hazards, other drivers doing unpredictable things\u2014there's a lot that can go wrong. I'd need to see a lot more real-world data showing these vehicles handle edge cases as well as experienced human drivers do before I'd feel genuinely comfortable around them at highway speeds.\n\nIt's not that I think it's impossible or that I'm totally against the idea. It's just... not there yet in my mind.",
+      "selected_option": "Not too safe"
+    },
+    {
+      "key": "CARS8_W27",
+      "raw_text": "*thinks for a moment*\n\nI'd say **(B) Decrease**.\n\nLook, most accidents happen because of human error \u2013 people texting, speeding, drunk driving, not paying attention. A driverless vehicle wouldn't do any of that. It wouldn't get tired, emotional, or distracted. The technology would follow rules consistently.\n\nNow, there could be new problems \u2013 software glitches, cyber attacks, edge cases the AI wasn't programmed for \u2013 but I think those would eventually get ironed out. And in the long run, removing human drivers from the equation should mean fewer accidents overall.\n\nThat said, I don't think it'll be a *complete* elimination of accidents. Nothing's perfect. But fewer injuries and deaths? Yeah, I believe that would happen.",
+      "selected_option": "Decrease"
+    },
+    {
+      "key": "CARS9A_W27",
+      "raw_text": "I'd say **(B) Favor**.\n\nLook, I think dedicated lanes make sense from a safety standpoint. Keeps the autonomous vehicles separate from regular traffic while they're still getting perfected, you know? Less chance of unexpected interactions with human drivers. \n\nThat said, I'm not going to *strongly* favor it because I also get that it might be impractical in a lot of places\u2014building new infrastructure costs money, and not every road can accommodate extra lanes. So it's a good idea, but it's complicated. That's why I'd just say I favor it.",
+      "selected_option": "Favor"
+    },
+    {
+      "key": "CARS9B_W27",
+      "raw_text": "I'd say **(B) Favor**.\n\nLook, I get the appeal of restricting them completely near schools\u2014safety concerns make sense. But I think an outright ban might be overkill. Driverless vehicles could actually be *safer* around schools than human drivers in some ways, since they don't get distracted or speed.\n\nThat said, I do think *some* restrictions make sense while the technology is still new and people are building trust in it. Maybe limiting their speeds in school zones or restricting them during peak drop-off/pick-up times would be reasonable. It's a balanced approach\u2014not shutting them out completely, but acknowledging legitimate concerns people have about protecting kids.\n\nSo yeah, moderate restrictions? That's where I land on it.",
+      "selected_option": "Favor"
+    },
+    {
+      "key": "CARS9C_W27",
+      "raw_text": "I'd say **(B) Favor**.\n\nLook, I get the appeal of fully autonomous vehicles eventually, but we're not there yet. Having someone ready to take over in an emergency seems like a reasonable safety net while the technology is still being proven out. It's a middle-ground approach that doesn't shut down innovation but adds a layer of protection.\n\nI wouldn't say I *strongly* favor it though\u2014I understand the argument that a trained safety operator is different from a typical driver, and that fully driverless might actually be safer once the tech is mature. But for now, as a practical rule? Yeah, I favor it.",
+      "selected_option": "Favor"
+    },
+    {
+      "key": "CARS10A_W27",
+      "raw_text": "*nods thoughtfully*\n\n(A) Yes, likely\n\nI think that's pretty straightforward, actually. If you can't drive yourself\u2014whether because of age, mobility issues, or disability\u2014having a vehicle that can take you where you need to go would be a game-changer. You wouldn't have to rely on family members to drive you around or deal with the cost and scheduling hassles of ride services. That kind of independence matters a lot to people, especially as they get older.",
+      "selected_option": "Yes, likely"
+    },
+    {
+      "key": "CARS10B_W27",
+      "raw_text": "(A) Yes, likely\n\nLook, it's pretty straightforward when you think about it. There are millions of people driving trucks, taxis, delivery vehicles, and buses for their living. If autonomous vehicles become widespread, a lot of those jobs would disappear. That's just reality. Whether it happens quickly or gradually, the technology seems to be heading that direction, and that would obviously impact people's livelihoods.",
+      "selected_option": "Yes, likely"
+    },
+    {
+      "key": "CARS10C_W27",
+      "raw_text": "(A) Yes, likely\n\nI think that makes sense. If vehicles can drive themselves, you wouldn't need to own one personally. You could just call one when you need it\u2014kind of like Uber or a taxi, but without the driver. That would be way more convenient for a lot of people, especially in cities where parking is a nightmare anyway. Plus, you'd save money not having to maintain your own car. So yeah, I'd say car ownership would become less of a priority for most people.",
+      "selected_option": "Yes, likely"
+    },
+    {
+      "key": "CARS10D_W27",
+      "raw_text": "I'd say **(B) No, not likely**.\n\nEven if driverless vehicles become widespread, I think people would still learn to drive. There would probably be a transition period where both exist, and plenty of reasons to keep driving skills around\u2014rural areas, recreational driving, emergencies, backup capabilities. Plus, driving is pretty embedded in our culture and independence.\n\nMaybe *fewer* people would learn compared to now, but I don't think we'd get to the point where \"most people\" never learn at all.",
+      "selected_option": "No, not likely"
+    },
+    {
+      "key": "CARS10E_W27",
+      "raw_text": "(B) No, not likely\n\nLook, I think driverless cars might actually make traffic *worse* in cities, at least initially. Sure, they'd be more efficient at moving, but I'd expect more people to use them since they won't have to drive themselves. Plus, if companies run empty driverless taxis cruising around looking for passengers, that adds more vehicles on the road. And people might take longer trips or make more trips total if they can work or relax instead of driving. \n\nI'd say traffic gets better in some specific ways\u2014maybe fewer accidents, smoother flow\u2014but \"much less traffic\" overall? I'm skeptical.",
+      "selected_option": "No, not likely"
+    },
+    {
+      "key": "WORK2_W27",
+      "raw_text": "(A) Too much importance\n\nLook, I think we've built a culture where your job basically *is* your identity. People ask \"what do you do?\" and they mean for work, not what actually matters to you. \n\nThere's this constant pressure to hustle, climb the ladder, have the perfect career. Meanwhile, time with family, hobbies, just being present\u2014those things get squeezed to the margins. And if you're not working or you take time off, there's judgment. \n\nDon't get me wrong\u2014having work is important. It pays bills, gives structure, can be meaningful. But it shouldn't consume everything. We need balance, and I don't think we're really supporting that as a society right now.",
+      "selected_option": "Too much importance"
+    },
+    {
+      "key": "ROBJOB1_W27",
+      "raw_text": "I'd say **(B) A little**.\n\nI've caught some news stories about AI and automation, especially with all the ChatGPT stuff that came out recently. And yeah, you hear people talking about robots taking jobs\u2014manufacturing, that kind of thing. But I haven't really dug deep into it or spent much time thinking about what it would actually mean for most jobs. It's one of those things that feels kind of distant and vague to me right now, you know? Not something I've seriously thought through or researched.",
+      "selected_option": "A little"
+    },
+    {
+      "key": "ROBJOB2_W27",
+      "raw_text": "I'd say **(B) Somewhat realistic**.\n\nLook, I can see it happening in certain fields\u2014manufacturing, data processing, maybe customer service. And honestly, the technology seems to be advancing pretty fast. But \"most jobs\"? That feels like it glosses over a lot of complexity.\n\nThere are jobs that require human judgment, creativity, emotional intelligence, or physical dexterity in unpredictable environments. Plus, there's the whole question of whether society would actually *allow* it to happen that way, or if we'd regulate it. And who benefits matters too.\n\nSo yeah, some serious automation? Realistic. But robots doing *most* human jobs? That seems more like a long way off, if it happens at all. Too many variables.",
+      "selected_option": "Somewhat realistic"
+    },
+    {
+      "key": "ROBJOB3A_W27",
+      "raw_text": "I'd say **(C) Not too enthusiastic**.\n\nLook, I understand the appeal\u2014efficiency, safety in dangerous jobs, that sort of thing. But I'm realistic about what it would mean for most people. A lot of folks depend on their jobs for income, stability, purpose. Yeah, there might be new opportunities created, but that doesn't happen automatically or overnight.\n\nI guess I'm concerned about the transition period and whether society would actually take care of people displaced by automation. That's the real question, isn't it? The technology itself is neutral, but what we do with it matters a lot.",
+      "selected_option": "Not too enthusiastic"
+    },
+    {
+      "key": "ROBJOB3B_W27",
+      "raw_text": "(B) Somewhat worried\n\nI mean, it's hard not to think about it when you see how fast technology is moving. I'm not losing sleep over it, but I do wonder what happens to people whose jobs get automated - that seems like a real concern for society. \n\nIt probably won't all happen at once, and maybe new jobs will open up like they have in the past. But I'm not totally confident everyone will have the opportunity to transition smoothly, you know? So yeah, somewhat worried feels right to me.",
+      "selected_option": "Somewhat worried"
+    },
+    {
+      "key": "ROBJOB4A_W27",
+      "raw_text": "I'd say **(A) Yes, likely**.\n\nLook, if robots and computers can do most jobs, the people who own that technology\u2014the wealthy and big corporations\u2014they're going to benefit massively. Meanwhile, regular workers like most people I know would lose their income sources. Unless there's some major policy shift toward wealth redistribution or universal basic income, the gap just widens. \n\nThe rich get richer from automation, everyone else gets squeezed out of the job market. That's just the math as I see it.",
+      "selected_option": "Yes, likely"
+    },
+    {
+      "key": "ROBJOB4B_W27",
+      "raw_text": "I'd say **(A) Yes, likely**.\n\nLook, I think a lot of people today already struggle with finding meaning and purpose. Work gives structure to life for most of us\u2014it's not just about the paycheck, it's the routine, the identity, feeling useful. If robots handle most jobs, that foundation gets pulled out from under people. \n\nSure, theoretically people could pursue hobbies, volunteering, creativity\u2014but that takes initiative and resources that not everyone has. Without intentional systems in place to help people transition and find new purpose, I think many would genuinely struggle. There's a real risk of boredom, depression, and loss of identity for a lot of folks.\n\nThat said, I'm not a pessimist about it\u2014I think society *could* adapt if we got intentional about it. But it won't happen automatically. So yeah, I think it's likely to be a real problem unless we plan ahead.",
+      "selected_option": "Yes, likely"
+    },
+    {
+      "key": "ROBJOB4C_W27",
+      "raw_text": "I'd say **(A) Yes, likely** \u2013 but with some real caveats I should mention.\n\nI think there's genuine potential there. If robots and AI handle most routine jobs, theoretically people could have more time for family, hobbies, creativity, community involvement \u2013 stuff that actually feels meaningful. That part makes sense to me.\n\nBut I'm also realistic. It depends *entirely* on how society handles the transition. Will people have a basic income so they're not stressed about survival? Will there be a cultural shift where self-worth isn't tied to employment? Or will we end up with a situation where most people are struggling economically and anxious, even if machines do the work?\n\nSo yeah, I think it's *possible* and even likely in an ideal scenario. But a lot has to go right for that to actually happen. The technology part seems more certain than the \"people actually get to enjoy the free time\" part.",
+      "selected_option": "Yes, likely"
+    },
+    {
+      "key": "ROBJOB4D_W27",
+      "raw_text": "*pauses thoughtfully*\n\nI'd say **(A) Yes, likely**.\n\nFrom what I understand, if robots and computers can handle most jobs, you'd eliminate a lot of inefficiencies\u2014human error, downtime, fatigue. Production could run 24/7 without breaks. Manufacturing, data processing, logistics\u2014those would probably be way more streamlined.\n\nThat said, I think there's a big difference between the economy being *technically* more efficient and it being efficient in ways that actually benefit people. But if we're just talking pure economic efficiency in terms of output and resource use? Yeah, I think that's pretty likely to happen.",
+      "selected_option": "Yes, likely"
+    },
+    {
+      "key": "ROBJOB4E_W27",
+      "raw_text": "I'd say **(B) No, not likely**.\n\nLook, I get the optimistic view that new technology has always created jobs in the past. But this feels different to me. Automation is moving so fast now, and it's not just affecting factory work anymore\u2014it's going after white-collar stuff too: coding, accounting, writing, analysis. I'm not convinced we'll create *enough* new jobs, or that they'll pay better than what we're losing.\n\nPlus, there's a real lag time. Even if new jobs emerge eventually, what happens to people in the meantime? We're not exactly great at retraining people quickly or supporting them through transitions. And honestly, some of these new jobs that do pop up\u2014they don't seem to pay better. They're often gig work or service positions.\n\nI'm not anti-technology, but I think we're being naive if we assume the market will just work it out on its own.",
+      "selected_option": "No, not likely"
+    },
+    {
+      "key": "ROBJOB4F_W27",
+      "raw_text": "(B) No, not likely\n\nLook, I think there's a real risk that doesn't work out that way. Sure, machines might handle a lot of the grunt work, but meaningful jobs aren't just about avoiding unpleasant tasks\u2014they're also about economic security, purpose, and having opportunities available.\n\nIf most jobs are automated, a lot of people won't have work to transition *to*, regardless of how fulfilling those remaining jobs might theoretically be. And honestly, plenty of people find meaning in work that isn't glamorous\u2014there's dignity in doing a job well and earning your own way.\n\nThe question assumes the jobs that remain would automatically become more fulfilling, but that's not guaranteed. You could end up with a small number of highly specialized roles while everyone else struggles. That's not likely to feel more meaningful for most people.",
+      "selected_option": "No, not likely"
+    },
+    {
+      "key": "ROBJOB5B_W27",
+      "raw_text": "I'd say **(B) Favor**.\n\nLook, it makes sense to me. If robots can handle the stuff that's actually going to hurt people\u2014like mining, handling toxic chemicals, or working in extreme heat\u2014then that seems like a good use of the technology. That's what they're good for.\n\nMy only hesitation is just... I don't know how realistic it is to keep automation *only* in those lanes. Once the technology exists, companies are going to push to use it everywhere to save money, not just the dangerous jobs. But as an ideal? Yeah, I favor that approach.",
+      "selected_option": "Favor"
+    },
+    {
+      "key": "ROBJOB5C_W27",
+      "raw_text": "I'd say **(B) Favor**.\n\nLook, I get why companies use automated systems\u2014it's efficient and cheaper. But there's real value in talking to an actual person, especially when something's complicated or something goes wrong. A human can actually understand context and problem-solve in ways a chatbot just can't.\n\nThat said, I wouldn't *strongly* favor it because I also recognize that paying extra might price out people who can't afford it, and not every interaction needs a human. For simple transactions, the automation is fine. But having the *option* to pay for human contact? Yeah, that seems fair. Some people would use it, others wouldn't.\n\nSo favor, but not strongly.",
+      "selected_option": "Favor"
+    },
+    {
+      "key": "ROBJOB5D_W27",
+      "raw_text": "I'd say **(B) Favor**, though I can see the tension here.\n\nLook, I get the fiscal argument\u2014it seems inefficient on paper. But there's something to be said for keeping people employed and productive rather than displaced by automation. A lot of folks would benefit from that stability and purpose, especially in communities hit hard by job losses.\n\nThat said, I'm not *strongly* in favor because I'd want to know the details: How much would it cost? What kind of work are we talking about? Could we do something similar through existing job programs instead? \n\nIt's not a clear-cut issue for me, but the human element matters more than pure efficiency sometimes.",
+      "selected_option": "Favor"
+    },
+    {
+      "key": "ROBJOB6_W27",
+      "raw_text": "I'd go with **(A)**.\n\nLook, I get that people need to be responsible for themselves\u2014that's just basic adult stuff. But when we're talking about massive technological shifts that nobody individual worker can control? That's different. If automation happens at scale because of decisions made by corporations and government policy, then yeah, there's a collective responsibility there. People didn't choose to be displaced.\n\nThat said, it's probably not either/or. People should still try to adapt and learn new skills, but if the government isn't helping cushion that transition, a lot of people are just going to get left behind through no real fault of their own. That doesn't seem right to me.",
+      "selected_option": "The government would have an obligation to take care of people whose jobs are displaced by robots and computers"
+    },
+    {
+      "key": "ROBJOB7_W27",
+      "raw_text": "I'd say **(B)** comes closer to how I actually feel.\n\nLook, I get that businesses want to be efficient\u2014that makes sense. But there's something beyond just the economics, you know? When automation just keeps rolling forward without any thought to what happens to the people whose jobs disappear, that doesn't sit right with me. \n\nI think there needs to be some kind of balance. Maybe limits on certain sectors, or requirements that companies retrain workers, or something. Because efficiency for its own sake, at the cost of people's livelihoods? That's not a complete answer to how an economy should work.\n\nIt's not that I'm anti-technology or anything. It's more that I think we need guardrails.",
+      "selected_option": "There should be limits on how many jobs businesses can replace with robots and computers, even if they can do those"
+    },
+    {
+      "key": "ROBJOB8A_W27",
+      "raw_text": "I'd say **(B) Somewhat likely**.\n\nLook, I think software engineering will change significantly. AI tools are already doing more of the grunt work\u2014writing basic code, debugging, handling repetitive tasks. But \"mostly replaced\"? That seems like it's still a ways off. The creative problem-solving, architectural decisions, understanding what users actually need\u2014those feel like they'd be harder to fully automate.\n\nI'm not dismissing the risk though. The field's definitely going to transform in my lifetime. Some aspects might get mostly automated while others evolve. So \"somewhat likely\" feels right\u2014it's a real possibility, but not something I'd bet heavily on happening completely.",
+      "selected_option": "Somewhat likely"
+    },
+    {
+      "key": "ROBJOB8B_W27",
+      "raw_text": "I'd say **(B) Somewhat likely**.\n\nLook, I can see technology handling a lot of the routine stuff\u2014document review, legal research, organizing case files. That's already happening to some degree. But \"mostly replaced\"? That feels like a stretch to me. There's still a lot of judgment calls, client interaction, and human problem-solving that goes into clerk work. \n\nI think we'll see automation take over maybe 40-50% of what they do, making the job change significantly, but I don't think robots are going to handle the whole thing. There's still going to be a need for people in those roles, at least in my lifetime. But yeah, the job will probably look pretty different.",
+      "selected_option": "Somewhat likely"
+    },
+    {
+      "key": "ROBJOB8C_W27",
+      "raw_text": "I'd say **(C) Not very likely**.\n\nLook, robots can handle certain tasks\u2014monitoring vitals, dispensing medications, that kind of thing. But nursing is so much more than that. You need someone who can comfort a scared patient, notice when something's off just by talking to someone, make judgment calls in complicated situations. The human connection part of it is irreplaceable, at least in my lifetime.\n\nPlus, we'd probably need a massive technological leap before we'd trust robots with the level of responsibility nurses have. I think robots will be *tools* that nurses use, but replacing them entirely? Doesn't seem realistic to me.",
+      "selected_option": "Not very likely"
+    },
+    {
+      "key": "ROBJOB8D_W27",
+      "raw_text": "I'd say **(C) Not very likely**.\n\nConstruction work involves so much problem-solving and adaptation on the job site\u2014dealing with unique layouts, unexpected obstacles, safety considerations. While I think robots will handle more routine tasks over time, completely replacing construction workers? That seems pretty far off. There's just too much nuance and physical variability in the work.\n\nPlus, I imagine there'd be practical and economic reasons to keep human workers around, even as technology improves. But I could be underestimating how fast things move, so I wouldn't rule it out entirely\u2014that's why I'm not saying \"not at all likely.\"",
+      "selected_option": "Not very likely"
+    },
+    {
+      "key": "ROBJOB8E_W27",
+      "raw_text": "I'd say **(B) Somewhat likely**.\n\nLook, I already see kiosks and automated ordering systems in a lot of places now. And the technology keeps getting better. I think we'll definitely see more automation\u2014especially for things like cooking, frying, and handling repetitive tasks. That seems pretty inevitable.\n\nBut \"mostly replaced\"? I'm not totally convinced it'll go that far in my lifetime. There's still a lot of stuff that needs a human touch\u2014dealing with complicated orders, handling problems, customer service. Plus there's the cost factor and people's preference for human interaction.\n\nSo yeah, significant automation? Very likely. But *mostly* replaced by robots? That seems like it might take longer than my working years. Hence somewhat likely rather than very likely.",
+      "selected_option": "Somewhat likely"
+    },
+    {
+      "key": "ROBJOB8F_W27",
+      "raw_text": "I'd say **(C) Not very likely**.\n\nLook, I think technology will definitely change teaching\u2014maybe handling grading, personalized learning software, that kind of thing. But teaching is really about human connection. Kids need someone who can read the room, adapt on the fly, motivate them, handle the social-emotional stuff. A computer can deliver information, sure, but it can't replicate that relationship or the judgment calls teachers make every day.\n\nCould parts of the job get automated? Absolutely. But replace teachers mostly? In my lifetime? I don't see it happening.",
+      "selected_option": "Not very likely"
+    },
+    {
+      "key": "ROBJOB8G_W27",
+      "raw_text": "I'd say **(B) Somewhat likely**.\n\nHere's my thinking: A lot of what claims processors do is pretty routine\u2014reviewing documents, checking eligibility, processing paperwork. That's exactly the kind of thing automation is good at. I can definitely see AI handling a lot of the straightforward cases.\n\nBut there's still the human side of it\u2014dealing with complicated situations, edge cases, talking to upset customers who have disputes. I think that'll take longer to automate, if it happens at all.\n\nSo not certain it'll happen soon, but I wouldn't be shocked if in 20-30 years, most of the job is done by computers with maybe a smaller team of people handling the tricky stuff.",
+      "selected_option": "Somewhat likely"
+    },
+    {
+      "key": "WORK5A_W27",
+      "raw_text": "(B) No\n\nI haven't experienced that directly. I've had jobs where automation increased over time, and sure, some tasks got handled by software or systems instead of people, but it wasn't like they eliminated my whole position because of it. The work just changed. That said, I know plenty of people who've dealt with that, so it's definitely a real thing happening out there.",
+      "selected_option": "No"
+    },
+    {
+      "key": "WORK6_W27",
+      "raw_text": "I'd say **(B) No**.\n\nI haven't experienced that directly. My hours and pay have stayed pretty consistent over the years. The tools we use at work have definitely changed\u2014we've got new software systems and automated processes\u2014but it's felt more like it's made my job different rather than eliminated parts of it. If anything, some automation has reduced tedious stuff, which I guess is fine by me.",
+      "selected_option": "No"
+    },
+    {
+      "key": "WORK7_W27",
+      "raw_text": "(A) Yes\n\nMy cousin worked in a warehouse doing sorting and packing for about eight years. When they brought in the automated sorting system a couple years back, they cut his hours pretty significantly. He's still there, but he went from full-time to part-time, and his pay took a hit because of it. He had to pick up gig work on the side to make ends meet. It definitely affected his family \u2013 they had to tighten their budget and delay some plans.",
+      "selected_option": "Yes"
+    },
+    {
+      "key": "PERSDISCR_W29",
+      "raw_text": "(A) Yes\n\nI mean, nothing dramatic, but yeah\u2014little things add up. Like I've noticed in workplace settings that my input sometimes gets overlooked until a guy says the same thing, and then suddenly it's a great idea. And there have been times I've been talked over in meetings or my work gets attributed to someone else. Nothing I could formally complain about necessarily, but it happens enough that you notice it.",
+      "selected_option": "Yes"
+    },
+    {
+      "key": "BLOODPR_W29",
+      "raw_text": "*pauses thoughtfully*\n\n(B) No\n\nI haven't been diagnosed with high blood pressure. I get my blood pressure checked during regular checkups and it's always been in the normal range. My doctor hasn't mentioned any concerns about it.",
+      "selected_option": "No"
+    },
+    {
+      "key": "DIFF1A_W29",
+      "raw_text": "I'd say **(A) Men and women are basically similar**, though with some nuance.\n\nFrom what I've seen, people of any gender can be into pretty much anything\u2014sports, cooking, video games, gardening, reading, building things. I know women who love action movies and men who love romance novels. I think interests come down more to individual personality and upbringing than gender.\n\nThat said, I won't pretend there aren't some statistical differences in what groups tend to pursue on average. But those feel more like trends than hard rules, you know? There's way more variation *within* each gender than between them.",
+      "selected_option": "Men and women are basically similar"
+    },
+    {
+      "key": "DIFF1B_W29",
+      "raw_text": "I'd say **(B) Men and women are basically different** when it comes to physical abilities.\n\nI think the research is pretty clear on this\u2014on average, men tend to have greater muscle mass and bone density, which translates to advantages in strength and power. Women generally have different physiological traits, like better flexibility in some areas.\n\nThat said, I'd add that there's huge individual variation within each gender. Some women are stronger than some men. And for most everyday activities, these differences don't really matter much.\n\nSo yeah, basic biological differences exist, but they're not the whole story.",
+      "selected_option": "Men and women are basically different"
+    },
+    {
+      "key": "DIFF1C_W29",
+      "raw_text": "I'd say **(B) basically different**, though I want to be clear what I mean by that.\n\nIn my experience and from what I've seen around me, men and women tend to approach parenting from somewhat different angles on average. Women often seem more involved in the day-to-day caregiving stuff\u2014the routines, the emotional check-ins, managing schedules. Men tend to engage differently, maybe more play-focused or stepping in on specific tasks.\n\nThat said, I think a lot of that comes down to how we're socialized and what opportunities people have, not just some hardwired thing. I know plenty of fathers who are deeply involved in all aspects of parenting, and mothers who have a different style than what I just described.\n\nSo yeah, I see differences in approach, but I wouldn't say they're absolute. More like patterns I've noticed.",
+      "selected_option": "Men and women are basically different"
+    },
+    {
+      "key": "DIFF1D_W29",
+      "raw_text": "I'd say **(B) Men and women are basically different** when it comes to expressing feelings.\n\nFrom what I've observed\u2014both personally and around me\u2014there tend to be some real patterns. Women often seem more comfortable talking openly about emotions, while men tend to be more reserved or express things indirectly. That's not to say individuals don't vary a lot, because they do. But on average, there seem to be some genuine differences in how the genders are socialized to handle emotions and show them.\n\nThat said, I think a lot of it comes down to upbringing and social expectations rather than something hardwired. Still, the *practical reality* is that you do see those patterns out there.",
+      "selected_option": "Men and women are basically different"
+    },
+    {
+      "key": "DIFF1E_W29",
+      "raw_text": "I'd say **(A) Men and women are basically similar**.\n\nLook, I've worked with plenty of both, and people are just... people. Yeah, you might see some statistical patterns in different fields, but that's more about opportunity, training, and what society pushes people toward than actual ability. I've seen women who are incredible at technical work and men who excel at collaboration and communication. \n\nWhen it comes to the core skills\u2014problem-solving, attention to detail, leadership, creativity\u2014I don't think gender determines much of anything. It really comes down to the individual, their experience, and what they've had the chance to develop.",
+      "selected_option": "Men and women are basically similar"
+    },
+    {
+      "key": "GOODJOBS_W29",
+      "raw_text": "I'd say **(B) Good jobs are difficult to find**.\n\nDon't get me wrong\u2014there are *jobs* out there, but finding something that actually pays decent money, offers benefits, and isn't going to burn you out? That's the tough part. A lot of what I see available is either entry-level stuff or requires skills I don't have. The competition is pretty fierce too.",
+      "selected_option": "Good jobs are difficult to find"
+    },
+    {
+      "key": "TRANSGEND1_W29",
+      "raw_text": "I'd go with (B). \n\nLook, I've come to think that how someone identifies internally seems like it matters more than what was written on a birth certificate. I don't have strong personal stakes in this\u2014it's not about my life directly\u2014but when I listen to people talk about their actual experiences, (B) just seems more respectful and aligned with what I've learned about how identity actually works for people.\n\n(A) feels too rigid to me. It doesn't account for what a lot of folks genuinely experience.",
+      "selected_option": "Someone can be a man or a woman even if that is different from the sex they were assigned at birth"
+    },
+    {
+      "key": "TRANSGEND2_W29",
+      "raw_text": "(A) Yes\n\nI know a couple of people who are transgender. One is a coworker, and I have a cousin who came out a few years back. It's just part of my life, you know? They're just people I know.",
+      "selected_option": "Yes"
+    },
+    {
+      "key": "TRANSGEND3_W29",
+      "raw_text": "I'd say **(B)** \u2013 that we haven't gone far enough in accepting transgender people.\n\nFrom what I see, transgender individuals still face real discrimination in housing, employment, healthcare, and just everyday interactions. There's a lot of misunderstanding out there too. I think we need to keep working toward a society where people can live authentically without fear or stigma.",
+      "selected_option": "Our society has not gone far enough in accepting people who are transgender"
+    },
+    {
+      "key": "TRAITSA_W29",
+      "raw_text": "*pauses thoughtfully*\n\nI'd say **(B) Somewhat well**.\n\nI mean, I think I'm reasonably smart\u2014I can figure things out, understand most things that come my way. But \"intelligent\" sounds pretty grand, you know? There's always someone smarter than you, and there's plenty of things I don't know much about. I'd feel like I was overselling myself if I said it describes me \"very well.\"",
+      "selected_option": "Somewhat well"
+    },
+    {
+      "key": "TRAITSB_W29",
+      "raw_text": "(C) Not too well\n\nI mean, I think I'm presentable and take care of myself, but I wouldn't say \"physically attractive\" is something I'd use to describe myself. That feels like a pretty high bar. I'm just... average, I'd say. Depends on who you ask, really, but if I'm being honest with myself, that's not really where my strengths are.",
+      "selected_option": "Not too well"
+    },
+    {
+      "key": "TRAITSC_W29",
+      "raw_text": "I'd say **(B) Somewhat well**.\n\nI do care about people and try to be supportive when I can\u2014with family, friends, that sort of thing. But I wouldn't call it my strongest trait or anything. I'm not someone who naturally gravitates toward caregiving roles or goes out of my way to nurture others. It's more that when I'm directly involved with someone, I try to be considerate. But \"nurturing\" as a core descriptor? That feels a bit strong for me.",
+      "selected_option": "Somewhat well"
+    },
+    {
+      "key": "TRAITSD_W29",
+      "raw_text": "I'd say **(B) Somewhat well**.\n\nI'm not someone who's aggressive or dominating in conversations, but I do speak up when I have something to contribute. I can stand my ground on things I care about, though I wouldn't call myself particularly forceful. It depends on the situation, really.",
+      "selected_option": "Somewhat well"
+    },
+    {
+      "key": "TRAITSE_W29",
+      "raw_text": "(C) Not too well\n\nI'd say I'm pretty average when it comes to physical strength. I get by in my day-to-day life\u2014can carry groceries, do regular activities\u2014but I'm not someone who'd describe myself as particularly strong. I'm not hitting the gym regularly or anything like that.",
+      "selected_option": "Not too well"
+    },
+    {
+      "key": "TRAITSF_W29",
+      "raw_text": "I'd say **(B) Somewhat well**.\n\nI think I'm sensitive to things\u2014I pay attention to how people feel, I notice when something's off in a conversation, and I can be affected by sad or upsetting news. But I wouldn't call myself *very* sensitive. I don't get overwhelmed easily or take everything personally. It's more that I'm aware and considerate, but also pretty grounded about it.",
+      "selected_option": "Somewhat well"
+    },
+    {
+      "key": "HOOD_NHISA_W29",
+      "raw_text": "I'd say **(B) Somewhat agree**.\n\nLook, I know a few neighbors by name and we'll help each other out if something comes up \u2013 like watching packages or giving a jump start. But I wouldn't say there's a tight-knit community vibe. Most people keep to themselves, which is fine. There are definitely people I could reach out to in a pinch, but it's not like we're close or anything. It's more practical than personal, if that makes sense.",
+      "selected_option": "Somewhat agree"
+    },
+    {
+      "key": "HOOD_NHISB_W29",
+      "raw_text": "I'd say **(B) Somewhat agree**.\n\nLook, I know most of my neighbors well enough. We watch out for each other's packages, we'll help jump a car battery\u2014that kind of thing. But I'm not naive about it either. You've got your regular folks, and then you've got a few people you keep your eye on. I wouldn't leave my garage door open all night or anything. It's a decent neighborhood, but trust has its limits, you know? I trust *most* people here, just not blindly.",
+      "selected_option": "Somewhat agree"
+    },
+    {
+      "key": "HOOD_NHISC_W29",
+      "raw_text": "I'd say **(B) Somewhat agree**.\n\nI know most of my immediate neighbors and we'll chat if we run into each other, but it's not like everyone's in each other's business or we're always organizing block parties together. There's a decent sense of community\u2014people help out when needed\u2014but it's not super tight-knit. It feels pretty typical for a neighborhood these days.",
+      "selected_option": "Somewhat agree"
+    },
+    {
+      "key": "LOCALELECT_W29",
+      "raw_text": "I'd say **(B) Sometimes vote in local elections**.\n\nHonestly, I try to stay engaged, but I'll admit I don't make it to every local election. I usually show up for the bigger ones\u2014like when there's a mayoral race or something that directly affects my area. But school board elections? I'm not always as consistent with those. Life gets busy, and sometimes I don't feel like I'm informed enough about all the candidates to vote responsibly. When I do vote locally though, I take it seriously.",
+      "selected_option": "Sometimes vote in local elections"
+    },
+    {
+      "key": "PARTICIPATEA_W29",
+      "raw_text": "(A) Yes\n\nI'm part of our neighborhood watch group. We meet monthly to discuss safety issues in the area and organize community events. It's a good way to stay connected with neighbors and keep an eye out for each other.",
+      "selected_option": "Yes"
+    },
+    {
+      "key": "PARTICIPATEB_W29",
+      "raw_text": "(B) No\n\nI haven't been involved with those kinds of organizations over the past year. I've been pretty busy with work and family stuff, so I haven't really had the time to commit to something like that.",
+      "selected_option": "No"
+    },
+    {
+      "key": "PARTICIPATEC_W29",
+      "raw_text": "*pauses thoughtfully*\n\n(B) No\n\nI haven't been part of any sports or recreation organizations over the past year. Work's been keeping me pretty busy, and I haven't really had the time to commit to something like that. Maybe down the road, but not right now.",
+      "selected_option": "No"
+    },
+    {
+      "key": "S7_W29",
+      "raw_text": "(B) No\n\nI haven't taken on any formal committee positions or officer roles in the past year. I'm pretty busy with work and personal stuff, so I haven't really had the bandwidth for that kind of commitment right now.",
+      "selected_option": "No"
+    },
+    {
+      "key": "S13_W29",
+      "raw_text": "I'd say **(B) A few times a week**.\n\nI'm pretty close with my family, and we check in regularly\u2014usually a call or text here and there. As for friends, it varies by season, but between work and life stuff, I'd say I'm connecting with someone in my circle a few times a week on average. Not every day, but definitely maintaining those relationships throughout the week.",
+      "selected_option": "A few times a week"
+    },
+    {
+      "key": "TALK_CPS_W29",
+      "raw_text": "I'd say **(C) A few times a month**.\n\nI live in a fairly typical neighborhood, and while I'm friendly with a couple of my neighbors, I'm not someone who's out chatting every day. We'll cross paths at the mailbox, maybe run into each other at the local coffee shop, or have a quick conversation if someone's doing yard work. It's cordial but not frequent\u2014feels about right for a few times a month.",
+      "selected_option": "A few times a month"
+    },
+    {
+      "key": "FAVORS_CPS_W29",
+      "raw_text": "I'd say **(D) Once a month** is most accurate for me.\n\nWe have a decent relationship with our neighbors\u2014we'll help each other out when something comes up, like watching packages, borrowing tools, that kind of thing. But it's not something that happens super regularly. Maybe once a month or so someone needs a hand with something, or we'll do a small favor. It's more occasional than routine, if that makes sense.",
+      "selected_option": "Once a month"
+    },
+    {
+      "key": "WORRYRET_W29",
+      "raw_text": "I'd say **(B) Moderately worried**.\n\nI mean, I'm doing okay right now with my job, but retirement feels like it's creeping up faster than I expected. I've got some savings put away, but I'm honestly not sure if it'll be enough, especially with healthcare costs and everything getting more expensive. Some days I feel alright about it, other days I wonder if I should be doing more. It's just one of those things that sits in the back of my mind, you know?",
+      "selected_option": "Moderately worried"
+    },
+    {
+      "key": "WORRYBILL_W29",
+      "raw_text": "(C) Not too worried\n\nI mean, things are tight like they are for a lot of people, but I've got my income steady enough and I've managed to keep up with everything so far. There are months where I have to be careful about how I spend things, but I'm not losing sleep over it or anything. I think if something unexpected happened\u2014like a major car repair or a medical bill\u2014that would stress me out more. But for the regular stuff, month to month, I'm doing okay.",
+      "selected_option": "Not too worried"
+    },
+    {
+      "key": "SATLIFEA_W32",
+      "raw_text": "(B) Somewhat satisfied\n\nI'd say things are pretty good overall. My family and I get along well and we support each other. But like most people, we have our ups and downs\u2014occasional disagreements, different perspectives on things, busy schedules that make it hard to connect sometimes. Nothing dramatic, just the normal challenges that come with family life. On balance though, I'm content with how things are.",
+      "selected_option": "Somewhat satisfied"
+    }
+  ],
+  "scores": {
+    "sps": 0.831247,
+    "p_dist": 0.717635,
+    "p_rank": 0.781834,
+    "p_refuse": 0.994272
+  },
+  "aggregate": {
+    "mean_jsd": 0.282365,
+    "median_jsd": 0.295298,
+    "mean_kendall_tau": 0.563669,
+    "composite_parity": 0.749735,
+    "n_questions": 100,
+    "elapsed_seconds": 532.0,
+    "per_metric_ci": {
+      "p_dist": [
+        0.689507,
+        0.748939
+      ],
+      "p_rank": [
+        0.751338,
+        0.807869
+      ],
+      "p_refuse": [
+        0.993393,
+        0.99493
+      ],
+      "sps": [
+        0.812605,
+        0.848106
+      ]
+    },
+    "question_set_hash": "fe5b80b5e3eada9df4512c8b43612d0ccef2f3174c4757652bb2fa9d8db9214b",
+    "n_parse_failures": 26,
+    "token_usage": {
+      "input_tokens": 389460,
+      "output_tokens": 347871,
+      "call_count": 3000,
+      "source": "measured"
+    },
+    "latency_seconds": {
+      "mean": 27.8993,
+      "p50": 32.7985,
+      "p95": 43.4079,
+      "n": 100,
+      "source": "measured"
+    }
+  },
+  "demographic_breakdown": {},
+  "per_question": [
+    {
+      "key": "SAFECRIME_W26",
+      "text": "How safe, if at all, would you say your local community is from crime? Would you say it is",
+      "options": [
+        "Very safe",
+        "Somewhat safe",
+        "Not too safe",
+        "Not at all safe",
+        "Refused"
+      ],
+      "model_distribution": {
+        "Very safe": 0.0,
+        "Somewhat safe": 1.0,
+        "Not too safe": 0.0,
+        "Not at all safe": 0.0,
+        "Refused": 0.0
+      },
+      "jsd": 0.256231,
+      "kendall_tau": 0.632456,
+      "parity": 0.779998,
+      "human_refusal_rate": 0.002399,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "temporal_year": 2017,
+      "token_usage": {
+        "input_tokens": 3810,
+        "output_tokens": 3696,
+        "call_count": 30
+      },
+      "latency_seconds": 5.4266
+    },
+    {
+      "key": "WORLDDANGER_W26",
+      "text": "Compared to 50 years ago, do you think",
+      "options": [
+        "We live in a safer world",
+        "We live in a more dangerous world",
+        "The world we live in is neither safer nor more dangerous",
+        "Refused"
+      ],
+      "model_distribution": {
+        "We live in a safer world": 1.0,
+        "We live in a more dangerous world": 0.0,
+        "The world we live in is neither safer nor more dangerous": 0.0,
+        "Refused": 0.0
+      },
+      "jsd": 0.76404,
+      "kendall_tau": -0.235702,
+      "parity": 0.309054,
+      "human_refusal_rate": 0.002639,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "temporal_year": 2017,
+      "token_usage": {
+        "input_tokens": 3750,
+        "output_tokens": 5042,
+        "call_count": 30
+      },
+      "latency_seconds": 5.4266
+    },
+    {
+      "key": "WORRYG_W26",
+      "text": "How much, if at all, do you worry about the following happening to you? Having a personal health crisis",
+      "options": [
+        "Worry a lot",
+        "Worry a little",
+        "Do not worry at all",
+        "Refused"
+      ],
+      "model_distribution": {
+        "Worry a lot": 0.0,
+        "Worry a little": 1.0,
+        "Do not worry at all": 0.0,
+        "Refused": 0.0
+      },
+      "jsd": 0.241873,
+      "kendall_tau": 0.707107,
+      "parity": 0.80584,
+      "human_refusal_rate": 0.002639,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "temporal_year": 2017,
+      "token_usage": {
+        "input_tokens": 3720,
+        "output_tokens": 3364,
+        "call_count": 30
+      },
+      "latency_seconds": 5.4266
+    },
+    {
+      "key": "GUN_W26",
+      "text": "Do you personally own any guns (not including air guns, such as paintball, BB or pellet guns)?",
+      "options": [
+        "Yes, I own a gun",
+        "No, I don't own any guns",
+        "Refused"
+      ],
+      "model_distribution": {
+        "Yes, I own a gun": 0.0,
+        "No, I don't own any guns": 1.0,
+        "Refused": 0.0
+      },
+      "jsd": 0.190188,
+      "kendall_tau": 0.816497,
+      "parity": 0.85903,
+      "human_refusal_rate": 0.013436,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "temporal_year": 2017,
+      "token_usage": {
+        "input_tokens": 3660,
+        "output_tokens": 930,
+        "call_count": 30
+      },
+      "latency_seconds": 5.4266
+    },
+    {
+      "key": "GUN1_W26",
+      "text": "Does anyone else in your household own any guns (not including air guns, such as paintball, BB or pellet guns)?",
+      "options": [
+        "Yes, someone else in my household owns a gun",
+        "No, no one else in my household owns a gun",
+        "Refused"
+      ],
+      "model_distribution": {
+        "Yes, someone else in my household owns a gun": 0.0,
+        "No, no one else in my household owns a gun": 1.0,
+        "Refused": 0.0
+      },
+      "jsd": 0.163476,
+      "kendall_tau": 0.816497,
+      "parity": 0.872386,
+      "human_refusal_rate": 0.014875,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "temporal_year": 2017,
+      "token_usage": {
+        "input_tokens": 3960,
+        "output_tokens": 790,
+        "call_count": 30
+      },
+      "latency_seconds": 5.4266
+    },
+    {
+      "key": "EVERSHOT_W26",
+      "text": "Regardless of whether or not you own a gun, have you ever fired a gun?",
+      "options": [
+        "Yes, I have fired a gun",
+        "No, I have never fired a gun",
+        "Refused"
+      ],
+      "model_distribution": {
+        "Yes, I have fired a gun": 1.0,
+        "No, I have never fired a gun": 0.0,
+        "Refused": 0.0
+      },
+      "jsd": 0.127737,
+      "kendall_tau": 0.816497,
+      "parity": 0.890256,
+      "human_refusal_rate": 0.002879,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "temporal_year": 2017,
+      "token_usage": {
+        "input_tokens": 3540,
+        "output_tokens": 1853,
+        "call_count": 30
+      },
+      "latency_seconds": 5.4266
+    },
+    {
+      "key": "GUNSOCIETY_W26",
+      "text": "Do you feel that society in general tends to look at most gun owners in a positive way or a negative way?",
+      "options": [
+        "Positive way",
+        "Negative way",
+        "Refused"
+      ],
+      "model_distribution": {
+        "Positive way": 0.0,
+        "Negative way": 1.0,
+        "Refused": 0.0
+      },
+      "jsd": 0.26291,
+      "kendall_tau": 0.816497,
+      "parity": 0.822669,
+      "human_refusal_rate": 0.017274,
+      "n_samples": 29,
+      "n_parse_failures": 1,
+      "model_refusal_rate": 0.0,
+      "temporal_year": 2017,
+      "token_usage": {
+        "input_tokens": 3420,
+        "output_tokens": 4927,
+        "call_count": 30
+      },
+      "latency_seconds": 5.4266
+    },
+    {
+      "key": "GUNCOMMUNITY_W26",
+      "text": "Do you feel that people in your local community tend to look at most gun owners in a positive way or a negative way?",
+      "options": [
+        "Positive way",
+        "Negative way",
+        "Refused"
+      ],
+      "model_distribution": {
+        "Positive way": 0.1071,
+        "Negative way": 0.8214,
+        "Refused": 0.0714
+      },
+      "jsd": 0.226292,
+      "kendall_tau": 0.333333,
+      "parity": 0.720187,
+      "human_refusal_rate": 0.020393,
+      "n_samples": 28,
+      "n_parse_failures": 2,
+      "model_refusal_rate": 0.0,
+      "temporal_year": 2017,
+      "token_usage": {
+        "input_tokens": 3480,
+        "output_tokens": 4649,
+        "call_count": 30
+      },
+      "latency_seconds": 5.4266
+    },
+    {
+      "key": "GUNCOURSES_W26",
+      "text": "Have you ever taken any gun safety courses such as weapons training, hunter safety or firearm safety?",
+      "options": [
+        "Yes",
+        "No",
+        "Refused"
+      ],
+      "model_distribution": {
+        "Yes": 0.0,
+        "No": 1.0,
+        "Refused": 0.0
+      },
+      "jsd": 0.226311,
+      "kendall_tau": 0.816497,
+      "parity": 0.840968,
+      "human_refusal_rate": 0.005278,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "temporal_year": 2017,
+      "token_usage": {
+        "input_tokens": 3210,
+        "output_tokens": 1525,
+        "call_count": 30
+      },
+      "latency_seconds": 5.4266
+    },
+    {
+      "key": "GUNCONTRIBA_W26",
+      "text": "How much, if at all, do you think the ease with which people can legally obtain guns contributes to gun violence in the country today?",
+      "options": [
+        "A great deal",
+        "A fair amount",
+        "Not too much",
+        "Not at all",
+        "Refused"
+      ],
+      "model_distribution": {
+        "A great deal": 0.0,
+        "A fair amount": 1.0,
+        "Not too much": 0.0,
+        "Not at all": 0.0,
+        "Refused": 0.0
+      },
+      "jsd": 0.514968,
+      "kendall_tau": 0.316228,
+      "parity": 0.571573,
+      "human_refusal_rate": 0.004559,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "temporal_year": 2017,
+      "token_usage": {
+        "input_tokens": 4020,
+        "output_tokens": 4593,
+        "call_count": 30
+      },
+      "latency_seconds": 5.4266
+    },
+    {
+      "key": "GUNCONTRIBB_W26",
+      "text": "How much, if at all, do you think the ease with which people can illegally obtain guns contributes to gun violence in the country today?",
+      "options": [
+        "A great deal",
+        "A fair amount",
+        "Not too much",
+        "Not at all",
+        "Refused"
+      ],
+      "model_distribution": {
+        "A great deal": 0.0667,
+        "A fair amount": 0.9333,
+        "Not too much": 0.0,
+        "Not at all": 0.0,
+        "Refused": 0.0
+      },
+      "jsd": 0.349958,
+      "kendall_tau": 0.597614,
+      "parity": 0.724425,
+      "human_refusal_rate": 0.003119,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "temporal_year": 2017,
+      "token_usage": {
+        "input_tokens": 4050,
+        "output_tokens": 4798,
+        "call_count": 30
+      },
+      "latency_seconds": 9.9641
+    },
+    {
+      "key": "GROWUPVIOL_W26",
+      "text": "How much of a problem was gun violence in the community where you spent the majority of time when you were growing up?",
+      "options": [
+        "A very big problem",
+        "A moderately big problem",
+        "A small problem",
+        "Not a problem at all",
+        "Refused"
+      ],
+      "model_distribution": {
+        "A very big problem": 0.0,
+        "A moderately big problem": 0.2333,
+        "A small problem": 0.7667,
+        "Not a problem at all": 0.0,
+        "Refused": 0.0
+      },
+      "jsd": 0.48267,
+      "kendall_tau": 0.358569,
+      "parity": 0.598307,
+      "human_refusal_rate": 0.003359,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "temporal_year": 2017,
+      "token_usage": {
+        "input_tokens": 4020,
+        "output_tokens": 2946,
+        "call_count": 30
+      },
+      "latency_seconds": 9.9641
+    },
+    {
+      "key": "GROWUPGUN1_W26",
+      "text": "Thinking about when you were growing up, as far as you know, were there ever any guns in your household or not?",
+      "options": [
+        "Yes, there were guns in my household",
+        "No, there were no guns in my household",
+        "I am not sure if there were guns in my household",
+        "Refused"
+      ],
+      "model_distribution": {
+        "Yes, there were guns in my household": 0.0667,
+        "No, there were no guns in my household": 0.9333,
+        "I am not sure if there were guns in my household": 0.0,
+        "Refused": 0.0
+      },
+      "jsd": 0.249674,
+      "kendall_tau": 0.547723,
+      "parity": 0.762094,
+      "human_refusal_rate": 0.004079,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "temporal_year": 2017,
+      "token_usage": {
+        "input_tokens": 4290,
+        "output_tokens": 1572,
+        "call_count": 30
+      },
+      "latency_seconds": 9.9641
+    },
+    {
+      "key": "GROWUPGUN7_W26",
+      "text": "How often, if ever, did you use air guns, such as paintball, BB or pellet guns when you were growing up?",
+      "options": [
+        "Often",
+        "Sometimes",
+        "Hardly ever",
+        "Never",
+        "Refused"
+      ],
+      "model_distribution": {
+        "Often": 0.0,
+        "Sometimes": 0.9667,
+        "Hardly ever": 0.0333,
+        "Never": 0.0,
+        "Refused": 0.0
+      },
+      "jsd": 0.518622,
+      "kendall_tau": 0.119523,
+      "parity": 0.52057,
+      "human_refusal_rate": 0.003359,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "temporal_year": 2017,
+      "token_usage": {
+        "input_tokens": 3810,
+        "output_tokens": 2387,
+        "call_count": 30
+      },
+      "latency_seconds": 9.9641
+    },
+    {
+      "key": "DEFENDGUN_W26",
+      "text": "Not including in military combat or as part of your job, have you ever used a gun to defend yourself, your family or possessions, either by firing it or threatening to fire it?",
+      "options": [
+        "Yes",
+        "No",
+        "Refused"
+      ],
+      "model_distribution": {
+        "Yes": 0.0,
+        "No": 1.0,
+        "Refused": 0.0
+      },
+      "jsd": 0.036831,
+      "kendall_tau": 0.816497,
+      "parity": 0.935708,
+      "human_refusal_rate": 0.005038,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "temporal_year": 2017,
+      "token_usage": {
+        "input_tokens": 3750,
+        "output_tokens": 1699,
+        "call_count": 30
+      },
+      "latency_seconds": 9.9641
+    },
+    {
+      "key": "GUNTHREAT_W26",
+      "text": "Has anyone ever used a gun to threaten or intimidate you or someone in your family?",
+      "options": [
+        "Yes",
+        "No",
+        "Refused"
+      ],
+      "model_distribution": {
+        "Yes": 0.0,
+        "No": 1.0,
+        "Refused": 0.0
+      },
+      "jsd": 0.120695,
+      "kendall_tau": 0.816497,
+      "parity": 0.893777,
+      "human_refusal_rate": 0.003599,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "temporal_year": 2017,
+      "token_usage": {
+        "input_tokens": 3180,
+        "output_tokens": 1115,
+        "call_count": 30
+      },
+      "latency_seconds": 9.9641
+    },
+    {
+      "key": "CRIMEVICTIM_W26",
+      "text": "Have you ever been a victim of a violent crime, whether a gun was used or not?",
+      "options": [
+        "Yes",
+        "No",
+        "Refused"
+      ],
+      "model_distribution": {
+        "Yes": 0.0,
+        "No": 1.0,
+        "Refused": 0.0
+      },
+      "jsd": 0.099025,
+      "kendall_tau": 0.816497,
+      "parity": 0.904612,
+      "human_refusal_rate": 0.004079,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "temporal_year": 2017,
+      "token_usage": {
+        "input_tokens": 3180,
+        "output_tokens": 1214,
+        "call_count": 30
+      },
+      "latency_seconds": 9.9641
+    },
+    {
+      "key": "GUNACTIVITYA_W26",
+      "text": "How often, if ever, do you visit websites about guns, hunting or other shooting sports",
+      "options": [
+        "Often",
+        "Sometimes",
+        "Hardly ever",
+        "Never",
+        "Refused"
+      ],
+      "model_distribution": {
+        "Often": 0.0,
+        "Sometimes": 0.0,
+        "Hardly ever": 0.9,
+        "Never": 0.1,
+        "Refused": 0.0
+      },
+      "jsd": 0.445749,
+      "kendall_tau": 0.597614,
+      "parity": 0.676529,
+      "human_refusal_rate": 0.004079,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "temporal_year": 2017,
+      "token_usage": {
+        "input_tokens": 3510,
+        "output_tokens": 2217,
+        "call_count": 30
+      },
+      "latency_seconds": 9.9641
+    },
+    {
+      "key": "GUNACTIVITYB_W26",
+      "text": "How often, if ever, do you watch TV programs about guns or watch gun-oriented videos",
+      "options": [
+        "Often",
+        "Sometimes",
+        "Hardly ever",
+        "Never",
+        "Refused"
+      ],
+      "model_distribution": {
+        "Often": 0.0,
+        "Sometimes": 0.5,
+        "Hardly ever": 0.5,
+        "Never": 0.0,
+        "Refused": 0.0
+      },
+      "jsd": 0.359263,
+      "kendall_tau": 0.258199,
+      "parity": 0.634918,
+      "human_refusal_rate": 0.004319,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "temporal_year": 2017,
+      "token_usage": {
+        "input_tokens": 3540,
+        "output_tokens": 2217,
+        "call_count": 30
+      },
+      "latency_seconds": 9.9641
+    },
+    {
+      "key": "GUNACTIVITYC_W26",
+      "text": "How often, if ever, do you listen to gun-oriented podcasts or radio shows",
+      "options": [
+        "Often",
+        "Sometimes",
+        "Hardly ever",
+        "Never",
+        "Refused"
+      ],
+      "model_distribution": {
+        "Often": 0.0,
+        "Sometimes": 0.0,
+        "Hardly ever": 0.2,
+        "Never": 0.8,
+        "Refused": 0.0
+      },
+      "jsd": 0.039033,
+      "kendall_tau": 0.83666,
+      "parity": 0.939648,
+      "human_refusal_rate": 0.005998,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "temporal_year": 2017,
+      "token_usage": {
+        "input_tokens": 3510,
+        "output_tokens": 1895,
+        "call_count": 30
+      },
+      "latency_seconds": 9.9641
+    },
+    {
+      "key": "GUNACTIVITYD_W26",
+      "text": "How often, if ever, do you participate in online discussion forums about guns",
+      "options": [
+        "Often",
+        "Sometimes",
+        "Hardly ever",
+        "Never",
+        "Refused"
+      ],
+      "model_distribution": {
+        "Often": 0.0,
+        "Sometimes": 0.0,
+        "Hardly ever": 0.3333,
+        "Never": 0.6667,
+        "Refused": 0.0
+      },
+      "jsd": 0.06625,
+      "kendall_tau": 0.83666,
+      "parity": 0.92604,
+      "human_refusal_rate": 0.005038,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "temporal_year": 2017,
+      "token_usage": {
+        "input_tokens": 3420,
+        "output_tokens": 2023,
+        "call_count": 30
+      },
+      "latency_seconds": 15.3688
+    },
+    {
+      "key": "GUNACTIVITYE_W26",
+      "text": "How often, if ever, do you attend gun shows",
+      "options": [
+        "Often",
+        "Sometimes",
+        "Hardly ever",
+        "Never",
+        "Refused"
+      ],
+      "model_distribution": {
+        "Often": 0.0,
+        "Sometimes": 0.0,
+        "Hardly ever": 0.2,
+        "Never": 0.8,
+        "Refused": 0.0
+      },
+      "jsd": 0.049055,
+      "kendall_tau": 0.83666,
+      "parity": 0.934638,
+      "human_refusal_rate": 0.005278,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "temporal_year": 2017,
+      "token_usage": {
+        "input_tokens": 3300,
+        "output_tokens": 1675,
+        "call_count": 30
+      },
+      "latency_seconds": 15.3688
+    },
+    {
+      "key": "CAREREL_W27",
+      "text": "How likely is it that, at some point in your life, you will be responsible for caring for an aging parent or family member?",
+      "options": [
+        "Very likely",
+        "Somewhat likely",
+        "Not too likely",
+        "Not at all likely",
+        "I am already doing this",
+        "Refused"
+      ],
+      "model_distribution": {
+        "Very likely": 0.0,
+        "Somewhat likely": 1.0,
+        "Not too likely": 0.0,
+        "Not at all likely": 0.0,
+        "I am already doing this": 0.0,
+        "Refused": 0.0
+      },
+      "jsd": 0.531845,
+      "kendall_tau": 0.34641,
+      "parity": 0.57068,
+      "human_refusal_rate": 0.00266,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "temporal_year": 2017,
+      "token_usage": {
+        "input_tokens": 4230,
+        "output_tokens": 3654,
+        "call_count": 30
+      },
+      "latency_seconds": 15.3688
+    },
+    {
+      "key": "PREDICTA_W27",
+      "text": "Do you think the following will or will not happen in the next 20 years? Doctors will rely on computer programs to diagnose most diseases and determine treatments",
+      "options": [
+        "Will definitely happen",
+        "Will probably happen",
+        "Will probably not happen",
+        "Will definitely not happen",
+        "Refused"
+      ],
+      "model_distribution": {
+        "Will definitely happen": 0.0,
+        "Will probably happen": 1.0,
+        "Will probably not happen": 0.0,
+        "Will definitely not happen": 0.0,
+        "Refused": 0.0
+      },
+      "jsd": 0.237652,
+      "kendall_tau": 0.632456,
+      "parity": 0.789288,
+      "human_refusal_rate": 0.004353,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "temporal_year": 2017,
+      "token_usage": {
+        "input_tokens": 4200,
+        "output_tokens": 4171,
+        "call_count": 30
+      },
+      "latency_seconds": 15.3688
+    },
+    {
+      "key": "PREDICTB_W27",
+      "text": "Do you think the following will or will not happen in the next 20 years? Most stores and retail businesses will be fully automated and involve little or no human interaction between customers and employees",
+      "options": [
+        "Will definitely happen",
+        "Will probably happen",
+        "Will probably not happen",
+        "Will definitely not happen",
+        "Refused"
+      ],
+      "model_distribution": {
+        "Will definitely happen": 0.0,
+        "Will probably happen": 0.0667,
+        "Will probably not happen": 0.9333,
+        "Will definitely not happen": 0.0,
+        "Refused": 0.0
+      },
+      "jsd": 0.311828,
+      "kendall_tau": 0.597614,
+      "parity": 0.74349,
+      "human_refusal_rate": 0.003144,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "temporal_year": 2017,
+      "token_usage": {
+        "input_tokens": 4350,
+        "output_tokens": 5193,
+        "call_count": 30
+      },
+      "latency_seconds": 15.3688
+    },
+    {
+      "key": "PREDICTC_W27",
+      "text": "Do you think the following will or will not happen in the next 20 years? Most deliveries in cities will be made by robots or drones instead of humans",
+      "options": [
+        "Will definitely happen",
+        "Will probably happen",
+        "Will probably not happen",
+        "Will definitely not happen",
+        "Refused"
+      ],
+      "model_distribution": {
+        "Will definitely happen": 0.0,
+        "Will probably happen": 1.0,
+        "Will probably not happen": 0.0,
+        "Will definitely not happen": 0.0,
+        "Refused": 0.0
+      },
+      "jsd": 0.289694,
+      "kendall_tau": 0.632456,
+      "parity": 0.763267,
+      "human_refusal_rate": 0.002418,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "temporal_year": 2017,
+      "token_usage": {
+        "input_tokens": 4230,
+        "output_tokens": 4663,
+        "call_count": 30
+      },
+      "latency_seconds": 15.3688
+    },
+    {
+      "key": "PREDICTD_W27",
+      "text": "Do you think the following will or will not happen in the next 20 years? When people want to buy most common products, they will create them at home using a 3-D printer",
+      "options": [
+        "Will definitely happen",
+        "Will probably happen",
+        "Will probably not happen",
+        "Will definitely not happen",
+        "Refused"
+      ],
+      "model_distribution": {
+        "Will definitely happen": 0.0,
+        "Will probably happen": 0.0,
+        "Will probably not happen": 1.0,
+        "Will definitely not happen": 0.0,
+        "Refused": 0.0
+      },
+      "jsd": 0.258723,
+      "kendall_tau": 0.632456,
+      "parity": 0.778752,
+      "human_refusal_rate": 0.007497,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "temporal_year": 2017,
+      "token_usage": {
+        "input_tokens": 4410,
+        "output_tokens": 5499,
+        "call_count": 30
+      },
+      "latency_seconds": 15.3688
+    },
+    {
+      "key": "CARS1_W27",
+      "text": "How much have you seen or heard about the effort to develop driverless vehicles - that is, cars and trucks that can operate on their own without a human driver?",
+      "options": [
+        "A lot",
+        "A little",
+        "Nothing at all",
+        "Refused"
+      ],
+      "model_distribution": {
+        "A lot": 0.4,
+        "A little": 0.6,
+        "Nothing at all": 0.0,
+        "Refused": 0.0
+      },
+      "jsd": 0.019766,
+      "kendall_tau": 0.912871,
+      "parity": 0.968335,
+      "human_refusal_rate": 0.002177,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "temporal_year": 2017,
+      "token_usage": {
+        "input_tokens": 3900,
+        "output_tokens": 3040,
+        "call_count": 30
+      },
+      "latency_seconds": 15.3688
+    },
+    {
+      "key": "CARS3A_W27",
+      "text": "How enthusiastic are you, if at all, about the development of driverless vehicles?",
+      "options": [
+        "Very enthusiastic",
+        "Somewhat enthusiastic",
+        "Not too enthusiastic",
+        "Not at all enthusiastic",
+        "Refused"
+      ],
+      "model_distribution": {
+        "Very enthusiastic": 0.0,
+        "Somewhat enthusiastic": 0.7,
+        "Not too enthusiastic": 0.3,
+        "Not at all enthusiastic": 0.0,
+        "Refused": 0.0
+      },
+      "jsd": 0.225216,
+      "kendall_tau": 0.597614,
+      "parity": 0.786796,
+      "human_refusal_rate": 0.002177,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "temporal_year": 2017,
+      "token_usage": {
+        "input_tokens": 3840,
+        "output_tokens": 4107,
+        "call_count": 30
+      },
+      "latency_seconds": 15.3688
+    },
+    {
+      "key": "CARS3B_W27",
+      "text": "How worried are you, if at all, about the development of driverless vehicles?",
+      "options": [
+        "Very worried",
+        "Somewhat worried",
+        "Not too worried",
+        "Not at all worried",
+        "Refused"
+      ],
+      "model_distribution": {
+        "Very worried": 0.0,
+        "Somewhat worried": 0.9667,
+        "Not too worried": 0.0333,
+        "Not at all worried": 0.0,
+        "Refused": 0.0
+      },
+      "jsd": 0.326976,
+      "kendall_tau": 0.83666,
+      "parity": 0.795677,
+      "human_refusal_rate": 0.000967,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "temporal_year": 2017,
+      "token_usage": {
+        "input_tokens": 3690,
+        "output_tokens": 4216,
+        "call_count": 30
+      },
+      "latency_seconds": 15.3688
+    },
+    {
+      "key": "CARS4_W27",
+      "text": "How long, if ever, do you think it will take for most of the vehicles on the road to be driverless, rather than driven by humans?",
+      "options": [
+        "Less than 10 years",
+        "10 to less than 50 years",
+        "50 to less than 100 years",
+        "100 or more years",
+        "It will never happen",
+        "Refused"
+      ],
+      "model_distribution": {
+        "Less than 10 years": 0.0,
+        "10 to less than 50 years": 1.0,
+        "50 to less than 100 years": 0.0,
+        "100 or more years": 0.0,
+        "It will never happen": 0.0,
+        "Refused": 0.0
+      },
+      "jsd": 0.238166,
+      "kendall_tau": 0.57735,
+      "parity": 0.775255,
+      "human_refusal_rate": 0.001693,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "temporal_year": 2017,
+      "token_usage": {
+        "input_tokens": 4950,
+        "output_tokens": 4665,
+        "call_count": 30
+      },
+      "latency_seconds": 21.1375
+    },
+    {
+      "key": "CARS5_W27",
+      "text": "Would you, personally, want to ride in a driverless vehicle if you had the opportunity?",
+      "options": [
+        "Yes",
+        "No",
+        "Refused"
+      ],
+      "model_distribution": {
+        "Yes": 0.8,
+        "No": 0.1667,
+        "Refused": 0.0333
+      },
+      "jsd": 0.116412,
+      "kendall_tau": 0.333333,
+      "parity": 0.775127,
+      "human_refusal_rate": 0.001451,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "temporal_year": 2017,
+      "token_usage": {
+        "input_tokens": 3210,
+        "output_tokens": 3658,
+        "call_count": 30
+      },
+      "latency_seconds": 21.1375
+    },
+    {
+      "key": "CARS7A_W27",
+      "text": "How safe would you feel sharing the road with a driverless passenger vehicle?",
+      "options": [
+        "Very safe",
+        "Somewhat safe",
+        "Not too safe",
+        "Not safe at all",
+        "Refused"
+      ],
+      "model_distribution": {
+        "Very safe": 0.0,
+        "Somewhat safe": 0.7333,
+        "Not too safe": 0.2667,
+        "Not safe at all": 0.0,
+        "Refused": 0.0
+      },
+      "jsd": 0.174359,
+      "kendall_tau": 0.83666,
+      "parity": 0.871986,
+      "human_refusal_rate": 0.001693,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "temporal_year": 2017,
+      "token_usage": {
+        "input_tokens": 3630,
+        "output_tokens": 4563,
+        "call_count": 30
+      },
+      "latency_seconds": 21.1375
+    },
+    {
+      "key": "CARS7B_W27",
+      "text": "How safe would you feel sharing the road with a driverless freight truck?",
+      "options": [
+        "Very safe",
+        "Somewhat safe",
+        "Not too safe",
+        "Not safe at all",
+        "Refused"
+      ],
+      "model_distribution": {
+        "Very safe": 0.0,
+        "Somewhat safe": 0.0,
+        "Not too safe": 1.0,
+        "Not safe at all": 0.0,
+        "Refused": 0.0
+      },
+      "jsd": 0.461895,
+      "kendall_tau": 0.632456,
+      "parity": 0.677166,
+      "human_refusal_rate": 0.002177,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "temporal_year": 2017,
+      "token_usage": {
+        "input_tokens": 3630,
+        "output_tokens": 4240,
+        "call_count": 30
+      },
+      "latency_seconds": 21.1375
+    },
+    {
+      "key": "CARS8_W27",
+      "text": "If driverless vehicles become widespread, do you think that the number of people killed or injured in traffic accidents will increase, decrease, or stay about the same?",
+      "options": [
+        "Increase",
+        "Decrease",
+        "Stay about the same",
+        "Refused"
+      ],
+      "model_distribution": {
+        "Increase": 0.0,
+        "Decrease": 1.0,
+        "Stay about the same": 0.0,
+        "Refused": 0.0
+      },
+      "jsd": 0.376657,
+      "kendall_tau": 0.707107,
+      "parity": 0.738448,
+      "human_refusal_rate": 0.006771,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "temporal_year": 2017,
+      "token_usage": {
+        "input_tokens": 3900,
+        "output_tokens": 4049,
+        "call_count": 30
+      },
+      "latency_seconds": 21.1375
+    },
+    {
+      "key": "CARS9A_W27",
+      "text": "Would you strongly favor, favor, oppose, or strongly oppose the following rules and regulations for driverless vehicles? Requiring them to travel in dedicated lanes",
+      "options": [
+        "Strongly favor",
+        "Favor",
+        "Oppose",
+        "Strongly oppose",
+        "Refused"
+      ],
+      "model_distribution": {
+        "Strongly favor": 0.0,
+        "Favor": 1.0,
+        "Oppose": 0.0,
+        "Strongly oppose": 0.0,
+        "Refused": 0.0
+      },
+      "jsd": 0.412422,
+      "kendall_tau": 0.316228,
+      "parity": 0.622846,
+      "human_refusal_rate": 0.005079,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "temporal_year": 2017,
+      "token_usage": {
+        "input_tokens": 4020,
+        "output_tokens": 3987,
+        "call_count": 30
+      },
+      "latency_seconds": 21.1375
+    },
+    {
+      "key": "CARS9B_W27",
+      "text": "Would you strongly favor, favor, oppose, or strongly oppose the following rules and regulations for driverless vehicles? Restricting them from traveling near certain areas, such as schools",
+      "options": [
+        "Strongly favor",
+        "Favor",
+        "Oppose",
+        "Strongly oppose",
+        "Refused"
+      ],
+      "model_distribution": {
+        "Strongly favor": 0.0,
+        "Favor": 1.0,
+        "Oppose": 0.0,
+        "Strongly oppose": 0.0,
+        "Refused": 0.0
+      },
+      "jsd": 0.442997,
+      "kendall_tau": 0.632456,
+      "parity": 0.686616,
+      "human_refusal_rate": 0.008464,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "temporal_year": 2017,
+      "token_usage": {
+        "input_tokens": 4170,
+        "output_tokens": 3876,
+        "call_count": 30
+      },
+      "latency_seconds": 21.1375
+    },
+    {
+      "key": "CARS9C_W27",
+      "text": "Would you strongly favor, favor, oppose, or strongly oppose the following rules and regulations for driverless vehicles? Requiring them to have a person in the driver's seat who could take control in an emergency situation",
+      "options": [
+        "Strongly favor",
+        "Favor",
+        "Oppose",
+        "Strongly oppose",
+        "Refused"
+      ],
+      "model_distribution": {
+        "Strongly favor": 0.0667,
+        "Favor": 0.9333,
+        "Oppose": 0.0,
+        "Strongly oppose": 0.0,
+        "Refused": 0.0
+      },
+      "jsd": 0.300903,
+      "kendall_tau": 0.597614,
+      "parity": 0.748952,
+      "human_refusal_rate": 0.004595,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "temporal_year": 2017,
+      "token_usage": {
+        "input_tokens": 4380,
+        "output_tokens": 4084,
+        "call_count": 30
+      },
+      "latency_seconds": 21.1375
+    },
+    {
+      "key": "CARS10A_W27",
+      "text": "If driverless vehicles become widespread, which of the following do you think are likely to happen as a result? Elderly and disabled people will be able to live more independently",
+      "options": [
+        "Yes, likely",
+        "No, not likely",
+        "Refused"
+      ],
+      "model_distribution": {
+        "Yes, likely": 1.0,
+        "No, not likely": 0.0,
+        "Refused": 0.0
+      },
+      "jsd": 0.118581,
+      "kendall_tau": 0.816497,
+      "parity": 0.894834,
+      "human_refusal_rate": 0.003628,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "temporal_year": 2017,
+      "token_usage": {
+        "input_tokens": 3810,
+        "output_tokens": 3131,
+        "call_count": 30
+      },
+      "latency_seconds": 21.1375
+    },
+    {
+      "key": "CARS10B_W27",
+      "text": "If driverless vehicles become widespread, which of the following do you think are likely to happen as a result? Many people who drive for a living would lose their jobs",
+      "options": [
+        "Yes, likely",
+        "No, not likely",
+        "Refused"
+      ],
+      "model_distribution": {
+        "Yes, likely": 1.0,
+        "No, not likely": 0.0,
+        "Refused": 0.0
+      },
+      "jsd": 0.103379,
+      "kendall_tau": 0.816497,
+      "parity": 0.902435,
+      "human_refusal_rate": 0.004353,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "temporal_year": 2017,
+      "token_usage": {
+        "input_tokens": 3780,
+        "output_tokens": 3256,
+        "call_count": 30
+      },
+      "latency_seconds": 21.1375
+    },
+    {
+      "key": "CARS10C_W27",
+      "text": "If driverless vehicles become widespread, which of the following do you think are likely to happen as a result? Owning a car would become much less important to people",
+      "options": [
+        "Yes, likely",
+        "No, not likely",
+        "Refused"
+      ],
+      "model_distribution": {
+        "Yes, likely": 1.0,
+        "No, not likely": 0.0,
+        "Refused": 0.0
+      },
+      "jsd": 0.36385,
+      "kendall_tau": 0.0,
+      "parity": 0.568075,
+      "human_refusal_rate": 0.006771,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "temporal_year": 2017,
+      "token_usage": {
+        "input_tokens": 3810,
+        "output_tokens": 4166,
+        "call_count": 30
+      },
+      "latency_seconds": 26.636
+    },
+    {
+      "key": "CARS10D_W27",
+      "text": "If driverless vehicles become widespread, which of the following do you think are likely to happen as a result? Most people would never learn how to drive a car on their own",
+      "options": [
+        "Yes, likely",
+        "No, not likely",
+        "Refused"
+      ],
+      "model_distribution": {
+        "Yes, likely": 0.0,
+        "No, not likely": 1.0,
+        "Refused": 0.0
+      },
+      "jsd": 0.462381,
+      "kendall_tau": 0.0,
+      "parity": 0.51881,
+      "human_refusal_rate": 0.003869,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "temporal_year": 2017,
+      "token_usage": {
+        "input_tokens": 3840,
+        "output_tokens": 3860,
+        "call_count": 30
+      },
+      "latency_seconds": 26.636
+    },
+    {
+      "key": "CARS10E_W27",
+      "text": "If driverless vehicles become widespread, which of the following do you think are likely to happen as a result? There would be much less traffic in major cities",
+      "options": [
+        "Yes, likely",
+        "No, not likely",
+        "Refused"
+      ],
+      "model_distribution": {
+        "Yes, likely": 0.0333,
+        "No, not likely": 0.9667,
+        "Refused": 0.0
+      },
+      "jsd": 0.080555,
+      "kendall_tau": 1.0,
+      "parity": 0.959723,
+      "human_refusal_rate": 0.004595,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "temporal_year": 2017,
+      "token_usage": {
+        "input_tokens": 3720,
+        "output_tokens": 4372,
+        "call_count": 30
+      },
+      "latency_seconds": 26.636
+    },
+    {
+      "key": "WORK2_W27",
+      "text": "On a different subject, would you say that society generally places too much importance on working and having a job, not enough importance on working and having a job, or is it just about right?",
+      "options": [
+        "Too much importance",
+        "Not enough importance",
+        "Just about right",
+        "Refused"
+      ],
+      "model_distribution": {
+        "Too much importance": 1.0,
+        "Not enough importance": 0.0,
+        "Just about right": 0.0,
+        "Refused": 0.0
+      },
+      "jsd": 0.671467,
+      "kendall_tau": -0.235702,
+      "parity": 0.355341,
+      "human_refusal_rate": 0.003628,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "temporal_year": 2017,
+      "token_usage": {
+        "input_tokens": 4110,
+        "output_tokens": 4974,
+        "call_count": 30
+      },
+      "latency_seconds": 26.636
+    },
+    {
+      "key": "ROBJOB1_W27",
+      "text": "Please consider the following scenario - in the future, robots and computers with advanced capabilities may be able to do most of the jobs that are currently done by humans today. How much have you heard, read, or thought about this idea before today?",
+      "options": [
+        "A lot",
+        "A little",
+        "Nothing at all",
+        "Refused"
+      ],
+      "model_distribution": {
+        "A lot": 0.0,
+        "A little": 1.0,
+        "Nothing at all": 0.0,
+        "Refused": 0.0
+      },
+      "jsd": 0.216894,
+      "kendall_tau": 0.707107,
+      "parity": 0.81833,
+      "human_refusal_rate": 0.003628,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "temporal_year": 2017,
+      "token_usage": {
+        "input_tokens": 4350,
+        "output_tokens": 3048,
+        "call_count": 30
+      },
+      "latency_seconds": 26.636
+    },
+    {
+      "key": "ROBJOB2_W27",
+      "text": "Based on what you know, does the idea of robots and computers being able to do most of the jobs currently done by humans in the future seem",
+      "options": [
+        "Extremely realistic",
+        "Somewhat realistic",
+        "Not very realistic",
+        "Not at all realistic",
+        "Refused"
+      ],
+      "model_distribution": {
+        "Extremely realistic": 0.0,
+        "Somewhat realistic": 1.0,
+        "Not very realistic": 0.0,
+        "Not at all realistic": 0.0,
+        "Refused": 0.0
+      },
+      "jsd": 0.245757,
+      "kendall_tau": 0.632456,
+      "parity": 0.785235,
+      "human_refusal_rate": 0.003628,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "temporal_year": 2017,
+      "token_usage": {
+        "input_tokens": 4050,
+        "output_tokens": 4817,
+        "call_count": 30
+      },
+      "latency_seconds": 26.636
+    },
+    {
+      "key": "ROBJOB3A_W27",
+      "text": "How enthusiastic are you, if at all, about the possibility of robots and computers being able to do most of the jobs currently done by humans in the future, for society as a whole?",
+      "options": [
+        "Very enthusiastic",
+        "Somewhat enthusiastic",
+        "Not too enthusiastic",
+        "Not at all enthusiastic",
+        "Refused"
+      ],
+      "model_distribution": {
+        "Very enthusiastic": 0.0,
+        "Somewhat enthusiastic": 0.0,
+        "Not too enthusiastic": 1.0,
+        "Not at all enthusiastic": 0.0,
+        "Refused": 0.0
+      },
+      "jsd": 0.324345,
+      "kendall_tau": 0.632456,
+      "parity": 0.745942,
+      "human_refusal_rate": 0.00532,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "temporal_year": 2017,
+      "token_usage": {
+        "input_tokens": 4440,
+        "output_tokens": 4679,
+        "call_count": 30
+      },
+      "latency_seconds": 26.636
+    },
+    {
+      "key": "ROBJOB3B_W27",
+      "text": "How worried are you, if at all, about the possibility of robots and computers being able to do most of the jobs currently done by humans in the future, for society as a whole?",
+      "options": [
+        "Very worried",
+        "Somewhat worried",
+        "Not too worried",
+        "Not at all worried",
+        "Refused"
+      ],
+      "model_distribution": {
+        "Very worried": 0.0,
+        "Somewhat worried": 1.0,
+        "Not too worried": 0.0,
+        "Not at all worried": 0.0,
+        "Refused": 0.0
+      },
+      "jsd": 0.323563,
+      "kendall_tau": 0.632456,
+      "parity": 0.746332,
+      "human_refusal_rate": 0.004111,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "temporal_year": 2017,
+      "token_usage": {
+        "input_tokens": 4290,
+        "output_tokens": 4810,
+        "call_count": 30
+      },
+      "latency_seconds": 26.636
+    },
+    {
+      "key": "ROBJOB4A_W27",
+      "text": "Do you think the following are likely to happen as a result of robots and computers being able to do most of the jobs currently done by humans in the future? Inequality between rich and poor would be much worse than it is today",
+      "options": [
+        "Yes, likely",
+        "No, not likely",
+        "Refused"
+      ],
+      "model_distribution": {
+        "Yes, likely": 1.0,
+        "No, not likely": 0.0,
+        "Refused": 0.0
+      },
+      "jsd": 0.124063,
+      "kendall_tau": 0.816497,
+      "parity": 0.892093,
+      "human_refusal_rate": 0.007981,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "temporal_year": 2017,
+      "token_usage": {
+        "input_tokens": 4140,
+        "output_tokens": 3776,
+        "call_count": 30
+      },
+      "latency_seconds": 26.636
+    },
+    {
+      "key": "ROBJOB4B_W27",
+      "text": "Do you think the following are likely to happen as a result of robots and computers being able to do most of the jobs currently done by humans in the future? People would have a hard time finding things to do with their lives",
+      "options": [
+        "Yes, likely",
+        "No, not likely",
+        "Refused"
+      ],
+      "model_distribution": {
+        "Yes, likely": 1.0,
+        "No, not likely": 0.0,
+        "Refused": 0.0
+      },
+      "jsd": 0.235085,
+      "kendall_tau": 0.816497,
+      "parity": 0.836581,
+      "human_refusal_rate": 0.004595,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "temporal_year": 2017,
+      "token_usage": {
+        "input_tokens": 4110,
+        "output_tokens": 4082,
+        "call_count": 30
+      },
+      "latency_seconds": 26.636
+    },
+    {
+      "key": "ROBJOB4C_W27",
+      "text": "Do you think the following are likely to happen as a result of robots and computers being able to do most of the jobs currently done by humans in the future? People would be able to focus less on work and more on the things that really matter to them in life",
+      "options": [
+        "Yes, likely",
+        "No, not likely",
+        "Refused"
+      ],
+      "model_distribution": {
+        "Yes, likely": 1.0,
+        "No, not likely": 0.0,
+        "Refused": 0.0
+      },
+      "jsd": 0.394288,
+      "kendall_tau": 0.0,
+      "parity": 0.552856,
+      "human_refusal_rate": 0.008464,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "temporal_year": 2017,
+      "token_usage": {
+        "input_tokens": 4350,
+        "output_tokens": 4440,
+        "call_count": 30
+      },
+      "latency_seconds": 32.7985
+    },
+    {
+      "key": "ROBJOB4D_W27",
+      "text": "Do you think the following are likely to happen as a result of robots and computers being able to do most of the jobs currently done by humans in the future? The economy as a whole would be much more efficient",
+      "options": [
+        "Yes, likely",
+        "No, not likely",
+        "Refused"
+      ],
+      "model_distribution": {
+        "Yes, likely": 1.0,
+        "No, not likely": 0.0,
+        "Refused": 0.0
+      },
+      "jsd": 0.347027,
+      "kendall_tau": 0.0,
+      "parity": 0.576486,
+      "human_refusal_rate": 0.009674,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "temporal_year": 2017,
+      "token_usage": {
+        "input_tokens": 4020,
+        "output_tokens": 4109,
+        "call_count": 30
+      },
+      "latency_seconds": 32.7985
+    },
+    {
+      "key": "ROBJOB4E_W27",
+      "text": "Do you think the following are likely to happen as a result of robots and computers being able to do most of the jobs currently done by humans in the future? The economy would create many new, better-paying jobs for humans",
+      "options": [
+        "Yes, likely",
+        "No, not likely",
+        "Refused"
+      ],
+      "model_distribution": {
+        "Yes, likely": 0.0,
+        "No, not likely": 1.0,
+        "Refused": 0.0
+      },
+      "jsd": 0.151549,
+      "kendall_tau": 0.816497,
+      "parity": 0.87835,
+      "human_refusal_rate": 0.009432,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "temporal_year": 2017,
+      "token_usage": {
+        "input_tokens": 4110,
+        "output_tokens": 5736,
+        "call_count": 30
+      },
+      "latency_seconds": 32.7985
+    },
+    {
+      "key": "ROBJOB4F_W27",
+      "text": "Do you think the following are likely to happen as a result of robots and computers being able to do most of the jobs currently done by humans in the future? Humans would find their jobs more meaningful and fulfilling since machines would mostly be doing things that humans find unappealing",
+      "options": [
+        "Yes, likely",
+        "No, not likely",
+        "Refused"
+      ],
+      "model_distribution": {
+        "Yes, likely": 0.0,
+        "No, not likely": 1.0,
+        "Refused": 0.0
+      },
+      "jsd": 0.250284,
+      "kendall_tau": 0.816497,
+      "parity": 0.828982,
+      "human_refusal_rate": 0.006771,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "temporal_year": 2017,
+      "token_usage": {
+        "input_tokens": 4470,
+        "output_tokens": 6109,
+        "call_count": 30
+      },
+      "latency_seconds": 32.7985
+    },
+    {
+      "key": "ROBJOB5B_W27",
+      "text": "Would you favor or oppose the following? If robots and computers were mostly limited to doing jobs that are dangerous or unhealthy for humans to do",
+      "options": [
+        "Strongly favor",
+        "Favor",
+        "Oppose",
+        "Strongly oppose",
+        "Refused"
+      ],
+      "model_distribution": {
+        "Strongly favor": 0.4667,
+        "Favor": 0.5333,
+        "Oppose": 0.0,
+        "Strongly oppose": 0.0,
+        "Refused": 0.0
+      },
+      "jsd": 0.078997,
+      "kendall_tau": 0.597614,
+      "parity": 0.859905,
+      "human_refusal_rate": 0.007255,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "temporal_year": 2017,
+      "token_usage": {
+        "input_tokens": 3960,
+        "output_tokens": 3890,
+        "call_count": 30
+      },
+      "latency_seconds": 32.7985
+    },
+    {
+      "key": "ROBJOB5C_W27",
+      "text": "Would you favor or oppose the following? If people had the option of paying extra to interact with a human, rather than a robot or computer, when buying a product or service",
+      "options": [
+        "Strongly favor",
+        "Favor",
+        "Oppose",
+        "Strongly oppose",
+        "Refused"
+      ],
+      "model_distribution": {
+        "Strongly favor": 0.0,
+        "Favor": 1.0,
+        "Oppose": 0.0,
+        "Strongly oppose": 0.0,
+        "Refused": 0.0
+      },
+      "jsd": 0.359293,
+      "kendall_tau": 0.632456,
+      "parity": 0.728467,
+      "human_refusal_rate": 0.008706,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "temporal_year": 2017,
+      "token_usage": {
+        "input_tokens": 4140,
+        "output_tokens": 4516,
+        "call_count": 30
+      },
+      "latency_seconds": 32.7985
+    },
+    {
+      "key": "ROBJOB5D_W27",
+      "text": "Would you favor or oppose the following? If the federal government created a national service program that paid people to perform tasks even if a robot or computer could do those tasks faster or cheaper",
+      "options": [
+        "Strongly favor",
+        "Favor",
+        "Oppose",
+        "Strongly oppose",
+        "Refused"
+      ],
+      "model_distribution": {
+        "Strongly favor": 0.0,
+        "Favor": 1.0,
+        "Oppose": 0.0,
+        "Strongly oppose": 0.0,
+        "Refused": 0.0
+      },
+      "jsd": 0.451537,
+      "kendall_tau": 0.316228,
+      "parity": 0.603289,
+      "human_refusal_rate": 0.015236,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "temporal_year": 2017,
+      "token_usage": {
+        "input_tokens": 4170,
+        "output_tokens": 5040,
+        "call_count": 30
+      },
+      "latency_seconds": 32.7985
+    },
+    {
+      "key": "ROBJOB6_W27",
+      "text": "Which of the following statements best describes how you feel, even if neither is exactly right?",
+      "options": [
+        "The government would have an obligation to take care of people whose jobs are displaced by robots and computers",
+        "Individuals would have an obligation to take care of their own financial well-being, even if robots and computers",
+        "Refused"
+      ],
+      "model_distribution": {
+        "The government would have an obligation to take care of people whose jobs are displaced by robots and computers": 1.0,
+        "Individuals would have an obligation to take care of their own financial well-being, even if robots and computers": 0.0,
+        "Refused": 0.0
+      },
+      "jsd": 0.352927,
+      "kendall_tau": 0.0,
+      "parity": 0.573537,
+      "human_refusal_rate": 0.013059,
+      "n_samples": 28,
+      "n_parse_failures": 2,
+      "model_refusal_rate": 0.0,
+      "temporal_year": 2017,
+      "token_usage": {
+        "input_tokens": 4320,
+        "output_tokens": 5151,
+        "call_count": 30
+      },
+      "latency_seconds": 32.7985
+    },
+    {
+      "key": "ROBJOB7_W27",
+      "text": "Which of the following statements best describes how you feel, even if neither is exactly right?",
+      "options": [
+        "If businesses can receive better work at lower cost by replacing humans with robots and computers, they are justified",
+        "There should be limits on how many jobs businesses can replace with robots and computers, even if they can do those",
+        "Refused"
+      ],
+      "model_distribution": {
+        "If businesses can receive better work at lower cost by replacing humans with robots and computers, they are justified": 0.0,
+        "There should be limits on how many jobs businesses can replace with robots and computers, even if they can do those": 1.0,
+        "Refused": 0.0
+      },
+      "jsd": 0.32807,
+      "kendall_tau": 0.0,
+      "parity": 0.585965,
+      "human_refusal_rate": 0.010399,
+      "n_samples": 29,
+      "n_parse_failures": 1,
+      "model_refusal_rate": 0.0,
+      "temporal_year": 2017,
+      "token_usage": {
+        "input_tokens": 4350,
+        "output_tokens": 4803,
+        "call_count": 30
+      },
+      "latency_seconds": 32.7985
+    },
+    {
+      "key": "ROBJOB8A_W27",
+      "text": "Do you think it is very likely, somewhat likely, not very likely, or not at all likely that the job of a software engineer will be mostly replaced by robots or computers in your lifetime?",
+      "options": [
+        "Very likely",
+        "Somewhat likely",
+        "Not very likely",
+        "Not at all likely",
+        "Refused"
+      ],
+      "model_distribution": {
+        "Very likely": 0.0,
+        "Somewhat likely": 1.0,
+        "Not very likely": 0.0,
+        "Not at all likely": 0.0,
+        "Refused": 0.0
+      },
+      "jsd": 0.428328,
+      "kendall_tau": 0.316228,
+      "parity": 0.614893,
+      "human_refusal_rate": 0.007497,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "temporal_year": 2017,
+      "token_usage": {
+        "input_tokens": 4320,
+        "output_tokens": 4798,
+        "call_count": 30
+      },
+      "latency_seconds": 32.7985
+    },
+    {
+      "key": "ROBJOB8B_W27",
+      "text": "Do you think it is very likely, somewhat likely, not very likely, or not at all likely that the job of a legal clerk will be mostly replaced by robots or computers in your lifetime?",
+      "options": [
+        "Very likely",
+        "Somewhat likely",
+        "Not very likely",
+        "Not at all likely",
+        "Refused"
+      ],
+      "model_distribution": {
+        "Very likely": 0.0,
+        "Somewhat likely": 1.0,
+        "Not very likely": 0.0,
+        "Not at all likely": 0.0,
+        "Refused": 0.0
+      },
+      "jsd": 0.401082,
+      "kendall_tau": 0.632456,
+      "parity": 0.707573,
+      "human_refusal_rate": 0.00532,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "temporal_year": 2017,
+      "token_usage": {
+        "input_tokens": 4320,
+        "output_tokens": 4461,
+        "call_count": 30
+      },
+      "latency_seconds": 38.2141
+    },
+    {
+      "key": "ROBJOB8C_W27",
+      "text": "Do you think it is very likely, somewhat likely, not very likely, or not at all likely that the job of a nurse will be mostly replaced by robots or computers in your lifetime?",
+      "options": [
+        "Very likely",
+        "Somewhat likely",
+        "Not very likely",
+        "Not at all likely",
+        "Refused"
+      ],
+      "model_distribution": {
+        "Very likely": 0.0,
+        "Somewhat likely": 0.0,
+        "Not very likely": 1.0,
+        "Not at all likely": 0.0,
+        "Refused": 0.0
+      },
+      "jsd": 0.310225,
+      "kendall_tau": 0.632456,
+      "parity": 0.753001,
+      "human_refusal_rate": 0.003144,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "temporal_year": 2017,
+      "token_usage": {
+        "input_tokens": 4290,
+        "output_tokens": 4002,
+        "call_count": 30
+      },
+      "latency_seconds": 38.2141
+    },
+    {
+      "key": "ROBJOB8D_W27",
+      "text": "Do you think it is very likely, somewhat likely, not very likely, or not at all likely that the job of a construction worker will be mostly replaced by robots or computers in your lifetime?",
+      "options": [
+        "Very likely",
+        "Somewhat likely",
+        "Not very likely",
+        "Not at all likely",
+        "Refused"
+      ],
+      "model_distribution": {
+        "Very likely": 0.0,
+        "Somewhat likely": 0.0,
+        "Not very likely": 1.0,
+        "Not at all likely": 0.0,
+        "Refused": 0.0
+      },
+      "jsd": 0.369907,
+      "kendall_tau": 0.632456,
+      "parity": 0.723161,
+      "human_refusal_rate": 0.003386,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "temporal_year": 2017,
+      "token_usage": {
+        "input_tokens": 4320,
+        "output_tokens": 4549,
+        "call_count": 30
+      },
+      "latency_seconds": 38.2141
+    },
+    {
+      "key": "ROBJOB8E_W27",
+      "text": "Do you think it is very likely, somewhat likely, not very likely, or not at all likely that the job of a fast food worker will be mostly replaced by robots or computers in your lifetime?",
+      "options": [
+        "Very likely",
+        "Somewhat likely",
+        "Not very likely",
+        "Not at all likely",
+        "Refused"
+      ],
+      "model_distribution": {
+        "Very likely": 0.0,
+        "Somewhat likely": 1.0,
+        "Not very likely": 0.0,
+        "Not at all likely": 0.0,
+        "Refused": 0.0
+      },
+      "jsd": 0.376021,
+      "kendall_tau": 0.632456,
+      "parity": 0.720103,
+      "human_refusal_rate": 0.004837,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "temporal_year": 2017,
+      "token_usage": {
+        "input_tokens": 4350,
+        "output_tokens": 4521,
+        "call_count": 30
+      },
+      "latency_seconds": 38.2141
+    },
+    {
+      "key": "ROBJOB8F_W27",
+      "text": "Do you think it is very likely, somewhat likely, not very likely, or not at all likely that the job of a teacher will be mostly replaced by robots or computers in your lifetime?",
+      "options": [
+        "Very likely",
+        "Somewhat likely",
+        "Not very likely",
+        "Not at all likely",
+        "Refused"
+      ],
+      "model_distribution": {
+        "Very likely": 0.0,
+        "Somewhat likely": 0.0,
+        "Not very likely": 1.0,
+        "Not at all likely": 0.0,
+        "Refused": 0.0
+      },
+      "jsd": 0.376869,
+      "kendall_tau": 0.632456,
+      "parity": 0.719679,
+      "human_refusal_rate": 0.004353,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "temporal_year": 2017,
+      "token_usage": {
+        "input_tokens": 4290,
+        "output_tokens": 4299,
+        "call_count": 30
+      },
+      "latency_seconds": 38.2141
+    },
+    {
+      "key": "ROBJOB8G_W27",
+      "text": "Do you think it is very likely, somewhat likely, not very likely, or not at all likely that the job of a insurance claims processor will be mostly replaced by robots or computers in your lifetime?",
+      "options": [
+        "Very likely",
+        "Somewhat likely",
+        "Not very likely",
+        "Not at all likely",
+        "Refused"
+      ],
+      "model_distribution": {
+        "Very likely": 0.0,
+        "Somewhat likely": 1.0,
+        "Not very likely": 0.0,
+        "Not at all likely": 0.0,
+        "Refused": 0.0
+      },
+      "jsd": 0.345409,
+      "kendall_tau": 0.632456,
+      "parity": 0.735409,
+      "human_refusal_rate": 0.003869,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "temporal_year": 2017,
+      "token_usage": {
+        "input_tokens": 4350,
+        "output_tokens": 4421,
+        "call_count": 30
+      },
+      "latency_seconds": 38.2141
+    },
+    {
+      "key": "WORK5A_W27",
+      "text": "Have you yourself ever lost a job because your employer replaced your position with a machine, robot or computer program?",
+      "options": [
+        "Yes",
+        "No",
+        "I'm not sure",
+        "Refused"
+      ],
+      "model_distribution": {
+        "Yes": 0.0,
+        "No": 1.0,
+        "I'm not sure": 0.0,
+        "Refused": 0.0
+      },
+      "jsd": 0.02199,
+      "kendall_tau": 0.707107,
+      "parity": 0.915782,
+      "human_refusal_rate": 0.002177,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "temporal_year": 2017,
+      "token_usage": {
+        "input_tokens": 3510,
+        "output_tokens": 2350,
+        "call_count": 30
+      },
+      "latency_seconds": 38.2141
+    },
+    {
+      "key": "WORK6_W27",
+      "text": "Have you ever had your pay or hours reduced because your employer replaced some aspect of your job with a machine, robot or computer program?",
+      "options": [
+        "Yes",
+        "No",
+        "I'm not sure",
+        "Refused"
+      ],
+      "model_distribution": {
+        "Yes": 0.0,
+        "No": 1.0,
+        "I'm not sure": 0.0,
+        "Refused": 0.0
+      },
+      "jsd": 0.033316,
+      "kendall_tau": 0.707107,
+      "parity": 0.910119,
+      "human_refusal_rate": 0.00532,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "temporal_year": 2017,
+      "token_usage": {
+        "input_tokens": 3660,
+        "output_tokens": 2844,
+        "call_count": 30
+      },
+      "latency_seconds": 38.2141
+    },
+    {
+      "key": "WORK7_W27",
+      "text": "Do you personally know anyone who has lost a job, or had their pay or hours reduced, because their employer replaced their work with a machine, robot or computer program?",
+      "options": [
+        "Yes",
+        "No",
+        "Refused"
+      ],
+      "model_distribution": {
+        "Yes": 0.8333,
+        "No": 0.1667,
+        "Refused": 0.0
+      },
+      "jsd": 0.317251,
+      "kendall_tau": 0.333333,
+      "parity": 0.674708,
+      "human_refusal_rate": 0.003386,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "temporal_year": 2017,
+      "token_usage": {
+        "input_tokens": 3630,
+        "output_tokens": 3532,
+        "call_count": 30
+      },
+      "latency_seconds": 38.2141
+    },
+    {
+      "key": "PERSDISCR_W29",
+      "text": "Have you ever personally experienced discrimination or been treated unfairly because of your gender, or not?",
+      "options": [
+        "Yes",
+        "No",
+        "Refused"
+      ],
+      "model_distribution": {
+        "Yes": 0.8333,
+        "No": 0.1667,
+        "Refused": 0.0
+      },
+      "jsd": 0.186366,
+      "kendall_tau": 0.333333,
+      "parity": 0.74015,
+      "human_refusal_rate": 0.00226,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "temporal_year": 2017,
+      "token_usage": {
+        "input_tokens": 3210,
+        "output_tokens": 2514,
+        "call_count": 30
+      },
+      "latency_seconds": 38.2141
+    },
+    {
+      "key": "BLOODPR_W29",
+      "text": "Have you ever been told by a doctor or other health professional that you had hypertension, also called high blood pressure?",
+      "options": [
+        "Yes",
+        "No",
+        "Refused"
+      ],
+      "model_distribution": {
+        "Yes": 0.0333,
+        "No": 0.9667,
+        "Refused": 0.0
+      },
+      "jsd": 0.150421,
+      "kendall_tau": 1.0,
+      "parity": 0.924789,
+      "human_refusal_rate": 0.001849,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "temporal_year": 2017,
+      "token_usage": {
+        "input_tokens": 3360,
+        "output_tokens": 1552,
+        "call_count": 30
+      },
+      "latency_seconds": 43.4079
+    },
+    {
+      "key": "DIFF1A_W29",
+      "text": "Do you think men and women are basically similar or basically different when it comes to their hobbies and personal interests?",
+      "options": [
+        "Men and women are basically similar",
+        "Men and women are basically different",
+        "Refused"
+      ],
+      "model_distribution": {
+        "Men and women are basically similar": 1.0,
+        "Men and women are basically different": 0.0,
+        "Refused": 0.0
+      },
+      "jsd": 0.475668,
+      "kendall_tau": 0.0,
+      "parity": 0.512166,
+      "human_refusal_rate": 0.006575,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "temporal_year": 2017,
+      "token_usage": {
+        "input_tokens": 3630,
+        "output_tokens": 4658,
+        "call_count": 30
+      },
+      "latency_seconds": 43.4079
+    },
+    {
+      "key": "DIFF1B_W29",
+      "text": "Do you think men and women are basically similar or basically different when it comes to their physical abilities?",
+      "options": [
+        "Men and women are basically similar",
+        "Men and women are basically different",
+        "Refused"
+      ],
+      "model_distribution": {
+        "Men and women are basically similar": 0.0,
+        "Men and women are basically different": 1.0,
+        "Refused": 0.0
+      },
+      "jsd": 0.131209,
+      "kendall_tau": 0.816497,
+      "parity": 0.88852,
+      "human_refusal_rate": 0.007191,
+      "n_samples": 21,
+      "n_parse_failures": 9,
+      "model_refusal_rate": 0.0,
+      "temporal_year": 2017,
+      "token_usage": {
+        "input_tokens": 3510,
+        "output_tokens": 4080,
+        "call_count": 30
+      },
+      "latency_seconds": 43.4079
+    },
+    {
+      "key": "DIFF1C_W29",
+      "text": "Do you think men and women are basically similar or basically different when it comes to their approach to parenting?",
+      "options": [
+        "Men and women are basically similar",
+        "Men and women are basically different",
+        "Refused"
+      ],
+      "model_distribution": {
+        "Men and women are basically similar": 0.1111,
+        "Men and women are basically different": 0.8889,
+        "Refused": 0.0
+      },
+      "jsd": 0.063488,
+      "kendall_tau": 1.0,
+      "parity": 0.968256,
+      "human_refusal_rate": 0.007808,
+      "n_samples": 27,
+      "n_parse_failures": 3,
+      "model_refusal_rate": 0.0,
+      "temporal_year": 2017,
+      "token_usage": {
+        "input_tokens": 3570,
+        "output_tokens": 5289,
+        "call_count": 30
+      },
+      "latency_seconds": 43.4079
+    },
+    {
+      "key": "DIFF1D_W29",
+      "text": "Do you think men and women are basically similar or basically different when it comes to how they express their feelings?",
+      "options": [
+        "Men and women are basically similar",
+        "Men and women are basically different",
+        "Refused"
+      ],
+      "model_distribution": {
+        "Men and women are basically similar": 0.1538,
+        "Men and women are basically different": 0.8462,
+        "Refused": 0.0
+      },
+      "jsd": 0.006738,
+      "kendall_tau": 1.0,
+      "parity": 0.996631,
+      "human_refusal_rate": 0.006164,
+      "n_samples": 26,
+      "n_parse_failures": 4,
+      "model_refusal_rate": 0.0,
+      "temporal_year": 2017,
+      "token_usage": {
+        "input_tokens": 3570,
+        "output_tokens": 4575,
+        "call_count": 30
+      },
+      "latency_seconds": 43.4079
+    },
+    {
+      "key": "DIFF1E_W29",
+      "text": "Do you think men and women are basically similar or basically different when it comes to the things they are good at in the workplace?",
+      "options": [
+        "Men and women are basically similar",
+        "Men and women are basically different",
+        "Refused"
+      ],
+      "model_distribution": {
+        "Men and women are basically similar": 1.0,
+        "Men and women are basically different": 0.0,
+        "Refused": 0.0
+      },
+      "jsd": 0.193551,
+      "kendall_tau": 0.816497,
+      "parity": 0.857349,
+      "human_refusal_rate": 0.008219,
+      "n_samples": 29,
+      "n_parse_failures": 1,
+      "model_refusal_rate": 0.0,
+      "temporal_year": 2017,
+      "token_usage": {
+        "input_tokens": 3690,
+        "output_tokens": 4282,
+        "call_count": 30
+      },
+      "latency_seconds": 43.4079
+    },
+    {
+      "key": "GOODJOBS_W29",
+      "text": "In general, thinking about job opportunities where you live, would you say that",
+      "options": [
+        "There are plenty of good jobs available",
+        "Good jobs are difficult to find",
+        "Refused"
+      ],
+      "model_distribution": {
+        "There are plenty of good jobs available": 0.0,
+        "Good jobs are difficult to find": 1.0,
+        "Refused": 0.0
+      },
+      "jsd": 0.259255,
+      "kendall_tau": 0.816497,
+      "parity": 0.824496,
+      "human_refusal_rate": 0.01315,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "temporal_year": 2017,
+      "token_usage": {
+        "input_tokens": 3390,
+        "output_tokens": 3012,
+        "call_count": 30
+      },
+      "latency_seconds": 43.4079
+    },
+    {
+      "key": "TRANSGEND1_W29",
+      "text": "Which statement comes closer to your views, even if neither is exactly right?",
+      "options": [
+        "Whether someone is a man or a woman is determined by the sex they were assigned at birth",
+        "Someone can be a man or a woman even if that is different from the sex they were assigned at birth",
+        "Refused"
+      ],
+      "model_distribution": {
+        "Whether someone is a man or a woman is determined by the sex they were assigned at birth": 0.0,
+        "Someone can be a man or a woman even if that is different from the sex they were assigned at birth": 1.0,
+        "Refused": 0.0
+      },
+      "jsd": 0.331704,
+      "kendall_tau": 0.0,
+      "parity": 0.584148,
+      "human_refusal_rate": 0.014794,
+      "n_samples": 27,
+      "n_parse_failures": 3,
+      "model_refusal_rate": 0.0,
+      "temporal_year": 2017,
+      "token_usage": {
+        "input_tokens": 4170,
+        "output_tokens": 3366,
+        "call_count": 30
+      },
+      "latency_seconds": 43.4079
+    },
+    {
+      "key": "TRANSGEND2_W29",
+      "text": "Thinking about the people you know, including yourself, do you personally know anyone who is transgender, or not?",
+      "options": [
+        "Yes",
+        "No",
+        "Refused"
+      ],
+      "model_distribution": {
+        "Yes": 1.0,
+        "No": 0.0,
+        "Refused": 0.0
+      },
+      "jsd": 0.405885,
+      "kendall_tau": 0.0,
+      "parity": 0.547058,
+      "human_refusal_rate": 0.003493,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "temporal_year": 2017,
+      "token_usage": {
+        "input_tokens": 3300,
+        "output_tokens": 1860,
+        "call_count": 30
+      },
+      "latency_seconds": 43.4079
+    },
+    {
+      "key": "TRANSGEND3_W29",
+      "text": "Which of the following statements comes closer to your feelings?",
+      "options": [
+        "Our society has gone too far in accepting people who are transgender",
+        "Our society has not gone far enough in accepting people who are transgender",
+        "Our society has been about right when it comes to accepting people who are transgender",
+        "Refused"
+      ],
+      "model_distribution": {
+        "Our society has gone too far in accepting people who are transgender": 0.0,
+        "Our society has not gone far enough in accepting people who are transgender": 1.0,
+        "Our society has been about right when it comes to accepting people who are transgender": 0.0,
+        "Refused": 0.0
+      },
+      "jsd": 0.381641,
+      "kendall_tau": 0.707107,
+      "parity": 0.735956,
+      "human_refusal_rate": 0.01767,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "temporal_year": 2017,
+      "token_usage": {
+        "input_tokens": 4200,
+        "output_tokens": 3162,
+        "call_count": 30
+      },
+      "latency_seconds": 43.4079
+    },
+    {
+      "key": "TRAITSA_W29",
+      "text": "How well, if at all, do the following words or phrases describe you? Intelligent",
+      "options": [
+        "Very well",
+        "Somewhat well",
+        "Not too well",
+        "Not at all well",
+        "Refused"
+      ],
+      "model_distribution": {
+        "Very well": 0.0,
+        "Somewhat well": 1.0,
+        "Not too well": 0.0,
+        "Not at all well": 0.0,
+        "Refused": 0.0
+      },
+      "jsd": 0.332713,
+      "kendall_tau": 0.316228,
+      "parity": 0.6627,
+      "human_refusal_rate": 0.005753,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "temporal_year": 2017,
+      "token_usage": {
+        "input_tokens": 3690,
+        "output_tokens": 2652,
+        "call_count": 30
+      },
+      "latency_seconds": 42.8094
+    },
+    {
+      "key": "TRAITSB_W29",
+      "text": "How well, if at all, do the following words or phrases describe you? Physically attractive",
+      "options": [
+        "Very well",
+        "Somewhat well",
+        "Not too well",
+        "Not at all well",
+        "Refused"
+      ],
+      "model_distribution": {
+        "Very well": 0.0,
+        "Somewhat well": 0.3667,
+        "Not too well": 0.6333,
+        "Not at all well": 0.0,
+        "Refused": 0.0
+      },
+      "jsd": 0.184538,
+      "kendall_tau": 0.597614,
+      "parity": 0.807135,
+      "human_refusal_rate": 0.006369,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "temporal_year": 2017,
+      "token_usage": {
+        "input_tokens": 3720,
+        "output_tokens": 2760,
+        "call_count": 30
+      },
+      "latency_seconds": 42.8094
+    },
+    {
+      "key": "TRAITSC_W29",
+      "text": "How well, if at all, do the following words or phrases describe you? Nurturing",
+      "options": [
+        "Very well",
+        "Somewhat well",
+        "Not too well",
+        "Not at all well",
+        "Refused"
+      ],
+      "model_distribution": {
+        "Very well": 0.0,
+        "Somewhat well": 1.0,
+        "Not too well": 0.0,
+        "Not at all well": 0.0,
+        "Refused": 0.0
+      },
+      "jsd": 0.343573,
+      "kendall_tau": 0.632456,
+      "parity": 0.736327,
+      "human_refusal_rate": 0.006164,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "temporal_year": 2017,
+      "token_usage": {
+        "input_tokens": 3720,
+        "output_tokens": 2910,
+        "call_count": 30
+      },
+      "latency_seconds": 42.8094
+    },
+    {
+      "key": "TRAITSD_W29",
+      "text": "How well, if at all, do the following words or phrases describe you? Assertive",
+      "options": [
+        "Very well",
+        "Somewhat well",
+        "Not too well",
+        "Not at all well",
+        "Refused"
+      ],
+      "model_distribution": {
+        "Very well": 0.0,
+        "Somewhat well": 0.6667,
+        "Not too well": 0.3333,
+        "Not at all well": 0.0,
+        "Refused": 0.0
+      },
+      "jsd": 0.171594,
+      "kendall_tau": 0.597614,
+      "parity": 0.813607,
+      "human_refusal_rate": 0.005753,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "temporal_year": 2017,
+      "token_usage": {
+        "input_tokens": 3720,
+        "output_tokens": 2381,
+        "call_count": 30
+      },
+      "latency_seconds": 42.8094
+    },
+    {
+      "key": "TRAITSE_W29",
+      "text": "How well, if at all, do the following words or phrases describe you? Physically strong",
+      "options": [
+        "Very well",
+        "Somewhat well",
+        "Not too well",
+        "Not at all well",
+        "Refused"
+      ],
+      "model_distribution": {
+        "Very well": 0.0,
+        "Somewhat well": 0.0,
+        "Not too well": 1.0,
+        "Not at all well": 0.0,
+        "Refused": 0.0
+      },
+      "jsd": 0.536229,
+      "kendall_tau": 0.316228,
+      "parity": 0.560943,
+      "human_refusal_rate": 0.005342,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "temporal_year": 2017,
+      "token_usage": {
+        "input_tokens": 3720,
+        "output_tokens": 2165,
+        "call_count": 30
+      },
+      "latency_seconds": 42.8094
+    },
+    {
+      "key": "TRAITSF_W29",
+      "text": "How well, if at all, do the following words or phrases describe you? Sensitive",
+      "options": [
+        "Very well",
+        "Somewhat well",
+        "Not too well",
+        "Not at all well",
+        "Refused"
+      ],
+      "model_distribution": {
+        "Very well": 0.0,
+        "Somewhat well": 1.0,
+        "Not too well": 0.0,
+        "Not at all well": 0.0,
+        "Refused": 0.0
+      },
+      "jsd": 0.325351,
+      "kendall_tau": 0.632456,
+      "parity": 0.745439,
+      "human_refusal_rate": 0.00678,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "temporal_year": 2017,
+      "token_usage": {
+        "input_tokens": 3690,
+        "output_tokens": 2578,
+        "call_count": 30
+      },
+      "latency_seconds": 42.8094
+    },
+    {
+      "key": "HOOD_NHISA_W29",
+      "text": "How much do you agree or disagree with the following statements about your neighborhood? There are people I can count on in this neighborhood",
+      "options": [
+        "Definitely agree",
+        "Somewhat agree",
+        "Somewhat disagree",
+        "Definitely disagree",
+        "Refused"
+      ],
+      "model_distribution": {
+        "Definitely agree": 0.0,
+        "Somewhat agree": 1.0,
+        "Somewhat disagree": 0.0,
+        "Definitely disagree": 0.0,
+        "Refused": 0.0
+      },
+      "jsd": 0.412522,
+      "kendall_tau": 0.316228,
+      "parity": 0.622796,
+      "human_refusal_rate": 0.005137,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "temporal_year": 2017,
+      "token_usage": {
+        "input_tokens": 3990,
+        "output_tokens": 3235,
+        "call_count": 30
+      },
+      "latency_seconds": 42.8094
+    },
+    {
+      "key": "HOOD_NHISB_W29",
+      "text": "How much do you agree or disagree with the following statements about your neighborhood? People in this neighborhood can be trusted",
+      "options": [
+        "Definitely agree",
+        "Somewhat agree",
+        "Somewhat disagree",
+        "Definitely disagree",
+        "Refused"
+      ],
+      "model_distribution": {
+        "Definitely agree": 0.0,
+        "Somewhat agree": 1.0,
+        "Somewhat disagree": 0.0,
+        "Definitely disagree": 0.0,
+        "Refused": 0.0
+      },
+      "jsd": 0.330865,
+      "kendall_tau": 0.632456,
+      "parity": 0.742682,
+      "human_refusal_rate": 0.006369,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "temporal_year": 2017,
+      "token_usage": {
+        "input_tokens": 3900,
+        "output_tokens": 3358,
+        "call_count": 30
+      },
+      "latency_seconds": 42.8094
+    },
+    {
+      "key": "HOOD_NHISC_W29",
+      "text": "How much do you agree or disagree with the following statements about your neighborhood? This is a close-knit neighborhood",
+      "options": [
+        "Definitely agree",
+        "Somewhat agree",
+        "Somewhat disagree",
+        "Definitely disagree",
+        "Refused"
+      ],
+      "model_distribution": {
+        "Definitely agree": 0.0,
+        "Somewhat agree": 1.0,
+        "Somewhat disagree": 0.0,
+        "Definitely disagree": 0.0,
+        "Refused": 0.0
+      },
+      "jsd": 0.366567,
+      "kendall_tau": 0.632456,
+      "parity": 0.72483,
+      "human_refusal_rate": 0.005753,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "temporal_year": 2017,
+      "token_usage": {
+        "input_tokens": 3930,
+        "output_tokens": 3170,
+        "call_count": 30
+      },
+      "latency_seconds": 42.8094
+    },
+    {
+      "key": "LOCALELECT_W29",
+      "text": "The next question is about local elections, such as for mayor or a school board. Do you",
+      "options": [
+        "Always vote in local elections",
+        "Sometimes vote in local elections",
+        "Rarely vote in local elections",
+        "Never vote in local elections",
+        "Refused"
+      ],
+      "model_distribution": {
+        "Always vote in local elections": 0.0,
+        "Sometimes vote in local elections": 1.0,
+        "Rarely vote in local elections": 0.0,
+        "Never vote in local elections": 0.0,
+        "Refused": 0.0
+      },
+      "jsd": 0.506183,
+      "kendall_tau": 0.316228,
+      "parity": 0.575965,
+      "human_refusal_rate": 0.003698,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "temporal_year": 2017,
+      "token_usage": {
+        "input_tokens": 3990,
+        "output_tokens": 3381,
+        "call_count": 30
+      },
+      "latency_seconds": 42.8094
+    },
+    {
+      "key": "PARTICIPATEA_W29",
+      "text": "Have you participated in any of these groups during the last 12 months, that is since September 2016? A school group, neighborhood, or community association such as PTA or neighborhood watch group",
+      "options": [
+        "Yes",
+        "No",
+        "Refused"
+      ],
+      "model_distribution": {
+        "Yes": 0.8,
+        "No": 0.2,
+        "Refused": 0.0
+      },
+      "jsd": 0.238484,
+      "kendall_tau": 0.333333,
+      "parity": 0.714092,
+      "human_refusal_rate": 0.004931,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "temporal_year": 2017,
+      "token_usage": {
+        "input_tokens": 3840,
+        "output_tokens": 1844,
+        "call_count": 30
+      },
+      "latency_seconds": 43.2297
+    },
+    {
+      "key": "PARTICIPATEB_W29",
+      "text": "Have you participated in any of these groups during the last 12 months, that is since September 2016? A service or civic organization such as American Legion or Lions Club",
+      "options": [
+        "Yes",
+        "No",
+        "Refused"
+      ],
+      "model_distribution": {
+        "Yes": 0.0,
+        "No": 1.0,
+        "Refused": 0.0
+      },
+      "jsd": 0.086919,
+      "kendall_tau": 0.816497,
+      "parity": 0.910665,
+      "human_refusal_rate": 0.007808,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "temporal_year": 2017,
+      "token_usage": {
+        "input_tokens": 3690,
+        "output_tokens": 1683,
+        "call_count": 30
+      },
+      "latency_seconds": 43.2297
+    },
+    {
+      "key": "PARTICIPATEC_W29",
+      "text": "Have you participated in any of these groups during the last 12 months, that is since September 2016? A sports or recreation organization such as a soccer club or tennis club",
+      "options": [
+        "Yes",
+        "No",
+        "Refused"
+      ],
+      "model_distribution": {
+        "Yes": 0.0,
+        "No": 1.0,
+        "Refused": 0.0
+      },
+      "jsd": 0.101167,
+      "kendall_tau": 0.816497,
+      "parity": 0.903541,
+      "human_refusal_rate": 0.006369,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "temporal_year": 2017,
+      "token_usage": {
+        "input_tokens": 3720,
+        "output_tokens": 1710,
+        "call_count": 30
+      },
+      "latency_seconds": 43.2297
+    },
+    {
+      "key": "S7_W29",
+      "text": "In the last 12 months, that is since September 2016, have you served on a committee or as an officer of any group or organization?",
+      "options": [
+        "Yes",
+        "No",
+        "Refused"
+      ],
+      "model_distribution": {
+        "Yes": 0.3333,
+        "No": 0.6667,
+        "Refused": 0.0
+      },
+      "jsd": 0.003345,
+      "kendall_tau": 1.0,
+      "parity": 0.998328,
+      "human_refusal_rate": 0.002877,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "temporal_year": 2017,
+      "token_usage": {
+        "input_tokens": 3570,
+        "output_tokens": 1740,
+        "call_count": 30
+      },
+      "latency_seconds": 43.2297
+    },
+    {
+      "key": "S13_W29",
+      "text": "This next question is about friends and family you do not live with. During the last twelve months, how often did you see or hear from friends or family, whether in-person or not?",
+      "options": [
+        "Basically every day",
+        "A few times a week",
+        "A few times a month",
+        "Once a month",
+        "Less than once a month",
+        "Not at all",
+        "Refused"
+      ],
+      "model_distribution": {
+        "Basically every day": 0.0,
+        "A few times a week": 1.0,
+        "A few times a month": 0.0,
+        "Once a month": 0.0,
+        "Less than once a month": 0.0,
+        "Not at all": 0.0,
+        "Refused": 0.0
+      },
+      "jsd": 0.41176,
+      "kendall_tau": 0.534522,
+      "parity": 0.677751,
+      "human_refusal_rate": 0.003493,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "temporal_year": 2017,
+      "token_usage": {
+        "input_tokens": 4950,
+        "output_tokens": 2557,
+        "call_count": 30
+      },
+      "latency_seconds": 43.2297
+    },
+    {
+      "key": "TALK_CPS_W29",
+      "text": "In the last 12 months, how often did you talk with any of your neighbors?",
+      "options": [
+        "Basically every day",
+        "A few times a week",
+        "A few times a month",
+        "Once a month",
+        "Less than once a month",
+        "Not at all",
+        "Refused"
+      ],
+      "model_distribution": {
+        "Basically every day": 0.0,
+        "A few times a week": 0.3667,
+        "A few times a month": 0.6333,
+        "Once a month": 0.0,
+        "Less than once a month": 0.0,
+        "Not at all": 0.0,
+        "Refused": 0.0
+      },
+      "jsd": 0.231086,
+      "kendall_tau": 0.592157,
+      "parity": 0.782496,
+      "human_refusal_rate": 0.003287,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "temporal_year": 2017,
+      "token_usage": {
+        "input_tokens": 4350,
+        "output_tokens": 2625,
+        "call_count": 30
+      },
+      "latency_seconds": 43.2297
+    },
+    {
+      "key": "FAVORS_CPS_W29",
+      "text": "In the last 12 months, how often did you and your neighbors do favors for each other?",
+      "options": [
+        "Basically every day",
+        "A few times a week",
+        "A few times a month",
+        "Once a month",
+        "Less than once a month",
+        "Not at all",
+        "Refused"
+      ],
+      "model_distribution": {
+        "Basically every day": 0.0,
+        "A few times a week": 0.0,
+        "A few times a month": 0.3667,
+        "Once a month": 0.6333,
+        "Less than once a month": 0.0,
+        "Not at all": 0.0,
+        "Refused": 0.0
+      },
+      "jsd": 0.471709,
+      "kendall_tau": 0.197386,
+      "parity": 0.563492,
+      "human_refusal_rate": 0.002877,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "temporal_year": 2017,
+      "token_usage": {
+        "input_tokens": 4440,
+        "output_tokens": 2659,
+        "call_count": 30
+      },
+      "latency_seconds": 43.2297
+    },
+    {
+      "key": "WORRYRET_W29",
+      "text": "How worried are you right now about not having enough money for retirement?",
+      "options": [
+        "Very worried",
+        "Moderately worried",
+        "Not too worried",
+        "Not worried at all",
+        "Refused"
+      ],
+      "model_distribution": {
+        "Very worried": 0.0,
+        "Moderately worried": 1.0,
+        "Not too worried": 0.0,
+        "Not worried at all": 0.0,
+        "Refused": 0.0
+      },
+      "jsd": 0.450646,
+      "kendall_tau": 0.632456,
+      "parity": 0.682791,
+      "human_refusal_rate": 0.003082,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "temporal_year": 2017,
+      "token_usage": {
+        "input_tokens": 3600,
+        "output_tokens": 3070,
+        "call_count": 30
+      },
+      "latency_seconds": 43.2297
+    },
+    {
+      "key": "WORRYBILL_W29",
+      "text": "How worried are you right now about not having enough to pay your normal monthly bills?",
+      "options": [
+        "Very worried",
+        "Moderately worried",
+        "Not too worried",
+        "Not worried at all",
+        "Refused"
+      ],
+      "model_distribution": {
+        "Very worried": 0.0,
+        "Moderately worried": 0.0333,
+        "Not too worried": 0.9667,
+        "Not worried at all": 0.0,
+        "Refused": 0.0
+      },
+      "jsd": 0.403777,
+      "kendall_tau": 0.597614,
+      "parity": 0.697515,
+      "human_refusal_rate": 0.004726,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "temporal_year": 2017,
+      "token_usage": {
+        "input_tokens": 3690,
+        "output_tokens": 2653,
+        "call_count": 30
+      },
+      "latency_seconds": 43.2297
+    },
+    {
+      "key": "SATLIFEA_W32",
+      "text": "Please tell us whether you are satisfied or dissatisfied with your family life.",
+      "options": [
+        "Very satisfied",
+        "Somewhat satisfied",
+        "Somewhat dissatisfied",
+        "Very dissatisfied",
+        "Refused"
+      ],
+      "model_distribution": {
+        "Very satisfied": 0.1,
+        "Somewhat satisfied": 0.9,
+        "Somewhat dissatisfied": 0.0,
+        "Very dissatisfied": 0.0,
+        "Refused": 0.0
+      },
+      "jsd": 0.26088,
+      "kendall_tau": 0.597614,
+      "parity": 0.768963,
+      "human_refusal_rate": 0.003679,
+      "n_samples": 30,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "temporal_year": 2018,
+      "token_usage": {
+        "input_tokens": 3690,
+        "output_tokens": 3056,
+        "call_count": 30
+      },
+      "latency_seconds": 43.2297
+    }
+  ],
+  "temporal_breakdown": {
+    "2017": {
+      "p_dist": 0.717418,
+      "p_rank": 0.781663,
+      "mean_jsd": 0.282582,
+      "n_questions": 99
+    },
+    "2018": {
+      "p_dist": 0.73912,
+      "p_rank": 0.798807,
+      "mean_jsd": 0.26088,
+      "n_questions": 1
+    }
+  },
+  "stripped_fields": [
+    "human_distribution"
+  ]
+}

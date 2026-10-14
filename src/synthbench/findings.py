@@ -362,6 +362,17 @@ def _build_ensemble_comparison(
 
         if best is None or best_sps is None:
             continue
+        # The blend's own members, from the deduped pool (their current runs).
+        member_sps: dict[str, float] = {}
+        sources = (ensemble.get("config") or {}).get("ensemble_sources", [])
+        source_names = {
+            display_provider_name(src.get("provider", "")) for src in sources
+        }
+        for r in ds_results:
+            name = display_provider_name((r.get("config") or {}).get("provider", ""))
+            sps = _run_sps(r)
+            if name in source_names and sps is not None:
+                member_sps[name] = sps
         best_provider = (best.get("config") or {}).get("provider", "")
         row = {
             "dataset": dataset,
@@ -374,6 +385,13 @@ def _build_ensemble_comparison(
             "improvement": round(round(ensemble_sps, 6) - round(best_sps, 6), 6),
             "n_questions": n_questions,
         }
+        if member_sps:
+            best_member = max(member_sps, key=member_sps.get)
+            row["best_member_model"] = best_member
+            row["best_member_sps"] = round(member_sps[best_member], 6)
+            row["improvement_over_members"] = round(
+                round(ensemble_sps, 6) - round(member_sps[best_member], 6), 6
+            )
         if random_sps is not None:
             row["random_baseline_sps"] = round(random_sps, 6)
             row["random_baseline_n"] = random_n
@@ -893,7 +911,10 @@ def _build_lever_hierarchy(
     """Effect-size ranges (SPS points, x100) computed from the other blocks."""
     levers: list[dict] = []
 
-    improvements = [r["improvement"] * 100 for r in ensemble_rows]
+    # What blending adds over the blend's own best member.
+    improvements = [
+        r.get("improvement_over_members", r["improvement"]) * 100 for r in ensemble_rows
+    ]
     if improvements:
         levers.append(
             {

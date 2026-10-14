@@ -179,23 +179,32 @@ items.push({
 });
 
 // 2. Ensembles
-const ec = (F.ensemble_comparison ?? []).map((e) => ({
-  ...e,
-  a: idxOf(e.dataset, e.best_single_sps),
-  b: idxOf(e.dataset, e.ensemble_sps),
-}));
+const ec = (F.ensemble_comparison ?? [])
+  .filter((e) => e.best_member_sps != null)
+  .map((e) => ({
+    ...e,
+    a: idxOf(e.dataset, e.best_member_sps as number),
+    b: idxOf(e.dataset, e.ensemble_sps),
+    top: idxOf(e.dataset, e.best_single_sps),
+  }));
 if (ec.length) {
   const corr = (F.ensemble_error_correlation ?? []).map((c) => c.mean_pearson_r);
+  const gains = ec.map((e) => e.b - e.a);
+  const beatenBy = ec.filter((e) => e.top > e.b);
+  const leaders = [...new Set(beatenBy.map((e) => e.best_single_model))];
   items.push({
     id: "ensemble",
     short: "Ensembles",
-    claim: "Averaging three systems beats the best single system on every dataset tested",
-    confidence: [3, "Strong"],
-    number: `+${Math.round(Math.min(...ec.map((e) => e.b - e.a)))} to +${Math.round(Math.max(...ec.map((e) => e.b - e.a)))}`,
-    numberLabel: "Index points over the best single system",
+    claim:
+      Math.min(...gains) > 0
+        ? "Averaging three systems beats each of its members on every dataset tested"
+        : "Averaging three systems does not always beat its best member",
+    confidence: [2, "Moderate"],
+    number: `${fmt.delta(Math.min(...gains))} to ${fmt.delta(Math.max(...gains))}`,
+    numberLabel: "Index points over the blend's best member",
     meaning:
-      "If you can pay for three calls per respondent, average models from different labs. The gain comes from the errors they don't share.",
-    evidence: `Equal-weight average of the members' per-question answer distributions.${corr.length ? ` The members' errors correlate at r = ${Math.min(...corr).toFixed(2)} to ${Math.max(...corr).toFixed(2)}.` : ""} It costs about three times as much as a single run.`,
+      "Averaging models from different labs cancels some of their errors, but a stronger single model can match the blend at a third of the cost. Compare against the best single model available, not just the blend's members.",
+    evidence: `Equal-weight average of the members' per-question answer distributions.${corr.length ? ` The members' errors correlate at r = ${Math.min(...corr).toFixed(2)} to ${Math.max(...corr).toFixed(2)}.` : ""}${beatenBy.length ? ` On ${beatenBy.length} of ${ec.length} datasets a single newer model scores higher than the blend: ${leaders.join(", ")}.` : ""} It costs about three times as much as a single run.`,
     viz(el) {
       dumbbell(
         el,
@@ -204,10 +213,10 @@ if (ec.length) {
           a: e.a,
           b: e.b,
           label: fmt.delta(e.b - e.a),
-          markA: method(e.best_single_framework === "raw" ? "raw" : "althing"),
           tip: [
-            ["Best single system", `${e.best_single_model}, ${fmt.one(e.a)}`],
+            ["Best member", `${e.best_member_model}, ${fmt.one(e.a)}`],
             ["Ensemble", fmt.one(e.b)],
+            ["Best single system", `${e.best_single_model}, ${fmt.one(e.top)}`],
           ],
         })),
         {
@@ -221,7 +230,7 @@ if (ec.length) {
       el.after(
         legend(
           swatch(method("althing")),
-          " best single system (hollow if a raw prompt)   ",
+          " best member   ",
           swatch(method("ensemble")),
           " ensemble",
         ),

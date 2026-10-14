@@ -31,6 +31,23 @@ _SPS_DIVERGENCE_WARN_TOLERANCE = 1e-2
 _RECOMPUTED_KEY = "_synthbench_recomputed_view"
 
 
+def _scoring_rank(result: dict) -> tuple[int, int]:
+    """(refusal detector, option parser) versions a run was scored with.
+
+    Absent stamps mean v1. Dedup prefers the newest scoring over question
+    count: an April run scored on 684 questions with the v1 parser (which
+    counted unreadable answers as option A) must not outrank a re-run of the
+    same config on 100 questions under the current code.
+    """
+    cfg = result.get("config") or {}
+
+    def version(key: str) -> int:
+        v = cfg.get(key)
+        return v if isinstance(v, int) and not isinstance(v, bool) else 1
+
+    return version("refusal_detector_version"), version("option_parser_version")
+
+
 def _effective_n(result: dict) -> int:
     """Number of evaluated questions, derived defensively.
 
@@ -169,7 +186,10 @@ def _policy_to_dict(policy: DatasetPolicy) -> dict:
 
 
 def _dedup_results(results: list[dict]) -> list[dict]:
-    """De-duplicate results: keep the run with the most n_evaluated per (display_name, framework, dataset, effort, template, persona_pack, harness).
+    """De-duplicate results: keep one run per (display_name, framework, dataset, effort, template, persona_pack, harness).
+
+    The run scored with the newest code wins (:func:`_scoring_rank`), then
+    the one with the most evaluated questions.
 
     ``harness`` (the agent CLI a run went through, e.g. ``claude-code``)
     keeps harness runs in their own row next to the same vendor model's
@@ -218,7 +238,10 @@ def _dedup_results(results: list[dict]) -> list[dict]:
             cfg.get("harness"),
         )
         existing = best.get(key)
-        if existing is None or n_eval > _effective_n(existing):
+        if existing is None or (_scoring_rank(r), n_eval) > (
+            _scoring_rank(existing),
+            _effective_n(existing),
+        ):
             best[key] = r
         # Collect demographic data from all runs
         demo = r.get("demographic_breakdown", {})
@@ -1216,7 +1239,8 @@ def _annotate_run_counts(entries: list[dict], all_results: list[dict]) -> None:
 
     ``run_count`` is the number of raw result files whose config matches this
     entry's (model, framework, dataset, temperature, template, effort) tuple
-    — i.e. replicates aggregated into the winning row.
+    and that were scored with the same code as the winning row (the newest,
+    see :func:`_scoring_rank`) — i.e. replicates aggregated into it.
 
     ``dataset_coverage_count`` is the number of distinct datasets this entry's
     (model, framework, temperature, template, effort) config has runs on.
@@ -1225,7 +1249,7 @@ def _annotate_run_counts(entries: list[dict], all_results: list[dict]) -> None:
     """
     from synthbench.leaderboard import display_provider_name, provider_framework
 
-    run_counts: dict[tuple, int] = {}
+    run_counts: dict[tuple, dict[tuple[int, int], int]] = {}
     datasets_per_config: dict[tuple, set[str]] = {}
 
     for r in all_results:
@@ -1241,7 +1265,9 @@ def _annotate_run_counts(entries: list[dict], all_results: list[dict]) -> None:
         harness = cfg.get("harness")
 
         run_key = (name, fw, dataset, temp, tpl_stem, effort, pack, harness)
-        run_counts[run_key] = run_counts.get(run_key, 0) + 1
+        by_rank = run_counts.setdefault(run_key, {})
+        rank = _scoring_rank(r)
+        by_rank[rank] = by_rank.get(rank, 0) + 1
         cov_key = (name, fw, temp, tpl_stem, effort, pack, harness)
         datasets_per_config.setdefault(cov_key, set()).add(dataset)
 
@@ -1265,7 +1291,8 @@ def _annotate_run_counts(entries: list[dict], all_results: list[dict]) -> None:
             e.get("persona_pack"),
             e.get("harness"),
         )
-        e["run_count"] = run_counts.get(run_key, 0)
+        by_rank = run_counts.get(run_key, {})
+        e["run_count"] = by_rank[max(by_rank)] if by_rank else 0
         e["dataset_coverage_count"] = len(datasets_per_config.get(cov_key, set()))
 
 

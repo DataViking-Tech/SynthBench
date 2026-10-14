@@ -357,6 +357,10 @@ export interface EnsembleComparison {
   best_single_framework?: string;
   best_single_sps: number;
   ensemble_sps: number;
+  /** Best of the blend's own members on this dataset. */
+  best_member_model?: string;
+  best_member_sps?: number;
+  improvement_over_members?: number;
   improvement: number;
   /** Question count the ensemble (and comparison set) was evaluated on. */
   n_questions?: number;
