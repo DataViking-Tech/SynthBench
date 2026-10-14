@@ -40,26 +40,26 @@ asymmetries in how LLMs represent different demographic groups.
 
 | Dataset | 3-model ensemble SPS | Best single model | Random baseline |
 |---------|---------------------|-------------------|-----------------|
-| globalopinionqa (n=100) | **0.810** | 0.804 (Althing (Qwen 3.8 Flash), product) | 0.774 (n=100) |
-| globalopinionqa (n=100) | **0.831** | 0.804 (Althing (Qwen 3.8 Flash), product) | 0.774 (n=100) |
-| globalopinionqa (n=100) | **0.818** | 0.804 (Althing (Qwen 3.8 Flash), product) | 0.774 (n=100) |
-| globalopinionqa (n=100) | **0.825** | 0.804 (Althing (Qwen 3.8 Flash), product) | 0.774 (n=100) |
-| globalopinionqa (n=100) | **0.817** | 0.804 (Althing (Qwen 3.8 Flash), product) | 0.774 (n=100) |
-| gss (n=75) | **0.816** | 0.844 (Althing (Qwen 3.8 Flash), product) | 0.735 (n=75) |
-| gss (n=75) | **0.863** | 0.844 (Althing (Qwen 3.8 Flash), product) | 0.735 (n=75) |
-| gss (n=75) | **0.848** | 0.844 (Althing (Qwen 3.8 Flash), product) | 0.735 (n=75) |
-| gss (n=75) | **0.851** | 0.844 (Althing (Qwen 3.8 Flash), product) | 0.735 (n=75) |
-| gss (n=75) | **0.845** | 0.844 (Althing (Qwen 3.8 Flash), product) | 0.735 (n=75) |
-| opinionsqa (n=100) | **0.871** | 0.872 (DeepSeek V4.1 Flash, raw) | 0.763 (n=684) |
-| opinionsqa (n=100) | **0.913** | 0.872 (DeepSeek V4.1 Flash, raw) | 0.763 (n=684) |
-| opinionsqa (n=100) | **0.897** | 0.872 (DeepSeek V4.1 Flash, raw) | 0.763 (n=684) |
-| opinionsqa (n=100) | **0.906** | 0.872 (DeepSeek V4.1 Flash, raw) | 0.763 (n=684) |
-| opinionsqa (n=100) | **0.891** | 0.872 (DeepSeek V4.1 Flash, raw) | 0.763 (n=684) |
-| subpop (n=100) | **0.823** | 0.837 (DeepSeek V4.1 Flash, raw) | 0.757 (n=200) |
-| subpop (n=100) | **0.865** | 0.837 (DeepSeek V4.1 Flash, raw) | 0.757 (n=200) |
-| subpop (n=100) | **0.846** | 0.837 (DeepSeek V4.1 Flash, raw) | 0.757 (n=200) |
-| subpop (n=100) | **0.856** | 0.837 (DeepSeek V4.1 Flash, raw) | 0.757 (n=200) |
-| subpop (n=100) | **0.859** | 0.837 (DeepSeek V4.1 Flash, raw) | 0.757 (n=200) |
+| globalopinionqa (n=100) | **0.810** | 0.799 (Althing (Qwen 3.8 Flash), product) | 0.774 (n=100) |
+| globalopinionqa (n=100) | **0.831** | 0.799 (Althing (Qwen 3.8 Flash), product) | 0.774 (n=100) |
+| globalopinionqa (n=100) | **0.818** | 0.799 (Althing (Qwen 3.8 Flash), product) | 0.774 (n=100) |
+| globalopinionqa (n=100) | **0.825** | 0.799 (Althing (Qwen 3.8 Flash), product) | 0.774 (n=100) |
+| globalopinionqa (n=100) | **0.817** | 0.799 (Althing (Qwen 3.8 Flash), product) | 0.774 (n=100) |
+| gss (n=75) | **0.816** | 0.849 (Althing (Qwen 3.8 Flash), product) | 0.735 (n=75) |
+| gss (n=75) | **0.863** | 0.849 (Althing (Qwen 3.8 Flash), product) | 0.735 (n=75) |
+| gss (n=75) | **0.848** | 0.849 (Althing (Qwen 3.8 Flash), product) | 0.735 (n=75) |
+| gss (n=75) | **0.851** | 0.849 (Althing (Qwen 3.8 Flash), product) | 0.735 (n=75) |
+| gss (n=75) | **0.845** | 0.849 (Althing (Qwen 3.8 Flash), product) | 0.735 (n=75) |
+| opinionsqa (n=100) | **0.871** | 0.874 (DeepSeek V4.1 Flash, raw) | 0.763 (n=684) |
+| opinionsqa (n=100) | **0.913** | 0.874 (DeepSeek V4.1 Flash, raw) | 0.763 (n=684) |
+| opinionsqa (n=100) | **0.897** | 0.874 (DeepSeek V4.1 Flash, raw) | 0.763 (n=684) |
+| opinionsqa (n=100) | **0.906** | 0.874 (DeepSeek V4.1 Flash, raw) | 0.763 (n=684) |
+| opinionsqa (n=100) | **0.891** | 0.874 (DeepSeek V4.1 Flash, raw) | 0.763 (n=684) |
+| subpop (n=100) | **0.823** | 0.838 (DeepSeek V4.1 Flash, raw) | 0.757 (n=200) |
+| subpop (n=100) | **0.865** | 0.838 (DeepSeek V4.1 Flash, raw) | 0.757 (n=200) |
+| subpop (n=100) | **0.846** | 0.838 (DeepSeek V4.1 Flash, raw) | 0.757 (n=200) |
+| subpop (n=100) | **0.856** | 0.838 (DeepSeek V4.1 Flash, raw) | 0.757 (n=200) |
+| subpop (n=100) | **0.859** | 0.838 (DeepSeek V4.1 Flash, raw) | 0.757 (n=200) |
 <!-- END GENERATED: headline -->
 
 Note on interpretation: SPS is a composite parity score, not a
@@ -316,26 +316,26 @@ three runs costs roughly 3× a single-model run.
 <!-- BEGIN GENERATED: ensemble -->
 | Dataset | Best single model | Equal blend | Improvement | Random baseline |
 |---------|-------------------|-------------|-------------|-----------------|
-| globalopinionqa (100q) | 0.804 (Althing (Qwen 3.8 Flash), product) | **0.810** | **+0.6 pts** | 0.774 (n=100) |
-| globalopinionqa (100q) | 0.804 (Althing (Qwen 3.8 Flash), product) | **0.831** | **+2.7 pts** | 0.774 (n=100) |
-| globalopinionqa (100q) | 0.804 (Althing (Qwen 3.8 Flash), product) | **0.818** | **+1.4 pts** | 0.774 (n=100) |
-| globalopinionqa (100q) | 0.804 (Althing (Qwen 3.8 Flash), product) | **0.825** | **+2.1 pts** | 0.774 (n=100) |
-| globalopinionqa (100q) | 0.804 (Althing (Qwen 3.8 Flash), product) | **0.817** | **+1.3 pts** | 0.774 (n=100) |
-| gss (75q) | 0.844 (Althing (Qwen 3.8 Flash), product) | **0.816** | **-2.8 pts** | 0.735 (n=75) |
-| gss (75q) | 0.844 (Althing (Qwen 3.8 Flash), product) | **0.863** | **+1.9 pts** | 0.735 (n=75) |
-| gss (75q) | 0.844 (Althing (Qwen 3.8 Flash), product) | **0.848** | **+0.3 pts** | 0.735 (n=75) |
-| gss (75q) | 0.844 (Althing (Qwen 3.8 Flash), product) | **0.851** | **+0.7 pts** | 0.735 (n=75) |
-| gss (75q) | 0.844 (Althing (Qwen 3.8 Flash), product) | **0.845** | **+0.0 pts** | 0.735 (n=75) |
-| opinionsqa (100q) | 0.872 (DeepSeek V4.1 Flash, raw) | **0.871** | **-0.1 pts** | 0.763 (n=684) |
-| opinionsqa (100q) | 0.872 (DeepSeek V4.1 Flash, raw) | **0.913** | **+4.1 pts** | 0.763 (n=684) |
-| opinionsqa (100q) | 0.872 (DeepSeek V4.1 Flash, raw) | **0.897** | **+2.6 pts** | 0.763 (n=684) |
-| opinionsqa (100q) | 0.872 (DeepSeek V4.1 Flash, raw) | **0.906** | **+3.4 pts** | 0.763 (n=684) |
-| opinionsqa (100q) | 0.872 (DeepSeek V4.1 Flash, raw) | **0.891** | **+1.9 pts** | 0.763 (n=684) |
-| subpop (100q) | 0.837 (DeepSeek V4.1 Flash, raw) | **0.823** | **-1.4 pts** | 0.757 (n=200) |
-| subpop (100q) | 0.837 (DeepSeek V4.1 Flash, raw) | **0.865** | **+2.8 pts** | 0.757 (n=200) |
-| subpop (100q) | 0.837 (DeepSeek V4.1 Flash, raw) | **0.846** | **+0.8 pts** | 0.757 (n=200) |
-| subpop (100q) | 0.837 (DeepSeek V4.1 Flash, raw) | **0.856** | **+1.9 pts** | 0.757 (n=200) |
-| subpop (100q) | 0.837 (DeepSeek V4.1 Flash, raw) | **0.859** | **+2.2 pts** | 0.757 (n=200) |
+| globalopinionqa (100q) | 0.799 (Althing (Qwen 3.8 Flash), product) | **0.810** | **+1.1 pts** | 0.774 (n=100) |
+| globalopinionqa (100q) | 0.799 (Althing (Qwen 3.8 Flash), product) | **0.831** | **+3.1 pts** | 0.774 (n=100) |
+| globalopinionqa (100q) | 0.799 (Althing (Qwen 3.8 Flash), product) | **0.818** | **+1.9 pts** | 0.774 (n=100) |
+| globalopinionqa (100q) | 0.799 (Althing (Qwen 3.8 Flash), product) | **0.825** | **+2.6 pts** | 0.774 (n=100) |
+| globalopinionqa (100q) | 0.799 (Althing (Qwen 3.8 Flash), product) | **0.817** | **+1.8 pts** | 0.774 (n=100) |
+| gss (75q) | 0.849 (Althing (Qwen 3.8 Flash), product) | **0.816** | **-3.3 pts** | 0.735 (n=75) |
+| gss (75q) | 0.849 (Althing (Qwen 3.8 Flash), product) | **0.863** | **+1.4 pts** | 0.735 (n=75) |
+| gss (75q) | 0.849 (Althing (Qwen 3.8 Flash), product) | **0.848** | **-0.2 pts** | 0.735 (n=75) |
+| gss (75q) | 0.849 (Althing (Qwen 3.8 Flash), product) | **0.851** | **+0.2 pts** | 0.735 (n=75) |
+| gss (75q) | 0.849 (Althing (Qwen 3.8 Flash), product) | **0.845** | **-0.4 pts** | 0.735 (n=75) |
+| opinionsqa (100q) | 0.874 (DeepSeek V4.1 Flash, raw) | **0.871** | **-0.3 pts** | 0.763 (n=684) |
+| opinionsqa (100q) | 0.874 (DeepSeek V4.1 Flash, raw) | **0.913** | **+3.9 pts** | 0.763 (n=684) |
+| opinionsqa (100q) | 0.874 (DeepSeek V4.1 Flash, raw) | **0.897** | **+2.3 pts** | 0.763 (n=684) |
+| opinionsqa (100q) | 0.874 (DeepSeek V4.1 Flash, raw) | **0.906** | **+3.2 pts** | 0.763 (n=684) |
+| opinionsqa (100q) | 0.874 (DeepSeek V4.1 Flash, raw) | **0.891** | **+1.7 pts** | 0.763 (n=684) |
+| subpop (100q) | 0.838 (DeepSeek V4.1 Flash, raw) | **0.823** | **-1.4 pts** | 0.757 (n=200) |
+| subpop (100q) | 0.838 (DeepSeek V4.1 Flash, raw) | **0.865** | **+2.7 pts** | 0.757 (n=200) |
+| subpop (100q) | 0.838 (DeepSeek V4.1 Flash, raw) | **0.846** | **+0.8 pts** | 0.757 (n=200) |
+| subpop (100q) | 0.838 (DeepSeek V4.1 Flash, raw) | **0.856** | **+1.9 pts** | 0.757 (n=200) |
+| subpop (100q) | 0.838 (DeepSeek V4.1 Flash, raw) | **0.859** | **+2.2 pts** | 0.757 (n=200) |
 
 Comparison set: best_single = highest recomputed-SPS non-ensemble, non-baseline leaderboard row (raw or product framework) evaluated on at least as many questions as the ensemble, after per-(model, framework, dataset) dedup; random_baseline = recomputed SPS of the random-baseline run for the same dataset (n in random_baseline_n).
 <!-- END GENERATED: ensemble -->
@@ -653,16 +653,16 @@ gated files are committed without `human_distribution`).
 | Althing (Muse Glimmer 30B) | product | default | gss | 0.034 | 0.054 | **0.070** | 75 |
 | Gemini Flash Lite | raw | default | gss | 0.036 | 0.054 | **0.070** | 75 |
 | GPT-4o-mini | raw | default | gss | 0.025 | 0.054 | **0.069** | 75 |
-| DeepSeek V4.1 Flash | raw | default | gss | 0.026 | 0.054 | **0.068** | 75 |
-| Qwen 3.8 Flash | raw | default | gss | 0.032 | 0.054 | **0.066** | 75 |
+| DeepSeek V4.1 Flash | raw | default | gss | 0.027 | 0.054 | **0.068** | 75 |
+| Qwen 3.8 Flash | raw | default | gss | 0.028 | 0.054 | **0.063** | 75 |
 | Althing (DeepSeek V4.1 Flash) | product | default | gss | 0.019 | 0.054 | **0.062** | 75 |
 | Althing (Sonnet 4.6) | product | default | gss | 0.013 | 0.054 | **0.061** | 75 |
 | Althing (Gemini 3.5 Flash-Lite) | product | default | gss | 0.013 | 0.054 | **0.061** | 75 |
 | Llama 3.3 70B | raw | default | gss | 0.014 | 0.054 | **0.061** | 75 |
 | Althing (Sonnet 4) | product | default | gss | 0.015 | 0.054 | **0.059** | 75 |
 | Althing (GPT-4o-mini) | product | default | gss | 0.016 | 0.054 | **0.059** | 75 |
+| Althing (Qwen 3.8 Flash) | product | default | gss | 0.031 | 0.054 | **0.056** | 75 |
 | Althing (Llama 3.3 70B) | product | default | gss | 0.002 | 0.054 | **0.052** | 75 |
-| Althing (Qwen 3.8 Flash) | product | default | gss | 0.027 | 0.054 | **0.052** | 75 |
 
 Comparison set: Per deduped non-baseline run whose committed per-question rows still carry human_distribution (full-tier datasets; gated files are stripped per #308): mean |model explicit-nonresponse mass (DK-style option mass + parsed refusal rate) - human's|, plus the five items with the largest model over-selection.
 
