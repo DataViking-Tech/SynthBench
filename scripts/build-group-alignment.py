@@ -53,7 +53,7 @@ from synthbench.datasets.globalopinionqa import (  # noqa: E402
 from synthbench.datasets.opinionsqa import OpinionsQADataset  # noqa: E402
 from synthbench.datasets.subpop import SUBPOP_ATTRIBUTES, SubPOPDataset  # noqa: E402
 from synthbench.metrics.distributional import jensen_shannon_divergence as jsd  # noqa: E402
-from synthbench.publish import _tpl_name, is_invalid_run  # noqa: E402
+from synthbench.publish import _tpl_name, is_invalid_run, is_routing_suite_run  # noqa: E402
 
 RESULTS = ROOT / "leaderboard-results"
 LEADERBOARD = ROOT / "site" / "src" / "data" / "leaderboard.json"
@@ -217,6 +217,8 @@ def load_runs(wanted: set[str]) -> dict[str, dict]:
             continue
         if r.get("benchmark") != "synthbench" or is_invalid_run(r)[0]:
             continue
+        if is_routing_suite_run(r):
+            continue  # larger question set; feeds routing.json only
         config_id = run_config_id(r)
         if config_id not in wanted:
             continue

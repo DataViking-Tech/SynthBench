@@ -341,3 +341,84 @@ def test_publish_data_writes_routing(tmp_path):
     assert payload["generated_at"] == leaderboard["generated_at"]
     assert payload["routes"]
     assert leaderboard["topic_taxonomy"]["version"] == 1
+
+
+def test_equal_coverage_excludes_nobody(routing):
+    assert all(r["excluded_for_coverage"] == 0 for r in routing["routes"])
+
+
+def test_short_runs_do_not_shrink_a_larger_question_set():
+    """Systems on the larger --suite routing set keep their questions.
+
+    The random baseline and Qwen ran 80 SubPOP questions; everything else
+    ran the first 40. The 40-question systems leave the route instead of
+    cutting it to 40 questions.
+    """
+    results = []
+    for r in _pool():
+        cfg = r["config"]
+        if cfg["dataset"] == "subpop" and cfg["provider"] in (
+            "random-baseline",
+            "althing/openrouter/qwen/qwen3.8-flash",
+        ):
+            continue
+        results.append(r)
+    results.append(
+        _result("random-baseline", "subpop", _rows("subpop", 80, jsd=0.30, tau=0.0))
+    )
+    results.append(
+        _result(
+            "althing/openrouter/qwen/qwen3.8-flash",
+            "subpop",
+            _rows("subpop", 80, jsd=0.15, tau=0.4),
+        )
+    )
+    payload = build_routing(
+        results, generated_at="2026-10-14T00:00:00+00:00", n_bootstrap=200
+    )
+    route = _route(payload, "us-subgroups", "all")
+    assert route["n_questions"] == 80
+    assert [c["label"] for c in route["candidates"]] == ["Althing (Qwen 3.8 Flash)"]
+    assert route["excluded_for_coverage"] == 3
+    assert route["confident"] is False  # one candidate is never confident
+    # Slices where everyone ran the same questions are unchanged.
+    assert _route(payload, "us-general", "all")["excluded_for_coverage"] == 0
+
+
+def test_routing_suite_runs_feed_routing_only():
+    """A --suite routing run joins routing.json but not the leaderboard dedup."""
+    from synthbench.publish import _dedup_results, is_routing_suite_run
+
+    big = _result(
+        "althing/openrouter/qwen/qwen3.8-flash",
+        "subpop",
+        _rows("subpop", 80, jsd=0.15, tau=0.4),
+        suite="routing",
+    )
+    rand = _result(
+        "random-baseline",
+        "subpop",
+        _rows("subpop", 80, jsd=0.30, tau=0.0),
+        suite="routing",
+    )
+    results = [*_pool(), big, rand]
+    assert is_routing_suite_run(big) and not is_routing_suite_run(_pool()[0])
+
+    def subpop_n(rows, provider):
+        return next(
+            r["config"]["n_evaluated"]
+            for r in rows
+            if r["config"]["provider"] == provider
+            and r["config"]["dataset"] == "subpop"
+        )
+
+    leaderboard = _dedup_results(results)
+    assert subpop_n(leaderboard, "althing/openrouter/qwen/qwen3.8-flash") == 40
+    assert subpop_n(leaderboard, "random-baseline") == 40
+    routing_rows = _dedup_results(results, include_routing_suite=True)
+    assert subpop_n(routing_rows, "althing/openrouter/qwen/qwen3.8-flash") == 80
+
+    payload = build_routing(
+        results, generated_at="2026-10-14T00:00:00+00:00", n_bootstrap=200
+    )
+    assert _route(payload, "us-subgroups", "all")["n_questions"] == 80

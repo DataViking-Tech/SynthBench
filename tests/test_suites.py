@@ -94,3 +94,45 @@ class TestFilterQuestionsBySuite:
         ]
         filtered = filter_questions_by_suite(qs, [])
         assert len(filtered) == 0
+
+
+class TestRoutingSuite:
+    def test_one_key_list_per_core_dataset(self):
+        from synthbench.suites import load_suite
+
+        sizes = {
+            ds: len(load_suite("routing", dataset=ds))
+            for ds in ("opinionsqa", "gss", "subpop", "globalopinionqa")
+        }
+        assert sizes == {
+            "opinionsqa": 684,
+            "gss": 75,
+            "subpop": 525,
+            "globalopinionqa": 525,
+        }
+
+    def test_75_per_topic_and_counts_recorded(self):
+        import json
+        from collections import Counter
+
+        from synthbench.suites import SUITE_DIR, load_suite
+        from synthbench.topics import TOPIC_IDS, load_labels
+
+        for ds in ("subpop", "globalopinionqa"):
+            keys = load_suite("routing", dataset=ds)
+            assert len(set(keys)) == len(keys)
+            labels = load_labels(ds)
+            counts = Counter(labels[k] for k in keys)
+            assert all(counts[t] >= 75 for t in TOPIC_IDS)
+            data = json.loads((SUITE_DIR / "routing" / f"{ds}.json").read_text())
+            assert data["topic_counts"] == {t: counts[t] for t in TOPIC_IDS}
+
+    def test_needs_a_dataset_it_has(self):
+        import pytest
+
+        from synthbench.suites import load_suite
+
+        with pytest.raises(ValueError, match="needs a dataset"):
+            load_suite("routing")
+        with pytest.raises(ValueError, match="no question set"):
+            load_suite("routing", dataset="ntia")

@@ -215,9 +215,10 @@ main.add_command(_submit_adapter_cmd)
 )
 @click.option(
     "--suite",
-    type=click.Choice(["smoke", "core", "full"]),
+    type=click.Choice(["smoke", "core", "full", "routing"]),
     default=None,
-    help="Use a pinned question set (smoke=28, core=200, full=all).",
+    help="Use a pinned question set (smoke=28, core=200, full=all; "
+    "routing=the per-dataset set routing.json is built on).",
 )
 @click.option(
     "--topic",
@@ -553,7 +554,11 @@ async def _run_async(
     if suite:
         from synthbench.suites import load_suite
 
-        question_keys = load_suite(suite)
+        try:
+            question_keys = load_suite(suite, dataset=dataset_name)
+        except ValueError as e:
+            click.echo(f"Error: {e}", err=True)
+            sys.exit(2)
 
     # Load topic suite if specified (intersect with suite if both given)
     if topic:
@@ -617,6 +622,8 @@ async def _run_async(
     # Tag result with topic if specified
     if topic:
         result.config["topic"] = topic
+    if suite:
+        result.config["suite"] = suite
     if temperature is not None:
         result.config["temperature"] = temperature
     # Stamped only when the knob was actually threaded to the provider —
