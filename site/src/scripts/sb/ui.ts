@@ -1141,13 +1141,13 @@ function renderDrawer(): void {
  * the clipped edge) and shows a "scroll for more" hint above it while
  * there are columns out of view. Safe to call more than once.
  */
-export function scrollHint(wrap: HTMLElement): void {
+export function scrollHint(wrap: HTMLElement, what = "columns"): void {
   if (wrap.dataset.hint) return;
   wrap.dataset.hint = "1";
   const hint = h(
     "div",
     { class: "sb-scrollhint", "aria-hidden": "true", hidden: true },
-    "Scroll sideways for more columns",
+    `Scroll sideways for more ${what}`,
     h("span", null, " →"),
   );
   wrap.before(hint);
