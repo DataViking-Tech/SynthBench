@@ -1,120 +1,35 @@
 ---
-// sb-1i6 — per-vendor leaderboard page.
-// One static page per distinct ``provider`` value in leaderboard.json,
-// addressed by URL-safe slug (vendor-slug.ts). Surfaces a vendor's
-// disaggregated subgroup scorecards (question-type × demographic) to
-// replace the single SPS number that PMF research said buyers reject.
-
-import VendorScorecard from "@/components/leaderboard/VendorScorecard.astro";
-import ProviderLogo from "@/components/sb/ProviderLogo.astro";
-import BaseLayout from "@/layouts/BaseLayout.astro";
-
+// Retired per-vendor scorecards (sb-1i6). The old /leaderboard/<vendor>/
+// URLs now redirect to the system profile for the same model, or to the
+// leaderboard for baselines and providers that span several systems. In a
+// static build Astro.redirect emits a tiny page with a meta refresh, a
+// canonical link to the target and robots noindex.
 import leaderboardRaw from "@/data/leaderboard.json";
-import { vendorSlug, vendorSlugMap } from "@/lib/vendor-slug";
-import type { LeaderboardData, LeaderboardEntry } from "@/types/leaderboard";
+import { baseIdOf, buildIndexData, systemSlug } from "@/lib/synthIndex";
+import { vendorSlugMap } from "@/lib/vendor-slug";
+import type { LeaderboardData, SynthBenchData } from "@/types/leaderboard";
 
-export async function getStaticPaths() {
-  const leaderboard = leaderboardRaw as LeaderboardData;
-  const providers = new Set<string>();
+export function getStaticPaths() {
+  const leaderboard = leaderboardRaw as unknown as LeaderboardData;
+  const profiles = new Set(
+    buildIndexData(leaderboardRaw as unknown as SynthBenchData).systems.map((c) => c.baseId),
+  );
+  const baseIds = new Map<string, Set<string>>();
   for (const e of leaderboard.entries) {
-    if (e.provider) providers.add(e.provider);
+    if (!e.provider) continue;
+    const ids = baseIds.get(e.provider) ?? new Set<string>();
+    ids.add(e.is_baseline ? "" : baseIdOf(e));
+    baseIds.set(e.provider, ids);
   }
-  const slugToProvider = vendorSlugMap(providers);
-  return [...slugToProvider.entries()].map(([slug, provider]) => ({
-    params: { vendor: slug },
-    props: { provider },
-  }));
+  return [...vendorSlugMap(baseIds.keys()).entries()].map(([slug, provider]) => {
+    const ids = [...(baseIds.get(provider) ?? [])];
+    const target =
+      ids.length === 1 && profiles.has(ids[0]) ? `system/${systemSlug(ids[0])}/` : "leaderboard/";
+    return { params: { vendor: slug }, props: { target } };
+  });
 }
-
-interface Props {
-  provider: string;
-}
-
-const { provider } = Astro.props as Props;
-const leaderboard = leaderboardRaw as LeaderboardData;
-
-const entries: LeaderboardEntry[] = leaderboard.entries.filter((e) => e.provider === provider);
-
-// Best entry by SPS provides the headline number and verification badge for
-// the vendor card at the top of the page.
-const best = entries.reduce<LeaderboardEntry | null>((acc, e) => {
-  if (!acc) return e;
-  return e.sps > acc.sps ? e : acc;
-}, null);
-
-const datasets = Array.from(new Set(entries.map((e) => e.dataset))).sort();
-const models = Array.from(new Set(entries.map((e) => e.model))).sort();
 
 const rawBase = import.meta.env.BASE_URL || "/";
 const base = rawBase.endsWith("/") ? rawBase : `${rawBase}/`;
-const slug = vendorSlug(provider);
+return Astro.redirect(`${base}${Astro.props.target}`, 301);
 ---
-
-<BaseLayout title={`${provider} subgroup scorecard — SynthBench`}>
-  <div class="mx-auto w-full max-w-5xl px-4 pt-8">
-    <nav class="text-sm text-muted">
-      <a class="hover:underline" href={`${base}leaderboard/`}>Leaderboard</a>
-      <span class="mx-2">/</span>
-      <span aria-current="page">{provider}</span>
-    </nav>
-
-    <header class="mt-4 flex flex-wrap items-baseline justify-between gap-4">
-      <div>
-        <h1 class="flex items-center gap-2 text-3xl font-bold tracking-tight break-words"><ProviderLogo of={provider} size={26} />{provider}</h1>
-        <p class="mt-1 text-sm text-muted">
-          {entries.length} run{entries.length === 1 ? "" : "s"} ·
-          {datasets.length} dataset{datasets.length === 1 ? "" : "s"} ·
-          {models.length} model{models.length === 1 ? "" : "s"}
-        </p>
-        <p class="mt-1 font-mono text-xs text-muted break-all">slug: {slug}</p>
-      </div>
-      {best && (
-        <div class="text-right">
-          <div class="text-3xl font-mono font-semibold tabular-nums">{best.sps.toFixed(3)}</div>
-          <div class="text-xs text-muted">Best SPS · {best.dataset}</div>
-        </div>
-      )}
-    </header>
-
-    <p class="mt-4 max-w-3xl text-sm text-muted">
-      Disaggregated subgroup scorecard. Each card below is one published run for
-      this vendor; expand the question-type and demographic-subgroup sections to
-      see the matrix beneath the headline SPS. Where coverage permits, 95% CI
-      bands accompany the point estimate.
-    </p>
-  </div>
-
-  <VendorScorecard entries={entries} />
-
-  <div class="mx-auto w-full max-w-5xl px-4 pb-12">
-    <a
-      href={`${base}leaderboard/`}
-      class="inline-flex items-center gap-1 text-sm text-primary hover:underline"
-    >
-      ← Back to leaderboard
-    </a>
-  </div>
-
-  <script
-    is:inline
-    define:vars={{
-      vendor: provider,
-      vendorSlugValue: slug,
-      hasDemographicData: entries.some(
-        (e) => e.demographic_scorecard != null || (e.demographic_scores?.length ?? 0) > 0,
-      ),
-    }}
-  >
-    // Issue #255 leading indicator: count sessions that open a per-vendor
-    // disaggregated scorecard. Piggybacks on the site-wide PostHog snippet
-    // (Analytics.astro); on non-production hostnames init never runs, so
-    // `capture` is undefined and this is a no-op.
-    if (window.posthog && typeof window.posthog.capture === "function") {
-      window.posthog.capture("vendor_scorecard_viewed", {
-        vendor: vendor,
-        vendor_slug: vendorSlugValue,
-        has_demographic_data: hasDemographicData,
-      });
-    }
-  </script>
-</BaseLayout>
