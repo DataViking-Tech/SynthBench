@@ -919,6 +919,18 @@ table.sb-gr-sys td.sb-gr-cell svg {
 .sb-info:focus-within .sb-info-pop {
   display: block;
 }
+/* Phones: span the viewport (minus a margin) below the icon instead of
+   starting at the icon and running off the right edge. */
+@media (max-width: 639px) {
+  .sb-info-pop {
+    position: fixed;
+    left: 12px;
+    right: 12px;
+    top: auto;
+    width: auto;
+    margin-top: 24px;
+  }
+}
 .sb-takes {
   border-top: 1px solid var(--sb-line);
   padding: 10px 20px 12px;
