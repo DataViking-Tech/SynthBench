@@ -1,4 +1,4 @@
-import { css, fmt, h, heat, linear, s } from "../dom";
+import { css, fmt, h, heat, linear, s, ticks } from "../dom";
 import {
   ALL,
   METHODS,
@@ -15,6 +15,7 @@ import {
   onChange,
   pruneCompare,
   scoreIn,
+  shortName,
   state,
   systems,
   tiers,
@@ -40,6 +41,10 @@ import {
 pruneCompare();
 const d = data();
 const q = new URLSearchParams(location.search);
+/** Dataset columns: only datasets some system has been scored on, so NTIA returns with data. */
+const DS = ALL.filter((id) => systems().some((c) => c.ds[id]));
+for (const el of document.querySelectorAll<HTMLElement>("[data-ntia-note]"))
+  el.hidden = !DS.includes("ntia");
 type Cols = "scores" | "components" | "cost" | "checks";
 const COLS: [Cols, string][] = [
   ["scores", "Scores"],
@@ -73,7 +78,13 @@ const reset = () => {
 };
 
 // ---------- Filters ----------
-const toggle = (label: string, title: string, key: "experiments" | "partial") => {
+const toggle = (
+  label: string,
+  title: string,
+  key: "experiments" | "partial",
+  // Why the toggle can't add rows in the current view, or null when it can.
+  blocked: () => string | null,
+) => {
   const input = h("input", { type: "checkbox" });
   input.addEventListener("change", () => {
     st[key] = input.checked;
@@ -82,7 +93,11 @@ const toggle = (label: string, title: string, key: "experiments" | "partial") =>
   const el = h("label", { class: "sb-toggle", title }, input, label);
   return Object.assign(el, {
     sync: () => {
-      input.checked = st[key];
+      const why = blocked();
+      input.disabled = why != null;
+      input.checked = st[key] && why == null;
+      el.title = why ?? title;
+      el.classList.toggle("off", why != null);
     },
   });
 };
@@ -90,11 +105,21 @@ const expT = toggle(
   "Experiments",
   "Show runs with non-default settings (temperature, prompt template). They aren't ranked.",
   "experiments",
+  () =>
+    systems().some((c) => c.variant && st.methods.has(c.method) && scoreIn(c))
+      ? null
+      : state.scope === "all"
+        ? "Experiment runs cover only some datasets, so they have no Index. Pick a dataset under Score to see them."
+        : `No experiment runs on ${dsLabel(state.scope)}.`,
 );
 const partT = toggle(
   "Partial coverage",
   "Show systems not run on every core dataset. They aren't ranked.",
   "partial",
+  () =>
+    state.scope === "all"
+      ? null
+      : "Single-dataset scores already include systems that skipped other datasets.",
 );
 const colsSeg = h("div", { class: "sb-seg", role: "radiogroup", "aria-label": "Columns" });
 const renderCols = () =>
@@ -130,8 +155,16 @@ document
   );
 
 // ---------- Small inline charts ----------
-const AX: [number, number] = [-40, 60];
+// Interval column domain, set from the rows shown on each render.
+let AX: [number, number] = [-40, 60];
 const BW = 220;
+function setAxis(vals: Val[]): void {
+  const xs = vals.flatMap((v) => [v.v, v.lo ?? v.v, v.hi ?? v.v]);
+  const lo = Math.min(0, ...xs);
+  const hi = Math.max(0, ...xs);
+  AX = [Math.floor((lo - 2) / 10) * 10, Math.ceil((hi + 2) / 10) * 10];
+}
+const axTicks = () => ticks(AX[0], AX[1], 6);
 function intervalCell(c: SystemConfig, v: Val): SVGSVGElement {
   const sv = s("svg", { class: "sb-c", width: BW, height: 22, "aria-hidden": "true" });
   const x = linear(AX[0], AX[1], 6, BW - 6);
@@ -140,24 +173,17 @@ function intervalCell(c: SystemConfig, v: Val): SVGSVGElement {
     { x: x(AX[0]), y: 4, width: x(0) - x(AX[0]), height: 14, fill: "var(--sb-zone-neg)" },
     sv,
   );
-  for (const t of [-20, 20, 40])
-    s("line", { class: "sb-gl", x1: x(t), x2: x(t), y1: 2, y2: 20 }, sv);
+  for (const t of axTicks())
+    if (t !== 0) s("line", { class: "sb-gl", x1: x(t), x2: x(t), y1: 2, y2: 20 }, sv);
   s("line", { x1: x(0), x2: x(0), y1: 0, y2: 22, stroke: css("--sb-ink-2") }, sv);
   const cl = (n: number) => Math.max(AX[0], Math.min(AX[1], n));
-  if (v.lo != null && v.hi != null)
-    s(
-      "rect",
-      {
-        x: x(cl(v.lo)),
-        y: 9,
-        width: Math.max(2, x(cl(v.hi)) - x(cl(v.lo))),
-        height: 4,
-        rx: 2,
-        fill: methodColor(c.method),
-        opacity: 0.35,
-      },
-      sv,
-    );
+  // 95% interval as a capped whisker, so it reads past the marker.
+  if (v.lo != null && v.hi != null) {
+    const ink = { stroke: methodColor(c.method), "stroke-width": 2, opacity: 0.6 };
+    s("line", { x1: x(cl(v.lo)), x2: x(cl(v.hi)), y1: 11, y2: 11, ...ink }, sv);
+    for (const e of [v.lo, v.hi])
+      s("line", { x1: x(cl(e)), x2: x(cl(e)), y1: 7, y2: 15, ...ink }, sv);
+  }
   marker(sv, c.method, x(cl(v.v)), 11, 4.5);
   if (v.v < AX[0])
     s("text", { x: x(AX[0]) + 10, y: 15, class: "sb-neg-t", text: "◀ off scale" }, sv);
@@ -166,14 +192,14 @@ function intervalCell(c: SystemConfig, v: Val): SVGSVGElement {
 function axisHead(): HTMLElement {
   const sv = s("svg", { class: "sb-c", width: BW, height: 14, "aria-hidden": "true" });
   const x = linear(AX[0], AX[1], 6, BW - 6);
-  for (const t of [-40, -20, 0, 20, 40, 60])
+  for (const t of axTicks())
     s(
       "text",
       {
         class: "sb-t",
         x: x(t),
         y: 11,
-        "text-anchor": t === -40 ? "start" : t === 60 ? "end" : "middle",
+        "text-anchor": t === AX[0] ? "start" : t === AX[1] ? "end" : "middle",
         text: fmt.int(t),
       },
       sv,
@@ -288,7 +314,7 @@ function header(): HTMLElement[] {
     head.push(
       th(axisHead()),
       th(idxLabel, "r", "SynthBench Index with its 95% interval"),
-      ...ALL.map((id) => th(`${dsLabel(id)}${dsMark(id)}`, "c", `Index on ${dsLabel(id)}`)),
+      ...DS.map((id) => th(`${dsLabel(id)}${dsMark(id)}`, "c", `Index on ${dsLabel(id)}`)),
       th("Holdout", "c", "Public and private questions agree within the review threshold"),
     );
   else if (st.cols === "components")
@@ -390,7 +416,9 @@ function row(r: Row, rows: Row[], i: number): HTMLElement {
     h(
       "div",
       { class: "sb-sysname" },
-      h("span", { class: "n" }, glyph(c.lab), c.base),
+      c.method === "ensemble"
+        ? h("span", { class: "n", title: c.base }, glyph(c.lab), shortName(c))
+        : h("span", { class: "n" }, glyph(c.lab), c.base),
       h(
         "span",
         { class: "m" },
@@ -426,7 +454,7 @@ function row(r: Row, rows: Row[], i: number): HTMLElement {
         h("small", null, v.lo != null ? `${fmt.int(v.lo)} to ${fmt.int(v.hi)}` : ""),
       ),
     );
-    for (const id of ALL) {
+    for (const id of DS) {
       const x = c.ds[id];
       const { bg, fg } = heat(x?.idx);
       cells.push(
@@ -517,6 +545,7 @@ function render(): void {
   renderCols();
   chips.rerender();
   const { rows, partial } = currentRows();
+  setAxis([...rows, ...partial].map((r) => r.v));
   shownCount = rows.length + partial.length;
   status.rerender();
   const head = header();
