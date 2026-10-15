@@ -1,16 +1,4 @@
 ---
-import ConditioningGap from "@/components/findings/ConditioningGap.astro";
-import ConvergenceLine from "@/components/findings/ConvergenceLine.astro";
-import CostPerformancePareto from "@/components/findings/CostPerformancePareto.astro";
-import CrossProviderJSDMatrix from "@/components/findings/CrossProviderJSDMatrix.astro";
-import ElicitationComparison from "@/components/findings/ElicitationComparison.astro";
-import EnsembleGain from "@/components/findings/EnsembleGain.astro";
-import EnsembleMethodology from "@/components/findings/EnsembleMethodology.astro";
-import LeverHierarchy from "@/components/findings/LeverHierarchy.astro";
-import NonresponseFidelity from "@/components/findings/NonresponseFidelity.astro";
-import TemperatureCurve from "@/components/findings/TemperatureCurve.astro";
-import TemporalDriftFloor from "@/components/findings/TemporalDriftFloor.astro";
-import TopicGroupedBar from "@/components/findings/TopicGroupedBar.astro";
 import IndexPayload from "@/components/sb/IndexPayload.astro";
 import BaseLayout from "@/layouts/BaseLayout.astro";
 
@@ -36,39 +24,7 @@ const base = rawBase.endsWith("/") ? rawBase : `${rawBase}/`;
     </section>
     <nav class="sb-block sb-panel sb-toc" id="fd-toc" aria-label="Findings"></nav>
     <div id="fd-list"></div>
-
-    <section class="sb-block sb-head">
-      <h2 class="sb-h2">Detailed analyses</h2>
-      <p class="sb-muted">
-        The original analyses behind the findings above. These charts use the raw Survey Parity Score (SPS,
-        0 to 1) rather than the Index.
-      </p>
-    </section>
   </div>
-
-  <LeverHierarchy />
-
-  <EnsembleGain />
-
-  <CostPerformancePareto />
-
-  <CrossProviderJSDMatrix />
-
-  <EnsembleMethodology />
-
-  <TemperatureCurve />
-
-  <ConditioningGap />
-
-  <NonresponseFidelity />
-
-  <ElicitationComparison />
-
-  <TopicGroupedBar />
-
-  <ConvergenceLine />
-
-  <TemporalDriftFloor />
 </BaseLayout>
 
 <script>
