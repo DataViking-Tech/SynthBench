@@ -1,0 +1,82 @@
+---
+// The sub-metrics behind SPS. Leaderboard SPS and the Index use the first
+// three; P_cond and P_sub are computed only for runs that test demographic
+// conditioning and are published alongside, never folded into the score.
+const rows = [
+  {
+    name: "P_dist",
+    label: "Shares match",
+    checks: "How closely the share of answers on each option matches the real survey.",
+    formula: "1 − mean JSD(system, people) over questions",
+    use: "SPS and Index",
+  },
+  {
+    name: "P_rank",
+    label: "Order match",
+    checks:
+      "Whether the options come out in the same order as for people, even when the shares differ.",
+    formula: "(1 + mean Kendall τb) ÷ 2",
+    use: "SPS and Index",
+  },
+  {
+    name: "P_refuse",
+    label: "Refusal match",
+    checks: "Whether the system declines to answer about as often as people do.",
+    formula: "1 − mean |refusal rate gap|",
+    use: "SPS and Index",
+  },
+  {
+    name: "P_cond",
+    label: "Conditioning gain",
+    checks:
+      "When the prompt names a demographic group, how much closer the answers get to that group's real answers.",
+    formula: "mean over groups of max(0, match with group named − match without)",
+    use: "Conditioning runs only",
+  },
+  {
+    name: "P_sub",
+    label: "Subgroup evenness",
+    checks: "Whether the shares match is similar across groups or much worse for some.",
+    formula: "1 − coefficient of variation of per-group P_dist",
+    use: "Conditioning runs only",
+  },
+];
+---
+
+<section class="sb-block sb-panel sb-pad" id="metrics">
+  <h2 class="sb-h2">The sub-metrics</h2>
+  <p class="sb-muted">
+    Each runs from 0 to 1. SPS is the mean of the first three, with equal weights. P_cond and P_sub are
+    published only for runs that name a demographic group in the prompt, and are not part of SPS or the
+    Index. The
+    <a href={`${import.meta.env.BASE_URL?.replace(/\/?$/, "/") ?? "/"}groups/`}>Groups</a> page shows
+    the per-group comparisons they summarize.
+  </p>
+  <div class="sb-tablewrap sb-mt">
+    <table class="sb-ct">
+      <thead>
+        <tr>
+          <th scope="col">Metric</th>
+          <th scope="col">What it checks</th>
+          <th scope="col">Per run</th>
+          <th scope="col">Used in</th>
+        </tr>
+      </thead>
+      <tbody>
+        {
+          rows.map((r) => (
+            <tr>
+              <td class="nowrap">
+                <span class="sb-strong">{r.label}</span>
+                <div class="sb-mono sb-muted sb-small">{r.name}</div>
+              </td>
+              <td>{r.checks}</td>
+              <td class="sb-mono sb-small">{r.formula}</td>
+              <td class="nowrap sb-muted">{r.use}</td>
+            </tr>
+          ))
+        }
+      </tbody>
+    </table>
+  </div>
+</section>

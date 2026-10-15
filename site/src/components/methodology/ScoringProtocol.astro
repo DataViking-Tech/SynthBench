@@ -4,7 +4,7 @@ const steps = [
     number: 1,
     title: "Select dataset and question set",
     detail:
-      "Choose a suite: Core (300 questions, ~1h) for iteration or Full (1,498 questions, ~6h) for publication-grade results.",
+      "Choose a dataset and how many of its questions to run. Pinned question sets (smoke: 28 and core: 200, both from OpinionsQA) keep repeat runs comparable.",
   },
   {
     number: 2,
@@ -60,7 +60,7 @@ const protocols = [
   {
     title: "Fairness",
     items: [
-      "Temperature fixed at provider default (not optimized)",
+      "Provider-default temperature unless a run sets one; runs at other temperatures are listed as separate variants",
       "Each provider tested via its native interface",
       "Same question sets and evaluation pipeline for all providers",
     ],
