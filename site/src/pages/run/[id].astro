@@ -253,7 +253,7 @@ const indexScores = JSON.stringify({
       <div id="run-demographic" class="mb-4 hidden"></div>
 
       <div class="overflow-x-auto rounded-lg border border-muted/20">
-        <table class="w-full text-sm" id="per-question-table">
+        <table class="sb-stack w-full text-sm" id="per-question-table">
           <caption class="sr-only">Per-question results for this run. Select a column header to sort; expand a row via the button in the Question column for full distribution bars.</caption>
           <thead>
             <tr class="bg-surface dark:bg-surface-dark border-b border-muted/20">
@@ -287,6 +287,7 @@ const indexScores = JSON.stringify({
 </BaseLayout>
 
 <script>
+  import "@/scripts/stackTables";
   import {
     datasetLabel,
     modalOption,

@@ -161,6 +161,7 @@ const btnCls =
 </BaseLayout>
 
 <script>
+  import "@/scripts/stackTables";
   import { labOf, logoMarkup } from "@/lib/providerIcons";
   import {
     datasetBase,
@@ -762,7 +763,7 @@ const btnCls =
       sorted.length > shown.length
         ? `<div class="flex items-center justify-between gap-3 border-t border-muted/20 px-3 py-2 text-sm text-muted"><span>Showing ${shown.length} of ${sorted.length}.</span><button type="button" id="show-all" class="rounded-md border border-muted/30 px-3 py-1 text-sm font-medium text-text dark:text-text-dark hover:bg-muted/10">Show all ${sorted.length}</button></div>`
         : "";
-    return `<div class="overflow-x-auto rounded-lg border border-muted/20"><table class="w-full text-sm explore-table"><caption class="sr-only">${escapeHtml(caption)}</caption>${headHtml()}<tbody>${shown.map(rowHtml).join("")}</tbody></table>${more}</div>`;
+    return `<div class="overflow-x-auto rounded-lg border border-muted/20"><table class="sb-stack w-full text-sm explore-table" data-stack-lead><caption class="sr-only">${escapeHtml(caption)}</caption>${headHtml()}<tbody>${shown.map(rowHtml).join("")}</tbody></table>${more}</div>`;
   }
 
   function groupOf(r: Row): string {
