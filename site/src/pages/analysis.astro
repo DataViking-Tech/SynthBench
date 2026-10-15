@@ -36,5 +36,6 @@ import BaseLayout from "@/layouts/BaseLayout.astro";
 </BaseLayout>
 
 <script>
-  import "@/scripts/sb/pages/analysis";
+  import { boot } from "@/scripts/sb/boot";
+  boot(() => import("@/scripts/sb/pages/analysis"));
 </script>

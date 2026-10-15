@@ -17,6 +17,7 @@ import type {
   Interval,
 } from "@/lib/groupAlignment";
 import { harnessTag, modelName, systemFullName } from "@/lib/vocab";
+import { payload } from "../boot";
 import {
   type Scale,
   axisTitle,
@@ -64,9 +65,7 @@ import {
 } from "../ui";
 
 pruneCompare();
-const G = JSON.parse(
-  (document.getElementById("sb-group-data") as HTMLElement).textContent ?? "{}",
-) as GroupData;
+const G = payload<GroupData>("sb-group-data");
 const $ = (id: string) => document.getElementById(id) as HTMLElement;
 const q = new URLSearchParams(location.search);
 

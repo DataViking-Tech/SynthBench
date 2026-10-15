@@ -112,7 +112,8 @@ const reproduceCommands = [
 </BaseLayout>
 
 <script>
-  import "@/scripts/sb/pages/leaderboard";
+  import { boot } from "@/scripts/sb/boot";
+  boot(() => import("@/scripts/sb/pages/leaderboard"));
 
   const copyBtn = document.getElementById("copy-reproduce");
   copyBtn?.addEventListener("click", () => {

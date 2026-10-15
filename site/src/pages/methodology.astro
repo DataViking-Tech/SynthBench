@@ -200,7 +200,8 @@ const bibtex = `@software{synthbench2026,
 </BaseLayout>
 
 <script>
-  import "@/scripts/sb/pages/method";
+  import { boot } from "@/scripts/sb/boot";
+  boot(() => import("@/scripts/sb/pages/method"));
 </script>
 
 <script>

@@ -28,5 +28,6 @@ const base = rawBase.endsWith("/") ? rawBase : `${rawBase}/`;
 </BaseLayout>
 
 <script>
-  import "@/scripts/sb/pages/findings";
+  import { boot } from "@/scripts/sb/boot";
+  boot(() => import("@/scripts/sb/pages/findings"));
 </script>

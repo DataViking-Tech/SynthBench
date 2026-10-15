@@ -107,5 +107,6 @@ const updated = leaderboard.generated_at
 </BaseLayout>
 
 <script>
-  import "@/scripts/sb/pages/overview";
+  import { boot } from "@/scripts/sb/boot";
+  boot(() => import("@/scripts/sb/pages/overview"));
 </script>
