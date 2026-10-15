@@ -2,7 +2,9 @@
 import { existsSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 
+import IndexScales from "@/components/sb/IndexScales.astro";
 import BaseLayout from "@/layouts/BaseLayout.astro";
+import { INDEX_EXPLAINER } from "@/lib/vocab";
 
 // Build-time guard: warn (don't fail) if runs-index.json isn't available so
 // releases ship the friendly empty-state below rather than a runtime 404 error.
@@ -24,14 +26,16 @@ const btnCls =
   "rounded-md border border-muted/30 px-3 py-1.5 text-sm font-medium hover:bg-muted/10";
 ---
 
-<BaseLayout title="Explore Runs - SynthBench">
+<BaseLayout title="Runs">
+  <IndexScales />
   <div class="mx-auto max-w-7xl px-4 py-10 space-y-5">
     <header class="space-y-2">
-      <h1 class="text-3xl sm:text-4xl font-bold tracking-tight">Explore Runs</h1>
+      <h1 class="text-3xl sm:text-4xl font-bold tracking-tight">Runs</h1>
       <p class="text-muted max-w-3xl leading-relaxed">
         Every benchmark configuration, one dataset at a time, ranked by score. Filter by
         settings, then tick two rows to compare them question by question.
       </p>
+      <p class="text-xs text-muted max-w-3xl">{INDEX_EXPLAINER}</p>
     </header>
 
     <!-- Dataset is the first, required choice: scores are only comparable within one. -->
@@ -166,7 +170,31 @@ const btnCls =
     tempLabel,
     templateLabel,
   } from "@/lib/runExplorer";
+  import {
+    METHOD_NAMES,
+    type MethodId,
+    datasetId,
+    fmtIndex,
+    readIndexScales,
+    runSystem,
+    spsToIndex,
+  } from "@/lib/vocab";
   import type { RunIndex, RunIndexEntry } from "@/types/runs";
+
+  // Canonical names (lib/vocab.ts), cached per run. The method filter and the
+  // grouped view use the method and normalized model, so "claude-haiku-4.5"
+  // and "claude-haiku-4-5" runs share a group (display only).
+  const sysCache = new Map<RunIndexEntry, ReturnType<typeof runSystem>>();
+  const sysOf = (r: RunIndexEntry) => {
+    let v = sysCache.get(r);
+    if (!v) sysCache.set(r, (v = runSystem(r)));
+    return v;
+  };
+  const METHOD_ORDER: MethodId[] = ["raw", "althing", "ensemble", "baseline"];
+  const SCALES = readIndexScales();
+  /** SPS on the current dataset's Index scale (0 = random answers, 100 = people). */
+  const toIndex = (sps: number | null | undefined, dataset: string) =>
+    spsToIndex(sps, SCALES[datasetId(dataset)]);
 
   type SelectionMode = "config" | "run";
   type View = "table" | "grouped";
@@ -198,7 +226,12 @@ const btnCls =
     n_questions: number;
     is_baseline: boolean;
     is_ensemble: boolean;
+    /** Canonical system name, method and model (lib/vocab.ts). */
+    name: string;
+    method: MethodId;
+    modelName: string;
     runs: number;
+    /** Mean SPS: sorts the same as the Index within one dataset. */
     score: number | null;
     ci: { low: number; high: number } | null;
     ciKind: "bootstrap" | "replicates" | null;
@@ -339,10 +372,11 @@ const btnCls =
     if (r.dataset !== state.dataset) return false;
     if (state.search) {
       const q = state.search.toLowerCase();
-      const hay = `${r.model} ${r.display_name} ${r.base_provider ?? ""}`.toLowerCase();
+      const hay =
+        `${r.model} ${r.display_name} ${r.base_provider ?? ""} ${sysOf(r).full}`.toLowerCase();
       if (!hay.includes(q)) return false;
     }
-    if (state.framework && r.framework !== state.framework) return false;
+    if (state.framework && sysOf(r).method !== state.framework) return false;
     if (!state.showBaselines && r.is_baseline) return false;
     if (state.temp) {
       if (state.temp === "default" ? r.temperature != null : String(r.temperature) !== state.temp)
@@ -369,6 +403,9 @@ const btnCls =
       n_questions: r.n_questions,
       is_baseline: r.is_baseline,
       is_ensemble: r.is_ensemble,
+      name: sysOf(r).full,
+      method: sysOf(r).method,
+      modelName: sysOf(r).base,
     });
     if (!state.collapseReplicates) {
       return runs.map((r) => ({
@@ -405,9 +442,9 @@ const btnCls =
   function sortValue(r: Row, k: SortKey): string | number | null {
     switch (k) {
       case "name":
-        return r.display_name;
+        return r.name;
       case "method":
-        return r.framework;
+        return METHOD_NAMES[r.method].label;
       case "temp":
         return r.temperature;
       case "tpl":
@@ -477,13 +514,14 @@ const btnCls =
       );
     }
 
-    const fws = [...new Set(rows.map((r) => r.framework))].sort();
-    if (state.framework && !fws.includes(state.framework)) state.framework = "";
+    const present = new Set(rows.map((r) => sysOf(r).method));
+    const fws = METHOD_ORDER.filter((m) => present.has(m));
+    if (state.framework && !(fws as string[]).includes(state.framework)) state.framework = "";
     const fwSel = byId<HTMLSelectElement>("filter-framework");
     fillSelect(
       fwSel,
       "All methods",
-      fws.map((f) => [f, f]),
+      fws.map((f) => [f, METHOD_NAMES[f].label]),
     );
     if (fwSel) fwSel.value = state.framework;
 
@@ -613,7 +651,7 @@ const btnCls =
   }
 
   const rowLabel = (r: Row): string =>
-    `${r.display_name} (${r.framework} · ${settingsLabel(r)}${r.mode === "run" ? `, ${r.id.slice(-15)}` : ""})`;
+    `${r.name} (${settingsLabel(r)}${r.mode === "run" ? `, ${r.id.slice(-15)}` : ""})`;
 
   function guardDisabledLink(el: HTMLAnchorElement): void {
     const block = (e: Event): void => {
@@ -645,7 +683,7 @@ const btnCls =
 
   const COLS: { key: SortKey; label: string; align: "left" | "right"; title?: string }[] = [
     { key: "name", label: "System", align: "left" },
-    { key: "method", label: "Method", align: "left", title: "Framework the run went through" },
+    { key: "method", label: "Method", align: "left", title: "Raw LLM, Althing persona or ensemble" },
     { key: "temp", label: "Temp.", align: "right", title: "Sampling temperature" },
     { key: "tpl", label: "Template", align: "left", title: "Prompt template" },
     { key: "n", label: "Questions", align: "right" },
@@ -653,10 +691,10 @@ const btnCls =
     { key: "runs", label: "Runs", align: "right", title: "Replicate runs behind the row" },
     {
       key: "score",
-      label: "SPS",
+      label: "Index",
       align: "right",
       title:
-        "Mean across replicates. Interval: the leaderboard's 95% bootstrap interval when published, else a 95% t-interval over 3+ replicates.",
+        "SynthBench Index on this dataset (0 = random answers, 100 = real people), with the raw SPS (0 to 1) below. Mean across replicates. Interval: the leaderboard's 95% bootstrap interval when published, else a 95% t-interval over 3+ replicates.",
     },
   ];
 
@@ -688,30 +726,27 @@ const btnCls =
         ? tag(
             `pack=${r.persona_pack}`,
             undefined,
-            `conditioned on the althing ${r.persona_pack} population pack`,
+            `conditioned on the Althing ${r.persona_pack} population pack`,
           )
-        : "",
-      r.harness
-        ? tag(`harness=${r.harness}`, undefined, `run through the ${r.harness} CLI instead of the vendor API`)
         : "",
       r.mode === "run" ? tag(r.id.slice(-15), undefined, r.id) : "",
     ].join("");
     const ci = r.ci
-      ? `<div class="whitespace-nowrap text-[11px] text-muted" title="${r.ciKind === "bootstrap" ? "95% bootstrap interval (leaderboard)" : `95% t-interval over ${r.runs} replicates`}">${fmtScore(r.ci.low)}–${fmtScore(r.ci.high)}</div>`
+      ? `<div class="whitespace-nowrap text-[11px] text-muted" title="${r.ciKind === "bootstrap" ? "95% bootstrap interval (leaderboard)" : `95% t-interval over ${r.runs} replicates`}">${fmtIndex(toIndex(r.ci.low, r.dataset))} to ${fmtIndex(toIndex(r.ci.high, r.dataset))}</div>`
       : "";
     return `<tr class="border-b border-muted/10 hover:bg-muted/5${checked ? " bg-primary/5" : ""}" data-row-id="${escapeHtml(r.id)}">
       <td class="px-3 py-1.5 align-top"><input type="checkbox" id="${cbId}" class="accent-primary" data-pick="${escapeHtml(r.id)}" data-focus-key="pick::${escapeHtml(r.id)}" aria-label="Select for compare: ${escapeHtml(rowLabel(r))}"${checked ? " checked" : ""} /></td>
       <td class="px-3 py-1.5 align-top">
-        <a href="${href}" class="font-medium text-text dark:text-text-dark hover:text-primary dark:hover:text-primary-light inline-flex items-center gap-1.5">${logoMarkup(labOf(`${r.model} ${r.display_name}`), 14)}${escapeHtml(r.display_name)}</a>
+        <a href="${href}" class="font-medium text-text dark:text-text-dark hover:text-primary dark:hover:text-primary-light inline-flex items-center gap-1.5">${logoMarkup(labOf(r.is_ensemble ? "ensemble" : r.model), 14)}${escapeHtml(r.name)}</a>
         ${tags ? `<div class="mt-1 flex flex-wrap gap-1">${tags}</div>` : ""}
       </td>
-      <td class="px-3 py-1.5 align-top font-mono text-xs">${escapeHtml(r.framework)}</td>
+      <td class="px-3 py-1.5 align-top text-xs">${escapeHtml(METHOD_NAMES[r.method].label)}</td>
       <td class="px-3 py-1.5 align-top text-right font-mono text-xs${r.temperature == null ? " text-muted" : ""}">${escapeHtml(tempLabel(r.temperature))}</td>
       <td class="px-3 py-1.5 align-top font-mono text-xs${!r.template || r.template === "current" ? " text-muted" : ""}">${escapeHtml(templateLabel(r.template))}</td>
       <td class="px-3 py-1.5 align-top text-right font-mono text-xs" data-col="n">n=${r.n_questions}</td>
       <td class="px-3 py-1.5 align-top text-right font-mono text-xs" data-col="spq">${r.samples_per_question == null ? "—" : `s=${r.samples_per_question}`}</td>
       <td class="px-3 py-1.5 align-top text-right font-mono text-xs">${r.runs}</td>
-      <td class="px-3 py-1.5 align-top text-right font-mono"><span class="font-semibold">${fmtScore(r.score)}</span>${ci}</td>
+      <td class="px-3 py-1.5 align-top text-right font-mono"><span class="font-semibold">${fmtIndex(toIndex(r.score, r.dataset))}</span>${ci}<div class="whitespace-nowrap text-[11px] text-muted" title="Survey Parity Score, 0 to 1">SPS ${fmtScore(r.score)}</div></td>
     </tr>`;
   }
 
@@ -731,9 +766,9 @@ const btnCls =
   }
 
   function groupOf(r: Row): string {
-    if (r.is_baseline) return "Baselines";
-    if (r.is_ensemble) return "Ensembles";
-    return `${r.framework} · ${r.base_provider ?? "(unknown)"} / ${r.model}`;
+    if (r.method === "baseline") return "Baselines";
+    if (r.method === "ensemble") return "Ensembles";
+    return `${r.modelName} · ${METHOD_NAMES[r.method].label}`;
   }
 
   function groupedHtml(rows: Row[]): string {
@@ -750,8 +785,8 @@ const btnCls =
         const bodyId = `grp-${k}`.replace(/[^a-zA-Z0-9_-]/g, "_");
         return `<section class="rounded-lg border border-muted/20 bg-surface dark:bg-surface-dark overflow-hidden">
           <button type="button" class="w-full flex items-center justify-between gap-3 px-4 py-2 text-left text-sm hover:bg-muted/5" data-group="${escapeHtml(k)}" data-focus-key="grp::${escapeHtml(k)}" aria-expanded="${open}" aria-controls="${bodyId}">
-            <span class="flex items-center gap-2"><span aria-hidden="true" class="text-muted">${open ? "▾" : "▸"}</span>${logoMarkup(labOf(k), 15)}<span class="font-medium">${escapeHtml(k)}</span><span class="text-xs text-muted">· ${rs.length} ${state.collapseReplicates ? "config" : "run"}${rs.length === 1 ? "" : "s"}</span></span>
-            <span class="font-mono text-xs text-muted">best SPS <span class="font-semibold text-text dark:text-text-dark">${fmtScore(best(rs) < 0 ? null : best(rs))}</span></span>
+            <span class="flex items-center gap-2"><span aria-hidden="true" class="text-muted">${open ? "▾" : "▸"}</span>${logoMarkup(labOf(k === "Baselines" ? "" : k), 15)}<span class="font-medium">${escapeHtml(k)}</span><span class="text-xs text-muted">· ${rs.length} ${state.collapseReplicates ? "config" : "run"}${rs.length === 1 ? "" : "s"}</span></span>
+            <span class="font-mono text-xs text-muted">best Index <span class="font-semibold text-text dark:text-text-dark">${fmtIndex(best(rs) < 0 ? null : toIndex(best(rs), state.dataset))}</span></span>
           </button>
           <div id="${bodyId}" class="px-2 pb-2"${open ? "" : " hidden"}>${tableHtml(rs, `Configurations in ${k}`)}</div>
         </section>`;

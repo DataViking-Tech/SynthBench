@@ -1,10 +1,13 @@
 ---
 import { existsSync, readFileSync } from "node:fs";
 import { resolve } from "node:path";
+import IndexScales from "@/components/sb/IndexScales.astro";
+import Info from "@/components/sb/Info.astro";
 import ProviderLogo from "@/components/sb/ProviderLogo.astro";
 import BaseLayout from "@/layouts/BaseLayout.astro";
 import { datasetLabel } from "@/lib/runExplorer";
 import { type SystemLink, systemLinkFor } from "@/lib/systemLinks";
+import { INDEX_EXPLAINER, METHOD_NAMES, datasetAudience, runSystem } from "@/lib/vocab";
 import type { RunIndex, RunIndexEntry } from "@/types/runs";
 
 export async function getStaticPaths() {
@@ -58,6 +61,8 @@ const systemUrl = system ? `${base}/system/${system.slug}/` : null;
 const questionBaseUrl = `${base}/question/${encodePathSegment(entry.dataset)}`;
 const questionIndexUrl = hasQuestionIndex ? `${questionBaseUrl}/` : "";
 const dsName = datasetLabel(entry.dataset);
+// Canonical names (lib/vocab.ts), shared with the leaderboard and charts.
+const sys = runSystem(entry);
 
 // Public aggregates from runs-index.json. They render immediately and stay
 // when the per-question artifact is gated; the run JSON (when it loads)
@@ -72,7 +77,8 @@ const indexScores = JSON.stringify({
 });
 ---
 
-<BaseLayout title={`Run ${entry.run_id} - SynthBench`} noindex={true}>
+<BaseLayout title={`Run: ${sys.full} on ${dsName}`} noindex={true}>
+  <IndexScales />
   <div
     class="run-detail mx-auto w-full max-w-6xl px-4 py-8"
     data-run-id={entry.run_id}
@@ -84,7 +90,7 @@ const indexScores = JSON.stringify({
   >
     <!-- Breadcrumb -->
     <nav class="mb-6 text-sm text-muted" aria-label="Breadcrumb">
-      <a href={exploreUrl} class="hover:text-primary">Explore · {dsName}</a>
+      <a href={exploreUrl} class="hover:text-primary">Runs · {dsName}</a>
       {
         systemUrl && (
           <>
@@ -104,7 +110,7 @@ const indexScores = JSON.stringify({
     <!-- Header (server-rendered from index entry) -->
     <header class="mb-8">
       <div class="flex flex-wrap items-baseline gap-2">
-        <h1 class="flex items-center gap-2 text-2xl font-bold sm:text-3xl"><ProviderLogo of={`${entry.model} ${entry.display_name}`} />{entry.display_name}</h1>
+        <h1 class="flex items-center gap-2 text-2xl font-bold sm:text-3xl"><ProviderLogo of={sys.method === "ensemble" ? "ensemble" : entry.model} />{sys.full}</h1>
         {
           entry.is_ensemble && (
             <span class="rounded bg-primary/10 px-2 py-0.5 text-xs text-primary">
@@ -120,6 +126,9 @@ const indexScores = JSON.stringify({
           )
         }
       </div>
+      <p class="mt-1 text-sm text-muted">
+        {dsName}{datasetAudience(entry.dataset) && ` · ${datasetAudience(entry.dataset)}`}
+      </p>
       <p class="mt-1 break-all font-mono text-xs text-muted">{entry.run_id}</p>
     </header>
 
@@ -130,9 +139,17 @@ const indexScores = JSON.stringify({
       </h2>
       <dl class="grid grid-cols-2 gap-x-6 gap-y-3 text-sm sm:grid-cols-3 md:grid-cols-4">
         <div>
-          <dt class="text-xs text-muted">Framework</dt>
-          <dd class="font-mono">{entry.framework}</dd>
+          <dt class="text-xs text-muted">Method</dt>
+          <dd>{METHOD_NAMES[sys.method].label}</dd>
         </div>
+        {
+          sys.harness && (
+            <div>
+              <dt class="text-xs text-muted">Harness</dt>
+              <dd>{`via ${sys.harness}`}</dd>
+            </div>
+          )
+        }
         <div>
           <dt class="text-xs text-muted">Base provider</dt>
           <dd class="font-mono">{entry.base_provider ?? "—"}</dd>
@@ -143,7 +160,7 @@ const indexScores = JSON.stringify({
         </div>
         <div>
           <dt class="text-xs text-muted">Dataset</dt>
-          <dd class="font-mono">{entry.dataset}</dd>
+          <dd>{dsName}</dd>
         </div>
         <div>
           <dt class="text-xs text-muted">Temperature</dt>
@@ -182,12 +199,19 @@ const indexScores = JSON.stringify({
 
     <!-- 2. Aggregate scores -->
     <section class="mb-8">
-      <h2 class="mb-3 text-sm font-semibold uppercase tracking-wide text-muted">
+      <h2 class="mb-1 text-sm font-semibold uppercase tracking-wide text-muted">
         Aggregate scores
       </h2>
+      <p class="mb-3 text-xs text-muted">
+        {INDEX_EXPLAINER}
+        <Info label="About the Index">
+          Index = 100 × (SPS − SPS of random answers) ÷ (human ceiling − SPS of random answers), on this
+          run's dataset. The leaderboard averages it over the core datasets.
+        </Info>
+      </p>
       <div
         id="run-scores"
-        class="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6"
+        class="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4"
       >
         <p class="col-span-full text-sm text-muted">Loading scores…</p>
       </div>
@@ -238,7 +262,7 @@ const indexScores = JSON.stringify({
               <th class="px-3 py-2 text-left font-semibold" scope="col" data-sort="model" aria-sort="none"><button type="button" class="pq-sort font-semibold hover:text-primary" data-sort="model">Model modal</button></th>
               <th class="px-3 py-2 text-left font-semibold" scope="col" data-sort="human" aria-sort="none"><button type="button" class="pq-sort font-semibold hover:text-primary" data-sort="human">Human modal</button></th>
               <th class="year-col hidden px-3 py-2 text-right font-semibold" scope="col" data-sort="year" aria-sort="none"><button type="button" class="pq-sort font-semibold hover:text-primary" data-sort="year">Year</button></th>
-              <th class="px-3 py-2 text-right font-semibold" scope="col" data-sort="jsd" aria-sort="descending"><button type="button" class="pq-sort font-semibold hover:text-primary" data-sort="jsd">JSD</button></th>
+              <th class="px-3 py-2 text-right font-semibold" scope="col" data-sort="jsd" aria-sort="descending"><button type="button" class="pq-sort font-semibold hover:text-primary" data-sort="jsd" title="Distribution gap: Jensen-Shannon divergence from people's answers (lower is better)">Distribution gap <span class="font-normal text-muted">(JSD)</span></button></th>
             </tr>
           </thead>
           <tbody id="per-question-tbody">
@@ -263,7 +287,13 @@ const indexScores = JSON.stringify({
 </BaseLayout>
 
 <script>
-  import { modalOption, questionPageKeys, safeQuestionKey } from "@/lib/runExplorer";
+  import {
+    datasetLabel,
+    modalOption,
+    questionPageKeys,
+    safeQuestionKey,
+  } from "@/lib/runExplorer";
+  import { METRIC_NAMES, datasetId, fmtIndex, readIndexScales, spsToIndex } from "@/lib/vocab";
   import { topicLabel } from "@/lib/topics";
   import type { PerQuestionRow, RunAggregate, RunDetail, RunScores } from "@/types/runs";
 
@@ -368,37 +398,50 @@ const indexScores = JSON.stringify({
     scores: RunScores,
     agg: Pick<RunAggregate, "mean_jsd" | "mean_kendall_tau" | "per_metric_ci">,
     questionIndexUrl: string,
+    dataset: string,
   ): string {
-    const tiles: Array<[string, string]> = [
-      ["SPS", fmt(scores.sps)],
-      ["p_dist", fmt(scores.p_dist)],
-      ["p_rank", fmt(scores.p_rank)],
-      ["p_refuse", fmt(scores.p_refuse)],
-      ["mean JSD", fmt(agg.mean_jsd)],
-      ["Kendall τ", fmt(agg.mean_kendall_tau)],
-    ];
-    if (scores.p_cond != null) tiles.push(["p_cond", fmt(scores.p_cond)]);
-    if (scores.p_sub != null) tiles.push(["p_sub", fmt(scores.p_sub)]);
-
+    // Lead with the Index (the scale every other page uses); SPS and its parts follow.
+    const scale = readIndexScales()[datasetId(dataset)];
     const ci = agg.per_metric_ci ?? {};
+    const range = (...keys: string[]): [number, number] | null => {
+      for (const k of keys) {
+        const r = ci[k];
+        if (r && r[0] != null && r[1] != null) return r;
+      }
+      return null;
+    };
+    const ciText = (r: [number, number] | null, f: (v: number) => string = (v) => fmt(v)) =>
+      r ? `[${f(r[0])}, ${f(r[1])}]` : "";
+    const spsCi = range("sps");
+    const toIdx = (v: number) => fmtIndex(spsToIndex(v, scale));
+    type Tile = [keyof typeof METRIC_NAMES, string, string];
+    const tiles: Tile[] = [
+      ["index", fmtIndex(spsToIndex(scores.sps, scale)), ciText(spsCi, toIdx)],
+      ["sps", fmt(scores.sps), ciText(spsCi)],
+      ["pDist", fmt(scores.p_dist), ciText(range("p_dist"))],
+      ["pRank", fmt(scores.p_rank), ciText(range("p_rank"))],
+      ["pRefuse", fmt(scores.p_refuse), ciText(range("p_refuse"))],
+      ["jsd", fmt(agg.mean_jsd), ciText(range("jsd", "mean_jsd"))],
+      ["tau", fmt(agg.mean_kendall_tau), ciText(range("tau", "mean_kendall_tau"))],
+    ];
+    if (scores.p_cond != null) tiles.push(["pCond", fmt(scores.p_cond), ciText(range("p_cond"))]);
+    if (scores.p_sub != null) tiles.push(["pSub", fmt(scores.p_sub), ciText(range("p_sub"))]);
+
     return tiles
-      .map(([label, value]) => {
-        const ciKey = label.toLowerCase().replace("mean ", "").replace("kendall τ", "tau");
-        const ciRange = ci[ciKey];
-        const ciText =
-          ciRange && ciRange[0] != null && ciRange[1] != null
-            ? `<div class="score-ci">[${fmt(ciRange[0])}, ${fmt(ciRange[1])}]</div>`
-            : "";
-        // Mean JSD links to the dataset's question index, ranked by divergence.
+      .map(([key, value, ciRange]) => {
+        const m = METRIC_NAMES[key];
+        const label = key === "index" ? "Index" : key === "sps" ? "SPS" : m.label;
+        // The distribution gap links to the dataset's question index, ranked by divergence.
         const link =
-          label === "mean JSD" && questionIndexUrl
+          key === "jsd" && questionIndexUrl
             ? `<a class="score-link" href="${escapeHtml(questionIndexUrl)}?sort=human">Which questions diverge most? →</a>`
             : "";
         return `
-          <div class="score-tile">
+          <div class="score-tile${key === "index" ? " score-tile--lead" : ""}" title="${escapeHtml(m.desc)}">
             <div class="score-label">${escapeHtml(label)}</div>
+            <div class="score-tech">${escapeHtml(m.tech)}</div>
             <div class="score-value">${escapeHtml(value)}</div>
-            ${ciText}
+            ${ciRange ? `<div class="score-ci">${escapeHtml(ciRange)}</div>` : ""}
             ${link}
           </div>
         `;
@@ -433,8 +476,8 @@ const indexScores = JSON.stringify({
                 <thead>
                   <tr class="border-b border-muted/20 bg-surface text-xs dark:bg-surface-dark">
                     <th class="px-3 py-1.5 text-left font-semibold" scope="col">Group</th>
-                    <th class="px-3 py-1.5 text-right font-semibold" scope="col">p_dist</th>
-                    <th class="px-3 py-1.5 text-right font-semibold" scope="col">p_cond</th>
+                    <th class="px-3 py-1.5 text-right font-semibold" scope="col">Shares match <span class="font-normal text-muted">(p_dist)</span></th>
+                    <th class="px-3 py-1.5 text-right font-semibold" scope="col">Persona effect <span class="font-normal text-muted">(p_cond)</span></th>
                     <th class="px-3 py-1.5 text-right font-semibold" scope="col">N</th>
                   </tr>
                 </thead>
@@ -712,6 +755,7 @@ const indexScores = JSON.stringify({
           { sps: s.sps, p_dist: s.p_dist, p_rank: s.p_rank, p_refuse: s.p_refuse },
           { mean_jsd: s.jsd, mean_kendall_tau: s.tau, per_metric_ci: null },
           questionIndexUrl,
+          dataset,
         );
       }
     } catch {
@@ -760,7 +804,7 @@ const indexScores = JSON.stringify({
           if (tbody) {
             tbody.innerHTML = `<tr><td colspan="6" class="px-3 py-4"><div id="pq-gate"></div></td></tr>`;
             const gate = document.getElementById("pq-gate");
-            if (gate) renderSignInGate(gate, { datasetLabel: dataset });
+            if (gate) renderSignInGate(gate, { datasetLabel: datasetLabel(dataset) });
           }
           return;
         }
@@ -770,7 +814,7 @@ const indexScores = JSON.stringify({
       const detail = result.data;
 
       if (scoresEl) {
-        scoresEl.innerHTML = renderScores(detail.scores, detail.aggregate, questionIndexUrl);
+        scoresEl.innerHTML = renderScores(detail.scores, detail.aggregate, questionIndexUrl, dataset);
       }
 
       // Demographic breakdown (SubPOP) — conditional
@@ -840,11 +884,18 @@ const indexScores = JSON.stringify({
       border-color: color-mix(in oklch, var(--color-muted) 35%, transparent);
     }
   }
+  /* No text-transform: labels may hold τ, which upper-cases to a T-like Τ. */
   .score-label {
-    font-size: 0.7rem;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
+    font-size: 0.75rem;
+    font-weight: 600;
     color: var(--color-muted);
+  }
+  .score-tech {
+    font-size: 0.65rem;
+    color: var(--color-muted);
+  }
+  .score-tile--lead {
+    border-color: color-mix(in oklch, var(--color-primary) 45%, transparent);
   }
   .score-value {
     font-family: ui-monospace, SFMono-Regular, Menlo, monospace;

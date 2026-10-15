@@ -20,8 +20,9 @@ test.describe("question: cross-model explorer page", () => {
 
     await expect(page.locator("h1")).toHaveText("Question detail");
 
-    // The dataset badge and key are present (breadcrumb + header).
-    await expect(page.getByText(FIXTURE_DATASET, { exact: true }).first()).toBeVisible();
+    // The dataset badge and key are present (breadcrumb + header). The badge
+    // shows the dataset's display name, not its id.
+    await expect(page.getByText("GlobalOpinionQA", { exact: true }).first()).toBeVisible();
     await expect(page.getByText(FIXTURE_KEY, { exact: true }).first()).toBeVisible();
 
     // Trendslop indicators section surfaces the cross-model divergence row.

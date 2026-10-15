@@ -6,22 +6,24 @@
 // caller already has; nothing fetches gated per-question data.
 
 import type { RunIndexEntry } from "@/types/runs";
+import { METHOD_NAMES, datasetName, runSystem } from "./vocab";
 
-const DATASET_LABELS: Record<string, string> = {
-  opinionsqa: "OpinionsQA",
-  subpop: "SubPOP",
-  globalopinionqa: "GlobalOpinionQA",
-  gss: "GSS",
-  ntia: "NTIA",
-};
-
-/** "opinionsqa" → "OpinionsQA"; "ntia (Nov 2023)" → "NTIA (Nov 2023)". */
+/** "opinionsqa" → "OpinionsQA"; "ntia (Nov 2023)" → "NTIA (Nov 2023)". Names from lib/vocab.ts. */
 export function datasetLabel(id: string | null | undefined): string {
   if (!id) return "—";
   const [head, ...rest] = id.split(" ");
-  const label = DATASET_LABELS[head] ?? head;
+  const label = datasetName(head);
   return rest.length ? `${label} ${rest.join(" ")}` : label;
 }
+
+type NameFields = Parameters<typeof runSystem>[0];
+/**
+ * Canonical system name of a run or config ("GPT-6 Luna via codex, persona"),
+ * the same one the leaderboard and charts use. Includes the harness tag.
+ */
+export const systemName = (e: NameFields): string => runSystem(e).full;
+/** Method label ("Raw LLM", "Althing persona", "Ensemble", "Baseline"). */
+export const methodName = (e: NameFields): string => METHOD_NAMES[runSystem(e).method].label;
 
 /** Bare adapter name of a dataset id ("ntia (Nov 2023)" → "ntia"). */
 export const datasetBase = (id: string): string => id.split(" ", 1)[0] ?? id;
@@ -36,19 +38,19 @@ export const templateLabel = (tpl: string | null | undefined): string =>
 
 type SettingsLike = Pick<
   RunIndexEntry,
-  "temperature" | "template" | "effort" | "persona_pack" | "harness" | "n_questions"
+  "temperature" | "template" | "effort" | "persona_pack" | "n_questions"
 >;
 
 /**
  * One-line description of the settings that distinguish configs of the same
  * model: "t default · default template · n=100". Optional parts (effort,
- * persona pack, harness) only appear when set.
+ * persona pack) only appear when set. The harness is part of the system name
+ * (systemName), so it is not repeated here.
  */
 export function settingsLabel(e: SettingsLike, opts: { n?: boolean } = {}): string {
   const parts = [`t ${tempLabel(e.temperature)}`, `${templateLabel(e.template)} template`];
   if (e.effort) parts.push(`${e.effort} effort`);
   if (e.persona_pack) parts.push(`${e.persona_pack} personas`);
-  if (e.harness) parts.push(`via ${e.harness}`);
   if (opts.n !== false) parts.push(`n=${e.n_questions}`);
   return parts.join(" · ");
 }

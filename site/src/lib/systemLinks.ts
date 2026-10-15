@@ -27,7 +27,8 @@ export function systemLinkFor(e: Entry): SystemLink | null {
     const byConfig = new Map<string, SystemLink>();
     const byBase = new Map<string, SystemLink>();
     for (const c of index.systems) {
-      const link = { slug: systemSlug(c.baseId), name: c.base };
+      // Model name, or the ensemble's canonical short name (lib/vocab.ts).
+      const link = { slug: systemSlug(c.baseId), name: c.method === "ensemble" ? c.short : c.base };
       if (c.method !== "baseline" && !byBase.has(c.baseId)) byBase.set(c.baseId, link);
       for (const d of Object.values(c.ds)) {
         if (d.configId && c.method !== "baseline") byConfig.set(d.configId, link);

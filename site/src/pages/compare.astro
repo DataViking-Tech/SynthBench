@@ -1,5 +1,7 @@
 ---
+import IndexScales from "@/components/sb/IndexScales.astro";
 import BaseLayout from "@/layouts/BaseLayout.astro";
+import { INDEX_EXPLAINER } from "@/lib/vocab";
 
 const base = (import.meta.env.BASE_URL ?? "/").replace(/\/$/, "");
 const exploreUrl = `${base}/explore/`;
@@ -8,18 +10,19 @@ const selectCls =
 const labelCls = "text-xs font-semibold uppercase tracking-wide text-muted";
 ---
 
-<BaseLayout title="Compare - SynthBench">
+<BaseLayout title="Compare runs">
+  <IndexScales />
   <div class="mx-auto w-full max-w-6xl px-4 py-8" id="compare-root" data-base={base}>
     <!-- Breadcrumb -->
     <nav class="mb-4 text-sm text-muted" aria-label="Breadcrumb">
-      <a class="hover:underline" href={exploreUrl} id="crumb-explore">Explore</a>
+      <a class="hover:underline" href={exploreUrl} id="crumb-explore">Runs</a>
       <span class="mx-2">/</span>
       <span>Compare</span>
     </nav>
 
     <!-- Header -->
     <header class="mb-5">
-      <h1 class="text-2xl font-bold tracking-tight sm:text-3xl">Compare</h1>
+      <h1 class="text-2xl font-bold tracking-tight sm:text-3xl">Compare runs</h1>
       <p class="mt-1 text-sm text-muted">
         Two configurations (or two single runs) on the same dataset, question by question. The
         hero view is <strong>flipped questions</strong>: where A and B give different most-common
@@ -88,7 +91,7 @@ const labelCls = "text-xs font-semibold uppercase tracking-wide text-muted";
       class="mb-6 hidden rounded-lg border border-muted/20 p-6 text-center text-sm text-muted"
     >
       Pick A and B above, or tick two rows in
-      <a class="text-primary hover:underline" href={exploreUrl}>Explore</a>.
+      <a class="text-primary hover:underline" href={exploreUrl}>Runs</a>.
     </div>
 
     <!-- Subject chips (A / B) -->
@@ -117,8 +120,9 @@ const labelCls = "text-xs font-semibold uppercase tracking-wide text-muted";
     <!-- Section 1: metric tiles -->
     <section id="compare-metrics-wrap" class="mb-8 hidden">
       <h2 class="mb-3 text-sm font-semibold uppercase tracking-wide text-muted">Metrics</h2>
+      <p class="mb-1 text-xs text-muted">{INDEX_EXPLAINER}</p>
       <p id="compare-metrics-note" class="mb-3 text-xs text-muted"></p>
-      <div id="compare-metrics" class="grid grid-cols-1 gap-3 sm:grid-cols-3"></div>
+      <div id="compare-metrics" class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4"></div>
     </section>
 
     <!-- Section 2: flipped questions table -->
@@ -154,8 +158,8 @@ const labelCls = "text-xs font-semibold uppercase tracking-wide text-muted";
               <th class="px-3 py-2 text-left font-semibold" scope="col" data-sort="human_modal" aria-sort="none"><button type="button" class="font-semibold hover:text-primary" data-sort="human_modal">Human modal</button></th>
               <th class="px-3 py-2 text-left font-semibold" scope="col" data-sort="a_modal" aria-sort="none"><button type="button" class="font-semibold hover:text-primary" data-sort="a_modal">A modal</button></th>
               <th class="px-3 py-2 text-left font-semibold" scope="col" data-sort="b_modal" aria-sort="none"><button type="button" class="font-semibold hover:text-primary" data-sort="b_modal">B modal</button></th>
-              <th class="px-3 py-2 text-right font-semibold" scope="col" data-sort="a_jsd" aria-sort="none"><button type="button" class="font-semibold hover:text-primary" data-sort="a_jsd" title="JSD from the human distribution">JSD A</button></th>
-              <th class="px-3 py-2 text-right font-semibold" scope="col" data-sort="b_jsd" aria-sort="none"><button type="button" class="font-semibold hover:text-primary" data-sort="b_jsd" title="JSD from the human distribution">JSD B</button></th>
+              <th class="px-3 py-2 text-right font-semibold" scope="col" data-sort="a_jsd" aria-sort="none"><button type="button" class="font-semibold hover:text-primary" data-sort="a_jsd" title="Distribution gap: Jensen-Shannon divergence from people's answers (lower is better)">JSD A</button></th>
+              <th class="px-3 py-2 text-right font-semibold" scope="col" data-sort="b_jsd" aria-sort="none"><button type="button" class="font-semibold hover:text-primary" data-sort="b_jsd" title="Distribution gap: Jensen-Shannon divergence from people's answers (lower is better)">JSD B</button></th>
               <th class="px-3 py-2 text-right font-semibold" scope="col" data-sort="delta_jsd" aria-sort="descending"><button type="button" class="font-semibold hover:text-primary" data-sort="delta_jsd" title="JSD A − JSD B; sorted by size">ΔJSD</button></th>
               <th class="px-3 py-2 text-center font-semibold" scope="col" data-sort="flip" aria-sort="none"><button type="button" class="font-semibold hover:text-primary" data-sort="flip">Flip</button></th>
             </tr>
@@ -174,12 +178,21 @@ const labelCls = "text-xs font-semibold uppercase tracking-wide text-muted";
 <script>
   import {
     datasetLabel,
+    methodName,
     modalOption,
     questionPageKeys,
     replicateStats,
     safeQuestionKey,
     settingsLabel,
+    systemName,
   } from "@/lib/runExplorer";
+  import {
+    METRIC_NAMES,
+    datasetId,
+    fmtIndex,
+    readIndexScales,
+    spsToIndex,
+  } from "@/lib/vocab";
   import { topicLabel } from "@/lib/topics";
   import type { DatasetPolicyEntry } from "@/types/leaderboard";
   import type { PerQuestionRow, RunDetail, RunIndex, RunIndexEntry } from "@/types/runs";
@@ -289,6 +302,19 @@ const labelCls = "text-xs font-semibold uppercase tracking-wide text-muted";
     const hi = Math.min(a.high, b.high);
     return lo <= hi ? "overlap" : "disjoint";
   }
+
+  /** The SPS metric on the dataset's Index scale (lib/vocab.ts), interval included. */
+  function indexMetric(sps: MetricValue, dataset: string): MetricValue {
+    const scale = readIndexScales()[datasetId(dataset)];
+    const lo = sps.ci ? spsToIndex(sps.ci.low, scale) : null;
+    const hi = sps.ci ? spsToIndex(sps.ci.high, scale) : null;
+    return {
+      value: spsToIndex(sps.value, scale),
+      ci: lo != null && hi != null ? { low: lo, high: hi } : null,
+    };
+  }
+  const idxOf = (sps: number | null | undefined, dataset: string) =>
+    fmtIndex(spsToIndex(sps, readIndexScales()[datasetId(dataset)]));
 
   function ciFromPair(range: [number, number] | undefined | null): CiRange | null {
     if (!range) return null;
@@ -436,8 +462,8 @@ const labelCls = "text-xs font-semibold uppercase tracking-wide text-muted";
       id,
       head,
       runs,
-      title: head.display_name || head.model || id,
-      meta: `${datasetLabel(head.dataset)} · ${head.framework} · ${settingsLabel(head)}${reps}`,
+      title: systemName(head) || id,
+      meta: `${datasetLabel(head.dataset)} · ${methodName(head)} · ${settingsLabel(head)}${reps}`,
       detailUrl: `${state.base}/${mode}/${enc}/`,
       metrics,
       ciNote,
@@ -454,7 +480,7 @@ const labelCls = "text-xs font-semibold uppercase tracking-wide text-muted";
         .sort((x, y) => (y.sps ?? -1) - (x.sps ?? -1))
         .map((r) => [
           r.run_id,
-          `${r.display_name} — ${r.framework} · ${settingsLabel(r)} · ${r.timestamp?.slice(0, 10) ?? ""} (${fmt(r.sps)})`,
+          `${systemName(r)} — ${settingsLabel(r)} · ${r.timestamp?.slice(0, 10) ?? ""} (Index ${idxOf(r.sps, r.dataset)})`,
         ]);
     }
     const byConfig = new Map<string, RunIndexEntry[]>();
@@ -464,7 +490,7 @@ const labelCls = "text-xs font-semibold uppercase tracking-wide text-muted";
       .sort((x, y) => (y.mean ?? -1) - (x.mean ?? -1))
       .map(({ id, reps, mean }): [string, string] => [
         id,
-        `${reps[0].display_name} — ${reps[0].framework} · ${settingsLabel(reps[0])}${reps.length > 1 ? ` · ${reps.length} reps` : ""} (${fmt(mean)})`,
+        `${systemName(reps[0])} — ${settingsLabel(reps[0])}${reps.length > 1 ? ` · ${reps.length} reps` : ""} (Index ${idxOf(mean, reps[0].dataset)})`,
       ]);
   }
 
@@ -502,7 +528,7 @@ const labelCls = "text-xs font-semibold uppercase tracking-wide text-muted";
     const crumb = $<HTMLAnchorElement>("crumb-explore");
     if (crumb) {
       crumb.href = `${state.base}/explore/${state.dataset ? `?ds=${encodeURIComponent(state.dataset)}` : ""}`;
-      crumb.textContent = state.dataset ? `Explore · ${datasetLabel(state.dataset)}` : "Explore";
+      crumb.textContent = state.dataset ? `Runs · ${datasetLabel(state.dataset)}` : "Runs";
     }
   }
 
@@ -603,18 +629,27 @@ const labelCls = "text-xs font-semibold uppercase tracking-wide text-muted";
         (why ? ` (${why}).` : ".");
     }
 
-    const metrics: Array<{ key: keyof SubjectMetrics; label: string }> = [
+    // Index first (the site-wide scale), then SPS and its technical parts.
+    type Key = keyof SubjectMetrics | "index";
+    const metrics: Array<{ key: Key; label: string }> = [
+      { key: "index", label: "Index" },
       { key: "sps", label: "SPS" },
-      { key: "jsd", label: "Mean JSD" },
-      { key: "tau", label: "Kendall τ" },
+      { key: "jsd", label: METRIC_NAMES.jsd.label },
+      { key: "tau", label: METRIC_NAMES.tau.label },
     ];
+    const metricOf = (s: Subject, key: Key): MetricValue =>
+      key === "index" ? indexMetric(s.metrics.sps, s.head.dataset) : s.metrics[key];
 
     container.innerHTML = metrics
       .map(({ key, label }) => {
-        const aVal = a.metrics[key].value;
-        const bVal = b.metrics[key].value;
+        const m = METRIC_NAMES[key];
+        const f = (v: number | null | undefined) => (key === "index" ? fmtIndex(v) : fmt(v));
+        const am = metricOf(a, key);
+        const bm = metricOf(b, key);
+        const aVal = am.value;
+        const bVal = bm.value;
         const delta = aVal != null && bVal != null ? aVal - bVal : null;
-        const overlap = ciOverlap(a.metrics[key].ci, b.metrics[key].ci);
+        const overlap = ciOverlap(am.ci, bm.ci);
         const borderClass =
           overlap === "disjoint"
             ? "metric-tile--disjoint"
@@ -630,26 +665,26 @@ const labelCls = "text-xs font-semibold uppercase tracking-wide text-muted";
                 ? "n too small"
                 : "CI n/a";
         const ciLine = (ci: CiRange | null) =>
-          ci ? `<span class="metric-ci">[${fmt(ci.low)}, ${fmt(ci.high)}]</span>` : "";
+          ci ? `<span class="metric-ci">[${f(ci.low)}, ${f(ci.high)}]</span>` : "";
         return `
-          <div class="metric-tile ${borderClass}" data-metric="${key}">
+          <div class="metric-tile ${borderClass}" data-metric="${key}" title="${escapeHtml(m.desc)}">
             <div class="flex items-baseline justify-between">
-              <div class="metric-label">${escapeHtml(label)}</div>
+              <div class="metric-label">${escapeHtml(label)}<span class="metric-tech">${escapeHtml(m.tech)}</span></div>
               <div class="metric-sig" title="${escapeHtml(sigLabel)}">${escapeHtml(sigLabel)}</div>
             </div>
             <div class="mt-2 grid grid-cols-2 gap-2">
               <div>
                 <div class="metric-side">A</div>
-                <div class="metric-val">${escapeHtml(fmt(aVal))}</div>
-                ${ciLine(a.metrics[key].ci)}
+                <div class="metric-val">${escapeHtml(f(aVal))}</div>
+                ${ciLine(am.ci)}
               </div>
               <div>
                 <div class="metric-side">B</div>
-                <div class="metric-val">${escapeHtml(fmt(bVal))}</div>
-                ${ciLine(b.metrics[key].ci)}
+                <div class="metric-val">${escapeHtml(f(bVal))}</div>
+                ${ciLine(bm.ci)}
               </div>
             </div>
-            <div class="metric-delta">Δ (A − B): <span class="font-mono">${escapeHtml(fmtSigned(delta))}</span></div>
+            <div class="metric-delta">Δ (A − B): <span class="font-mono">${escapeHtml(fmtSigned(delta, key === "index" ? 0 : 3))}</span>${key === "index" ? " Index points" : ""}</div>
           </div>
         `;
       })
@@ -986,7 +1021,7 @@ const labelCls = "text-xs font-semibold uppercase tracking-wide text-muted";
         const gate = $("flipped-gate");
         if (gate) {
           gate.classList.remove("hidden");
-          dataFetch.renderSignInGate(gate, { datasetLabel: state.dataset });
+          dataFetch.renderSignInGate(gate, { datasetLabel: datasetLabel(state.dataset) });
         }
         const count = $("flipped-count");
         if (count) count.textContent = "";
@@ -1088,11 +1123,16 @@ const labelCls = "text-xs font-semibold uppercase tracking-wide text-muted";
   .metric-tile--unknown {
     border: 1px solid color-mix(in oklch, var(--color-muted) 25%, transparent);
   }
+  /* No text-transform on labels: they may hold τ, which upper-cases to Τ. */
   .metric-label {
-    font-size: 0.7rem;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
+    font-size: 0.75rem;
+    font-weight: 600;
     color: var(--color-muted);
+  }
+  .metric-tech {
+    display: block;
+    font-size: 0.65rem;
+    font-weight: 400;
   }
   .metric-sig {
     font-size: 0.65rem;
