@@ -163,6 +163,21 @@ export function placeLabel(
   points: [number, number][],
   bounds: Box,
 ): Placed {
+  return tryPlaceLabel(px, py, w, placed, points, bounds) ?? forcePlace(px, py, w, placed);
+}
+const forcePlace = (px: number, py: number, w: number, placed: Box[]): Placed => {
+  placed.push([px + 8, py - 7, px + 12 + w, py + 7]);
+  return { x: px + 10, y: py + 4, anchor: "start" };
+};
+/** Like placeLabel, but returns null (and reserves nothing) when no spot is clear. */
+export function tryPlaceLabel(
+  px: number,
+  py: number,
+  w: number,
+  placed: Box[],
+  points: [number, number][],
+  bounds: Box,
+): Placed | null {
   const cands: [number, number, Placed["anchor"]][] = [
     [10, 4, "start"],
     [-10, 4, "end"],
@@ -193,9 +208,7 @@ export function placeLabel(
       return o.p;
     }
   }
-  const o = boxOf(cands[0]);
-  placed.push(o.b);
-  return o.p;
+  return null;
 }
 
 /** Diverging fill around 0: blue above random, red below, neutral at 0. */
@@ -215,8 +228,8 @@ export function axisTitle(
   svg: SVGSVGElement,
   text: string,
   opts: { x: number; y: number; vertical?: boolean; anchor?: "start" | "middle" | "end" },
-): void {
-  s(
+): SVGTextElement {
+  return s(
     "text",
     {
       class: "sb-axis-title",

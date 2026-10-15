@@ -111,8 +111,12 @@ let focused: string | null = null;
 export function highlight(svg: SVGSVGElement, key: string | null): void {
   const keys = [key, focused].filter(Boolean);
   svg.classList.toggle("sb-dim", keys.length > 0);
+  // data-k2: a second system the mark belongs to (e.g. an ensemble-to-member link).
   for (const n of svg.querySelectorAll<SVGElement>(".sb-s"))
-    n.classList.toggle("hl", keys.includes(n.dataset.k ?? ""));
+    n.classList.toggle(
+      "hl",
+      keys.includes(n.dataset.k ?? "") || (!!n.dataset.k2 && keys.includes(n.dataset.k2)),
+    );
 }
 
 // ---------- Marks ----------
