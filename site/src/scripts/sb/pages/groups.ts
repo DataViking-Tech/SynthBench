@@ -451,7 +451,9 @@ function xAxis(
   title: string,
   signedTicks: boolean,
 ): void {
-  for (const t of ticks(dom[0], dom[1], 12)) {
+  // About one tick per 44px so labels never run together on narrow charts.
+  const n = Math.max(3, Math.min(12, Math.floor(Math.abs(x(dom[1]) - x(dom[0])) / 44)));
+  for (const t of ticks(dom[0], dom[1], n)) {
     s(
       "line",
       {
@@ -484,6 +486,9 @@ function xAxis(
   axisTitle(svg, title, { x: (x(dom[0]) + x(dom[1])) / 2, y: bottom + 38 });
 }
 
+/** Below this chart width, row labels sit on their own line above each row. */
+const NARROW = 520;
+
 /** Vertical offsets for stacked bands and highlighted letters within a row. */
 const subRow = (n: number, i: number, gap: number) => (i - (n - 1) / 2) * gap;
 
@@ -509,11 +514,13 @@ function leanChart(el: HTMLElement, W: number): string[] {
       if (v) all.push(v[1], v[2]);
     }
   const D = niceMax(Math.max(...all.map(Math.abs), 4));
-  const labelW = Math.max(...attrs.map((a) => textWidth(a.label, 12.5, 600))) + 28;
-  const padR = 92;
+  const narrow = W < NARROW;
+  const lab = narrow ? 16 : 0;
+  const labelW = narrow ? 4 : Math.max(...attrs.map((a) => textWidth(a.label, 12.5, 600))) + 28;
+  const padR = narrow ? 48 : 92;
   const x = linear(-D, D, labelW, W - padR);
   const bandH = st.split ? 20 : 26;
-  const rowH = 44 + sets.length * bandH;
+  const rowH = 44 + lab + sets.length * bandH;
   const top = 26;
   const bottom = top + rows.length * rowH;
   const svg = s("svg", {
@@ -530,26 +537,29 @@ function leanChart(el: HTMLElement, W: number): string[] {
     [-D, D],
     top - 8,
     bottom,
-    "Match to the right-hand group minus match to the left-hand group (points)",
+    narrow
+      ? "Right-hand minus left-hand group (points)"
+      : "Match to the right-hand group minus match to the left-hand group (points)",
     true,
   );
   s("text", { class: "sb-t", x: W - 6, y: top - 12, "text-anchor": "end", text: "MEDIAN" }, svg);
 
   rows.forEach((row, i) => {
     const y0 = top + i * rowH;
-    const mid = y0 + 26 + (sets.length * bandH) / 2;
+    const mid = y0 + 26 + lab + (sets.length * bandH) / 2;
     const [first, last] = ends(row.a);
     if (i) s("line", { x1: 0, x2: W, y1: y0, y2: y0, stroke: css("--sb-line") }, svg);
-    s("text", { class: "sb-lab", x: 0, y: mid + 4, text: row.a.label }, svg);
-    s("text", { class: "sb-sub", x: x(-D) + 2, y: y0 + 16, text: `← closer to ${first}` }, svg);
+    s("text", { class: "sb-lab", x: 0, y: narrow ? y0 + 16 : mid + 4, text: row.a.label }, svg);
+    const near = narrow ? "" : "closer to ";
+    s("text", { class: "sb-sub", x: x(-D) + 2, y: y0 + 16 + lab, text: `← ${near}${first}` }, svg);
     s(
       "text",
       {
         class: "sb-sub",
         x: x(D) - 2,
-        y: y0 + 16,
+        y: y0 + 16 + lab,
         "text-anchor": "end",
-        text: `closer to ${last} →`,
+        text: `${near}${last} →`,
       },
       svg,
     );
@@ -592,7 +602,7 @@ function leanChart(el: HTMLElement, W: number): string[] {
         svg,
       );
     for (const { r, v } of row.refs) {
-      const m = refMark(svg, r.id, x(v[0]), r.id === "everyone" ? y0 + 26 : mid);
+      const m = refMark(svg, r.id, x(v[0]), r.id === "everyone" ? y0 + 26 + lab : mid);
       refInfo(m, r.name, [
         [`${last} minus ${first}`, `${signed(v[0])} points`],
         ["95% interval", `${signed(v[1])} to ${signed(v[2])}`],
@@ -929,12 +939,16 @@ function detailChart(el: HTMLElement, W: number): string[] {
         return [-D, D];
       })()
     : [Math.floor((Math.min(...vals) - 1) / 5) * 5, Math.ceil((Math.max(...vals) + 1) / 5) * 5];
-  const labelW = Math.max(...rows.map((r) => textWidth(r.label, isCountry ? 12 : 12.5, 500))) + 22;
-  const colW = 52;
+  const narrow = W < NARROW;
+  const lab = narrow ? 16 : 0;
+  const labelW = narrow
+    ? 10
+    : Math.max(...rows.map((r) => textWidth(r.label, isCountry ? 12 : 12.5, 500))) + 22;
+  const colW = narrow ? 40 : 52;
   const padR = 64 + hl.length * colW;
   const x = linear(dom[0], dom[1], labelW, W - padR);
   const bandH = st.split ? 16 : isCountry ? 22 : 30;
-  const rowH = st.split ? 8 + sets.length * bandH : bandH + (isCountry ? 4 : 6);
+  const rowH = lab + (st.split ? 8 + sets.length * bandH : bandH + (isCountry ? 4 : 6));
   const top = 22;
   const bottom = top + rows.length * rowH + gapH;
   // Row centre, skipping the gap between the best and worst ends when capped.
@@ -953,12 +967,20 @@ function detailChart(el: HTMLElement, W: number): string[] {
     dom,
     top - 6,
     bottom,
-    rel
-      ? "Match to the group's real answers minus the system's own average over these groups (points)"
-      : "Match to the group's real answers (100 = identical answer shares)",
+    narrow
+      ? rel
+        ? "Versus the system's own average (points)"
+        : "Match to the group (100 = identical)"
+      : rel
+        ? "Match to the group's real answers minus the system's own average over these groups (points)"
+        : "Match to the group's real answers (100 = identical answer shares)",
     rel,
   );
-  s("text", { class: "sb-t", x: W - 6, y: top - 8, "text-anchor": "end", text: "QUESTIONS" }, svg);
+  s(
+    "text",
+    { class: "sb-t", x: W - 6, y: top - 8, "text-anchor": "end", text: narrow ? "N" : "QUESTIONS" },
+    svg,
+  );
   hl.forEach((c, k) =>
     s(
       "text",
@@ -989,16 +1011,18 @@ function detailChart(el: HTMLElement, W: number): string[] {
   }
   const paths: [number, number][][] = hl.map(() => []);
   rows.forEach((row, i) => {
-    const mid = midOf(i);
+    const rowTop = midOf(i) - rowH / 2;
+    const mid = rowTop + lab + (rowH - lab) / 2;
     if (i % 2 === 0)
-      s(
-        "rect",
-        { x: 0, y: mid - rowH / 2, width: W, height: rowH, fill: css("--sb-panel-2") },
-        svg,
-      );
+      s("rect", { x: 0, y: rowTop, width: W, height: rowH, fill: css("--sb-panel-2") }, svg);
     s(
       "text",
-      { class: isCountry ? "sb-lab sb-light" : "sb-lab", x: 6, y: mid + 4, text: row.label },
+      {
+        class: isCountry ? "sb-lab sb-light" : "sb-lab",
+        x: 6,
+        y: narrow ? rowTop + 14 : mid + 4,
+        text: row.label,
+      },
       svg,
     );
     s(
@@ -1280,9 +1304,12 @@ function condAll(el: HTMLElement, W: number): string[] {
     Object.values(c.attrs).flatMap((g) => Object.values(g).map(change)),
   );
   const D = niceMax(Math.max(...vals.map(Math.abs)), 5);
-  const x = linear(-D, D, condLabelW(rows), W - 96);
+  const narrow = W < NARROW;
+  const x = linear(-D, D, narrow ? 14 : condLabelW(rows), W - (narrow ? 72 : 96));
   const top = 26;
-  const { ys, bottom } = rowLayout(rows, top, 30);
+  const { ys, bottom } = rowLayout(rows, top, narrow ? 44 : 30);
+  // Narrow: the group name sits above the band, which moves down to make room.
+  const off = narrow ? 8 : 0;
   const svg = s("svg", {
     class: "sb-c",
     width: W,
@@ -1297,10 +1324,21 @@ function condAll(el: HTMLElement, W: number): string[] {
     [-D, D],
     top - 6,
     bottom,
-    "Change in match when the prompt names the group (points)",
+    narrow
+      ? "Change when the group is named (points)"
+      : "Change in match when the prompt names the group (points)",
     true,
   );
-  s("text", { class: "sb-sub", x: x(-D) + 2, y: top - 12, text: "← further from the group" }, svg);
+  s(
+    "text",
+    {
+      class: "sb-sub",
+      x: x(-D) + 2,
+      y: top - 12,
+      text: narrow ? "← further" : "← further from the group",
+    },
+    svg,
+  );
   s(
     "text",
     {
@@ -1308,7 +1346,7 @@ function condAll(el: HTMLElement, W: number): string[] {
       x: x(D) - 2,
       y: top - 12,
       "text-anchor": "end",
-      text: "closer to the group →",
+      text: narrow ? "closer →" : "closer to the group →",
     },
     svg,
   );
@@ -1318,7 +1356,7 @@ function condAll(el: HTMLElement, W: number): string[] {
     .filter((p): p is { c: SystemConfig; set: ConditionSet } => p.set != null);
   const changes: { row: CondRow; d: number }[] = [];
   rows.forEach((r, i) => {
-    const cy = ys[i];
+    const cy = ys[i] + ("head" in r ? 0 : off);
     if ("head" in r && r.head === ONE_HEAD) {
       s("line", { x1: 0, x2: W, y1: cy - 10, y2: cy - 10, stroke: css("--sb-line-2") }, svg);
       s("text", { class: "sb-lab", x: 0, y: cy + 8, text: r.head }, svg);
@@ -1333,7 +1371,16 @@ function condAll(el: HTMLElement, W: number): string[] {
       );
       return;
     }
-    s("text", { class: fade ? "sb-lab sb-light" : "sb-lab", x: 14, y: cy + 4, text: r.label }, svg);
+    s(
+      "text",
+      {
+        class: fade ? "sb-lab sb-light" : "sb-lab",
+        x: 14,
+        y: narrow ? cy - 14 : cy + 4,
+        text: r.label,
+      },
+      svg,
+    );
     const ds = sets
       .map((c) => c.attrs[r.a.id]?.[r.id])
       .filter((v): v is ConditionCell => v != null)
@@ -1410,9 +1457,11 @@ function condOne(el: HTMLElement, W: number, c: ConditionSet): string[] {
     Math.floor((Math.min(...vals) - 1) / 5) * 5,
     Math.ceil((Math.max(...vals) + 1) / 5) * 5,
   ];
-  const x = linear(dom[0], dom[1], condLabelW(rows), W - 64);
+  const narrow = W < NARROW;
+  const x = linear(dom[0], dom[1], narrow ? 14 : condLabelW(rows), W - 64);
   const top = 22;
-  const { ys, bottom } = rowLayout(rows, top);
+  const { ys, bottom } = rowLayout(rows, top, narrow ? 42 : 28);
+  const off = narrow ? 8 : 0;
   const svg = s("svg", {
     class: "sb-c",
     width: W,
@@ -1427,7 +1476,9 @@ function condOne(el: HTMLElement, W: number, c: ConditionSet): string[] {
     dom,
     top - 6,
     bottom,
-    "Match to the group's real answers (100 = identical answer shares)",
+    narrow
+      ? "Match to the group (100 = identical)"
+      : "Match to the group's real answers (100 = identical answer shares)",
     false,
   );
   s("text", { class: "sb-t", x: W - 6, y: top - 10, "text-anchor": "end", text: "CHANGE" }, svg);
@@ -1455,12 +1506,12 @@ function condOne(el: HTMLElement, W: number, c: ConditionSet): string[] {
     rnd: number | null;
   }[] = [];
   rows.forEach((r, i) => {
-    const cy = ys[i];
+    const cy = ys[i] + ("head" in r ? 0 : off);
     if ("head" in r) {
       s("text", { class: "sb-t", x: 0, y: cy + 6, text: r.head.toUpperCase() }, svg);
       return;
     }
-    s("text", { class: "sb-lab", x: 14, y: cy + 4, text: r.label }, svg);
+    s("text", { class: "sb-lab", x: 14, y: narrow ? cy - 14 : cy + 4, text: r.label }, svg);
     const rv = rnd(r);
     if (rv != null) {
       const m = refMark(svg, "random", x(rv), cy);
