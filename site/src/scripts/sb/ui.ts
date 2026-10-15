@@ -996,6 +996,7 @@ export function showAllToggle(o: {
   onToggle: () => void;
   noun?: string;
   shownText?: string;
+  lessText?: string;
 }): HTMLElement | null {
   if (!capWorthIt(o.total, o.limit)) return null;
   const noun = o.noun ?? "systems";
@@ -1017,7 +1018,7 @@ export function showAllToggle(o: {
         "aria-expanded": o.all ? "true" : "false",
         onclick: o.onToggle,
       },
-      o.all ? `Show the top ${o.limit} only` : `Show all ${o.total}`,
+      o.all ? (o.lessText ?? `Show the top ${o.limit} only`) : `Show all ${o.total}`,
     ),
   );
 }

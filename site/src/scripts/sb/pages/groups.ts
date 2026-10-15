@@ -54,6 +54,7 @@ import {
   methodKey,
   readSet,
   setParam,
+  showAllToggle,
   takeaways,
   tip,
   toggleCompare,
@@ -69,12 +70,14 @@ const q = new URLSearchParams(location.search);
 
 const DATASETS = ["opinionsqa", "subpop", "globalopinionqa"].filter((d) => G.datasets[d]);
 const POPULATION: Record<string, string> = {
-  opinionsqa: "US adults, 8 attributes",
-  subpop: "US adults, 22 groups",
+  opinionsqa: "US adults",
+  subpop: "US adults",
   globalopinionqa: "Countries",
 };
 const LETTERS = ["A", "B", "C"];
 const TABLE_ROWS = 12;
+/** Unordered group lists (countries) show this many best- and worst-matched rows. */
+const GROUP_ENDS = 10;
 
 const st = {
   ds: DATASETS.includes(q.get("ds") ?? "") ? (q.get("ds") as string) : "opinionsqa",
@@ -88,6 +91,7 @@ const st = {
   asc: q.get("dir") === "asc",
   find: "",
   all: false,
+  groupsAll: q.get("groups") === "all",
 };
 
 // ---------- Data access ----------
@@ -190,6 +194,7 @@ const changed = () => {
     cond: st.cond,
     sort: st.sort,
     dir: st.asc ? "asc" : null,
+    groups: st.groupsAll ? "all" : null,
   });
   emit();
 };
@@ -483,16 +488,7 @@ const subRow = (n: number, i: number, gap: number) => (i - (n - 1) / 2) * gap;
 // ---------- Chart 1: which end of each ordered scale ----------
 function leanChart(el: HTMLElement, W: number): string[] {
   const attrs = attrsOf().filter((a) => a.ordered);
-  if (!attrs.length) {
-    el.append(
-      h(
-        "p",
-        { class: "sb-empty" },
-        `${dsLabel(st.ds)} groups are countries, which have no natural order. See the country chart below.`,
-      ),
-    );
-    return [];
-  }
+  if (!attrs.length) return [];
   const list = pool();
   const sets = bandSets(list);
   const hl = picked();
@@ -688,24 +684,27 @@ function tableCols(): Col[] {
 function cellBar(v: Interval | undefined, col: Col, max: number): HTMLElement {
   if (!v) return h("td", { class: "r sb-muted" }, "—");
   const unclear = col.signed && v[1] <= 0 && v[2] >= 0;
-  const w = 40;
-  const svg = s("svg", { width: w, height: 10, "aria-hidden": "true", class: "sb-c" });
+  const w = 48;
+  const svg = s("svg", { width: w, height: 12, "aria-hidden": "true", class: "sb-c" });
   const x = col.signed ? linear(-max, max, 0, w) : linear(0, max, 0, w);
   const x0 = col.signed ? x(0) : 0;
+  // Track for the column's range; signed columns diverge from a visible 0.
+  s("rect", { x: 0, y: 3, width: w, height: 6, rx: 2, fill: css("--sb-grid") }, svg);
   s(
     "rect",
     {
       x: Math.min(x0, x(v[0])),
-      y: 1,
+      y: 2,
       width: Math.max(1.5, Math.abs(x(v[0]) - x0)),
       height: 8,
       rx: 2,
       fill: css("--sb-ink-2"),
-      opacity: unclear ? 0.25 : 0.7,
+      opacity: unclear ? 0.3 : 0.75,
     },
     svg,
   );
-  if (col.signed) s("line", { x1: x0, x2: x0, y1: 0, y2: 10, stroke: css("--sb-line-2") }, svg);
+  if (col.signed)
+    s("line", { x1: x0, x2: x0, y1: 0, y2: 12, stroke: css("--sb-ink"), "stroke-width": 1 }, svg);
   return h(
     "td",
     {
@@ -730,7 +729,9 @@ function systemsTable(): HTMLElement {
     if (b == null) return -1;
     return st.asc ? a - b : b - a;
   });
-  const shown = st.all || needle ? list : list.slice(0, TABLE_ROWS);
+  // Capping that would hide three rows or fewer just shows them all.
+  const capped = !needle && list.length > TABLE_ROWS + 3;
+  const shown = st.all || !capped ? list : list.slice(0, TABLE_ROWS);
   const max = (col: Col) =>
     Math.max(
       1,
@@ -826,21 +827,20 @@ function systemsTable(): HTMLElement {
       ),
     ),
   );
-  const more =
-    !needle && list.length > TABLE_ROWS
-      ? h(
-          "button",
-          {
-            type: "button",
-            class: "sb-linkbtn",
-            onclick: () => {
-              st.all = !st.all;
-              emit();
-            },
+  const more = capped
+    ? h(
+        "button",
+        {
+          type: "button",
+          class: "sb-linkbtn",
+          onclick: () => {
+            st.all = !st.all;
+            emit();
           },
-          st.all ? `Show the first ${TABLE_ROWS}` : `Show all ${list.length} systems`,
-        )
-      : null;
+        },
+        st.all ? `Show the first ${TABLE_ROWS}` : `Show all ${list.length} systems`,
+      )
+    : null;
   return h(
     "div",
     null,
@@ -909,6 +909,10 @@ function detailChart(el: HTMLElement, W: number): string[] {
     el.append(h("p", { class: "sb-empty" }, "No system shown has scores for these groups."));
     return [];
   }
+  const total = rows.length;
+  const capped = !a.ordered && !st.groupsAll && total > 2 * GROUP_ENDS + 3;
+  if (capped) rows = [...rows.slice(0, GROUP_ENDS), ...rows.slice(-GROUP_ENDS)];
+  const gapH = capped ? 28 : 0;
 
   const vals = rows.flatMap((r) => [...r.vals, ...r.refs.map((x) => x.v)]);
   for (const c of hl)
@@ -929,7 +933,9 @@ function detailChart(el: HTMLElement, W: number): string[] {
   const bandH = st.split ? 16 : isCountry ? 22 : 30;
   const rowH = st.split ? 8 + sets.length * bandH : bandH + (isCountry ? 4 : 6);
   const top = 22;
-  const bottom = top + rows.length * rowH;
+  const bottom = top + rows.length * rowH + gapH;
+  // Row centre, skipping the gap between the best and worst ends when capped.
+  const midOf = (i: number) => top + i * rowH + rowH / 2 + (capped && i >= GROUP_ENDS ? gapH : 0);
   const svg = s("svg", {
     class: "sb-c",
     width: W,
@@ -964,9 +970,23 @@ function detailChart(el: HTMLElement, W: number): string[] {
     ),
   );
 
+  if (capped) {
+    const gy = top + GROUP_ENDS * rowH;
+    s("rect", { x: 0, y: gy, width: W, height: gapH, fill: css("--sb-panel") }, svg);
+    s(
+      "text",
+      {
+        class: "sb-sub",
+        x: 6,
+        y: gy + gapH / 2 + 4,
+        text: `⋯ ${total - 2 * GROUP_ENDS} more ${isCountry ? "countries" : "groups"} in between`,
+      },
+      svg,
+    );
+  }
   const paths: [number, number][][] = hl.map(() => []);
   rows.forEach((row, i) => {
-    const mid = top + i * rowH + rowH / 2;
+    const mid = midOf(i);
     if (i % 2 === 0)
       s(
         "rect",
@@ -1090,6 +1110,19 @@ function detailChart(el: HTMLElement, W: number): string[] {
     notes.push(
       "Countries with fewer than 20 of the questions are left out. Each country was asked a different set of questions.",
     );
+  const more = showAllToggle({
+    total,
+    limit: 2 * GROUP_ENDS,
+    all: st.groupsAll,
+    noun: isCountry ? "countries" : "groups",
+    shownText: `Showing the ${GROUP_ENDS} best- and ${GROUP_ENDS} worst-matched of ${total} ${isCountry ? "countries" : "groups"}`,
+    lessText: `Show the ${GROUP_ENDS} best and worst only`,
+    onToggle: () => {
+      st.groupsAll = !st.groupsAll;
+      changed();
+    },
+  });
+  if (more) el.append(more);
   return notes;
 }
 
@@ -1211,7 +1244,24 @@ function condAll(el: HTMLElement, W: number): string[] {
     el.append(h("p", { class: "sb-empty" }, "No runs of this test for the selected methods."));
     return [];
   }
-  const rows = condRows(sets);
+  // Attributes tested on one system only go last, under their own heading.
+  const tested = (attr: string, g: string) => sets.filter((c) => c.attrs[attr]?.[g]).length;
+  const lines = condRows(sets);
+  const blocks: CondLine[][] = [];
+  for (const r of lines) {
+    if ("head" in r) blocks.push([r]);
+    else blocks[blocks.length - 1].push(r);
+  }
+  const single = (b: CondLine[]) => b.every((r) => "head" in r || tested(r.a.id, r.id) <= 1);
+  const many = blocks.filter((b) => !single(b));
+  const one = blocks.filter(single);
+  const ONE_HEAD = "Tested on one system only";
+  const rows: CondLine[] = [
+    ...many.flat(),
+    ...(one.length && many.length ? [{ head: ONE_HEAD }] : []),
+    ...one.flat(),
+  ];
+  const faded = new Set(one.flat());
   const vals = sets.flatMap((c) =>
     Object.values(c.attrs).flatMap((g) => Object.values(g).map(change)),
   );
@@ -1255,18 +1305,28 @@ function condAll(el: HTMLElement, W: number): string[] {
   const changes: { row: CondRow; d: number }[] = [];
   rows.forEach((r, i) => {
     const cy = ys[i];
-    if ("head" in r) {
-      s("text", { class: "sb-t", x: 0, y: cy + 6, text: r.head.toUpperCase() }, svg);
+    if ("head" in r && r.head === ONE_HEAD) {
+      s("line", { x1: 0, x2: W, y1: cy - 10, y2: cy - 10, stroke: css("--sb-line-2") }, svg);
+      s("text", { class: "sb-lab", x: 0, y: cy + 8, text: r.head }, svg);
       return;
     }
-    s("text", { class: "sb-lab", x: 14, y: cy + 4, text: r.label }, svg);
+    const fade = faded.has(r);
+    if ("head" in r) {
+      s(
+        "text",
+        { class: "sb-t", x: 0, y: cy + 6, text: r.head.toUpperCase(), opacity: fade ? 0.75 : null },
+        svg,
+      );
+      return;
+    }
+    s("text", { class: fade ? "sb-lab sb-light" : "sb-lab", x: 14, y: cy + 4, text: r.label }, svg);
     const ds = sets
       .map((c) => c.attrs[r.a.id]?.[r.id])
       .filter((v): v is ConditionCell => v != null)
       .map(change);
     for (const d of ds) changes.push({ row: r, d });
     band(
-      svg,
+      fade ? s("g", { opacity: 0.45 }, svg) : svg,
       x,
       cy,
       ds,
@@ -1282,6 +1342,7 @@ function condAll(el: HTMLElement, W: number): string[] {
         x: W - 6,
         y: cy + 4,
         "text-anchor": "end",
+        opacity: fade ? 0.7 : null,
         text: ds.length > 1 ? `${signed(median(ds))}  (${ds.length})` : `${signed(ds[0])}  (1)`,
       },
       svg,
@@ -1612,11 +1673,12 @@ function renderControls(): void {
   mChips.rerender();
   status.rerender();
   fill($("gr-hl"), highlightBar("gr-hl"));
-  fill($("gr-detail-hl"), highlightBar("gr-detail-hl"));
 
   const lean = attrsOf().some((x) => x.ordered);
   $("gr-lean").closest("section")?.classList.toggle("sb-gr-nolean", !lean);
-  $("gr-lean-sub").textContent = `${dsLabel(st.ds)} · ${POPULATION[st.ds]}`;
+  const nOrdered = attrsOf().filter((x) => x.ordered).length;
+  $("gr-lean-sub").textContent =
+    `${dsLabel(st.ds)} · ${POPULATION[st.ds]} · ${nOrdered} attribute${nOrdered === 1 ? "" : "s"} with a natural order`;
   fill(
     $("gr-lean-legend"),
     ...bandLegend(),
@@ -1699,7 +1761,7 @@ function renderControls(): void {
   );
   $("gr-cond-sub").textContent = cur
     ? `${condName(cur)} · SubPOP`
-    : `SubPOP · ${sets.length} systems tested`;
+    : `SubPOP only, whichever survey is picked above · ${sets.length} systems tested`;
   if (!cur)
     fill(
       $("gr-cond-legend"),
