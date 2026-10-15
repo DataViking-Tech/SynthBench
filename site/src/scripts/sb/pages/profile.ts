@@ -73,6 +73,10 @@ const median = (a: number[]) => {
 const others = (id: string, me: SystemConfig | null) =>
   systems().filter((c) => !c.variant && c.ds[id] && c !== me);
 const clamp = (v: number, lo: number, hi: number) => Math.max(lo, Math.min(hi, v));
+/** Below this chart width, row labels sit above their bars instead of beside them. */
+const NARROW = 480;
+/** Topics with fewer questions than this are marked "low n". */
+const LOW_N = 10;
 
 $("pf-filters").append(scopeControl());
 
@@ -465,14 +469,16 @@ mount(
       return;
     }
     $("pf-topic-q").textContent =
-      `Index per topic on ${dsLabel(topicDs)}. Dark tick: median of other systems. Faded rows have fewer than 10 questions.`;
+      `Index per topic on ${dsLabel(topicDs)}. Dark tick: median of other systems. Rows marked “low n” have fewer than 10 questions.`;
     const ds = cur.ds[topicDs];
     const topics = Object.keys(ds.topicIdx).sort((a, b) => ds.topicIdx[b] - ds.topicIdx[a]);
-    const rowH = 26;
-    const labelW = Math.min(240, W * 0.3);
+    // Narrow screens: topic names go on their own line above each bar.
+    const narrow = W < NARROW;
+    const rowH = narrow ? 38 : 26;
+    const labelW = narrow ? -10 : Math.min(240, W * 0.3);
     const plotB = topics.length * rowH;
     const H = plotB + 44;
-    const x = linear(-100, 60, labelW + 10, W - 70);
+    const x = linear(-100, 60, labelW + 10, W - (narrow ? 34 : 70));
     const svg = s("svg", {
       class: "sb-c",
       width: W,
@@ -495,24 +501,27 @@ mount(
       );
     }
     s("line", { x1: x(0), x2: x(0), y1: 0, y2: plotB, stroke: css("--sb-ink-2") }, svg);
-    axisTitle(svg, "SynthBench Index on this topic (0 = random answers)", {
-      x: (x(-100) + x(60)) / 2,
-      y: H - 4,
-    });
-    axisTitle(svg, "Questions", { x: W - 2, y: plotB + 15, anchor: "end" });
+    axisTitle(
+      svg,
+      narrow
+        ? "Index on this topic (0 = random)"
+        : "SynthBench Index on this topic (0 = random answers)",
+      { x: (x(-100) + x(60)) / 2, y: H - 4 },
+    );
+    axisTitle(svg, narrow ? "Qs" : "Questions", { x: W - 2, y: plotB + 15, anchor: "end" });
     topics.forEach((t, i) => {
-      const cy = i * rowH + rowH / 2;
+      const cy = narrow ? i * rowH + 26 : i * rowH + rowH / 2;
       const n = ds.topicN[t];
       const val = ds.topicIdx[t];
-      const g = s("g", { opacity: n < 10 ? 0.4 : 1 }, svg);
+      const g = s("g", null, svg);
       s(
         "text",
         {
-          x: labelW,
-          y: cy + 4,
-          "text-anchor": "end",
-          class: "sb-lab sb-light",
-          text: topicLabel(t),
+          x: narrow ? 0 : labelW,
+          y: narrow ? cy - 10 : cy + 4,
+          "text-anchor": narrow ? "start" : "end",
+          class: n < LOW_N ? "sb-lab sb-light sb-lown" : "sb-lab sb-light",
+          text: n < LOW_N ? `${topicLabel(t)} (low n)` : topicLabel(t),
         },
         g,
       );
@@ -775,8 +784,9 @@ mount(trustEl, (W) => {
   for (const c of mine)
     for (const [id, v] of Object.entries(c.ds))
       if (v.holdoutGap != null) items.push({ c, id, gap: v.holdoutGap, limit: v.holdoutLimit });
-  const rowH = 26;
-  const labelW = 170;
+  const narrow = W < NARROW;
+  const rowH = narrow ? 38 : 26;
+  const labelW = narrow ? -10 : 170;
   const plotB = Math.max(1, items.length) * rowH;
   const H = plotB + 44;
   const svg = s("svg", {
@@ -802,7 +812,7 @@ mount(trustEl, (W) => {
     return;
   }
   const x = linear(0, 0.16, labelW + 10, W - 74);
-  for (const t of [0, 0.04, 0.08, 0.12, 0.16]) {
+  for (const t of narrow ? [0, 0.08, 0.16] : [0, 0.04, 0.08, 0.12, 0.16]) {
     s("line", { class: "sb-gl", x1: x(t), x2: x(t), y1: 0, y2: plotB }, svg);
     s(
       "text",
@@ -810,19 +820,22 @@ mount(trustEl, (W) => {
       svg,
     );
   }
-  axisTitle(svg, "Public minus private SPS, absolute (tick = review threshold)", {
-    x: (x(0) + x(0.16)) / 2,
-    y: H - 4,
-  });
+  axisTitle(
+    svg,
+    narrow
+      ? "Public − private SPS (tick = threshold)"
+      : "Public minus private SPS, absolute (tick = review threshold)",
+    { x: (x(0) + x(0.16)) / 2, y: H - 4 },
+  );
   items.forEach((it, i) => {
-    const cy = i * rowH + rowH / 2;
+    const cy = narrow ? i * rowH + 26 : i * rowH + rowH / 2;
     const over = it.gap > it.limit;
     s(
       "text",
       {
-        x: labelW,
-        y: cy + 4,
-        "text-anchor": "end",
+        x: narrow ? 0 : labelW,
+        y: narrow ? cy - 10 : cy + 4,
+        "text-anchor": narrow ? "start" : "end",
         class: "sb-lab sb-light",
         text: `${methodShort(it.c)}, ${dsLabel(it.id)}`,
       },

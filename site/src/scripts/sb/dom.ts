@@ -51,6 +51,17 @@ export function s<K extends keyof SVGElementTagNameMap>(
     if (k === "text") el.textContent = String(v);
     else el.setAttribute(k, String(v));
   }
+  // Chart roots are drawn in pixels at their container's width. A matching
+  // viewBox lets CSS (`svg.sb-c[viewBox]`) scale them down instead of
+  // overflowing when the container is narrower than the last layout.
+  if (
+    tag === "svg" &&
+    attrs &&
+    attrs.viewBox == null &&
+    typeof attrs.width === "number" &&
+    typeof attrs.height === "number"
+  )
+    el.setAttribute("viewBox", `0 0 ${attrs.width} ${attrs.height}`);
   if (parent) parent.appendChild(el);
   return el;
 }
@@ -100,14 +111,19 @@ export const fmt = {
     new Date(iso).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }),
 };
 
-/** Re-render `draw` whenever the element's width changes or `subscribe` fires. */
+/**
+ * Re-render `draw` whenever the element's width changes or `subscribe` fires.
+ * Resizes are debounced; in between, the previous SVG scales via its viewBox.
+ */
 export function mount(
   el: HTMLElement,
   draw: (width: number) => void,
   subscribe?: (fn: () => void) => void,
 ): () => void {
   let last = 0;
+  let timer: number | undefined;
   const run = () => {
+    window.clearTimeout(timer);
     const w = Math.floor(el.clientWidth);
     if (!w) return;
     last = w;
@@ -115,7 +131,11 @@ export function mount(
     draw(w);
   };
   new ResizeObserver(() => {
-    if (Math.floor(el.clientWidth) !== last) run();
+    if (Math.floor(el.clientWidth) === last) return;
+    window.clearTimeout(timer);
+    // First layout (or coming back from display:none) draws at once.
+    if (!last) run();
+    else timer = window.setTimeout(run, 120);
   }).observe(el);
   subscribe?.(run);
   run();
@@ -163,12 +183,58 @@ export function placeLabel(
   points: [number, number][],
   bounds: Box,
 ): Placed {
-  return tryPlaceLabel(px, py, w, placed, points, bounds) ?? forcePlace(px, py, w, placed);
+  return (
+    tryPlaceLabel(px, py, w, placed, points, bounds) ??
+    leastBadPlace(px, py, w, placed, points, bounds)
+  );
 }
-const forcePlace = (px: number, py: number, w: number, placed: Box[]): Placed => {
-  placed.push([px + 8, py - 7, px + 12 + w, py + 7]);
-  return { x: px + 10, y: py + 4, anchor: "start" };
+const CANDS: [number, number, Placed["anchor"]][] = [
+  [10, 4, "start"],
+  [-10, 4, "end"],
+  [0, -11, "middle"],
+  [0, 19, "middle"],
+  [9, -9, "start"],
+  [-9, -9, "end"],
+  [9, 17, "start"],
+  [-9, 17, "end"],
+];
+const candBox = (px: number, py: number, w: number, [dx, dy, anchor]: (typeof CANDS)[number]) => {
+  const x = px + dx;
+  const y = py + dy;
+  const x0 = anchor === "start" ? x : anchor === "end" ? x - w : x - w / 2;
+  return { p: { x, y, anchor }, b: [x0 - 2, y - 11, x0 + w + 2, y + 3] as Box };
 };
+/**
+ * When no spot is clear, take the candidate with the fewest collisions that
+ * stays inside the plot (a label running off the edge is worse than an
+ * overlap), instead of always putting it to the right of the point.
+ */
+function leastBadPlace(
+  px: number,
+  py: number,
+  w: number,
+  placed: Box[],
+  points: [number, number][],
+  bounds: Box,
+): Placed {
+  const cost = (b: Box) =>
+    placed.filter((o) => !(b[2] < o[0] || b[0] > o[2] || b[3] < o[1] || b[1] > o[3])).length +
+    points.filter(([qx, qy]) => qx > b[0] - 5 && qx < b[2] + 5 && qy > b[1] - 5 && qy < b[3] + 5)
+      .length +
+    (b[0] < bounds[0] || b[2] > bounds[2] || b[1] < bounds[1] || b[3] > bounds[3] ? 1000 : 0);
+  let best = candBox(px, py, w, CANDS[0]);
+  let bestCost = Number.POSITIVE_INFINITY;
+  for (const c of CANDS) {
+    const o = candBox(px, py, w, c);
+    const k = cost(o.b);
+    if (k < bestCost) {
+      best = o;
+      bestCost = k;
+    }
+  }
+  placed.push(best.b);
+  return best.p;
+}
 /** Like placeLabel, but returns null (and reserves nothing) when no spot is clear. */
 export function tryPlaceLabel(
   px: number,
@@ -178,22 +244,6 @@ export function tryPlaceLabel(
   points: [number, number][],
   bounds: Box,
 ): Placed | null {
-  const cands: [number, number, Placed["anchor"]][] = [
-    [10, 4, "start"],
-    [-10, 4, "end"],
-    [0, -11, "middle"],
-    [0, 19, "middle"],
-    [9, -9, "start"],
-    [-9, -9, "end"],
-    [9, 17, "start"],
-    [-9, 17, "end"],
-  ];
-  const boxOf = ([dx, dy, anchor]: (typeof cands)[number]) => {
-    const x = px + dx;
-    const y = py + dy;
-    const x0 = anchor === "start" ? x : anchor === "end" ? x - w : x - w / 2;
-    return { p: { x, y, anchor }, b: [x0 - 2, y - 11, x0 + w + 2, y + 3] as Box };
-  };
   const hits = (b: Box) =>
     placed.some((o) => !(b[2] < o[0] || b[0] > o[2] || b[3] < o[1] || b[1] > o[3])) ||
     points.some(([qx, qy]) => qx > b[0] - 5 && qx < b[2] + 5 && qy > b[1] - 5 && qy < b[3] + 5) ||
@@ -201,8 +251,8 @@ export function tryPlaceLabel(
     b[2] > bounds[2] ||
     b[1] < bounds[1] ||
     b[3] > bounds[3];
-  for (const c of cands) {
-    const o = boxOf(c);
+  for (const c of CANDS) {
+    const o = candBox(px, py, w, c);
     if (!hits(o.b)) {
       placed.push(o.b);
       return o.p;
