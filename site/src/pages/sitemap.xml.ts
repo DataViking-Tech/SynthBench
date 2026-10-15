@@ -2,8 +2,7 @@ import { existsSync, readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import leaderboardRaw from "@/data/leaderboard.json";
 import { buildIndexData, systemSlug } from "@/lib/synthIndex";
-import { vendorSlugMap } from "@/lib/vendor-slug";
-import type { LeaderboardData, SynthBenchData } from "@/types/leaderboard";
+import type { SynthBenchData } from "@/types/leaderboard";
 import type { RunIndex } from "@/types/runs";
 import type { APIRoute } from "astro";
 
@@ -12,7 +11,8 @@ import type { APIRoute } from "astro";
 // detail URL from `public/data/runs-index.json` (matches the getStaticPaths
 // source used by `src/pages/run/[id].astro`, so the two stay in lockstep).
 //
-// Non-indexable auth/account/upload pages are intentionally excluded.
+// Non-indexable auth/account/upload pages are intentionally excluded, as are
+// the leaderboard/<vendor>/ redirect stubs.
 // `robots.txt` points here so crawlers can discover the feed.
 
 const STATIC_PATHS = [
@@ -73,17 +73,6 @@ export const GET: APIRoute = ({ site }) => {
   const urls: string[] = [];
   for (const path of STATIC_PATHS) {
     urls.push(`  <url><loc>${xmlEscape(urlFor(path))}</loc></url>`);
-  }
-  // sb-1i6: per-vendor subgroup scorecards. One URL per distinct provider in
-  // leaderboard.json, matching the getStaticPaths source on
-  // `src/pages/leaderboard/[vendor].astro`.
-  const leaderboard = leaderboardRaw as unknown as LeaderboardData;
-  const providers = new Set<string>();
-  for (const e of leaderboard.entries) {
-    if (e.provider) providers.add(e.provider);
-  }
-  for (const slug of vendorSlugMap(providers).keys()) {
-    urls.push(`  <url><loc>${xmlEscape(urlFor(`leaderboard/${slug}/`))}</loc></url>`);
   }
   // System profiles, matching the getStaticPaths source on `system/[slug].astro`.
   const baseIds = new Set(

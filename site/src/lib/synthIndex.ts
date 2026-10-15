@@ -173,6 +173,18 @@ export function normalizeModelId(id: string): string {
   return undated.startsWith("anthropic/") ? undated.replace(/\./g, "-") : undated;
 }
 
+/**
+ * Machine id of the system a leaderboard row belongs to: the normalized
+ * model id, the ensemble id, or the baseline id. Profile pages live at
+ * system/<systemSlug(baseId)>/.
+ */
+export function baseIdOf(e: LeaderboardEntry): string {
+  const modelId = normalizeModelId(e.model_id ?? e.model);
+  if (methodOf(e) !== "ensemble") return modelId;
+  // The first ensemble keeps its old id (and profile URL).
+  return modelId === "3-model-blend" ? "ensemble" : `ensemble-${modelId}`;
+}
+
 export function buildIndexData(raw: SynthBenchData): IndexData {
   // Wave/year filter suffixes ("ntia (Nov 2023)") name the same dataset.
   const entries = raw.entries.map((e) => ({ ...e, dataset: e.dataset.split(" ", 1)[0] }));
@@ -229,13 +241,7 @@ export function buildIndexData(raw: SynthBenchData): IndexData {
       cfg = {
         key,
         base,
-        // The first ensemble keeps its old id (and profile URL).
-        baseId:
-          method !== "ensemble"
-            ? modelId
-            : modelId === "3-model-blend"
-              ? "ensemble"
-              : `ensemble-${modelId}`,
+        baseId: baseIdOf(e),
         members: (e.ensemble_members ?? []).map((m) => ({
           id: normalizeModelId(m.model_id),
           method: (m.framework === "raw" ? "raw" : "althing") as Method,
