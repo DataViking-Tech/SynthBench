@@ -75,8 +75,22 @@ export const shortName = (c: SystemConfig): string =>
 export const fullName = (c: SystemConfig): string =>
   `${c.base}${c.method === "ensemble" ? "" : `, ${METHODS[c.method as ShownMethod].short}`}${c.variant ? ` (${c.variant})` : ""}`;
 export const familyId = (c: SystemConfig): string => c.baseId;
-export const profileHref = (c: SystemConfig): string =>
-  `${data().base}system/${data().slugs[c.baseId]}/`;
+/** Findings data names a few models by older short names; map them to the leaderboard's base names. */
+const FINDINGS_NAMES: Record<string, string> = {
+  "GPT-4o-mini": "GPT-4o mini",
+  "Gemini Flash Lite": "Gemini 2.5 Flash-Lite",
+};
+export const findingsModel = (name: string): string => FINDINGS_NAMES[name] ?? name;
+/** Query that picks this system on its /system page (method, plus harness when set). */
+export const profileQuery = (c: SystemConfig): Record<string, string | null> => ({
+  method: c.method,
+  harness: c.harness ?? null,
+});
+export const profileHref = (c: SystemConfig): string => {
+  const q = new URLSearchParams();
+  for (const [k, v] of Object.entries(profileQuery(c))) if (v != null) q.set(k, v);
+  return `${data().base}system/${data().slugs[c.baseId]}/?${q}`;
+};
 
 // ---------- Shared state: scope + compare, persisted across pages ----------
 
@@ -194,12 +208,43 @@ export const rankedPool = (): SystemConfig[] => systems().filter((c) => !c.varia
 export const tierOf = (c: SystemConfig, scope: Scope = state.scope): Ranked | undefined =>
   tiers(rankedPool(), scope).find((r) => r.c === c);
 
-/** The same base model under the other single-model method, if any. */
+/** The same base model under the other single-model method and the same harness, if any. */
 export function counterpart(c: SystemConfig): SystemConfig | undefined {
   if (c.variant || c.method === "ensemble") return undefined;
   return systems().find(
-    (o) => !o.variant && o.baseId === c.baseId && o.method !== c.method && o.method !== "ensemble",
+    (o) =>
+      !o.variant &&
+      o.baseId === c.baseId &&
+      o.method !== c.method &&
+      o.method !== "ensemble" &&
+      (o.harness ?? null) === (c.harness ?? null),
   );
+}
+
+export interface PersonaPair {
+  raw: SystemConfig;
+  persona: SystemConfig;
+  va: number;
+  vb: number;
+}
+/**
+ * One raw-vs-persona pair per base model, both scored in `scope`. Raw and
+ * persona run through the same harness; the direct API pair is preferred
+ * when a model was also run through a CLI harness.
+ */
+export function personaPairs(scope: Scope = state.scope): PersonaPair[] {
+  const out = new Map<string, PersonaPair>();
+  const personas = systems()
+    .filter((c) => c.method === "althing" && !c.variant)
+    .sort((a, b) => Number(a.harness != null) - Number(b.harness != null));
+  for (const persona of personas) {
+    if (out.has(persona.baseId)) continue;
+    const raw = counterpart(persona);
+    const va = raw ? scoreIn(raw, scope) : null;
+    const vb = scoreIn(persona, scope);
+    if (raw && va && vb) out.set(persona.baseId, { raw, persona, va: va.v, vb: vb.v });
+  }
+  return [...out.values()];
 }
 
 /** Ensemble rows (not variants), each with its own members. */

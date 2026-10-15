@@ -14,8 +14,9 @@ import {
   emit,
   ensembleLabel,
   ensembles,
-  fullCoverage,
+  findingsModel,
   onChange,
+  profileQuery,
   pruneCompare,
   scopeName,
   scoreIn,
@@ -42,15 +43,26 @@ const $ = (id: string) => document.getElementById(id) as HTMLElement;
 const mine = systems().filter((c) => c.baseId === baseId && !c.variant);
 const variants = systems().filter((c) => c.baseId === baseId && c.variant);
 const options: [SystemConfig, string][] = [
-  ...mine.map((c): [SystemConfig, string] => [c, METHODS[c.method as ShownMethod].label]),
+  ...mine.map((c): [SystemConfig, string] => [
+    c,
+    `${METHODS[c.method as ShownMethod].label}${c.harness ? ` via ${c.harness}` : ""}`,
+  ]),
   ...ensembles()
-    .filter((e) => e.members.some((m) => m.id === baseId))
+    .filter((e) => e.baseId !== baseId && e.members.some((m) => m.id === baseId))
     .map((e): [SystemConfig, string] => [e, `In the ensemble ${ensembleLabel(e.base)}`]),
 ];
-const fromUrl = new URLSearchParams(location.search).get("method");
+/** URL state for an option: the method and harness, or which ensemble it is on a member's page. */
+const optionParams = (c: SystemConfig): Record<string, string | null> => ({
+  ...profileQuery(c),
+  ensemble: c.baseId !== baseId ? c.baseId : null,
+});
+const fromUrl = new URLSearchParams(location.search);
+const matchesUrl = (c: SystemConfig) =>
+  Object.entries(optionParams(c)).every(([k, v]) => (fromUrl.get(k) ?? null) === v);
 let cur: SystemConfig =
-  options.find(([c]) => c.method === fromUrl)?.[0] ??
-  mine.find((c) => c.method === "althing") ??
+  options.find(([c]) => matchesUrl(c))?.[0] ??
+  mine.find((c) => c.method === fromUrl.get("method") && !c.harness) ??
+  mine.find((c) => c.method === "althing" && !c.harness) ??
   mine[0];
 
 const median = (a: number[]) => {
@@ -81,7 +93,7 @@ function renderMethod(): void {
             class: c === cur ? "on" : null,
             onclick: () => {
               cur = c;
-              writeParams({ method: c.method });
+              writeParams(optionParams(c));
               emit();
             },
           },
@@ -157,20 +169,29 @@ function renderStats(): void {
       worst ? `Lowest on ${dsLabel(worst[0])}` : "",
     ),
   );
+  // Same state as the headline tile: the score in the current scope, against
+  // the other systems scored in that scope.
   const field = systems()
-    .filter((c) => !c.variant && fullCoverage(c) && c.index != null)
-    .map((c) => c.index as number);
+    .filter((c) => !c.variant)
+    .map((c) => scoreIn(c)?.v)
+    .filter((x): x is number => x != null);
   const m = field.length ? median(field) : 0;
   const who =
     cur.method === "ensemble"
       ? `The ensemble ${ensembleLabel(cur.base)}`
-      : `${cur.base} with ${cur.method === "raw" ? "a raw prompt" : "an Althing persona"}`;
+      : `${cur.base} with ${cur.method === "raw" ? "a raw prompt" : "an Althing persona"}${cur.harness ? ` (via ${cur.harness})` : ""}`;
   const parts: string[] = [];
-  if (cur.index != null)
+  const where = state.scope === "all" ? "the Index" : dsLabel(state.scope);
+  if (v)
     parts.push(
-      `${who} has an Index of ${fmt.int(cur.index)}, ${cur.index > m + 5 ? "above" : cur.index < m - 5 ? "below" : "close to"} the median system (${fmt.int(m)}).`,
+      `${who} scores ${fmt.int(v.v)} on ${where}, ${v.v > m + 5 ? "above" : v.v < m - 5 ? "below" : "close to"} the median system (${fmt.int(m)}).`,
     );
-  else parts.push(`${who} wasn't run on every core dataset, so it has no headline Index.`);
+  else if (state.scope === "all") {
+    const missing = CORE.filter((id) => !cur.ds[id]).map(dsLabel);
+    parts.push(
+      `${who} wasn't run on every core dataset${missing.length ? ` (no ${missing.join(" or ")} run)` : ""}, so it isn't ranked on the Index.`,
+    );
+  } else parts.push(`${who} wasn't run on ${dsLabel(state.scope)}.`);
   if (best && worst && best[0] !== worst[0])
     parts.push(
       `It does best on ${dsLabel(best[0])} (${fmt.int(best[1])}) and worst on ${dsLabel(worst[0])} (${fmt.int(worst[1])}${worst[1] < 0 ? ", below random answers" : ""}).`,
@@ -230,6 +251,10 @@ mount(
         },
         svg,
       );
+      // Questions this system was actually run on (as in the runs table), out
+      // of the dataset's full size.
+      const ran = (cur.ds[id] ?? cp?.ds[id])?.n;
+      const total = dsMeta(id)?.questions;
       s(
         "text",
         {
@@ -237,7 +262,10 @@ mount(
           y: cy + 13,
           "text-anchor": "end",
           class: "sb-sub",
-          text: `${dsMeta(id)?.questions ?? "?"} questions`,
+          text:
+            ran != null && total != null && ran < total
+              ? `${ran} of ${total} questions`
+              : `${ran ?? total ?? "?"} questions`,
         },
         svg,
       );
@@ -528,164 +556,214 @@ mount(
   onChange,
 );
 
-// ---------- Experiments (only for models that have them) ----------
-const sweep = (d.findings.temperature_sweep ?? []).filter(
-  (p) => p.model === mine[0]?.base && (p.dataset ?? "opinionsqa") === "opinionsqa",
+// ---------- Experiments (persona only, backed by this model's own runs) ----------
+// The temperature sweep and template runs are Althing persona experiments, so
+// they only show while the persona is selected, and only on a dataset this
+// system was itself run on.
+const SWEEP_DS = "opinionsqa";
+const sweep = (d.findings.temperature_sweep ?? [])
+  .filter((p) => findingsModel(p.model) === mine[0]?.base && (p.dataset ?? SWEEP_DS) === SWEEP_DS)
+  .sort((a, b) => a.temperature - b.temperature);
+const templates = variants.filter(
+  (c) => c.variant?.startsWith("temperature 0.85") && c.ds.subpop && !c.harness,
 );
-const templates = variants.filter((c) => c.variant?.startsWith("temperature 0.85") && c.ds.subpop);
-if (!sweep.length && !templates.length) $("pf-exp").remove();
-else {
-  const oq = dsMeta("opinionsqa");
+const isPersona = () => cur.method === "althing" && !cur.harness && cur.baseId === baseId;
+const showTemp = () => isPersona() && sweep.length > 1 && cur.ds[SWEEP_DS] != null;
+const showTpl = () => isPersona() && templates.length > 1 && cur.ds.subpop != null;
+const runsText = (runs: number[], what: string) => {
+  const lo = Math.min(...runs);
+  const hi = Math.max(...runs);
+  return lo === hi
+    ? `${lo === 1 ? "One run" : `${lo} runs`} per ${what}`
+    : `${lo} to ${hi} runs per ${what}`;
+};
+const hasBand = sweep.some((p) => (p.n_runs ?? 1) > 1 && (p.std ?? 0) > 0);
+function renderExperiments(): void {
+  const t = showTemp();
+  const p = showTpl();
+  $("pf-exp").style.display = t || p ? "" : "none";
+  $("pf-temp-panel").style.display = t ? "" : "none";
+  $("pf-tpl-panel").style.display = p ? "" : "none";
+  // A lone panel takes the full row instead of leaving an empty column.
+  $("pf-temp-panel").style.gridColumn = t && !p ? "1 / -1" : "";
+  $("pf-tpl-panel").style.gridColumn = p && !t ? "1 / -1" : "";
+  if (t)
+    $("pf-temp-q").textContent = [
+      `${dsLabel(SWEEP_DS)}, Althing persona.`,
+      `${runsText(
+        sweep.map((q) => q.n_runs ?? 1),
+        "temperature",
+      )}${hasBand ? "; band: ±1 standard deviation across repeat runs." : ", so there is no error band. Differences of a few points may be noise."}`,
+      `These sweep runs are separate from the published run, which scores ${fmt.int(cur.ds[SWEEP_DS].idx)} at the default temperature.`,
+    ].join(" ");
+  if (p) {
+    const def = templates.find((c) => !/template/.test(c.variant ?? ""));
+    $("pf-tpl-q").textContent = [
+      `${dsLabel("subpop")}, Althing persona, temperature 0.85.`,
+      `${runsText(
+        templates.map((c) => c.ds.subpop.runs ?? 1),
+        "template",
+      )}.`,
+      def
+        ? `At temperature 0.85 the default template scores ${fmt.int(def.ds.subpop.idx)}; the published run at the default temperature scores ${fmt.int(cur.ds.subpop.idx)}.`
+        : "",
+    ]
+      .filter(Boolean)
+      .join(" ");
+  }
+}
+// Registered before the charts so they draw into visible panels.
+onChange(renderExperiments);
+renderExperiments();
+{
+  const oq = dsMeta(SWEEP_DS);
   const toIdx = (sps: number) =>
     oq ? (100 * (sps - oq.random)) / ((oq.ceiling ?? 1) - oq.random) : 0;
   const tempEl = $("pf-temp");
-  mount(tempEl, (W) => {
-    const H = 220;
-    const m = { l: 56, r: 12, t: 12, b: 46 };
-    const svg = s("svg", {
-      class: "sb-c",
-      width: W,
-      height: H,
-      role: "img",
-      "aria-label": "Index by sampling temperature",
-    });
-    tempEl.append(svg);
-    if (!sweep.length) {
+  mount(
+    tempEl,
+    (W) => {
+      if (!showTemp()) return;
+      const H = 220;
+      const m = { l: 56, r: 12, t: 12, b: 46 };
+      const svg = s("svg", {
+        class: "sb-c",
+        width: W,
+        height: H,
+        role: "img",
+        "aria-label": "Index by sampling temperature",
+      });
+      tempEl.append(svg);
+      const pts = sweep.map((q) => ({
+        x: q.temperature,
+        y: toIdx(q.sps),
+        sd: hasBand ? toIdx(q.sps + (q.std ?? 0)) - toIdx(q.sps) : 0,
+      }));
+      const xs = pts.map((q) => q.x);
+      const lo = Math.floor((Math.min(...pts.map((q) => q.y - q.sd)) - 3) / 5) * 5;
+      const hi = Math.ceil((Math.max(...pts.map((q) => q.y + q.sd)) + 3) / 5) * 5;
+      const X = linear(Math.min(...xs) - 0.05, Math.max(...xs) + 0.05, m.l, W - m.r);
+      const Y = linear(lo, hi, H - m.b, m.t);
+      for (const t of ticks(lo, hi, 4)) {
+        s("line", { class: "sb-gl", x1: m.l, x2: W - m.r, y1: Y(t), y2: Y(t) }, svg);
+        s(
+          "text",
+          { class: "sb-t", x: m.l - 6, y: Y(t) + 4, "text-anchor": "end", text: fmt.int(t) },
+          svg,
+        );
+      }
+      for (const q of pts)
+        s(
+          "text",
+          {
+            class: "sb-t",
+            x: X(q.x),
+            y: H - m.b + 16,
+            "text-anchor": "middle",
+            text: String(q.x),
+          },
+          svg,
+        );
+      axisTitle(svg, "Sampling temperature", { x: (m.l + W - m.r) / 2, y: H - 6 });
+      axisTitle(svg, `Index (${dsLabel(SWEEP_DS)})`, {
+        x: 14,
+        y: (m.t + H - m.b) / 2,
+        vertical: true,
+      });
+      if (hasBand) {
+        const band = `${pts.map((q, i) => `${i ? "L" : "M"}${X(q.x)},${Y(q.y + q.sd)}`).join("")}${[
+          ...pts,
+        ]
+          .reverse()
+          .map((q) => `L${X(q.x)},${Y(q.y - q.sd)}`)
+          .join("")}Z`;
+        s("path", { d: band, fill: methodColor("althing"), opacity: 0.14 }, svg);
+      }
       s(
-        "text",
+        "path",
         {
-          x: W / 2,
-          y: H / 2,
-          "text-anchor": "middle",
-          class: "sb-sub",
-          text: "No temperature sweep for this model yet.",
+          d: pts.map((q, i) => `${i ? "L" : "M"}${X(q.x)},${Y(q.y)}`).join(""),
+          fill: "none",
+          stroke: methodColor("althing"),
+          "stroke-width": 2,
         },
         svg,
       );
-      return;
-    }
-    const pts = sweep.map((p) => ({
-      x: p.temperature,
-      y: toIdx(p.sps),
-      sd: toIdx(p.sps + (p.std ?? 0)) - toIdx(p.sps),
-    }));
-    const xs = pts.map((p) => p.x);
-    const lo = Math.floor((Math.min(...pts.map((p) => p.y - p.sd)) - 3) / 5) * 5;
-    const hi = Math.ceil((Math.max(...pts.map((p) => p.y + p.sd)) + 3) / 5) * 5;
-    const X = linear(Math.min(...xs) - 0.05, Math.max(...xs) + 0.05, m.l, W - m.r);
-    const Y = linear(lo, hi, H - m.b, m.t);
-    for (const t of ticks(lo, hi, 4)) {
-      s("line", { class: "sb-gl", x1: m.l, x2: W - m.r, y1: Y(t), y2: Y(t) }, svg);
-      s(
-        "text",
-        { class: "sb-t", x: m.l - 6, y: Y(t) + 4, "text-anchor": "end", text: fmt.int(t) },
-        svg,
-      );
-    }
-    for (const p of pts)
-      s(
-        "text",
-        { class: "sb-t", x: X(p.x), y: H - m.b + 16, "text-anchor": "middle", text: String(p.x) },
-        svg,
-      );
-    axisTitle(svg, "Sampling temperature", { x: (m.l + W - m.r) / 2, y: H - 6 });
-    axisTitle(svg, "Index (OpinionsQA)", { x: 14, y: (m.t + H - m.b) / 2, vertical: true });
-    const band = `${pts.map((p, i) => `${i ? "L" : "M"}${X(p.x)},${Y(p.y + p.sd)}`).join("")}${[
-      ...pts,
-    ]
-      .reverse()
-      .map((p) => `L${X(p.x)},${Y(p.y - p.sd)}`)
-      .join("")}Z`;
-    s("path", { d: band, fill: methodColor("althing"), opacity: 0.14 }, svg);
-    s(
-      "path",
-      {
-        d: pts.map((p, i) => `${i ? "L" : "M"}${X(p.x)},${Y(p.y)}`).join(""),
-        fill: "none",
-        stroke: methodColor("althing"),
-        "stroke-width": 2,
-      },
-      svg,
-    );
-    for (const p of pts) marker(svg, "althing", X(p.x), Y(p.y), 3.5);
-  });
+      for (const q of pts) marker(svg, "althing", X(q.x), Y(q.y), 3.5);
+    },
+    onChange,
+  );
   const tplEl = $("pf-tpl");
-  mount(tplEl, (W) => {
-    const rows = [...templates].sort((a, b) => b.ds.subpop.idx - a.ds.subpop.idx);
-    const rowH = 32;
-    const labelW = 150;
-    const plotB = rows.length * rowH;
-    const H = plotB + 44;
-    const svg = s("svg", {
-      class: "sb-c",
-      width: W,
-      height: H,
-      role: "img",
-      "aria-label": "Index by persona prompt template",
-    });
-    tplEl.append(svg);
-    if (!rows.length) {
-      s(
-        "text",
-        {
-          x: W / 2,
-          y: H / 2 + 20,
-          "text-anchor": "middle",
-          class: "sb-sub",
-          text: "No template comparison for this model yet.",
-        },
-        svg,
-      );
-      return;
-    }
-    const lo = Math.min(-20, Math.floor(Math.min(...rows.map((c) => c.ds.subpop.idx)) / 20) * 20);
-    const hi = Math.max(20, Math.ceil(Math.max(...rows.map((c) => c.ds.subpop.idx)) / 20) * 20);
-    const x = linear(lo, hi, labelW + 10, W - 40);
-    for (const t of ticks(lo, hi, 5)) {
-      s("line", { class: "sb-gl", x1: x(t), x2: x(t), y1: 0, y2: plotB }, svg);
-      s(
-        "text",
-        { class: "sb-t", x: x(t), y: plotB + 15, "text-anchor": "middle", text: fmt.int(t) },
-        svg,
-      );
-    }
-    s("line", { x1: x(0), x2: x(0), y1: 0, y2: plotB, stroke: css("--sb-ink-2") }, svg);
-    axisTitle(svg, "Index on SubPOP (0 = random answers)", { x: (x(lo) + x(hi)) / 2, y: H - 4 });
-    rows.forEach((c, i) => {
-      const cy = i * rowH + rowH / 2;
-      const v = c.ds.subpop.idx;
-      const tpl = c.variant?.match(/(\w+) template/)?.[1];
-      s(
-        "text",
-        {
-          x: labelW,
-          y: cy + 4,
-          "text-anchor": "end",
-          class: "sb-lab sb-light",
-          text: tpl ? `${tpl} template` : "default template",
-        },
-        svg,
-      );
-      s(
-        "rect",
-        {
-          x: x(Math.min(0, v)),
-          y: cy - 7,
-          width: Math.abs(x(v) - x(0)),
-          height: 14,
-          rx: 2,
-          fill: methodColor("althing"),
-          opacity: v < 0 ? 0.55 : 1,
-        },
-        svg,
-      );
-      s(
-        "text",
-        { x: v < 0 ? x(0) + 6 : x(v) + 6, y: cy + 4, class: "sb-val", text: fmt.int(v) },
-        svg,
-      );
-    });
-  });
+  mount(
+    tplEl,
+    (W) => {
+      if (!showTpl()) return;
+      const rows = [...templates].sort((a, b) => b.ds.subpop.idx - a.ds.subpop.idx);
+      const rowH = 32;
+      const labelW = 150;
+      const plotB = rows.length * rowH;
+      const H = plotB + 44;
+      const svg = s("svg", {
+        class: "sb-c",
+        width: W,
+        height: H,
+        role: "img",
+        "aria-label": "Index by persona prompt template",
+      });
+      tplEl.append(svg);
+      const lo = Math.min(-20, Math.floor(Math.min(...rows.map((c) => c.ds.subpop.idx)) / 20) * 20);
+      const hi = Math.max(20, Math.ceil(Math.max(...rows.map((c) => c.ds.subpop.idx)) / 20) * 20);
+      const x = linear(lo, hi, labelW + 10, W - 40);
+      for (const t of ticks(lo, hi, 5)) {
+        s("line", { class: "sb-gl", x1: x(t), x2: x(t), y1: 0, y2: plotB }, svg);
+        s(
+          "text",
+          { class: "sb-t", x: x(t), y: plotB + 15, "text-anchor": "middle", text: fmt.int(t) },
+          svg,
+        );
+      }
+      s("line", { x1: x(0), x2: x(0), y1: 0, y2: plotB, stroke: css("--sb-ink-2") }, svg);
+      axisTitle(svg, "Index on SubPOP (0 = random answers)", {
+        x: (x(lo) + x(hi)) / 2,
+        y: H - 4,
+      });
+      rows.forEach((c, i) => {
+        const cy = i * rowH + rowH / 2;
+        const v = c.ds.subpop.idx;
+        const tpl = c.variant?.match(/(\w+) template/)?.[1];
+        s(
+          "text",
+          {
+            x: labelW,
+            y: cy + 4,
+            "text-anchor": "end",
+            class: "sb-lab sb-light",
+            text: tpl ? `${tpl} template` : "default template",
+          },
+          svg,
+        );
+        s(
+          "rect",
+          {
+            x: x(Math.min(0, v)),
+            y: cy - 7,
+            width: Math.abs(x(v) - x(0)),
+            height: 14,
+            rx: 2,
+            fill: methodColor("althing"),
+            opacity: v < 0 ? 0.55 : 1,
+          },
+          svg,
+        );
+        s(
+          "text",
+          { x: v < 0 ? x(0) + 6 : x(v) + 6, y: cy + 4, class: "sb-val", text: fmt.int(v) },
+          svg,
+        );
+      });
+    },
+    onChange,
+  );
 }
 
 // ---------- Holdout check ----------
@@ -795,7 +873,7 @@ $("pf-runs").replaceChildren(
     h(
       "tr",
       null,
-      ["Method", "Dataset", "Questions", "Samples per question", "Runs", ""].map((t) =>
+      ["Method", "Dataset", "Questions run", "Samples per question", "Runs", ""].map((t) =>
         h("th", { scope: "col" }, t),
       ),
     ),
@@ -815,11 +893,17 @@ $("pf-runs").replaceChildren(
               "span",
               { class: "sb-inl" },
               methodKey(c.method),
-              METHODS[c.method as ShownMethod].short,
+              `${METHODS[c.method as ShownMethod].short}${c.harness ? ` via ${c.harness}` : ""}`,
             ),
           ),
           h("td", null, dsLabel(id)),
-          h("td", { class: "sb-mono" }, String(v.n)),
+          h(
+            "td",
+            { class: "sb-mono" },
+            (dsMeta(id)?.questions ?? v.n) > v.n
+              ? `${v.n} of ${dsMeta(id)?.questions}`
+              : String(v.n),
+          ),
           h(
             "td",
             { class: "sb-mono" },

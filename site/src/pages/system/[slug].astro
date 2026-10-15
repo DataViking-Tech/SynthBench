@@ -60,12 +60,12 @@ const base = rawBase.endsWith("/") ? rawBase : `${rawBase}/`;
     </section>
 
     <section class="sb-block sb-grid2" id="pf-exp">
-      <div class="sb-panel">
-        <div class="sb-panel-head"><div><h3>Sampling temperature</h3><div class="q">OpinionsQA, Althing persona. Band: ±1 standard deviation across repeat runs.</div></div></div>
+      <div class="sb-panel" id="pf-temp-panel">
+        <div class="sb-panel-head"><div><h3>Sampling temperature</h3><div class="q" id="pf-temp-q"></div></div></div>
         <div class="sb-chart"><div id="pf-temp"></div></div>
       </div>
-      <div class="sb-panel">
-        <div class="sb-panel-head"><div><h3>Persona prompt template</h3><div class="q">SubPOP, Althing persona, temperature 0.85.</div></div></div>
+      <div class="sb-panel" id="pf-tpl-panel">
+        <div class="sb-panel-head"><div><h3>Persona prompt template</h3><div class="q" id="pf-tpl-q"></div></div></div>
         <div class="sb-chart"><div id="pf-tpl"></div></div>
       </div>
     </section>
