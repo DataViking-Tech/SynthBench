@@ -323,6 +323,9 @@ export interface NonresponseFidelityRow {
   mean_abs_nonresponse_gap: number;
   mean_model_nonresponse_mass: number;
   mean_human_nonresponse_mass: number;
+  /** Listed "don't know"-style options only, excluding prose refusals. */
+  mean_model_option_mass?: number;
+  mean_human_option_mass?: number;
   top_overselected: NonresponseItemGap[];
 }
 

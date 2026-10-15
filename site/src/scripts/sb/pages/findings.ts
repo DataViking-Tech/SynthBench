@@ -1,3 +1,4 @@
+import { signedRange } from "@/lib/format";
 import { axisTitle, css, fmt, h, linear, mount, s, ticks } from "../dom";
 import {
   CORE,
@@ -6,6 +7,7 @@ import {
   dsLabel,
   dsMeta,
   ensembleLabel,
+  findingsModel,
   pruneCompare,
   systems,
 } from "../model";
@@ -43,6 +45,9 @@ interface DumbRow {
   b: number;
   label: string;
   markA?: Mark;
+  /** Uncertainty around a / b (95% interval or ±1 SD), drawn as a whisker. */
+  errA?: [number, number];
+  errB?: [number, number];
   tip?: [string, string][];
 }
 /** One row per item: a line from value a to value b, with a value label on the right. */
@@ -53,6 +58,8 @@ function dumbbell(
     domain: [number, number];
     axis: string;
     tick?: (v: number) => string;
+    /** Explicit tick positions, instead of the automatic ones. */
+    tickValues?: number[];
     labelW?: number;
     zero?: number;
     a: Mark;
@@ -66,6 +73,7 @@ function dumbbell(
     const H = plotB + 44;
     const tick = o.tick ?? fmt.int;
     const x = linear(o.domain[0], o.domain[1], labelW + 12, W - 82);
+    const clampX = (v: number) => x(Math.max(o.domain[0], Math.min(o.domain[1], v)));
     const svg = s("svg", { class: "sb-c", width: W, height: H, role: "img", "aria-label": o.axis });
     el.append(svg);
     if (o.zero != null && o.zero > o.domain[0])
@@ -80,7 +88,7 @@ function dumbbell(
         },
         svg,
       );
-    for (const t of ticks(o.domain[0], o.domain[1], 5)) {
+    for (const t of o.tickValues ?? ticks(o.domain[0], o.domain[1], 5)) {
       s("line", { class: "sb-gl", x1: x(t), x2: x(t), y1: 0, y2: plotB }, svg);
       s(
         "text",
@@ -91,6 +99,24 @@ function dumbbell(
     if (o.zero != null)
       s("line", { x1: x(o.zero), x2: x(o.zero), y1: 0, y2: plotB, stroke: css("--sb-ink-2") }, svg);
     axisTitle(svg, o.axis, { x: (x(o.domain[0]) + x(o.domain[1])) / 2, y: H - 4 });
+    const whisker = (err: [number, number] | undefined, cy: number) => {
+      if (!err) return;
+      const [x1, x2] = [clampX(err[0]), clampX(err[1])];
+      s("line", { x1, x2, y1: cy, y2: cy, stroke: css("--sb-ink-2"), "stroke-width": 1.5 }, svg);
+      for (const xe of [x1, x2])
+        s(
+          "line",
+          {
+            x1: xe,
+            x2: xe,
+            y1: cy - 4,
+            y2: cy + 4,
+            stroke: css("--sb-ink-2"),
+            "stroke-width": 1.5,
+          },
+          svg,
+        );
+    };
     rows.forEach((r, i) => {
       const cy = i * rowH + rowH / 2;
       s(
@@ -103,6 +129,8 @@ function dumbbell(
         { x1: x(r.a), x2: x(r.b), y1: cy, y2: cy, stroke: css("--sb-line-2"), "stroke-width": 2 },
         svg,
       );
+      whisker(r.errA, cy);
+      whisker(r.errB, cy);
       (r.markA ?? o.a)(svg, x(r.a), cy);
       o.b(svg, x(r.b), cy);
       s("text", { x: W - 2, y: cy + 4, "text-anchor": "end", class: "sb-val", text: r.label }, svg);
@@ -115,7 +143,8 @@ function dumbbell(
     });
   });
 }
-const legend = (...items: (string | Node)[]) => h("div", { class: "sb-note sb-legend" }, ...items);
+const legend = (...items: (string | Node | null)[]) =>
+  h("div", { class: "sb-note sb-legend" }, ...items);
 const swatch = (draw: Mark) => {
   const sv = s("svg", {
     width: 14,
@@ -126,6 +155,8 @@ const swatch = (draw: Mark) => {
   draw(sv, 7, 7);
   return sv;
 };
+/** One legend entry: a marker and its label, kept together when the legend wraps. */
+const key = (draw: Mark, label: string) => h("span", null, swatch(draw), label);
 
 interface Finding {
   id: string;
@@ -140,35 +171,65 @@ interface Finding {
 }
 const items: Finding[] = [];
 
+/**
+ * Evidence rating from the runs behind each plotted point: one run per point
+ * is early evidence whatever the effect size; repeat runs earn `otherwise`.
+ */
+const rate = (minRuns: number, otherwise: [number, string] = [2, "Moderate"]): [number, string] =>
+  minRuns <= 1 ? [1, "Early"] : otherwise;
+const runsText = (runs: number[], what: string): string => {
+  const lo = Math.min(...runs);
+  const hi = Math.max(...runs);
+  if (lo !== hi) return `${lo} to ${hi} runs per ${what}`;
+  return lo === 1 ? `one run per ${what}` : `${lo} runs per ${what}`;
+};
+const pctText = (v: number) => `${v < 0.1 ? (v * 100).toFixed(1) : Math.round(v * 100)}%`;
+
 // 1. Raw LLMs vs. random answers
 const raws = systems().filter((c) => c.method === "raw" && !c.variant);
 const goqa = raws.filter((c) => c.ds.globalopinionqa);
+const goqaBelow = goqa.filter((c) => c.ds.globalopinionqa.idx < 0).length;
+const goqaSure = goqa.filter((c) => (c.ds.globalopinionqa.hi ?? 0) < 0).length;
 items.push({
   id: "random",
   short: "Raw LLMs vs. random",
   claim:
     "A directly prompted LLM scores close to random answers, and below random on cross-national questions",
   confidence: [3, "Strong"],
-  number: `${goqa.filter((c) => c.ds.globalopinionqa.idx < 0).length} of ${goqa.length}`,
-  numberLabel: "raw LLMs score below random on GlobalOpinionQA",
+  number: `${goqaBelow} of ${goqa.length}`,
+  numberLabel: `raw LLMs score below random on GlobalOpinionQA. For ${goqaSure} of them the whole 95% interval is below 0.`,
   meaning:
     "A plain prompt is not a substitute for a survey panel. Check results against real data before using them for a new population.",
   evidence:
-    "Random answers spread probability evenly across the options, which matches questions where people are split. LLMs do worse than random at matching answer shares and better at matching answer order (see Analysis, Shares vs. order).",
+    "Random answers spread probability evenly across the options, which matches questions where people are split. LLMs do worse than random at matching answer shares and better at matching answer order (see Analysis, Shares vs. order). Each system has a bootstrap 95% interval; hover a row for how many raw LLMs sit clearly above or below 0.",
   viz(el) {
     const rows = CORE.map((id): DumbRow => {
-      const v = raws
-        .filter((c) => c.ds[id])
-        .map((c) => c.ds[id].idx)
-        .sort((p, q) => p - q);
+      const sys = raws.filter((c) => c.ds[id]).sort((p, q) => p.ds[id].idx - q.ds[id].idx);
+      const v = sys.map((c) => c.ds[id].idx);
+      const lo = sys[0].ds[id];
+      const hi = sys[sys.length - 1].ds[id];
       return {
         name: dsLabel(id),
         a: v[0],
         b: v[v.length - 1],
         label: `median ${fmt.int(v[v.length >> 1])}`,
         tip: [
-          ["Lowest raw LLM", fmt.one(v[0])],
-          ["Highest raw LLM", fmt.one(v[v.length - 1])],
+          [
+            "Lowest raw LLM",
+            `${fmt.one(lo.idx)} (95% interval ${fmt.int(lo.lo)} to ${fmt.int(lo.hi)})`,
+          ],
+          [
+            "Highest raw LLM",
+            `${fmt.one(hi.idx)} (95% interval ${fmt.int(hi.lo)} to ${fmt.int(hi.hi)})`,
+          ],
+          [
+            "Interval entirely below 0",
+            `${sys.filter((c) => (c.ds[id].hi ?? 0) < 0).length} of ${sys.length}`,
+          ],
+          [
+            "Interval entirely above 0",
+            `${sys.filter((c) => (c.ds[id].lo ?? 0) > 0).length} of ${sys.length}`,
+          ],
         ],
       };
     });
@@ -200,50 +261,77 @@ const ec = (F.ensemble_comparison ?? [])
 if (ec.length) {
   const corr = (F.ensemble_error_correlation ?? []).map((c) => c.mean_pearson_r);
   const gains = ec.map((e) => e.b - e.a);
+  const vsTop = ec.map((e) => e.b - e.top);
+  const winsMember = gains.filter((g) => g > 0).length;
+  const winsTop = vsTop.filter((g) => g > 0).length;
   // One row per ensemble: its average Index against its best member's,
   // over the datasets it was scored on.
   const byEns = new Map<string, typeof ec>();
   for (const e of ec) byEns.set(e.label, [...(byEns.get(e.label) ?? []), e]);
   const avg = (xs: number[]) => xs.reduce((p, q) => p + q, 0) / xs.length;
-  const ens = [...byEns].map(([label, rows]) => ({
-    label,
-    name: rows[0].ensemble_model ?? label,
-    a: avg(rows.map((r) => r.a)),
-    b: avg(rows.map((r) => r.b)),
-    top: avg(rows.map((r) => r.top)),
-  }));
+  const ens = [...byEns].map(([label, rows]) => {
+    const name = rows[0].ensemble_model ?? label;
+    // The ensemble's own leaderboard row carries its 95% interval; it matches
+    // the dataset average only when the ensemble was scored on every core dataset.
+    const sys = systems().find((c) => c.method === "ensemble" && !c.variant && c.base === name);
+    const ci: [number, number] | undefined =
+      sys && rows.length === CORE.length && sys.indexLo != null && sys.indexHi != null
+        ? [sys.indexLo, sys.indexHi]
+        : undefined;
+    return {
+      label,
+      name,
+      a: avg(rows.map((r) => r.a)),
+      b: avg(rows.map((r) => r.b)),
+      top: avg(rows.map((r) => r.top)),
+      ci,
+    };
+  });
   const best = ens.reduce((p, q) => (q.b > p.b ? q : p));
   items.push({
     id: "ensemble",
     short: "Ensembles",
     claim:
-      Math.min(...gains) > 0
-        ? "Blending models whose errors differ beats each member on every dataset tested"
-        : "Blending models whose errors differ usually beats each member, but not always",
+      winsMember === ec.length
+        ? "Blending models whose errors differ beats the blend's own best member on every dataset tested"
+        : `Blending models whose errors differ beats the blend's own best member in ${winsMember} of ${ec.length} ensemble–dataset comparisons`,
     confidence: [2, "Moderate"],
-    number: `${fmt.delta(Math.min(...ens.map((e) => e.b - e.a)))} to ${fmt.delta(Math.max(...ens.map((e) => e.b - e.a)))}`,
-    numberLabel: "Index points over the blend's best member, averaged over datasets",
+    number: signedRange(
+      Math.min(...ens.map((e) => e.b - e.a)),
+      Math.max(...ens.map((e) => e.b - e.a)),
+    ),
+    numberLabel:
+      "Index points over the ensemble's own best member (not the best system overall), averaged over datasets",
     meaning:
       "Pick members whose errors point in different directions, not just the top scorers. Three mid-table models can match a blend of the strongest. The same model with and without a persona errs alike, so it adds little.",
-    evidence: `Equal-weight average of the members' per-question answer distributions.${corr.length ? ` Members' error sizes correlate at r = ${Math.min(...corr).toFixed(2)} to ${Math.max(...corr).toFixed(2)}.` : ""} The complementary blends were chosen from about 64,000 combinations using only the public questions, and they keep their lead on the private questions that played no part in choosing them. The best blend here, ${best.label}, averages ${fmt.int(best.b)} against ${fmt.int(best.top)} for the best single system. It costs three or four times as much as a single run.`,
+    evidence: `Equal-weight average of the members' per-question answer distributions.${corr.length ? ` Members' error sizes correlate at r = ${Math.min(...corr).toFixed(2)} to ${Math.max(...corr).toFixed(2)}.` : ""} Against the best single system on each dataset, rather than the blend's own members, an ensemble wins ${winsTop} of ${ec.length} comparisons (${signedRange(Math.min(...vsTop), Math.max(...vsTop))} Index points). The complementary blends were chosen from about 64,000 combinations using only the public questions, and they keep their lead on the private questions that played no part in choosing them. The best blend here, ${best.label}, averages ${fmt.int(best.b)} against ${fmt.int(best.top)} for the best single system. Each ensemble has one run per dataset; the whisker on each ensemble is the 95% interval of its Index. It costs three or four times as much as a single run.`,
     viz(el) {
+      const lo = Math.min(-10, Math.floor(Math.min(...ens.map((e) => e.a)) / 10) * 10);
+      const hi = Math.max(60, Math.ceil(Math.max(...ens.map((e) => e.ci?.[1] ?? e.b)) / 10) * 10);
       dumbbell(
         el,
         ens.map((e) => ({
           name: e.label,
           a: e.a,
           b: e.b,
+          errB: e.ci,
           label: fmt.delta(e.b - e.a),
           tip: [
             ["Ensemble", e.name],
             ["Best member, average Index", fmt.one(e.a)],
             ["Ensemble, average Index", fmt.one(e.b)],
+            ...(e.ci
+              ? ([
+                  ["Ensemble Index, 95% interval", `${fmt.int(e.ci[0])} to ${fmt.int(e.ci[1])}`],
+                ] as [string, string][])
+              : []),
             ["Best single system, average", fmt.one(e.top)],
           ],
         })),
         {
-          domain: [-10, 60],
+          domain: [lo, hi],
           axis: "SynthBench Index, averaged over datasets (0 = random answers)",
+          labelW: 210,
           zero: 0,
           a: method("althing"),
           b: method("ensemble"),
@@ -251,10 +339,8 @@ if (ec.length) {
       );
       el.after(
         legend(
-          swatch(method("althing")),
-          " best member   ",
-          swatch(method("ensemble")),
-          " ensemble",
+          key(method("althing"), "best member"),
+          key(method("ensemble"), "ensemble, with its 95% interval"),
         ),
       );
     },
@@ -269,59 +355,99 @@ if (tpls.length > 1) {
   const tplName = (v: string | null) => v?.match(/(\w+) template/)?.[1] ?? "default";
   const top = tpls[0];
   const bottom = tpls[tpls.length - 1];
+  const range = top.ds.subpop.idx - bottom.ds.subpop.idx;
+  const allBelow = top.ds.subpop.idx < 0;
+  const tplRuns = tpls.map((c) => c.ds.subpop.runs ?? 1);
+  const published = systems().find(
+    (c) => c.baseId === top.baseId && c.method === "althing" && !c.variant && !c.harness,
+  )?.ds.subpop;
+  const def = tpls.find((c) => tplName(c.variant) === "default");
   items.push({
     id: "template",
     short: "Prompt template",
-    claim: "The wording of the persona prompt alone can drop a system below random answers",
-    confidence: [2, "Moderate"],
-    number: fmt.delta(bottom.ds.subpop.idx - top.ds.subpop.idx),
-    numberLabel: `Index change from the template alone (SubPOP, ${top.base})`,
+    claim: `The wording of the persona prompt alone moved the score by ${fmt.int(range)} points${allBelow ? "; even the best template scored below random here" : ""}`,
+    confidence: rate(Math.min(...tplRuns)),
+    number: `${fmt.int(range)} pts`,
+    numberLabel: `between the best and worst of ${tpls.length} templates (SubPOP, ${top.base}, temperature 0.85)`,
     meaning:
       "Treat the persona template like a model version: track every change and re-run the benchmark after each one.",
-    evidence: `Same model, temperature 0.85, ${top.ds.subpop.n} SubPOP questions, one or two runs per template. Most of the drop comes from refusal match, which falls from ${top.ds.subpop.pRefuse.toFixed(2)} with the ${tplName(top.variant)} template to ${bottom.ds.subpop.pRefuse.toFixed(2)} with the ${tplName(bottom.variant)} template. The other templates made the model decline far more often than people do.`,
+    evidence: `Same model, temperature 0.85, ${top.ds.subpop.n} SubPOP questions, ${runsText(tplRuns, "template")}, so differences of a few points may be noise.${def && published ? ` At temperature 0.85 even the default template scores ${fmt.int(def.ds.subpop.idx)}, against ${fmt.int(published.idx)} for the published persona run at the default temperature.` : ""} Most of the drop comes from refusal match, which falls from ${top.ds.subpop.pRefuse.toFixed(2)} with the ${tplName(top.variant)} template to ${bottom.ds.subpop.pRefuse.toFixed(2)} with the ${tplName(bottom.variant)} template. The other templates made the model decline far more often than people do.`,
     viz(el) {
+      const lo = Math.min(
+        -60,
+        Math.floor(Math.min(...tpls.map((c) => c.ds.subpop.lo ?? 0)) / 20) * 20,
+      );
       dumbbell(
         el,
         tpls.map((c) => ({
           name: `${tplName(c.variant)} template`,
           a: 0,
           b: c.ds.subpop.idx,
+          errB:
+            c.ds.subpop.lo != null && c.ds.subpop.hi != null
+              ? [c.ds.subpop.lo, c.ds.subpop.hi]
+              : undefined,
           label: fmt.int(c.ds.subpop.idx),
-          tip: [["Refusal match", c.ds.subpop.pRefuse.toFixed(3)]],
+          tip: [
+            ["Index", fmt.one(c.ds.subpop.idx)],
+            ["95% interval", `${fmt.int(c.ds.subpop.lo)} to ${fmt.int(c.ds.subpop.hi)}`],
+            ["Refusal match", c.ds.subpop.pRefuse.toFixed(3)],
+            ["Runs", String(c.ds.subpop.runs ?? 1)],
+          ],
         })),
         {
-          domain: [-100, 20],
+          domain: [lo, 20],
           axis: "Index on SubPOP (0 = random answers)",
           zero: 0,
           a: none,
           b: method("althing"),
         },
       );
+      el.after(legend("Whiskers: 95% interval over questions, from one run per template."));
     },
   });
 }
 
 // 4. Temperature
-const sweep = (F.temperature_sweep ?? []).filter(
-  (p) => (p.dataset ?? "opinionsqa") === "opinionsqa",
-);
+const sweep = (F.temperature_sweep ?? [])
+  .filter((p) => (p.dataset ?? "opinionsqa") === "opinionsqa")
+  .sort((a, b) => a.temperature - b.temperature);
 const models = [...new Set(sweep.map((p) => p.model))];
 if (models.length) {
-  const gains = models.map((m) => {
-    const p = sweep.filter((q) => q.model === m);
-    return idxOf("opinionsqa", Math.max(...p.map((q) => q.sps))) - idxOf("opinionsqa", p[0].sps);
-  });
-  const runs = sweep.map((p) => p.n_runs).filter((n): n is number => n != null);
+  const per = models.map((m) => sweep.filter((q) => q.model === m));
+  // Compare every model over the temperature range they were all run on.
+  const tLo = Math.max(...per.map((p) => p[0].temperature));
+  const tHi = Math.min(...per.map((p) => p[p.length - 1].temperature));
+  const at = (p: typeof sweep, t: number) => p.find((q) => q.temperature === t);
+  const shared = per
+    .map((p, i) => {
+      const a = at(p, tLo);
+      const b = at(p, tHi);
+      return a && b
+        ? { model: models[i], gain: idxOf("opinionsqa", b.sps) - idxOf("opinionsqa", a.sps) }
+        : null;
+    })
+    .filter((g): g is NonNullable<typeof g> => g != null);
+  const up = shared.filter((g) => g.gain > 0).length;
+  const runs = sweep.map((p) => p.n_runs ?? 1);
+  const hasBand = sweep.some((p) => (p.n_runs ?? 1) > 1 && (p.std ?? 0) > 0);
+  const longer = per.filter((p) => p[p.length - 1].temperature > tHi);
+  const name = (m: string) => findingsModel(m);
   items.push({
     id: "temperature",
     short: "Temperature",
-    claim: "Higher temperature helps some models and makes little difference for others",
-    confidence: [2, "Moderate"],
-    number: fmt.delta(Math.max(...gains)),
-    numberLabel: "largest gain from changing temperature (OpinionsQA)",
+    claim:
+      up === shared.length
+        ? `Raising temperature from ${tLo} to ${tHi} improved all ${shared.length} models tested, by different amounts`
+        : `Raising temperature from ${tLo} to ${tHi} improved ${up} of ${shared.length} models tested`,
+    confidence: rate(Math.min(...runs)),
+    number: shared.length
+      ? signedRange(Math.min(...shared.map((g) => g.gain)), Math.max(...shared.map((g) => g.gain)))
+      : "—",
+    numberLabel: `Index change from temperature ${tLo} to ${tHi} (OpinionsQA, Althing persona)`,
     meaning:
-      "Test a few temperatures for each model before running a study. A setting that works for one model doesn't carry over to another.",
-    evidence: `Althing persona runs on OpinionsQA${runs.length ? `, ${Math.min(...runs)} to ${Math.max(...runs)} repeat runs per point` : ""}. The band shows ±1 standard deviation.`,
+      "Test a few temperatures for each model before running a study. The size of the gain differs between models, so a setting tuned on one doesn't carry over.",
+    evidence: `Althing persona runs on OpinionsQA, ${runsText(runs, "temperature")}.${hasBand ? " The band shows ±1 standard deviation across repeat runs." : " With a single run per point there is no error band, so differences of a few points may be noise."} The models were swept over different ranges, so the headline compares them on the range they share (${tLo} to ${tHi}, shaded).${longer.length ? ` ${longer.map((p) => `${name(p[0].model)} was also run up to ${p[p.length - 1].temperature}`).join("; ")}.` : ""}`,
     viz(el) {
       const grid = h("div", { class: "sb-sm3" });
       el.append(grid);
@@ -330,30 +456,29 @@ if (models.length) {
       const hi = Math.ceil((Math.max(...all) + 5) / 5) * 5;
       const tMin = Math.min(...sweep.map((p) => p.temperature));
       const tMax = Math.max(...sweep.map((p) => p.temperature));
-      for (const m of models) {
-        const pts = sweep
-          .filter((p) => p.model === m)
-          .map((p) => ({
-            x: p.temperature,
-            y: idxOf("opinionsqa", p.sps),
-            sd: idxOf("opinionsqa", p.sps + (p.std ?? 0)) - idxOf("opinionsqa", p.sps),
-          }));
+      for (const [i, m] of models.entries()) {
+        const pts = per[i].map((p) => ({
+          x: p.temperature,
+          y: idxOf("opinionsqa", p.sps),
+          sd: hasBand ? idxOf("opinionsqa", p.sps + (p.std ?? 0)) - idxOf("opinionsqa", p.sps) : 0,
+        }));
+        const g = shared.find((x) => x.model === m);
+        const last = pts[pts.length - 1];
         const chart = h("div");
         grid.append(
           h(
             "div",
             null,
-            h(
-              "h4",
-              null,
-              m
-                .replace("GPT-4o-mini", "GPT-4o mini")
-                .replace("Gemini Flash Lite", "Gemini 2.5 Flash-Lite"),
-            ),
+            h("h4", null, name(m)),
             h(
               "div",
               { class: "sb-note" },
-              `${fmt.delta(pts[pts.length - 1].y - pts[0].y)} from ${pts[0].x} to ${pts[pts.length - 1].x}`,
+              [
+                g ? `${fmt.delta(g.gain)} from ${tLo} to ${tHi}` : null,
+                last.x > tHi ? `${fmt.delta(last.y - pts[0].y)} up to ${last.x}` : null,
+              ]
+                .filter(Boolean)
+                .join("; "),
             ),
             chart,
           ),
@@ -368,9 +493,21 @@ if (models.length) {
             width: W,
             height: H,
             role: "img",
-            "aria-label": `${m}: Index by temperature`,
+            "aria-label": `${name(m)}: Index by temperature`,
           });
           chart.append(svg);
+          s(
+            "rect",
+            {
+              x: X(tLo),
+              y: mg.t,
+              width: X(tHi) - X(tLo),
+              height: H - mg.b - mg.t,
+              fill: css("--sb-grid"),
+              opacity: 0.6,
+            },
+            svg,
+          );
           for (const t of ticks(lo, hi, 3)) {
             s("line", { class: "sb-gl", x1: mg.l, x2: W - mg.r, y1: Y(t), y2: Y(t) }, svg);
             s(
@@ -393,70 +530,75 @@ if (models.length) {
             );
           axisTitle(svg, "Temperature", { x: (mg.l + W - mg.r) / 2, y: H - 4 });
           axisTitle(svg, "Index", { x: 12, y: (mg.t + H - mg.b) / 2, vertical: true });
-          const band = `${pts.map((p, i) => `${i ? "L" : "M"}${X(p.x)},${Y(p.y + p.sd)}`).join("")}${[
-            ...pts,
-          ]
-            .reverse()
-            .map((p) => `L${X(p.x)},${Y(p.y - p.sd)}`)
-            .join("")}Z`;
-          s("path", { d: band, fill: methodColor("althing"), opacity: 0.14 }, svg);
+          if (hasBand) {
+            const band = `${pts.map((p, j) => `${j ? "L" : "M"}${X(p.x)},${Y(p.y + p.sd)}`).join("")}${[
+              ...pts,
+            ]
+              .reverse()
+              .map((p) => `L${X(p.x)},${Y(p.y - p.sd)}`)
+              .join("")}Z`;
+            s("path", { d: band, fill: methodColor("althing"), opacity: 0.14 }, svg);
+          }
           s(
             "path",
             {
-              d: pts.map((p, i) => `${i ? "L" : "M"}${X(p.x)},${Y(p.y)}`).join(""),
+              d: pts.map((p, j) => `${j ? "L" : "M"}${X(p.x)},${Y(p.y)}`).join(""),
               fill: "none",
               stroke: methodColor("althing"),
               "stroke-width": 2,
             },
             svg,
           );
+          for (const p of pts) marker(svg, "althing", X(p.x), Y(p.y), 3);
         });
       }
+      el.after(
+        legend(
+          `Shaded: the range all ${models.length} models were run on. Each dot is ${hasBand ? "the mean of repeat runs" : "a single run"}.`,
+        ),
+      );
     },
   });
 }
 
 // 5. Model consensus
-const conc = Object.entries(d.concordance ?? {}).filter(
-  (
-    e,
-  ): e is [
-    string,
-    {
-      models: string[];
-      matrix: (number | null)[][];
-      mean_cross_model_jsd: number;
-      mean_human_jsd: number;
-    },
-  ] => e[1].mean_cross_model_jsd != null && e[1].mean_human_jsd != null,
+const conc = Object.entries(d.concordance ?? {}).flatMap(([id, b]) =>
+  b.mean_cross_model_jsd != null && b.mean_human_jsd != null
+    ? [{ id, cross: b.mean_cross_model_jsd, human: b.mean_human_jsd }]
+    : [],
 );
 if (conc.length) {
-  const pct = (b: { mean_cross_model_jsd: number; mean_human_jsd: number }) =>
-    Math.round((1 - b.mean_cross_model_jsd / b.mean_human_jsd) * 100);
-  const best = conc.reduce((p, q) => (pct(q[1]) > pct(p[1]) ? q : p));
+  const pct = (b: { cross: number; human: number }) => Math.round((1 - b.cross / b.human) * 100);
+  const pctLabel = (b: { cross: number; human: number }) =>
+    pct(b) >= 0 ? `${pct(b)}% lower` : `${-pct(b)}% higher`;
+  const best = conc.reduce((p, q) => (pct(q) > pct(p) ? q : p));
+  const agree = conc.filter((b) => pct(b) > 0);
+  const against = conc.filter((b) => pct(b) <= 0);
   items.push({
     id: "consensus",
     short: "Model agreement",
-    claim: "Models agree with each other more than they agree with people",
+    claim:
+      agree.length === conc.length
+        ? "Models agree with each other more than they agree with people"
+        : `On ${agree.length} of ${conc.length} datasets, models agree with each other more than they agree with people`,
     confidence: [2, "Moderate"],
-    number: `${pct(best[1])}%`,
-    numberLabel: `lower divergence between models than between models and people (${dsLabel(best[0])})`,
+    number: `${agree.length} of ${conc.length}`,
+    numberLabel: `datasets where models are closer to each other than to people (up to ${pct(best)}% lower divergence, ${dsLabel(best.id)})`,
     meaning:
-      "Several models giving the same answer is not evidence that the answer is right. They share training data and make the same mistakes.",
-    evidence:
-      "Mean pairwise Jensen-Shannon divergence between raw LLM answer distributions, compared with the mean divergence between each model and people.",
+      "Several models giving the same answer is not evidence that the answer is right. They share training data and often make the same mistakes.",
+    evidence: `Mean pairwise Jensen-Shannon divergence between raw LLM answer distributions, compared with the mean divergence between each model and people.${against.length ? ` On ${against.map((b) => dsLabel(b.id)).join(" and ")} it goes the other way: models differ from each other ${against.map((b) => `${-pct(b)}%`).join(" and ")} more than they differ from people.` : ""} These are single averages over all raw LLMs, with no interval.`,
     viz(el) {
-      const vals = conc.flatMap(([, b]) => [b.mean_cross_model_jsd, b.mean_human_jsd]);
+      const vals = conc.flatMap((b) => [b.cross, b.human]);
       dumbbell(
         el,
-        conc.map(([id, b]) => ({
-          name: dsLabel(id),
-          a: b.mean_human_jsd,
-          b: b.mean_cross_model_jsd,
-          label: `${pct(b)}% lower`,
+        conc.map((b) => ({
+          name: dsLabel(b.id),
+          a: b.human,
+          b: b.cross,
+          label: pctLabel(b),
           tip: [
-            ["Model vs. people", b.mean_human_jsd.toFixed(3)],
-            ["Model vs. model", b.mean_cross_model_jsd.toFixed(3)],
+            ["Model vs. people", b.human.toFixed(3)],
+            ["Model vs. model", b.cross.toFixed(3)],
           ],
         })),
         {
@@ -467,7 +609,13 @@ if (conc.length) {
           b: solid,
         },
       );
-      el.after(legend(swatch(ring), " model vs. people   ", swatch(solid), " model vs. model"));
+      el.after(
+        legend(
+          key(ring, "model vs. people"),
+          key(solid, "model vs. model"),
+          h("span", null, "Right: how much lower (or higher) model vs. model is"),
+        ),
+      );
     },
   });
 }
@@ -483,43 +631,86 @@ if (party.length === 2) {
     EDUCATION: "Education",
   };
   const [hiP, loP] = [...party].sort((a, b) => b.p_cond - a.p_cond);
+  // "Per-group conditioned SubPOP evaluations (Haiku 4.5, t=0.85); ..."
+  const setup = F.comparison_sets?.conditioning_results?.match(/\(([^,()]+), t=([\d.]+)\)/);
+  const baseModel = setup
+    ? (systems().find((c) => c.base.endsWith(setup[1]))?.base ?? setup[1])
+    : null;
+  const pairs = attrs
+    .map((a) => {
+      const pair = cr.filter((r) => r.attribute === a).sort((p, q) => q.p_cond - p.p_cond);
+      if (pair.length !== 2) return null;
+      const [far, near] = pair;
+      // Standard error of the difference between the two group means.
+      const se = Math.sqrt(
+        (far.p_cond_std ?? 0) ** 2 / far.n_replications +
+          (near.p_cond_std ?? 0) ** 2 / near.n_replications,
+      );
+      return { a, far, near, clear: se > 0 && far.p_cond - near.p_cond > 2 * se };
+    })
+    .filter((r): r is NonNullable<typeof r> => r != null);
+  const clear = pairs.filter((p) => p.clear).map((p) => (ATTR[p.a] ?? p.a).toLowerCase());
+  const noisy = pairs.filter((p) => !p.clear).map((p) => (ATTR[p.a] ?? p.a).toLowerCase());
+  const reps = cr.map((r) => r.n_replications);
+  const hasSd = cr.every((r) => r.p_cond_std != null);
+  const list = (xs: string[]) =>
+    xs.length > 1 ? `${xs.slice(0, -1).join(", ")} and ${xs[xs.length - 1]}` : xs[0];
   items.push({
     id: "voice",
     short: "Default voice",
     claim: "A model's default answers already resemble some groups more than others",
-    confidence: [2, "Moderate"],
+    confidence: rate(Math.min(...reps)),
     number: `${(hiP.p_cond / loP.p_cond).toFixed(1)}×`,
-    numberLabel: `as much adjustment needed to answer like a ${hiP.group} as like a ${loP.group}`,
+    numberLabel: `as much adjustment needed to answer like a ${hiP.group} as like a ${loP.group}${baseModel ? ` (${baseModel})` : ""}`,
     meaning:
       "Synthetic samples lean toward the model's default respondent. Check accuracy for each subgroup before reporting splits.",
-    evidence: `Althing persona on SubPOP. The party gap is larger than run-to-run noise (${hiP.n_replications} runs). Education points the same way but with fewer runs. The income gap is within noise.`,
+    evidence: `Althing persona on ${baseModel ?? "one base model"}, SubPOP${setup ? `, temperature ${setup[2]}` : ""}, ${runsText(reps, "group")}. One model only, so this shows how that model's default leans, not every model's.${clear.length ? ` The ${list(clear)} gap${clear.length > 1 ? "s are" : " is"} more than twice ${clear.length > 1 ? "their" : "its"} standard error.` : ""}${noisy.length ? ` The ${list(noisy)} gap${noisy.length > 1 ? "s are" : " is"} within run-to-run noise.` : ""}`,
     viz(el) {
-      const rows = attrs
-        .map((a) => {
-          const pair = cr.filter((r) => r.attribute === a).sort((p, q) => q.p_cond - p.p_cond);
-          if (pair.length !== 2) return null;
-          const [p, q] = pair;
-          return {
-            name: `${ATTR[a] ?? a}: ${q.group} vs. ${p.group}`,
-            a: q.p_cond,
-            b: p.p_cond,
-            label: `${(p.p_cond / q.p_cond).toFixed(1)}×`,
-            tip: [
-              [q.group, `${q.p_cond.toFixed(3)} (${q.n_replications} runs)`],
-              [p.group, `${p.p_cond.toFixed(3)} (${p.n_replications} runs)`],
-            ] as [string, string][],
-          };
-        })
-        .filter((r): r is NonNullable<typeof r> => r != null);
+      const sd = (r: (typeof cr)[number]): [number, number] | undefined =>
+        r.p_cond_std != null
+          ? [Math.max(0, r.p_cond - r.p_cond_std), r.p_cond + r.p_cond_std]
+          : undefined;
+      const rows = pairs.map(({ a, far, near }) => ({
+        name: `${ATTR[a] ?? a}: ${near.group} vs. ${far.group}`,
+        a: near.p_cond,
+        b: far.p_cond,
+        errA: sd(near),
+        errB: sd(far),
+        label: `${(far.p_cond / near.p_cond).toFixed(1)}×`,
+        tip: [
+          [
+            near.group,
+            `${near.p_cond.toFixed(3)} ± ${(near.p_cond_std ?? 0).toFixed(3)} (${near.n_replications} runs)`,
+          ],
+          [
+            far.group,
+            `${far.p_cond.toFixed(3)} ± ${(far.p_cond_std ?? 0).toFixed(3)} (${far.n_replications} runs)`,
+          ],
+        ] as [string, string][],
+      }));
+      const top = Math.max(...rows.map((r) => r.errB?.[1] ?? r.b));
+      // Ticks every 0.02, so labels like 0.025 never round to "0.03".
+      const steps = Math.ceil(top / 0.02 - 1e-9);
+      const tickValues = Array.from({ length: steps + 1 }, (_, k) => +(k * 0.02).toFixed(2));
+      const hi = tickValues[tickValues.length - 1];
       dumbbell(el, rows, {
-        domain: [0, Math.ceil(Math.max(...rows.map((r) => r.b)) * 50) / 50],
+        domain: [0, hi],
         axis: "How far the persona must shift answers toward the group (P_cond)",
         tick: (v) => v.toFixed(2),
+        tickValues,
         labelW: 230,
         a: ring,
         b: solid,
       });
-      el.after(legend("Higher means the group is further from the model's default answers."));
+      el.after(
+        legend(
+          key(ring, "group closer to the model's default answers"),
+          key(solid, "group further from them"),
+          hasSd
+            ? h("span", null, `Whiskers: ±1 standard deviation across ${runsText(reps, "group")}`)
+            : null,
+        ),
+      );
     },
   });
 }
@@ -549,33 +740,156 @@ if (stt?.items?.length) {
     GSS_ABSINGLE: "Abortion if not married",
     GSS_LETDIE1: "End of life for incurable disease",
     GSS_SUICIDE1: "Suicide if incurable disease",
+    GSS_CONFINAN: "Confidence in banks",
+    GSS_CONJUDGE: "Confidence in the Supreme Court",
+    GSS_CONPRESS: "Confidence in the press",
+    GSS_CONMEDIC: "Confidence in medicine",
+    GSS_CONSCI: "Confidence in science",
+    GSS_CONFED: "Confidence in the federal government",
+    GSS_CONBUS: "Confidence in major companies",
+    GSS_CONEDUC: "Confidence in education",
+    GSS_XMARSEX: "Extramarital sex",
+    GSS_HOMOSEX: "Same-sex relations",
+    GSS_PREMARSX: "Sex before marriage",
+    GSS_PORNLAW: "Pornography laws",
+    GSS_GRASS: "Legalizing marijuana",
+    GSS_CAPPUN: "Death penalty for murder",
   };
-  // GSS questions end with their topic, after a shared preamble.
-  const label = (key: string, t: string | undefined) =>
-    Q[key] ?? (!t ? key : t.length > 48 ? `…${t.slice(-46).trimStart()}` : t);
+  // Unknown keys: the question's last sentence (GSS items start with a shared
+  // preamble), cut at a word boundary from the front.
+  const label = (key: string, t: string | undefined) => {
+    if (Q[key]) return Q[key];
+    if (!t) return key;
+    const last =
+      t
+        .split(/(?<=[.?])\s+/)
+        .filter(Boolean)
+        .pop() ?? t;
+    if (last.length <= 44) return last;
+    return `${last.slice(0, 42).replace(/\s+\S*$/, "")}…`;
+  };
+  const optionShare = (r: {
+    mean_model_option_mass?: number;
+    mean_model_nonresponse_mass: number;
+  }) => r.mean_model_option_mass ?? r.mean_model_nonresponse_mass;
+  const runs = (F.nonresponse_fidelity ?? []).filter((r) => r.dataset === stt.dataset);
+  const humanOpt = stt.mean_human_nonresponse_mass;
+  const worstRun = runs.find((r) => r.provider === stt.provider && r.framework === "raw");
+  const humanAll = worstRun?.mean_human_nonresponse_mass;
+  const ratios = runs.map((r) => optionShare(r) / humanOpt).sort((a, b) => a - b);
+  const medianRatio = ratios.length
+    ? ratios.length % 2
+      ? ratios[ratios.length >> 1]
+      : (ratios[ratios.length / 2 - 1] + ratios[ratios.length / 2]) / 2
+    : null;
+  const far = ratios.filter((x) => x > 10).length;
+  const worst = stt.mean_model_nonresponse_mass / humanOpt;
   items.push({
     id: "dont-know",
     short: "“Don't know”",
     claim:
-      "On personal and contested questions, a chat model picks “don't know” far more often than people do",
-    confidence: [1, "Early"],
-    number: `${(stt.mean_model_nonresponse_mass / stt.mean_human_nonresponse_mass).toFixed(1)}×`,
-    numberLabel: `the human rate of “don't know” answers (${stt.provider}, ${dsLabel(stt.dataset)})`,
+      "A few models pick “don't know” far more often than people do, a failure that refusal metrics miss",
+    confidence: rate(1),
+    number: runs.length ? `${far} of ${runs.length}` : `${worst.toFixed(0)}×`,
+    numberLabel: runs.length
+      ? `runs on ${dsLabel(stt.dataset)} pick “don't know” more than 10× as often as people. Worst: ${stt.provider} (raw), ${worst.toFixed(0)}×. Median run: ${medianRatio?.toFixed(1)}×.`
+      : `the human rate of “don't know” answers (${stt.provider}, ${dsLabel(stt.dataset)})`,
     meaning:
-      "Report “don't know” answers separately, and check which questions a model declines before trusting its averages.",
-    evidence:
-      "The model picks a listed “don't know” option instead of refusing, so refusal-rate metrics miss it. The chart shows the questions with the largest gap. This is one model on one dataset, so treat it as early evidence.",
+      "Report “don't know” answers separately, and check which questions a model declines before trusting its averages. Most models don't do this, so it's a per-model check, not a rule.",
+    evidence: `The model picks a listed “don't know” option instead of refusing, so refusal-rate metrics miss it. People pick a listed “don't know” option on ${pctText(humanOpt)} of answers to these ${stt.n_questions} questions${humanAll != null ? `; counting people who skipped or refused the question as well, the human nonresponse rate is ${pctText(humanAll)}` : ""}. This finding compares listed options only. The first chart shows every run on ${dsLabel(stt.dataset)}, one run each; the second shows the questions with the largest gap for the worst run.`,
     viz(el) {
+      if (runs.length) {
+        const strip = h("div");
+        el.append(h("h4", null, `Every run on ${dsLabel(stt.dataset)}`), strip);
+        const groups: [string, Method, typeof runs][] = [
+          ["Raw LLM", "raw", runs.filter((r) => r.framework === "raw")],
+          ["Althing persona", "althing", runs.filter((r) => r.framework !== "raw")],
+        ];
+        mount(strip, (W) => {
+          const rowH = 30;
+          const labelW = 120;
+          const plotB = groups.length * rowH;
+          const H = plotB + 44;
+          const hi = Math.max(0.2, Math.ceil(Math.max(...runs.map(optionShare)) * 10) / 10);
+          const x = linear(0, hi, labelW + 12, W - 16);
+          const svg = s("svg", {
+            class: "sb-c",
+            width: W,
+            height: H,
+            role: "img",
+            "aria-label": "Share of answers that pick “don't know”, per run",
+          });
+          strip.append(svg);
+          for (const t of ticks(0, hi, 5)) {
+            s("line", { class: "sb-gl", x1: x(t), x2: x(t), y1: 0, y2: plotB }, svg);
+            s(
+              "text",
+              {
+                class: "sb-t",
+                x: x(t),
+                y: plotB + 15,
+                "text-anchor": "middle",
+                text: `${Math.round(t * 100)}%`,
+              },
+              svg,
+            );
+          }
+          s(
+            "line",
+            {
+              x1: x(humanOpt),
+              x2: x(humanOpt),
+              y1: 0,
+              y2: plotB,
+              stroke: css("--sb-ink"),
+              "stroke-width": 1.5,
+            },
+            svg,
+          );
+          axisTitle(svg, "Share of answers that pick “don't know” (line = people)", {
+            x: (x(0) + x(hi)) / 2,
+            y: H - 4,
+          });
+          groups.forEach(([name, m, rs], i) => {
+            const cy = i * rowH + rowH / 2;
+            s(
+              "text",
+              { x: labelW, y: cy + 4, "text-anchor": "end", class: "sb-lab sb-light", text: name },
+              svg,
+            );
+            for (const r of rs) {
+              const g = s("g", { opacity: 0.8 }, svg);
+              marker(g, m, x(optionShare(r)), cy, 4);
+              hoverInfo(
+                s(
+                  "rect",
+                  { class: "sb-hit", x: x(optionShare(r)) - 5, y: cy - 8, width: 10, height: 16 },
+                  svg,
+                ),
+                r.provider,
+                [
+                  ["Picks “don't know”", pctText(optionShare(r))],
+                  ["People", pctText(humanOpt)],
+                  ["Ratio", `${(optionShare(r) / humanOpt).toFixed(1)}×`],
+                ],
+              );
+            }
+          });
+        });
+      }
+      const qs = h("div");
+      el.append(h("h4", null, `Worst run: ${stt.provider} (raw), largest gaps`), qs);
       dumbbell(
-        el,
+        qs,
         stt.items.map((it) => ({
           name: label(it.key, it.text),
           a: it.human_mass,
           b: it.model_mass,
           label: `${Math.round(it.model_mass * 100)}%`,
           tip: [
-            ["People", `${Math.round(it.human_mass * 100)}%`],
-            ["Model", `${Math.round(it.model_mass * 100)}%`],
+            ["Question", it.text ?? it.key],
+            ["People", pctText(it.human_mass)],
+            ["Model", pctText(it.model_mass)],
           ],
         })),
         {
@@ -587,7 +901,7 @@ if (stt?.items?.length) {
           b: method("raw"),
         },
       );
-      el.after(legend(swatch(ring), " people   ", swatch(method("raw")), " model"));
+      qs.after(legend(key(ring, "people"), key(method("raw"), "model")));
     },
   });
 }
