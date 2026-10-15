@@ -269,8 +269,22 @@ export function heat(v: number | null | undefined, max = 50): { bg: string; fg: 
   const end = parse(v >= 0 ? css("--sb-heat-pos") : css("--sb-heat-neg"));
   const t = Math.min(1, Math.abs(v) / max) ** 0.85 * 0.9;
   const rgb = mid.map((x, i) => Math.round(x + (end[i] - x) * t));
-  const lum = 0.2126 * rgb[0] + 0.7152 * rgb[1] + 0.0722 * rgb[2];
-  return { bg: `rgb(${rgb.join(",")})`, fg: lum < 145 ? "#ffffff" : "#15171a" };
+  // Pick whichever text colour contrasts more (WCAG relative luminance).
+  // White on the mid-blue cells was only 3.1-3.6:1. Black rather than the ink
+  // colour keeps even the worst-case cell (where the two are closest) at 4.5:1.
+  const L = luminance(rgb);
+  const dark = (L + 0.05) / 0.05;
+  const light = 1.05 / (L + 0.05);
+  return { bg: `rgb(${rgb.join(",")})`, fg: light > dark ? "#ffffff" : "#000000" };
+}
+
+/** WCAG 2 relative luminance of an sRGB colour given as 0-255 channels. */
+export function luminance(rgb: number[]): number {
+  const [r, g, b] = rgb.map((c) => {
+    const s = c / 255;
+    return s <= 0.03928 ? s / 12.92 : ((s + 0.055) / 1.055) ** 2.4;
+  });
+  return 0.2126 * r + 0.7152 * g + 0.0722 * b;
 }
 
 /** Axis title: horizontal under the axis, or rotated along a vertical axis. */
