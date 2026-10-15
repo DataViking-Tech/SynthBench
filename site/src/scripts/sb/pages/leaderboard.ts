@@ -13,6 +13,7 @@ import {
   emit,
   fullCoverage,
   onChange,
+  profileHref,
   pruneCompare,
   scoreIn,
   shortName,
@@ -416,9 +417,18 @@ function row(r: Row, rows: Row[], i: number): HTMLElement {
     h(
       "div",
       { class: "sb-sysname" },
-      c.method === "ensemble"
-        ? h("span", { class: "n", title: c.base }, glyph(c.lab), shortName(c))
-        : h("span", { class: "n" }, glyph(c.lab), c.base),
+      h(
+        "span",
+        { class: "n", title: c.method === "ensemble" ? c.base : undefined },
+        glyph(c.lab),
+        // A real link to the profile (open in new tab, copy); the row click
+        // still opens the inspector.
+        h(
+          "a",
+          { href: profileHref(c), onclick: (e: Event) => e.stopPropagation() },
+          c.method === "ensemble" ? shortName(c) : c.base,
+        ),
+      ),
       h(
         "span",
         { class: "m" },
