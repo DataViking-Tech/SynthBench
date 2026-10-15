@@ -1,0 +1,99 @@
+---
+// How the 100 anchor (human ceiling) is measured, plus the temporal drift
+// floor. Every number comes from leaderboard.json (or the pinned ceilings
+// synthIndex falls back to); nothing here is hand-typed.
+import leaderboardRaw from "@/data/leaderboard.json";
+import { buildIndexData } from "@/lib/synthIndex";
+import type { LeaderboardData, SynthBenchData } from "@/types/leaderboard";
+
+const raw = leaderboardRaw as unknown as LeaderboardData;
+const index = buildIndexData(leaderboardRaw as unknown as SynthBenchData);
+const drift = raw.baselines?.temporal_drift;
+const gaps = drift
+  ? Object.entries(drift.by_year_gap)
+      .map(([gap, v]) => ({ gap: Number(gap), ...v }))
+      .sort((a, b) => a.gap - b.gap)
+  : [];
+// Closest any (non-baseline) system gets to people on OpinionsQA, in mean JSD,
+// to put the drift number in proportion.
+const oqaJsd = raw.entries
+  .filter((e) => e.dataset.split(" ", 1)[0] === "opinionsqa" && !e.is_baseline && e.jsd != null)
+  .map((e) => e.jsd as number);
+const bestJsd = oqaJsd.length ? Math.min(...oqaJsd) : null;
+const medium = index.datasets.filter((d) => d.ceilingQuality === "medium").map((d) => d.label);
+const listOf = (xs: string[]) =>
+  xs.length <= 2 ? xs.join(" and ") : `${xs.slice(0, -1).join(", ")} and ${xs[xs.length - 1]}`;
+const mediumNote = medium.length
+  ? `${listOf(medium)} ${medium.length === 1 ? "is" : "are"} flagged medium because ${medium.length === 1 ? "its" : "their"} sample sizes are inferred from published shares rather than shipped as raw counts.`
+  : "";
+const byGap = gaps
+  .map(
+    (g) => `${g.gap} ${g.gap === 1 ? "year" : "years"} ${g.mean_jsd.toFixed(4)} (n = ${g.n_pairs})`,
+  )
+  .join(", ");
+---
+
+<section class="sb-block sb-panel sb-pad" id="ceiling">
+  <h2 class="sb-h2">How the ceiling is measured</h2>
+  <p class="sb-muted">
+    The ceiling is the split-half reliability of the real survey: how closely one random half of the panel
+    matches the other. Humans disagree with each other, so no system can match the survey better than the
+    survey matches itself.
+  </p>
+  <div class="sb-mt sb-paras">
+    <p class="sb-note">
+      <b>Method.</b>
+      For each question, take the observed answer counts, draw two independent half-samples from the
+      multinomial they imply, and compute the Jensen-Shannon divergence between the halves. Repeat 1,000
+      times (seed 42). Ceiling = 1 − mean JSD.
+    </p>
+    <p class="sb-note">
+      <b>Per dataset.</b>
+      OpinionsQA is computed within each Pew wave, never across waves, then averaged with weights by
+      questions per wave. SubPOP is computed per subpopulation and GlobalOpinionQA per country, weighted by
+      actual (country, question) coverage so US data is not over-weighted. GSS uses its per-option counts.
+      NTIA publishes shares and standard errors, so its n is the effective sample size p(1 − p) ÷ SE².
+    </p>
+    <p class="sb-note">
+      <b>Sample size.</b>
+      Quality flags follow Cochran (1977): high when n ≥ 400, medium for 200 to 399, low below 200.
+      {mediumNote}
+    </p>
+    <p class="sb-note">
+      <b>Survey weights.</b>
+      The ceiling uses raw counts, not survey weights. Weighting could shift it by 1 to 3% on
+      demographically skewed groups.
+    </p>
+    <p class="sb-note">
+      <b>Sources.</b>
+      Santurkar et al. 2023; Durmus et al. 2023; Suh et al. 2025; split-half reliability (Spearman 1910,
+      Brown 1910), the bootstrap (Efron 1979), Jensen-Shannon divergence (Lin 1991).
+    </p>
+  </div>
+
+  {
+    drift && gaps.length > 0 && (
+      <>
+        <h3 class="sb-h3 sb-mt" id="temporal-drift">Opinion drift between waves</h3>
+        <p class="sb-note">
+          Pew repeats some questions across waves. On the {drift.n_stems} repeated question stems in the
+          published OpinionsQA set ({drift.n_pairs} cross-wave pairs), the mean JSD between waves is{" "}
+          <span class="sb-mono">{drift.mean_drift.toFixed(4)}</span> (95% interval{" "}
+          <span class="sb-mono">{drift.ci_low.toFixed(4)}</span> to{" "}
+          <span class="sb-mono">{drift.ci_high.toFixed(4)}</span>; by year gap: {byGap}).
+          {bestJsd != null && (
+            <>
+              {" "}
+              The closest any system gets to people on OpinionsQA is a mean JSD of{" "}
+              <span class="sb-mono">{bestJsd.toFixed(3)}</span>, about{" "}
+              {Math.round(bestJsd / drift.mean_drift).toLocaleString("en-US")} times larger, so a model's
+              training cut-off is not what limits its score here.
+            </>
+          )}{" "}
+          This is a measure of the population, not of any model, and with this few pairs it is a rough
+          number. It is kept separate from the ceiling, which never mixes waves.
+        </p>
+      </>
+    )
+  }
+</section>

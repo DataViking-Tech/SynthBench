@@ -1,4 +1,6 @@
 ---
+const rawBase = import.meta.env.BASE_URL || "/";
+const base = rawBase.endsWith("/") ? rawBase : `${rawBase}/`;
 ---
 
 <section class="w-full max-w-4xl mx-auto py-12" id="problem-framing">
@@ -33,8 +35,9 @@
     </p>
     <p class="text-sm text-text/80 dark:text-text-dark/80">
       SynthBench supplies that measurement. Every question we evaluate has a
-      human response distribution from Pew American Trends Panel, SubPOP
-      subpopulations, or GlobalOpinionQA cross-country data. We score how far
+      human response distribution from a real survey: the Pew American Trends
+      Panel, SubPOP subpopulations, GlobalOpinionQA cross-country data or the
+      General Social Survey. We score how far
       each provider's output is from that distribution, overall and for each
       demographic slice.
     </p>
@@ -72,9 +75,9 @@
         variance is being tracked; low cross-provider JSD with low
         human-alignment is the trendslop signature.{" "}
         <a
-          href="/findings#cross-provider-jsd"
+          href={`${base}findings/#consensus`}
           class="text-primary dark:text-primary-light underline underline-offset-2 hover:no-underline"
-          >See the cross-provider JSD matrix →</a
+          >See how much models agree with each other →</a
         >
       </p>
     </div>

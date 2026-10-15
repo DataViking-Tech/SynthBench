@@ -29,7 +29,7 @@ const sections: CostSection[] = [
     id: "self-hosted-policy",
     title: "Self-hosted and unknown models",
     body: "For self-hosted models (Ollama, local inference) and any provider whose pricing is not tracked in althing, cost_usd is reported as null. We do not impute a cost. Hardware, electricity, and amortization vary too much to produce a number that compares fairly with API-priced rows.",
-    note: "Null cost rows sort last in the leaderboard's $/100Q column and are excluded from the Cost-vs-SPS Pareto chart on the Findings page.",
+    note: "Null cost rows sort last in the leaderboard's $/100Q column and are left out of the cost chart on the Analysis page.",
   },
   {
     id: "ensemble-cost",

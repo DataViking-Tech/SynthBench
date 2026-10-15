@@ -16,7 +16,6 @@ type DatasetCard = {
   demographics: string;
   description: string;
   highlight?: boolean;
-  phase?: number;
 };
 
 const datasets: DatasetCard[] = [
@@ -24,7 +23,7 @@ const datasets: DatasetCard[] = [
     slug: "opinionsqa",
     name: "OpinionsQA",
     tier: "gated",
-    questions: { full: 1498, core: 300 },
+    questions: { full: 1498, core: 200 },
     source: "Pew American Trends Panel",
     scope: "US population",
     temporal: "2017–2022 (15 survey waves)",
@@ -43,8 +42,7 @@ const datasets: DatasetCard[] = [
     temporal: "Cross-national",
     demographics: "Country-level cultural variation",
     description:
-      "Cross-cultural attitudes dataset for Phase 2 expansion. Tests whether models capture cultural differences in opinion beyond US demographics.",
-    phase: 2,
+      "Cross-national attitudes from Pew Global Attitudes surveys. Tests whether models capture how opinion differs between countries, beyond US demographics.",
   },
   {
     slug: "subpop",
@@ -181,11 +179,6 @@ const tierLabel: Record<Tier, string> = {
             >
               {tierLabel[d.tier]}
             </span>
-            {d.phase && (
-              <span class="text-xs font-medium px-2 py-0.5 rounded-full bg-amber-500/15 text-amber-700 dark:text-amber-300">
-                Phase {d.phase}
-              </span>
-            )}
           </div>
 
           <p class="text-sm text-muted mb-4 flex-1">{d.description}</p>

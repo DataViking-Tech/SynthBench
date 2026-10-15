@@ -1,18 +1,18 @@
 ---
 import AntiGamingSection from "@/components/methodology/AntiGamingSection.astro";
-import BaselineDefinitions from "@/components/methodology/BaselineDefinitions.astro";
+import CeilingDetail from "@/components/methodology/CeilingDetail.astro";
 import CostMethodology from "@/components/methodology/CostMethodology.astro";
 import DatasetCards from "@/components/methodology/DatasetCards.astro";
 import DatasetPolicyTable from "@/components/methodology/DatasetPolicyTable.astro";
-import MetricExplainer from "@/components/methodology/MetricExplainer.astro";
 import OperatorDisclosure from "@/components/methodology/OperatorDisclosure.astro";
-import PhaseRoadmap from "@/components/methodology/PhaseRoadmap.astro";
+import PreliminaryResults from "@/components/methodology/PreliminaryResults.astro";
 import PrivateHoldoutSection from "@/components/methodology/PrivateHoldoutSection.astro";
 import ProblemFraming from "@/components/methodology/ProblemFraming.astro";
 import RelatedWork from "@/components/methodology/RelatedWork.astro";
 import RunValidity from "@/components/methodology/RunValidity.astro";
 import ScopeOfClaim from "@/components/methodology/ScopeOfClaim.astro";
 import ScoringProtocol from "@/components/methodology/ScoringProtocol.astro";
+import SubMetrics from "@/components/methodology/SubMetrics.astro";
 import IndexPayload from "@/components/sb/IndexPayload.astro";
 import BaseLayout from "@/layouts/BaseLayout.astro";
 
@@ -43,7 +43,9 @@ const bibtex = `@software{synthbench2026,
         <a href="#example">Worked example</a>
         <a href="#why-index">Why an Index</a>
         <a href="#recipe">Formula</a>
+        <a href="#metrics">Sub-metrics</a>
         <a href="#anchors">Reference points</a>
+        <a href="#ceiling">Ceiling</a>
         <a href="#scope-of-claim">Scope of claim</a>
         <a href="#run-validity">Run validity</a>
         <a href="#citation">Citation</a>
@@ -106,6 +108,8 @@ const bibtex = `@software{synthbench2026,
       </div>
     </section>
 
+    <SubMetrics />
+
     <section class="sb-block sb-panel sb-pad" id="anchors">
       <h2 class="sb-h2">Where 0 and 100 sit</h2>
       <p class="sb-muted">
@@ -114,6 +118,10 @@ const bibtex = `@software{synthbench2026,
       </p>
       <div class="sb-tablewrap"><table class="sb-ct" id="mt-anchors"></table></div>
     </section>
+
+    <CeilingDetail />
+
+    <PreliminaryResults />
 
     <section class="sb-block sb-head">
       <h2 class="sb-h2">Full methodology</h2>
@@ -125,10 +133,6 @@ const bibtex = `@software{synthbench2026,
   <ScopeOfClaim />
 
   <OperatorDisclosure />
-
-  <MetricExplainer />
-
-  <BaselineDefinitions />
 
   <DatasetCards />
 
@@ -154,8 +158,6 @@ const bibtex = `@software{synthbench2026,
   <CostMethodology />
 
   <RelatedWork />
-
-  <PhaseRoadmap />
 
   <!-- Citation -->
   <section class="w-full max-w-4xl mx-auto py-12" id="citation">

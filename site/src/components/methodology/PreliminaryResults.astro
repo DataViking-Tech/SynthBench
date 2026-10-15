@@ -1,0 +1,59 @@
+---
+// Experiments with too little data to be a finding, summarized from
+// leaderboard.json so the wording follows the numbers.
+import leaderboardRaw from "@/data/leaderboard.json";
+import { buildIndexData } from "@/lib/synthIndex";
+import type { LeaderboardData, SynthBenchData } from "@/types/leaderboard";
+
+const raw = leaderboardRaw as unknown as LeaderboardData;
+const index = buildIndexData(leaderboardRaw as unknown as SynthBenchData);
+const span = (ds: string): number | null => {
+  const m = index.datasets.find((d) => d.id === ds);
+  return m && m.ceiling != null ? m.ceiling - m.random : null;
+};
+
+// Structured minus natural, in dataset-Index points.
+const pairs = (raw.findings.elicitation_comparison ?? [])
+  .map((p) => {
+    const s = span(p.dataset.split(" ", 1)[0]);
+    const d = p.delta.sps;
+    return s != null && d != null ? { ...p, idx: (100 * d) / s } : null;
+  })
+  .filter((p): p is NonNullable<typeof p> => p != null);
+const models = [...new Set(pairs.map((p) => p.model))];
+const datasets = [...new Set(pairs.map((p) => p.dataset))];
+const up = pairs.filter((p) => p.idx > 0).length;
+const down = pairs.filter((p) => p.idx < 0).length;
+const lo = pairs.length ? Math.min(...pairs.map((p) => p.idx)) : 0;
+const hi = pairs.length ? Math.max(...pairs.map((p) => p.idx)) : 0;
+const signed = (v: number) => `${v > 0 ? "+" : v < 0 ? "−" : ""}${Math.abs(v).toFixed(1)}`;
+const questions = [...new Set(pairs.map((p) => p.n_questions))];
+const samples = [...new Set(pairs.map((p) => p.samples_per_question))];
+const consistent = pairs.length > 0 && (up === pairs.length || down === pairs.length);
+const scope = [
+  `${models.length} ${models.length === 1 ? "system" : "systems"} × ${datasets.length} ${datasets.length === 1 ? "dataset" : "datasets"}`,
+  questions.length === 1 && samples.length === 1
+    ? `${questions[0]} questions with ${samples[0]} samples each`
+    : null,
+]
+  .filter(Boolean)
+  .join(", ");
+---
+
+{
+  pairs.length > 0 && (
+    <section class="sb-block sb-panel sb-pad" id="preliminary">
+      <h2 class="sb-h2">Preliminary: forced answer format</h2>
+      <p class="sb-muted">
+        By default a system answers in character and the answer is parsed from its text. The structured variant
+        forces a JSON answer schema instead, which cuts parse failures. Across {pairs.length} matched pairs that
+        differ only in answer format ({scope}), the structured runs scored {signed(lo)} to {signed(hi)} Index
+        points against the natural ones on the same dataset: {up} higher, {down} lower.{" "}
+        {consistent
+          ? "The direction is consistent, but this is too few pairs to call it a finding."
+          : "No consistent effect so far."}{" "}
+        The structured runs appear on the leaderboard as “structured template” variants.
+      </p>
+    </section>
+  )
+}
