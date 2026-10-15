@@ -155,7 +155,7 @@ const selectCls =
       )
     }
 
-    {index && <script type="application/json" id="qi-data" set:html={JSON.stringify(index).replace(/</g, "\\u003c")} />}
+    {index && <script is:inline type="application/json" id="qi-data" set:html={JSON.stringify(index).replace(/</g, "\\u003c")} />}
   </div>
 </BaseLayout>
 
