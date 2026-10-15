@@ -521,6 +521,39 @@ svg.sb-c .sb-halo {
 /* ---------- Leaderboard table ---------- */
 .sb-tablewrap {
   overflow-x: auto;
+  overscroll-behavior-x: contain;
+}
+/* Fade the edge that has more columns behind it (set by scrollHint()). */
+.sb-tablewrap[data-more="right"] {
+  mask-image: linear-gradient(to right, #000 calc(100% - 36px), transparent);
+}
+.sb-tablewrap[data-more="left"] {
+  mask-image: linear-gradient(to left, #000 calc(100% - 36px), transparent);
+}
+.sb-tablewrap[data-more="both"] {
+  mask-image: linear-gradient(to right, transparent, #000 36px, #000 calc(100% - 36px), transparent);
+}
+/* Tables with sticky leading columns only fade the trailing edge. */
+.sb-tablewrap.sb-sticky[data-more="both"] {
+  mask-image: linear-gradient(to right, #000 calc(100% - 36px), transparent);
+}
+.sb-tablewrap.sb-sticky[data-more="left"] {
+  mask-image: none;
+}
+.sb-tablewrap:focus-visible {
+  outline: 2px solid var(--sb-ink);
+  outline-offset: -2px;
+}
+.sb-scrollhint {
+  font-family: var(--sb-mono);
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  color: var(--sb-muted);
+  text-align: right;
+  padding: 6px 20px 0;
+}
+.sb-scrollhint[hidden] {
+  display: none;
 }
 table.sb-lb {
   width: 100%;
@@ -653,6 +686,61 @@ table.sb-lb tr.refrow b {
   font-size: 12px;
   margin-right: 8px;
   color: var(--sb-ink);
+}
+/* Narrow screens: pin Tier, System and Index; the rest scrolls under them. */
+@media (max-width: 639px) {
+  #leaderboard th.cb,
+  #leaderboard td.cb,
+  #leaderboard th.ci,
+  #leaderboard td.ci {
+    display: none;
+  }
+  #leaderboard th.tier,
+  #leaderboard td.tier {
+    position: sticky;
+    left: 0;
+    z-index: 1;
+    width: 62px;
+    min-width: 62px;
+    max-width: 62px;
+    padding-left: 8px;
+  }
+  #leaderboard td.tier .tb {
+    left: 8px;
+  }
+  #leaderboard td.tier .tl {
+    padding-left: 8px;
+    font-size: 11px;
+  }
+  #leaderboard th.sys,
+  #leaderboard td.sys {
+    position: sticky;
+    left: 62px;
+    z-index: 1;
+    width: 136px;
+    min-width: 136px;
+    max-width: 136px;
+    padding-left: 6px;
+    padding-right: 6px;
+    font-size: 13px;
+  }
+  #leaderboard .sb-sysname .m {
+    flex-wrap: wrap;
+    font-size: 11px;
+  }
+  #leaderboard th.idx,
+  #leaderboard td.idx {
+    position: sticky;
+    left: 198px;
+    z-index: 1;
+    width: 64px;
+    min-width: 64px;
+    box-shadow: inset -1px 0 0 var(--sb-line-2);
+  }
+  /* Low specificity so the hover / selected row colours still win. */
+  :where(#leaderboard) :is(th, td):is(.tier, .sys, .idx) {
+    background: var(--sb-panel);
+  }
 }
 .sb .sb-cbox {
   width: 15px;

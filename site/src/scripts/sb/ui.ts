@@ -963,8 +963,55 @@ function renderDrawer(): void {
   );
 }
 
+// ---------- Horizontal scroll affordance ----------
+/**
+ * Marks a horizontal scroller with `data-more="right|left|both"` (CSS fades
+ * the clipped edge) and shows a "scroll for more" hint above it while
+ * there are columns out of view. Safe to call more than once.
+ */
+export function scrollHint(wrap: HTMLElement): void {
+  if (wrap.dataset.hint) return;
+  wrap.dataset.hint = "1";
+  const hint = h(
+    "div",
+    { class: "sb-scrollhint", "aria-hidden": "true", hidden: true },
+    "Scroll sideways for more columns",
+    h("span", null, " →"),
+  );
+  wrap.before(hint);
+  const update = () => {
+    const max = wrap.scrollWidth - wrap.clientWidth;
+    const left = wrap.scrollLeft > 2;
+    const right = max > 2 && wrap.scrollLeft < max - 2;
+    const more = left && right ? "both" : right ? "right" : left ? "left" : "";
+    if (more) wrap.dataset.more = more;
+    else delete wrap.dataset.more;
+    hint.hidden = max <= 2;
+    // Keyboard users need a tab stop to scroll a region with nothing focusable in it.
+    if (max > 2 && !wrap.querySelector("a[href],button,input,select,[tabindex]")) {
+      wrap.tabIndex = 0;
+      wrap.setAttribute("role", "region");
+      if (!wrap.hasAttribute("aria-label"))
+        wrap.setAttribute(
+          "aria-label",
+          wrap.querySelector("caption")?.textContent?.trim() || "Scrollable table",
+        );
+    }
+  };
+  wrap.addEventListener("scroll", update, { passive: true });
+  const ro = new ResizeObserver(update);
+  ro.observe(wrap);
+  new MutationObserver(() => {
+    for (const kid of wrap.children) ro.observe(kid);
+    update();
+  }).observe(wrap, { childList: true, subtree: true });
+  for (const kid of wrap.children) ro.observe(kid);
+  update();
+}
+
 /** Wire up shared chrome once per page. Call after page controls exist. */
 export function initShell(): void {
+  for (const w of document.querySelectorAll<HTMLElement>(".sb-tablewrap")) scrollHint(w);
   renderTray();
   const p = new URLSearchParams(location.search);
   const cmp = p.get("compare");
