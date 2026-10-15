@@ -873,8 +873,8 @@ $("pf-runs").replaceChildren(
     h(
       "tr",
       null,
-      ["Method", "Dataset", "Questions run", "Samples per question", "Runs", "Configuration"].map((t) =>
-        h("th", { scope: "col" }, t),
+      ["Method", "Dataset", "Questions run", "Samples per question", "Runs", "Configuration"].map(
+        (t) => h("th", { scope: "col" }, t),
       ),
     ),
   ),
