@@ -224,3 +224,31 @@ svg.sb-logo-i {
     }
   }
 }
+
+/* /explore: hit areas of at least 24 x 24px (WCAG 2.5.8). The row
+   checkboxes were 13px and the run links 20px tall. */
+#explore-tree input[type="checkbox"],
+section[aria-label="Filters"] input[type="checkbox"] {
+  width: 1.5rem;
+  height: 1.5rem;
+  margin: 0;
+  flex-shrink: 0;
+}
+#explore-tree a[href],
+#explore-tree button,
+#explore-summary button {
+  display: inline-flex;
+  align-items: center;
+  min-height: 24px;
+}
+section[aria-label="Filters"] label:has(input[type="checkbox"]) {
+  min-height: 24px;
+}
+section[aria-label="Filters"] label[for] {
+  min-height: 24px;
+  display: flex;
+  align-items: flex-end;
+}
+section[aria-label="Filters"] input[type="range"] {
+  height: 24px;
+}
