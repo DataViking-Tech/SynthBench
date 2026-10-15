@@ -42,187 +42,261 @@ const svgEl = (
   return svg;
 };
 
-// ---------- The gap: every ranked system on one 0–100 scale ----------
+// ---------- The gap: ranked systems as a sorted dot plot, 0 = random, 100 = people ----------
+
+/** Method tag after a system's name. Keeps "via codex" so same-model runs stay distinct. */
+export const methodTag = (c: SystemConfig): string =>
+  [
+    c.method === "ensemble" ? "" : METHODS[c.method as ShownMethod].short,
+    c.harness ? `via ${c.harness}` : "",
+  ]
+    .filter(Boolean)
+    .join(", ");
+
+/** Trim text with an ellipsis so it fits in `max` px. */
+function fitText(t: string, max: number, size = 12.5, weight = 500): string {
+  if (textWidth(t, size, weight) <= max) return t;
+  let out = t;
+  while (out.length > 1 && textWidth(`${out}…`, size, weight) > max) out = out.slice(0, -1);
+  return `${out.trimEnd()}…`;
+}
+
+/**
+ * One row per system, sorted by Index (rows arrive sorted), labels in a fixed
+ * left gutter. Scores below the -40 edge get an arrow and their value instead
+ * of being pinned to the edge.
+ */
 export function gapChart(el: HTMLElement, width: number, rows: Ranked[]): void {
-  const x = linear(-40, 100, 10, width - 10);
-  const laneH = 24;
-  const lanes: number[] = [];
-  const placed = [...rows]
-    .sort((a, b) => a.v.v - b.v.v)
-    .map((r) => {
-      const name = `${shortName(r.c)}${r.c.method === "ensemble" ? "" : `, ${METHODS[r.c.method as ShownMethod].short}`}`;
-      const px = x(Math.max(-40, r.v.v));
-      const w = 22 + textWidth(name) + 8 + textWidth(fmt.int(r.v.v), 11.5, 500, true) + 10;
-      let lane = 0;
-      while (lanes[lane] != null && lanes[lane] > px - 8) lane++;
-      lanes[lane] = px + w;
-      return { ...r, name, px, lane };
-    });
-  const axisY = 30 + Math.max(1, lanes.length) * laneH + 18;
-  const H = axisY + 92;
+  const D0 = -40;
+  const D1 = 100;
+  // Narrow screens put each label on its own line above the dots.
+  const narrow = width < 560;
+  const rowH = narrow ? 40 : 26;
+  const top = 42;
+  const rankW = 26;
+  const valW = 34;
+  const flagW = 13;
+  const tagOf = (r: Ranked) => methodTag(r.c);
+  const labelW = (r: Ranked) =>
+    textWidth(shortName(r.c)) +
+    (tagOf(r) ? 6 + textWidth(tagOf(r), 11.5, 400) : 0) +
+    (r.c.flagged ? flagW : 0);
+  const gutter = narrow
+    ? 0
+    : Math.min(
+        Math.round(width * 0.4),
+        Math.ceil(rankW + 20 + Math.max(0, ...rows.map(labelW)) + 14 + valW),
+      );
+  const nameMax = narrow ? width - rankW - 20 - valW - 18 : gutter - rankW - 20 - valW - 14;
+  const x = linear(D0, D1, narrow ? 10 : gutter + 16, width - 12);
+  const plotB = top + rows.length * rowH;
+  const H = plotB + 50;
   const svg = svgEl(
     el,
     width,
     H,
-    "Every system on the SynthBench Index scale, from random answers (0) to real people (100)",
+    `SynthBench Index of the ${rows.length} systems shown, highest first. 0 is random answers, 100 is real people.`,
   );
+
+  // Frame: below-random zone, grid, axis.
   s(
     "rect",
-    { x: x(-40), y: 0, width: x(0) - x(-40), height: axisY, fill: "var(--sb-zone-neg)" },
+    {
+      x: x(D0),
+      y: top - 6,
+      width: x(0) - x(D0),
+      height: plotB - top + 6,
+      fill: "var(--sb-zone-neg)",
+    },
     svg,
   );
-  s("text", { x: x(-40) + 8, y: 16, class: "sb-neg-t", text: "Worse than random" }, svg);
   for (const t of [-40, -20, 0, 20, 40, 60, 80, 100]) {
-    s("line", { class: "sb-gl", x1: x(t), x2: x(t), y1: 0, y2: axisY }, svg);
+    s("line", { class: "sb-gl", x1: x(t), x2: x(t), y1: top - 6, y2: plotB }, svg);
     s(
       "text",
       {
         class: "sb-t",
         x: x(t),
-        y: axisY + 18,
-        "text-anchor": t === -40 ? "start" : t === 100 ? "end" : "middle",
+        y: plotB + 17,
+        "text-anchor": t === D0 ? "start" : t === D1 ? "end" : "middle",
         text: fmt.int(t),
       },
       svg,
     );
   }
-  s("line", { x1: x(-40), x2: x(100), y1: axisY, y2: axisY, stroke: css("--sb-line-2") }, svg);
-  axisTitle(svg, "SynthBench Index (0 = random answers, 100 = a second sample of real people)", {
-    x: (x(-40) + x(100)) / 2,
-    y: axisY + 38,
-  });
-  s(
-    "line",
-    { x1: x(0), x2: x(0), y1: 0, y2: axisY + 6, stroke: css("--sb-ink"), "stroke-width": 1.5 },
+  s("line", { x1: x(D0), x2: x(D1), y1: plotB, y2: plotB, stroke: css("--sb-line-2") }, svg);
+  axisTitle(
     svg,
+    narrow
+      ? "SynthBench Index"
+      : "SynthBench Index (0 = random answers, 100 = a second sample of real people)",
+    { x: (x(D0) + x(D1)) / 2, y: plotB + 38 },
   );
-  s(
-    "line",
-    { x1: x(100), x2: x(100), y1: 0, y2: axisY + 6, stroke: css("--sb-ink"), "stroke-width": 2.5 },
-    svg,
+
+  // Reference lines, labelled in the header band.
+  const vline = (v: number, y1: number, stroke: string, w: number, opacity = 1) =>
+    s("line", { x1: x(v), x2: x(v), y1, y2: plotB + 6, stroke, "stroke-width": w, opacity }, svg);
+  vline(0, 4, css("--sb-ink"), 1.5);
+  vline(D1, 4, css("--sb-ink"), 2.5);
+  // Long labels when both fit between the 0 and 100 lines, short ones otherwise.
+  const refLbls = [
+    ["0: random answers", "100: real people"],
+    ["0: random", "100: people"],
+  ].find(([a, b]) => textWidth(a) + textWidth(b) + 24 < x(D1) - x(0)) ?? ["0", "100"];
+  s("text", { x: x(0) + 6, y: 14, class: "sb-lab", text: refLbls[0] }, svg);
+  s("text", { x: x(D1) - 8, y: 14, "text-anchor": "end", class: "sb-lab", text: refLbls[1] }, svg);
+  if (!narrow)
+    s(
+      "text",
+      {
+        x: x(D1) - 8,
+        y: 30,
+        "text-anchor": "end",
+        class: "sb-sub",
+        text: "a second sample of the survey panel",
+      },
+      svg,
+    );
+  const zoneLbl = ["Worse than random", "Below random"].find(
+    (t) => textWidth(t, 11.5, 400) < x(0) - x(D0) - 12,
   );
-  s("text", { x: x(0) + 6, y: 16, class: "sb-lab", text: "0: random answers" }, svg);
-  s(
-    "text",
-    { x: x(100) - 8, y: 16, "text-anchor": "end", class: "sb-lab", text: "100: real people" },
-    svg,
-  );
-  s(
-    "text",
-    {
-      x: x(100) - 8,
-      y: 31,
-      "text-anchor": "end",
-      class: "sb-sub",
-      text: "second half of the survey panel",
-    },
-    svg,
-  );
+  if (zoneLbl) s("text", { x: x(D0) + 5, y: 14, class: "sb-neg-t", text: zoneLbl }, svg);
   const maj = data().references.majority;
   const majV = maj ? scoreIn(maj)?.v : null;
-  if (majV != null && majV >= -40) {
-    s(
-      "line",
-      {
-        x1: x(majV),
-        x2: x(majV),
-        y1: axisY - 6,
-        y2: axisY + 6,
-        stroke: css("--sb-ink-2"),
-        "stroke-width": 1.5,
-      },
-      svg,
-    );
-    s(
-      "text",
-      {
-        x: x(majV),
-        y: axisY - 10,
-        "text-anchor": "middle",
-        class: "sb-sub",
-        text: `Majority answer ${fmt.int(majV)}`,
-      },
-      svg,
-    );
+  if (majV != null && majV > D0 && majV < 0) {
+    // Label sits above the line's top end, so the line never runs through it.
+    vline(majV, top - 4, css("--sb-ink-2"), 1, 0.7);
+    const room = x(0) - x(D0) - 8;
+    const lbl =
+      [`Majority answer ${fmt.int(majV)}`, `Majority ${fmt.int(majV)}`].find(
+        (t) => textWidth(t, 11.5, 400) < room,
+      ) ?? fmt.int(majV);
+    const w = textWidth(lbl, 11.5, 400);
+    const lx = Math.max(x(D0) + 4, Math.min(x(0) - 6 - w, x(majV) - w / 2));
+    s("text", { x: lx, y: 31, class: "sb-sub", text: lbl }, svg);
   }
-  const best = rows[0];
-  if (best) {
-    const y = axisY + 68;
-    const a = x(best.v.v);
-    const b = x(100);
-    s("line", { x1: a, x2: b, y1: y, y2: y, stroke: css("--sb-ink-2") }, svg);
-    for (const xx of [a, b])
-      s("line", { x1: xx, x2: xx, y1: y - 5, y2: y + 5, stroke: css("--sb-ink-2") }, svg);
-    const lbl = `${fmt.int(100 - best.v.v)} points between the top system and real people`;
-    const lw = textWidth(lbl, 11.5, 400);
-    s(
-      "rect",
-      {
-        x: (a + b) / 2 - lw / 2 - 6,
-        y: y - 9,
-        width: lw + 12,
-        height: 18,
-        fill: css("--sb-panel"),
-      },
-      svg,
-    );
-    s(
-      "text",
-      { x: (a + b) / 2, y: y + 4, "text-anchor": "middle", class: "sb-sub", text: lbl },
-      svg,
-    );
-  }
-  for (const r of placed) {
-    const cy = axisY - 22 - r.lane * laneH;
+
+  // Rows.
+  rows.forEach((r, i) => {
+    const y0 = top + i * rowH;
+    const cy = narrow ? y0 + 28 : y0 + rowH / 2;
+    const ty = narrow ? y0 + 14 : cy + 4.5;
+    const col = methodColor(r.c.method);
     const g = s("g", { class: "sb-s", "data-k": r.c.key }, svg);
-    s(
-      "line",
-      { x1: r.px, x2: r.px, y1: cy + 6, y2: axisY, stroke: css("--sb-line-2"), opacity: 0.7 },
-      g,
-    );
-    if (r.v.lo != null && r.v.hi != null)
+    s("line", { class: "sb-gl", x1: x(D0), x2: x(D1), y1: cy, y2: cy }, g);
+    const { v, lo, hi } = r.v;
+    if (lo != null && hi != null && hi >= D0) {
+      const a = Math.max(D0, lo);
+      const b = Math.min(D1, hi);
+      const stroke = { stroke: col, "stroke-width": 2, opacity: 0.55 };
+      s("line", { x1: x(a), x2: x(b), y1: cy, y2: cy, ...stroke }, g);
+      for (const [end, edge] of [
+        [lo, D0],
+        [hi, D1],
+      ] as const)
+        if ((end === lo && end >= D0) || (end === hi && end <= D1))
+          s("line", { x1: x(end), x2: x(end), y1: cy - 4, y2: cy + 4, ...stroke }, g);
+        else {
+          const dir = edge === D0 ? 1 : -1;
+          s(
+            "path",
+            {
+              d: `M${x(edge) + dir * 5},${cy - 4}L${x(edge)},${cy}L${x(edge) + dir * 5},${cy + 4}`,
+              fill: "none",
+              ...stroke,
+            },
+            g,
+          );
+        }
+    }
+    if (v >= D0) marker(g, r.c.method, x(v), cy, 5);
+    else {
+      // Off the left edge: an arrow at the edge, with the value beside it.
+      const ax = x(D0);
+      s("path", { d: `M${ax},${cy}L${ax + 9},${cy - 5.5}L${ax + 9},${cy + 5.5}Z`, fill: col }, g);
       s(
-        "rect",
-        {
-          x: x(Math.max(-40, r.v.lo)),
-          y: cy - 2,
-          // Intervals entirely off the -40 edge collapse to nothing.
-          width: Math.max(0, x(Math.min(100, r.v.hi)) - x(Math.max(-40, r.v.lo))),
-          height: 4,
-          rx: 2,
-          fill: methodColor(r.c.method),
-          opacity: 0.22,
-        },
+        "text",
+        { x: ax + 14, y: cy + 4, class: "sb-neg-t sb-halo", text: `${fmt.int(v)}, off scale` },
         g,
       );
-    marker(g, r.c.method, r.px, cy, 5);
-    glyphSvg(g, r.c.lab, r.px + 10, cy + 4.5);
-    s("text", { x: r.px + 30, y: cy + 4.5, class: "sb-lab sb-halo", text: r.name }, g);
+    }
+    // Label: rank, lab logo, name, method tag, holdout flag; value right-aligned.
+    s("text", { x: rankW - 8, y: ty, "text-anchor": "end", class: "sb-t", text: String(i + 1) }, g);
+    glyphSvg(g, r.c.lab, rankW, ty);
+    const tag = tagOf(r);
+    const extra = (tag ? 6 + textWidth(tag, 11.5, 400) : 0) + (r.c.flagged ? flagW : 0);
+    const label = s("text", { x: rankW + 20, y: ty, class: "sb-lab sb-halo" }, g);
+    s("tspan", { text: fitText(shortName(r.c), Math.max(60, nameMax - extra)) }, label);
+    if (tag) s("tspan", { dx: 6, class: "sb-sub", text: tag }, label);
+    if (r.c.flagged) s("tspan", { dx: 5, class: "sb-warn-t", text: "!" }, label);
     s(
       "text",
       {
-        x: r.px + 30 + textWidth(r.name) + 7,
-        y: cy + 4.5,
+        x: narrow ? x(D1) - 8 : gutter,
+        y: ty,
+        "text-anchor": "end",
         class: "sb-val sb-halo",
-        text: fmt.int(r.v.v),
+        text: fmt.int(v),
       },
-      g,
-    );
-    const hit = s(
-      "rect",
-      { class: "sb-hit", x: r.px - 8, y: cy - 11, width: 40 + textWidth(r.name) + 30, height: 22 },
       g,
     );
     interactive(
-      hit,
+      s("rect", { class: "sb-hit", x: 0, y: y0, width, height: rowH }, g),
       r.c,
       () => [
-        ["Index", fmt.one(r.v.v)],
-        ["95% interval", r.v.lo != null ? `${fmt.int(r.v.lo)} to ${fmt.int(r.v.hi)}` : "—"],
+        ["Index", fmt.one(v)],
+        ["95% interval", lo != null ? `${fmt.int(lo)} to ${fmt.int(hi)}` : "—"],
         ["Tier", r.tier == null ? "—" : `${r.tier}${r.tied > 1 ? ` (${r.tied} tied)` : ""}`],
+        ...(r.c.flagged
+          ? ([
+              [
+                "Holdout check",
+                `! gap above the review threshold on ${r.c.flagged} dataset${r.c.flagged > 1 ? "s" : ""}`,
+              ],
+            ] as [string, string][])
+          : []),
       ],
       svg,
     );
+  });
+
+  // The headline gap, drawn on the top row between its interval and 100.
+  const best = rows[0];
+  if (best) {
+    const cy = narrow ? top + 28 : top + rowH / 2;
+    const a = x(Math.min(D1, Math.max(D0, best.v.hi ?? best.v.v))) + 12;
+    const b = x(D1) - 6;
+    const gap = fmt.int(D1 - best.v.v);
+    const lbl = [
+      `${gap} points between the top system and real people`,
+      `${gap} points to real people`,
+      `${gap} pts`,
+    ].find((t) => textWidth(t, 11.5, 400) + 28 < b - a);
+    if (lbl) {
+      const ink = css("--sb-ink-2");
+      // Annotation only: let pointer events reach the row underneath.
+      const ann = s("g", { "pointer-events": "none" }, svg);
+      s("line", { x1: a, x2: b, y1: cy, y2: cy, stroke: ink }, ann);
+      for (const xx of [a, b])
+        s("line", { x1: xx, x2: xx, y1: cy - 4, y2: cy + 4, stroke: ink }, ann);
+      const lw = textWidth(lbl, 11.5, 400);
+      s(
+        "rect",
+        {
+          x: (a + b) / 2 - lw / 2 - 6,
+          y: cy - 9,
+          width: lw + 12,
+          height: 18,
+          fill: css("--sb-panel"),
+        },
+        ann,
+      );
+      s(
+        "text",
+        { x: (a + b) / 2, y: cy + 4, "text-anchor": "middle", class: "sb-sub", text: lbl },
+        ann,
+      );
+    }
   }
   highlight(svg, null);
 }

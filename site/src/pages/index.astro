@@ -46,9 +46,11 @@ const updated = leaderboard.generated_at
           <h2>
             The gap to real people
             <Info>
-              Each mark is one system, placed by its <b>SynthBench Index</b>. At <b>0</b>, a system matches
+              Each row is one system, sorted by its <b>SynthBench Index</b>. At <b>0</b>, a system matches
               people no better than random answers. At <b>100</b>, it matches them as well as a second sample
-              of real people does. The faint bar through each mark is its 95% interval. Click a mark for details.
+              of real people does. The line through each mark is its 95% interval. <b>!</b> marks a system whose
+              public and private questions disagree by more than the review threshold. Scores below −40 are drawn
+              as an arrow at the left edge. Click a row for details.
             </Info>
           </h2>
           <div class="q" id="gap-q"></div>
