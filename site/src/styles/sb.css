@@ -523,6 +523,10 @@ svg.sb-c .sb-halo {
   overflow-x: auto;
   overscroll-behavior-x: contain;
 }
+/* A chart drawn wider than its box on purpose scrolls instead of scaling. */
+.sb-tablewrap > svg.sb-c[viewBox] {
+  max-width: none;
+}
 /* Fade the edge that has more columns behind it (set by scrollHint()). */
 .sb-tablewrap[data-more="right"] {
   mask-image: linear-gradient(to right, #000 calc(100% - 36px), transparent);

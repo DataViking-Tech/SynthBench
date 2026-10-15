@@ -20,6 +20,7 @@ import {
   methodChips,
   readSet,
   scopeControl,
+  scrollHint,
   setParam,
   takeaways,
   toggleChips,
@@ -251,9 +252,17 @@ renderViews();
 
 // ---------- Chart ----------
 const chartEl = $("an-chart");
+// The ladder and by-dataset views need fixed label columns on both sides.
+// Below this width they are drawn at the minimum and scroll sideways (with
+// the usual scroll hint) rather than squeezing the plot to nothing.
+const MIN_WIDTH: Partial<Record<View, number>> = { ladder: 620, datasets: 600 };
 mount(
   chartEl,
-  (W) => {
+  (avail) => {
+    const W = Math.max(avail, MIN_WIDTH[st.view] ?? 0);
+    const scrolls = W > avail;
+    chartEl.classList.toggle("sb-tablewrap", scrolls);
+    if (scrolls) scrollHint(chartEl, "of the chart");
     const list = pool();
     let notes: string[] = [];
     if (st.view === "shares") notes = sharesOrder(chartEl, W, list, !st.withRefs);
