@@ -384,7 +384,13 @@ function row(r: Row, rows: Row[], i: number): HTMLElement {
     "aria-label": `${fullName(c)}: open details`,
     onclick: () => inspect(c.key),
     onkeydown: (e: KeyboardEvent) => {
-      if (e.key === "Enter") inspect(c.key);
+      // Only the row itself: Enter on the profile link or the compare box
+      // bubbles here too and must not also open the inspector.
+      if (e.target !== e.currentTarget) return;
+      if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        inspect(c.key);
+      }
     },
   });
   const tierCell = h(
