@@ -6,12 +6,14 @@ import {
   type ShownMethod,
   type SystemConfig,
   type Val,
+  baseName,
   component,
   data,
   dsLabel,
   dsMark,
   emit,
   fullCoverage,
+  fullName,
   onChange,
   profileHref,
   pruneCompare,
@@ -26,6 +28,7 @@ import {
   METHOD_IDS,
   filterStatus,
   glyph,
+  harnessChip,
   initShell,
   inspect,
   marker,
@@ -372,7 +375,7 @@ function row(r: Row, rows: Row[], i: number): HTMLElement {
       .filter(Boolean)
       .join(" "),
     tabindex: "0",
-    "aria-label": `${c.base}, ${METHODS[c.method as ShownMethod].label}: open details`,
+    "aria-label": `${fullName(c)}: open details`,
     onclick: () => inspect(c.key),
     onkeydown: (e: KeyboardEvent) => {
       if (e.key === "Enter") inspect(c.key);
@@ -403,7 +406,7 @@ function row(r: Row, rows: Row[], i: number): HTMLElement {
       class: `sb-cbox${sel ? " on" : ""}`,
       role: "checkbox",
       "aria-checked": sel ? "true" : "false",
-      "aria-label": `Compare ${c.base}`,
+      "aria-label": `Compare ${fullName(c)}`,
       title: "Add to compare",
       onclick: (e: Event) => {
         e.stopPropagation();
@@ -419,14 +422,14 @@ function row(r: Row, rows: Row[], i: number): HTMLElement {
       { class: "sb-sysname" },
       h(
         "span",
-        { class: "n", title: c.method === "ensemble" ? c.base : undefined },
+        { class: "n", title: c.method === "ensemble" ? c.name : undefined },
         glyph(c.lab),
         // A real link to the profile (open in new tab, copy); the row click
         // still opens the inspector.
         h(
           "a",
           { href: profileHref(c), onclick: (e: Event) => e.stopPropagation() },
-          c.method === "ensemble" ? shortName(c) : c.base,
+          c.method === "ensemble" ? shortName(c) : baseName(c),
         ),
       ),
       h(
@@ -435,13 +438,7 @@ function row(r: Row, rows: Row[], i: number): HTMLElement {
         methodKey(c.method),
         METHODS[c.method as ShownMethod].label,
         c.variant ? h("span", { class: "sb-tag" }, c.variant) : null,
-        c.harness
-          ? h(
-              "span",
-              { class: "sb-tag", title: `Run through the ${c.harness} CLI` },
-              `via ${c.harness}`,
-            )
-          : null,
+        harnessChip(c),
         c.flagged
           ? h(
               "span",
@@ -642,7 +639,7 @@ document.getElementById("lb-csv")?.addEventListener("click", () => {
     ].join(","),
     ...[...rows, ...partial].map((r) =>
       [
-        r.c.base,
+        baseName(r.c),
         r.c.method,
         r.c.variant,
         r.c.harness,

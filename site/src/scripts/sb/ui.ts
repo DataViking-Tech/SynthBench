@@ -2,6 +2,7 @@
 // drawer and the compare tray.
 
 import { PROVIDER_ICONS } from "@/lib/providerIcons";
+import { harnessTag } from "@/lib/vocab";
 import { axisTitle, css, fill, fmt, h, linear, s } from "./dom";
 import {
   ALL,
@@ -11,6 +12,7 @@ import {
   type Scope,
   type ShownMethod,
   type SystemConfig,
+  baseName,
   byKey,
   component,
   counterpart,
@@ -24,6 +26,7 @@ import {
   scopeName,
   scoreIn,
   shortName,
+  shortWithMethod,
   state,
   tierOf,
 } from "./model";
@@ -180,6 +183,16 @@ export function glyphSvg(g: Element, lab: string, x: number, y: number): void {
   );
   s("title", { text: lab }, icon);
   for (const p of paths) s("path", { d: p.d, fill: p.fill ?? "currentColor" }, icon);
+}
+/** "via codex" tag for systems run through an agent CLI, or null. */
+export function harnessChip(c: SystemConfig): HTMLElement | null {
+  return c.harness
+    ? h(
+        "span",
+        { class: "sb-tag", title: `Run through the ${c.harness} CLI` },
+        harnessTag(c.harness),
+      )
+    : null;
 }
 /** Lab logo for HTML (tables, chips, drawer); falls back to a lettered box. */
 export function glyph(lab: string): HTMLElement {
@@ -357,7 +370,7 @@ function renderTray(): void {
         "span",
         { class: "sb-tray-chip" },
         letter(i),
-        `${shortName(c)}${c.method === "ensemble" ? "" : ` ${METHODS[c.method as ShownMethod].short}`}`,
+        shortWithMethod(c),
         h(
           "button",
           {
@@ -584,7 +597,10 @@ export function componentBars(c: SystemConfig, width = 392): SVGSVGElement {
       { class: "sb-t", x: x(t), y: axisY + 10, "text-anchor": "middle", text: t.toFixed(1) },
       svg,
     );
-  axisTitle(svg, "Score, 0 to 1 (red tick = random answers)", { x: (x(0.4) + x(1)) / 2, y: H - 2 });
+  axisTitle(svg, "Component score, 0 to 1, not Index points (red tick = random answers)", {
+    x: (x(0.4) + x(1)) / 2,
+    y: H - 2,
+  });
   return svg;
 }
 
@@ -782,8 +798,9 @@ function renderDrawer(): void {
             { class: "sb-cmp-who" },
             letter(i),
             glyph(c.lab),
-            h("b", null, c.base),
+            h("b", null, baseName(c)),
             h("span", { class: "sb-tag" }, METHODS[c.method as ShownMethod].short),
+            harnessChip(c),
           ),
         ),
       ),
@@ -862,13 +879,14 @@ function renderDrawer(): void {
       h(
         "div",
         null,
-        h("div", { class: "sb-dttl" }, c.base),
+        h("div", { class: "sb-dttl" }, baseName(c)),
         h(
           "div",
           { class: "sb-dsub" },
           methodKey(c.method),
           `${METHODS[c.method as ShownMethod].label}: ${METHODS[c.method as ShownMethod].desc}`,
           c.variant ? h("span", { class: "sb-tag" }, c.variant) : null,
+          harnessChip(c),
         ),
       ),
       x,

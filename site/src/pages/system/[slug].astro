@@ -9,7 +9,9 @@ export function getStaticPaths() {
   const index = buildIndexData(leaderboardRaw as unknown as SynthBenchData);
   const seen = new Map<string, { baseId: string; base: string; lab: string }>();
   for (const c of index.systems) {
-    if (!seen.has(c.baseId)) seen.set(c.baseId, { baseId: c.baseId, base: c.base, lab: c.lab });
+    // Ensembles use their canonical name (lib/vocab.ts), models their display name.
+    const base = c.method === "ensemble" ? c.name : c.base;
+    if (!seen.has(c.baseId)) seen.set(c.baseId, { baseId: c.baseId, base, lab: c.lab });
   }
   return [...seen.values()].map((s) => ({ params: { slug: systemSlug(s.baseId) }, props: s }));
 }
@@ -20,7 +22,7 @@ const base = rawBase.endsWith("/") ? rawBase : `${rawBase}/`;
 ---
 
 <BaseLayout
-  title={`${name}: SynthBench`}
+  title={name}
   description={`How ${name} scores on the SynthBench Index, by dataset, topic and method.`}
 >
   <IndexPayload />
@@ -46,7 +48,7 @@ const base = rawBase.endsWith("/") ? rawBase : `${rawBase}/`;
         <div class="sb-chart"><div id="pf-ds"></div></div>
       </div>
       <div class="sb-panel">
-        <div class="sb-panel-head"><div><h3>Score components</h3><div class="q">Each score combines these three parts, each from 0 to 1. Red tick: random answers.</div></div></div>
+        <div class="sb-panel-head"><div><h3>Score components</h3><div class="q">The three parts SPS averages, each on a 0 to 1 scale (not Index points). Red tick: random answers.</div></div></div>
         <div class="sb-chart"><table class="sb-ct" id="pf-comp"></table></div>
       </div>
     </section>
@@ -72,7 +74,7 @@ const base = rawBase.endsWith("/") ? rawBase : `${rawBase}/`;
 
     <section class="sb-block sb-grid2">
       <div class="sb-panel">
-        <div class="sb-panel-head"><div><h3>Holdout check</h3><div class="q">Gap between scores on public questions and on the private answer key. Gaps above 0.05 are flagged for review. The threshold is wider when only a few questions are private.</div></div></div>
+        <div class="sb-panel-head"><div><h3>Holdout check</h3><div class="q">Gap in SPS (0 to 1) between public questions and the private answer key. Gaps above 0.05 are flagged for review. The threshold is wider when only a few questions are private.</div></div></div>
         <div class="sb-chart"><div id="pf-trust"></div></div>
       </div>
       <div class="sb-panel">

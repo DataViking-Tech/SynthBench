@@ -2,6 +2,7 @@
 // lib/synthIndex.ts), plus the shared scope / compare state.
 
 import type { DatasetMeta, IndexData, Method, SystemConfig } from "@/lib/synthIndex";
+import { METHOD_NAMES, datasetAudience, ensembleNames, harnessTag } from "@/lib/vocab";
 
 export type { DatasetMeta, IndexData, Method, SystemConfig };
 export type Scope = "all" | string;
@@ -32,16 +33,14 @@ export const METHODS: Record<
   Exclude<Method, "baseline">,
   { label: string; short: string; desc: string; color: string }
 > = {
-  raw: { label: "Raw LLM", short: "raw", desc: "the model prompted directly", color: "--sb-raw" },
+  raw: { ...METHOD_NAMES.raw, desc: "the model prompted directly", color: "--sb-raw" },
   althing: {
-    label: "Althing persona",
-    short: "persona",
+    ...METHOD_NAMES.althing,
     desc: "the same model, conditioned with a demographic persona",
     color: "--sb-althing",
   },
   ensemble: {
-    label: "Ensemble",
-    short: "ensemble",
+    ...METHOD_NAMES.ensemble,
     desc: "equal-weight blend of three or four systems, raw or persona",
     color: "--sb-ensemble",
   },
@@ -58,22 +57,30 @@ export const LAB_GLYPH: Record<string, string> = {
 
 export const dsLabel = (id: string): string =>
   data().datasets.find((d) => d.id === id)?.label ?? id;
+/** Secondary population text for a dataset ("US adults"). */
+export const dsAudience = (id: string): string => datasetAudience(id);
 export const dsMeta = (id: string): DatasetMeta | undefined =>
   data().datasets.find((d) => d.id === id);
 
+// Names come from lib/vocab.ts (computed into SystemConfig at build time), so
+// every page and chart uses the same full and short name for a system.
 /** "Ensemble: Qwen 3.8 Flash, DeepSeek V4.1 Flash, Gemini 3.5 Flash-Lite (raw)" → "Qwen + DeepSeek + Gemini, raw". */
-export function ensembleLabel(name: string): string {
-  const m = name.match(/^Ensemble: (.*?)(?: \((\w+)\))?$/);
-  if (!m) return name;
-  const parts = m[1].split(", ").map((p) => p.replace(/^Claude /, "").split(" ")[0]);
-  return `${parts.join(" + ")}${m[2] ? `, ${m[2]}` : ""}`;
-}
-export const shortName = (c: SystemConfig): string =>
-  c.method === "ensemble"
-    ? ensembleLabel(c.base)
-    : c.base.replace("Gemini 2.5 ", "").replace("Claude ", "");
-export const fullName = (c: SystemConfig): string =>
-  `${c.base}${c.method === "ensemble" ? "" : `, ${METHODS[c.method as ShownMethod].short}`}${c.variant ? ` (${c.variant})` : ""}`;
+export const ensembleLabel = (name: string): string => ensembleNames(name).short;
+/** Short name without the method: "Haiku 4.5", "GPT-6 Luna via codex", "Qwen + DeepSeek + Gemini, raw". */
+export const shortName = (c: SystemConfig): string => c.short;
+/** Short name plus the method: "Haiku 4.5, persona". */
+export const shortWithMethod = (c: SystemConfig): string =>
+  `${c.short}${c.method === "ensemble" ? "" : `, ${METHODS[c.method as ShownMethod].short}`}`;
+/** Model (or ensemble) name without method tags, for rows that show the method separately. */
+export const baseName = (c: SystemConfig): string => (c.method === "ensemble" ? c.name : c.base);
+/** Full name: "Claude Haiku 4.5, persona", "GPT-6 Luna via codex, raw (structured template)". */
+export const fullName = (c: SystemConfig): string => c.name;
+/** Short method plus the harness tag: "persona via codex". */
+export const methodShort = (c: SystemConfig): string =>
+  `${METHODS[c.method as ShownMethod].short}${c.harness ? ` ${harnessTag(c.harness)}` : ""}`;
+/** Method label plus the harness tag, for pickers: "Althing persona via codex". */
+export const methodLabel = (c: SystemConfig): string =>
+  `${METHODS[c.method as ShownMethod].label}${c.harness ? ` ${harnessTag(c.harness)}` : ""}`;
 export const familyId = (c: SystemConfig): string => c.baseId;
 /** Findings data names a few models by older short names; map them to the leaderboard's base names. */
 const FINDINGS_NAMES: Record<string, string> = {

@@ -20,6 +20,7 @@ import {
   type SystemConfig,
   component,
   data,
+  dsAudience,
   dsLabel,
   ensembleLabel,
   fullCoverage,
@@ -28,6 +29,7 @@ import {
   scopeName,
   scoreIn,
   shortName,
+  shortWithMethod,
   state,
 } from "./model";
 import {
@@ -56,14 +58,9 @@ const svgEl = (
 
 // ---------- The gap: ranked systems as a sorted dot plot, 0 = random, 100 = people ----------
 
-/** Method tag after a system's name. Keeps "via codex" so same-model runs stay distinct. */
+/** Method tag after a system's short name, which already carries any "via codex" tag. */
 export const methodTag = (c: SystemConfig): string =>
-  [
-    c.method === "ensemble" ? "" : METHODS[c.method as ShownMethod].short,
-    c.harness ? `via ${c.harness}` : "",
-  ]
-    .filter(Boolean)
-    .join(", ");
+  c.method === "ensemble" ? "" : METHODS[c.method as ShownMethod].short;
 
 /** Trim text with an ellipsis so it fits in `max` px. */
 function fitText(t: string, max: number, size = 12.5, weight = 500): string {
@@ -412,7 +409,7 @@ export function whyMini(el: HTMLElement, width: number): void {
       svg,
     );
   }
-  axisTitle(svg, "Score, 0 to 1 (higher matches people better)", {
+  axisTitle(svg, "Score, 0 to 1 (not Index points)", {
     x: (x(0.4) + x(1)) / 2,
     y: H - 4,
   });
@@ -1163,7 +1160,7 @@ export function byDataset(
     );
     s(
       "text",
-      { x: x(i), y: H - m.b + 33, "text-anchor": "middle", class: "sb-sub", text: sub[id] },
+      { x: x(i), y: H - m.b + 33, "text-anchor": "middle", class: "sb-sub", text: dsAudience(id) },
       svg,
     );
   });

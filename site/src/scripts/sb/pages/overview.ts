@@ -5,6 +5,7 @@ import {
   CORE,
   type SystemConfig,
   data,
+  dsAudience,
   dsLabel,
   emit,
   fullName,
@@ -154,12 +155,6 @@ const drawGap = mount(
 // ---------- By dataset (mini heat table) ----------
 function miniHeat(): void {
   const rows = tiers(rankedPool().filter(visible), "all").slice(0, 6);
-  const heads: Record<string, string> = {
-    opinionsqa: "US adults",
-    subpop: "US groups",
-    gss: "GSS",
-    globalopinionqa: "Global",
-  };
   $("ov-heat").replaceChildren(
     h("caption", null, "SynthBench Index per dataset, top systems"),
     h(
@@ -169,7 +164,15 @@ function miniHeat(): void {
         "tr",
         null,
         h("th", { scope: "col" }, "System"),
-        CORE.map((id) => h("th", { scope: "col", title: dsLabel(id) }, heads[id])),
+        CORE.map((id) =>
+          // Break opportunities inside the CamelCase names so narrow panels wrap
+          // "GlobalOpinionQA" instead of clipping it.
+          h(
+            "th",
+            { scope: "col", title: `${dsLabel(id)}: ${dsAudience(id)}` },
+            dsLabel(id).replace(/([a-z])([A-Z])/g, "$1\u200b$2"),
+          ),
+        ),
       ),
     ),
     h(
@@ -194,7 +197,7 @@ function miniHeat(): void {
     return v.length ? v.reduce((a, b) => a + b, 0) / v.length : null;
   };
   $("ov-heat-take").textContent = rows.length
-    ? `Average of these ${rows.length}: ${fmt.int(avg("opinionsqa"))} on US adults, ${fmt.int(avg("globalopinionqa"))} on cross-national questions.`
+    ? `Average of these ${rows.length}: ${fmt.int(avg("opinionsqa"))} on ${dsLabel("opinionsqa")} (US adults), ${fmt.int(avg("globalopinionqa"))} on ${dsLabel("globalopinionqa")} (cross-national).`
     : "No systems match these filters.";
 }
 onChange(miniHeat);

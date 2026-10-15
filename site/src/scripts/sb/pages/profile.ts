@@ -1,4 +1,5 @@
 import { topicLabel } from "@/lib/topics";
+import { harnessTag, modelNameFromLabel } from "@/lib/vocab";
 import { axisTitle, css, fmt, h, linear, mount, s, ticks } from "../dom";
 import {
   ALL,
@@ -14,7 +15,9 @@ import {
   emit,
   ensembleLabel,
   ensembles,
-  findingsModel,
+  fullCoverage,
+  methodLabel,
+  methodShort,
   onChange,
   profileQuery,
   pruneCompare,
@@ -43,10 +46,7 @@ const $ = (id: string) => document.getElementById(id) as HTMLElement;
 const mine = systems().filter((c) => c.baseId === baseId && !c.variant);
 const variants = systems().filter((c) => c.baseId === baseId && c.variant);
 const options: [SystemConfig, string][] = [
-  ...mine.map((c): [SystemConfig, string] => [
-    c,
-    `${METHODS[c.method as ShownMethod].label}${c.harness ? ` via ${c.harness}` : ""}`,
-  ]),
+  ...mine.map((c): [SystemConfig, string] => [c, methodLabel(c)]),
   ...ensembles()
     .filter((e) => e.baseId !== baseId && e.members.some((m) => m.id === baseId))
     .map((e): [SystemConfig, string] => [e, `In the ensemble ${ensembleLabel(e.base)}`]),
@@ -178,8 +178,8 @@ function renderStats(): void {
   const m = field.length ? median(field) : 0;
   const who =
     cur.method === "ensemble"
-      ? `The ensemble ${ensembleLabel(cur.base)}`
-      : `${cur.base} with ${cur.method === "raw" ? "a raw prompt" : "an Althing persona"}${cur.harness ? ` (via ${cur.harness})` : ""}`;
+      ? `The ensemble ${cur.short}`
+      : `${cur.base}${cur.harness ? ` ${harnessTag(cur.harness)}` : ""} with ${cur.method === "raw" ? "a raw prompt" : "an Althing persona"}`;
   const parts: string[] = [];
   const where = state.scope === "all" ? "the Index" : dsLabel(state.scope);
   if (v)
@@ -562,7 +562,9 @@ mount(
 // system was itself run on.
 const SWEEP_DS = "opinionsqa";
 const sweep = (d.findings.temperature_sweep ?? [])
-  .filter((p) => findingsModel(p.model) === mine[0]?.base && (p.dataset ?? SWEEP_DS) === SWEEP_DS)
+  .filter(
+    (p) => modelNameFromLabel(p.model) === mine[0]?.base && (p.dataset ?? SWEEP_DS) === SWEEP_DS,
+  )
   .sort((a, b) => a.temperature - b.temperature);
 const templates = variants.filter(
   (c) => c.variant?.startsWith("temperature 0.85") && c.ds.subpop && !c.harness,
@@ -822,7 +824,7 @@ mount(trustEl, (W) => {
         y: cy + 4,
         "text-anchor": "end",
         class: "sb-lab sb-light",
-        text: `${METHODS[it.c.method as ShownMethod].short}, ${dsLabel(it.id)}`,
+        text: `${methodShort(it.c)}, ${dsLabel(it.id)}`,
       },
       svg,
     );
@@ -886,16 +888,7 @@ $("pf-runs").replaceChildren(
         h(
           "tr",
           null,
-          h(
-            "td",
-            null,
-            h(
-              "span",
-              { class: "sb-inl" },
-              methodKey(c.method),
-              `${METHODS[c.method as ShownMethod].short}${c.harness ? ` via ${c.harness}` : ""}`,
-            ),
-          ),
+          h("td", null, h("span", { class: "sb-inl" }, methodKey(c.method), methodShort(c))),
           h("td", null, dsLabel(id)),
           h(
             "td",
