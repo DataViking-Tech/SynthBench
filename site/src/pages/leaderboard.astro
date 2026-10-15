@@ -41,8 +41,8 @@ const reproduceCommands = [
         </div>
         <h1 class="sb-h1 sm">Leaderboard</h1>
         <p class="sb-lede">
-          Systems are grouped into <b>tiers</b>. Systems in the same tier can't be reliably told apart once
-          you account for their 95% intervals.
+          Systems are grouped into <b>tiers</b>. Every system in a tier has a 95% interval that overlaps the
+          interval of the tier's top system, so it can't be reliably told apart from it.
         </p>
       </div>
       <div class="sb-head-actions">
@@ -61,8 +61,10 @@ const reproduceCommands = [
       <div class="sb-notes">
         <div>
           <h4>Tiers</h4>
-          A system's tier is 1 plus the number of systems whose 95% interval sits entirely above its own.
-          A difference of a few points inside a tier is noise.
+          Reading down the table, the top system not yet placed starts a tier. Every system below it whose
+          95% interval still overlaps that system's interval joins the tier. The first system whose interval
+          sits entirely below starts the next one. Tiers are numbered 1, 2, 3… with no gaps, and tiers are
+          recomputed for the systems currently shown. A difference of a few points inside a tier is noise.
         </div>
         <div>
           <h4>Reference rows</h4>
