@@ -312,18 +312,24 @@ function currentRows(): { rows: Row[]; partial: Row[] } {
 }
 
 function header(): HTMLElement[] {
-  const head = [th("Tier"), th(h("span", { class: "sr-only" }, "Compare")), th("System")];
+  // Column classes: `tier` / `sys` / `idx` stay pinned on narrow screens,
+  // `cb` and `ci` (redundant with the drawer and the Index cell) are hidden.
+  const head = [
+    th("Tier", "tier"),
+    th(h("span", { class: "sr-only" }, "Compare"), "cb"),
+    th("System", "sys"),
+  ];
   const idxLabel = state.scope === "all" ? "Index" : dsLabel(state.scope);
   if (st.cols === "scores")
     head.push(
-      th(axisHead()),
-      th(idxLabel, "r", "SynthBench Index with its 95% interval"),
+      th(axisHead(), "ci"),
+      th(idxLabel, "r idx", "SynthBench Index with its 95% interval"),
       ...DS.map((id) => th(`${dsLabel(id)}${dsMark(id)}`, "c", `Index on ${dsLabel(id)}`)),
       th("Holdout", "c", "Public and private questions agree within the review threshold"),
     );
   else if (st.cols === "components")
     head.push(
-      th(idxLabel, "r"),
+      th(idxLabel, "r idx"),
       th("SPS", "r", "Survey Parity Score, 0 to 1"),
       th(
         scaled("Shares match", "bar 0.4 to 1, red tick = random"),
@@ -343,7 +349,7 @@ function header(): HTMLElement[] {
     );
   else if (st.cols === "cost")
     head.push(
-      th(idxLabel, "r"),
+      th(idxLabel, "r idx"),
       th("USD per 100 questions", "r"),
       th("Index points per USD", "r"),
       th("Median latency", "r"),
@@ -352,7 +358,7 @@ function header(): HTMLElement[] {
     );
   else
     head.push(
-      th(idxLabel, "r"),
+      th(idxLabel, "r idx"),
       th(
         scaled("Public vs. private SPS gap", "bar 0 to 0.16, line = review threshold"),
         null,
@@ -416,7 +422,7 @@ function row(r: Row, rows: Row[], i: number): HTMLElement {
   );
   const name = h(
     "td",
-    null,
+    { class: "sys" },
     h(
       "div",
       { class: "sb-sysname" },
@@ -453,10 +459,10 @@ function row(r: Row, rows: Row[], i: number): HTMLElement {
   const random = d.references.random;
   if (st.cols === "scores") {
     cells.push(
-      h("td", null, intervalCell(c, v)),
+      h("td", { class: "ci" }, intervalCell(c, v)),
       h(
         "td",
-        { class: "v" },
+        { class: "v idx" },
         fmt.int(v.v),
         h("small", null, v.lo != null ? `${fmt.int(v.lo)} to ${fmt.int(v.hi)}` : ""),
       ),
@@ -486,7 +492,7 @@ function row(r: Row, rows: Row[], i: number): HTMLElement {
     );
   } else if (st.cols === "components") {
     cells.push(
-      h("td", { class: "v" }, fmt.int(v.v)),
+      h("td", { class: "v idx" }, fmt.int(v.v)),
       h("td", { class: "v plain" }, fmt.three(component(c, "sps"))),
     );
     for (const k of ["pDist", "pRank", "pRefuse"] as const) {
@@ -502,7 +508,7 @@ function row(r: Row, rows: Row[], i: number): HTMLElement {
     }
   } else if (st.cols === "cost") {
     cells.push(
-      h("td", { class: "v" }, fmt.int(v.v)),
+      h("td", { class: "v idx" }, fmt.int(v.v)),
       h(
         "td",
         { class: "v plain" },
@@ -516,7 +522,7 @@ function row(r: Row, rows: Row[], i: number): HTMLElement {
   } else {
     const g = worstHoldout(c);
     cells.push(
-      h("td", { class: "v" }, fmt.int(v.v)),
+      h("td", { class: "v idx" }, fmt.int(v.v)),
       h(
         "td",
         { class: "nowrap" },
