@@ -16,139 +16,113 @@ if (!hasRunsIndex && import.meta.env.PROD) {
       "Explore page will render empty-state. Run `synthbench publish-runs` to populate.",
   );
 }
+
+const selectCls =
+  "rounded-md border border-muted/30 bg-surface dark:bg-surface-dark px-3 py-1.5 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary";
+const labelCls = "text-xs font-semibold uppercase tracking-wide text-muted";
+const btnCls =
+  "rounded-md border border-muted/30 px-3 py-1.5 text-sm font-medium hover:bg-muted/10";
 ---
 
 <BaseLayout title="Explore Runs - SynthBench">
-  <div class="mx-auto max-w-7xl px-4 py-10 space-y-6">
+  <div class="mx-auto max-w-7xl px-4 py-10 space-y-5">
     <header class="space-y-2">
       <h1 class="text-3xl sm:text-4xl font-bold tracking-tight">Explore Runs</h1>
       <p class="text-muted max-w-3xl leading-relaxed">
-        Browse every benchmark run. Grouped by framework and base model. Pick two
-        configs or runs to open them side-by-side in Compare.
+        Every benchmark configuration, one dataset at a time, ranked by score. Filter by
+        settings, then tick two rows to compare them question by question.
       </p>
-      <p id="explore-summary" class="text-sm text-muted" aria-live="polite"></p>
     </header>
+
+    <!-- Dataset is the first, required choice: scores are only comparable within one. -->
+    <section aria-labelledby="ds-heading" class="flex flex-wrap items-center gap-3">
+      <span id="ds-heading" class={labelCls}>Dataset</span>
+      <div
+        id="filter-dataset"
+        role="radiogroup"
+        aria-labelledby="ds-heading"
+        class="inline-flex flex-wrap rounded-md border border-muted/30 overflow-hidden"
+      >
+      </div>
+    </section>
 
     <section
       aria-label="Filters"
-      class="rounded-lg border border-muted/20 bg-surface dark:bg-surface-dark p-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4"
+      class="rounded-lg border border-muted/20 bg-surface dark:bg-surface-dark p-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4"
     >
       <div class="flex flex-col gap-1">
-        <label for="filter-search" class="text-xs font-semibold uppercase tracking-wide text-muted"
-          >Search model</label
-        >
+        <label for="filter-search" class={labelCls}>Search model</label>
         <input
           id="filter-search"
           type="search"
           placeholder="e.g. claude, gpt-4o, llama"
-          class="rounded-md border border-muted/30 bg-surface dark:bg-surface-dark px-3 py-1.5 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+          class={selectCls}
         />
       </div>
 
       <div class="flex flex-col gap-1">
-        <label for="filter-dataset" class="text-xs font-semibold uppercase tracking-wide text-muted"
-          >Dataset</label
-        >
-        <select
-          id="filter-dataset"
-          class="rounded-md border border-muted/30 bg-surface dark:bg-surface-dark px-3 py-1.5 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
-        >
-          <option value="">All datasets</option>
+        <label for="filter-framework" class={labelCls}>Method</label>
+        <select id="filter-framework" class={selectCls}>
+          <option value="">All methods</option>
         </select>
       </div>
 
       <div class="flex flex-col gap-1">
-        <label
-          for="filter-framework"
-          class="text-xs font-semibold uppercase tracking-wide text-muted">Framework</label
-        >
-        <select
-          id="filter-framework"
-          class="rounded-md border border-muted/30 bg-surface dark:bg-surface-dark px-3 py-1.5 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
-        >
-          <option value="">All frameworks</option>
+        <label for="filter-temp" class={labelCls}>Temperature</label>
+        <select id="filter-temp" class={selectCls}>
+          <option value="">Any temperature</option>
         </select>
       </div>
 
       <div class="flex flex-col gap-1">
-        <span class="text-xs font-semibold uppercase tracking-wide text-muted"
-          >Temperature <span id="filter-temp-label" class="text-text/70 dark:text-text-dark/70"
-            >any</span
-          ></span
-        >
-        <div class="flex items-center gap-2">
-          <input
-            id="filter-temp-min"
-            type="range"
-            min="0"
-            max="2"
-            step="0.05"
-            value="0"
-            aria-label="Minimum temperature"
-            class="w-full accent-primary"
-          />
-          <input
-            id="filter-temp-max"
-            type="range"
-            min="0"
-            max="2"
-            step="0.05"
-            value="2"
-            aria-label="Maximum temperature"
-            class="w-full accent-primary"
-          />
-        </div>
-        <label class="mt-1 inline-flex items-center gap-2 text-xs text-muted">
-          <input id="filter-temp-include-null" type="checkbox" checked class="accent-primary" />
-          Include runs with no temperature (baselines, ensembles)
-        </label>
+        <label for="filter-template" class={labelCls}>Prompt template</label>
+        <select id="filter-template" class={selectCls}>
+          <option value="">Any template</option>
+        </select>
       </div>
 
-      <div class="flex flex-col gap-2 lg:col-span-2">
+      <div class="flex flex-wrap items-center gap-x-5 gap-y-2 sm:col-span-2 lg:col-span-3">
         <label class="inline-flex items-center gap-2 text-sm">
           <input id="filter-baselines" type="checkbox" checked class="accent-primary" />
           Show baselines
         </label>
         <label class="inline-flex items-center gap-2 text-sm">
-          <input id="filter-collapse" type="checkbox" checked class="accent-primary" />
-          Collapse replicates into parent config
-        </label>
-        <label class="inline-flex items-center gap-2 text-sm">
           <input id="filter-exploratory" type="checkbox" class="accent-primary" />
           Show exploratory runs (small N or low samples)
         </label>
+        <label class="inline-flex items-center gap-2 text-sm">
+          <input id="filter-collapse" type="checkbox" checked class="accent-primary" />
+          Collapse replicates into parent config
+        </label>
       </div>
 
-      <div class="flex items-end gap-2 lg:col-span-2 lg:justify-end">
-        <button
-          id="filter-reset"
-          type="button"
-          class="rounded-md border border-muted/30 px-3 py-1.5 text-sm font-medium hover:bg-muted/10"
-        >Reset filters</button>
-        <button
-          id="expand-all"
-          type="button"
-          class="rounded-md border border-muted/30 px-3 py-1.5 text-sm font-medium hover:bg-muted/10"
-        >Expand all</button>
-        <button
-          id="collapse-all"
-          type="button"
-          class="rounded-md border border-muted/30 px-3 py-1.5 text-sm font-medium hover:bg-muted/10"
-        >Collapse all</button>
+      <div class="flex flex-wrap items-center gap-2 lg:justify-end">
+        <div
+          id="view-mode"
+          role="radiogroup"
+          aria-label="View"
+          class="inline-flex rounded-md border border-muted/30 overflow-hidden"
+        >
+          <button type="button" role="radio" data-view="table" class="view-btn px-3 py-1.5 text-sm"
+            >Table</button
+          >
+          <button type="button" role="radio" data-view="grouped" class="view-btn px-3 py-1.5 text-sm"
+            >Grouped</button
+          >
+        </div>
+        <button id="filter-reset" type="button" class={btnCls}>Reset</button>
       </div>
     </section>
 
-    <!--
-      Design note: this is a disclosure list, not an ARIA tree. role="tree" was
-      removed because the component does not implement the required keyboard
-      model (arrow-key navigation, roving tabindex, Home/End, aria-level).
-      Nested <button aria-expanded> disclosure groups pass WCAG on their own.
-    -->
-    <div
-      id="explore-tree"
-      aria-label="Runs grouped by framework and base model"
-      class="space-y-2 min-h-[240px]"
-    >
+    <div class="flex flex-wrap items-center justify-between gap-2">
+      <p id="explore-summary" class="text-sm text-muted" aria-live="polite"></p>
+      <div id="group-actions" class="hidden items-center gap-2">
+        <button id="expand-all" type="button" class={btnCls}>Expand all</button>
+        <button id="collapse-all" type="button" class={btnCls}>Collapse all</button>
+      </div>
+    </div>
+
+    <div id="explore-tree" class="min-h-[240px]">
       <p class="text-muted text-sm">Loading runs…</p>
     </div>
     <!-- Live region for screen-reader announcements (errors + filter counts). -->
@@ -164,16 +138,10 @@ if (!hasRunsIndex && import.meta.env.PROD) {
       <div class="flex-1 flex flex-wrap items-center gap-2">
         <span class="text-sm font-semibold">Compare:</span>
         <span id="compare-chips" class="flex flex-wrap gap-2"></span>
-        <span id="compare-hint" class="text-xs text-muted"
-          >Pick another to enable compare</span
-        >
+        <span id="compare-hint" class="text-xs text-muted">Pick another to enable compare</span>
       </div>
       <div class="flex items-center gap-2">
-        <button
-          id="compare-clear"
-          type="button"
-          class="rounded-md border border-muted/30 px-3 py-1.5 text-sm font-medium hover:bg-muted/10"
-        >Clear</button>
+        <button id="compare-clear" type="button" class={btnCls}>Clear</button>
         <a
           id="compare-go"
           href="#"
@@ -190,16 +158,31 @@ if (!hasRunsIndex && import.meta.env.PROD) {
 
 <script>
   import { labOf, logoMarkup } from "@/lib/providerIcons";
+  import {
+    datasetBase,
+    datasetLabel,
+    replicateStats,
+    settingsLabel,
+    tempLabel,
+    templateLabel,
+  } from "@/lib/runExplorer";
   import type { RunIndex, RunIndexEntry } from "@/types/runs";
 
   type SelectionMode = "config" | "run";
+  type View = "table" | "grouped";
+  type SortKey = "name" | "method" | "temp" | "tpl" | "n" | "spq" | "runs" | "score";
+  type SortDir = "asc" | "desc";
+
   interface Selection {
     id: string;
     label: string;
     mode: SelectionMode;
   }
 
-  interface ConfigGroup {
+  /** One table row: a config (replicates collapsed) or a single run. */
+  interface Row {
+    id: string;
+    mode: SelectionMode;
     config_id: string;
     framework: string;
     base_provider: string | null;
@@ -215,14 +198,14 @@ if (!hasRunsIndex && import.meta.env.PROD) {
     n_questions: number;
     is_baseline: boolean;
     is_ensemble: boolean;
-    replicates: RunIndexEntry[];
-    agg_sps: number | null;
-    agg_jsd: number | null;
-    agg_tau: number | null;
+    runs: number;
+    score: number | null;
+    ci: { low: number; high: number } | null;
+    ciKind: "bootstrap" | "replicates" | null;
   }
 
   // Thresholds from sb-djv: filter out quick-iteration runs that otherwise
-  // flood the grouped list with visually near-identical rows.
+  // flood the list with visually near-identical rows.
   const EXPLORATORY_NQ = 50;
   const EXPLORATORY_SPQ = 10;
   function isExploratory(r: RunIndexEntry): boolean {
@@ -232,26 +215,37 @@ if (!hasRunsIndex && import.meta.env.PROD) {
   }
 
   const BASE = (import.meta.env.BASE_URL ?? "/").replace(/\/$/, "");
+  const DEFAULT_DATASET = "opinionsqa";
+  const DATASET_ORDER = ["opinionsqa", "subpop", "gss", "globalopinionqa", "ntia"];
+  /** Rows shown before "Show all": enough for a read on the top of the field. */
+  const TABLE_LIMIT = 25;
+  const SORT_KEYS: SortKey[] = ["name", "method", "temp", "tpl", "n", "spq", "runs", "score"];
+  /** Text columns sort A→Z first; numeric ones high→low. */
+  const defaultDir = (k: SortKey): SortDir =>
+    k === "name" || k === "method" || k === "tpl" ? "asc" : "desc";
 
   const state = {
     runs: [] as RunIndexEntry[],
+    datasets: [] as string[],
     search: "",
     dataset: "",
     framework: "",
-    tempMin: 0,
-    tempMax: 2,
-    tempIncludeNull: true,
+    temp: "",
+    template: "",
     showBaselines: true,
     showExploratory: false,
     collapseReplicates: true,
+    view: "table" as View,
+    sortKey: "score" as SortKey,
+    sortDir: "desc" as SortDir,
     selection: [] as Selection[],
-    // Tracks which Framework/BaseModel keys are collapsed (default expanded).
-    collapsedGroups: new Set<string>(),
+    /** Table view shows the top rows only until "Show all" is pressed. */
+    showAll: false,
+    /** Grouped view: groups are collapsed unless listed here. */
+    openGroups: new Set<string>(),
+    /** config_id → 95% bootstrap interval published on the leaderboard. */
+    lbCi: new Map<string, { low: number; high: number }>(),
   };
-
-  function fmtScore(value: number | null | undefined): string {
-    return value == null ? "—" : value.toFixed(3);
-  }
 
   // Framework / provider / model strings originate from submitted result files
   // (config.provider / config.model / framework), so they are attacker-
@@ -266,111 +260,296 @@ if (!hasRunsIndex && import.meta.env.PROD) {
       .replace(/'/g, "&#39;");
   }
 
-  function meanOf(values: (number | null)[]): number | null {
-    const nums = values.filter((v): v is number => typeof v === "number" && !Number.isNaN(v));
-    if (nums.length === 0) return null;
-    return nums.reduce((a, b) => a + b, 0) / nums.length;
+  const fmtScore = (v: number | null | undefined): string => (v == null ? "—" : v.toFixed(3));
+  const byId = <T extends HTMLElement>(id: string): T | null =>
+    document.getElementById(id) as T | null;
+
+  // ---------- URL state ----------
+
+  function readUrl(): void {
+    const p = new URLSearchParams(location.search);
+    state.search = p.get("q") ?? "";
+    state.dataset = p.get("ds") ?? "";
+    state.framework = p.get("fw") ?? "";
+    state.temp = p.get("t") ?? "";
+    state.template = p.get("tpl") ?? "";
+    state.showBaselines = p.get("baselines") !== "0";
+    state.showExploratory = p.get("exp") === "1";
+    state.collapseReplicates = p.get("runs") !== "1";
+    state.view = p.get("view") === "grouped" ? "grouped" : "table";
+    state.showAll = p.get("all") === "1";
+    const sort = p.get("sort") as SortKey | null;
+    state.sortKey = sort && SORT_KEYS.includes(sort) ? sort : "score";
+    const dir = p.get("dir");
+    state.sortDir = dir === "asc" || dir === "desc" ? dir : defaultDir(state.sortKey);
+    const mode: SelectionMode = state.collapseReplicates ? "config" : "run";
+    state.selection = (p.get("sel") ?? "")
+      .split(",")
+      .filter(Boolean)
+      .slice(0, 2)
+      .map((id) => ({ id, label: id, mode }));
   }
 
-  function buildConfigGroups(runs: RunIndexEntry[]): ConfigGroup[] {
+  function writeUrl(): void {
+    const p = new URLSearchParams();
+    const set = (k: string, v: string | null) => {
+      if (v) p.set(k, v);
+    };
+    set("ds", state.dataset);
+    set("q", state.search);
+    set("fw", state.framework);
+    set("t", state.temp);
+    set("tpl", state.template);
+    set("baselines", state.showBaselines ? null : "0");
+    set("exp", state.showExploratory ? "1" : null);
+    set("runs", state.collapseReplicates ? null : "1");
+    set("view", state.view === "table" ? null : "grouped");
+    set("all", state.showAll ? "1" : null);
+    set("sort", state.sortKey === "score" ? null : state.sortKey);
+    set("dir", state.sortDir === defaultDir(state.sortKey) ? null : state.sortDir);
+    set("sel", state.selection.map((s) => s.id).join(","));
+    const qs = p.toString();
+    history.replaceState(null, "", `${location.pathname}${qs ? `?${qs}` : ""}${location.hash}`);
+  }
+
+  /** URL → leaderboard scope (persisted by the leaderboard) → OpinionsQA. */
+  function pickDefaultDataset(): string {
+    const ds = state.datasets;
+    if (state.dataset && ds.includes(state.dataset)) return state.dataset;
+    let scope: string | null = null;
+    try {
+      scope = localStorage.getItem("sb-scope");
+    } catch {
+      scope = null;
+    }
+    if (scope && scope !== "all") {
+      const hit = ds.find((d) => datasetBase(d) === scope);
+      if (hit) return hit;
+    }
+    return ds.includes(DEFAULT_DATASET) ? DEFAULT_DATASET : (ds[0] ?? "");
+  }
+
+  // ---------- Rows ----------
+
+  function inDataset(): RunIndexEntry[] {
+    return state.runs.filter((r) => r.dataset === state.dataset);
+  }
+
+  function matchesFilters(r: RunIndexEntry): boolean {
+    if (r.dataset !== state.dataset) return false;
+    if (state.search) {
+      const q = state.search.toLowerCase();
+      const hay = `${r.model} ${r.display_name} ${r.base_provider ?? ""}`.toLowerCase();
+      if (!hay.includes(q)) return false;
+    }
+    if (state.framework && r.framework !== state.framework) return false;
+    if (!state.showBaselines && r.is_baseline) return false;
+    if (state.temp) {
+      if (state.temp === "default" ? r.temperature != null : String(r.temperature) !== state.temp)
+        return false;
+    }
+    if (state.template && templateLabel(r.template) !== state.template) return false;
+    return true;
+  }
+
+  function toRows(runs: RunIndexEntry[]): Row[] {
+    const head = (r: RunIndexEntry) => ({
+      config_id: r.config_id,
+      framework: r.framework,
+      base_provider: r.base_provider,
+      model: r.model,
+      display_name: r.display_name,
+      dataset: r.dataset,
+      temperature: r.temperature,
+      effort: r.effort,
+      template: r.template,
+      persona_pack: r.persona_pack ?? null,
+      harness: r.harness ?? null,
+      samples_per_question: r.samples_per_question,
+      n_questions: r.n_questions,
+      is_baseline: r.is_baseline,
+      is_ensemble: r.is_ensemble,
+    });
+    if (!state.collapseReplicates) {
+      return runs.map((r) => ({
+        ...head(r),
+        id: r.run_id,
+        mode: "run",
+        runs: 1,
+        score: r.sps,
+        ci: null,
+        ciKind: null,
+      }));
+    }
     const byConfig = new Map<string, RunIndexEntry[]>();
     for (const r of runs) {
       const list = byConfig.get(r.config_id);
       if (list) list.push(r);
       else byConfig.set(r.config_id, [r]);
     }
-    const groups: ConfigGroup[] = [];
-    for (const [config_id, replicates] of byConfig) {
-      const head = replicates[0];
-      groups.push({
-        config_id,
-        framework: head.framework,
-        base_provider: head.base_provider,
-        model: head.model,
-        display_name: head.display_name,
-        dataset: head.dataset,
-        temperature: head.temperature,
-        effort: head.effort,
-        template: head.template,
-        persona_pack: head.persona_pack ?? null,
-        harness: head.harness ?? null,
-        samples_per_question: head.samples_per_question,
-        n_questions: head.n_questions,
-        is_baseline: head.is_baseline,
-        is_ensemble: head.is_ensemble,
-        replicates,
-        agg_sps: meanOf(replicates.map((r) => r.sps)),
-        agg_jsd: meanOf(replicates.map((r) => r.jsd)),
-        agg_tau: meanOf(replicates.map((r) => r.tau)),
-      });
-    }
-    return groups;
+    return [...byConfig].map(([config_id, reps]) => {
+      const stats = replicateStats(reps.map((r) => r.sps));
+      const lb = state.lbCi.get(config_id) ?? null;
+      return {
+        ...head(reps[0]),
+        id: config_id,
+        mode: "config",
+        runs: reps.length,
+        score: stats.mean,
+        ci: lb ?? stats.ci,
+        ciKind: lb ? "bootstrap" : stats.ci ? "replicates" : null,
+      };
+    });
   }
 
-  function matchesFilters(r: RunIndexEntry): boolean {
-    if (state.search) {
-      const q = state.search.toLowerCase();
-      const hay = `${r.model} ${r.display_name} ${r.base_provider ?? ""}`.toLowerCase();
-      if (!hay.includes(q)) return false;
+  function sortValue(r: Row, k: SortKey): string | number | null {
+    switch (k) {
+      case "name":
+        return r.display_name;
+      case "method":
+        return r.framework;
+      case "temp":
+        return r.temperature;
+      case "tpl":
+        return templateLabel(r.template);
+      case "n":
+        return r.n_questions;
+      case "spq":
+        return r.samples_per_question;
+      case "runs":
+        return r.runs;
+      case "score":
+        return r.score;
     }
-    if (state.dataset && r.dataset !== state.dataset) return false;
-    if (state.framework && r.framework !== state.framework) return false;
-    if (!state.showBaselines && r.is_baseline) return false;
-    if (r.temperature == null) {
-      if (!state.tempIncludeNull) return false;
-    } else {
-      if (r.temperature < state.tempMin || r.temperature > state.tempMax) return false;
-    }
-    return true;
   }
 
-  function populateSelects(runs: RunIndexEntry[]): void {
-    const datasetSel = document.getElementById("filter-dataset") as HTMLSelectElement | null;
-    const frameworkSel = document.getElementById("filter-framework") as HTMLSelectElement | null;
-    if (!datasetSel || !frameworkSel) return;
+  function sortRows(rows: Row[]): Row[] {
+    const mult = state.sortDir === "asc" ? 1 : -1;
+    return rows.slice().sort((a, b) => {
+      const x = sortValue(a, state.sortKey);
+      const y = sortValue(b, state.sortKey);
+      if (x == null && y == null) return (b.score ?? -1) - (a.score ?? -1);
+      if (x == null) return 1;
+      if (y == null) return -1;
+      const c =
+        typeof x === "number" && typeof y === "number"
+          ? x - y
+          : String(x).localeCompare(String(y));
+      // Ties fall back to score, best first.
+      return c !== 0 ? c * mult : (b.score ?? -1) - (a.score ?? -1);
+    });
+  }
 
-    const datasets = Array.from(new Set(runs.map((r) => r.dataset))).sort();
-    for (const d of datasets) {
+  // ---------- Controls ----------
+
+  function fillSelect(sel: HTMLSelectElement | null, first: string, values: [string, string][]) {
+    if (!sel) return;
+    sel.replaceChildren();
+    for (const [value, label] of [["", first] as [string, string], ...values]) {
       const opt = document.createElement("option");
-      opt.value = d;
-      opt.textContent = d;
-      datasetSel.appendChild(opt);
-    }
-    const frameworks = Array.from(new Set(runs.map((r) => r.framework))).sort();
-    for (const f of frameworks) {
-      const opt = document.createElement("option");
-      opt.value = f;
-      opt.textContent = f;
-      frameworkSel.appendChild(opt);
+      opt.value = value;
+      opt.textContent = label;
+      sel.appendChild(opt);
     }
   }
 
-  function groupKey(framework: string, baseModel: string): string {
-    return `${framework}::${baseModel}`;
+  /** Rebuild the option lists from the current dataset so every choice matches something. */
+  function populateControls(): void {
+    const rows = inDataset();
+    const dsWrap = byId<HTMLDivElement>("filter-dataset");
+    if (dsWrap) {
+      dsWrap.replaceChildren(
+        ...state.datasets.map((d) => {
+          const n = new Set(
+            state.runs.filter((r) => r.dataset === d && !isExploratory(r)).map((r) => r.config_id),
+          ).size;
+          const on = d === state.dataset;
+          const b = document.createElement("button");
+          b.type = "button";
+          b.setAttribute("role", "radio");
+          b.setAttribute("aria-checked", String(on));
+          b.dataset.dataset = d;
+          b.className = `seg-btn px-3 py-1.5 text-sm border-r border-muted/30 last:border-r-0 ${on ? "bg-primary text-white font-semibold" : "hover:bg-muted/10"}`;
+          b.innerHTML = `${escapeHtml(datasetLabel(d))} <span class="${on ? "text-white/80" : "text-muted"} text-xs">${n}</span>`;
+          b.addEventListener("click", () => setDataset(d));
+          return b;
+        }),
+      );
+    }
+
+    const fws = [...new Set(rows.map((r) => r.framework))].sort();
+    if (state.framework && !fws.includes(state.framework)) state.framework = "";
+    const fwSel = byId<HTMLSelectElement>("filter-framework");
+    fillSelect(
+      fwSel,
+      "All methods",
+      fws.map((f) => [f, f]),
+    );
+    if (fwSel) fwSel.value = state.framework;
+
+    const temps = [
+      ...new Set(rows.map((r) => r.temperature).filter((t): t is number => t != null)),
+    ].sort((a, b) => a - b);
+    const tempValues: [string, string][] = [
+      ["default", "Provider default only"],
+      ...temps.map((t): [string, string] => [String(t), `t = ${t}`]),
+    ];
+    if (state.temp && !tempValues.some(([v]) => v === state.temp)) state.temp = "";
+    const tSel = byId<HTMLSelectElement>("filter-temp");
+    fillSelect(tSel, temps.length ? "Any temperature" : "Any (all provider default)", tempValues);
+    if (tSel) {
+      tSel.value = state.temp;
+      tSel.disabled = temps.length === 0;
+    }
+
+    const tpls = [...new Set(rows.map((r) => templateLabel(r.template)))].sort((a, b) =>
+      a === "default" ? -1 : b === "default" ? 1 : a.localeCompare(b),
+    );
+    if (state.template && !tpls.includes(state.template)) state.template = "";
+    const tplSel = byId<HTMLSelectElement>("filter-template");
+    fillSelect(
+      tplSel,
+      tpls.length > 1 ? "Any template" : "Any (all default)",
+      tpls.map((t) => [t, t === "default" ? "Default template only" : t]),
+    );
+    if (tplSel) {
+      tplSel.value = state.template;
+      tplSel.disabled = tpls.length < 2;
+    }
+
+    const search = byId<HTMLInputElement>("filter-search");
+    if (search) search.value = state.search;
+    const set = (id: string, v: boolean) => {
+      const el = byId<HTMLInputElement>(id);
+      if (el) el.checked = v;
+    };
+    set("filter-baselines", state.showBaselines);
+    set("filter-exploratory", state.showExploratory);
+    set("filter-collapse", state.collapseReplicates);
+    for (const b of document.querySelectorAll<HTMLButtonElement>("#view-mode .view-btn")) {
+      const on = b.dataset.view === state.view;
+      b.setAttribute("aria-checked", String(on));
+      b.className = `view-btn px-3 py-1.5 text-sm ${on ? "bg-primary text-white font-semibold" : "hover:bg-muted/10"}`;
+    }
   }
 
-  function baseModelLabel(group: ConfigGroup): string {
-    if (group.is_baseline) return "Baselines";
-    if (group.is_ensemble) return "Ensembles";
-    const bp = group.base_provider ?? "(unknown)";
-    return `${bp} / ${group.model}`;
+  function setDataset(d: string): void {
+    if (d === state.dataset) return;
+    state.dataset = d;
+    // Compares are per dataset; a selection from another one can't carry over.
+    state.selection = [];
+    state.openGroups.clear();
+    populateControls();
+    update();
   }
 
-  function selectionContainsId(id: string): boolean {
-    return state.selection.some((s) => s.id === id);
-  }
-
-  function modeOfSelection(): SelectionMode | null {
-    if (state.selection.length === 0) return null;
-    return state.selection[0].mode;
-  }
+  // ---------- Selection / compare tray ----------
 
   function toggleSelection(sel: Selection): void {
     const idx = state.selection.findIndex((s) => s.id === sel.id);
     if (idx >= 0) {
       state.selection.splice(idx, 1);
     } else {
-      // Enforce same mode across the picker. Clear if switching modes.
       if (state.selection.length > 0 && state.selection[0].mode !== sel.mode) {
         state.selection = [];
       }
@@ -378,15 +557,14 @@ if (!hasRunsIndex && import.meta.env.PROD) {
       // Cap at 2: drop oldest to make room.
       if (state.selection.length > 2) state.selection.shift();
     }
-    renderCompareTray();
-    render();
+    update();
   }
 
   function renderCompareTray(): void {
-    const tray = document.getElementById("compare-tray") as HTMLElement | null;
-    const chips = document.getElementById("compare-chips");
-    const hint = document.getElementById("compare-hint");
-    const go = document.getElementById("compare-go") as HTMLAnchorElement | null;
+    const tray = byId<HTMLElement>("compare-tray");
+    const chips = byId("compare-chips");
+    const hint = byId("compare-hint");
+    const go = byId<HTMLAnchorElement>("compare-go");
     if (!tray || !chips || !hint || !go) return;
 
     if (state.selection.length === 0) {
@@ -399,20 +577,18 @@ if (!hasRunsIndex && import.meta.env.PROD) {
       const chip = document.createElement("span");
       chip.className =
         "inline-flex items-center gap-1 rounded-full bg-primary/10 text-primary px-2 py-0.5 text-xs font-medium";
-      chip.textContent = `${s.mode}: ${s.label}`;
+      chip.textContent = s.label;
       const close = document.createElement("button");
       close.type = "button";
       close.setAttribute("aria-label", `Remove ${s.label}`);
       close.className = "text-primary/70 hover:text-primary";
       close.textContent = "×";
-      close.addEventListener("click", () =>
-        toggleSelection({ id: s.id, label: s.label, mode: s.mode }),
-      );
+      close.addEventListener("click", () => toggleSelection(s));
       chip.appendChild(close);
       chips.appendChild(chip);
     }
 
-    const mode = modeOfSelection();
+    const mode = state.selection[0]?.mode;
     if (state.selection.length === 2 && mode) {
       const [a, b] = state.selection;
       const url = `${BASE}/compare/?a=${encodeURIComponent(a.id)}&b=${encodeURIComponent(b.id)}&mode=${mode}`;
@@ -424,12 +600,20 @@ if (!hasRunsIndex && import.meta.env.PROD) {
       go.setAttribute("href", "#");
       go.setAttribute("aria-disabled", "true");
       go.setAttribute("tabindex", "-1");
-      hint.textContent =
-        state.selection.length === 1
-          ? `Pick one more ${mode ?? "item"} to enable compare`
-          : "Pick another to enable compare";
+      hint.textContent = `Pick one more ${mode ?? "item"} to enable compare`;
     }
   }
+
+  /** Give URL-restored selections their human labels once rows exist. */
+  function labelSelection(rows: Row[]): void {
+    for (const s of state.selection) {
+      const r = rows.find((x) => x.id === s.id);
+      if (r) s.label = rowLabel(r);
+    }
+  }
+
+  const rowLabel = (r: Row): string =>
+    `${r.display_name} (${r.framework} · ${settingsLabel(r)}${r.mode === "run" ? `, ${r.id.slice(-15)}` : ""})`;
 
   function guardDisabledLink(el: HTMLAnchorElement): void {
     const block = (e: Event): void => {
@@ -441,37 +625,147 @@ if (!hasRunsIndex && import.meta.env.PROD) {
     el.addEventListener("click", block);
     el.addEventListener("keydown", (e) => {
       if (e.key !== "Enter" && e.key !== " ") return;
-      if (el.getAttribute("aria-disabled") === "true") {
-        e.preventDefault();
-        e.stopPropagation();
-      }
+      block(e);
     });
   }
 
+  // ---------- Rendering ----------
+
   function captureFocusKey(): string | null {
     const active = document.activeElement as HTMLElement | null;
-    if (!active) return null;
-    const tree = document.getElementById("explore-tree");
-    if (!tree || !tree.contains(active)) return null;
+    const tree = byId("explore-tree");
+    if (!active || !tree || !tree.contains(active)) return null;
     return active.dataset.focusKey ?? null;
   }
 
   function restoreFocus(key: string | null): void {
     if (!key) return;
-    const target = document.querySelector<HTMLElement>(
-      `[data-focus-key="${CSS.escape(key)}"]`,
-    );
-    target?.focus();
+    document.querySelector<HTMLElement>(`[data-focus-key="${CSS.escape(key)}"]`)?.focus();
+  }
+
+  const COLS: { key: SortKey; label: string; align: "left" | "right"; title?: string }[] = [
+    { key: "name", label: "System", align: "left" },
+    { key: "method", label: "Method", align: "left", title: "Framework the run went through" },
+    { key: "temp", label: "Temp.", align: "right", title: "Sampling temperature" },
+    { key: "tpl", label: "Template", align: "left", title: "Prompt template" },
+    { key: "n", label: "Questions", align: "right" },
+    { key: "spq", label: "Samples", align: "right", title: "Samples per question" },
+    { key: "runs", label: "Runs", align: "right", title: "Replicate runs behind the row" },
+    {
+      key: "score",
+      label: "SPS",
+      align: "right",
+      title:
+        "Mean across replicates. Interval: the leaderboard's 95% bootstrap interval when published, else a 95% t-interval over 3+ replicates.",
+    },
+  ];
+
+  function headHtml(): string {
+    const ths = COLS.map((c) => {
+      const active = c.key === state.sortKey;
+      const aria = active ? (state.sortDir === "asc" ? "ascending" : "descending") : "none";
+      const arrow = active ? (state.sortDir === "asc" ? "▲" : "▼") : "";
+      return `<th scope="col" aria-sort="${aria}" class="px-3 py-2 font-semibold text-${c.align} whitespace-nowrap">
+        <button type="button" data-sort="${c.key}" data-focus-key="sort::${c.key}" class="inline-flex items-center gap-1 font-semibold hover:text-primary"${c.title ? ` title="${escapeHtml(c.title)}"` : ""}>${escapeHtml(c.label)}<span aria-hidden="true" class="text-xs">${arrow}</span></button>
+      </th>`;
+    }).join("");
+    return `<thead><tr class="border-b border-muted/20 bg-surface dark:bg-surface-dark text-xs uppercase tracking-wide text-muted"><th scope="col" class="w-8 px-3 py-2"><span class="sr-only">Select for compare</span></th>${ths}</tr></thead>`;
+  }
+
+  const tag = (text: string, cls = "bg-muted/10 text-muted", title = "") =>
+    `<span class="rounded px-1.5 py-0.5 text-xs font-mono ${cls}"${title ? ` title="${escapeHtml(title)}"` : ""}>${escapeHtml(text)}</span>`;
+
+  function rowHtml(r: Row): string {
+    const href =
+      r.mode === "run"
+        ? `${BASE}/run/${encodeURIComponent(r.id)}/`
+        : `${BASE}/config/${encodeURIComponent(r.id)}/`;
+    const checked = state.selection.some((s) => s.id === r.id);
+    const cbId = `pick-${r.id}`.replace(/[^a-zA-Z0-9_-]/g, "_");
+    const tags = [
+      r.effort ? tag(`effort=${r.effort}`, undefined, `reasoning effort: ${r.effort}`) : "",
+      r.persona_pack
+        ? tag(
+            `pack=${r.persona_pack}`,
+            undefined,
+            `conditioned on the althing ${r.persona_pack} population pack`,
+          )
+        : "",
+      r.harness
+        ? tag(`harness=${r.harness}`, undefined, `run through the ${r.harness} CLI instead of the vendor API`)
+        : "",
+      r.mode === "run" ? tag(r.id.slice(-15), undefined, r.id) : "",
+    ].join("");
+    const ci = r.ci
+      ? `<div class="whitespace-nowrap text-[11px] text-muted" title="${r.ciKind === "bootstrap" ? "95% bootstrap interval (leaderboard)" : `95% t-interval over ${r.runs} replicates`}">${fmtScore(r.ci.low)}–${fmtScore(r.ci.high)}</div>`
+      : "";
+    return `<tr class="border-b border-muted/10 hover:bg-muted/5${checked ? " bg-primary/5" : ""}" data-row-id="${escapeHtml(r.id)}">
+      <td class="px-3 py-1.5 align-top"><input type="checkbox" id="${cbId}" class="accent-primary" data-pick="${escapeHtml(r.id)}" data-focus-key="pick::${escapeHtml(r.id)}" aria-label="Select for compare: ${escapeHtml(rowLabel(r))}"${checked ? " checked" : ""} /></td>
+      <td class="px-3 py-1.5 align-top">
+        <a href="${href}" class="font-medium text-text dark:text-text-dark hover:text-primary dark:hover:text-primary-light inline-flex items-center gap-1.5">${logoMarkup(labOf(`${r.model} ${r.display_name}`), 14)}${escapeHtml(r.display_name)}</a>
+        ${tags ? `<div class="mt-1 flex flex-wrap gap-1">${tags}</div>` : ""}
+      </td>
+      <td class="px-3 py-1.5 align-top font-mono text-xs">${escapeHtml(r.framework)}</td>
+      <td class="px-3 py-1.5 align-top text-right font-mono text-xs${r.temperature == null ? " text-muted" : ""}">${escapeHtml(tempLabel(r.temperature))}</td>
+      <td class="px-3 py-1.5 align-top font-mono text-xs${!r.template || r.template === "current" ? " text-muted" : ""}">${escapeHtml(templateLabel(r.template))}</td>
+      <td class="px-3 py-1.5 align-top text-right font-mono text-xs" data-col="n">n=${r.n_questions}</td>
+      <td class="px-3 py-1.5 align-top text-right font-mono text-xs" data-col="spq">${r.samples_per_question == null ? "—" : `s=${r.samples_per_question}`}</td>
+      <td class="px-3 py-1.5 align-top text-right font-mono text-xs">${r.runs}</td>
+      <td class="px-3 py-1.5 align-top text-right font-mono"><span class="font-semibold">${fmtScore(r.score)}</span>${ci}</td>
+    </tr>`;
+  }
+
+  function tableHtml(rows: Row[], caption: string, limit = Number.POSITIVE_INFINITY): string {
+    const sorted = sortRows(rows);
+    const shown = sorted.slice(0, limit);
+    // Keep selected rows visible even when they sort below the cut.
+    for (const s of state.selection) {
+      const r = sorted.find((x) => x.id === s.id);
+      if (r && !shown.includes(r)) shown.push(r);
+    }
+    const more =
+      sorted.length > shown.length
+        ? `<div class="flex items-center justify-between gap-3 border-t border-muted/20 px-3 py-2 text-sm text-muted"><span>Showing ${shown.length} of ${sorted.length}.</span><button type="button" id="show-all" class="rounded-md border border-muted/30 px-3 py-1 text-sm font-medium text-text dark:text-text-dark hover:bg-muted/10">Show all ${sorted.length}</button></div>`
+        : "";
+    return `<div class="overflow-x-auto rounded-lg border border-muted/20"><table class="w-full text-sm explore-table"><caption class="sr-only">${escapeHtml(caption)}</caption>${headHtml()}<tbody>${shown.map(rowHtml).join("")}</tbody></table>${more}</div>`;
+  }
+
+  function groupOf(r: Row): string {
+    if (r.is_baseline) return "Baselines";
+    if (r.is_ensemble) return "Ensembles";
+    return `${r.framework} · ${r.base_provider ?? "(unknown)"} / ${r.model}`;
+  }
+
+  function groupedHtml(rows: Row[]): string {
+    const groups = new Map<string, Row[]>();
+    for (const r of rows) {
+      const k = groupOf(r);
+      groups.set(k, [...(groups.get(k) ?? []), r]);
+    }
+    const best = (rs: Row[]) => Math.max(...rs.map((r) => r.score ?? -1));
+    return [...groups]
+      .sort((a, b) => best(b[1]) - best(a[1]))
+      .map(([k, rs]) => {
+        const open = state.openGroups.has(k);
+        const bodyId = `grp-${k}`.replace(/[^a-zA-Z0-9_-]/g, "_");
+        return `<section class="rounded-lg border border-muted/20 bg-surface dark:bg-surface-dark overflow-hidden">
+          <button type="button" class="w-full flex items-center justify-between gap-3 px-4 py-2 text-left text-sm hover:bg-muted/5" data-group="${escapeHtml(k)}" data-focus-key="grp::${escapeHtml(k)}" aria-expanded="${open}" aria-controls="${bodyId}">
+            <span class="flex items-center gap-2"><span aria-hidden="true" class="text-muted">${open ? "▾" : "▸"}</span>${logoMarkup(labOf(k), 15)}<span class="font-medium">${escapeHtml(k)}</span><span class="text-xs text-muted">· ${rs.length} ${state.collapseReplicates ? "config" : "run"}${rs.length === 1 ? "" : "s"}</span></span>
+            <span class="font-mono text-xs text-muted">best SPS <span class="font-semibold text-text dark:text-text-dark">${fmtScore(best(rs) < 0 ? null : best(rs))}</span></span>
+          </button>
+          <div id="${bodyId}" class="px-2 pb-2"${open ? "" : " hidden"}>${tableHtml(rs, `Configurations in ${k}`)}</div>
+        </section>`;
+      })
+      .join("");
   }
 
   function render(): void {
-    const tree = document.getElementById("explore-tree");
-    const summary = document.getElementById("explore-summary");
-    const live = document.getElementById("explore-live");
+    const tree = byId("explore-tree");
+    const summary = byId("explore-summary");
+    const live = byId("explore-live");
     if (!tree || !summary) return;
 
     const focusKey = captureFocusKey();
-
     const baseFiltered = state.runs.filter(matchesFilters);
     const filtered = state.showExploratory
       ? baseFiltered
@@ -479,441 +773,222 @@ if (!hasRunsIndex && import.meta.env.PROD) {
     const nRuns = filtered.length;
     const nConfigs = new Set(filtered.map((r) => r.config_id)).size;
     const nHidden = baseFiltered.length - filtered.length;
-    const base = state.collapseReplicates
-      ? `${nConfigs} configs · ${nRuns} runs (replicates collapsed)`
-      : `${nRuns} runs across ${nConfigs} configs`;
-    summary.textContent =
-      nHidden > 0 ? `${base} · ${nHidden} hidden — show exploratory` : base;
+    const ds = datasetLabel(state.dataset);
+    const head = state.collapseReplicates
+      ? `${nConfigs} configs · ${nRuns} runs on ${ds}`
+      : `${nRuns} runs across ${nConfigs} configs on ${ds}`;
+    summary.innerHTML =
+      nHidden > 0
+        ? `${escapeHtml(head)} · ${nHidden} hidden — <button type="button" id="show-exploratory" class="text-primary underline underline-offset-2 hover:no-underline">show exploratory</button>`
+        : escapeHtml(head);
     if (live) live.textContent = summary.textContent;
 
-    tree.innerHTML = "";
+    const groupActions = byId("group-actions");
+    if (groupActions) {
+      groupActions.classList.toggle("hidden", state.view !== "grouped");
+      groupActions.classList.toggle("flex", state.view === "grouped");
+    }
+
     if (nRuns === 0) {
       tree.innerHTML = `<p class="text-sm text-muted">No runs match the current filters.</p>`;
       return;
     }
-
-    // Group by framework → base model.
-    const frameworkMap = new Map<string, Map<string, ConfigGroup[]>>();
-
-    if (state.collapseReplicates) {
-      const groups = buildConfigGroups(filtered);
-      for (const g of groups) {
-        const bm = baseModelLabel(g);
-        const byModel = frameworkMap.get(g.framework) ?? new Map();
-        byModel.set(bm, [...(byModel.get(bm) ?? []), g]);
-        frameworkMap.set(g.framework, byModel);
-      }
-    } else {
-      // Each run is its own "group of 1 replicate" so the rendering loop stays uniform.
-      for (const r of filtered) {
-        const g: ConfigGroup = {
-          config_id: r.config_id,
-          framework: r.framework,
-          base_provider: r.base_provider,
-          model: r.model,
-          display_name: r.display_name,
-          dataset: r.dataset,
-          temperature: r.temperature,
-          effort: r.effort,
-          template: r.template,
-          persona_pack: r.persona_pack ?? null,
-          harness: r.harness ?? null,
-          samples_per_question: r.samples_per_question,
-          n_questions: r.n_questions,
-          is_baseline: r.is_baseline,
-          is_ensemble: r.is_ensemble,
-          replicates: [r],
-          agg_sps: r.sps,
-          agg_jsd: r.jsd,
-          agg_tau: r.tau,
-        };
-        const bm = baseModelLabel(g);
-        const byModel = frameworkMap.get(g.framework) ?? new Map();
-        byModel.set(bm, [...(byModel.get(bm) ?? []), g]);
-        frameworkMap.set(g.framework, byModel);
-      }
-    }
-
-    const frameworks = Array.from(frameworkMap.keys()).sort();
-    for (const framework of frameworks) {
-      const byModel = frameworkMap.get(framework);
-      if (!byModel) continue;
-
-      const fwBlock = document.createElement("section");
-      fwBlock.className =
-        "rounded-lg border border-muted/20 bg-surface dark:bg-surface-dark overflow-hidden";
-
-      const fwHeader = document.createElement("button");
-      fwHeader.type = "button";
-      fwHeader.className =
-        "w-full flex items-center justify-between gap-2 px-4 py-2 text-left font-semibold hover:bg-muted/5";
-      const nGroups = Array.from(byModel.values()).reduce((n, gs) => n + gs.length, 0);
-      const nReps = Array.from(byModel.values()).reduce(
-        (n, gs) => n + gs.reduce((m, g) => m + g.replicates.length, 0),
-        0,
-      );
-      fwHeader.innerHTML = `
-        <span class="flex items-center gap-2">
-          <span aria-hidden="true" class="text-muted">▸</span>
-          <span>${escapeHtml(framework)}</span>
-          <span class="text-xs text-muted">· ${nGroups} ${state.collapseReplicates ? "configs" : "runs"} · ${nReps} run${nReps === 1 ? "" : "s"}</span>
-        </span>
-      `;
-      fwBlock.appendChild(fwHeader);
-
-      const fwBody = document.createElement("div");
-      fwBody.className = "divide-y divide-muted/10";
-
-      const fwKey = `fw::${framework}`;
-      const fwBodyId = `panel-${fwKey}`.replace(/[^a-zA-Z0-9_-]/g, "_");
-      const fwCollapsed = state.collapsedGroups.has(fwKey);
-      fwBody.hidden = fwCollapsed;
-      fwBody.id = fwBodyId;
-      const fwCaret = fwHeader.querySelector("span[aria-hidden]");
-      if (fwCaret) fwCaret.textContent = fwCollapsed ? "▸" : "▾";
-      fwHeader.setAttribute("aria-expanded", String(!fwCollapsed));
-      fwHeader.setAttribute("aria-controls", fwBodyId);
-      fwHeader.dataset.focusKey = fwKey;
-      fwHeader.addEventListener("click", () => {
-        if (state.collapsedGroups.has(fwKey)) state.collapsedGroups.delete(fwKey);
-        else state.collapsedGroups.add(fwKey);
-        render();
-      });
-
-      const baseModels = Array.from(byModel.keys()).sort();
-      for (const baseModel of baseModels) {
-        const groups = byModel.get(baseModel) ?? [];
-        const bmBlock = document.createElement("div");
-        bmBlock.className = "px-2";
-
-        const bmHeader = document.createElement("button");
-        bmHeader.type = "button";
-        bmHeader.className =
-          "w-full flex items-center justify-between gap-2 px-2 py-2 text-left text-sm font-medium hover:bg-muted/5";
-        const bmKey = groupKey(framework, baseModel);
-        const bmBodyId = `panel-${bmKey}`.replace(/[^a-zA-Z0-9_-]/g, "_");
-        const bmCollapsed = state.collapsedGroups.has(bmKey);
-        bmHeader.setAttribute("aria-expanded", String(!bmCollapsed));
-        bmHeader.setAttribute("aria-controls", bmBodyId);
-        bmHeader.dataset.focusKey = `bm::${bmKey}`;
-        bmHeader.innerHTML = `
-          <span class="flex items-center gap-2">
-            <span aria-hidden="true" class="text-muted">${bmCollapsed ? "▸" : "▾"}</span>
-            ${logoMarkup(labOf(baseModel), 15)}<span>${escapeHtml(baseModel)}</span>
-            <span class="text-xs text-muted">· ${groups.length} config${groups.length === 1 ? "" : "s"}</span>
-          </span>
-        `;
-        bmHeader.addEventListener("click", () => {
-          if (state.collapsedGroups.has(bmKey)) state.collapsedGroups.delete(bmKey);
-          else state.collapsedGroups.add(bmKey);
-          render();
-        });
-        bmBlock.appendChild(bmHeader);
-
-        const rowsWrap = document.createElement("div");
-        rowsWrap.className = "pb-2";
-        rowsWrap.hidden = bmCollapsed;
-        rowsWrap.id = bmBodyId;
-
-        // Sort by aggregate SPS desc (nulls last).
-        groups.sort((a, b) => (b.agg_sps ?? -Infinity) - (a.agg_sps ?? -Infinity));
-
-        for (const g of groups) {
-          const isRunRow = !state.collapseReplicates;
-          const mode: SelectionMode = isRunRow ? "run" : "config";
-          const rowId = isRunRow ? g.replicates[0].run_id : g.config_id;
-          const detailHref = isRunRow
-            ? `${BASE}/run/${encodeURIComponent(rowId)}/`
-            : `${BASE}/config/${encodeURIComponent(rowId)}/`;
-
-          const row = document.createElement("div");
-          row.className =
-            "flex flex-wrap items-center gap-3 rounded-md px-3 py-2 text-sm hover:bg-muted/5";
-
-          const checkboxId = `pick-${rowId}`.replace(/[^a-zA-Z0-9_-]/g, "_");
-          const checkbox = document.createElement("input");
-          checkbox.type = "checkbox";
-          checkbox.id = checkboxId;
-          checkbox.className = "accent-primary";
-          checkbox.checked = selectionContainsId(rowId);
-          checkbox.setAttribute("aria-label", `Select for compare: ${g.display_name}`);
-          checkbox.dataset.focusKey = `pick::${rowId}`;
-          checkbox.addEventListener("change", () =>
-            toggleSelection({ id: rowId, label: g.display_name, mode }),
+    const rows = toRows(filtered);
+    labelSelection(rows);
+    tree.innerHTML =
+      state.view === "grouped"
+        ? `<div class="space-y-2">${groupedHtml(rows)}</div>`
+        : tableHtml(
+            rows,
+            `Configurations on ${ds}. Select a column header to sort.`,
+            state.showAll ? Number.POSITIVE_INFINITY : TABLE_LIMIT,
           );
-          row.appendChild(checkbox);
-
-          const tags = document.createElement("div");
-          tags.className = "flex flex-wrap items-center gap-1.5";
-
-          const dsTag = document.createElement("span");
-          dsTag.className =
-            "rounded bg-muted/10 text-xs text-muted px-1.5 py-0.5 font-mono";
-          dsTag.textContent = g.dataset;
-          tags.appendChild(dsTag);
-
-          if (g.samples_per_question != null) {
-            const sTag = document.createElement("span");
-            sTag.className =
-              "rounded bg-muted/10 text-xs text-muted px-1.5 py-0.5 font-mono";
-            sTag.textContent = `s=${g.samples_per_question}`;
-            sTag.title = `samples per question: ${g.samples_per_question}`;
-            tags.appendChild(sTag);
-          }
-          {
-            const nTag = document.createElement("span");
-            nTag.className =
-              "rounded bg-muted/10 text-xs text-muted px-1.5 py-0.5 font-mono";
-            nTag.textContent = `n=${g.n_questions}`;
-            nTag.title = `questions evaluated: ${g.n_questions}`;
-            tags.appendChild(nTag);
-          }
-          if (g.temperature != null) {
-            const tTag = document.createElement("span");
-            tTag.className = "rounded bg-muted/10 text-xs text-muted px-1.5 py-0.5 font-mono";
-            tTag.textContent = `t=${g.temperature}`;
-            tags.appendChild(tTag);
-          }
-          if (g.effort != null) {
-            const effTag = document.createElement("span");
-            effTag.className = "rounded bg-muted/10 text-xs text-muted px-1.5 py-0.5 font-mono";
-            effTag.textContent = `effort=${g.effort}`;
-            effTag.title = `reasoning effort: ${g.effort}`;
-            tags.appendChild(effTag);
-          }
-          // "current" is the default template; show only non-default ones.
-          if (g.template && g.template !== "current") {
-            const tplTag = document.createElement("span");
-            tplTag.className =
-              "rounded bg-muted/10 text-xs text-muted px-1.5 py-0.5 font-mono";
-            tplTag.textContent = `tpl=${g.template}`;
-            tags.appendChild(tplTag);
-          }
-          if (g.persona_pack) {
-            const packTag = document.createElement("span");
-            packTag.className =
-              "rounded bg-muted/10 text-xs text-muted px-1.5 py-0.5 font-mono";
-            packTag.textContent = `pack=${g.persona_pack}`;
-            packTag.title = `conditioned on the althing ${g.persona_pack} population pack`;
-            tags.appendChild(packTag);
-          }
-          if (g.harness) {
-            const harnessTag = document.createElement("span");
-            harnessTag.className =
-              "rounded bg-muted/10 text-xs text-muted px-1.5 py-0.5 font-mono";
-            harnessTag.textContent = `harness=${g.harness}`;
-            harnessTag.title = `run through the ${g.harness} CLI instead of the vendor API`;
-            tags.appendChild(harnessTag);
-          }
-          if (g.is_baseline) {
-            const bTag = document.createElement("span");
-            bTag.className =
-              "rounded bg-baseline/20 text-xs text-baseline px-1.5 py-0.5 font-medium";
-            bTag.textContent = "baseline";
-            tags.appendChild(bTag);
-          }
-          if (g.is_ensemble) {
-            const eTag = document.createElement("span");
-            eTag.className =
-              "rounded bg-accent/20 text-xs text-accent px-1.5 py-0.5 font-medium";
-            eTag.textContent = "ensemble";
-            tags.appendChild(eTag);
-          }
-          if (state.collapseReplicates && g.replicates.length > 1) {
-            const rTag = document.createElement("span");
-            rTag.className =
-              "rounded bg-primary/10 text-xs text-primary px-1.5 py-0.5 font-medium";
-            rTag.textContent = `${g.replicates.length} replicates`;
-            tags.appendChild(rTag);
-          }
-
-          const nameLink = document.createElement("a");
-          nameLink.href = detailHref;
-          nameLink.className =
-            "flex-1 min-w-[12rem] font-medium text-text dark:text-text-dark hover:text-primary dark:hover:text-primary-light";
-          nameLink.textContent = g.display_name;
-
-          const scores = document.createElement("div");
-          scores.className =
-            "flex items-center gap-4 font-mono text-xs text-muted ml-auto whitespace-nowrap";
-          scores.innerHTML = `
-            <span>SPS <span class="text-text dark:text-text-dark font-semibold">${fmtScore(g.agg_sps)}</span></span>
-            <span>JSD <span class="text-text dark:text-text-dark">${fmtScore(g.agg_jsd)}</span></span>
-            <span>τ <span class="text-text dark:text-text-dark">${fmtScore(g.agg_tau)}</span></span>
-          `;
-
-          row.appendChild(nameLink);
-          row.appendChild(tags);
-          row.appendChild(scores);
-          rowsWrap.appendChild(row);
-        }
-
-        bmBlock.appendChild(rowsWrap);
-        fwBody.appendChild(bmBlock);
-      }
-
-      fwBlock.appendChild(fwBody);
-      tree.appendChild(fwBlock);
-    }
-
     restoreFocus(focusKey);
   }
 
-  function wireFilters(): void {
-    const byId = <T extends HTMLElement>(id: string): T | null =>
-      document.getElementById(id) as T | null;
+  function update(): void {
+    render();
+    renderCompareTray();
+    writeUrl();
+  }
+
+  // ---------- Wiring ----------
+
+  function wire(): void {
+    const tree = byId("explore-tree");
+    tree?.addEventListener("click", (e) => {
+      const t = e.target as HTMLElement;
+      const sortBtn = t.closest<HTMLButtonElement>("button[data-sort]");
+      if (sortBtn) {
+        const k = sortBtn.dataset.sort as SortKey;
+        if (state.sortKey === k) state.sortDir = state.sortDir === "asc" ? "desc" : "asc";
+        else {
+          state.sortKey = k;
+          state.sortDir = defaultDir(k);
+        }
+        update();
+        return;
+      }
+      if (t.closest("#show-all")) {
+        state.showAll = true;
+        update();
+        return;
+      }
+      const grp = t.closest<HTMLButtonElement>("button[data-group]");
+      if (grp?.dataset.group) {
+        const k = grp.dataset.group;
+        if (state.openGroups.has(k)) state.openGroups.delete(k);
+        else state.openGroups.add(k);
+        render();
+      }
+    });
+    tree?.addEventListener("change", (e) => {
+      const cb = (e.target as HTMLElement).closest<HTMLInputElement>("input[data-pick]");
+      if (!cb?.dataset.pick) return;
+      const id = cb.dataset.pick;
+      const mode: SelectionMode = state.collapseReplicates ? "config" : "run";
+      const label = cb.getAttribute("aria-label")?.replace(/^Select for compare: /, "") ?? id;
+      toggleSelection({ id, label, mode });
+    });
+    byId("explore-summary")?.addEventListener("click", (e) => {
+      if ((e.target as HTMLElement).id !== "show-exploratory") return;
+      state.showExploratory = true;
+      populateControls();
+      update();
+      byId("filter-exploratory")?.focus();
+    });
 
     const search = byId<HTMLInputElement>("filter-search");
-    const dataset = byId<HTMLSelectElement>("filter-dataset");
-    const framework = byId<HTMLSelectElement>("filter-framework");
-    const tMin = byId<HTMLInputElement>("filter-temp-min");
-    const tMax = byId<HTMLInputElement>("filter-temp-max");
-    const tLabel = byId<HTMLSpanElement>("filter-temp-label");
-    const tNull = byId<HTMLInputElement>("filter-temp-include-null");
-    const baselines = byId<HTMLInputElement>("filter-baselines");
-    const collapse = byId<HTMLInputElement>("filter-collapse");
-    const exploratory = byId<HTMLInputElement>("filter-exploratory");
-    const reset = byId<HTMLButtonElement>("filter-reset");
-    const expandAll = byId<HTMLButtonElement>("expand-all");
-    const collapseAll = byId<HTMLButtonElement>("collapse-all");
-    const clear = byId<HTMLButtonElement>("compare-clear");
-
-    function updateTempLabel(): void {
-      if (!tLabel || !tMin || !tMax) return;
-      const a = Number.parseFloat(tMin.value);
-      const b = Number.parseFloat(tMax.value);
-      const lo = Math.min(a, b);
-      const hi = Math.max(a, b);
-      state.tempMin = lo;
-      state.tempMax = hi;
-      tLabel.textContent = lo === 0 && hi === 2 ? "any" : `${lo.toFixed(2)} – ${hi.toFixed(2)}`;
-    }
-
     search?.addEventListener("input", () => {
       state.search = search.value.trim();
-      render();
+      update();
     });
-    dataset?.addEventListener("change", () => {
-      state.dataset = dataset.value;
-      render();
+    const onSelect = (id: string, key: "framework" | "temp" | "template") => {
+      const el = byId<HTMLSelectElement>(id);
+      el?.addEventListener("change", () => {
+        state[key] = el.value;
+        update();
+      });
+    };
+    onSelect("filter-framework", "framework");
+    onSelect("filter-temp", "temp");
+    onSelect("filter-template", "template");
+    const onCheck = (id: string, fn: (v: boolean) => void) => {
+      const el = byId<HTMLInputElement>(id);
+      el?.addEventListener("change", () => {
+        fn(el.checked);
+        update();
+      });
+    };
+    onCheck("filter-baselines", (v) => {
+      state.showBaselines = v;
     });
-    framework?.addEventListener("change", () => {
-      state.framework = framework.value;
-      render();
+    onCheck("filter-exploratory", (v) => {
+      state.showExploratory = v;
     });
-    tMin?.addEventListener("input", () => {
-      updateTempLabel();
-      render();
-    });
-    tMax?.addEventListener("input", () => {
-      updateTempLabel();
-      render();
-    });
-    tNull?.addEventListener("change", () => {
-      state.tempIncludeNull = tNull.checked;
-      render();
-    });
-    baselines?.addEventListener("change", () => {
-      state.showBaselines = baselines.checked;
-      render();
-    });
-    exploratory?.addEventListener("change", () => {
-      state.showExploratory = exploratory.checked;
-      render();
-    });
-    collapse?.addEventListener("change", () => {
-      state.collapseReplicates = collapse.checked;
+    onCheck("filter-collapse", (v) => {
+      state.collapseReplicates = v;
       // Switching mode invalidates any selection whose mode no longer matches.
-      const needed: SelectionMode = state.collapseReplicates ? "config" : "run";
+      const needed: SelectionMode = v ? "config" : "run";
       state.selection = state.selection.filter((s) => s.mode === needed);
-      renderCompareTray();
+    });
+    for (const b of document.querySelectorAll<HTMLButtonElement>("#view-mode .view-btn")) {
+      b.addEventListener("click", () => {
+        state.view = b.dataset.view === "grouped" ? "grouped" : "table";
+        populateControls();
+        update();
+      });
+    }
+    byId("filter-reset")?.addEventListener("click", () => {
+      Object.assign(state, {
+        search: "",
+        framework: "",
+        temp: "",
+        template: "",
+        showBaselines: true,
+        showExploratory: false,
+        collapseReplicates: true,
+        view: "table",
+        sortKey: "score",
+        sortDir: "desc",
+        showAll: false,
+      });
+      state.openGroups.clear();
+      populateControls();
+      update();
+    });
+    byId("expand-all")?.addEventListener("click", () => {
+      const rows = toRows(state.runs.filter(matchesFilters));
+      for (const r of rows) state.openGroups.add(groupOf(r));
       render();
     });
-    reset?.addEventListener("click", () => {
-      if (search) search.value = "";
-      if (dataset) dataset.value = "";
-      if (framework) framework.value = "";
-      if (tMin) tMin.value = "0";
-      if (tMax) tMax.value = "2";
-      if (tNull) tNull.checked = true;
-      if (baselines) baselines.checked = true;
-      if (collapse) collapse.checked = true;
-      if (exploratory) exploratory.checked = false;
-      state.search = "";
-      state.dataset = "";
-      state.framework = "";
-      state.tempMin = 0;
-      state.tempMax = 2;
-      state.tempIncludeNull = true;
-      state.showBaselines = true;
-      state.showExploratory = false;
-      state.collapseReplicates = true;
-      state.collapsedGroups.clear();
-      updateTempLabel();
+    byId("collapse-all")?.addEventListener("click", () => {
+      state.openGroups.clear();
       render();
     });
-    expandAll?.addEventListener("click", () => {
-      state.collapsedGroups.clear();
-      render();
-    });
-    collapseAll?.addEventListener("click", () => {
-      // Mark every rendered group key as collapsed by walking the data once.
-      state.collapsedGroups.clear();
-      const frameworks = new Set(state.runs.map((r) => r.framework));
-      for (const fw of frameworks) state.collapsedGroups.add(`fw::${fw}`);
-      render();
-    });
-    clear?.addEventListener("click", () => {
+    byId("compare-clear")?.addEventListener("click", () => {
       state.selection = [];
-      renderCompareTray();
-      render();
+      update();
     });
+    const go = byId<HTMLAnchorElement>("compare-go");
+    if (go) guardDisabledLink(go);
+  }
 
-    updateTempLabel();
+  /** Leaderboard bootstrap intervals for the configs it ranks (public). */
+  async function loadLeaderboardCis(): Promise<void> {
+    try {
+      const res = await fetch(`${BASE}/data/leaderboard.json`, { cache: "force-cache" });
+      if (!res.ok) return;
+      const lb = (await res.json()) as {
+        entries?: { config_id?: string; ci_lower?: number | null; ci_upper?: number | null }[];
+      };
+      for (const e of lb.entries ?? []) {
+        if (e.config_id && e.ci_lower != null && e.ci_upper != null) {
+          state.lbCi.set(e.config_id, { low: e.ci_lower, high: e.ci_upper });
+        }
+      }
+      render();
+    } catch {
+      // Intervals are optional; rows keep their replicate-based ones.
+    }
   }
 
   async function init(): Promise<void> {
-    wireFilters();
-    const compareGo = document.getElementById(
-      "compare-go",
-    ) as HTMLAnchorElement | null;
-    if (compareGo) guardDisabledLink(compareGo);
+    readUrl();
+    wire();
     try {
       const resp = await fetch(`${BASE}/data/runs-index.json`, { cache: "force-cache" });
       if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
       const payload = (await resp.json()) as RunIndex;
       state.runs = payload.runs;
-      populateSelects(state.runs);
-      render();
+      // Leaderboard order (core datasets first), then anything else A→Z.
+      const rank = (d: string) => {
+        const i = DATASET_ORDER.indexOf(datasetBase(d));
+        return i < 0 ? DATASET_ORDER.length : i;
+      };
+      state.datasets = [...new Set(state.runs.map((r) => r.dataset))].sort(
+        (a, b) => rank(a) - rank(b) || a.localeCompare(b),
+      );
+      state.dataset = pickDefaultDataset();
+      populateControls();
+      update();
+      void loadLeaderboardCis();
     } catch (err) {
-      const tree = document.getElementById("explore-tree");
-      const live = document.getElementById("explore-live");
+      const tree = byId("explore-tree");
+      const live = byId("explore-live");
       const message = (err as Error).message;
       const isMissing = /HTTP 404/.test(message);
-      const baseHref = `${BASE}/`;
       const liveMsg = isMissing
         ? "No runs published yet — try the Leaderboard."
         : `Failed to load runs index: ${message}. Make sure \`synthbench publish-runs\` has been run.`;
       if (tree) {
-        if (isMissing) {
-          tree.innerHTML = `
-            <div class="rounded-lg border border-muted/20 bg-surface dark:bg-surface-dark p-6 text-sm">
+        tree.innerHTML = isMissing
+          ? `<div class="rounded-lg border border-muted/20 bg-surface dark:bg-surface-dark p-6 text-sm">
               <p class="font-medium mb-1">No runs published yet.</p>
-              <p class="text-muted mb-3">
-                The runs index isn't available in this build. Once benchmark runs
-                are published, this page will list them grouped by framework and
-                base model.
-              </p>
-              <p>
-                In the meantime, head to the
-                <a class="text-primary hover:underline" href="${baseHref}leaderboard/">Leaderboard</a>
-                for aggregate scores.
-              </p>
-            </div>
-          `;
-        } else {
-          tree.innerHTML = `<p class="text-sm text-baseline">${liveMsg}</p>`;
-        }
+              <p class="text-muted mb-3">The runs index isn't available in this build. Once benchmark runs are published, this page will list them.</p>
+              <p>In the meantime, head to the <a class="text-primary hover:underline" href="${BASE}/leaderboard/">Leaderboard</a> for aggregate scores.</p>
+            </div>`
+          : `<p class="text-sm text-baseline">${escapeHtml(liveMsg)}</p>`;
       }
       if (live) live.textContent = liveMsg;
     }

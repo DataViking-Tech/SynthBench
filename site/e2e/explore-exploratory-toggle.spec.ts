@@ -33,7 +33,8 @@ test.describe("explore: exploratory runs toggle", () => {
   });
 
   test("toggling ON reveals hidden rows; OFF hides them again", async ({ page }) => {
-    await page.goto("explore/");
+    // all=1 lifts the table's top-25 cut so row counts track the filter.
+    await page.goto("explore/?all=1");
     const firstRow = page.locator("#explore-tree [data-focus-key^='pick::']").first();
     await expect(firstRow).toBeVisible({ timeout: 10000 });
 
@@ -55,7 +56,7 @@ test.describe("explore: exploratory runs toggle", () => {
   });
 
   test("rows expose s= and n= chips for configs that report them", async ({ page }) => {
-    await page.goto("explore/");
+    await page.goto("explore/?all=1");
     const firstRow = page.locator("#explore-tree [data-focus-key^='pick::']").first();
     await expect(firstRow).toBeVisible({ timeout: 10000 });
 
