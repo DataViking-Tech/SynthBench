@@ -19,6 +19,7 @@ import {
 } from "../model";
 import {
   METHOD_IDS,
+  capRows,
   filterStatus,
   initShell,
   methodChips,
@@ -26,6 +27,7 @@ import {
   readSet,
   scopeControl,
   setParam,
+  showAllToggle,
   takeaways,
   writeParams,
 } from "../ui";
@@ -83,12 +85,19 @@ onChange(() => {
 }
 
 // ---------- The gap ----------
+// Top systems by default; "Show all" lists every ranked system.
+const GAP_TOP = 10;
+let gapAll = new URLSearchParams(location.search).get("gap") === "all";
 const gapEl = $("ov-gap");
-mount(
+const drawGap = mount(
   gapEl,
   (W) => {
     const rows = tiers(rankedPool().filter(visible));
-    $("gap-q").textContent = `${scopeName()}. Every ranked system on one scale.`;
+    const shown = capRows(rows, GAP_TOP, gapAll);
+    $("gap-q").textContent =
+      shown.length < rows.length
+        ? `${scopeName()}. The top ${shown.length} of ${rows.length} ranked systems, highest first.`
+        : `${scopeName()}. All ${rows.length} ranked systems, highest first.`;
     if (!rows.length) {
       gapEl.append(
         h(
@@ -101,7 +110,18 @@ mount(
       takeaways($("ov-notice"), []);
       return;
     }
-    gapChart(gapEl, W, rows);
+    gapChart(gapEl, W, shown);
+    const more = showAllToggle({
+      total: rows.length,
+      limit: GAP_TOP,
+      all: gapAll,
+      onToggle: () => {
+        gapAll = !gapAll;
+        writeParams({ gap: gapAll ? "all" : null });
+        drawGap();
+      },
+    });
+    if (more) gapEl.append(more);
     const tier1 = rows.filter((r) => r.tier === 1);
     const tier2 = rows.filter((r) => r.tier === 2);
     const raw = rows.filter((r) => r.c.method === "raw");

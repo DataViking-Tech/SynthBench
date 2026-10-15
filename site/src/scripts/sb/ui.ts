@@ -973,6 +973,50 @@ export function methodChips(on: Set<string>, changed: () => void): Rerenderable 
 /** Keep the scope param in the URL in step with state.scope. */
 onChange(() => writeParams({ scope: state.scope === "all" ? null : state.scope }));
 
+// ---------- Default density: top N with a "Show all" toggle ----------
+
+/** Capping that would hide only a few rows isn't worth a click: show them all. */
+const capWorthIt = (total: number, limit: number): boolean => total > limit + 3;
+/** The first `limit` rows unless `all` is set or capping would hide three or fewer. */
+export const capRows = <T>(rows: T[], limit: number, all: boolean): T[] =>
+  all || !capWorthIt(rows.length, limit) ? rows : rows.slice(0, limit);
+/**
+ * "Showing the top 10 of 33 · Show all 33" under a capped chart or list.
+ * Returns null when nothing would be hidden.
+ */
+export function showAllToggle(o: {
+  total: number;
+  limit: number;
+  all: boolean;
+  onToggle: () => void;
+  noun?: string;
+  shownText?: string;
+}): HTMLElement | null {
+  if (!capWorthIt(o.total, o.limit)) return null;
+  const noun = o.noun ?? "systems";
+  return h(
+    "div",
+    { class: "sb-showall" },
+    h(
+      "span",
+      null,
+      o.all
+        ? `Showing all ${o.total} ${noun}`
+        : (o.shownText ?? `Showing the top ${o.limit} of ${o.total} ${noun}`),
+    ),
+    h(
+      "button",
+      {
+        type: "button",
+        class: "sb-linkbtn",
+        "aria-expanded": o.all ? "true" : "false",
+        onclick: o.onToggle,
+      },
+      o.all ? `Show the top ${o.limit} only` : `Show all ${o.total}`,
+    ),
+  );
+}
+
 // ---------- Takeaways ----------
 const openTakes = new Set<string>();
 type TakeKid = Node | string | null | undefined | false;
