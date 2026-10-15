@@ -2,6 +2,7 @@
 import Analytics from "@/components/shared/Analytics.astro";
 import Footer from "@/components/shared/Footer.astro";
 import Nav from "@/components/shared/Nav.astro";
+import { pageTitle } from "@/lib/vocab";
 import "@fontsource/ibm-plex-mono/400.css";
 import "@fontsource/ibm-plex-mono/500.css";
 import "@fontsource/ibm-plex-sans/400.css";
@@ -20,12 +21,16 @@ interface Props {
 }
 
 const {
-  title,
+  title: rawTitle,
   description = "SynthBench: Open benchmark for synthetic survey respondent quality",
   noindex = false,
   ogImage,
   jsonLd,
 } = Astro.props;
+
+// One title format site-wide: "<page> · SynthBench". Pages pass the page name;
+// a legacy " - SynthBench" / ": SynthBench" / " — SynthBench" suffix is dropped.
+const title = pageTitle(rawTitle.replace(/\s*(?::|-|—|–|·|\|)\s*SynthBench$/, ""));
 
 const rawBase = import.meta.env.BASE_URL || "/";
 const base = rawBase.endsWith("/") ? rawBase : `${rawBase}/`;
