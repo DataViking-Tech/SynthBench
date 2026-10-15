@@ -2,7 +2,7 @@
 import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { resolve } from "node:path";
 import BaseLayout from "@/layouts/BaseLayout.astro";
-import { compareKeys, datasetLabel } from "@/lib/runExplorer";
+import { compareKeys, datasetLabel, methodName, systemName } from "@/lib/runExplorer";
 import { topicLabel } from "@/lib/topics";
 import type { QuestionIndex, QuestionIndexEntry, QuestionPayload } from "@/types/questions";
 
@@ -202,7 +202,7 @@ function renderBar(dist: Record<string, number>): string {
 
 const displayKey = payload?.key ?? routeKey ?? "";
 const displayDataset = payload?.dataset ?? routeDataset ?? "";
-const pageTitle = `Question ${displayKey} (${displayDataset}) - SynthBench`;
+const pageTitle = `Question ${displayKey} (${datasetLabel(displayDataset)})`;
 
 // URL encoder for segments (question keys are sanitized to safe chars
 // already, but guard against spaces and reserved chars anyway).
@@ -224,7 +224,7 @@ const configUrl = (id: string): string => `${base}/config/${encodePathSegment(id
     <!-- Breadcrumb + prev / next -->
     <div class="mb-6 flex flex-wrap items-baseline justify-between gap-3 text-sm text-muted">
       <nav aria-label="Breadcrumb">
-        <a href={exploreUrl} class="hover:text-primary">Explore</a>
+        <a href={exploreUrl} class="hover:text-primary">Runs</a>
         <span class="mx-2">/</span>
         <a href={questionIndexUrl} class="hover:text-primary">{datasetLabel(displayDataset)} questions</a>
         <span class="mx-2">/</span>
@@ -269,8 +269,8 @@ const configUrl = (id: string): string => `${base}/config/${encodePathSegment(id
     <header class="mb-6">
       <div class="flex flex-wrap items-baseline gap-2">
         <h1 class="text-2xl font-bold sm:text-3xl">Question detail</h1>
-        <span class="rounded bg-muted/20 px-2 py-0.5 font-mono text-xs text-muted">
-          {payload.dataset}
+        <span class="rounded bg-muted/20 px-2 py-0.5 text-xs text-muted">
+          {datasetLabel(payload.dataset)}
         </span>
         {
           payload.topic && (
@@ -333,7 +333,7 @@ const configUrl = (id: string): string => `${base}/config/${encodePathSegment(id
           </dd>
         </div>
         <div>
-          <dt class="text-xs text-muted">JSD to human (mean)</dt>
+          <dt class="text-xs text-muted">Gap to people (mean JSD)</dt>
           <dd class="font-mono text-lg">
             {fmt(payload.summary.jsd_to_human_mean)}
           </dd>
@@ -400,7 +400,7 @@ const configUrl = (id: string): string => `${base}/config/${encodePathSegment(id
               </span>{" "}
               to honor the upstream dataset license
               {datasetPolicy?.citation ? ` (${datasetPolicy.citation})` : ""}. Aggregate metrics
-              (JSD to human, consensus alignment) remain available above; see
+              (gap to people, consensus alignment) remain available above; see
               the source for the underlying distribution.
               {humanTop && (
                 <>
@@ -453,7 +453,7 @@ const configUrl = (id: string): string => `${base}/config/${encodePathSegment(id
       <h2 class="mb-3 text-sm font-semibold uppercase tracking-wide text-muted">
         Model distributions
         <span class="ml-2 text-xs font-normal text-muted">
-          sorted by JSD to human, ascending
+          sorted by gap to people (JSD), ascending
         </span>
       </h2>
       <div class="overflow-x-auto rounded-lg border border-muted/20">
@@ -465,10 +465,10 @@ const configUrl = (id: string): string => `${base}/config/${encodePathSegment(id
           </caption>
           <thead>
             <tr class="bg-surface dark:bg-surface-dark border-b border-muted/20">
-              <th class="px-3 py-2 text-left font-semibold" scope="col">Model</th>
-              <th class="px-3 py-2 text-left font-semibold" scope="col">Framework</th>
+              <th class="px-3 py-2 text-left font-semibold" scope="col">System</th>
+              <th class="px-3 py-2 text-left font-semibold" scope="col">Method</th>
               <th class="px-3 py-2 text-left font-semibold" scope="col">Distribution</th>
-              <th class="px-3 py-2 text-right font-semibold" scope="col">JSD → human</th>
+              <th class="px-3 py-2 text-right font-semibold" scope="col" title="Distribution gap: Jensen-Shannon divergence from people's answers (lower is better)">Gap to people <span class="font-normal text-muted">(JSD)</span></th>
               <th class="px-3 py-2 text-right font-semibold" scope="col">Refusal</th>
               <th class="px-3 py-2 text-right font-semibold" scope="col">N samples</th>
               <th class="px-3 py-2 text-right font-semibold" scope="col">Run</th>
@@ -486,11 +486,11 @@ const configUrl = (id: string): string => `${base}/config/${encodePathSegment(id
                         class="font-semibold hover:text-primary"
                         title="Configuration and replicates"
                       >
-                        {r.model}
+                        {systemName(r)}
                       </a>
                       <div class="text-xs text-muted">{r.base_provider}</div>
                     </td>
-                    <td class="px-3 py-2 font-mono text-xs">{r.framework}</td>
+                    <td class="px-3 py-2 text-xs">{methodName(r)}</td>
                     <td class="px-3 py-2">
                       <span
                         class="inline-block w-full min-w-[140px]"
@@ -561,13 +561,13 @@ const configUrl = (id: string): string => `${base}/config/${encodePathSegment(id
                     Configuration
                   </th>
                   <th class="px-3 py-2 text-left font-semibold" scope="col">
-                    Framework
+                    Method
                   </th>
                   <th class="px-3 py-2 text-left font-semibold" scope="col">
                     Distribution
                   </th>
-                  <th class="px-3 py-2 text-right font-semibold" scope="col">
-                    JSD → human
+                  <th class="px-3 py-2 text-right font-semibold" scope="col" title="Distribution gap: Jensen-Shannon divergence from people's answers (lower is better)">
+                    Gap to people <span class="font-normal text-muted">(JSD)</span>
                   </th>
                   <th class="px-3 py-2 text-right font-semibold" scope="col">
                     Refusal
@@ -591,11 +591,11 @@ const configUrl = (id: string): string => `${base}/config/${encodePathSegment(id
                           class="font-semibold hover:text-primary"
                           title="Configuration and replicates"
                         >
-                          {r.model}
+                          {systemName(r)}
                         </a>
                         <div class="text-xs text-muted">{r.base_provider}</div>
                       </td>
-                      <td class="px-3 py-2 font-mono text-xs">{r.framework}</td>
+                      <td class="px-3 py-2 text-xs">{methodName(r)}</td>
                       <td class="px-3 py-2">
                         <span
                           class="inline-block w-full min-w-[140px]"
@@ -639,6 +639,7 @@ const configUrl = (id: string): string => `${base}/config/${encodePathSegment(id
     // via the Worker proxy with a Supabase JWT. 401 surfaces as a sign-in
     // gate; 200 swaps the shell for a full-render built from the fetched
     // payload.
+    import { datasetLabel, methodName, systemName } from "@/lib/runExplorer";
     import { topicLabel } from "@/lib/topics";
     import type { QuestionPayload } from "@/types/questions";
 
@@ -660,7 +661,7 @@ const configUrl = (id: string): string => `${base}/config/${encodePathSegment(id
       const result = await fetchTieredJson<QuestionPayload>(path, "gated");
       if (!result.ok) {
         if (result.gated && shell) {
-          renderSignInGate(shell, { datasetLabel: dataset });
+          renderSignInGate(shell, { datasetLabel: datasetLabel(dataset) });
           return;
         }
         if (shell) {
@@ -718,7 +719,7 @@ const configUrl = (id: string): string => `${base}/config/${encodePathSegment(id
         <header class="mb-6">
           <div class="flex flex-wrap items-baseline gap-2">
             <h1 class="text-2xl font-bold sm:text-3xl">Question detail</h1>
-            <span class="rounded bg-muted/20 px-2 py-0.5 font-mono text-xs text-muted">${escapeHtml(payload.dataset)}</span>
+            <span class="rounded bg-muted/20 px-2 py-0.5 text-xs text-muted">${escapeHtml(datasetLabel(payload.dataset))}</span>
             ${payload.topic ? `<span class="rounded bg-primary/10 px-2 py-0.5 text-xs text-primary">${escapeHtml(topicLabel(payload.topic))}</span>` : ""}
           </div>
           <p class="mt-1 break-all font-mono text-xs text-muted">${escapeHtml(payload.key)}</p>
@@ -733,7 +734,7 @@ const configUrl = (id: string): string => `${base}/config/${encodePathSegment(id
             <div><dt class="text-xs text-muted">Models</dt><dd class="font-mono text-lg">${summary.n_models}</dd></div>
             <div><dt class="text-xs text-muted">Cross-model JSD (mean)</dt><dd class="font-mono text-lg">${fmt(summary.cross_model_jsd_mean)}</dd></div>
             <div><dt class="text-xs text-muted">Cross-model JSD (max)</dt><dd class="font-mono text-lg">${fmt(summary.cross_model_jsd_max)}</dd></div>
-            <div><dt class="text-xs text-muted">JSD to human (mean)</dt><dd class="font-mono text-lg">${fmt(summary.jsd_to_human_mean)}</dd></div>
+            <div><dt class="text-xs text-muted">Gap to people (mean JSD)</dt><dd class="font-mono text-lg">${fmt(summary.jsd_to_human_mean)}</dd></div>
             <div><dt class="text-xs text-muted">Consensus option</dt><dd class="text-sm"><span class="font-semibold">${escapeHtml(summary.consensus_option ?? "—")}</span></dd></div>
             <div><dt class="text-xs text-muted">Refusal-rate spread</dt><dd class="font-mono text-lg">${pct(summary.refusal_rate_spread)}</dd></div>
           </dl>
@@ -754,8 +755,8 @@ const configUrl = (id: string): string => `${base}/config/${encodePathSegment(id
         .map(
           (r) => `
           <tr class="border-b border-muted/10">
-            <td class="px-3 py-2"><a href="${BASE}/config/${encodeURIComponent(r.config_id)}/" class="font-semibold hover:text-primary" title="Configuration and replicates">${escapeHtml(r.model)}</a><div class="text-xs text-muted">${escapeHtml(r.base_provider)}</div></td>
-            <td class="px-3 py-2 font-mono text-xs">${escapeHtml(r.framework)}</td>
+            <td class="px-3 py-2"><a href="${BASE}/config/${encodeURIComponent(r.config_id)}/" class="font-semibold hover:text-primary" title="Configuration and replicates">${escapeHtml(systemName(r))}</a><div class="text-xs text-muted">${escapeHtml(r.base_provider)}</div></td>
+            <td class="px-3 py-2 text-xs">${escapeHtml(methodName(r))}</td>
             <td class="px-3 py-2">${renderBar(r.distribution, options)}</td>
             <td class="px-3 py-2 text-right font-mono">${fmt(r.jsd_to_human)}</td>
             <td class="px-3 py-2 text-right font-mono">${pct(r.refusal_rate)}</td>
@@ -773,9 +774,9 @@ const configUrl = (id: string): string => `${base}/config/${encodePathSegment(id
               <thead>
                 <tr class="bg-surface dark:bg-surface-dark border-b border-muted/20">
                   <th class="px-3 py-2 text-left font-semibold">Model</th>
-                  <th class="px-3 py-2 text-left font-semibold">Framework</th>
+                  <th class="px-3 py-2 text-left font-semibold">Method</th>
                   <th class="px-3 py-2 text-left font-semibold">Distribution</th>
-                  <th class="px-3 py-2 text-right font-semibold">JSD → human</th>
+                  <th class="px-3 py-2 text-right font-semibold">Gap to people (JSD)</th>
                   <th class="px-3 py-2 text-right font-semibold">Refusal</th>
                   <th class="px-3 py-2 text-right font-semibold">N samples</th>
                   <th class="px-3 py-2 text-right font-semibold">Run</th>

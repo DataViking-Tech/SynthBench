@@ -1,0 +1,12 @@
+---
+// Embeds the per-dataset SPS -> Index anchors for client scripts on the run,
+// config, compare and explore pages (read by readIndexScales() in
+// lib/vocab.ts), so they can lead with the Index the rest of the site shows.
+import leaderboardRaw from "@/data/leaderboard.json";
+import { indexScales } from "@/lib/synthIndex";
+import type { SynthBenchData } from "@/types/leaderboard";
+
+const payload = JSON.stringify(indexScales(leaderboardRaw as unknown as SynthBenchData));
+---
+
+<script type="application/json" id="sb-index-scales" set:html={payload} />

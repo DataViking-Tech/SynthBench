@@ -61,7 +61,7 @@ const selectCls =
   "rounded-md border border-muted/30 bg-surface dark:bg-surface-dark px-2 py-1 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary";
 ---
 
-<BaseLayout title={`${dsName} questions - SynthBench`} noindex={true}>
+<BaseLayout title={`${dsName} questions`} noindex={true}>
   <div
     class="question-index mx-auto w-full max-w-6xl px-4 py-8"
     data-dataset={dataset}
@@ -70,7 +70,7 @@ const selectCls =
   >
     <nav class="mb-6 text-sm text-muted" aria-label="Breadcrumb">
       <a href={`${base}/explore/?ds=${encodeURIComponent(dataset)}`} class="hover:text-primary"
-        >Explore · {dsName}</a
+        >Runs · {dsName}</a
       >
       <span class="mx-2">/</span>
       <span class="text-text dark:text-text-dark">Questions</span>
@@ -80,8 +80,8 @@ const selectCls =
       <h1 class="text-2xl font-bold sm:text-3xl">{dsName} questions</h1>
       <p class="mt-2 max-w-3xl text-sm text-muted">
         {nQuestions} public questions, ranked by how far the models' answers are from the human
-        distribution (mean JSD to human, across models) or by how much the models disagree with
-        each other (mean pairwise JSD). Private-holdout questions aren't listed.
+        distribution (gap to people: mean JSD to the human answers, across models) or by how much
+        the models disagree with each other (mean pairwise JSD). Private-holdout questions aren't listed.
       </p>
     </header>
 
@@ -125,7 +125,7 @@ const selectCls =
             <th scope="col" class="px-3 py-2 text-right font-semibold">#</th>
             <th scope="col" class="px-3 py-2 text-left font-semibold" data-sort="key" aria-sort="none"><button type="button" class="font-semibold hover:text-primary" data-sort="key">Question</button></th>
             <th scope="col" class="px-3 py-2 text-left font-semibold" data-sort="topic" aria-sort="none"><button type="button" class="font-semibold hover:text-primary" data-sort="topic">Topic</button></th>
-            <th scope="col" class="px-3 py-2 text-right font-semibold" data-sort="human" aria-sort="none"><button type="button" class="font-semibold hover:text-primary" data-sort="human" title="Mean JSD from the human distribution, across models">JSD to human</button></th>
+            <th scope="col" class="px-3 py-2 text-right font-semibold" data-sort="human" aria-sort="none"><button type="button" class="font-semibold hover:text-primary" data-sort="human" title="Distribution gap: mean Jensen-Shannon divergence from people's answers, across models (lower is better)">Gap to people <span class="font-normal text-muted">(JSD)</span></button></th>
             <th scope="col" class="px-3 py-2 text-right font-semibold" data-sort="spread" aria-sort="none"><button type="button" class="font-semibold hover:text-primary" data-sort="spread" title="Mean pairwise JSD between models (max in small print)">Model disagreement</button></th>
             <th scope="col" class="px-3 py-2 text-left font-semibold" data-sort="consensus" aria-sort="none"><button type="button" class="font-semibold hover:text-primary" data-sort="consensus" title="Most common model answer vs. the human one">Models vs. humans</button></th>
             <th scope="col" class="px-3 py-2 text-right font-semibold" data-sort="refusal" aria-sort="none"><button type="button" class="font-semibold hover:text-primary" data-sort="refusal" title="Spread of refusal rates across models">Refusal spread</button></th>

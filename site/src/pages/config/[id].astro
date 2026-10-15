@@ -2,11 +2,24 @@
 import { existsSync, readFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import IndexScales from "@/components/sb/IndexScales.astro";
+import Info from "@/components/sb/Info.astro";
 import ProviderLogo from "@/components/sb/ProviderLogo.astro";
 import leaderboardRaw from "@/data/leaderboard.json";
 import BaseLayout from "@/layouts/BaseLayout.astro";
 import { datasetLabel, replicateStats, settingsLabel } from "@/lib/runExplorer";
+import { indexScales } from "@/lib/synthIndex";
 import { type SystemLink, systemLinkFor } from "@/lib/systemLinks";
+import {
+  INDEX_EXPLAINER,
+  METHOD_NAMES,
+  METRIC_NAMES,
+  datasetId,
+  fmtIndex,
+  runSystem,
+  spsSpanToIndex,
+  spsToIndex,
+} from "@/lib/vocab";
 import type { SynthBenchData } from "@/types/leaderboard";
 import type { RunIndex, RunIndexEntry } from "@/types/runs";
 
@@ -86,20 +99,30 @@ const fmtDate = (iso: string | null | undefined): string => {
   return Number.isNaN(d.getTime()) ? iso : `${d.toISOString().replace("T", " ").slice(0, 16)} UTC`;
 };
 
+// Canonical names and the Index scale (lib/vocab.ts), as on the leaderboard.
+const sys = runSystem(head);
+const scale = indexScales(leaderboardRaw as unknown as SynthBenchData)[datasetId(dataset)];
+const idx = (v: number | null | undefined) => fmtIndex(spsToIndex(v, scale));
+const idxSpan = (v: number | null | undefined) => {
+  const x = spsSpanToIndex(v, scale);
+  return x == null ? "—" : x.toFixed(1);
+};
+
 const exploreUrl = `${base}explore/?ds=${encodeURIComponent(dataset)}`;
 const systemUrl = system ? `${base}system/${system.slug}/` : null;
 const compareUrl = `${base}compare/?a=${encodeURIComponent(id)}&mode=config`;
 const dsName = datasetLabel(dataset);
 ---
 
-<BaseLayout title={`${head.display_name} · ${dsName} config — SynthBench`} noindex={true}>
+<BaseLayout title={`Config: ${sys.full} on ${dsName}`} noindex={true}>
+  <IndexScales />
   <div
     class="config-detail mx-auto w-full max-w-5xl px-4 py-8"
     data-dataset={dataset}
     data-lb-topics={lbTopics ? JSON.stringify(lbTopics) : ""}
   >
     <nav class="mb-4 text-sm text-muted" aria-label="Breadcrumb">
-      <a class="hover:underline" href={exploreUrl}>Explore · {dsName}</a>
+      <a class="hover:underline" href={exploreUrl}>Runs · {dsName}</a>
       {
         systemUrl && (
           <>
@@ -111,7 +134,7 @@ const dsName = datasetLabel(dataset);
         )
       }
       <span class="mx-2">/</span>
-      <span>Configuration</span>
+      <span>Config</span>
     </nav>
 
     <header class="mb-8">
@@ -119,10 +142,10 @@ const dsName = datasetLabel(dataset);
         id="config-title"
         class="flex items-center gap-2 text-2xl sm:text-3xl font-bold tracking-tight break-words"
       >
-        <ProviderLogo of={`${head.model} ${head.display_name}`} />{head.display_name}
+        <ProviderLogo of={sys.method === "ensemble" ? "ensemble" : head.model} />{sys.full}
       </h1>
       <p class="mt-1 text-sm text-muted">
-        {dsName} · {head.framework} · {settingsLabel(head)}
+        {dsName} · {METHOD_NAMES[sys.method].label} · {settingsLabel(head)}
       </p>
       <p id="config-subtitle" class="mt-1 text-xs text-muted font-mono break-all">{id}</p>
       <div class="mt-3 flex flex-wrap gap-x-5 gap-y-1 text-sm">
@@ -153,11 +176,11 @@ const dsName = datasetLabel(dataset);
         id="metadata-card"
         class="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-3 rounded-lg border border-black/10 dark:border-white/10 bg-white/50 dark:bg-white/5 p-4 text-sm"
       >
-        <div><dt class="text-muted">Framework</dt><dd>{head.framework}</dd></div>
+        <div><dt class="text-muted">Method</dt><dd>{METHOD_NAMES[sys.method].label}</dd></div>
+        {sys.harness && <div><dt class="text-muted">Harness</dt><dd>{`via ${sys.harness}`}</dd></div>}
         <div><dt class="text-muted">Base provider</dt><dd>{head.base_provider ?? "—"}</dd></div>
-        <div><dt class="text-muted">Model</dt><dd>{head.model}</dd></div>
-        <div><dt class="text-muted">Display name</dt><dd>{head.display_name}</dd></div>
-        <div><dt class="text-muted">Dataset</dt><dd>{dataset}</dd></div>
+        <div><dt class="text-muted">Model</dt><dd class="font-mono">{head.model}</dd></div>
+        <div><dt class="text-muted">Dataset</dt><dd>{dsName}</dd></div>
         <div><dt class="text-muted">Temperature</dt><dd>{head.temperature ?? "default"}</dd></div>
         <div><dt class="text-muted">Reasoning effort</dt><dd>{head.effort ?? "default"}</dd></div>
         <div><dt class="text-muted">Template</dt><dd>{head.template ?? "current"}</dd></div>
@@ -177,30 +200,41 @@ const dsName = datasetLabel(dataset);
       <h2 class="mb-3 text-lg font-semibold">Aggregated metrics</h2>
       <p class="mb-3 text-xs text-muted">
         Mean across replicates, ± sample standard deviation (shown only with 2+ replicates).
+        {INDEX_EXPLAINER}
+        <Info label="About the Index">
+          Index = 100 × (SPS − SPS of random answers) ÷ (human ceiling − SPS of random answers), on
+          this config's dataset. The leaderboard averages it over the core datasets.
+        </Info>
       </p>
-      <div id="aggregated-metrics" class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+      <div id="aggregated-metrics" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
         {
           (
             [
-              ["sps", "SPS"],
-              ["jsd", "Mean JSD"],
-              ["tau", "Kendall τ"],
+              ["index", "Index", idx(stats.sps.mean), idxSpan(stats.sps.std)],
+              ["sps", "SPS", fmt(stats.sps.mean), fmt(stats.sps.std)],
+              ["jsd", METRIC_NAMES.jsd.label, fmt(stats.jsd.mean), fmt(stats.jsd.std)],
+              ["tau", METRIC_NAMES.tau.label, fmt(stats.tau.mean), fmt(stats.tau.std)],
             ] as const
-          ).map(([k, label]) => (
+          ).map(([k, label, mean, std]) => (
             <div
-              class="rounded-lg border border-black/10 dark:border-white/10 bg-white/50 dark:bg-white/5 p-4"
+              class:list={[
+                "rounded-lg border bg-white/50 dark:bg-white/5 p-4",
+                k === "index" ? "border-primary/40" : "border-black/10 dark:border-white/10",
+              ]}
               data-metric={k}
+              title={METRIC_NAMES[k].desc}
             >
-              <div class="text-xs uppercase tracking-wide text-muted">{label}</div>
+              <div class="text-xs font-semibold text-muted">{label}</div>
+              <div class="text-xs text-muted">{METRIC_NAMES[k].tech}</div>
               <div class="mt-1 text-2xl font-semibold tabular-nums" data-field="mean">
-                {fmt(stats[k].mean)}
+                {mean}
               </div>
               <div class="text-sm text-muted tabular-nums">
-                {stats[k].std == null ? (
+                {stats.sps.std == null ? (
                   <span>single replicate</span>
                 ) : (
                   <>
-                    ± <span data-field="std">{fmt(stats[k].std)}</span>
+                    ± <span data-field="std">{std}</span>
                   </>
                 )}
               </div>
@@ -222,17 +256,21 @@ const dsName = datasetLabel(dataset);
           <dd data-field="n_replicates" class="tabular-nums">{reps.length}</dd>
         </div>
         <div>
-          <dt class="text-muted">SPS std dev</dt>
-          <dd data-field="sps_std" class="tabular-nums">{fmt(stats.sps.std)}</dd>
-        </div>
-        <div>
-          <dt class="text-muted">SPS range</dt>
-          <dd data-field="sps_range" class="tabular-nums">
-            {spsRange && reps.length > 1 ? `${fmt(spsRange[0])}–${fmt(spsRange[1])}` : "—"}
+          <dt class="text-muted">Std dev</dt>
+          <dd data-field="sps_std" class="tabular-nums">
+            {stats.sps.std == null ? "—" : `${idxSpan(stats.sps.std)} Index points (SPS ${fmt(stats.sps.std)})`}
           </dd>
         </div>
         <div>
-          <dt class="text-muted">Coefficient of variation</dt>
+          <dt class="text-muted">Range</dt>
+          <dd data-field="sps_range" class="tabular-nums">
+            {spsRange && reps.length > 1
+              ? `Index ${idx(spsRange[0])} to ${idx(spsRange[1])} (SPS ${fmt(spsRange[0])}–${fmt(spsRange[1])})`
+              : "—"}
+          </dd>
+        </div>
+        <div>
+          <dt class="text-muted">Coefficient of variation (SPS)</dt>
           <dd data-field="sps_cv" class="tabular-nums">{fmt(spsCv, 4)}</dd>
         </div>
       </dl>
@@ -242,8 +280,8 @@ const dsName = datasetLabel(dataset);
     <section class="mb-8" aria-labelledby="topic-chart-heading">
       <h2 id="topic-chart-heading" class="mb-3 text-lg font-semibold">Per-topic breakdown</h2>
       <p id="topic-chart-desc" class="mb-3 text-xs text-muted">
-        Mean SPS per topic across replicates. All seven topics are shown; topics this config's
-        questions don't cover are marked "no questions".
+        Index per topic (mean across replicates; 0 = random answers, 100 = real people). All seven
+        topics are shown; topics this config's questions don't cover are marked "no questions".
       </p>
       <figure class="chart-figure" aria-labelledby="topic-chart-heading">
         <div
@@ -277,9 +315,10 @@ const dsName = datasetLabel(dataset);
             <tr>
               <th class="p-2 font-medium">Run</th>
               <th class="p-2 font-medium">Timestamp</th>
+              <th class="p-2 font-medium text-right">Index</th>
               <th class="p-2 font-medium text-right">SPS</th>
-              <th class="p-2 font-medium text-right">JSD</th>
-              <th class="p-2 font-medium text-right">τ</th>
+              <th class="p-2 font-medium text-right" title={METRIC_NAMES.jsd.desc}>JSD</th>
+              <th class="p-2 font-medium text-right" title={METRIC_NAMES.tau.desc}>Kendall τ</th>
               <th class="p-2 font-medium text-right">N</th>
             </tr>
           </thead>
@@ -296,6 +335,7 @@ const dsName = datasetLabel(dataset);
                     </a>
                   </td>
                   <td class="p-2 text-muted tabular-nums whitespace-nowrap">{fmtDate(rep.timestamp)}</td>
+                  <td class="p-2 text-right tabular-nums font-semibold">{idx(rep.sps)}</td>
                   <td class="p-2 text-right tabular-nums">{fmt(rep.sps)}</td>
                   <td class="p-2 text-right tabular-nums">{fmt(rep.jsd)}</td>
                   <td class="p-2 text-right tabular-nums">{fmt(rep.tau)}</td>
@@ -313,6 +353,14 @@ const dsName = datasetLabel(dataset);
 <script>
   import * as echarts from "echarts";
   import { TOPICS } from "@/lib/topics";
+  import {
+    datasetId,
+    datasetName,
+    fmtIndex,
+    readIndexScales,
+    spsSpanToIndex,
+    spsToIndex,
+  } from "@/lib/vocab";
   import type { ConfigRollup } from "@/types/runs";
 
   const ALL_TOPICS = TOPICS.map((t) => t.id);
@@ -334,10 +382,17 @@ const dsName = datasetLabel(dataset);
       .replace(/'/g, "&#39;");
   }
 
-  function renderTopicChart(series: TopicSeries) {
+  function renderTopicChart(series: TopicSeries, dataset: string) {
     const container = document.getElementById("topic-chart");
     if (!container) return;
-    const { means, stds, counts } = series;
+    // Topic SPS on the dataset's Index scale, as on the system profile pages.
+    const scale = readIndexScales()[datasetId(dataset)];
+    const spsMeans = series.means;
+    const means = spsMeans.map((m) => spsToIndex(m, scale));
+    const stds = series.stds.map((s) => spsSpanToIndex(s, scale));
+    const { counts } = series;
+    const shown = means.filter((m): m is number => m != null);
+    const yMin = Math.min(0, Math.floor(Math.min(...shown, 0) / 20) * 20);
 
     const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
     const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -350,7 +405,7 @@ const dsName = datasetLabel(dataset);
     const barData = means.map((m) => (m === null ? "-" : m));
     // Uncovered topics get a faint full-height band labelled "no questions"
     // (overlaid on the same slot) instead of a silent zero-height gap.
-    const emptyData = means.map((m) => (m === null ? 1 : "-"));
+    const emptyData = means.map((m) => (m === null ? 100 : "-"));
 
     chart.setOption({
       animation: !prefersReducedMotion,
@@ -363,9 +418,10 @@ const dsName = datasetLabel(dataset);
           const mean = means[idx];
           const std = stds[idx];
           if (mean === null) return `<strong>${name}</strong><br/>No questions on this topic`;
-          const stdText = std === null ? "" : ` ± ${std.toFixed(3)}`;
+          const stdText = std === null ? "" : ` ± ${std.toFixed(1)}`;
           const n = counts[idx] == null ? "" : `<br/>${counts[idx]} questions`;
-          return `<strong>${name}</strong><br/>Mean SPS: ${mean.toFixed(3)}${stdText}${n}`;
+          const sps = spsMeans[idx];
+          return `<strong>${name}</strong><br/>Index: ${fmtIndex(mean)}${stdText}<br/>SPS: ${sps == null ? "—" : sps.toFixed(3)}${n}`;
         },
       },
       grid: { left: 20, right: 20, top: 20, bottom: 10, containLabel: true },
@@ -376,15 +432,16 @@ const dsName = datasetLabel(dataset);
       },
       yAxis: {
         type: "value",
-        name: "Mean SPS",
+        name: "Index",
         nameLocation: "middle",
         nameGap: 45,
-        min: 0,
-        max: 1,
-        axisLabel: { formatter: (v: number) => v.toFixed(1) },
+        min: yMin,
+        max: 100,
+        interval: 20,
+        axisLabel: { formatter: (v: number) => String(v) },
       },
       series: [
-        { name: "Mean SPS", type: "bar", data: barData, itemStyle: { color: barColor } },
+        { name: "Index", type: "bar", data: barData, itemStyle: { color: barColor } },
         {
           name: "No questions",
           type: "bar",
@@ -421,19 +478,21 @@ const dsName = datasetLabel(dataset);
       const rows = TOPICS.map(({ label: topic }, i) => {
         const m = means[i];
         const s = stds[i];
-        const meanCell = m == null ? "no questions" : m.toFixed(3);
-        const stdCell = s == null ? "—" : s.toFixed(3);
+        const meanCell = m == null ? "no questions" : fmtIndex(m);
+        const stdCell = s == null ? "—" : s.toFixed(1);
+        const sps = spsMeans[i];
+        const spsCell = sps == null ? "—" : sps.toFixed(3);
         const nCell = showN
           ? `<td class="px-3 py-1.5 text-right font-mono">${counts[i] ?? 0}</td>`
           : "";
         return `<tr class="border-b border-muted/10"><th scope="row" class="px-3 py-1.5 text-left font-normal">${escapeHtml(
           String(topic),
-        )}</th><td class="px-3 py-1.5 text-right font-mono">${meanCell}</td><td class="px-3 py-1.5 text-right font-mono">${stdCell}</td>${nCell}</tr>`;
+        )}</th><td class="px-3 py-1.5 text-right font-mono">${meanCell}</td><td class="px-3 py-1.5 text-right font-mono">${stdCell}</td><td class="px-3 py-1.5 text-right font-mono">${spsCell}</td>${nCell}</tr>`;
       }).join("");
       const nHead = showN
         ? `<th class="px-3 py-1.5 text-right font-semibold" scope="col">Questions</th>`
         : "";
-      tableContainer.innerHTML = `<table class="w-full text-xs"><caption class="sr-only">Mean SPS per topic with standard deviation across replicates</caption><thead><tr class="border-b border-muted/20 bg-surface dark:bg-surface-dark"><th class="px-3 py-1.5 text-left font-semibold" scope="col">Topic</th><th class="px-3 py-1.5 text-right font-semibold" scope="col">Mean SPS</th><th class="px-3 py-1.5 text-right font-semibold" scope="col">Std</th>${nHead}</tr></thead><tbody>${rows}</tbody></table>`;
+      tableContainer.innerHTML = `<table class="w-full text-xs"><caption class="sr-only">Index per topic with standard deviation across replicates, and the SPS it comes from</caption><thead><tr class="border-b border-muted/20 bg-surface dark:bg-surface-dark"><th class="px-3 py-1.5 text-left font-semibold" scope="col">Topic</th><th class="px-3 py-1.5 text-right font-semibold" scope="col">Index</th><th class="px-3 py-1.5 text-right font-semibold" scope="col">Std (Index points)</th><th class="px-3 py-1.5 text-right font-semibold" scope="col">SPS</th>${nHead}</tr></thead><tbody>${rows}</tbody></table>`;
     }
   }
 
@@ -476,7 +535,7 @@ const dsName = datasetLabel(dataset);
         stds: ALL_TOPICS.map((t) => breakdown[t as keyof typeof breakdown]?.std ?? null),
         counts,
         source: "rollup",
-      });
+      }, dataset);
       return;
     }
     if (lbTopics) {
@@ -486,7 +545,7 @@ const dsName = datasetLabel(dataset);
         stds: ALL_TOPICS.map(() => null),
         counts,
         source: "leaderboard",
-      });
+      }, dataset);
       return;
     }
     if (result.gated) {
@@ -495,8 +554,8 @@ const dsName = datasetLabel(dataset);
         chart.style.height = "auto";
         chart.removeAttribute("role");
         renderSignInGate(chart, {
-          datasetLabel: dataset,
-          message: `The per-topic breakdown for ${dataset} is built from per-question data, which requires a verified research-use account.`,
+          datasetLabel: datasetName(dataset),
+          message: `The per-topic breakdown for ${datasetName(dataset)} is built from per-question data, which requires a verified research-use account.`,
         });
       }
       const table = document.getElementById("topic-chart-table");
