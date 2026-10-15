@@ -44,18 +44,18 @@ const base = rawBase.endsWith("/") ? rawBase : `${rawBase}/`;
 
     <section class="sb-block sb-grid2">
       <div class="sb-panel">
-        <div class="sb-panel-head"><div><h3>By dataset</h3><div class="q">Index with 95% interval. Grey band: range of all other systems. Dark tick: their median.</div></div></div>
+        <div class="sb-panel-head"><div><h2>By dataset</h2><div class="q">Index with 95% interval. Grey band: range of all other systems. Dark tick: their median.</div></div></div>
         <div class="sb-chart"><div id="pf-ds"></div></div>
       </div>
       <div class="sb-panel">
-        <div class="sb-panel-head"><div><h3>Score components</h3><div class="q">The three parts SPS averages, each on a 0 to 1 scale (not Index points). Red tick: random answers.</div></div></div>
+        <div class="sb-panel-head"><div><h2>Score components</h2><div class="q">The three parts SPS averages, each on a 0 to 1 scale (not Index points). Red tick: random answers.</div></div></div>
         <div class="sb-chart sb-tablewrap"><table class="sb-ct" id="pf-comp"></table></div>
       </div>
     </section>
 
     <section class="sb-block sb-panel">
       <div class="sb-panel-head">
-        <div><h3>By topic</h3><div class="q" id="pf-topic-q"></div></div>
+        <div><h2>By topic</h2><div class="q" id="pf-topic-q"></div></div>
         <div class="sb-filter" id="pf-topic-ds"></div>
       </div>
       <div class="sb-chart"><div id="pf-topics"></div></div>
@@ -63,22 +63,22 @@ const base = rawBase.endsWith("/") ? rawBase : `${rawBase}/`;
 
     <section class="sb-block sb-grid2" id="pf-exp">
       <div class="sb-panel" id="pf-temp-panel">
-        <div class="sb-panel-head"><div><h3>Sampling temperature</h3><div class="q" id="pf-temp-q"></div></div></div>
+        <div class="sb-panel-head"><div><h2>Sampling temperature</h2><div class="q" id="pf-temp-q"></div></div></div>
         <div class="sb-chart"><div id="pf-temp"></div></div>
       </div>
       <div class="sb-panel" id="pf-tpl-panel">
-        <div class="sb-panel-head"><div><h3>Persona prompt template</h3><div class="q" id="pf-tpl-q"></div></div></div>
+        <div class="sb-panel-head"><div><h2>Persona prompt template</h2><div class="q" id="pf-tpl-q"></div></div></div>
         <div class="sb-chart"><div id="pf-tpl"></div></div>
       </div>
     </section>
 
     <section class="sb-block sb-grid2">
       <div class="sb-panel">
-        <div class="sb-panel-head"><div><h3>Holdout check</h3><div class="q">Gap in SPS (0 to 1) between public questions and the private answer key. Gaps above 0.05 are flagged for review. The threshold is wider when only a few questions are private.</div></div></div>
+        <div class="sb-panel-head"><div><h2>Holdout check</h2><div class="q">Gap in SPS (0 to 1) between public questions and the private answer key. Gaps above 0.05 are flagged for review. The threshold is wider when only a few questions are private.</div></div></div>
         <div class="sb-chart"><div id="pf-trust"></div></div>
       </div>
       <div class="sb-panel">
-        <div class="sb-panel-head"><div><h3>Runs</h3><div class="q">The published runs behind these numbers.</div></div></div>
+        <div class="sb-panel-head"><div><h2>Runs</h2><div class="q">The published runs behind these numbers.</div></div></div>
         <div class="sb-chart sb-tablewrap"><table class="sb-ct" id="pf-runs"></table></div>
       </div>
     </section>

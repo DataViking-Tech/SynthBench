@@ -345,6 +345,7 @@ table.sb-mh td.c {
   font-size: 13px;
   color: var(--sb-ink-2);
 }
+.sb-notes h3,
 .sb-notes h4 {
   margin: 0 0 4px;
   font-family: var(--sb-mono);
@@ -610,7 +611,7 @@ table.sb-lb td.hc.cur span {
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 14px;
 }
-.sb-sm3 h4 {
+.sb-sm3 h3 {
   margin: 0;
   font-size: 12.5px;
   font-weight: 600;
@@ -953,6 +954,13 @@ details.sb-fold > summary {
   padding: 14px 20px;
   font-weight: 600;
   font-size: 14px;
+}
+/* A heading inside a summary keeps the outline intact but looks like the summary. */
+details.sb-fold > summary .sb-summary-h {
+  display: inline;
+  margin: 0;
+  font: inherit;
+  color: inherit;
 }
 details.sb-fold[open] > summary {
   border-bottom: 1px solid var(--sb-line);
