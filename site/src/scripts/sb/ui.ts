@@ -206,12 +206,13 @@ export const methodKey = (m: SystemConfig["method"]): HTMLElement =>
 /** Segmented scope control: Index or a single dataset. */
 export function scopeControl(): HTMLElement {
   const wrap = h("div", { class: "sb-seg", role: "radiogroup", "aria-label": "Score shown" });
+  // Datasets no system has results on yet (e.g. NTIA) get no tab until they do.
+  const scored = (id: string) => id === state.scope || data().systems.some((c) => c.ds[id]);
   const opts: [Scope, string][] = [
     ["all", "Index"],
-    ...data().datasets.map((d): [Scope, string] => [
-      d.id,
-      `${d.label}${d.ceilingAssumed ? " †" : ""}`,
-    ]),
+    ...data()
+      .datasets.filter((d) => scored(d.id))
+      .map((d): [Scope, string] => [d.id, `${d.label}${d.ceilingAssumed ? " †" : ""}`]),
   ];
   const render = () =>
     wrap.replaceChildren(
