@@ -159,22 +159,36 @@ export interface Ranked {
   tier: number | null;
   tied: number;
 }
-/** Tier = 1 + number of systems whose interval sits entirely above this one. */
+/**
+ * Dense tiers over the rows sorted by score. Walking down the list, the first
+ * system not yet placed opens a tier (its "leader"); every following system
+ * whose 95% interval still reaches the leader's interval (upper bound ≥ the
+ * leader's lower bound) joins it. The first system whose interval sits
+ * entirely below the leader's opens the next tier. Tiers are numbered 1..k with
+ * no gaps and always group adjacent rows. Rows without an interval get no tier.
+ */
 export function tiers(pool: SystemConfig[], scope: Scope = state.scope): Ranked[] {
   const rows: Ranked[] = [];
   for (const c of pool) {
     const v = scoreIn(c, scope);
     if (v) rows.push({ c, v, tier: null, tied: 1 });
   }
+  rows.sort((a, b) => b.v.v - a.v.v);
+  let tier = 0;
+  let leaderLo: number | null = null;
   for (const r of rows) {
-    const hi = r.v.hi;
-    r.tier =
-      hi == null ? null : 1 + rows.filter((o) => o !== r && o.v.lo != null && o.v.lo > hi).length;
+    const { lo, hi } = r.v;
+    if (lo == null || hi == null) continue;
+    if (leaderLo == null || hi < leaderLo) {
+      tier += 1;
+      leaderLo = lo;
+    }
+    r.tier = tier;
   }
   const counts = new Map<number | null, number>();
   for (const r of rows) counts.set(r.tier, (counts.get(r.tier) ?? 0) + 1);
-  for (const r of rows) r.tied = counts.get(r.tier) ?? 1;
-  return rows.sort((a, b) => b.v.v - a.v.v);
+  for (const r of rows) r.tied = r.tier == null ? 1 : (counts.get(r.tier) ?? 1);
+  return rows;
 }
 export const rankedPool = (): SystemConfig[] => systems().filter((c) => !c.variant);
 export const tierOf = (c: SystemConfig, scope: Scope = state.scope): Ranked | undefined =>
