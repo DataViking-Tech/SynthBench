@@ -16,6 +16,7 @@ import type {
   GroupData,
   Interval,
 } from "@/lib/groupAlignment";
+import { harnessTag, modelName, systemFullName } from "@/lib/vocab";
 import {
   type Scale,
   axisTitle,
@@ -33,6 +34,7 @@ import {
   METHODS,
   type ShownMethod,
   type SystemConfig,
+  baseName,
   byKey,
   data,
   dsLabel,
@@ -803,13 +805,14 @@ function systemsTable(): HTMLElement {
         h(
           "div",
           { class: "sb-sysname" },
-          h("div", { class: "n" }, glyph(c.lab), c.base),
+          h("div", { class: "n" }, glyph(c.lab), baseName(c)),
           h(
             "div",
             { class: "m" },
             methodKey(c.method),
             c.method === "ensemble" ? "Ensemble" : METHODS[c.method as ShownMethod].label,
             c.variant ? ` · ${c.variant}` : null,
+            c.harness ? ` · ${harnessTag(c.harness)}` : null,
           ),
         ),
       ),
@@ -1194,11 +1197,22 @@ const METHOD_OF: Record<string, SystemConfig["method"]> = {
 const condKey = (c: ConditionSet) => `${c.method}|${c.model}|${c.temperature ?? ""}`;
 const condMethod = (c: ConditionSet) => METHOD_OF[c.method] ?? "raw";
 const condName = (c: ConditionSet) => {
-  const m = condMethod(c);
-  const sys = systems().find((x) => x.baseId === c.model && x.method === m);
-  const base = sys ? sys.base : c.model;
-  const short = m === "baseline" ? "" : `, ${METHODS[m as ShownMethod].short}`;
-  return `${base}${short}${c.temperature != null ? ` (temperature ${c.temperature})` : ""}`;
+  // "synthpanel" is Althing's name before the rename: when the same model also
+  // has an "althing" set, the synthpanel one is an earlier run of that system.
+  const earlier =
+    c.method === "synthpanel" &&
+    G.conditioning.some(
+      (o) => o.method === "althing" && o.model === c.model && o.temperature === c.temperature,
+    );
+  const variant = [
+    c.temperature != null ? `temperature ${c.temperature}` : null,
+    earlier ? "earlier run" : null,
+  ].filter(Boolean);
+  return systemFullName({
+    base: modelName(c.model),
+    method: condMethod(c),
+    variant: variant.length ? variant.join(", ") : null,
+  });
 };
 const condSets = () => G.conditioning.filter((c) => st.methods.has(condMethod(c)));
 const condCurrent = (): ConditionSet | null =>

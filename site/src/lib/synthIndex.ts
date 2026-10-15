@@ -11,6 +11,19 @@
 
 import type { LeaderboardEntry, SynthBenchData } from "@/types/leaderboard";
 import { PINNED_CEILINGS } from "./ceilings";
+import {
+  DATASET_NAMES,
+  type IndexScale,
+  MODEL_NAMES,
+  modelName,
+  normalizeModelId,
+  spsToIndex,
+  systemFullName,
+  systemShortName,
+  variantLabel,
+} from "./vocab";
+
+export { normalizeModelId };
 
 // Ordered from US adults to cross-national questions.
 export const CORE_DATASETS = ["opinionsqa", "subpop", "gss", "globalopinionqa"] as const;
@@ -61,8 +74,12 @@ export interface DatasetScore {
 
 export interface SystemConfig {
   key: string;
-  /** Display name of the base model ("Claude Haiku 4.5") or of the ensemble. */
+  /** Display name of the base model ("Claude Haiku 4.5") or the ensemble's published label. */
   base: string;
+  /** Canonical full name (lib/vocab.ts): "Claude Haiku 4.5, persona", "GPT-6 Luna via codex, raw". */
+  name: string;
+  /** Canonical short name without the method: "Haiku 4.5", "Qwen + DeepSeek + Gemini, raw". */
+  short: string;
   /** Machine id of the base model, an ensemble id, or the baseline id. */
   baseId: string;
   /** Ensemble rows: each member's model id and whether it used the raw prompt or Althing. */
@@ -99,14 +116,6 @@ export interface IndexData {
   concordance: SynthBenchData["cross_provider_concordance"] | null;
 }
 
-const LABELS: Record<string, [string, string]> = {
-  opinionsqa: ["OpinionsQA", "US adults (Pew American Trends Panel)"],
-  subpop: ["SubPOP", "22 US subpopulations"],
-  globalopinionqa: ["GlobalOpinionQA", "Cross-national (Pew Global Attitudes, WVS)"],
-  gss: ["GSS", "US adults (General Social Survey)"],
-  ntia: ["NTIA", "US adults (NTIA Internet Use Survey)"],
-};
-
 const LAB_BY_PREFIX: Record<string, string> = {
   anthropic: "Anthropic",
   openai: "OpenAI",
@@ -117,25 +126,6 @@ const LAB_BY_PREFIX: Record<string, string> = {
   deepseek: "DeepSeek",
   mistralai: "Mistral",
   qwen: "Alibaba",
-};
-
-const BASE_NAMES: Record<string, string> = {
-  "anthropic/claude-haiku-4-5": "Claude Haiku 4.5",
-  "anthropic/claude-haiku-5-5": "Claude Haiku 5.5",
-  "openai/gpt-6-luna": "GPT-6 Luna",
-  "anthropic/claude-sonnet-4": "Claude Sonnet 4",
-  "anthropic/claude-sonnet-4-6": "Claude Sonnet 4.6",
-  "anthropic/claude-sonnet-5-5": "Claude Sonnet 5.5",
-  "openai/gpt-4o-mini": "GPT-4o mini",
-  "openai/gpt-4o": "GPT-4o",
-  "google/gemini-2.5-flash": "Gemini 2.5 Flash",
-  "google/gemini-2.5-flash-lite": "Gemini 2.5 Flash-Lite",
-  "meta-llama/llama-3.3-70b-instruct": "Llama 3.3 70B",
-  "google/gemini-3.8-flash": "Gemini 3.8 Flash",
-  "google/gemini-3.5-flash-lite": "Gemini 3.5 Flash-Lite",
-  "deepseek/deepseek-v4.1-flash": "DeepSeek V4.1 Flash",
-  "qwen/qwen3.8-flash": "Qwen 3.8 Flash",
-  "meta/muse-glimmer-30b": "Muse Glimmer 30B",
 };
 
 type CeilingBlock = Record<string, { overall?: { mean?: number; quality_flag?: string } }>;
@@ -155,22 +145,6 @@ function round(v: number, digits = 1): number {
 
 function mean(xs: number[]): number {
   return xs.reduce((a, b) => a + b, 0) / xs.length;
-}
-
-/** Fallback display name for model ids not in BASE_NAMES. */
-function prettyModel(id: string): string {
-  const tail = id.split("/").pop() ?? id;
-  return tail.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
-}
-
-/**
- * model_id keeps vendor version dates (claude-haiku-4-5-20251001) so it stays
- * runnable; dated and undated ids are the same model here, as are
- * OpenRouter's dotted Anthropic versions (claude-sonnet-4.6).
- */
-export function normalizeModelId(id: string): string {
-  const undated = id.replace(/-\d{8}$/, "");
-  return undated.startsWith("anthropic/") ? undated.replace(/\./g, "-") : undated;
 }
 
 /**
@@ -205,21 +179,18 @@ export function buildIndexData(raw: SynthBenchData): IndexData {
     ceilings[ds]?.overall?.mean ?? pinned[ds]?.mean ?? null;
   const qualityOf = (ds: string): string | null =>
     ceilings[ds]?.overall?.quality_flag ?? pinned[ds]?.qualityFlag ?? null;
+  const scaleOf = (ds: string): IndexScale | undefined =>
+    randomSps[ds] == null ? undefined : { random: randomSps[ds], ceiling: ceilingOf(ds) ?? 1 };
   const toIdx = (ds: string, v: number | null | undefined): number | null => {
-    if (v == null || randomSps[ds] == null) return null;
-    const c = ceilingOf(ds) ?? 1;
-    return round((100 * (v - randomSps[ds])) / (c - randomSps[ds]));
+    const idx = spsToIndex(v, scaleOf(ds));
+    return idx == null ? null : round(idx);
   };
 
   const byKey = new Map<string, SystemConfig>();
   for (const e of entries) {
     if (randomSps[e.dataset] == null) continue;
     const method = methodOf(e);
-    const variantParts: string[] = [];
-    if (e.temperature != null) variantParts.push(`temperature ${e.temperature}`);
-    if (e.template && e.template !== "current") variantParts.push(`${e.template} template`);
-    if (e.effort) variantParts.push(`${e.effort} effort`);
-    if (e.persona_pack) variantParts.push(`${e.persona_pack} personas`);
+    const variant = variantLabel(e);
     const modelId = normalizeModelId(e.model_id ?? e.model);
     const key = [
       method,
@@ -235,12 +206,15 @@ export function buildIndexData(raw: SynthBenchData): IndexData {
     if (method === "ensemble") base = e.model;
     else if (method === "baseline")
       base = modelId === "random-baseline" ? "Random answers" : "Majority answer";
-    else base = BASE_NAMES[modelId] ?? prettyModel(modelId);
+    else base = MODEL_NAMES[modelId] ?? modelName(modelId);
     let cfg = byKey.get(key);
     if (!cfg) {
+      const parts = { base, method, harness: e.harness ?? null, variant };
       cfg = {
         key,
         base,
+        name: systemFullName(parts),
+        short: systemShortName(parts),
         baseId: baseIdOf(e),
         members: (e.ensemble_members ?? []).map((m) => ({
           id: normalizeModelId(m.model_id),
@@ -248,7 +222,7 @@ export function buildIndexData(raw: SynthBenchData): IndexData {
         })),
         lab: method === "ensemble" ? "DataViking" : (LAB_BY_PREFIX[prefix] ?? "Other"),
         method,
-        variant: variantParts.length ? variantParts.join(", ") : null,
+        variant,
         harness: e.harness ?? null,
         ds: {},
         coverage: 0,
@@ -327,8 +301,8 @@ export function buildIndexData(raw: SynthBenchData): IndexData {
 
   const datasets: DatasetMeta[] = ALL_DATASETS.filter((d) => randomSps[d] != null).map((d) => ({
     id: d,
-    label: LABELS[d]?.[0] ?? d,
-    population: LABELS[d]?.[1] ?? "",
+    label: DATASET_NAMES[d]?.name ?? d,
+    population: DATASET_NAMES[d]?.population ?? "",
     core: (CORE_DATASETS as readonly string[]).includes(d),
     questions: questions[d] ?? 0,
     random: randomSps[d],
@@ -351,6 +325,21 @@ export function buildIndexData(raw: SynthBenchData): IndexData {
     findings: raw.findings,
     concordance: raw.cross_provider_concordance ?? null,
   };
+}
+
+const scaleCache = new WeakMap<object, Record<string, IndexScale>>();
+/**
+ * Per-dataset Index anchors (random-answers SPS and human ceiling), for pages
+ * that show run-level SPS and convert it to the Index on the client.
+ */
+export function indexScales(raw: SynthBenchData): Record<string, IndexScale> {
+  const hit = scaleCache.get(raw);
+  if (hit) return hit;
+  const out = Object.fromEntries(
+    buildIndexData(raw).datasets.map((d) => [d.id, { random: d.random, ceiling: d.ceiling ?? 1 }]),
+  );
+  scaleCache.set(raw, out);
+  return out;
 }
 
 /** URL slug for a base model's profile page. */

@@ -1,4 +1,5 @@
 import { signedRange } from "@/lib/format";
+import { ensembleNames, modelNameFromLabel } from "@/lib/vocab";
 import { axisTitle, css, fmt, h, linear, mount, s, ticks } from "../dom";
 import {
   CORE,
@@ -7,7 +8,6 @@ import {
   dsLabel,
   dsMeta,
   ensembleLabel,
-  findingsModel,
   pruneCompare,
   systems,
 } from "../model";
@@ -270,17 +270,17 @@ if (ec.length) {
   for (const e of ec) byEns.set(e.label, [...(byEns.get(e.label) ?? []), e]);
   const avg = (xs: number[]) => xs.reduce((p, q) => p + q, 0) / xs.length;
   const ens = [...byEns].map(([label, rows]) => {
-    const name = rows[0].ensemble_model ?? label;
+    const raw = rows[0].ensemble_model ?? label;
     // The ensemble's own leaderboard row carries its 95% interval; it matches
     // the dataset average only when the ensemble was scored on every core dataset.
-    const sys = systems().find((c) => c.method === "ensemble" && !c.variant && c.base === name);
+    const sys = systems().find((c) => c.method === "ensemble" && !c.variant && c.base === raw);
     const ci: [number, number] | undefined =
       sys && rows.length === CORE.length && sys.indexLo != null && sys.indexHi != null
         ? [sys.indexLo, sys.indexHi]
         : undefined;
     return {
       label,
-      name,
+      name: rows[0].ensemble_model ? ensembleNames(raw).full : label,
       a: avg(rows.map((r) => r.a)),
       b: avg(rows.map((r) => r.b)),
       top: avg(rows.map((r) => r.top)),
@@ -432,7 +432,7 @@ if (models.length) {
   const runs = sweep.map((p) => p.n_runs ?? 1);
   const hasBand = sweep.some((p) => (p.n_runs ?? 1) > 1 && (p.std ?? 0) > 0);
   const longer = per.filter((p) => p[p.length - 1].temperature > tHi);
-  const name = (m: string) => findingsModel(m);
+  const name = (m: string) => modelNameFromLabel(m);
   items.push({
     id: "temperature",
     short: "Temperature",

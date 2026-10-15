@@ -1,3 +1,4 @@
+import { modelShortName } from "@/lib/vocab";
 import { byDataset, costChart, ladder, sharesOrder } from "../charts";
 import { h, mount } from "../dom";
 import {
@@ -125,7 +126,8 @@ const famChips = toggleChips(
     on: st.families,
     label: (id) => {
       const f = families.find((x) => x.id === id) as Family;
-      return f.id === "ensemble" ? "Ensemble" : shortName(f.c);
+      // One chip per base model; harness runs share it, so drop the harness tag.
+      return f.c.method === "ensemble" ? shortName(f.c) : modelShortName(f.c.base);
     },
     icon: (id) => glyph((families.find((x) => x.id === id) as Family).c.lab),
     note: (id) => ((families.find((x) => x.id === id) as Family).full ? null : "partial"),
