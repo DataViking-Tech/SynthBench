@@ -457,7 +457,7 @@ const configUrl = (id: string): string => `${base}/config/${encodePathSegment(id
         </span>
       </h2>
       <div class="overflow-x-auto rounded-lg border border-muted/20">
-        <table class="w-full text-sm" id="per-model-table">
+        <table class="sb-stack w-full text-sm" id="per-model-table">
           <caption class="sr-only">
             Each model's distribution over the question options, alongside its
             divergence from the human baseline and refusal rate. Rows link to
@@ -550,7 +550,7 @@ const configUrl = (id: string): string => `${base}/config/${encodePathSegment(id
             avoid double-counting.
           </p>
           <div class="overflow-x-auto rounded-lg border border-accent/30 bg-accent/5">
-            <table class="w-full text-sm" id="aggregated-table">
+            <table class="sb-stack w-full text-sm" id="aggregated-table">
               <caption class="sr-only">
                 Post-hoc ensemble blends of the single-model rows above. These
                 rows are excluded from the trendslop summary statistics.
@@ -633,6 +633,7 @@ const configUrl = (id: string): string => `${base}/config/${encodePathSegment(id
     )}
   </div>
   <script>
+    import "@/scripts/stackTables";
     // sb-sj6: gated-tier hydration. For ``gated`` shell pages the server
     // rendered only the breadcrumb + loading placeholder; everything else
     // (aggregates, human baseline, per-model table) is fetched client-side
@@ -770,7 +771,7 @@ const configUrl = (id: string): string => `${base}/config/${encodePathSegment(id
         <section class="mb-8">
           <h2 class="text-sm font-semibold uppercase tracking-wide text-muted mb-3">Model distributions</h2>
           <div class="overflow-x-auto rounded-lg border border-muted/20">
-            <table class="w-full text-sm">
+            <table class="sb-stack w-full text-sm">
               <thead>
                 <tr class="bg-surface dark:bg-surface-dark border-b border-muted/20">
                   <th class="px-3 py-2 text-left font-semibold">Model</th>

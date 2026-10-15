@@ -124,3 +124,103 @@ svg.sb-logo-i {
   display: inline-flex;
   flex-shrink: 0;
 }
+
+/* Responsive data tables (scripts/stackTables.ts adds the data-label
+   headers): under 640px each row becomes a card, with the first cell (the
+   question / model) and any distribution bar at full width instead of
+   squeezed into a ~90px column. Sortable headers stay available as a strip
+   of sort buttons above the cards. Tables with `data-stack-lead` have a
+   small leading cell (row number, compare checkbox) that sits beside the
+   full-width second cell. */
+@media (max-width: 639px) {
+  table.sb-stack,
+  table.sb-stack tbody {
+    display: block;
+  }
+  table.sb-stack thead:not(:has(button)),
+  table.sb-stack thead th:not(:has(button)) {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+  table.sb-stack thead:has(button) {
+    display: block;
+  }
+  table.sb-stack thead tr {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.25rem 0.5rem;
+    padding: 0.5rem;
+  }
+  table.sb-stack thead tr::before {
+    content: "Sort by";
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+  table.sb-stack thead th:has(button):not(.hidden) {
+    display: block;
+    padding: 0;
+    border: 0;
+    text-align: left;
+  }
+  table.sb-stack thead th button {
+    min-height: 24px;
+    padding: 0 0.5rem;
+    border: 1px solid color-mix(in oklch, currentColor 25%, transparent);
+    border-radius: 999px;
+  }
+  table.sb-stack tbody tr:not(.hidden) {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(6.5rem, 1fr));
+    gap: 0.25rem 0.75rem;
+    padding: 0.5rem 0.25rem;
+  }
+  table.sb-stack td {
+    display: block;
+    min-width: 0;
+    padding: 0.125rem 0.5rem;
+    text-align: left;
+  }
+  table.sb-stack td:first-child,
+  table.sb-stack td[colspan],
+  table.sb-stack td:has(.dist-bar) {
+    grid-column: 1 / -1;
+  }
+  table.sb-stack[data-stack-lead] tbody tr:not(.hidden) {
+    position: relative;
+  }
+  table.sb-stack[data-stack-lead] td:first-child:not([colspan]) {
+    position: absolute;
+    top: 0.5rem;
+    left: 0.25rem;
+    padding: 0.125rem 0.25rem;
+  }
+  table.sb-stack[data-stack-lead] td:first-child:not([colspan]) + td {
+    grid-column: 1 / -1;
+    padding-left: 2.5rem;
+  }
+  table.sb-stack td[data-label]:not(:first-child)::before {
+    content: attr(data-label);
+    display: block;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 0.65rem;
+    font-weight: 400;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--color-muted);
+  }
+  table.sb-stack[data-stack-lead] td:first-child + td[data-label]::before {
+    content: none;
+  }
+  @media (prefers-color-scheme: dark) {
+    table.sb-stack td[data-label]:not(:first-child)::before {
+      color: var(--color-muted-dark);
+    }
+  }
+}

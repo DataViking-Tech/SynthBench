@@ -116,7 +116,7 @@ const selectCls =
     <div id="qi-gate" class="mb-4 hidden"></div>
 
     <div class="overflow-x-auto rounded-lg border border-muted/20" id="qi-table-wrap">
-      <table class="w-full text-sm" id="qi-table">
+      <table class="sb-stack w-full text-sm" id="qi-table" data-stack-lead>
         <caption class="sr-only">
           Questions in {dsName}. Select a column header to sort.
         </caption>
@@ -160,6 +160,7 @@ const selectCls =
 </BaseLayout>
 
 <script>
+  import "@/scripts/stackTables";
   import { safeQuestionKey } from "@/lib/runExplorer";
   import { topicLabel } from "@/lib/topics";
   import type { QuestionIndex, QuestionIndexEntry } from "@/types/questions";

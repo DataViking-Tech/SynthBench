@@ -149,7 +149,7 @@ const labelCls = "text-xs font-semibold uppercase tracking-wide text-muted";
       <div id="flipped-gate" class="hidden"></div>
 
       <div class="overflow-x-auto rounded-lg border border-muted/20" id="flipped-table-wrap">
-        <table class="w-full text-sm" id="flipped-table">
+        <table class="sb-stack w-full text-sm" id="flipped-table">
           <caption class="sr-only">Per-question comparison of A versus B. Select a column header to sort; expand a row with its question button for full distributions.</caption>
           <thead>
             <tr class="border-b border-muted/20 bg-surface dark:bg-surface-dark">
@@ -176,6 +176,7 @@ const labelCls = "text-xs font-semibold uppercase tracking-wide text-muted";
 </BaseLayout>
 
 <script>
+  import "@/scripts/stackTables";
   import {
     datasetLabel,
     methodName,
