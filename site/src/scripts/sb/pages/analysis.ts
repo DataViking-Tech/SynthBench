@@ -44,7 +44,7 @@ const VIEWS: { id: View; title: string; desc: string; sub: () => string; howto: 
     desc: "What each layer adds",
     sub: () => `${scopeName()}. Each line is one base model.`,
     howto:
-      "Left column: each base model prompted directly. Middle: the same model with an Althing persona, with the change from the raw prompt next to it. Right: the ensemble, which averages three persona systems; green lines connect it to its members. A red line means the persona lowered the score.",
+      "Left column: each base model prompted directly. Middle: the same model with an Althing persona, with the change from the raw prompt next to it. Right: the ensemble, an equal-weight blend of three or four systems; green lines connect it to its members. A red line means the persona lowered the score.",
   },
   {
     id: "datasets",

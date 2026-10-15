@@ -42,7 +42,7 @@ export const METHODS: Record<
   ensemble: {
     label: "Ensemble",
     short: "ensemble",
-    desc: "average of three persona systems",
+    desc: "equal-weight blend of three or four systems, raw or persona",
     color: "--sb-ensemble",
   },
 };
