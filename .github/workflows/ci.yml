@@ -165,6 +165,8 @@ jobs:
         run: synthbench publish-runs --results-dir leaderboard-results --output-dir site/public/data
       - name: Verify publish integrity (sb-4zy)
         run: python3 scripts/verify-publish-integrity.py
+      - name: Check Groups data coverage
+        run: python3 scripts/check-group-alignment.py
       - name: Install site dependencies
         working-directory: site
         run: npm ci
