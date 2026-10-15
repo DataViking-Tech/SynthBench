@@ -31,29 +31,29 @@ const q = new URLSearchParams(location.search);
 type View = "shares" | "ladder" | "datasets" | "cost";
 const VIEWS: { id: View; title: string; desc: string; sub: () => string; howto: string }[] = [
   {
-    id: "shares",
-    title: "Shares vs. order",
-    desc: "Why most systems sit near random",
-    sub: () => `${scopeName()}. Up and to the right is better.`,
-    howto:
-      "Each mark is one system: hollow circles are raw prompts, filled circles are Althing personas, the diamond is the ensemble. Arrows join the same base model before and after adding a persona. Systems in the shaded corner score below random answers, assuming equal refusal match.",
-  },
-  {
     id: "ladder",
     title: "Raw, persona, ensemble",
     desc: "What each layer adds",
     sub: () => `${scopeName()}. Each line is one base model.`,
     howto:
-      "Left column: each base model prompted directly. Middle: the same model with an Althing persona, with the change from the raw prompt next to it. Right: the ensemble, an equal-weight blend of three or four systems; green lines connect it to its members. A red line means the persona lowered the score.",
+      "Left column: each base model prompted directly. Middle: the same model with an Althing persona, with the change from the raw prompt next to it. Right: the ensembles, equal-weight blends of three or four systems. Hover an ensemble to see its members, or a model to see the ensembles it is in. A red line means the persona lowered the score.",
+  },
+  {
+    id: "shares",
+    title: "Shares vs. order",
+    desc: "Why most systems sit near random",
+    sub: () => `${scopeName()}. Up and to the right is better.`,
+    howto:
+      "Each mark is one system: hollow circles are raw prompts, filled circles are Althing personas, diamonds are ensembles. Arrows join the same base model before and after adding a persona. Labels show the top five, every ensemble, the best of each method and any system you are comparing; hover a mark for the rest. Systems in the shaded corner score below random answers, assuming equal refusal match.",
   },
   {
     id: "datasets",
     title: "By dataset",
     desc: "Where systems break down",
     sub: () =>
-      "Index on each core dataset. The Score setting doesn't apply here because every dataset is shown.",
+      "Index on each core dataset, top systems by Index. The Score setting doesn't apply here because every dataset is shown.",
     howto:
-      "Each line is one system across the core datasets, ordered from US adults to cross-national questions. Points in the shaded band score below random answers on that dataset.",
+      "Each line is one system across the core datasets, ordered from US adults to cross-national questions. The grey line is the majority answer: always giving the most popular option. Points in the shaded band score below random answers on that dataset.",
   },
   {
     id: "cost",
@@ -62,7 +62,7 @@ const VIEWS: { id: View; title: string; desc: string; sub: () => string; howto: 
     sub: () =>
       `${scopeName()} against the cost of answering 100 questions. Up and to the left is better.`,
     howto:
-      "Each system is placed by what it cost to answer 100 questions and by its score. Vertical bars are 95% intervals. Cost is only recorded for raw LLM runs so far.",
+      "Each system is placed by what it cost to answer 100 questions and by its score. Vertical bars are 95% intervals. The line joins the systems that are best for the money: no cheaper system scores higher. Systems whose runs didn't record token cost aren't plotted.",
   },
 ];
 
@@ -81,8 +81,11 @@ for (const c of systems().filter((x) => !x.variant)) {
 const FAMILY_IDS = families.map((f) => f.id);
 const DEFAULT_FAMILIES = families.filter((f) => f.full).map((f) => f.id);
 
+const DEFAULT_VIEW: View = "ladder";
+const DATASET_TOP = 8;
 const st = {
-  view: (VIEWS.some((v) => v.id === q.get("view")) ? q.get("view") : "shares") as View,
+  view: (VIEWS.some((v) => v.id === q.get("view")) ? q.get("view") : DEFAULT_VIEW) as View,
+  rowsAll: q.get("rows") === "all",
   methods: readSet("methods", METHOD_IDS, METHOD_IDS),
   families: readSet("systems", FAMILY_IDS, DEFAULT_FAMILIES),
   withRefs: q.get("refs") === "1",
@@ -96,7 +99,8 @@ const isDefault = () =>
   setParam(st.families, DEFAULT_FAMILIES) == null;
 const changed = () => {
   writeParams({
-    view: st.view === "shares" ? null : st.view,
+    view: st.view === DEFAULT_VIEW ? null : st.view,
+    rows: st.rowsAll ? "all" : null,
     methods: setParam(st.methods, METHOD_IDS),
     systems: setParam(st.families, DEFAULT_FAMILIES),
     refs: st.withRefs ? "1" : null,
@@ -134,7 +138,18 @@ const status = filterStatus(
   isDefault,
   reset,
 );
-$("an-filters").append(scopeControl(), mChips, famChips, status);
+// 20-odd system chips fold behind a disclosure; the summary says how many are on.
+const famSummary = h("summary", null);
+const famBox = h("details", { class: "sb-disclose" }, famSummary, famChips);
+const renderFamSummary = () => {
+  const on = FAMILY_IDS.filter((id) => st.families.has(id)).length;
+  famSummary.replaceChildren(
+    h("span", { class: "sb-lbl" }, "Systems"),
+    h("span", null, `${on} of ${FAMILY_IDS.length} on`),
+  );
+};
+renderFamSummary();
+$("an-filters").append(scopeControl(), mChips, famBox, status);
 
 function renderViews(): void {
   $("an-views").replaceChildren(
@@ -227,6 +242,7 @@ onChange(() => {
   renderViews();
   mChips.rerender();
   famChips.rerender();
+  renderFamSummary();
   status.rerender();
 });
 renderViews();
@@ -240,7 +256,15 @@ mount(
     let notes: string[] = [];
     if (st.view === "shares") notes = sharesOrder(chartEl, W, list, !st.withRefs);
     else if (st.view === "ladder") notes = ladder(chartEl, W, list);
-    else if (st.view === "datasets") notes = byDataset(chartEl, W, list);
+    else if (st.view === "datasets")
+      notes = byDataset(chartEl, W, list, {
+        limit: DATASET_TOP,
+        all: st.rowsAll,
+        onToggle: () => {
+          st.rowsAll = !st.rowsAll;
+          changed();
+        },
+      });
     else notes = costChart(chartEl, W, list, st.log);
     if (!list.length)
       chartEl.append(

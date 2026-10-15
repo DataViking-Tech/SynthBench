@@ -6,11 +6,11 @@ import {
   fmt,
   linear,
   logScale,
-  placeLabel,
   s,
   spread,
   textWidth,
   ticks,
+  tryPlaceLabel,
 } from "./dom";
 import {
   CORE,
@@ -28,8 +28,20 @@ import {
   scopeName,
   scoreIn,
   shortName,
+  state,
 } from "./model";
-import { glyphSvg, highlight, hoverInfo, interactive, marker, methodColor } from "./ui";
+import {
+  capRows,
+  glyphSvg,
+  highlight,
+  hoverInfo,
+  interactive,
+  marker,
+  methodColor,
+  showAllToggle,
+} from "./ui";
+
+const METHOD_ORDER = Object.keys(METHODS) as ShownMethod[];
 
 const svgEl = (
   parent: HTMLElement,
@@ -559,15 +571,12 @@ export function sharesOrder(
       svg,
     );
   }
-  axisTitle(svg, "Shares match: 1 − Jensen-Shannon divergence (0 to 1)", {
-    x: (m.l + width - m.r) / 2,
-    y: H - 8,
-  });
-  axisTitle(svg, "Order match: (1 + Kendall τ) ÷ 2 (0 to 1)", {
-    x: 16,
-    y: (m.t + H - m.b) / 2,
-    vertical: true,
-  });
+  // Plain axis names first; the formula is secondary.
+  const xt = axisTitle(svg, "Shares match", { x: (m.l + width - m.r) / 2, y: H - 8 });
+  s("tspan", { dx: 8, class: "sb-sub", text: "1 − Jensen-Shannon divergence, 0 to 1" }, xt);
+  const yt = axisTitle(svg, "Order match", { x: 16, y: (m.t + H - m.b) / 2, vertical: true });
+  s("tspan", { dx: 8, class: "sb-sub", text: "(1 + Kendall τ) ÷ 2, 0 to 1" }, yt);
+  const placedBoxes: [number, number, number, number][] = [];
   for (const r of refs) {
     const inside = r.x >= x0 && r.x <= x1 && r.y >= y0 && r.y <= y1;
     const cx = Math.max(m.l + 8, Math.min(width - m.r - 8, X(r.x)));
@@ -588,18 +597,23 @@ export function sharesOrder(
       g,
     );
     const nm = `${r.name}${inside ? "" : `, off chart at (${r.x.toFixed(2)}, ${r.y.toFixed(2)})`}`;
-    const right = cx < width - m.r - textWidth(nm) - 20;
+    const tw = textWidth(nm);
+    const right = cx < width - m.r - tw - 20;
+    const tx = right ? cx + 11 : cx - 11;
+    const ty = cy + (cy > H - m.b - 24 ? -10 : 4);
     s(
       "text",
       {
-        x: right ? cx + 11 : cx - 11,
-        y: cy + (cy > H - m.b - 24 ? -10 : 4),
+        x: tx,
+        y: ty,
         "text-anchor": right ? "start" : "end",
         class: "sb-lab sb-halo",
         text: nm,
       },
       g,
     );
+    const bx = right ? tx : tx - tw;
+    placedBoxes.push([bx - 2, ty - 11, bx + tw + 2, ty + 3]);
     hoverInfo(s("circle", { class: "sb-hit", cx, cy, r: 12 }, g), r.name, [
       ["Shares match", r.x.toFixed(3)],
       ["Order match", r.y.toFixed(3)],
@@ -639,6 +653,7 @@ export function sharesOrder(
         {
           class: "sb-s",
           "data-k": b.c.key,
+          "data-k2": a.c.key,
           x1: X(a.x) + (dx / L) * 8,
           y1: Y(a.y) + (dy / L) * 8,
           x2: X(b.x) - (dx / L) * 9,
@@ -651,6 +666,7 @@ export function sharesOrder(
         svg,
       );
   }
+  // Ensemble-to-member links appear only while either end is hovered or inspected.
   for (const ens of rows.filter((r) => r.c.method === "ensemble"))
     for (const mem of ens.c.members) {
       const p = rows.find((r) => r.c.baseId === mem.id && r.c.method === mem.method);
@@ -658,47 +674,30 @@ export function sharesOrder(
         s(
           "line",
           {
+            class: "sb-s sb-onhl",
+            "data-k": ens.c.key,
+            "data-k2": p.c.key,
             x1: X(p.x),
             y1: Y(p.y),
             x2: X(ens.x),
             y2: Y(ens.y),
             stroke: methodColor("ensemble"),
-            opacity: 0.3,
+            "stroke-width": 1.5,
+            opacity: 0.7,
           },
           svg,
         );
     }
-  const placedBoxes: [number, number, number, number][] = [];
   const points = rows.map((r): [number, number] => [X(r.x), Y(r.y)]);
+  const groups = new Map<SystemConfig, SVGGElement>();
   for (const r of [...rows].sort(
     (a, b) => Number(a.c.method === "raw") - Number(b.c.method === "raw"),
   )) {
     const g = s("g", { class: "sb-s", "data-k": r.c.key }, svg);
+    groups.set(r.c, g);
     const cx = X(r.x);
     const cy = Y(r.y);
     marker(g, r.c.method, cx, cy, 5);
-    const nm = shortName(r.c);
-    const weight = r.c.method === "raw" ? 400 : 500;
-    const lp = placeLabel(
-      cx,
-      cy,
-      textWidth(nm, 12, weight),
-      placedBoxes,
-      points.filter(([a, b]) => a !== cx || b !== cy),
-      [m.l, m.t, width - m.r, H - m.b],
-    );
-    s(
-      "text",
-      {
-        x: lp.x,
-        y: lp.y,
-        "text-anchor": lp.anchor,
-        class: `sb-halo ${r.c.method === "raw" ? "sb-lab sb-light" : "sb-lab"}`,
-        style: "font-size:12px",
-        text: nm,
-      },
-      g,
-    );
     interactive(
       s("circle", { class: "sb-hit", cx, cy, r: 13 }, g),
       r.c,
@@ -711,6 +710,51 @@ export function sharesOrder(
       svg,
     );
   }
+  // Labels: the top systems, every ensemble, the best of each method and any
+  // system in the compare tray. The rest get their label on hover or focus.
+  const idx = (c: SystemConfig) => scoreIn(c)?.v ?? Number.NEGATIVE_INFINITY;
+  const ranked = [...rows].sort((a, b) => idx(b.c) - idx(a.c));
+  const labelled = new Set<SystemConfig>(ranked.slice(0, 5).map((r) => r.c));
+  for (const r of ranked) {
+    if (r.c.method === "ensemble" || state.compare.includes(r.c.key)) labelled.add(r.c);
+  }
+  for (const meth of METHOD_ORDER) {
+    const best = ranked.find((r) => r.c.method === meth);
+    if (best) labelled.add(best.c);
+  }
+  const bounds: [number, number, number, number] = [m.l, m.t, width - m.r, H - m.b];
+  const labelAt = (r: (typeof rows)[number], strict: boolean) => {
+    const cx = X(r.x);
+    const cy = Y(r.y);
+    const nm = shortName(r.c);
+    const tag = methodTag(r.c);
+    const text = tag ? `${nm}, ${tag}` : nm;
+    const weight = r.c.method === "raw" ? 400 : 500;
+    const others = points.filter(([a, b]) => a !== cx || b !== cy);
+    const w = textWidth(text, 12, weight);
+    // A label with no clear spot is shown on hover only, never drawn over another.
+    const fixed = strict ? tryPlaceLabel(cx, cy, w, placedBoxes, others, bounds) : null;
+    const lp = fixed ??
+      tryPlaceLabel(cx, cy, w, [...placedBoxes], others, bounds) ?? {
+        x: cx + 10,
+        y: cy + 4,
+        anchor: "start" as const,
+      };
+    s(
+      "text",
+      {
+        x: lp.x,
+        y: lp.y,
+        "text-anchor": lp.anchor,
+        class: `sb-halo sb-lab${r.c.method === "raw" ? " sb-light" : ""}${fixed ? "" : " sb-onhl"}`,
+        style: "font-size:12px",
+        text,
+      },
+      groups.get(r.c),
+    );
+  };
+  for (const r of ranked) if (labelled.has(r.c)) labelAt(r, true);
+  for (const r of ranked) if (!labelled.has(r.c)) labelAt(r, false);
   highlight(svg, null);
   const raws = rows.filter((r) => r.c.method === "raw");
   const up = moves.filter((mv) => mv.dx > 0 && mv.dy > 0).length;
@@ -726,7 +770,7 @@ export function sharesOrder(
     );
   if (rows.some((r) => r.c.method === "ensemble"))
     notes.push(
-      "The ensembles improve shares the most, because averaging three models evens out over-confident answers.",
+      "The ensembles improve shares the most, because averaging several models evens out over-confident answers.",
     );
   return notes;
 }
@@ -734,13 +778,19 @@ export function sharesOrder(
 // ---------- Analysis: raw → persona → ensemble ----------
 export function ladder(el: HTMLElement, width: number, pool: SystemConfig[]): string[] {
   const H = Math.max(420, Math.min(560, innerHeight - 320));
-  const m = { l: 210, r: 210, t: 46, b: 20 };
-  const cols = { raw: m.l + 20, althing: width / 2, ensemble: width - m.r - 20 };
   const fams = [...new Set(pool.filter((c) => c.method !== "ensemble").map((c) => c.baseId))];
   const ensList = pool
     .filter((c) => c.method === "ensemble")
     .map((c) => ({ c, v: scoreIn(c)?.v ?? null }))
     .filter((e): e is { c: SystemConfig; v: number } => e.v != null);
+  const ensText = (e: { c: SystemConfig; v: number }) =>
+    `${ensembleLabel(e.c.base)} ${fmt.int(e.v)}`;
+  // Right margin: ensemble labels, then the Index ticks and axis title at the edge.
+  const ensW = Math.max(120, ...ensList.map((e) => textWidth(ensText(e))));
+  const m = { l: 210, r: Math.min(width * 0.3, ensW + 90), t: 46, b: 20 };
+  const cols = { raw: m.l + 20, althing: 0, ensemble: width - m.r };
+  cols.althing = (cols.raw + cols.ensemble) / 2;
+  const tickX = width - 26;
   const rows = fams
     .map((id) => {
       const a = pool.find((c) => c.baseId === id && c.method === "raw");
@@ -788,34 +838,34 @@ export function ladder(el: HTMLElement, width: number, pool: SystemConfig[]): st
     {
       x: cols.raw - 30,
       y: Y(0),
-      width: cols.ensemble - cols.raw + 60,
+      width: tickX - 26 - (cols.raw - 30),
       height: Y(lo) - Y(0),
       fill: "var(--sb-zone-neg)",
     },
     svg,
   );
   for (const t of ticks(lo, hi, 6)) {
+    s("line", { class: "sb-gl", x1: cols.raw - 30, x2: tickX - 26, y1: Y(t), y2: Y(t) }, svg);
     s(
-      "line",
-      { class: "sb-gl", x1: cols.raw - 30, x2: cols.ensemble + 30, y1: Y(t), y2: Y(t) },
+      "text",
+      { class: "sb-t", x: tickX, y: Y(t) + 4, "text-anchor": "end", text: fmt.int(t) },
       svg,
     );
-    s("text", { class: "sb-t", x: cols.ensemble + 36, y: Y(t) + 4, text: fmt.int(t) }, svg);
   }
   axisTitle(svg, "SynthBench Index", {
-    x: cols.ensemble + 70,
+    x: width - 6,
     y: (m.t + H - m.b) / 2,
     vertical: true,
   });
   s(
     "line",
-    { x1: cols.raw - 30, x2: cols.ensemble + 30, y1: Y(0), y2: Y(0), stroke: css("--sb-ink-2") },
+    { x1: cols.raw - 30, x2: tickX - 26, y1: Y(0), y2: Y(0), stroke: css("--sb-ink-2") },
     svg,
   );
   s(
     "text",
     {
-      x: cols.ensemble + 26,
+      x: tickX - 30,
       y: Y(0) + 15,
       "text-anchor": "end",
       class: "sb-neg-t",
@@ -823,10 +873,15 @@ export function ladder(el: HTMLElement, width: number, pool: SystemConfig[]): st
     },
     svg,
   );
+  const sizes = [...new Set(ensList.map((e) => e.c.members.length))].sort((a, b) => a - b);
   const heads: [keyof typeof cols, string, string][] = [
     ["raw", "Raw prompt", "model as-is"],
     ["althing", "Althing persona", "same model, conditioned"],
-    ["ensemble", "Ensemble", "three systems averaged"],
+    [
+      "ensemble",
+      "Ensemble",
+      sizes.length ? `${sizes.join(" or ")} systems averaged` : "several systems averaged",
+    ],
   ];
   for (const [k, l, d] of heads) {
     s(
@@ -840,9 +895,27 @@ export function ladder(el: HTMLElement, width: number, pool: SystemConfig[]): st
   type Lbl = { y: number; y0: number; r: (typeof rows)[number]; g: SVGGElement };
   const left: Lbl[] = [];
   const right: Lbl[] = [];
+  // Links to an ensemble appear only while it or its member is hovered or inspected.
+  const ensLink = (e: { c: SystemConfig; v: number }, mem: SystemConfig, x1: number, y1: number) =>
+    s(
+      "line",
+      {
+        class: "sb-s sb-onhl",
+        "data-k": e.c.key,
+        "data-k2": mem.key,
+        x1,
+        x2: cols.ensemble,
+        y1,
+        y2: Y(e.v),
+        stroke: methodColor("ensemble"),
+        "stroke-width": 1.5,
+        opacity: 0.8,
+      },
+      svg,
+    );
   for (const r of rows) {
     const key = (r.b ?? r.a)?.key ?? r.id;
-    const g = s("g", { class: "sb-s", "data-k": key }, svg);
+    const g = s("g", { class: "sb-s", "data-k": key, "data-k2": r.b && r.a ? r.a.key : null }, svg);
     if (r.va != null && r.vb != null)
       s(
         "line",
@@ -858,21 +931,8 @@ export function ladder(el: HTMLElement, width: number, pool: SystemConfig[]): st
         g,
       );
     for (const e of ensList)
-      if (e.c.members.some((m) => m.id === r.id && m.method === "raw") && r.va != null)
-        s(
-          "line",
-          {
-            x1: cols.raw,
-            x2: cols.ensemble,
-            y1: Y(r.va),
-            y2: Y(e.v),
-            stroke: methodColor("ensemble"),
-            "stroke-width": 1.2,
-            opacity: 0.3,
-            "stroke-dasharray": "3 3",
-          },
-          g,
-        );
+      if (r.a && r.va != null && e.c.members.some((m) => m.id === r.id && m.method === "raw"))
+        ensLink(e, r.a, cols.raw, Y(r.va));
     if (r.a && r.va != null) {
       const va = r.va;
       marker(g, "raw", cols.raw, Y(va), 5);
@@ -901,19 +961,7 @@ export function ladder(el: HTMLElement, width: number, pool: SystemConfig[]): st
       for (const e of ensList.filter((e) =>
         e.c.members.some((m) => m.id === r.id && m.method === "althing"),
       ))
-        s(
-          "line",
-          {
-            x1: cols.althing,
-            x2: cols.ensemble,
-            y1: Y(vb),
-            y2: Y(e.v),
-            stroke: methodColor("ensemble"),
-            "stroke-width": 1.5,
-            opacity: 0.45,
-          },
-          g,
-        );
+        ensLink(e, r.b, cols.althing, Y(vb));
     }
   }
   for (const L of spread(left, 18, m.t, H - m.b)) {
@@ -978,7 +1026,11 @@ export function ladder(el: HTMLElement, width: number, pool: SystemConfig[]): st
         },
         R.g,
       );
-    s("text", { x: cols.althing + 84, y: R.y + 4, class: "sb-sub sb-halo", text: R.r.name }, R.g);
+    s(
+      "text",
+      { x: cols.althing + 84, y: R.y + 4, class: "sb-lab sb-light sb-halo", text: R.r.name },
+      R.g,
+    );
   }
   const ensLabels = ensList.map((e) => {
     const g = s("g", { class: "sb-s", "data-k": e.c.key }, svg);
@@ -998,7 +1050,7 @@ export function ladder(el: HTMLElement, width: number, pool: SystemConfig[]): st
         x: cols.ensemble + 14,
         y: L.y + 4,
         class: "sb-lab sb-halo",
-        text: `${ensembleLabel(L.e.c.base)} ${fmt.int(L.e.v)}`,
+        text: ensText(L.e),
       },
       L.g,
     );
@@ -1027,9 +1079,18 @@ export function ladder(el: HTMLElement, width: number, pool: SystemConfig[]): st
 }
 
 // ---------- Analysis: Index by dataset ----------
-export function byDataset(el: HTMLElement, width: number, pool: SystemConfig[]): string[] {
-  const H = Math.max(420, Math.min(560, innerHeight - 320));
+export function byDataset(
+  el: HTMLElement,
+  width: number,
+  pool: SystemConfig[],
+  cap: { limit: number; all: boolean; onToggle: () => void },
+): string[] {
+  let H = Math.max(420, Math.min(560, innerHeight - 320));
   const m = { l: 64, r: 230, t: 20, b: 64 };
+  const lineLabel = (c: SystemConfig) => {
+    const tag = methodTag(c);
+    return textWidth(shortName(c)) + (tag ? 5 + textWidth(tag, 11.5, 400) : 0);
+  };
   const cols = [...CORE];
   const sub: Record<string, string> = {
     opinionsqa: "US adults",
@@ -1037,10 +1098,26 @@ export function byDataset(el: HTMLElement, width: number, pool: SystemConfig[]):
     gss: "US adults, GSS",
     globalopinionqa: "cross-national",
   };
-  const rows = pool.filter((c) => cols.filter((id) => c.ds[id]).length >= 2);
-  const vals = rows.flatMap((c) =>
-    cols.map((id) => c.ds[id]?.idx).filter((v): v is number => v != null),
-  );
+  const idx = (c: SystemConfig) => scoreIn(c, "all")?.v ?? Number.NEGATIVE_INFINITY;
+  const rows = pool
+    .filter((c) => cols.filter((id) => c.ds[id]).length >= 2)
+    .sort((a, b) => idx(b) - idx(a));
+  // The top systems by Index by default; the notes below still cover every row.
+  const drawn = capRows(rows, cap.limit, cap.all);
+  // Right margin fits the longest line label (lab logo + name + method tag).
+  m.r = Math.min(width * 0.36, Math.max(180, ...drawn.map((c) => 22 + 19 + lineLabel(c) + 8)));
+  // Tall enough for one 17px label per line plus the majority-answer reference.
+  H = Math.max(H, (drawn.length + 1) * 17 + m.t + m.b);
+  const maj = data().references.majority;
+  const majPts = maj
+    ? cols
+        .map((id, i) => ({ i, v: maj.ds[id]?.idx }))
+        .filter((p): p is { i: number; v: number } => p.v != null)
+    : [];
+  const vals = [
+    ...drawn.flatMap((c) => cols.map((id) => c.ds[id]?.idx).filter((v): v is number => v != null)),
+    ...majPts.map((p) => p.v),
+  ];
   const svg = svgEl(el, width, H, "Index on each core dataset, one line per system");
   if (!rows.length) {
     s(
@@ -1058,7 +1135,8 @@ export function byDataset(el: HTMLElement, width: number, pool: SystemConfig[]):
   }
   const lo = Math.min(-30, ...vals.map((v) => v - 5));
   const hi = Math.max(50, ...vals.map((v) => v + 5));
-  const x = (i: number) => m.l + 50 + (i / 2) * (width - m.l - m.r - 100);
+  const x = (i: number) =>
+    m.l + 50 + (i / Math.max(1, cols.length - 1)) * (width - m.l - m.r - 100);
   const Y = linear(lo, hi, H - m.b, m.t);
   s(
     "rect",
@@ -1089,10 +1167,39 @@ export function byDataset(el: HTMLElement, width: number, pool: SystemConfig[]):
       svg,
     );
   });
-  axisTitle(svg, "Dataset", { x: (x(0) + x(2)) / 2, y: H - 6 });
-  type Lbl = { c: SystemConfig; g: SVGGElement; x0: number; y0: number; y: number };
+  axisTitle(svg, "Dataset", { x: (x(0) + x(cols.length - 1)) / 2, y: H - 6 });
+  type Lbl = { c: SystemConfig | null; g: SVGGElement; x0: number; y0: number; y: number };
   const labels: Lbl[] = [];
-  for (const c of rows) {
+  // Reference: always giving each question's most popular answer.
+  if (majPts.length >= 2) {
+    const g = s("g", null, svg);
+    const pts = majPts.map((p): [number, number] => [x(p.i), Y(p.v)]);
+    const d = pts.map((p, i) => `${i ? "L" : "M"}${p[0]},${p[1]}`).join("");
+    s("path", { d, fill: "none", stroke: css("--sb-ink-2"), "stroke-width": 1.5, opacity: 0.7 }, g);
+    for (const [px, py] of pts)
+      s(
+        "rect",
+        {
+          x: px - 4,
+          y: py - 4,
+          width: 8,
+          height: 8,
+          fill: css("--sb-panel"),
+          stroke: css("--sb-ink-2"),
+          "stroke-width": 1.5,
+          transform: `rotate(45 ${px} ${py})`,
+        },
+        g,
+      );
+    const last = pts[pts.length - 1];
+    labels.push({ c: null, g, x0: last[0], y0: last[1], y: last[1] });
+    hoverInfo(
+      s("path", { class: "sb-hit", d, fill: "none", stroke: "transparent", "stroke-width": 14 }, g),
+      "Majority answer (reference)",
+      majPts.map((p): [string, string] => [dsLabel(cols[p.i]), fmt.one(p.v)]),
+    );
+  }
+  for (const c of drawn) {
     const g = s("g", { class: "sb-s", "data-k": c.key }, svg);
     const pts = cols
       .map((id, i): [number, number] | null => (c.ds[id] ? [x(i), Y(c.ds[id].idx)] : null))
@@ -1120,16 +1227,22 @@ export function byDataset(el: HTMLElement, width: number, pool: SystemConfig[]):
       { d: `M${L.x0 + 7},${L.y0}L${lx - 6},${L.y}`, stroke: css("--sb-line-2"), fill: "none" },
       L.g,
     );
+    if (!L.c) {
+      s("text", { x: lx + 19, y: L.y + 4.5, class: "sb-sub", text: "Majority answer" }, L.g);
+      continue;
+    }
     glyphSvg(L.g, L.c.lab, lx, L.y + 4.5);
     const label = s(
       "text",
       { x: lx + 19, y: L.y + 4.5, class: "sb-lab", text: shortName(L.c) },
       L.g,
     );
-    if (L.c.method !== "ensemble")
-      s("tspan", { dx: 5, class: "sb-sub", text: METHODS[L.c.method as ShownMethod].short }, label);
+    const tag = methodTag(L.c);
+    if (tag) s("tspan", { dx: 5, class: "sb-sub", text: tag }, label);
   }
   highlight(svg, null);
+  const more = showAllToggle({ total: rows.length, ...cap });
+  if (more) el.append(more);
   const drops = rows
     .map((c) =>
       c.ds.opinionsqa && c.ds.globalopinionqa
@@ -1161,7 +1274,7 @@ export function costChart(
   log: boolean,
 ): string[] {
   const H = Math.max(420, Math.min(540, innerHeight - 320));
-  const m = { l: 64, r: 170, t: 18, b: 52 };
+  const m = { l: 64, r: 24, t: 44, b: 52 };
   const rows = pool
     .map((c) => ({ c, x: c.cost100, v: scoreIn(c) }))
     .filter(
@@ -1169,7 +1282,7 @@ export function costChart(
         r.x != null && r.x > 0 && r.v != null,
     );
   const svg = svgEl(el, width, H, "SynthBench Index versus cost per 100 questions");
-  const missing = pool.filter((c) => c.cost100 == null && scoreIn(c)).length;
+  const missing = pool.filter((c) => c.cost100 == null && scoreIn(c));
   if (!rows.length) {
     s(
       "text",
@@ -1178,12 +1291,82 @@ export function costChart(
         y: H / 2,
         "text-anchor": "middle",
         class: "sb-sub",
-        text: "No cost data for the systems shown. Cost is only recorded for raw LLM runs.",
+        text: "No cost data for the systems shown: their runs didn't record token cost.",
       },
       svg,
     );
     return [];
   }
+  // Legend above the plot (methods shown, the frontier line, what's missing),
+  // wrapped to the chart width; the plot starts below it.
+  const frontierStroke = { stroke: css("--sb-ink"), "stroke-width": 1.2, opacity: 0.5 };
+  type Item = {
+    w: number;
+    br?: boolean;
+    draw: (x: number, y: number) => void;
+    x: number;
+    y: number;
+  };
+  const sub = (x: number, y: number, text: string) =>
+    s("text", { x, y, class: "sb-sub", text }, svg);
+  const legend: Item[] = METHOD_ORDER.filter((mm) => rows.some((r) => r.c.method === mm)).map(
+    (meth) => ({
+      w: 15 + textWidth(METHODS[meth].label, 11.5, 400),
+      draw: (x, y) => {
+        marker(svg, meth, x + 5, y - 4, 4.5);
+        sub(x + 15, y, METHODS[meth].label);
+      },
+      x: 0,
+      y: 0,
+    }),
+  );
+  const fLong = "Best for the money: no cheaper system scores higher";
+  const fText = 24 + textWidth(fLong, 11.5, 400) < width - 16 ? fLong : "Best for the money";
+  legend.push({
+    w: 24 + textWidth(fText, 11.5, 400),
+    draw: (x, y) => {
+      s(
+        "line",
+        { x1: x, x2: x + 18, y1: y - 4, y2: y - 4, ...frontierStroke, "stroke-width": 2 },
+        svg,
+      );
+      sub(x + 24, y, fText);
+    },
+    x: 0,
+    y: 0,
+  });
+  if (missing.length) {
+    const by = METHOD_ORDER.map(
+      (mm) => [mm, missing.filter((c) => c.method === mm).length] as const,
+    )
+      .filter(([, n]) => n)
+      .map(([mm, n]) => `${n} ${METHODS[mm].short}`)
+      .join(", ");
+    const n = `${missing.length} system${missing.length > 1 ? "s" : ""}`;
+    const long = `${n} not plotted because their runs didn't record token cost (${by}).`;
+    const text =
+      textWidth(long, 11.5, 400) < width - 16 ? long : `${n} not plotted: no token cost recorded.`;
+    legend.push({
+      w: textWidth(text, 11.5, 400),
+      br: true,
+      draw: (x, y) => sub(x, y, text),
+      x: 0,
+      y: 0,
+    });
+  }
+  const lx0 = width < 560 ? 8 : m.l;
+  let lx = lx0;
+  let ly = 18;
+  for (const it of legend) {
+    if (lx > lx0 && (it.br || lx + it.w > width - 8)) {
+      lx = lx0;
+      ly += 17;
+    }
+    it.x = lx;
+    it.y = ly;
+    lx += it.w + 16;
+  }
+  m.t = ly + 22;
   const xmax = Math.max(3, ...rows.map((r) => r.x * 1.3));
   const X = log ? logScale(0.01, xmax, m.l, width - m.r) : linear(0, xmax, m.l, width - m.r);
   const lo = Math.min(-20, ...rows.map((r) => r.v.v - 6));
@@ -1203,7 +1386,7 @@ export function costChart(
     );
   }
   const xt = log
-    ? [0.01, 0.02, 0.05, 0.1, 0.2, 0.5, 1, 2].filter((t) => t <= xmax)
+    ? [0.01, 0.02, 0.05, 0.1, 0.2, 0.5, 1, 2, 5, 10, 20, 50].filter((t) => t <= xmax)
     : ticks(0, xmax, 6);
   for (const t of xt) {
     s("line", { class: "sb-gl", x1: X(t), x2: X(t), y1: m.t, y2: H - m.b }, svg);
@@ -1232,16 +1415,19 @@ export function costChart(
     {
       d: frontier.map((r, i) => `${i ? "L" : "M"}${X(r.x)},${Y(r.v.v)}`).join(""),
       fill: "none",
-      stroke: css("--sb-ink"),
-      "stroke-width": 1.2,
-      opacity: 0.5,
+      ...frontierStroke,
     },
     svg,
   );
-  type Lbl = { c: SystemConfig; g: SVGGElement; x0: number; y0: number; y: number };
-  const labels: Lbl[] = [];
+
+  for (const it of legend) it.draw(it.x, it.y);
+
+  // Direct labels for the frontier, the top score, the most expensive system and
+  // anything in the compare tray; the rest show their label on hover or focus.
+  const groups = new Map<SystemConfig, SVGGElement>();
   for (const r of rows) {
     const g = s("g", { class: "sb-s", "data-k": r.c.key }, svg);
+    groups.set(r.c, g);
     if (r.v.lo != null && r.v.hi != null)
       s(
         "line",
@@ -1257,44 +1443,63 @@ export function costChart(
         g,
       );
     marker(g, r.c.method, X(r.x), Y(r.v.v), 5);
-    labels.push({ c: r.c, g, x0: X(r.x), y0: Y(r.v.v), y: Y(r.v.v) });
     interactive(
       s("circle", { class: "sb-hit", cx: X(r.x), cy: Y(r.v.v), r: 13 }, g),
       r.c,
       () => [
         ["Cost per 100 questions", fmt.usd(r.x)],
         ["Index", fmt.one(r.v.v)],
+        ["Best for the money", frontier.includes(r) ? "yes" : "no"],
       ],
       svg,
     );
   }
-  const lx = width - m.r + 22;
-  for (const L of spread(labels, 17, m.t, H - m.b)) {
-    s(
-      "path",
-      { d: `M${L.x0 + 7},${L.y0}L${lx - 6},${L.y}`, stroke: css("--sb-line-2"), fill: "none" },
-      L.g,
-    );
-    glyphSvg(L.g, L.c.lab, lx, L.y + 4.5);
-    s("text", { x: lx + 19, y: L.y + 4.5, class: "sb-lab", text: shortName(L.c) }, L.g);
-  }
-  if (missing)
+  const top = rows.reduce((p, q) => (q.v.v > p.v.v ? q : p));
+  const priciest = rows.reduce((p, q) => (q.x > p.x ? q : p));
+  const labelled = [
+    ...frontier,
+    top,
+    priciest,
+    ...rows.filter((r) => state.compare.includes(r.c.key)),
+  ].filter((r, i, a) => a.indexOf(r) === i);
+  const points = rows.map((r): [number, number] => [X(r.x), Y(r.v.v)]);
+  const placed: [number, number, number, number][] = [];
+  const bounds: [number, number, number, number] = [m.l, m.t, width - m.r, H - m.b];
+  const label = (r: (typeof rows)[number], strict: boolean) => {
+    const cx = X(r.x);
+    const cy = Y(r.v.v);
+    const tag = methodTag(r.c);
+    const text = `${shortName(r.c)}${tag ? `, ${tag}` : ""}`;
+    const others = points.filter(([a, b]) => a !== cx || b !== cy);
+    const w = textWidth(text, 12, 500);
+    // A label with no clear spot is shown on hover only, never drawn over another.
+    const fixed = strict ? tryPlaceLabel(cx, cy, w, placed, others, bounds) : null;
+    const lp = fixed ??
+      tryPlaceLabel(cx, cy, w, [...placed], others, bounds) ?? {
+        x: cx + 10,
+        y: cy + 4,
+        anchor: "start" as const,
+      };
     s(
       "text",
       {
-        x: m.l + 8,
-        y: m.t + 14,
-        class: "sb-sub",
-        text: `${missing} system${missing > 1 ? "s" : ""} not plotted: token cost isn't recorded for persona and ensemble runs yet.`,
+        x: lp.x,
+        y: lp.y,
+        "text-anchor": lp.anchor,
+        class: `sb-lab sb-halo${fixed ? "" : " sb-onhl"}`,
+        style: "font-size:12px",
+        text,
       },
-      svg,
+      groups.get(r.c),
     );
+  };
+  for (const r of labelled) label(r, true);
+  for (const r of rows) if (!labelled.includes(r)) label(r, false);
   highlight(svg, null);
   const value = rows.reduce((p, q) => (q.v.v / q.x > p.v.v / p.x ? q : p));
-  const priciest = rows.reduce((p, q) => (q.x > p.x ? q : p));
   return [
-    `Most Index per dollar: ${shortName(value.c)}, ${fmt.int(value.v.v)} at ${fmt.usd(value.x)} per 100 questions.`,
-    `The most expensive model shown, ${shortName(priciest.c)}, scores ${fmt.int(priciest.v.v)}.`,
-    "The line connects systems that no cheaper system beats.",
+    `Most Index per dollar: ${fullName(value.c)}, ${fmt.int(value.v.v)} at ${fmt.usd(value.x)} per 100 questions.`,
+    `The most expensive system shown, ${fullName(priciest.c)}, scores ${fmt.int(priciest.v.v)}.`,
+    "The line joins the systems that are best for the money: no cheaper system scores higher.",
   ];
 }

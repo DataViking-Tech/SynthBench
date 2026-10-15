@@ -83,6 +83,54 @@
   font-size: 12.5px;
   color: var(--sb-muted);
 }
+/* A filter that folds its chips away: "SYSTEMS 18 of 21 on" until opened. */
+.sb-disclose > summary {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  padding: 4px 10px;
+  border: 1px solid var(--sb-line-2);
+  border-radius: 6px;
+  cursor: pointer;
+  list-style: none;
+  white-space: nowrap;
+}
+.sb-disclose > summary::-webkit-details-marker {
+  display: none;
+}
+.sb-disclose > summary::after {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-right: 1.5px solid var(--sb-ink-2);
+  border-bottom: 1.5px solid var(--sb-ink-2);
+  transform: translateY(-2px) rotate(45deg);
+}
+.sb-disclose[open] > summary::after {
+  transform: translateY(1px) rotate(-135deg);
+}
+.sb-disclose > summary:hover {
+  border-color: var(--sb-ink-2);
+}
+.sb-disclose[open] {
+  flex-basis: 100%;
+}
+.sb-disclose > .sb-filter {
+  margin-top: 10px;
+}
+.sb-disclose > .sb-filter > .sb-lbl {
+  display: none;
+}
+/* Chart marks shown only while their system is hovered, focused or inspected. */
+svg.sb-c .sb-onhl {
+  display: none;
+}
+svg.sb-c .sb-s.hl .sb-onhl,
+svg.sb-c .sb-s.hl.sb-onhl {
+  display: inline;
+  pointer-events: none;
+}
 .sb-take {
   font-size: 13px;
   color: var(--sb-ink-2);
