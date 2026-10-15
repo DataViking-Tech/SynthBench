@@ -1,128 +1,122 @@
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { expect, test } from "@playwright/test";
+import { type APIRequestContext, expect, test } from "@playwright/test";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-// Mobile responsive audit — Pass 1.3 (sb-ye3)
-// Checks all 9 routes at 375/390/414px for horizontal overflow and layout breaks.
+// Layout regression guard: no page may scroll sideways, at phone, tablet and
+// small-laptop widths, in light and dark mode. Hard-fails on horizontal
+// overflow; small tap targets are reported (findings.json) but don't fail.
+//
+// Covers every Index page plus one system profile of each kind, a run, a
+// question, the question index and the compare page. Dynamic routes are picked from the
+// published data at test time so the guard survives data regeneration.
 
 const VIEWPORTS = [
-  { label: "375-iphone-se", width: 375, height: 667 },
-  { label: "390-iphone-14", width: 390, height: 844 },
-  { label: "414-iphone-plus", width: 414, height: 896 },
+  { label: "390", width: 390, height: 844 },
+  { label: "768", width: 768, height: 1024 },
+  { label: "1024", width: 1024, height: 800 },
 ];
+const SCHEMES = ["light", "dark"] as const;
 
-// Sample IDs from public/data/runs-index.json
-const SAMPLE_CONFIG_ID = "ensemble--3-model-blend--tdefault--tplcurrent--3ba7cfb3";
-const SAMPLE_RUN_ID = "globalopinionqa_ensemble_3blend_20260412_021343";
-
-const ROUTES = [
+const STATIC_ROUTES = [
   { path: "", label: "home" },
   { path: "leaderboard/", label: "leaderboard" },
+  { path: "analysis/", label: "analysis" },
+  { path: "groups/", label: "groups" },
   { path: "explore/", label: "explore" },
   { path: "findings/", label: "findings" },
   { path: "methodology/", label: "methodology" },
+  { path: "datasets/", label: "datasets" },
   { path: "submit/", label: "submit" },
   { path: "compare/", label: "compare" },
-  { path: `config/${SAMPLE_CONFIG_ID}/`, label: "config-detail" },
-  { path: `run/${SAMPLE_RUN_ID}/`, label: "run-detail" },
 ];
+
+/** One single-model and one ensemble profile, a full-tier run and question. */
+async function dynamicRoutes(request: APIRequestContext) {
+  const out: { path: string; label: string }[] = [];
+  const idx = await request.get("data/sb-index.json");
+  expect(idx.ok(), "data/sb-index.json").toBeTruthy();
+  const index = await idx.json();
+  const single = index.systems.find((c: { method: string }) => c.method === "althing");
+  const ensemble = index.systems.find((c: { method: string }) => c.method === "ensemble");
+  for (const [c, label] of [
+    [single, "system-single"],
+    [ensemble, "system-ensemble"],
+  ] as const)
+    if (c) out.push({ path: `system/${index.slugs[c.baseId]}/`, label });
+  const runsRes = await request.get("data/runs-index.json");
+  const run = runsRes.ok()
+    ? (await runsRes.json()).runs.find((r: { dataset: string }) => r.dataset === "gss")
+    : null;
+  if (run) out.push({ path: `run/${encodeURIComponent(run.run_id)}/`, label: "run" });
+  const qs = await request.get("data/question/gss/index.json");
+  if (qs.ok()) {
+    out.push({ path: "question/gss/", label: "question-index" });
+    const q = (await qs.json()).questions?.[0];
+    if (q) out.push({ path: `question/gss/${encodeURIComponent(q.key)}/`, label: "question" });
+  }
+  return out;
+}
 
 const OUT_DIR = path.join(__dirname, "mobile-audit-out");
 fs.mkdirSync(OUT_DIR, { recursive: true });
-
-const findings: Array<{
-  route: string;
-  viewport: string;
-  issues: string[];
-}> = [];
-
-test.afterAll(async () => {
+const findings: { route: string; viewport: string; scheme: string; issues: string[] }[] = [];
+test.afterAll(() => {
   fs.writeFileSync(path.join(OUT_DIR, "findings.json"), JSON.stringify(findings, null, 2));
 });
 
-for (const vp of VIEWPORTS) {
-  for (const route of ROUTES) {
-    test(`${route.label} @ ${vp.label}`, async ({ page }) => {
-      await page.setViewportSize({ width: vp.width, height: vp.height });
-      const url = `http://localhost:4321/synthbench/${route.path}`;
-      await page.goto(url, { waitUntil: "networkidle" });
-      await page.waitForTimeout(400);
-
-      const issues: string[] = [];
-
-      // Horizontal overflow detection
-      const scrollX = await page.evaluate(() => ({
-        documentWidth: document.documentElement.scrollWidth,
-        innerWidth: window.innerWidth,
-        bodyWidth: document.body.scrollWidth,
-      }));
-      if (scrollX.documentWidth > scrollX.innerWidth + 1) {
-        issues.push(
-          `horizontal overflow: doc ${scrollX.documentWidth}px > viewport ${scrollX.innerWidth}px`,
-        );
-      }
-
-      // Find elements wider than viewport (common overflow cause)
-      const wideEls = await page.evaluate((vw) => {
-        const out: Array<{ tag: string; cls: string; w: number; id: string }> = [];
-        const all = document.querySelectorAll("*");
-        for (const el of all) {
-          const r = el.getBoundingClientRect();
-          if (r.width > vw + 2 && r.width < 10000) {
-            out.push({
-              tag: el.tagName.toLowerCase(),
-              cls: (el.getAttribute("class") || "").slice(0, 80),
-              w: Math.round(r.width),
-              id: el.id || "",
-            });
-          }
-        }
-        return out.slice(0, 8);
-      }, vp.width);
-      if (wideEls.length > 0) {
-        issues.push(`wide elements: ${JSON.stringify(wideEls)}`);
-      }
-
-      // Small tap targets (interactive elements < 44px)
-      const smallTargets = await page.evaluate(() => {
-        const out: Array<{ tag: string; text: string; w: number; h: number }> = [];
-        const sel = "a, button, input, select, textarea, [role=button]";
-        for (const el of document.querySelectorAll(sel)) {
-          const r = (el as HTMLElement).getBoundingClientRect();
-          if (r.width === 0 || r.height === 0) continue;
-          if (r.width < 40 || r.height < 40) {
-            out.push({
-              tag: el.tagName.toLowerCase(),
-              text: (el.textContent || "").trim().slice(0, 30),
-              w: Math.round(r.width),
-              h: Math.round(r.height),
-            });
-          }
-        }
-        return out.slice(0, 10);
+test("no page scrolls sideways", async ({ browser, request }) => {
+  test.setTimeout(15 * 60_000);
+  const routes = [...STATIC_ROUTES, ...(await dynamicRoutes(request))];
+  const failures: string[] = [];
+  for (const scheme of SCHEMES) {
+    for (const vp of VIEWPORTS) {
+      const ctx = await browser.newContext({
+        baseURL: test.info().project.use.baseURL,
+        viewport: { width: vp.width, height: vp.height },
+        colorScheme: scheme,
       });
-      if (smallTargets.length > 0) {
-        issues.push(`small tap targets (<40px): ${JSON.stringify(smallTargets)}`);
+      const page = await ctx.newPage();
+      for (const route of routes) {
+        await page.goto(route.path, { waitUntil: "networkidle" });
+        await page.waitForTimeout(300);
+        const m = await page.evaluate(() => {
+          const vw = window.innerWidth;
+          // Outermost elements that stick out past the right edge.
+          const wide: string[] = [];
+          for (const el of document.querySelectorAll("body *")) {
+            const r = el.getBoundingClientRect();
+            if (r.right <= vw + 1 || !r.width) continue;
+            const parent = el.parentElement?.getBoundingClientRect();
+            if (parent && parent.right > vw + 1) continue;
+            wide.push(`${el.tagName.toLowerCase()}.${el.getAttribute("class") ?? ""}`.slice(0, 80));
+          }
+          let small = 0;
+          for (const el of document.querySelectorAll(
+            "a, button, input, select, [role=button], [role=radio], [role=checkbox]",
+          )) {
+            const r = el.getBoundingClientRect();
+            if (r.width && r.height && (r.width < 24 || r.height < 24)) small++;
+          }
+          return { sw: document.documentElement.scrollWidth, vw, wide: wide.slice(0, 5), small };
+        });
+        const issues: string[] = [];
+        if (m.sw > m.vw + 1) {
+          const msg = `${route.label} @ ${vp.label} ${scheme}: page ${m.sw}px wide > ${m.vw}px (${m.wide.join(", ")})`;
+          issues.push(msg);
+          failures.push(msg);
+          await page.screenshot({
+            path: path.join(OUT_DIR, `${route.label}-${vp.label}-${scheme}.png`),
+            fullPage: true,
+          });
+        }
+        if (m.small) issues.push(`${m.small} tap targets under 24px`);
+        findings.push({ route: route.label, viewport: vp.label, scheme, issues });
       }
-
-      // Screenshot
-      const shotPath = path.join(OUT_DIR, `${route.label}-${vp.label}.png`);
-      await page.screenshot({ path: shotPath, fullPage: true });
-
-      findings.push({
-        route: route.label,
-        viewport: vp.label,
-        issues,
-      });
-
-      // Hard-fail only on horizontal overflow; tap targets reported but non-fatal
-      expect(
-        scrollX.documentWidth,
-        `${route.label} at ${vp.label} has horizontal overflow`,
-      ).toBeLessThanOrEqual(scrollX.innerWidth + 1);
-    });
+      await ctx.close();
+    }
   }
-}
+  expect(failures, failures.join("\n")).toEqual([]);
+});

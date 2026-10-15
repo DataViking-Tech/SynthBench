@@ -4,8 +4,11 @@ This directory holds Playwright suites for the SynthBench site:
 
 - `visual/smoke.visual.spec.ts` — smoke VRT (3 snapshots) over the three
   golden-path routes in dark theme, desktop viewport.
-- `mobile-audit.spec.ts` / `mobile-audit.config.ts` — accessibility and layout
-  checks at mobile viewports (not a VRT suite).
+- `mobile-audit.spec.ts` / `mobile-audit.config.ts` — horizontal-overflow
+  guard: every Index page plus a system profile, run, question, question index and compare
+  page at 390 / 768 / 1024px in light and dark mode must not scroll
+  sideways (not a VRT suite). Uses `npm run preview`, or set
+  `E2E_BASE_URL` to test another server.
 
 This README covers the **smoke VRT** workflow. The
 previous full route-matrix suite (36 snapshots × macOS baselines) was
