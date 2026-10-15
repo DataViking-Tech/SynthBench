@@ -873,7 +873,7 @@ $("pf-runs").replaceChildren(
     h(
       "tr",
       null,
-      ["Method", "Dataset", "Questions run", "Samples per question", "Runs", ""].map((t) =>
+      ["Method", "Dataset", "Questions run", "Samples per question", "Runs", "Configuration"].map((t) =>
         h("th", { scope: "col" }, t),
       ),
     ),
@@ -913,7 +913,17 @@ $("pf-runs").replaceChildren(
           h(
             "td",
             null,
-            v.configId ? h("a", { href: `${d.base}config/${v.configId}/` }, "Run details") : null,
+            v.configId
+              ? h(
+                  "a",
+                  {
+                    href: `${d.base}config/${v.configId}/`,
+                    title: `${dsLabel(id)}, ${c.variant ?? "default temperature, default template"}: replicates, metrics and per-topic scores`,
+                    style: { whiteSpace: "nowrap" },
+                  },
+                  `${c.variant ?? "t default · default template"} →`,
+                )
+              : null,
           ),
         ),
       ),

@@ -626,6 +626,46 @@ function positionStrip(
   return svg;
 }
 
+/**
+ * Hand-off from the Index-level compare to /compare's question-level diff:
+ * one link per pair and dataset where both systems have a published config
+ * (only the current dataset when the scope is one dataset).
+ */
+function questionDiffLinks(list: SystemConfig[], pairs: [number, number][]): HTMLElement | null {
+  const ids = state.scope === "all" ? [...ALL] : [state.scope];
+  const rows = pairs
+    .filter(([a, b]) => list[a] && list[b])
+    .map(([a, b]) => {
+      const links = ids.flatMap((id) => {
+        const ca = list[a].ds[id]?.configId;
+        const cb = list[b].ds[id]?.configId;
+        if (!ca || !cb) return [];
+        const href = `${data().base}compare/?a=${encodeURIComponent(ca)}&b=${encodeURIComponent(cb)}&mode=config`;
+        return [h("a", { href, style: { textDecoration: "underline" } }, dsLabel(id))];
+      });
+      if (!links.length) return null;
+      return h(
+        "div",
+        { class: "sb-pair" },
+        h("div", { class: "sb-pair-h" }, letter(a), "vs", letter(b)),
+        h(
+          "p",
+          { class: "sb-note", style: { display: "flex", flexWrap: "wrap", gap: "4px 12px" } },
+          ...links,
+        ),
+      );
+    })
+    .filter((r): r is HTMLDivElement => r != null);
+  if (!rows.length) return null;
+  return h(
+    "div",
+    { class: "sb-ds" },
+    h("h4", null, "Per-question diff →"),
+    h("p", { class: "sb-note" }, "Where the answers differ, question by question, on one dataset."),
+    ...rows,
+  );
+}
+
 function verdicts(a: SystemConfig, b: SystemConfig, ia: number, ib: number): HTMLElement[] {
   const out: HTMLElement[] = [];
   for (const id of ALL) {
@@ -771,6 +811,7 @@ function renderDrawer(): void {
             ),
           ),
       ),
+      ...[questionDiffLinks(list, pairs)].filter((el): el is HTMLElement => el != null),
     );
     return;
   }
