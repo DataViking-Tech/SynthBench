@@ -1,6 +1,8 @@
 // Small DOM + SVG + scale helpers shared by the Index pages. Text always goes
 // in via textContent / text nodes, never innerHTML.
 
+import { signed } from "@/lib/format";
+
 type Attrs = Record<string, unknown>;
 type Child = Node | string | number | null | undefined | false | Child[];
 
@@ -89,8 +91,8 @@ const minus = (s: string) => s.replace("-", "−");
 export const fmt = {
   int: (v: number | null | undefined) => (v == null ? "—" : minus(Math.round(v).toString())),
   one: (v: number | null | undefined) => (v == null ? "—" : minus(v.toFixed(1))),
-  delta: (v: number | null | undefined) =>
-    v == null ? "—" : `${v > 0 ? "+" : v < 0 ? "−" : "±"}${Math.abs(Math.round(v))}`,
+  delta: (v: number | null | undefined) => signed(v),
+  deltaOne: (v: number | null | undefined) => signed(v, 1),
   three: (v: number | null | undefined) => (v == null ? "—" : v.toFixed(3)),
   usd: (v: number | null | undefined) =>
     v == null ? "—" : v < 0.01 ? "<$0.01" : `$${v.toFixed(2)}`,

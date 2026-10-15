@@ -24,6 +24,7 @@ import {
   ensembleLabel,
   fullCoverage,
   fullName,
+  personaPairs,
   scopeName,
   scoreIn,
   shortName,
@@ -228,22 +229,8 @@ export function gapChart(el: HTMLElement, width: number, rows: Ranked[]): void {
 
 // ---------- Raw prompt vs persona, same base model (compact) ----------
 export function liftMini(el: HTMLElement, width: number): { up: number; total: number } {
-  const bases = [
-    ...new Set(
-      data()
-        .systems.filter((c) => c.method === "althing" && !c.variant)
-        .map((c) => c.baseId),
-    ),
-  ];
-  const rows = bases
-    .map((id) => {
-      const a = data().systems.find((c) => c.baseId === id && c.method === "raw" && !c.variant);
-      const b = data().systems.find((c) => c.baseId === id && c.method === "althing" && !c.variant);
-      const va = a ? scoreIn(a) : null;
-      const vb = b ? scoreIn(b) : null;
-      return a && b && va && vb ? { a, b, va: va.v, vb: vb.v } : null;
-    })
-    .filter((r): r is NonNullable<typeof r> => r != null)
+  const rows = personaPairs()
+    .map((p) => ({ a: p.raw, b: p.persona, va: p.va, vb: p.vb }))
     .sort((p, q) => q.vb - q.va - (p.vb - p.va));
   const rowH = 26;
   const labelW = 92;

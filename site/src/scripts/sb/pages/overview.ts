@@ -1,3 +1,4 @@
+import { signedRange } from "@/lib/format";
 import { gapChart, liftMini, whyMini } from "../charts";
 import { fmt, h, heat, mount } from "../dom";
 import {
@@ -8,10 +9,10 @@ import {
   emit,
   fullName,
   onChange,
+  personaPairs,
   pruneCompare,
   rankedPool,
   scopeName,
-  scoreIn,
   shortName,
   state,
   tiers,
@@ -187,15 +188,9 @@ $("ov-lift-legend").append(
 );
 // Raw and persona runs don't always use the same number of samples per question.
 const samplesNote = (): string | null => {
-  const pairs = rankedPool()
-    .filter((c) => c.method === "althing")
-    .map((p) => [rankedPool().find((r) => r.method === "raw" && r.baseId === p.baseId), p] as const)
-    // Same pairs the chart draws: both scored in the current scope.
-    .filter(
-      (pair): pair is readonly [SystemConfig, SystemConfig] =>
-        pair[0] != null && scoreIn(pair[0]) != null && scoreIn(pair[1]) != null,
-    );
-  const fewer = pairs.filter(([raw, persona]) =>
+  // Same pairs the chart draws.
+  const pairs = personaPairs();
+  const fewer = pairs.filter(({ raw, persona }) =>
     CORE.some((id) => {
       const a = raw.ds[id]?.samplesPerQuestion;
       const b = persona.ds[id]?.samplesPerQuestion;
@@ -234,41 +229,43 @@ mount(whyEl, (W) => whyMini(whyEl, W), onChange);
   const items: [string, string, string][] = [];
   const ec = d.findings.ensemble_comparison ?? [];
   if (ec.length) {
+    // One comparison per ensemble and dataset, against the best single
+    // (non-ensemble) system on that dataset.
     const lifts = ec.map(
       (e) => idxOf(e.dataset, e.ensemble_sps) - idxOf(e.dataset, e.best_single_sps),
     );
+    const wins = lifts.filter((x) => x > 0).length;
+    const nEns = new Set(ec.map((e) => e.ensemble_model)).size;
+    const nDs = new Set(ec.map((e) => e.dataset)).size;
     items.push([
-      `An ensemble of three persona systems beats the best single system on all ${ec.length} datasets tested`,
-      `+${Math.round(Math.min(...lifts))} to +${Math.round(Math.max(...lifts))}`,
-      "Index points over the best single system",
+      `An ensemble beats the best single system in ${wins === ec.length ? "all" : wins} of ${ec.length} comparisons (${nEns} ensembles × ${nDs} datasets)`,
+      signedRange(Math.min(...lifts), Math.max(...lifts)),
+      "Index points vs. the best single system on each dataset",
     ]);
   }
-  const tpl = d.systems
-    .filter((c) => c.variant?.startsWith("temperature 0.85") && c.ds.subpop)
-    .map((c) => c.ds.subpop.idx);
-  if (tpl.length > 1)
+  const tplRows = d.systems.filter((c) => c.variant?.startsWith("temperature 0.85") && c.ds.subpop);
+  const tpl = tplRows.map((c) => c.ds.subpop.idx);
+  if (tpl.length > 1) {
+    const range = Math.max(...tpl) - Math.min(...tpl);
     items.push([
-      "Changing only the persona prompt template can drop a system far below random",
-      `${fmt.int(Math.max(...tpl) - Math.min(...tpl))} pts`,
-      "range on SubPOP, same model and temperature",
+      `Changing only the persona prompt template moved one model's score by ${fmt.int(range)} points${tpl.every((v) => v < 0) ? "; every template tested scored below random" : ""}`,
+      `${fmt.int(range)} pts`,
+      `range across ${tpl.length} templates on SubPOP (${tplRows[0].base}, temperature 0.85)`,
     ]);
-  const conc = Object.entries(d.concordance ?? {}).filter(
-    ([, b]) => b.mean_cross_model_jsd != null && b.mean_human_jsd,
+  }
+  // Per dataset: how much lower model-vs-model divergence is than model-vs-people.
+  const conc = Object.entries(d.concordance ?? {}).flatMap(([id, b]) =>
+    b.mean_cross_model_jsd != null && b.mean_human_jsd
+      ? [{ id, pct: Math.round((1 - b.mean_cross_model_jsd / b.mean_human_jsd) * 100) }]
+      : [],
   );
   if (conc.length) {
-    const [id, b] = conc.reduce((p, q) =>
-      1 - (q[1].mean_cross_model_jsd as number) / (q[1].mean_human_jsd as number) >
-      1 - (p[1].mean_cross_model_jsd as number) / (p[1].mean_human_jsd as number)
-        ? q
-        : p,
-    );
-    const pct = Math.round(
-      (1 - (b.mean_cross_model_jsd as number) / (b.mean_human_jsd as number)) * 100,
-    );
+    const best = conc.reduce((p, q) => (q.pct > p.pct ? q : p));
+    const agree = conc.filter((x) => x.pct > 0).length;
     items.push([
-      "Models agree with each other more than they agree with people",
-      `${pct}%`,
-      `lower divergence between models than from people, on ${dsLabel(id)}`,
+      `On ${agree === conc.length ? "all" : agree} of ${conc.length} datasets, models agree with each other more than with people`,
+      `up to ${best.pct}%`,
+      `lower divergence between models than from people (${dsLabel(best.id)})`,
     ]);
   }
   $("ov-findings").replaceChildren(
