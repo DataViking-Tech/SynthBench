@@ -8,7 +8,7 @@ import { expect, test } from "@playwright/test";
 // WCAG AA (4.5:1) for the metric label in both light and dark themes.
 
 const RUN_A = "opinionsqa_ensemble_3blend_20260412_020745";
-const RUN_B = "opinionsqa_majority-baseline_20260410_152904";
+const RUN_B = "opinionsqa_random-baseline_20260410_220040";
 const ROUTE = `compare/?a=${encodeURIComponent(RUN_A)}&b=${encodeURIComponent(RUN_B)}&mode=run`;
 
 async function measureContrast(page: import("@playwright/test").Page): Promise<number> {
