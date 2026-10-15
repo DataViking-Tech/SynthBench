@@ -469,7 +469,7 @@ if (models.length) {
           h(
             "div",
             null,
-            h("h4", null, name(m)),
+            h("h3", null, name(m)),
             h(
               "div",
               { class: "sb-note" },
@@ -800,7 +800,7 @@ if (stt?.items?.length) {
     viz(el) {
       if (runs.length) {
         const strip = h("div");
-        el.append(h("h4", null, `Every run on ${dsLabel(stt.dataset)}`), strip);
+        el.append(h("h3", null, `Every run on ${dsLabel(stt.dataset)}`), strip);
         const groups: [string, Method, typeof runs][] = [
           ["Raw LLM", "raw", runs.filter((r) => r.framework === "raw")],
           ["Althing persona", "althing", runs.filter((r) => r.framework !== "raw")],
@@ -878,7 +878,7 @@ if (stt?.items?.length) {
         });
       }
       const qs = h("div");
-      el.append(h("h4", null, `Worst run: ${stt.provider} (raw), largest gaps`), qs);
+      el.append(h("h3", null, `Worst run: ${stt.provider} (raw), largest gaps`), qs);
       dumbbell(
         qs,
         stt.items.map((it) => ({
