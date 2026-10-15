@@ -25,6 +25,9 @@ test("isGatedRiskPath matches only question/run/config artifact roots", () => {
   // Not gated-risk: top-level public catalogs and non-data routes.
   assert.ok(!isGatedRiskPath("/data/leaderboard.json"));
   assert.ok(!isGatedRiskPath("/data/runs-index.json"));
+  // Site payloads fetched by the Index pages (src/pages/data/sb-*.json.ts).
+  assert.ok(!isGatedRiskPath("/data/sb-index.json"));
+  assert.ok(!isGatedRiskPath("/data/sb-groups.json"));
   assert.ok(!isGatedRiskPath("/index.html"));
   assert.ok(!isGatedRiskPath("/data/question")); // needs trailing slash + child
 });
@@ -81,4 +84,18 @@ test("non-gated-risk 404 is passed through unchanged (defense-in-depth)", async 
   // non-gated path must NOT be rewritten to 403.
   const res = await handleRequest(req("/data/leaderboard.json"), assetStub(404));
   assert.equal(res.status, 404);
+});
+
+test("site payloads are served as static assets, outside the Worker's routes", async () => {
+  // The Index pages fetch /data/sb-index.json and /data/sb-groups.json. They
+  // must stay out of _routes.json so Cloudflare serves them straight from the
+  // static origin with the /data/* cache policy in _headers.
+  const { readFile } = await import("node:fs/promises");
+  const routes = JSON.parse(await readFile(new URL("../public/_routes.json", import.meta.url)));
+  const routed = (path) =>
+    routes.include.some((p) => (p.endsWith("/*") ? path.startsWith(p.slice(0, -1)) : path === p));
+  assert.ok(!routed("/data/sb-index.json"));
+  assert.ok(!routed("/data/sb-groups.json"));
+  const headers = await readFile(new URL("../public/_headers", import.meta.url), "utf8");
+  assert.match(headers, /^\/data\/\*\n\s+Cache-Control: public, max-age=3600/m);
 });

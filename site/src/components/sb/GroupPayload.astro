@@ -1,9 +1,11 @@
 ---
-// Embeds the per-group match data for src/scripts/sb/pages/groups.ts.
-import groupData from "@/data/group-alignment.json";
+// Points src/scripts/sb/pages/groups.ts at the per-group match data, served
+// once as a static file (src/pages/data/sb-groups.json.ts) and fetched by
+// src/scripts/sb/boot.ts before the page script runs.
+import { groupsPayloadUrl } from "@/lib/sitePayloads";
 
-// Escape "<" so no string in the data can close the script element.
-const payload = JSON.stringify(groupData).replace(/</g, "\\u003c");
+const src = groupsPayloadUrl();
 ---
 
-<script type="application/json" id="sb-group-data" set:html={payload} />
+<link rel="preload" href={src} as="fetch" crossorigin="anonymous" />
+<script type="application/json" id="sb-group-data" data-src={src}></script>

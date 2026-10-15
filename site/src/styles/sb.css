@@ -1093,3 +1093,26 @@ table.sb-lb tr.refrow b {
 svg.sb-c .sb-logo {
   color: var(--sb-ink);
 }
+
+/* Data loading status (scripts/sb/boot.ts): shown only while a slow fetch
+   is in flight, or if it fails. */
+.sb-loadnote {
+  position: fixed;
+  left: 16px;
+  bottom: 16px;
+  z-index: 65;
+  padding: 7px 12px;
+  border-radius: 6px;
+  border: 1px solid var(--sb-line-2);
+  background: var(--sb-panel);
+  color: var(--sb-ink-2);
+  box-shadow: var(--sb-shadow);
+  font-family: var(--sb-sans);
+  font-size: 13px;
+}
+.sb-loadnote:empty {
+  display: none;
+}
+.sb-loadnote.err {
+  color: var(--sb-neg-ink);
+}

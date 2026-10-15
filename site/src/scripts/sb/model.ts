@@ -3,6 +3,7 @@
 
 import type { DatasetMeta, IndexData, Method, SystemConfig } from "@/lib/synthIndex";
 import { METHOD_NAMES, datasetAudience, ensembleNames, harnessTag } from "@/lib/vocab";
+import { payload } from "./boot";
 
 export type { DatasetMeta, IndexData, Method, SystemConfig };
 export type Scope = "all" | string;
@@ -12,14 +13,8 @@ export interface PageData extends IndexData {
   slugs: Record<string, string>;
 }
 
-let cached: PageData | null = null;
-export function data(): PageData {
-  if (cached) return cached;
-  const el = document.getElementById("sb-index-data");
-  if (!el?.textContent) throw new Error("Index data missing from page");
-  cached = JSON.parse(el.textContent) as PageData;
-  return cached;
-}
+/** The Index data, fetched by boot.ts before the page script runs. */
+export const data = (): PageData => payload<PageData>("sb-index-data");
 
 export const CORE = ["opinionsqa", "subpop", "gss", "globalopinionqa"] as const;
 export const ALL = [...CORE, "ntia"] as const;
