@@ -2,8 +2,13 @@
 import { existsSync, readFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import ProviderLogo from "@/components/sb/ProviderLogo.astro";
+import leaderboardRaw from "@/data/leaderboard.json";
 import BaseLayout from "@/layouts/BaseLayout.astro";
-import type { RunIndex } from "@/types/runs";
+import { datasetLabel, replicateStats, settingsLabel } from "@/lib/runExplorer";
+import { type SystemLink, systemLinkFor } from "@/lib/systemLinks";
+import type { SynthBenchData } from "@/types/leaderboard";
+import type { RunIndex, RunIndexEntry } from "@/types/runs";
 
 export async function getStaticPaths() {
   const here = dirname(fileURLToPath(import.meta.url));
@@ -15,36 +20,96 @@ export async function getStaticPaths() {
     return [];
   }
   const index = JSON.parse(readFileSync(indexPath, "utf-8")) as RunIndex;
-  // First run encountered per config_id owns the dataset binding. Config
-  // ids are dataset-scoped (config_id includes the dataset name), so every
-  // replicate carries the same dataset — we just need any one of them.
-  const configToDataset = new Map<string, string>();
+  // Every replicate of a config, from the public catalog. Config ids are
+  // dataset-scoped, so all replicates share one dataset.
+  const byConfig = new Map<string, RunIndexEntry[]>();
   for (const run of index.runs) {
-    if (run.config_id && !configToDataset.has(run.config_id)) {
-      configToDataset.set(run.config_id, run.dataset ?? "");
+    if (!run.config_id) continue;
+    byConfig.set(run.config_id, [...(byConfig.get(run.config_id) ?? []), run]);
+  }
+  // Per-topic SPS and question counts the leaderboard already publishes.
+  const lb = leaderboardRaw as unknown as SynthBenchData;
+  const topicsByConfig = new Map<string, Record<string, { sps: number; n: number }>>();
+  for (const e of lb.entries) {
+    if (e.config_id && e.topic_metrics) {
+      const t: Record<string, { sps: number; n: number }> = {};
+      for (const [k, m] of Object.entries(e.topic_metrics)) {
+        if (m) t[k] = { sps: m.sps, n: m.n };
+      }
+      topicsByConfig.set(e.config_id, t);
     }
   }
-  return [...configToDataset.entries()].map(([id, dataset]) => ({
+  return [...byConfig.entries()].map(([id, replicates]) => ({
     params: { id },
-    props: { dataset },
+    props: {
+      replicates,
+      system: systemLinkFor(replicates[0]),
+      lbTopics: topicsByConfig.get(id) ?? null,
+    },
   }));
 }
 
 interface Props {
-  dataset: string;
+  replicates: RunIndexEntry[];
+  system: SystemLink | null;
+  lbTopics: Record<string, { sps: number; n: number }> | null;
 }
 
 const { id } = Astro.params;
-const { dataset } = Astro.props;
+const { replicates, system, lbTopics } = Astro.props;
+const head = replicates[0];
+const dataset = head.dataset;
 
 const rawBase = import.meta.env.BASE_URL || "/";
 const base = rawBase.endsWith("/") ? rawBase : `${rawBase}/`;
+const encodePathSegment = (s: string): string =>
+  s.replace(/ /g, "%20").replace(/#/g, "%23").replace(/\?/g, "%3F");
+
+// Aggregates over replicates from the public runs index — the same numbers
+// the config rollup publishes (mean, sample std), so they render for gated
+// datasets too. Only per-question detail is gated.
+const reps = [...replicates].sort((a, b) => (a.timestamp ?? "").localeCompare(b.timestamp ?? ""));
+const stats = {
+  sps: replicateStats(reps.map((r) => r.sps)),
+  jsd: replicateStats(reps.map((r) => r.jsd)),
+  tau: replicateStats(reps.map((r) => r.tau)),
+};
+const spsVals = reps.map((r) => r.sps).filter((v): v is number => v != null);
+const spsRange = spsVals.length ? [Math.min(...spsVals), Math.max(...spsVals)] : null;
+const spsCv = stats.sps.mean && stats.sps.std != null ? stats.sps.std / stats.sps.mean : null;
+
+const fmt = (v: number | null | undefined, digits = 3): string =>
+  v == null || Number.isNaN(v) ? "—" : v.toFixed(digits);
+const fmtDate = (iso: string | null | undefined): string => {
+  if (!iso) return "—";
+  const d = new Date(iso);
+  return Number.isNaN(d.getTime()) ? iso : `${d.toISOString().replace("T", " ").slice(0, 16)} UTC`;
+};
+
+const exploreUrl = `${base}explore/?ds=${encodeURIComponent(dataset)}`;
+const systemUrl = system ? `${base}system/${system.slug}/` : null;
+const compareUrl = `${base}compare/?a=${encodeURIComponent(id)}&mode=config`;
+const dsName = datasetLabel(dataset);
 ---
 
-<BaseLayout title={`Config ${id} — SynthBench`} noindex={true}>
-  <div class="config-detail mx-auto w-full max-w-5xl px-4 py-8" data-dataset={dataset}>
-    <nav class="mb-4 text-sm text-muted">
-      <a class="hover:underline" href={`${base}leaderboard/`}>Leaderboard</a>
+<BaseLayout title={`${head.display_name} · ${dsName} config — SynthBench`} noindex={true}>
+  <div
+    class="config-detail mx-auto w-full max-w-5xl px-4 py-8"
+    data-dataset={dataset}
+    data-lb-topics={lbTopics ? JSON.stringify(lbTopics) : ""}
+  >
+    <nav class="mb-4 text-sm text-muted" aria-label="Breadcrumb">
+      <a class="hover:underline" href={exploreUrl}>Explore · {dsName}</a>
+      {
+        systemUrl && (
+          <>
+            <span class="mx-2">/</span>
+            <a class="hover:underline" href={systemUrl}>
+              {system?.name}
+            </a>
+          </>
+        )
+      }
       <span class="mx-2">/</span>
       <span>Configuration</span>
     </nav>
@@ -52,11 +117,26 @@ const base = rawBase.endsWith("/") ? rawBase : `${rawBase}/`;
     <header class="mb-8">
       <h1
         id="config-title"
-        class="text-2xl sm:text-3xl font-bold tracking-tight break-words"
+        class="flex items-center gap-2 text-2xl sm:text-3xl font-bold tracking-tight break-words"
       >
-        <span class="text-muted">Loading: {id}</span>
+        <ProviderLogo of={`${head.model} ${head.display_name}`} />{head.display_name}
       </h1>
-      <p id="config-subtitle" class="mt-1 text-sm text-muted font-mono break-all">{id}</p>
+      <p class="mt-1 text-sm text-muted">
+        {dsName} · {head.framework} · {settingsLabel(head)}
+      </p>
+      <p id="config-subtitle" class="mt-1 text-xs text-muted font-mono break-all">{id}</p>
+      <div class="mt-3 flex flex-wrap gap-x-5 gap-y-1 text-sm">
+        <a class="text-primary hover:underline" href={compareUrl}
+          >Compare with another {dsName} config →</a
+        >
+        {
+          systemUrl && (
+            <a class="text-primary hover:underline" href={systemUrl}>
+              {system?.name} profile →
+            </a>
+          )
+        }
+      </div>
     </header>
 
     <div
@@ -73,55 +153,64 @@ const base = rawBase.endsWith("/") ? rawBase : `${rawBase}/`;
         id="metadata-card"
         class="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-3 rounded-lg border border-black/10 dark:border-white/10 bg-white/50 dark:bg-white/5 p-4 text-sm"
       >
-        <div><dt class="text-muted">Framework</dt><dd data-field="framework">—</dd></div>
-        <div><dt class="text-muted">Base provider</dt><dd data-field="base_provider">—</dd></div>
-        <div><dt class="text-muted">Model</dt><dd data-field="model">—</dd></div>
-        <div><dt class="text-muted">Display name</dt><dd data-field="display_name">—</dd></div>
-        <div><dt class="text-muted">Dataset</dt><dd data-field="dataset">—</dd></div>
-        <div><dt class="text-muted">Temperature</dt><dd data-field="temperature">—</dd></div>
-        <div><dt class="text-muted">Reasoning effort</dt><dd data-field="effort">—</dd></div>
-        <div><dt class="text-muted">Template</dt><dd data-field="template">—</dd></div>
-        <div><dt class="text-muted">Samples / question</dt><dd data-field="samples_per_question">—</dd></div>
-        <div><dt class="text-muted">First replicate</dt><dd data-field="first_replicate">—</dd></div>
-        <div><dt class="text-muted">Last replicate</dt><dd data-field="last_replicate">—</dd></div>
+        <div><dt class="text-muted">Framework</dt><dd>{head.framework}</dd></div>
+        <div><dt class="text-muted">Base provider</dt><dd>{head.base_provider ?? "—"}</dd></div>
+        <div><dt class="text-muted">Model</dt><dd>{head.model}</dd></div>
+        <div><dt class="text-muted">Display name</dt><dd>{head.display_name}</dd></div>
+        <div><dt class="text-muted">Dataset</dt><dd>{dataset}</dd></div>
+        <div><dt class="text-muted">Temperature</dt><dd>{head.temperature ?? "default"}</dd></div>
+        <div><dt class="text-muted">Reasoning effort</dt><dd>{head.effort ?? "default"}</dd></div>
+        <div><dt class="text-muted">Template</dt><dd>{head.template ?? "current"}</dd></div>
+        <div>
+          <dt class="text-muted">Samples / question</dt><dd>{head.samples_per_question ?? "—"}</dd>
+        </div>
+        <div><dt class="text-muted">Questions</dt><dd>{head.n_questions}</dd></div>
+        <div><dt class="text-muted">First replicate</dt><dd>{fmtDate(reps[0]?.timestamp)}</dd></div>
+        <div>
+          <dt class="text-muted">Last replicate</dt><dd>{fmtDate(reps[reps.length - 1]?.timestamp)}</dd>
+        </div>
       </dl>
     </section>
 
-    <!-- Section 3: Aggregated metrics (rendered before replicates for scannability) -->
+    <!-- Section 2: Aggregated metrics (rendered before replicates for scannability) -->
     <section class="mb-8">
       <h2 class="mb-3 text-lg font-semibold">Aggregated metrics</h2>
       <p class="mb-3 text-xs text-muted">
-        Mean across replicates, ± standard deviation. A single-replicate config reports std = 0.
+        Mean across replicates, ± sample standard deviation (shown only with 2+ replicates).
       </p>
       <div id="aggregated-metrics" class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-        <div
-          class="rounded-lg border border-black/10 dark:border-white/10 bg-white/50 dark:bg-white/5 p-4"
-          data-metric="sps"
-        >
-          <div class="text-xs uppercase tracking-wide text-muted">SPS</div>
-          <div class="mt-1 text-2xl font-semibold tabular-nums" data-field="mean">—</div>
-          <div class="text-sm text-muted tabular-nums">± <span data-field="std">—</span></div>
-        </div>
-        <div
-          class="rounded-lg border border-black/10 dark:border-white/10 bg-white/50 dark:bg-white/5 p-4"
-          data-metric="jsd"
-        >
-          <div class="text-xs uppercase tracking-wide text-muted">Mean JSD</div>
-          <div class="mt-1 text-2xl font-semibold tabular-nums" data-field="mean">—</div>
-          <div class="text-sm text-muted tabular-nums">± <span data-field="std">—</span></div>
-        </div>
-        <div
-          class="rounded-lg border border-black/10 dark:border-white/10 bg-white/50 dark:bg-white/5 p-4"
-          data-metric="tau"
-        >
-          <div class="text-xs uppercase tracking-wide text-muted">Kendall τ</div>
-          <div class="mt-1 text-2xl font-semibold tabular-nums" data-field="mean">—</div>
-          <div class="text-sm text-muted tabular-nums">± <span data-field="std">—</span></div>
-        </div>
+        {
+          (
+            [
+              ["sps", "SPS"],
+              ["jsd", "Mean JSD"],
+              ["tau", "Kendall τ"],
+            ] as const
+          ).map(([k, label]) => (
+            <div
+              class="rounded-lg border border-black/10 dark:border-white/10 bg-white/50 dark:bg-white/5 p-4"
+              data-metric={k}
+            >
+              <div class="text-xs uppercase tracking-wide text-muted">{label}</div>
+              <div class="mt-1 text-2xl font-semibold tabular-nums" data-field="mean">
+                {fmt(stats[k].mean)}
+              </div>
+              <div class="text-sm text-muted tabular-nums">
+                {stats[k].std == null ? (
+                  <span>single replicate</span>
+                ) : (
+                  <>
+                    ± <span data-field="std">{fmt(stats[k].std)}</span>
+                  </>
+                )}
+              </div>
+            </div>
+          ))
+        }
       </div>
     </section>
 
-    <!-- Section 5: Variance summary -->
+    <!-- Section 3: Variance summary -->
     <section class="mb-8">
       <h2 class="mb-3 text-lg font-semibold">Variance summary</h2>
       <dl
@@ -130,19 +219,21 @@ const base = rawBase.endsWith("/") ? rawBase : `${rawBase}/`;
       >
         <div>
           <dt class="text-muted">Replicates</dt>
-          <dd data-field="n_replicates" class="tabular-nums">—</dd>
+          <dd data-field="n_replicates" class="tabular-nums">{reps.length}</dd>
         </div>
         <div>
           <dt class="text-muted">SPS std dev</dt>
-          <dd data-field="sps_std" class="tabular-nums">—</dd>
+          <dd data-field="sps_std" class="tabular-nums">{fmt(stats.sps.std)}</dd>
         </div>
         <div>
           <dt class="text-muted">SPS range</dt>
-          <dd data-field="sps_range" class="tabular-nums">—</dd>
+          <dd data-field="sps_range" class="tabular-nums">
+            {spsRange && reps.length > 1 ? `${fmt(spsRange[0])}–${fmt(spsRange[1])}` : "—"}
+          </dd>
         </div>
         <div>
           <dt class="text-muted">Coefficient of variation</dt>
-          <dd data-field="sps_cv" class="tabular-nums">—</dd>
+          <dd data-field="sps_cv" class="tabular-nums">{fmt(spsCv, 4)}</dd>
         </div>
       </dl>
     </section>
@@ -151,18 +242,19 @@ const base = rawBase.endsWith("/") ? rawBase : `${rawBase}/`;
     <section class="mb-8" aria-labelledby="topic-chart-heading">
       <h2 id="topic-chart-heading" class="mb-3 text-lg font-semibold">Per-topic breakdown</h2>
       <p id="topic-chart-desc" class="mb-3 text-xs text-muted">
-        Mean SPS per topic across replicates. All seven topics are shown. Bars are empty for topics
-        the config did not cover.
+        Mean SPS per topic across replicates. All seven topics are shown; topics this config's
+        questions don't cover are marked "no questions".
       </p>
       <figure class="chart-figure" aria-labelledby="topic-chart-heading">
         <div
           id="topic-chart"
           class="echarts-container w-full rounded-lg border border-black/10 dark:border-white/10 bg-white/50 dark:bg-white/5 p-2"
-          style="height: 420px; min-height: 200px;"
+          style="height: 360px; min-height: 200px;"
           role="img"
           aria-labelledby="topic-chart-heading"
           aria-describedby="topic-chart-desc"
-        ></div>
+        >
+        </div>
         <details class="mt-2 text-sm">
           <summary class="cursor-pointer text-xs text-muted hover:text-text dark:hover:text-text-dark">
             Show data table
@@ -174,10 +266,10 @@ const base = rawBase.endsWith("/") ? rawBase : `${rawBase}/`;
       </figure>
     </section>
 
-    <!-- Section 2: Replicates list -->
+    <!-- Section 5: Replicates list -->
     <section class="mb-8">
       <h2 class="mb-3 text-lg font-semibold">
-        Replicates <span id="replicates-count" class="text-muted font-normal">(—)</span>
+        Replicates <span id="replicates-count" class="text-muted font-normal">({reps.length})</span>
       </h2>
       <div class="overflow-x-auto rounded-lg border border-black/10 dark:border-white/10">
         <table class="w-full text-sm">
@@ -192,9 +284,25 @@ const base = rawBase.endsWith("/") ? rawBase : `${rawBase}/`;
             </tr>
           </thead>
           <tbody id="replicates-tbody">
-            <tr>
-              <td colspan="6" class="p-4 text-center text-muted">Loading replicates…</td>
-            </tr>
+            {
+              reps.map((rep) => (
+                <tr class="border-t border-black/5 dark:border-white/5 hover:bg-black/5 dark:hover:bg-white/5">
+                  <td class="p-2 whitespace-nowrap">
+                    <a
+                      class="text-primary hover:underline font-mono text-xs"
+                      href={`${base}run/${encodePathSegment(rep.run_id)}/`}
+                    >
+                      {rep.run_id}
+                    </a>
+                  </td>
+                  <td class="p-2 text-muted tabular-nums whitespace-nowrap">{fmtDate(rep.timestamp)}</td>
+                  <td class="p-2 text-right tabular-nums">{fmt(rep.sps)}</td>
+                  <td class="p-2 text-right tabular-nums">{fmt(rep.jsd)}</td>
+                  <td class="p-2 text-right tabular-nums">{fmt(rep.tau)}</td>
+                  <td class="p-2 text-right tabular-nums">{rep.n_questions ?? "—"}</td>
+                </tr>
+              ))
+            }
           </tbody>
         </table>
       </div>
@@ -203,117 +311,18 @@ const base = rawBase.endsWith("/") ? rawBase : `${rawBase}/`;
 </BaseLayout>
 
 <script>
-  import { labOf, logoMarkup } from "@/lib/providerIcons";
   import * as echarts from "echarts";
-  import type { ConfigRollup } from "@/types/runs";
   import { TOPICS } from "@/lib/topics";
+  import type { ConfigRollup } from "@/types/runs";
 
   const ALL_TOPICS = TOPICS.map((t) => t.id);
 
-  function fmt(value: number | null | undefined, digits = 3): string {
-    if (value === null || value === undefined || Number.isNaN(value)) return "—";
-    return value.toFixed(digits);
-  }
-
-  function fmtDate(iso: string | null | undefined): string {
-    if (!iso) return "—";
-    const d = new Date(iso);
-    if (Number.isNaN(d.getTime())) return iso;
-    return d.toISOString().replace("T", " ").slice(0, 16) + " UTC";
-  }
-
-  function setField(scope: Element, field: string, value: string) {
-    const el = scope.querySelector<HTMLElement>(`[data-field="${field}"]`);
-    if (el) el.textContent = value;
-  }
-
-  function renderMetadata(data: ConfigRollup) {
-    const card = document.getElementById("metadata-card");
-    if (!card) return;
-    setField(card, "framework", data.framework || "—");
-    setField(card, "base_provider", data.base_provider || "—");
-    setField(card, "model", data.model || "—");
-    setField(card, "display_name", data.display_name || "—");
-    setField(card, "dataset", data.dataset || "—");
-    setField(card, "temperature", data.temperature === null ? "—" : String(data.temperature));
-    setField(card, "effort", data.effort ?? "—");
-    setField(card, "template", data.template || "—");
-    setField(
-      card,
-      "samples_per_question",
-      data.samples_per_question === null ? "—" : String(data.samples_per_question),
-    );
-
-    const reps = data.replicates ?? [];
-    const timestamps = reps.map((r) => r.timestamp).filter((t): t is string => !!t).sort();
-    setField(card, "first_replicate", fmtDate(timestamps[0]));
-    setField(card, "last_replicate", fmtDate(timestamps[timestamps.length - 1]));
-  }
-
-  function renderAggregated(data: ConfigRollup) {
-    const container = document.getElementById("aggregated-metrics");
-    if (!container) return;
-    for (const metric of ["sps", "jsd", "tau"] as const) {
-      const cell = container.querySelector<HTMLElement>(`[data-metric="${metric}"]`);
-      if (!cell) continue;
-      const vals = data.aggregate?.[metric];
-      setField(cell, "mean", fmt(vals?.mean ?? null));
-      setField(cell, "std", fmt(vals?.std ?? null));
-    }
-  }
-
-  function renderVariance(data: ConfigRollup) {
-    const card = document.getElementById("variance-summary");
-    if (!card) return;
-    const v = data.variance_summary;
-    setField(card, "n_replicates", String(v?.n_replicates ?? data.n_replicates ?? 0));
-    setField(card, "sps_std", fmt(v?.sps_std ?? null));
-    const range = v?.sps_range;
-    setField(
-      card,
-      "sps_range",
-      range && range[0] !== null && range[1] !== null
-        ? `${fmt(range[0])}–${fmt(range[1])}`
-        : "—",
-    );
-    setField(card, "sps_cv", fmt(v?.sps_cv ?? null, 4));
-  }
-
-  function renderReplicates(data: ConfigRollup) {
-    const tbody = document.getElementById("replicates-tbody");
-    const count = document.getElementById("replicates-count");
-    if (!tbody) return;
-
-    const reps = data.replicates ?? [];
-    if (count) count.textContent = `(${reps.length})`;
-
-    if (reps.length === 0) {
-      tbody.innerHTML = `<tr><td colspan="6" class="p-4 text-center text-muted">No replicates.</td></tr>`;
-      return;
-    }
-
-    const baseUrl = import.meta.env.BASE_URL || "/";
-    const base = baseUrl.endsWith("/") ? baseUrl : `${baseUrl}/`;
-
-    const rows = reps.map((rep) => {
-      const href = `${base}run/${encodeURIComponent(rep.run_id)}/`;
-      const runLabel = rep.run_id;
-      return `
-        <tr class="border-t border-black/5 dark:border-white/5 hover:bg-black/5 dark:hover:bg-white/5">
-          <td class="p-2 whitespace-nowrap">
-            <a class="text-primary hover:underline font-mono text-xs" href="${href}">
-              ${escapeHtml(runLabel)}
-            </a>
-          </td>
-          <td class="p-2 text-muted tabular-nums whitespace-nowrap">${escapeHtml(fmtDate(rep.timestamp))}</td>
-          <td class="p-2 text-right tabular-nums">${fmt(rep.sps)}</td>
-          <td class="p-2 text-right tabular-nums">${fmt(rep.jsd)}</td>
-          <td class="p-2 text-right tabular-nums">${fmt(rep.tau)}</td>
-          <td class="p-2 text-right tabular-nums">${rep.n_questions ?? "—"}</td>
-        </tr>
-      `;
-    });
-    tbody.innerHTML = rows.join("");
+  interface TopicSeries {
+    means: (number | null)[];
+    stds: (number | null)[];
+    /** Questions per topic, when known (leaderboard topic_metrics). */
+    counts: (number | null)[];
+    source: "rollup" | "leaderboard";
   }
 
   function escapeHtml(s: unknown): string {
@@ -325,33 +334,23 @@ const base = rawBase.endsWith("/") ? rawBase : `${rawBase}/`;
       .replace(/'/g, "&#39;");
   }
 
-  function renderTopicChart(data: ConfigRollup) {
+  function renderTopicChart(series: TopicSeries) {
     const container = document.getElementById("topic-chart");
     if (!container) return;
-
-    const breakdown = data.topic_breakdown ?? {};
-    const means: (number | null)[] = ALL_TOPICS.map((t) => {
-      const bucket = breakdown[t as keyof typeof breakdown];
-      const m = bucket?.mean;
-      return m === null || m === undefined ? null : m;
-    });
-    const stds: (number | null)[] = ALL_TOPICS.map((t) => {
-      const bucket = breakdown[t as keyof typeof breakdown];
-      const s = bucket?.std;
-      return s === null || s === undefined ? null : s;
-    });
+    const { means, stds, counts } = series;
 
     const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-    const prefersReducedMotion = window.matchMedia(
-      "(prefers-reduced-motion: reduce)",
-    ).matches;
+    const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     const chart = echarts.init(container, prefersDark ? "dark" : "", { renderer: "svg" });
 
     const styles = getComputedStyle(document.documentElement);
-    const barColor =
-      styles.getPropertyValue("--color-provider-althing").trim() || "#4f46e5";
+    const barColor = styles.getPropertyValue("--color-provider-althing").trim() || "#4f46e5";
+    const muted = styles.getPropertyValue("--color-muted").trim() || "#888";
 
-    const barData = means.map((m) => (m === null ? { value: 0, itemStyle: { opacity: 0.15 } } : m));
+    const barData = means.map((m) => (m === null ? "-" : m));
+    // Uncovered topics get a faint full-height band labelled "no questions"
+    // (overlaid on the same slot) instead of a silent zero-height gap.
+    const emptyData = means.map((m) => (m === null ? 1 : "-"));
 
     chart.setOption({
       animation: !prefersReducedMotion,
@@ -363,20 +362,17 @@ const base = rawBase.endsWith("/") ? rawBase : `${rawBase}/`;
           const name = params[0]?.name ?? "";
           const mean = means[idx];
           const std = stds[idx];
-          if (mean === null) return `<strong>${name}</strong><br/>No data`;
+          if (mean === null) return `<strong>${name}</strong><br/>No questions on this topic`;
           const stdText = std === null ? "" : ` ± ${std.toFixed(3)}`;
-          return `<strong>${name}</strong><br/>Mean SPS: ${mean.toFixed(3)}${stdText}`;
+          const n = counts[idx] == null ? "" : `<br/>${counts[idx]} questions`;
+          return `<strong>${name}</strong><br/>Mean SPS: ${mean.toFixed(3)}${stdText}${n}`;
         },
       },
-      grid: { left: 20, right: 20, top: 20, bottom: 120, containLabel: true },
+      grid: { left: 20, right: 20, top: 20, bottom: 10, containLabel: true },
       xAxis: {
         type: "category",
         data: TOPICS.map((t) => t.label),
-        axisLabel: {
-          rotate: 35,
-          interval: 0,
-          fontSize: 11,
-        },
+        axisLabel: { rotate: 35, interval: 0, fontSize: 11 },
       },
       yAxis: {
         type: "value",
@@ -388,11 +384,29 @@ const base = rawBase.endsWith("/") ? rawBase : `${rawBase}/`;
         axisLabel: { formatter: (v: number) => v.toFixed(1) },
       },
       series: [
+        { name: "Mean SPS", type: "bar", data: barData, itemStyle: { color: barColor } },
         {
-          name: "Mean SPS",
+          name: "No questions",
           type: "bar",
-          data: barData,
-          itemStyle: { color: barColor },
+          data: emptyData,
+          barGap: "-100%",
+          silent: true,
+          itemStyle: {
+            color: "transparent",
+            borderColor: muted,
+            borderType: "dashed",
+            borderWidth: 1,
+            opacity: 0.6,
+          },
+          label: {
+            show: true,
+            position: "inside",
+            rotate: 90,
+            formatter: "no questions",
+            color: muted,
+            fontSize: 11,
+            fontStyle: "italic",
+          },
         },
       ],
     });
@@ -403,16 +417,23 @@ const base = rawBase.endsWith("/") ? rawBase : `${rawBase}/`;
     // Render equivalent data table for screen readers and keyboard users.
     const tableContainer = document.getElementById("topic-chart-table");
     if (tableContainer) {
+      const showN = counts.some((c) => c != null);
       const rows = TOPICS.map(({ label: topic }, i) => {
         const m = means[i];
         const s = stds[i];
-        const meanCell = m == null ? "—" : m.toFixed(3);
+        const meanCell = m == null ? "no questions" : m.toFixed(3);
         const stdCell = s == null ? "—" : s.toFixed(3);
+        const nCell = showN
+          ? `<td class="px-3 py-1.5 text-right font-mono">${counts[i] ?? 0}</td>`
+          : "";
         return `<tr class="border-b border-muted/10"><th scope="row" class="px-3 py-1.5 text-left font-normal">${escapeHtml(
           String(topic),
-        )}</th><td class="px-3 py-1.5 text-right font-mono">${meanCell}</td><td class="px-3 py-1.5 text-right font-mono">${stdCell}</td></tr>`;
+        )}</th><td class="px-3 py-1.5 text-right font-mono">${meanCell}</td><td class="px-3 py-1.5 text-right font-mono">${stdCell}</td>${nCell}</tr>`;
       }).join("");
-      tableContainer.innerHTML = `<table class="w-full text-xs"><caption class="sr-only">Mean SPS per topic with standard deviation across replicates</caption><thead><tr class="border-b border-muted/20 bg-surface dark:bg-surface-dark"><th class="px-3 py-1.5 text-left font-semibold" scope="col">Topic</th><th class="px-3 py-1.5 text-right font-semibold" scope="col">Mean SPS</th><th class="px-3 py-1.5 text-right font-semibold" scope="col">Std</th></tr></thead><tbody>${rows}</tbody></table>`;
+      const nHead = showN
+        ? `<th class="px-3 py-1.5 text-right font-semibold" scope="col">Questions</th>`
+        : "";
+      tableContainer.innerHTML = `<table class="w-full text-xs"><caption class="sr-only">Mean SPS per topic with standard deviation across replicates</caption><thead><tr class="border-b border-muted/20 bg-surface dark:bg-surface-dark"><th class="px-3 py-1.5 text-left font-semibold" scope="col">Topic</th><th class="px-3 py-1.5 text-right font-semibold" scope="col">Mean SPS</th><th class="px-3 py-1.5 text-right font-semibold" scope="col">Std</th>${nHead}</tr></thead><tbody>${rows}</tbody></table>`;
     }
   }
 
@@ -421,27 +442,21 @@ const base = rawBase.endsWith("/") ? rawBase : `${rawBase}/`;
     const normalizedBase = baseUrl.endsWith("/") ? baseUrl.slice(0, -1) : baseUrl;
     const root = document.querySelector<HTMLElement>(".config-detail");
     const dataset = root?.dataset.dataset ?? "";
+    const lbTopics = root?.dataset.lbTopics
+      ? (JSON.parse(root.dataset.lbTopics) as Record<string, { sps: number; n: number }>)
+      : null;
 
-    // Resolve tier from the dataset_policies manifest shipped with
-    // leaderboard.json so we route gated-tier fetches through the Worker
-    // proxy with a Supabase JWT.
-    const { fetchTieredJson, lookupDatasetTier, renderSignInGate } =
-      await import("@/lib/dataFetch");
+    // Header, metadata, aggregates and replicates are server-rendered from
+    // the public runs index. Only the per-topic breakdown needs the rollup.
+    const { fetchTieredJson, lookupDatasetTier, renderSignInGate } = await import(
+      "@/lib/dataFetch"
+    );
     let tier: ReturnType<typeof lookupDatasetTier> = "unknown";
     try {
       const lbRes = await fetch(`${normalizedBase}/data/leaderboard.json`);
       if (lbRes.ok) {
         const lb = (await lbRes.json()) as {
-          dataset_policies?: Array<{
-            name: string;
-            redistribution_policy:
-              | "full"
-              | "gated"
-              | "aggregates_only"
-              | "citation_only";
-            license_url: string | null;
-            citation: string | null;
-          }>;
+          dataset_policies?: Parameters<typeof lookupDatasetTier>[1];
         };
         tier = lookupDatasetTier(dataset, lb.dataset_policies ?? null);
       }
@@ -453,37 +468,42 @@ const base = rawBase.endsWith("/") ? rawBase : `${rawBase}/`;
       `config/${encodeURIComponent(configId)}.json`,
       tier,
     );
-    if (!result.ok) {
-      if (result.gated) {
-        const metadata = document.getElementById("metadata-card");
-        if (metadata) {
-          renderSignInGate(metadata, { datasetLabel: dataset });
-        }
-        const replicatesBody = document.getElementById("replicates-tbody");
-        if (replicatesBody) {
-          replicatesBody.innerHTML = `<tr><td colspan="6" class="p-4 text-center text-sm text-muted">Sign in to view replicate detail.</td></tr>`;
-        }
-        const title = document.getElementById("config-title");
-        if (title) title.textContent = configId;
-        return;
+    const counts = ALL_TOPICS.map((t) => lbTopics?.[t]?.n ?? null);
+    if (result.ok) {
+      const breakdown = result.data.topic_breakdown ?? {};
+      renderTopicChart({
+        means: ALL_TOPICS.map((t) => breakdown[t as keyof typeof breakdown]?.mean ?? null),
+        stds: ALL_TOPICS.map((t) => breakdown[t as keyof typeof breakdown]?.std ?? null),
+        counts,
+        source: "rollup",
+      });
+      return;
+    }
+    if (lbTopics) {
+      // Gated rollup, but the leaderboard publishes this config's topic SPS.
+      renderTopicChart({
+        means: ALL_TOPICS.map((t) => lbTopics[t]?.sps ?? null),
+        stds: ALL_TOPICS.map(() => null),
+        counts,
+        source: "leaderboard",
+      });
+      return;
+    }
+    if (result.gated) {
+      const chart = document.getElementById("topic-chart");
+      if (chart) {
+        chart.style.height = "auto";
+        chart.removeAttribute("role");
+        renderSignInGate(chart, {
+          datasetLabel: dataset,
+          message: `The per-topic breakdown for ${dataset} is built from per-question data, which requires a verified research-use account.`,
+        });
       }
-      throw new Error(result.message);
+      const table = document.getElementById("topic-chart-table");
+      if (table) table.innerHTML = `<p class="p-3 text-xs text-muted">Sign in to view.</p>`;
+      return;
     }
-    const data = result.data;
-
-    const title = document.getElementById("config-title");
-    if (title) {
-      const name = data.display_name || data.model || configId;
-      title.innerHTML = logoMarkup(labOf(`${data.model ?? ""} ${name}`), 24);
-      title.append(name);
-      title.classList.add("flex", "items-center", "gap-2");
-    }
-
-    renderMetadata(data);
-    renderAggregated(data);
-    renderVariance(data);
-    renderReplicates(data);
-    renderTopicChart(data);
+    throw new Error(result.message);
   }
 
   function extractConfigId(): string | null {
@@ -499,7 +519,7 @@ const base = rawBase.endsWith("/") ? rawBase : `${rawBase}/`;
       const errBox = document.getElementById("config-error");
       if (errBox) {
         errBox.classList.remove("hidden");
-        errBox.textContent = `Failed to load configuration data: ${err instanceof Error ? err.message : String(err)}`;
+        errBox.textContent = `Failed to load the per-topic breakdown: ${err instanceof Error ? err.message : String(err)}`;
       }
     });
   }
