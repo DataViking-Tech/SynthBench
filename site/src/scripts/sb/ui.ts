@@ -68,6 +68,52 @@ export const tip = {
   },
 };
 
+// ---------- Keyboard access to chart marks ----------
+// A chart with clickable marks is one tab stop (role="group", so assistive
+// tech can reach the marks inside, which role="img" hides). Arrow keys move
+// between marks in rank order (highest score first), Home/End jump to the
+// ends, Enter/Space open the details drawer.
+const roving = new WeakMap<SVGSVGElement, { node: SVGElement; rank: number }[]>();
+function addRover(svg: SVGSVGElement, node: SVGElement, rank: number): void {
+  let marks = roving.get(svg);
+  if (!marks) {
+    const list: { node: SVGElement; rank: number }[] = [];
+    marks = list;
+    roving.set(svg, list);
+    svg.setAttribute("role", "group");
+    svg.addEventListener("keydown", (e) => {
+      const i = list.findIndex((m) => m.node === e.target);
+      if (i < 0) return;
+      const j =
+        e.key === "ArrowRight" || e.key === "ArrowDown"
+          ? Math.min(list.length - 1, i + 1)
+          : e.key === "ArrowLeft" || e.key === "ArrowUp"
+            ? Math.max(0, i - 1)
+            : e.key === "Home"
+              ? 0
+              : e.key === "End"
+                ? list.length - 1
+                : -1;
+      if (j < 0) return;
+      e.preventDefault();
+      list[i].node.setAttribute("tabindex", "-1");
+      list[j].node.setAttribute("tabindex", "0");
+      (list[j].node as SVGElement & HTMLOrSVGElement).focus();
+    });
+    // Charts draw synchronously; order the marks once drawing is done.
+    queueMicrotask(() => {
+      list.sort((a, b) => b.rank - a.rank);
+      list.forEach((m, k) => m.node.setAttribute("tabindex", k ? "-1" : "0"));
+      const label = (svg.getAttribute("aria-label") ?? "Chart").replace(/\.\s*$/, "");
+      svg.setAttribute(
+        "aria-label",
+        `${label}. ${list.length} marks, highest score first; use the arrow keys to move between them.`,
+      );
+    });
+  }
+  marks.push({ node, rank });
+}
+
 /** Hover/focus shows a tooltip and highlights the mark; click opens the inspector. */
 export function interactive(
   node: SVGElement,
@@ -77,7 +123,14 @@ export function interactive(
 ): void {
   node.setAttribute("tabindex", "0");
   node.setAttribute("role", "button");
-  node.setAttribute("aria-label", `${fullName(c)}: open details`);
+  // Name carries the numbers so screen-reader users get what the tooltip shows.
+  node.setAttribute(
+    "aria-label",
+    `${fullName(c)}: ${rows()
+      .map(([k, v]) => `${k} ${v}`)
+      .join(", ")}. Open details.`,
+  );
+  if (svg) addRover(svg, node, scoreIn(c)?.v ?? Number.NEGATIVE_INFINITY);
   const enter = (e: PointerEvent | FocusEvent) => {
     tip.show(e, fullName(c), rows());
     if (svg) highlight(svg, c.key);
@@ -215,6 +268,61 @@ export const methodKey = (m: SystemConfig["method"]): HTMLElement =>
   h("span", { class: `sb-mk ${m}`, "aria-hidden": "true" });
 
 // ---------- Filter controls ----------
+
+// Every single-select segmented control on these pages is a
+// role="radiogroup" of role="radio" buttons (or a role="tablist" of tabs).
+// Implement the APG keyboard pattern once for all of them: one tab stop per
+// group (the checked option), arrows move and select, Home/End jump. Pages
+// rebuild these controls on every state change, so the tab stops are kept in
+// step by a MutationObserver rather than at each call site.
+const GROUP = '[role="radiogroup"], [role="tablist"]';
+const OPTION = '[role="radio"], [role="tab"]';
+const isOn = (b: Element) =>
+  b.getAttribute("aria-checked") === "true" || b.getAttribute("aria-selected") === "true";
+function syncGroup(g: Element): void {
+  const opts = [...g.querySelectorAll<HTMLElement>(OPTION)];
+  const on = opts.find(isOn) ?? opts[0];
+  for (const o of opts) {
+    const t = o === on ? "0" : "-1";
+    if (o.getAttribute("tabindex") !== t) o.setAttribute("tabindex", t);
+  }
+}
+const syncAll = () => {
+  for (const g of document.querySelectorAll(GROUP)) syncGroup(g);
+};
+new MutationObserver(syncAll).observe(document.body, {
+  childList: true,
+  subtree: true,
+  attributes: true,
+  attributeFilter: ["aria-checked", "aria-selected"],
+});
+document.addEventListener("keydown", (e) => {
+  const opt = (e.target as Element | null)?.closest?.(OPTION);
+  const g = opt?.closest(GROUP);
+  if (!opt || !g) return;
+  const opts = [...g.querySelectorAll<HTMLElement>(OPTION)];
+  const i = opts.indexOf(opt as HTMLElement);
+  const j =
+    e.key === "ArrowRight" || e.key === "ArrowDown"
+      ? (i + 1) % opts.length
+      : e.key === "ArrowLeft" || e.key === "ArrowUp"
+        ? (i - 1 + opts.length) % opts.length
+        : e.key === "Home"
+          ? 0
+          : e.key === "End"
+            ? opts.length - 1
+            : -1;
+  if (j < 0) return;
+  e.preventDefault();
+  // Selection follows focus. The click usually re-renders the group, so find
+  // it again by position and focus the newly checked option.
+  const gi = [...document.querySelectorAll(GROUP)].indexOf(g);
+  opts[j].click();
+  const again = document.querySelectorAll(GROUP)[gi];
+  const next = again ? [...again.querySelectorAll<HTMLElement>(OPTION)][j] : opts[j];
+  if (again) syncGroup(again);
+  next?.focus();
+});
 
 /** Segmented scope control: Index or a single dataset. */
 export function scopeControl(): HTMLElement {
@@ -406,20 +514,83 @@ function renderTray(): void {
 onChange(renderTray);
 
 // ---------- Inspector drawer ----------
-const drawer = h("aside", { class: "sb-drawer", "aria-label": "System details", tabindex: "-1" });
+// A modal dialog: focus moves in on open, Tab cycles inside, Escape or the
+// close button closes it and focus returns to whatever opened it.
+const drawer = h("aside", {
+  class: "sb-drawer",
+  role: "dialog",
+  "aria-modal": "true",
+  "aria-labelledby": "sb-drawer-title",
+  tabindex: "-1",
+});
 document.body.append(drawer);
 tray.before(drawer);
 let mode: "one" | "compare" | null = null;
+// The opener is often re-rendered while the drawer is open (charts and table
+// rows redraw on every state change), so remember how to find it again.
+let opener: { el: HTMLElement | SVGElement; label: string | null; id: string } | null = null;
+function rememberOpener(): void {
+  if (drawer.classList.contains("on")) return;
+  const el = document.activeElement as HTMLElement | SVGElement | null;
+  opener =
+    el && el !== document.body && !drawer.contains(el)
+      ? { el, label: el.getAttribute("aria-label"), id: el.id }
+      : null;
+}
+function restoreFocus(): void {
+  if (!opener) return;
+  const { el, label, id } = opener;
+  opener = null;
+  const byId = id ? document.getElementById(id) : null;
+  const byLabel = label
+    ? [...document.querySelectorAll<HTMLElement>("[aria-label]")].find(
+        (n) => n.getAttribute("aria-label") === label,
+      )
+    : undefined;
+  const target = el.isConnected ? el : (byId ?? byLabel);
+  target?.focus();
+}
+const FOCUSABLE =
+  'a[href], button:not([disabled]), input:not([disabled]), select, textarea, [tabindex]:not([tabindex="-1"])';
 function close(): void {
   focused = null;
   mode = null;
   drawer.classList.remove("on");
   emit();
+  restoreFocus();
 }
 document.addEventListener("keydown", (e) => {
-  if (e.key === "Escape" && drawer.classList.contains("on")) close();
+  if (!drawer.classList.contains("on")) return;
+  if (e.key === "Escape") {
+    e.preventDefault();
+    close();
+    return;
+  }
+  if (e.key !== "Tab") return;
+  const items = [...drawer.querySelectorAll<HTMLElement>(FOCUSABLE)].filter(
+    (n) => n.getClientRects().length > 0,
+  );
+  if (!items.length) {
+    e.preventDefault();
+    drawer.focus();
+    return;
+  }
+  const first = items[0];
+  const last = items[items.length - 1];
+  const active = document.activeElement;
+  if (!drawer.contains(active)) {
+    e.preventDefault();
+    first.focus();
+  } else if (e.shiftKey && (active === first || active === drawer)) {
+    e.preventDefault();
+    last.focus();
+  } else if (!e.shiftKey && active === last) {
+    e.preventDefault();
+    first.focus();
+  }
 });
 export function inspect(key: string): void {
+  rememberOpener();
   focused = key;
   mode = "one";
   renderDrawer();
@@ -428,6 +599,7 @@ export function inspect(key: string): void {
   emit();
 }
 export function openCompare(): void {
+  rememberOpener();
   focused = null;
   mode = "compare";
   renderDrawer();
@@ -676,7 +848,7 @@ function questionDiffLinks(list: SystemConfig[], pairs: [number, number][]): HTM
   return h(
     "div",
     { class: "sb-ds" },
-    h("h4", null, "Per-question diff →"),
+    h("h3", null, "Per-question diff →"),
     h("p", { class: "sb-note" }, "Where the answers differ, question by question, on one dataset."),
     ...rows,
   );
@@ -785,7 +957,7 @@ function renderDrawer(): void {
           "div",
           null,
           h("div", { class: "sb-kicker" }, `Comparing ${list.length} · ${scopeName()}`),
-          h("div", { class: "sb-dttl" }, "Side by side"),
+          h("h2", { class: "sb-dttl", id: "sb-drawer-title" }, "Side by side"),
         ),
         x,
       ),
@@ -807,15 +979,15 @@ function renderDrawer(): void {
       h(
         "div",
         { class: "sb-ds" },
-        h("h4", null, "Scores"),
+        h("h3", null, "Scores"),
         table,
         h("p", { class: "sb-note" }, "▲ marks the best value in each row."),
       ),
-      h("div", { class: "sb-ds" }, h("h4", null, "Index by dataset"), datasetDots(list, 392, true)),
+      h("div", { class: "sb-ds" }, h("h3", null, "Index by dataset"), datasetDots(list, 392, true)),
       h(
         "div",
         { class: "sb-ds" },
-        h("h4", null, "Are the differences real?"),
+        h("h3", null, "Are the differences real?"),
         h("p", { class: "sb-note" }, "Based on whether the 95% intervals overlap."),
         ...pairs
           .filter(([a, b]) => list[a] && list[b])
@@ -854,7 +1026,7 @@ function renderDrawer(): void {
     personaRow = h(
       "div",
       { class: "sb-ds" },
-      h("h4", null, "Raw prompt vs. Althing persona"),
+      h("h3", null, "Raw prompt vs. Althing persona"),
       a && b
         ? h(
             "div",
@@ -879,7 +1051,7 @@ function renderDrawer(): void {
       h(
         "div",
         null,
-        h("div", { class: "sb-dttl" }, baseName(c)),
+        h("h2", { class: "sb-dttl", id: "sb-drawer-title" }, baseName(c)),
         h(
           "div",
           { class: "sb-dsub" },
@@ -894,7 +1066,7 @@ function renderDrawer(): void {
     h(
       "div",
       { class: "sb-ds" },
-      h("h4", null, scopeName()),
+      h("h3", null, scopeName()),
       h(
         "div",
         { class: "sb-big-row" },
@@ -913,13 +1085,13 @@ function renderDrawer(): void {
       ),
       v ? positionStrip(v) : null,
     ),
-    h("div", { class: "sb-ds" }, h("h4", null, "By dataset"), datasetDots([c])),
-    h("div", { class: "sb-ds" }, h("h4", null, "Score components"), componentBars(c)),
+    h("div", { class: "sb-ds" }, h("h3", null, "By dataset"), datasetDots([c])),
+    h("div", { class: "sb-ds" }, h("h3", null, "Score components"), componentBars(c)),
     personaRow,
     h(
       "div",
       { class: "sb-ds" },
-      h("h4", null, "Checks and provenance"),
+      h("h3", null, "Checks and provenance"),
       h(
         "dl",
         { class: "sb-kv" },
