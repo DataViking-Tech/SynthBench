@@ -25,7 +25,10 @@ the output is committed. Re-run after adding leaderboard runs:
 
 Raw data is read from ~/.synthbench/data (SubPOP raw_rows.json, OpinionsQA
 human_resp/*/responses.csv, GlobalOpinionQA questions.json). Systems added
-since the last run simply don't appear on the Groups page.
+since the last run simply don't appear on the Groups page;
+scripts/check-group-alignment.py (run in CI) reports the coverage. SubPOP is
+gated on HuggingFace: without access, the previous output's SubPOP data is
+carried forward for configs still on the leaderboard.
 """
 
 from __future__ import annotations
@@ -128,9 +131,17 @@ def human_groups() -> dict:
     """{dataset: {attribute: {qkey: {group: dist}}, '_overall': {qkey: dist}}}."""
     out: dict = {}
 
-    sp = SubPOPDataset()
-    out["subpop"] = {a: sp.load_demographic_distributions(a) for a in SUBPOP_ATTRIBUTES}
-    out["subpop"]["_overall"] = {q.key: q.human_distribution for q in sp.load()}
+    # SubPOP is gated on HuggingFace (manual approval). Without local access,
+    # main() carries the previous output's SubPOP data forward instead.
+    try:
+        sp = SubPOPDataset()
+        out["subpop"] = {
+            a: sp.load_demographic_distributions(a) for a in SUBPOP_ATTRIBUTES
+        }
+        out["subpop"]["_overall"] = {q.key: q.human_distribution for q in sp.load()}
+    except Exception as exc:  # noqa: BLE001 - any load/auth failure means "unavailable"
+        out.pop("subpop", None)
+        print(f"SubPOP raw data unavailable ({exc!r})", file=sys.stderr)
 
     # The local OpinionsQA mirror has respondent rows but no per-group JSON,
     # so group distributions are counted from responses.csv (unweighted, the
@@ -303,6 +314,41 @@ def summarize(
     return out
 
 
+def carry_subpop(
+    datasets: dict,
+    systems: dict,
+    reference: dict,
+    conditioning: list,
+    wanted: set[str],
+) -> None:
+    """Reuse the previous output's SubPOP data when the raw data is unavailable.
+
+    Only configs still on the leaderboard are kept; new SubPOP configs stay
+    off the Groups page until the script runs with SubPOP access.
+    """
+    if not OUT.exists():
+        print("no previous output; SubPOP left out", file=sys.stderr)
+        return
+    prev = json.loads(OUT.read_text(encoding="utf-8"))
+    if "subpop" not in prev["datasets"]:
+        return
+    datasets["subpop"] = prev["datasets"]["subpop"]
+    if "subpop" in prev["reference"]:
+        reference["subpop"] = prev["reference"]["subpop"]
+    kept = {
+        cid: s
+        for cid, s in prev["systems"].items()
+        if s["dataset"] == "subpop" and cid in wanted
+    }
+    systems.update(kept)
+    conditioning.extend(prev["conditioning"])
+    print(
+        f"SubPOP carried over from {prev['generated']}: {len(kept)} configs"
+        " still on the leaderboard",
+        file=sys.stderr,
+    )
+
+
 def main() -> None:
     lb = json.loads(LEADERBOARD.read_text(encoding="utf-8"))
     entries = [
@@ -311,7 +357,8 @@ def main() -> None:
         if e["dataset"] in ("subpop", "opinionsqa", "globalopinionqa")
     ]
     humans = human_groups()
-    configs = load_runs({e["config_id"] for e in entries})
+    wanted = {e["config_id"] for e in entries}
+    configs = load_runs(wanted)
     print(
         f"{len(configs)} of {len(entries)} leaderboard configs found", file=sys.stderr
     )
@@ -340,6 +387,8 @@ def main() -> None:
     systems: dict[str, dict] = {}
     for cid, c in configs.items():
         ds = c["dataset"]
+        if ds not in datasets:
+            continue  # no human group data this run (SubPOP without access)
         attrs_out = {}
         for a in datasets[ds]["attributes"]:
             groups = [g["id"] for g in a["groups"]]
@@ -389,7 +438,8 @@ def main() -> None:
     # leaderboard configs, so they're keyed by method + model + temperature
     # and averaged across runs.
     cond_acc: dict[tuple, dict] = {}
-    for jf in sorted(RESULTS.glob("subpop_*.json")):
+    subpop_runs = sorted(RESULTS.glob("subpop_*.json")) if "subpop" in humans else []
+    for jf in subpop_runs:
         r = json.loads(jf.read_text(encoding="utf-8"))
         if not r.get("demographic_breakdown") or is_invalid_run(r)[0]:
             continue
@@ -397,7 +447,7 @@ def main() -> None:
         method, model_id = runnable_ids(cfg["provider"])
         temp = cfg.get("temperature")
         if temp is None:
-            m = re.search(r"t=([0-9.]+)", cfg["provider"])
+            m = re.search(r"\bt=([0-9.]+)", cfg["provider"])
             temp = float(m.group(1)) if m else None
         key = (method, model_id, temp)
         slot = cond_acc.setdefault(key, {"runs": 0, "vals": defaultdict(list)})
@@ -444,6 +494,9 @@ def main() -> None:
                 "attrs": attrs,
             }
         )
+
+    if "subpop" not in humans:
+        carry_subpop(datasets, systems, reference, conditioning, wanted)
 
     # Drop attributes no config scored (e.g. SubPOP POLIDEOLOGY with no data).
     for ds, meta in datasets.items():

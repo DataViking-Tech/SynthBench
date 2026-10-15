@@ -73,6 +73,9 @@ jobs:
       - name: Generate leaderboard data
         run: synthbench publish-data --results-dir leaderboard-results --output site/src/data/leaderboard.json --routing-output site/src/data/routing.json
 
+      - name: Check Groups data coverage
+        run: python3 scripts/check-group-alignment.py
+
       - name: Generate run explorer artifacts (production, gated R2 upload)
         # Production path only (push to main / manual dispatch). PRs must
         # never reach the production R2 bucket: an unmerged branch would
