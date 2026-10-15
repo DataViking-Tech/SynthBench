@@ -2626,7 +2626,15 @@ def publish_questions_cmd(results_dir, output_dir, no_r2, strict_gating):
     help="Slug for the blend's provider id (ensemble/<name>). Each member set "
     "needs its own name to get its own leaderboard row. Default: <N>-model-blend.",
 )
-def ensemble(files, output, weights, name):
+@click.option(
+    "--suite",
+    type=click.Choice(["routing"]),
+    default=None,
+    help="Stamp the blend as a run on this pinned question set. By default it "
+    "inherits the suite its sources share. Routing-suite blends feed "
+    "routing.json only, never the leaderboard.",
+)
+def ensemble(files, output, weights, name, suite):
     """Blend N result files into a single ensemble result.
 
     Aligns questions by key (intersection), averages model distributions
@@ -2804,6 +2812,13 @@ def ensemble(files, output, weights, name):
     # SPS = mean of all available metrics
     sps = round((p_dist + p_rank + p_refuse) / 3.0, 6)
 
+    # A blend of routing-suite runs is a routing-suite run too, so it stays
+    # off the leaderboard (publish.is_routing_suite_run).
+    source_suites = {d.get("config", {}).get("suite") for d in datasets}
+    blend_suite = suite or (
+        next(iter(source_suites)) if len(source_suites) == 1 else None
+    )
+
     # Build result JSON
     provider_label = f"ensemble/{name or f'{len(files)}-model-blend'}"
     dataset_name = datasets[0].get("config", {}).get("dataset", "unknown")
@@ -2824,6 +2839,7 @@ def ensemble(files, output, weights, name):
             # intersection. Without this, publish renders ensemble rows as
             # "scored on zero questions" (n: 0).
             "n_evaluated": len(common_keys),
+            **({"suite": blend_suite} if blend_suite else {}),
             # The blend inherits the oldest scoring code among its sources,
             # so publish dedup ranks it like its weakest member.
             **{

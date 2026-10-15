@@ -1,0 +1,2332 @@
+{
+  "benchmark": "synthbench",
+  "version": "0.1.0",
+  "timestamp": "2026-10-15T05:06:36.379831+00:00",
+  "config": {
+    "dataset": "gss",
+    "provider": "ensemble/althing-routing-blend",
+    "ensemble_sources": [
+      {
+        "file": "gss_althing_openrouter_qwen_qwen3.8-flash_20261014_155132.json",
+        "provider": "althing/openrouter/qwen/qwen3.8-flash",
+        "weight": 0.25
+      },
+      {
+        "file": "gss_althing_openrouter_google_gemini-3.5-flash-lite_20261013_160320.json",
+        "provider": "althing/openrouter/google/gemini-3.5-flash-lite",
+        "weight": 0.25
+      },
+      {
+        "file": "gss_althing_openrouter_meta-llama_llama-3.3-70b-instruct_20261013_122923.json",
+        "provider": "althing/openrouter/meta-llama/llama-3.3-70b-instruct",
+        "weight": 0.25
+      },
+      {
+        "file": "gss_althing_openrouter_openai_gpt-6-luna_20261013_171702.json",
+        "provider": "althing/openrouter/openai/gpt-6-luna",
+        "weight": 0.25
+      }
+    ],
+    "n_common_questions": 75,
+    "n_evaluated": 75,
+    "suite": "routing",
+    "refusal_detector_version": 4,
+    "option_parser_version": 3
+  },
+  "scores": {
+    "sps": 0.845893,
+    "p_dist": 0.787268,
+    "p_rank": 0.778361,
+    "p_refuse": 0.972051
+  },
+  "aggregate": {
+    "mean_jsd": 0.212732,
+    "median_jsd": 0.196984,
+    "mean_kendall_tau": 0.556722,
+    "composite_parity": 0.845893,
+    "n_questions": 75,
+    "elapsed_seconds": 0.0
+  },
+  "per_question": [
+    {
+      "key": "GSS_ABANY",
+      "text": "Please tell me whether or not you think it should be possible for a pregnant woman to obtain a legal abortion if the woman wants it for any reason?",
+      "options": [
+        "yes",
+        "no",
+        "don't know"
+      ],
+      "human_distribution": {
+        "yes": 0.5626,
+        "no": 0.4026,
+        "don't know": 0.0348
+      },
+      "model_distribution": {
+        "yes": 0.9491,
+        "don't know": 0.0,
+        "no": 0.0509
+      },
+      "jsd": 0.165311,
+      "kendall_tau": 1.0,
+      "parity": 0.917344,
+      "n_samples": 117,
+      "n_parse_failures": 3,
+      "model_refusal_rate": 0.0,
+      "human_refusal_rate": 0.03483,
+      "temporal_year": 0
+    },
+    {
+      "key": "GSS_ABDEFECT",
+      "text": "Please tell me whether or not you think it should be possible for a pregnant woman to obtain a legal abortion if there is a strong chance of serious defect in the baby?",
+      "options": [
+        "yes",
+        "no",
+        "don't know"
+      ],
+      "human_distribution": {
+        "yes": 0.748,
+        "no": 0.2092,
+        "don't know": 0.0428
+      },
+      "model_distribution": {
+        "yes": 1.0,
+        "don't know": 0.0,
+        "no": 0.0
+      },
+      "jsd": 0.139149,
+      "kendall_tau": 0.816497,
+      "parity": 0.88455,
+      "n_samples": 115,
+      "n_parse_failures": 5,
+      "model_refusal_rate": 0.0,
+      "human_refusal_rate": 0.04283,
+      "temporal_year": 0
+    },
+    {
+      "key": "GSS_ABHLTH",
+      "text": "Please tell me whether or not you think it should be possible for a pregnant woman to obtain a legal abortion if the woman's own health is seriously endangered by the pregnancy?",
+      "options": [
+        "yes",
+        "no",
+        "don't know"
+      ],
+      "human_distribution": {
+        "yes": 0.8889,
+        "no": 0.0864,
+        "don't know": 0.0247
+      },
+      "model_distribution": {
+        "yes": 1.0,
+        "don't know": 0.0,
+        "no": 0.0
+      },
+      "jsd": 0.057908,
+      "kendall_tau": 0.816497,
+      "parity": 0.92517,
+      "n_samples": 120,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "human_refusal_rate": 0.024707,
+      "temporal_year": 0
+    },
+    {
+      "key": "GSS_ABNOMORE",
+      "text": "Please tell me whether or not you think it should be possible for a pregnant woman to obtain a legal abortion if she is married and does not want any more children?",
+      "options": [
+        "yes",
+        "no",
+        "don't know"
+      ],
+      "human_distribution": {
+        "yes": 0.5253,
+        "no": 0.4324,
+        "don't know": 0.0423
+      },
+      "model_distribution": {
+        "yes": 0.9914,
+        "don't know": 0.0086,
+        "no": 0.0
+      },
+      "jsd": 0.27748,
+      "kendall_tau": 0.333333,
+      "parity": 0.694593,
+      "n_samples": 119,
+      "n_parse_failures": 1,
+      "model_refusal_rate": 0.0,
+      "human_refusal_rate": 0.04231,
+      "temporal_year": 0
+    },
+    {
+      "key": "GSS_ABPOOR",
+      "text": "Please tell me whether or not you think it should be possible for a pregnant woman to obtain a legal abortion if the family has a very low income and cannot afford any more children?",
+      "options": [
+        "yes",
+        "no",
+        "don't know"
+      ],
+      "human_distribution": {
+        "yes": 0.5151,
+        "no": 0.4433,
+        "don't know": 0.0416
+      },
+      "model_distribution": {
+        "yes": 0.75,
+        "don't know": 0.0,
+        "no": 0.25
+      },
+      "jsd": 0.056321,
+      "kendall_tau": 1.0,
+      "parity": 0.97184,
+      "n_samples": 116,
+      "n_parse_failures": 4,
+      "model_refusal_rate": 0.0,
+      "human_refusal_rate": 0.041563,
+      "temporal_year": 0
+    },
+    {
+      "key": "GSS_ABRAPE",
+      "text": "Please tell me whether or not you think it should be possible for a pregnant woman to obtain a legal abortion if she became pregnant as a result of rape?",
+      "options": [
+        "yes",
+        "no",
+        "don't know"
+      ],
+      "human_distribution": {
+        "yes": 0.8023,
+        "no": 0.156,
+        "don't know": 0.0417
+      },
+      "model_distribution": {
+        "yes": 0.9911,
+        "don't know": 0.0089,
+        "no": 0.0
+      },
+      "jsd": 0.093506,
+      "kendall_tau": 0.333333,
+      "parity": 0.78658,
+      "n_samples": 118,
+      "n_parse_failures": 2,
+      "model_refusal_rate": 0.0,
+      "human_refusal_rate": 0.041694,
+      "temporal_year": 0
+    },
+    {
+      "key": "GSS_ABSINGLE",
+      "text": "Please tell me whether or not you think it should be possible for a pregnant woman to obtain a legal abortion if she is not married and does not want to marry the man?",
+      "options": [
+        "yes",
+        "no",
+        "don't know"
+      ],
+      "human_distribution": {
+        "yes": 0.4989,
+        "no": 0.4631,
+        "don't know": 0.0381
+      },
+      "model_distribution": {
+        "yes": 0.9911,
+        "don't know": 0.0089,
+        "no": 0.0
+      },
+      "jsd": 0.298345,
+      "kendall_tau": 0.333333,
+      "parity": 0.684161,
+      "n_samples": 118,
+      "n_parse_failures": 2,
+      "model_refusal_rate": 0.0,
+      "human_refusal_rate": 0.038075,
+      "temporal_year": 0
+    },
+    {
+      "key": "GSS_AFFRMACT",
+      "text": "Some people say that because of past discrimination, Black people should be given preference in hiring and promotion. Others say that such preference in hiring and promotion of Black people is wrong because it discriminates against other Americans. What about your opinion--are you for or against preferential hiring and promotion of Black people, and do you feel that way strongly or not strongly?",
+      "options": [
+        "strongly favors",
+        "not strongly favors",
+        "not strongly opposes",
+        "strongly opposes",
+        "don't know"
+      ],
+      "human_distribution": {
+        "strongly favors": 0.1364,
+        "not strongly favors": 0.1111,
+        "not strongly opposes": 0.2814,
+        "strongly opposes": 0.4184,
+        "don't know": 0.0528
+      },
+      "model_distribution": {
+        "strongly favors": 0.0,
+        "not strongly favors": 0.1958,
+        "strongly opposes": 0.2625,
+        "don't know": 0.0125,
+        "not strongly opposes": 0.5292
+      },
+      "jsd": 0.12714,
+      "kendall_tau": 0.4,
+      "parity": 0.78643,
+      "n_samples": 110,
+      "n_parse_failures": 10,
+      "model_refusal_rate": 0.0,
+      "human_refusal_rate": 0.052808,
+      "temporal_year": 0
+    },
+    {
+      "key": "GSS_ATTEND",
+      "text": "How often do you attend religious services?",
+      "options": [
+        "never",
+        "less than once a year",
+        "about once or twice a year",
+        "several times a year",
+        "about once a month",
+        "2-3 times a month",
+        "nearly every week",
+        "every week",
+        "several times a week"
+      ],
+      "human_distribution": {
+        "never": 0.2948,
+        "less than once a year": 0.11,
+        "about once or twice a year": 0.1156,
+        "several times a year": 0.1105,
+        "about once a month": 0.0503,
+        "2-3 times a month": 0.0635,
+        "nearly every week": 0.0553,
+        "every week": 0.1389,
+        "several times a week": 0.0611
+      },
+      "model_distribution": {
+        "several times a week": 0.0,
+        "nearly every week": 0.0083,
+        "about once a month": 0.05,
+        "less than once a year": 0.0417,
+        "about once or twice a year": 0.5583,
+        "2-3 times a month": 0.0,
+        "never": 0.15,
+        "every week": 0.0167,
+        "several times a year": 0.175
+      },
+      "jsd": 0.264139,
+      "kendall_tau": 0.30989,
+      "parity": 0.695403,
+      "n_samples": 120,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "human_refusal_rate": 0,
+      "temporal_year": 0
+    },
+    {
+      "key": "GSS_BIBLE",
+      "text": "Which of these statements comes closest to describing your feelings about the Bible? The Bible is the actual word of God and is to be taken literally, word for word; the Bible is the inspired word of God but not everything in it should be taken literally, word for word; or the Bible is an ancient book of fables, legends, history, and moral precepts recorded by men.",
+      "options": [
+        "word of god",
+        "inspired word",
+        "ancient book",
+        "other (vol)",
+        "don't know"
+      ],
+      "human_distribution": {
+        "word of god": 0.3387,
+        "inspired word": 0.4056,
+        "ancient book": 0.1869,
+        "other (vol)": 0.0347,
+        "don't know": 0.0341
+      },
+      "model_distribution": {
+        "inspired word": 0.85,
+        "word of god": 0.0,
+        "ancient book": 0.0,
+        "don't know": 0.0167,
+        "other (vol)": 0.1333
+      },
+      "jsd": 0.345246,
+      "kendall_tau": 0.105409,
+      "parity": 0.603729,
+      "n_samples": 120,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "human_refusal_rate": 0.034096,
+      "temporal_year": 0
+    },
+    {
+      "key": "GSS_CAPPUN",
+      "text": "Do you favor or oppose the death penalty for persons convicted of murder?",
+      "options": [
+        "favor",
+        "oppose",
+        "don't know"
+      ],
+      "human_distribution": {
+        "favor": 0.5999,
+        "oppose": 0.3653,
+        "don't know": 0.0347
+      },
+      "model_distribution": {
+        "oppose": 0.6181,
+        "favor": 0.356,
+        "don't know": 0.0259
+      },
+      "jsd": 0.046865,
+      "kendall_tau": 0.333333,
+      "parity": 0.809901,
+      "n_samples": 118,
+      "n_parse_failures": 2,
+      "model_refusal_rate": 0.0,
+      "human_refusal_rate": 0.034728,
+      "temporal_year": 0
+    },
+    {
+      "key": "GSS_CLASS",
+      "text": "If you were asked to use one of four names for your social class, which would you say you belong in: the lower class, the working class, the middle class, or the upper class?",
+      "options": [
+        "lower class",
+        "working class",
+        "middle class",
+        "upper class",
+        "don't know"
+      ],
+      "human_distribution": {
+        "lower class": 0.0951,
+        "working class": 0.4075,
+        "middle class": 0.4351,
+        "upper class": 0.0514,
+        "don't know": 0.0109
+      },
+      "model_distribution": {
+        "working class": 0.025,
+        "don't know": 0.05,
+        "upper class": 0.0,
+        "middle class": 0.925,
+        "lower class": 0.0
+      },
+      "jsd": 0.295496,
+      "kendall_tau": 0.316228,
+      "parity": 0.681309,
+      "n_samples": 120,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "human_refusal_rate": 0.010909,
+      "temporal_year": 0
+    },
+    {
+      "key": "GSS_COLATH",
+      "text": "Consider somebody who is against all churches and religion. Should such a person be allowed to teach in a college or university, or not?",
+      "options": [
+        "yes, allowed to teach",
+        "not allowed",
+        "don't know"
+      ],
+      "human_distribution": {
+        "yes, allowed to teach": 0.6144,
+        "not allowed": 0.3637,
+        "don't know": 0.0219
+      },
+      "model_distribution": {
+        "don't know": 0.0,
+        "yes, allowed to teach": 1.0,
+        "not allowed": 0.0
+      },
+      "jsd": 0.226342,
+      "kendall_tau": 0.816497,
+      "parity": 0.840953,
+      "n_samples": 120,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "human_refusal_rate": 0.021933,
+      "temporal_year": 0
+    },
+    {
+      "key": "GSS_CONARMY",
+      "text": "I am going to name an institution in this country. As far as the people running this institution are concerned, would you say you have a great deal of confidence, only some confidence, or hardly any confidence at all in the military?",
+      "options": [
+        "a great deal",
+        "only some",
+        "hardly any",
+        "don't know"
+      ],
+      "human_distribution": {
+        "a great deal": 0.4324,
+        "only some": 0.4452,
+        "hardly any": 0.1147,
+        "don't know": 0.0077
+      },
+      "model_distribution": {
+        "don't know": 0.0083,
+        "only some": 0.5834,
+        "a great deal": 0.4083,
+        "hardly any": 0.0
+      },
+      "jsd": 0.064325,
+      "kendall_tau": 0.666667,
+      "parity": 0.884504,
+      "n_samples": 120,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "human_refusal_rate": 0.007678,
+      "temporal_year": 0
+    },
+    {
+      "key": "GSS_CONBUS",
+      "text": "I am going to name an institution in this country. As far as the people running this institution are concerned, would you say you have a great deal of confidence, only some confidence, or hardly any confidence at all in major companies?",
+      "options": [
+        "a great deal",
+        "only some",
+        "hardly any",
+        "don't know"
+      ],
+      "human_distribution": {
+        "a great deal": 0.1464,
+        "only some": 0.5991,
+        "hardly any": 0.2394,
+        "don't know": 0.015
+      },
+      "model_distribution": {
+        "don't know": 0.0,
+        "only some": 1.0,
+        "a great deal": 0.0,
+        "hardly any": 0.0
+      },
+      "jsd": 0.237047,
+      "kendall_tau": 0.707107,
+      "parity": 0.808253,
+      "n_samples": 113,
+      "n_parse_failures": 7,
+      "model_refusal_rate": 0.0,
+      "human_refusal_rate": 0.01505,
+      "temporal_year": 0
+    },
+    {
+      "key": "GSS_CONCLERG",
+      "text": "I am going to name an institution in this country. As far as the people running this institution are concerned, would you say you have a great deal of confidence, only some confidence, or hardly any confidence at all in organized religion?",
+      "options": [
+        "a great deal",
+        "only some",
+        "hardly any",
+        "don't know"
+      ],
+      "human_distribution": {
+        "a great deal": 0.1492,
+        "only some": 0.4854,
+        "hardly any": 0.3429,
+        "don't know": 0.0224
+      },
+      "model_distribution": {
+        "don't know": 0.0,
+        "only some": 1.0,
+        "a great deal": 0.0,
+        "hardly any": 0.0
+      },
+      "jsd": 0.322913,
+      "kendall_tau": 0.707107,
+      "parity": 0.76532,
+      "n_samples": 120,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "human_refusal_rate": 0.022397,
+      "temporal_year": 0
+    },
+    {
+      "key": "GSS_CONEDUC",
+      "text": "I am going to name an institution in this country. As far as the people running this institution are concerned, would you say you have a great deal of confidence, only some confidence, or hardly any confidence at all in education?",
+      "options": [
+        "a great deal",
+        "only some",
+        "hardly any",
+        "don't know"
+      ],
+      "human_distribution": {
+        "a great deal": 0.1945,
+        "only some": 0.5415,
+        "hardly any": 0.2579,
+        "don't know": 0.0061
+      },
+      "model_distribution": {
+        "don't know": 0.0,
+        "only some": 1.0,
+        "a great deal": 0.0,
+        "hardly any": 0.0
+      },
+      "jsd": 0.279189,
+      "kendall_tau": 0.707107,
+      "parity": 0.787182,
+      "n_samples": 119,
+      "n_parse_failures": 1,
+      "model_refusal_rate": 0.0,
+      "human_refusal_rate": 0.006138,
+      "temporal_year": 0
+    },
+    {
+      "key": "GSS_CONFED",
+      "text": "I am going to name an institution in this country. As far as the people running this institution are concerned, would you say you have a great deal of confidence, only some confidence, or hardly any confidence at all in the executive branch of the federal government?",
+      "options": [
+        "a great deal",
+        "only some",
+        "hardly any",
+        "don't know"
+      ],
+      "human_distribution": {
+        "a great deal": 0.1197,
+        "only some": 0.4098,
+        "hardly any": 0.4587,
+        "don't know": 0.0118
+      },
+      "model_distribution": {
+        "don't know": 0.0,
+        "only some": 0.9917,
+        "a great deal": 0.0,
+        "hardly any": 0.0083
+      },
+      "jsd": 0.359022,
+      "kendall_tau": 0.547723,
+      "parity": 0.70742,
+      "n_samples": 107,
+      "n_parse_failures": 13,
+      "model_refusal_rate": 0.0,
+      "human_refusal_rate": 0.011839,
+      "temporal_year": 0
+    },
+    {
+      "key": "GSS_CONFINAN",
+      "text": "I am going to name an institution in this country. As far as the people running this institution are concerned, would you say you have a great deal of confidence, only some confidence, or hardly any confidence at all in banks and financial institutions?",
+      "options": [
+        "a great deal",
+        "only some",
+        "hardly any",
+        "don't know"
+      ],
+      "human_distribution": {
+        "a great deal": 0.1705,
+        "only some": 0.5781,
+        "hardly any": 0.2448,
+        "don't know": 0.0066
+      },
+      "model_distribution": {
+        "don't know": 0.0,
+        "only some": 0.9914,
+        "a great deal": 0.0086,
+        "hardly any": 0.0
+      },
+      "jsd": 0.230083,
+      "kendall_tau": 0.547723,
+      "parity": 0.771889,
+      "n_samples": 119,
+      "n_parse_failures": 1,
+      "model_refusal_rate": 0.0,
+      "human_refusal_rate": 0.006583,
+      "temporal_year": 0
+    },
+    {
+      "key": "GSS_CONJUDGE",
+      "text": "I am going to name an institution in this country. As far as the people running this institution are concerned, would you say you have a great deal of confidence, only some confidence, or hardly any confidence at all in the U.S. Supreme Court?",
+      "options": [
+        "a great deal",
+        "only some",
+        "hardly any",
+        "don't know"
+      ],
+      "human_distribution": {
+        "a great deal": 0.1811,
+        "only some": 0.4414,
+        "hardly any": 0.3629,
+        "don't know": 0.0145
+      },
+      "model_distribution": {
+        "don't know": 0.0,
+        "only some": 1.0,
+        "a great deal": 0.0,
+        "hardly any": 0.0
+      },
+      "jsd": 0.359423,
+      "kendall_tau": 0.707107,
+      "parity": 0.747065,
+      "n_samples": 118,
+      "n_parse_failures": 2,
+      "model_refusal_rate": 0.0,
+      "human_refusal_rate": 0.014513,
+      "temporal_year": 0
+    },
+    {
+      "key": "GSS_CONLABOR",
+      "text": "I am going to name an institution in this country. As far as the people running this institution are concerned, would you say you have a great deal of confidence, only some confidence, or hardly any confidence at all in organized labor?",
+      "options": [
+        "a great deal",
+        "only some",
+        "hardly any",
+        "don't know"
+      ],
+      "human_distribution": {
+        "a great deal": 0.1697,
+        "only some": 0.5684,
+        "hardly any": 0.2276,
+        "don't know": 0.0342
+      },
+      "model_distribution": {
+        "don't know": 0.0,
+        "only some": 1.0,
+        "a great deal": 0.0,
+        "hardly any": 0.0
+      },
+      "jsd": 0.259153,
+      "kendall_tau": 0.707107,
+      "parity": 0.7972,
+      "n_samples": 120,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "human_refusal_rate": 0.034247,
+      "temporal_year": 0
+    },
+    {
+      "key": "GSS_CONLEGIS",
+      "text": "I am going to name an institution in this country. As far as the people running this institution are concerned, would you say you have a great deal of confidence, only some confidence, or hardly any confidence at all in Congress?",
+      "options": [
+        "a great deal",
+        "only some",
+        "hardly any",
+        "don't know"
+      ],
+      "human_distribution": {
+        "a great deal": 0.0556,
+        "only some": 0.42,
+        "hardly any": 0.5135,
+        "don't know": 0.0109
+      },
+      "model_distribution": {
+        "don't know": 0.0,
+        "only some": 0.5077,
+        "a great deal": 0.0,
+        "hardly any": 0.4922
+      },
+      "jsd": 0.03641,
+      "kendall_tau": 0.547723,
+      "parity": 0.868726,
+      "n_samples": 118,
+      "n_parse_failures": 2,
+      "model_refusal_rate": 0.0,
+      "human_refusal_rate": 0.010854,
+      "temporal_year": 0
+    },
+    {
+      "key": "GSS_CONMEDIC",
+      "text": "I am going to name an institution in this country. As far as the people running this institution are concerned, would you say you have a great deal of confidence, only some confidence, or hardly any confidence at all in medicine?",
+      "options": [
+        "a great deal",
+        "only some",
+        "hardly any",
+        "don't know"
+      ],
+      "human_distribution": {
+        "a great deal": 0.263,
+        "only some": 0.5348,
+        "hardly any": 0.1968,
+        "don't know": 0.0053
+      },
+      "model_distribution": {
+        "don't know": 0.0083,
+        "only some": 0.7167,
+        "a great deal": 0.275,
+        "hardly any": 0.0
+      },
+      "jsd": 0.10831,
+      "kendall_tau": 0.666667,
+      "parity": 0.862512,
+      "n_samples": 120,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "human_refusal_rate": 0.005273,
+      "temporal_year": 0
+    },
+    {
+      "key": "GSS_CONPRESS",
+      "text": "I am going to name an institution in this country. As far as the people running this institution are concerned, would you say you have a great deal of confidence, only some confidence, or hardly any confidence at all in the press?",
+      "options": [
+        "a great deal",
+        "only some",
+        "hardly any",
+        "don't know"
+      ],
+      "human_distribution": {
+        "a great deal": 0.0762,
+        "only some": 0.3656,
+        "hardly any": 0.5456,
+        "don't know": 0.0126
+      },
+      "model_distribution": {
+        "don't know": 0.0083,
+        "only some": 0.9583,
+        "a great deal": 0.0,
+        "hardly any": 0.0333
+      },
+      "jsd": 0.335171,
+      "kendall_tau": 0.333333,
+      "parity": 0.665748,
+      "n_samples": 117,
+      "n_parse_failures": 3,
+      "model_refusal_rate": 0.0,
+      "human_refusal_rate": 0.01264,
+      "temporal_year": 0
+    },
+    {
+      "key": "GSS_CONSCI",
+      "text": "I am going to name an institution in this country. As far as the people running this institution are concerned, would you say you have a great deal of confidence, only some confidence, or hardly any confidence at all in the scientific community?",
+      "options": [
+        "a great deal",
+        "only some",
+        "hardly any",
+        "don't know"
+      ],
+      "human_distribution": {
+        "a great deal": 0.3572,
+        "only some": 0.5023,
+        "hardly any": 0.1194,
+        "don't know": 0.0211
+      },
+      "model_distribution": {
+        "don't know": 0.0167,
+        "only some": 0.6771,
+        "a great deal": 0.3062,
+        "hardly any": 0.0
+      },
+      "jsd": 0.070679,
+      "kendall_tau": 0.666667,
+      "parity": 0.881327,
+      "n_samples": 112,
+      "n_parse_failures": 8,
+      "model_refusal_rate": 0.0,
+      "human_refusal_rate": 0.021146,
+      "temporal_year": 0
+    },
+    {
+      "key": "GSS_CONTV",
+      "text": "I am going to name an institution in this country. As far as the people running this institution are concerned, would you say you have a great deal of confidence, only some confidence, or hardly any confidence at all in television?",
+      "options": [
+        "a great deal",
+        "only some",
+        "hardly any",
+        "don't know"
+      ],
+      "human_distribution": {
+        "a great deal": 0.0832,
+        "only some": 0.429,
+        "hardly any": 0.4779,
+        "don't know": 0.01
+      },
+      "model_distribution": {
+        "don't know": 0.0,
+        "only some": 1.0,
+        "a great deal": 0.0,
+        "hardly any": 0.0
+      },
+      "jsd": 0.370172,
+      "kendall_tau": 0.235702,
+      "parity": 0.62384,
+      "n_samples": 111,
+      "n_parse_failures": 9,
+      "model_refusal_rate": 0.0,
+      "human_refusal_rate": 0.009983,
+      "temporal_year": 0
+    },
+    {
+      "key": "GSS_COURTS",
+      "text": "In general, do you think the courts in this area deal too harshly or not harshly enough with criminals?",
+      "options": [
+        "too harshly",
+        "not harshly enough",
+        "about right",
+        "don't know"
+      ],
+      "human_distribution": {
+        "too harshly": 0.1188,
+        "not harshly enough": 0.5073,
+        "about right": 0.2242,
+        "don't know": 0.1497
+      },
+      "model_distribution": {
+        "too harshly": 0.0,
+        "about right": 0.2167,
+        "don't know": 0.0917,
+        "not harshly enough": 0.6917
+      },
+      "jsd": 0.074786,
+      "kendall_tau": 1.0,
+      "parity": 0.962607,
+      "n_samples": 120,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "human_refusal_rate": 0.14972,
+      "temporal_year": 0
+    },
+    {
+      "key": "GSS_DIVLAW",
+      "text": "Should divorce in this country be easier or more difficult to obtain than it is now?",
+      "options": [
+        "easier",
+        "more difficult",
+        "stay as is",
+        "don't know"
+      ],
+      "human_distribution": {
+        "easier": 0.4722,
+        "more difficult": 0.2262,
+        "stay as is": 0.2234,
+        "don't know": 0.0782
+      },
+      "model_distribution": {
+        "don't know": 0.0,
+        "easier": 0.275,
+        "stay as is": 0.7167,
+        "more difficult": 0.0083
+      },
+      "jsd": 0.247662,
+      "kendall_tau": 0.333333,
+      "parity": 0.709502,
+      "n_samples": 120,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "human_refusal_rate": 0.07816,
+      "temporal_year": 0
+    },
+    {
+      "key": "GSS_FAIR",
+      "text": "Do you think most people would try to take advantage of you if they got a chance, or would they try to be fair?",
+      "options": [
+        "would take advantage of you",
+        "would try to be fair",
+        "depends",
+        "don't know"
+      ],
+      "human_distribution": {
+        "would take advantage of you": 0.4549,
+        "would try to be fair": 0.4107,
+        "depends": 0.1223,
+        "don't know": 0.012
+      },
+      "model_distribution": {
+        "don't know": 0.0,
+        "would take advantage of you": 0.0,
+        "would try to be fair": 0.3833,
+        "depends": 0.6167
+      },
+      "jsd": 0.364131,
+      "kendall_tau": -0.182574,
+      "parity": 0.522291,
+      "n_samples": 120,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "human_refusal_rate": 0.012013,
+      "temporal_year": 0
+    },
+    {
+      "key": "GSS_FECHLD",
+      "text": "Please indicate whether you strongly agree, agree, disagree, or strongly disagree with the following statement: A working mother can establish just as warm and secure a relationship with her children as a mother who does not work.",
+      "options": [
+        "strongly agree",
+        "agree",
+        "disagree",
+        "strongly disagree",
+        "don't know"
+      ],
+      "human_distribution": {
+        "strongly agree": 0.3175,
+        "agree": 0.4205,
+        "disagree": 0.2096,
+        "strongly disagree": 0.0464,
+        "don't know": 0.0061
+      },
+      "model_distribution": {
+        "disagree": 0.0,
+        "strongly disagree": 0.0,
+        "agree": 0.2667,
+        "strongly agree": 0.7333,
+        "don't know": 0.0
+      },
+      "jsd": 0.20456,
+      "kendall_tau": 0.597614,
+      "parity": 0.797124,
+      "n_samples": 120,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "human_refusal_rate": 0.006057,
+      "temporal_year": 0
+    },
+    {
+      "key": "GSS_FEFAM",
+      "text": "Please indicate whether you strongly agree, agree, disagree, or strongly disagree with the following statement: It is much better for everyone involved if the man is the achiever outside the home and the woman takes care of the home and family.",
+      "options": [
+        "strongly agree",
+        "agree",
+        "disagree",
+        "strongly disagree",
+        "don't know"
+      ],
+      "human_distribution": {
+        "strongly agree": 0.0867,
+        "agree": 0.2288,
+        "disagree": 0.4122,
+        "strongly disagree": 0.2649,
+        "don't know": 0.0074
+      },
+      "model_distribution": {
+        "disagree": 0.528,
+        "strongly disagree": 0.472,
+        "agree": 0.0,
+        "strongly agree": 0.0,
+        "don't know": 0.0
+      },
+      "jsd": 0.187885,
+      "kendall_tau": 0.83666,
+      "parity": 0.865222,
+      "n_samples": 114,
+      "n_parse_failures": 6,
+      "model_refusal_rate": 0.0,
+      "human_refusal_rate": 0.007376,
+      "temporal_year": 0
+    },
+    {
+      "key": "GSS_FEPOL",
+      "text": "Tell me if you agree or disagree with this statement: Most men are better suited emotionally for politics than are most women.",
+      "options": [
+        "agree",
+        "disagree",
+        "don't know"
+      ],
+      "human_distribution": {
+        "agree": 0.1649,
+        "disagree": 0.75,
+        "don't know": 0.0851
+      },
+      "model_distribution": {
+        "disagree": 1.0,
+        "agree": 0.0,
+        "don't know": 0.0
+      },
+      "jsd": 0.137925,
+      "kendall_tau": 0.816497,
+      "parity": 0.885161,
+      "n_samples": 120,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "human_refusal_rate": 0.085143,
+      "temporal_year": 0
+    },
+    {
+      "key": "GSS_FEPRESCH",
+      "text": "Please indicate whether you strongly agree, agree, disagree, or strongly disagree with the following statement: A preschool child is likely to suffer if his or her mother works.",
+      "options": [
+        "strongly agree",
+        "agree",
+        "disagree",
+        "strongly disagree",
+        "don't know"
+      ],
+      "human_distribution": {
+        "strongly agree": 0.0543,
+        "agree": 0.2627,
+        "disagree": 0.4932,
+        "strongly disagree": 0.1789,
+        "don't know": 0.0108
+      },
+      "model_distribution": {
+        "disagree": 0.9417,
+        "strongly disagree": 0.0417,
+        "agree": 0.0167,
+        "strongly agree": 0.0,
+        "don't know": 0.0
+      },
+      "jsd": 0.211199,
+      "kendall_tau": 0.737865,
+      "parity": 0.828867,
+      "n_samples": 120,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "human_refusal_rate": 0.010846,
+      "temporal_year": 0
+    },
+    {
+      "key": "GSS_FINRELA",
+      "text": "Compared with American families in general, would you say your family income is far below average, below average, average, above average, or far above average?",
+      "options": [
+        "far below average",
+        "below average",
+        "average",
+        "above average",
+        "far above average",
+        "don't know"
+      ],
+      "human_distribution": {
+        "far below average": 0.0694,
+        "below average": 0.2399,
+        "average": 0.4128,
+        "above average": 0.2337,
+        "far above average": 0.0371,
+        "don't know": 0.0072
+      },
+      "model_distribution": {
+        "far above average": 0.0,
+        "far below average": 0.0,
+        "average": 0.875,
+        "above average": 0.0,
+        "don't know": 0.1083,
+        "below average": 0.0167
+      },
+      "jsd": 0.353323,
+      "kendall_tau": 0.298142,
+      "parity": 0.647874,
+      "n_samples": 120,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "human_refusal_rate": 0.00716,
+      "temporal_year": 0
+    },
+    {
+      "key": "GSS_GETAHEAD",
+      "text": "Some people say that people get ahead by their own hard work; others say that lucky breaks or help from other people are more important. Which do you think is most important?",
+      "options": [
+        "hard work most important",
+        "hard work, luck equally important",
+        "luck most important",
+        "don't know"
+      ],
+      "human_distribution": {
+        "hard work most important": 0.6369,
+        "hard work, luck equally important": 0.2331,
+        "luck most important": 0.1135,
+        "don't know": 0.0165
+      },
+      "model_distribution": {
+        "don't know": 0.0,
+        "hard work most important": 0.0256,
+        "hard work, luck equally important": 0.9744,
+        "luck most important": 0.0
+      },
+      "jsd": 0.494484,
+      "kendall_tau": 0.547723,
+      "parity": 0.639688,
+      "n_samples": 119,
+      "n_parse_failures": 1,
+      "model_refusal_rate": 0.0,
+      "human_refusal_rate": 0.016521,
+      "temporal_year": 0
+    },
+    {
+      "key": "GSS_GOD",
+      "text": "Which statement comes closest to expressing what you believe about God? I don't believe in God; I don't know whether there is a God and I don't believe there is any way to find out; I don't believe in a personal God, but I do believe in a Higher Power of some kind; I find myself believing in God some of the time, but not at others; while I have doubts, I feel that I do believe in God; or I know God really exists and I have no doubts about it.",
+      "options": [
+        "don't believe",
+        "don't know, no way to find out",
+        "higher power",
+        "believe sometimes",
+        "believe with doubts",
+        "no doubts",
+        "don't know"
+      ],
+      "human_distribution": {
+        "don't believe": 0.0581,
+        "don't know, no way to find out": 0.0793,
+        "higher power": 0.1366,
+        "believe sometimes": 0.0527,
+        "believe with doubts": 0.1556,
+        "no doubts": 0.5135,
+        "don't know": 0.0042
+      },
+      "model_distribution": {
+        "higher power": 0.0256,
+        "don't believe": 0.0173,
+        "don't know": 0.25,
+        "don't know, no way to find out": 0.0862,
+        "believe with doubts": 0.6038,
+        "believe sometimes": 0.0173,
+        "no doubts": 0.0
+      },
+      "jsd": 0.515617,
+      "kendall_tau": -0.09759,
+      "parity": 0.467794,
+      "n_samples": 119,
+      "n_parse_failures": 1,
+      "model_refusal_rate": 0.0,
+      "human_refusal_rate": 0.083514,
+      "temporal_year": 0
+    },
+    {
+      "key": "GSS_GRASS",
+      "text": "Do you think the use of marijuana should be made legal or not?",
+      "options": [
+        "should be legal",
+        "should not be legal",
+        "don't know"
+      ],
+      "human_distribution": {
+        "should be legal": 0.6007,
+        "should not be legal": 0.3028,
+        "don't know": 0.0965
+      },
+      "model_distribution": {
+        "don't know": 0.0167,
+        "should not be legal": 0.0,
+        "should be legal": 0.9833
+      },
+      "jsd": 0.207498,
+      "kendall_tau": 0.333333,
+      "parity": 0.729584,
+      "n_samples": 120,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "human_refusal_rate": 0.096466,
+      "temporal_year": 0
+    },
+    {
+      "key": "GSS_GUNLAW",
+      "text": "Would you favor or oppose a law which would require a person to obtain a police permit before he or she could buy a gun?",
+      "options": [
+        "favor",
+        "oppose",
+        "don't know"
+      ],
+      "human_distribution": {
+        "favor": 0.6757,
+        "oppose": 0.3077,
+        "don't know": 0.0166
+      },
+      "model_distribution": {
+        "oppose": 0.0432,
+        "favor": 0.9131,
+        "don't know": 0.0437
+      },
+      "jsd": 0.098412,
+      "kendall_tau": 0.333333,
+      "parity": 0.784127,
+      "n_samples": 117,
+      "n_parse_failures": 3,
+      "model_refusal_rate": 0.0,
+      "human_refusal_rate": 0.016626,
+      "temporal_year": 0
+    },
+    {
+      "key": "GSS_HAPPY",
+      "text": "Taken all together, how would you say things are these days--would you say that you are very happy, pretty happy, or not too happy?",
+      "options": [
+        "very happy",
+        "pretty happy",
+        "not too happy",
+        "don't know"
+      ],
+      "human_distribution": {
+        "very happy": 0.2352,
+        "pretty happy": 0.5566,
+        "not too happy": 0.2046,
+        "don't know": 0.0036
+      },
+      "model_distribution": {
+        "not too happy": 0.0,
+        "very happy": 0.0,
+        "pretty happy": 1.0,
+        "don't know": 0.0
+      },
+      "jsd": 0.267891,
+      "kendall_tau": 0.707107,
+      "parity": 0.792831,
+      "n_samples": 120,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "human_refusal_rate": 0.003644,
+      "temporal_year": 0
+    },
+    {
+      "key": "GSS_HEALTH",
+      "text": "Would you say your own health, in general, is excellent, good, fair, or poor?",
+      "options": [
+        "excellent",
+        "good",
+        "fair",
+        "poor",
+        "don't know"
+      ],
+      "human_distribution": {
+        "excellent": 0.1885,
+        "good": 0.5331,
+        "fair": 0.2348,
+        "poor": 0.043,
+        "don't know": 0.0007
+      },
+      "model_distribution": {
+        "poor": 0.0,
+        "excellent": 0.0,
+        "fair": 0.0,
+        "good": 1.0,
+        "don't know": 0.0
+      },
+      "jsd": 0.2856,
+      "kendall_tau": 0.632456,
+      "parity": 0.765314,
+      "n_samples": 120,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "human_refusal_rate": 0.000696,
+      "temporal_year": 0
+    },
+    {
+      "key": "GSS_HELPFUL",
+      "text": "Would you say that most of the time people try to be helpful, or that they are mostly just looking out for themselves?",
+      "options": [
+        "try to be helpful",
+        "looking out for themselves",
+        "depends",
+        "don't know"
+      ],
+      "human_distribution": {
+        "try to be helpful": 0.3685,
+        "looking out for themselves": 0.4483,
+        "depends": 0.1642,
+        "don't know": 0.019
+      },
+      "model_distribution": {
+        "don't know": 0.0,
+        "looking out for themselves": 0.0083,
+        "depends": 0.9417,
+        "try to be helpful": 0.05
+      },
+      "jsd": 0.524526,
+      "kendall_tau": 0.0,
+      "parity": 0.487737,
+      "n_samples": 120,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "human_refusal_rate": 0.018973,
+      "temporal_year": 0
+    },
+    {
+      "key": "GSS_HOMOSEX",
+      "text": "What about sexual relations between two adults of the same sex--do you think it is always wrong, almost always wrong, wrong only sometimes, or not wrong at all?",
+      "options": [
+        "always wrong",
+        "almost always wrong",
+        "wrong only sometimes",
+        "not wrong at all",
+        "don't know"
+      ],
+      "human_distribution": {
+        "always wrong": 0.3219,
+        "almost always wrong": 0.0363,
+        "wrong only sometimes": 0.0663,
+        "not wrong at all": 0.5391,
+        "don't know": 0.0362
+      },
+      "model_distribution": {
+        "almost always wrong": 0.0,
+        "don't know": 0.0,
+        "not wrong at all": 1.0,
+        "always wrong": 0.0,
+        "wrong only sometimes": 0.0
+      },
+      "jsd": 0.280921,
+      "kendall_tau": 0.632456,
+      "parity": 0.767653,
+      "n_samples": 118,
+      "n_parse_failures": 2,
+      "model_refusal_rate": 0.0,
+      "human_refusal_rate": 0.036232,
+      "temporal_year": 0
+    },
+    {
+      "key": "GSS_LETDIE1",
+      "text": "When a person has a disease that cannot be cured, do you think doctors should be allowed by law to end the patient's life by some painless means if the patient and his family request it?",
+      "options": [
+        "yes",
+        "no",
+        "don't know"
+      ],
+      "human_distribution": {
+        "yes": 0.6916,
+        "no": 0.2734,
+        "don't know": 0.0351
+      },
+      "model_distribution": {
+        "yes": 0.9731,
+        "don't know": 0.0083,
+        "no": 0.0185
+      },
+      "jsd": 0.1199,
+      "kendall_tau": 1.0,
+      "parity": 0.94005,
+      "n_samples": 117,
+      "n_parse_failures": 3,
+      "model_refusal_rate": 0.0,
+      "human_refusal_rate": 0.035076,
+      "temporal_year": 0
+    },
+    {
+      "key": "GSS_LIBATH",
+      "text": "Consider somebody who is against all churches and religion. If some people in your community suggested that a book he wrote against churches and religion should be removed from your public library, would you favor removing this book, or not?",
+      "options": [
+        "remove",
+        "not remove",
+        "don't know"
+      ],
+      "human_distribution": {
+        "remove": 0.2131,
+        "not remove": 0.7741,
+        "don't know": 0.0128
+      },
+      "model_distribution": {
+        "don't know": 0.0,
+        "remove": 0.0,
+        "not remove": 1.0
+      },
+      "jsd": 0.123353,
+      "kendall_tau": 0.816497,
+      "parity": 0.892448,
+      "n_samples": 119,
+      "n_parse_failures": 1,
+      "model_refusal_rate": 0.0,
+      "human_refusal_rate": 0.012817,
+      "temporal_year": 0
+    },
+    {
+      "key": "GSS_LIFE",
+      "text": "In general, do you find life exciting, pretty routine, or dull?",
+      "options": [
+        "exciting",
+        "routine",
+        "dull",
+        "don't know"
+      ],
+      "human_distribution": {
+        "exciting": 0.3682,
+        "routine": 0.567,
+        "dull": 0.0574,
+        "don't know": 0.0074
+      },
+      "model_distribution": {
+        "exciting": 0.0,
+        "dull": 0.0,
+        "don't know": 0.0,
+        "routine": 1.0
+      },
+      "jsd": 0.260221,
+      "kendall_tau": 0.707107,
+      "parity": 0.796666,
+      "n_samples": 120,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "human_refusal_rate": 0.007409,
+      "temporal_year": 0
+    },
+    {
+      "key": "GSS_NATAID",
+      "text": "We are faced with many problems in this country, none of which can be solved easily or inexpensively. Are we spending too much, too little, or about the right amount on foreign aid?",
+      "options": [
+        "too little",
+        "about right",
+        "too much",
+        "don't know"
+      ],
+      "human_distribution": {
+        "too little": 0.0923,
+        "about right": 0.2722,
+        "too much": 0.6043,
+        "don't know": 0.0312
+      },
+      "model_distribution": {
+        "about right": 0.175,
+        "too much": 0.7914,
+        "don't know": 0.0086,
+        "too little": 0.025
+      },
+      "jsd": 0.036485,
+      "kendall_tau": 1.0,
+      "parity": 0.981758,
+      "n_samples": 119,
+      "n_parse_failures": 1,
+      "model_refusal_rate": 0.0,
+      "human_refusal_rate": 0.031192,
+      "temporal_year": 0
+    },
+    {
+      "key": "GSS_NATARMS",
+      "text": "We are faced with many problems in this country, none of which can be solved easily or inexpensively. Are we spending too much, too little, or about the right amount on the military, armaments, and defense?",
+      "options": [
+        "too little",
+        "about right",
+        "too much",
+        "don't know"
+      ],
+      "human_distribution": {
+        "too little": 0.2929,
+        "about right": 0.3993,
+        "too much": 0.2753,
+        "don't know": 0.0326
+      },
+      "model_distribution": {
+        "about right": 0.4167,
+        "too much": 0.5833,
+        "don't know": 0.0,
+        "too little": 0.0
+      },
+      "jsd": 0.203629,
+      "kendall_tau": 0.182574,
+      "parity": 0.693829,
+      "n_samples": 120,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "human_refusal_rate": 0.03256,
+      "temporal_year": 0
+    },
+    {
+      "key": "GSS_NATCITY",
+      "text": "We are faced with many problems in this country, none of which can be solved easily or inexpensively. Are we spending too much, too little, or about the right amount on solving the problems of the big cities?",
+      "options": [
+        "too little",
+        "about right",
+        "too much",
+        "don't know"
+      ],
+      "human_distribution": {
+        "too little": 0.5422,
+        "about right": 0.2393,
+        "too much": 0.1699,
+        "don't know": 0.0485
+      },
+      "model_distribution": {
+        "about right": 0.0509,
+        "too much": 0.0,
+        "don't know": 0.0092,
+        "too little": 0.9398
+      },
+      "jsd": 0.182403,
+      "kendall_tau": 0.666667,
+      "parity": 0.825465,
+      "n_samples": 117,
+      "n_parse_failures": 3,
+      "model_refusal_rate": 0.0,
+      "human_refusal_rate": 0.048538,
+      "temporal_year": 0
+    },
+    {
+      "key": "GSS_NATCRIME",
+      "text": "We are faced with many problems in this country, none of which can be solved easily or inexpensively. Are we spending too much, too little, or about the right amount on halting the rising crime rate?",
+      "options": [
+        "too little",
+        "about right",
+        "too much",
+        "don't know"
+      ],
+      "human_distribution": {
+        "too little": 0.6779,
+        "about right": 0.2403,
+        "too much": 0.062,
+        "don't know": 0.0198
+      },
+      "model_distribution": {
+        "about right": 0.1086,
+        "too much": 0.0086,
+        "don't know": 0.0,
+        "too little": 0.8828
+      },
+      "jsd": 0.054443,
+      "kendall_tau": 1.0,
+      "parity": 0.972778,
+      "n_samples": 119,
+      "n_parse_failures": 1,
+      "model_refusal_rate": 0.0,
+      "human_refusal_rate": 0.019753,
+      "temporal_year": 0
+    },
+    {
+      "key": "GSS_NATDRUG",
+      "text": "We are faced with many problems in this country, none of which can be solved easily or inexpensively. Are we spending too much, too little, or about the right amount on dealing with drug addiction?",
+      "options": [
+        "too little",
+        "about right",
+        "too much",
+        "don't know"
+      ],
+      "human_distribution": {
+        "too little": 0.6706,
+        "about right": 0.2265,
+        "too much": 0.0851,
+        "don't know": 0.0178
+      },
+      "model_distribution": {
+        "about right": 0.025,
+        "too much": 0.0,
+        "don't know": 0.0,
+        "too little": 0.975
+      },
+      "jsd": 0.138888,
+      "kendall_tau": 0.912871,
+      "parity": 0.908774,
+      "n_samples": 120,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "human_refusal_rate": 0.017794,
+      "temporal_year": 0
+    },
+    {
+      "key": "GSS_NATEDUC",
+      "text": "We are faced with many problems in this country, none of which can be solved easily or inexpensively. Are we spending too much, too little, or about the right amount on improving the nation's education system?",
+      "options": [
+        "too little",
+        "about right",
+        "too much",
+        "don't know"
+      ],
+      "human_distribution": {
+        "too little": 0.7548,
+        "about right": 0.1761,
+        "too much": 0.0643,
+        "don't know": 0.0048
+      },
+      "model_distribution": {
+        "about right": 0.0173,
+        "too much": 0.0,
+        "don't know": 0.0,
+        "too little": 0.9828
+      },
+      "jsd": 0.100035,
+      "kendall_tau": 0.912871,
+      "parity": 0.9282,
+      "n_samples": 119,
+      "n_parse_failures": 1,
+      "model_refusal_rate": 0.0,
+      "human_refusal_rate": 0.004757,
+      "temporal_year": 0
+    },
+    {
+      "key": "GSS_NATENVIR",
+      "text": "We are faced with many problems in this country, none of which can be solved easily or inexpensively. Are we spending too much, too little, or about the right amount on improving and protecting the environment?",
+      "options": [
+        "too little",
+        "about right",
+        "too much",
+        "don't know"
+      ],
+      "human_distribution": {
+        "too little": 0.6396,
+        "about right": 0.2287,
+        "too much": 0.1082,
+        "don't know": 0.0235
+      },
+      "model_distribution": {
+        "about right": 0.037,
+        "too much": 0.0,
+        "don't know": 0.0,
+        "too little": 0.963
+      },
+      "jsd": 0.145044,
+      "kendall_tau": 0.912871,
+      "parity": 0.905696,
+      "n_samples": 117,
+      "n_parse_failures": 3,
+      "model_refusal_rate": 0.0,
+      "human_refusal_rate": 0.023467,
+      "temporal_year": 0
+    },
+    {
+      "key": "GSS_NATFARE",
+      "text": "We are faced with many problems in this country, none of which can be solved easily or inexpensively. Are we spending too much, too little, or about the right amount on welfare?",
+      "options": [
+        "too little",
+        "about right",
+        "too much",
+        "don't know"
+      ],
+      "human_distribution": {
+        "too little": 0.3247,
+        "about right": 0.3427,
+        "too much": 0.3097,
+        "don't know": 0.0229
+      },
+      "model_distribution": {
+        "about right": 0.3214,
+        "too much": 0.3929,
+        "don't know": 0.0,
+        "too little": 0.2857
+      },
+      "jsd": 0.016158,
+      "kendall_tau": 0.333333,
+      "parity": 0.825255,
+      "n_samples": 117,
+      "n_parse_failures": 3,
+      "model_refusal_rate": 0.0,
+      "human_refusal_rate": 0.022949,
+      "temporal_year": 0
+    },
+    {
+      "key": "GSS_NATHEAL",
+      "text": "We are faced with many problems in this country, none of which can be solved easily or inexpensively. Are we spending too much, too little, or about the right amount on improving and protecting the nation's health?",
+      "options": [
+        "too little",
+        "about right",
+        "too much",
+        "don't know"
+      ],
+      "human_distribution": {
+        "too little": 0.7288,
+        "about right": 0.1834,
+        "too much": 0.0758,
+        "don't know": 0.0121
+      },
+      "model_distribution": {
+        "about right": 0.0268,
+        "too much": 0.0,
+        "don't know": 0.0,
+        "too little": 0.9732
+      },
+      "jsd": 0.103887,
+      "kendall_tau": 0.912871,
+      "parity": 0.926274,
+      "n_samples": 118,
+      "n_parse_failures": 2,
+      "model_refusal_rate": 0.0,
+      "human_refusal_rate": 0.012082,
+      "temporal_year": 0
+    },
+    {
+      "key": "GSS_NATRACE",
+      "text": "We are faced with many problems in this country, none of which can be solved easily or inexpensively. Are we spending too much, too little, or about the right amount on improving the conditions of Black people?",
+      "options": [
+        "too little",
+        "about right",
+        "too much",
+        "don't know"
+      ],
+      "human_distribution": {
+        "too little": 0.4446,
+        "about right": 0.3705,
+        "too much": 0.141,
+        "don't know": 0.0439
+      },
+      "model_distribution": {
+        "about right": 0.0278,
+        "too much": 0.0,
+        "don't know": 0.0185,
+        "too little": 0.9537
+      },
+      "jsd": 0.269181,
+      "kendall_tau": 0.666667,
+      "parity": 0.782076,
+      "n_samples": 117,
+      "n_parse_failures": 3,
+      "model_refusal_rate": 0.0,
+      "human_refusal_rate": 0.043941,
+      "temporal_year": 0
+    },
+    {
+      "key": "GSS_NATSPAC",
+      "text": "We are faced with many problems in this country, none of which can be solved easily or inexpensively. Are we spending too much, too little, or about the right amount on the space exploration program?",
+      "options": [
+        "too little",
+        "about right",
+        "too much",
+        "don't know"
+      ],
+      "human_distribution": {
+        "too little": 0.1888,
+        "about right": 0.4834,
+        "too much": 0.2713,
+        "don't know": 0.0565
+      },
+      "model_distribution": {
+        "about right": 0.6167,
+        "too much": 0.075,
+        "don't know": 0.05,
+        "too little": 0.2584
+      },
+      "jsd": 0.052521,
+      "kendall_tau": 0.666667,
+      "parity": 0.890406,
+      "n_samples": 120,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "human_refusal_rate": 0.056504,
+      "temporal_year": 0
+    },
+    {
+      "key": "GSS_OWNGUN",
+      "text": "Do you happen to have in your home or garage any guns or revolvers?",
+      "options": [
+        "yes",
+        "no",
+        "refused",
+        "don't know"
+      ],
+      "human_distribution": {
+        "yes": 0.3807,
+        "no": 0.6044,
+        "refused": 0.0131,
+        "don't know": 0.0018
+      },
+      "model_distribution": {
+        "yes": 0.0583,
+        "refused": 0.0083,
+        "don't know": 0.0,
+        "no": 0.9334
+      },
+      "jsd": 0.122342,
+      "kendall_tau": 1.0,
+      "parity": 0.938829,
+      "n_samples": 120,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "human_refusal_rate": 0.014899,
+      "temporal_year": 0
+    },
+    {
+      "key": "GSS_PARTYID",
+      "text": "Generally speaking, do you usually think of yourself as a Republican, Democrat, Independent, or what?",
+      "options": [
+        "strong democrat",
+        "not very strong democrat",
+        "independent, close to democrat",
+        "independent (neither, no response)",
+        "independent, close to republican",
+        "not very strong republican",
+        "strong republican",
+        "other party"
+      ],
+      "human_distribution": {
+        "strong democrat": 0.147,
+        "not very strong democrat": 0.1074,
+        "independent, close to democrat": 0.1045,
+        "independent (neither, no response)": 0.261,
+        "independent, close to republican": 0.0854,
+        "not very strong republican": 0.119,
+        "strong republican": 0.151,
+        "other party": 0.0247
+      },
+      "model_distribution": {
+        "strong democrat": 0.0,
+        "not very strong democrat": 0.0,
+        "not very strong republican": 0.0,
+        "strong republican": 0.0,
+        "independent (neither, no response)": 0.8917,
+        "independent, close to democrat": 0.1083,
+        "other party": 0.0,
+        "independent, close to republican": 0.0
+      },
+      "jsd": 0.44884,
+      "kendall_tau": 0.262071,
+      "parity": 0.591098,
+      "n_samples": 120,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "human_refusal_rate": 0,
+      "temporal_year": 0
+    },
+    {
+      "key": "GSS_POLVIEWS",
+      "text": "I'm going to show you a seven-point scale on which the political views that people might hold are arranged from extremely liberal--point 1--to extremely conservative--point 7. Where would you place yourself on this scale?",
+      "options": [
+        "extremely liberal",
+        "liberal",
+        "slightly liberal",
+        "moderate, middle of the road",
+        "slightly conservative",
+        "conservative",
+        "extremely conservative",
+        "don't know"
+      ],
+      "human_distribution": {
+        "extremely liberal": 0.035,
+        "liberal": 0.1233,
+        "slightly liberal": 0.1061,
+        "moderate, middle of the road": 0.357,
+        "slightly conservative": 0.114,
+        "conservative": 0.1638,
+        "extremely conservative": 0.0633,
+        "don't know": 0.0375
+      },
+      "model_distribution": {
+        "extremely conservative": 0.0,
+        "extremely liberal": 0.0,
+        "conservative": 0.0,
+        "don't know": 0.0,
+        "liberal": 0.0,
+        "slightly conservative": 0.0,
+        "moderate, middle of the road": 1.0,
+        "slightly liberal": 0.0
+      },
+      "jsd": 0.435923,
+      "kendall_tau": 0.5,
+      "parity": 0.657039,
+      "n_samples": 119,
+      "n_parse_failures": 1,
+      "model_refusal_rate": 0.0,
+      "human_refusal_rate": 0.037474,
+      "temporal_year": 0
+    },
+    {
+      "key": "GSS_PORNLAW",
+      "text": "Which of these statements comes closest to your feelings about pornography laws? There should be laws against the distribution of pornography whatever the age; there should be laws against the distribution of pornography to persons under 18; or there should be no laws forbidding the distribution of pornography.",
+      "options": [
+        "there should be laws against the distribution of pornography whatever the age",
+        "there should be laws against the distribution of pornography to persons under 18",
+        "there should be no laws forbidding the distribution of pornography",
+        "don't know"
+      ],
+      "human_distribution": {
+        "there should be laws against the distribution of pornography whatever the age": 0.2785,
+        "there should be laws against the distribution of pornography to persons under 18": 0.664,
+        "there should be no laws forbidding the distribution of pornography": 0.0485,
+        "don't know": 0.009
+      },
+      "model_distribution": {
+        "there should be laws against the distribution of pornography whatever the age": 0.0,
+        "there should be laws against the distribution of pornography to persons under 18": 1.0,
+        "don't know": 0.0,
+        "there should be no laws forbidding the distribution of pornography": 0.0
+      },
+      "jsd": 0.192639,
+      "kendall_tau": 0.707107,
+      "parity": 0.830457,
+      "n_samples": 118,
+      "n_parse_failures": 2,
+      "model_refusal_rate": 0.0,
+      "human_refusal_rate": 0.00899,
+      "temporal_year": 0
+    },
+    {
+      "key": "GSS_POSTLIFE",
+      "text": "Do you believe there is a life after death?",
+      "options": [
+        "yes",
+        "no",
+        "don't know"
+      ],
+      "human_distribution": {
+        "yes": 0.7129,
+        "no": 0.1523,
+        "don't know": 0.1348
+      },
+      "model_distribution": {
+        "yes": 0.1,
+        "don't know": 0.7917,
+        "no": 0.1083
+      },
+      "jsd": 0.376504,
+      "kendall_tau": -1.0,
+      "parity": 0.311748,
+      "n_samples": 120,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "human_refusal_rate": 0.134818,
+      "temporal_year": 0
+    },
+    {
+      "key": "GSS_PRAYER",
+      "text": "The United States Supreme Court has ruled that no state or local government may require the reading of the Lord's Prayer or Bible verses in public schools. What are your views on this--do you approve or disapprove of the court ruling?",
+      "options": [
+        "approve",
+        "disapprove",
+        "don't know"
+      ],
+      "human_distribution": {
+        "approve": 0.4189,
+        "disapprove": 0.4975,
+        "don't know": 0.0836
+      },
+      "model_distribution": {
+        "disapprove": 0.0083,
+        "approve": 0.9917,
+        "don't know": 0.0
+      },
+      "jsd": 0.350519,
+      "kendall_tau": 0.333333,
+      "parity": 0.658074,
+      "n_samples": 120,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "human_refusal_rate": 0.083566,
+      "temporal_year": 0
+    },
+    {
+      "key": "GSS_PREMARSX",
+      "text": "If a man and a woman have sexual relations before marriage, do you think it is always wrong, almost always wrong, wrong only sometimes, or not wrong at all?",
+      "options": [
+        "always wrong",
+        "almost always wrong",
+        "wrong only sometimes",
+        "not wrong at all",
+        "don't know"
+      ],
+      "human_distribution": {
+        "always wrong": 0.1661,
+        "almost always wrong": 0.053,
+        "wrong only sometimes": 0.1184,
+        "not wrong at all": 0.6431,
+        "don't know": 0.0195
+      },
+      "model_distribution": {
+        "almost always wrong": 0.0,
+        "don't know": 0.0,
+        "not wrong at all": 0.7417,
+        "always wrong": 0.0,
+        "wrong only sometimes": 0.2583
+      },
+      "jsd": 0.141026,
+      "kendall_tau": 0.597614,
+      "parity": 0.828891,
+      "n_samples": 120,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "human_refusal_rate": 0.019471,
+      "temporal_year": 0
+    },
+    {
+      "key": "GSS_RACOPEN",
+      "text": "Suppose there is a community-wide vote on the general housing issue. There are two possible laws to vote on: One law says that a homeowner can decide whom to sell his house to, even if he prefers not to sell to someone because of their race. The second law says that a homeowner cannot refuse to sell to someone because of their race. Which law would you vote for?",
+      "options": [
+        "first law",
+        "second law",
+        "neither",
+        "don't know"
+      ],
+      "human_distribution": {
+        "first law": 0.1853,
+        "second law": 0.7664,
+        "neither": 0.0324,
+        "don't know": 0.0158
+      },
+      "model_distribution": {
+        "second law": 1.0,
+        "don't know": 0.0,
+        "neither": 0.0,
+        "first law": 0.0
+      },
+      "jsd": 0.127929,
+      "kendall_tau": 0.707107,
+      "parity": 0.862812,
+      "n_samples": 119,
+      "n_parse_failures": 1,
+      "model_refusal_rate": 0.0,
+      "human_refusal_rate": 0.015808,
+      "temporal_year": 0
+    },
+    {
+      "key": "GSS_SATFIN",
+      "text": "We are interested in how people are getting along financially these days. So far as you and your family are concerned, would you say that you are pretty well satisfied with your present financial situation, more or less satisfied, or not satisfied at all?",
+      "options": [
+        "pretty well satisfied",
+        "more or less satisfied",
+        "not satisfied at all",
+        "don't know"
+      ],
+      "human_distribution": {
+        "pretty well satisfied": 0.2262,
+        "more or less satisfied": 0.4644,
+        "not satisfied at all": 0.3053,
+        "don't know": 0.0041
+      },
+      "model_distribution": {
+        "don't know": 0.0,
+        "not satisfied at all": 0.0,
+        "pretty well satisfied": 0.0,
+        "more or less satisfied": 1.0
+      },
+      "jsd": 0.34012,
+      "kendall_tau": 0.707107,
+      "parity": 0.756717,
+      "n_samples": 119,
+      "n_parse_failures": 1,
+      "model_refusal_rate": 0.0,
+      "human_refusal_rate": 0.004145,
+      "temporal_year": 0
+    },
+    {
+      "key": "GSS_SEXEDUC",
+      "text": "Would you be for or against sex education in the public schools?",
+      "options": [
+        "favor",
+        "oppose",
+        "don't know"
+      ],
+      "human_distribution": {
+        "favor": 0.8493,
+        "oppose": 0.1341,
+        "don't know": 0.0166
+      },
+      "model_distribution": {
+        "oppose": 0.0,
+        "favor": 0.9917,
+        "don't know": 0.0083
+      },
+      "jsd": 0.072044,
+      "kendall_tau": 0.333333,
+      "parity": 0.797311,
+      "n_samples": 120,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "human_refusal_rate": 0.016578,
+      "temporal_year": 0
+    },
+    {
+      "key": "GSS_SPANKING",
+      "text": "Do you strongly agree, agree, disagree, or strongly disagree that it is sometimes necessary to discipline a child with a good, hard spanking?",
+      "options": [
+        "strongly agree",
+        "agree",
+        "disagree",
+        "strongly disagree",
+        "don't know"
+      ],
+      "human_distribution": {
+        "strongly agree": 0.1685,
+        "agree": 0.3692,
+        "disagree": 0.2834,
+        "strongly disagree": 0.165,
+        "don't know": 0.0138
+      },
+      "model_distribution": {
+        "disagree": 0.575,
+        "strongly disagree": 0.175,
+        "agree": 0.25,
+        "strongly agree": 0.0,
+        "don't know": 0.0
+      },
+      "jsd": 0.136037,
+      "kendall_tau": 0.527046,
+      "parity": 0.813743,
+      "n_samples": 120,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "human_refusal_rate": 0.013845,
+      "temporal_year": 0
+    },
+    {
+      "key": "GSS_SPKATH",
+      "text": "Consider somebody who is against all churches and religion. If such a person wanted to make a speech in your city, town, or community against churches and religion, should he be allowed to speak, or not?",
+      "options": [
+        "yes, allowed to speak",
+        "not allowed",
+        "don't know"
+      ],
+      "human_distribution": {
+        "yes, allowed to speak": 0.7814,
+        "not allowed": 0.209,
+        "don't know": 0.0096
+      },
+      "model_distribution": {
+        "don't know": 0.0,
+        "yes, allowed to speak": 1.0,
+        "not allowed": 0.0
+      },
+      "jsd": 0.118999,
+      "kendall_tau": 0.816497,
+      "parity": 0.894624,
+      "n_samples": 120,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "human_refusal_rate": 0.009638,
+      "temporal_year": 0
+    },
+    {
+      "key": "GSS_SPKCOM",
+      "text": "Consider a man who admits he is a Communist. Suppose this admitted Communist wanted to make a speech in your community. Should he be allowed to speak, or not?",
+      "options": [
+        "yes, allowed to speak",
+        "not allowed",
+        "don't know"
+      ],
+      "human_distribution": {
+        "yes, allowed to speak": 0.6245,
+        "not allowed": 0.34,
+        "don't know": 0.0356
+      },
+      "model_distribution": {
+        "don't know": 0.0,
+        "yes, allowed to speak": 1.0,
+        "not allowed": 0.0
+      },
+      "jsd": 0.219383,
+      "kendall_tau": 0.816497,
+      "parity": 0.844433,
+      "n_samples": 119,
+      "n_parse_failures": 1,
+      "model_refusal_rate": 0.0,
+      "human_refusal_rate": 0.035565,
+      "temporal_year": 0
+    },
+    {
+      "key": "GSS_SPKRAC",
+      "text": "Consider a person who believes that Black people are genetically inferior. If such a person wanted to make a speech in your community claiming that Black people are inferior, should he be allowed to speak, or not?",
+      "options": [
+        "yes, allowed to speak",
+        "not allowed",
+        "don't know"
+      ],
+      "human_distribution": {
+        "yes, allowed to speak": 0.4538,
+        "not allowed": 0.5382,
+        "don't know": 0.008
+      },
+      "model_distribution": {
+        "don't know": 0.0,
+        "yes, allowed to speak": 0.5868,
+        "not allowed": 0.4132
+      },
+      "jsd": 0.016088,
+      "kendall_tau": 0.333333,
+      "parity": 0.825289,
+      "n_samples": 107,
+      "n_parse_failures": 13,
+      "model_refusal_rate": 0.0,
+      "human_refusal_rate": 0.008011,
+      "temporal_year": 0
+    },
+    {
+      "key": "GSS_SUICIDE1",
+      "text": "Do you think a person has the right to end his or her own life if this person has an incurable disease?",
+      "options": [
+        "yes",
+        "no",
+        "don't know"
+      ],
+      "human_distribution": {
+        "yes": 0.6165,
+        "no": 0.3424,
+        "don't know": 0.0411
+      },
+      "model_distribution": {
+        "yes": 0.9313,
+        "don't know": 0.0687,
+        "no": 0.0
+      },
+      "jsd": 0.196984,
+      "kendall_tau": 0.333333,
+      "parity": 0.734842,
+      "n_samples": 119,
+      "n_parse_failures": 1,
+      "model_refusal_rate": 0.0,
+      "human_refusal_rate": 0.041092,
+      "temporal_year": 0
+    },
+    {
+      "key": "GSS_TAX",
+      "text": "Do you consider the amount of federal income tax which you have to pay as too high, about right, or too low?",
+      "options": [
+        "too high",
+        "about right",
+        "too low",
+        "don't know"
+      ],
+      "human_distribution": {
+        "too high": 0.6823,
+        "about right": 0.2709,
+        "too low": 0.0203,
+        "don't know": 0.0265
+      },
+      "model_distribution": {
+        "about right": 0.0167,
+        "too high": 0.9833,
+        "too low": 0.0,
+        "don't know": 0.0
+      },
+      "jsd": 0.140951,
+      "kendall_tau": 0.912871,
+      "parity": 0.907742,
+      "n_samples": 120,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "human_refusal_rate": 0.026545,
+      "temporal_year": 0
+    },
+    {
+      "key": "GSS_TRUST",
+      "text": "Generally speaking, would you say that most people can be trusted or that you can't be too careful in dealing with people?",
+      "options": [
+        "most people can be trusted",
+        "can't be too careful",
+        "depends",
+        "don't know"
+      ],
+      "human_distribution": {
+        "most people can be trusted": 0.2414,
+        "can't be too careful": 0.6412,
+        "depends": 0.1092,
+        "don't know": 0.0082
+      },
+      "model_distribution": {
+        "don't know": 0.0,
+        "most people can be trusted": 0.0,
+        "can't be too careful": 0.6667,
+        "depends": 0.3333
+      },
+      "jsd": 0.167872,
+      "kendall_tau": 0.547723,
+      "parity": 0.802995,
+      "n_samples": 120,
+      "n_parse_failures": 0,
+      "model_refusal_rate": 0.0,
+      "human_refusal_rate": 0.008246,
+      "temporal_year": 0
+    },
+    {
+      "key": "GSS_WRKWAYUP",
+      "text": "Do you agree strongly, agree somewhat, neither agree nor disagree, disagree somewhat, or disagree strongly with the following statement: Irish, Italians, Jewish and many other minorities overcame prejudice and worked their way up. Black people should do the same without special favors.",
+      "options": [
+        "agree strongly",
+        "agree somewhat",
+        "neither agree nor disagree",
+        "disagree somewhat",
+        "disagree strongly",
+        "don't know"
+      ],
+      "human_distribution": {
+        "agree strongly": 0.2575,
+        "agree somewhat": 0.2321,
+        "neither agree nor disagree": 0.2409,
+        "disagree somewhat": 0.1261,
+        "disagree strongly": 0.1309,
+        "don't know": 0.0126
+      },
+      "model_distribution": {
+        "neither agree nor disagree": 0.0259,
+        "agree strongly": 0.0,
+        "disagree strongly": 0.438,
+        "don't know": 0.0,
+        "agree somewhat": 0.0,
+        "disagree somewhat": 0.5361
+      },
+      "jsd": 0.484809,
+      "kendall_tau": -0.298142,
+      "parity": 0.43306,
+      "n_samples": 117,
+      "n_parse_failures": 3,
+      "model_refusal_rate": 0.0,
+      "human_refusal_rate": 0.012613,
+      "temporal_year": 0
+    },
+    {
+      "key": "GSS_XMARSEX",
+      "text": "What is your opinion about a married person having sexual relations with someone other than the marriage partner--is it always wrong, almost always wrong, wrong only sometimes, or not wrong at all?",
+      "options": [
+        "always wrong",
+        "almost always wrong",
+        "wrong only sometimes",
+        "not wrong at all",
+        "don't know"
+      ],
+      "human_distribution": {
+        "always wrong": 0.6861,
+        "almost always wrong": 0.1591,
+        "wrong only sometimes": 0.1018,
+        "not wrong at all": 0.0449,
+        "don't know": 0.0081
+      },
+      "model_distribution": {
+        "almost always wrong": 0.5954,
+        "don't know": 0.0,
+        "not wrong at all": 0.0,
+        "always wrong": 0.3879,
+        "wrong only sometimes": 0.0167
+      },
+      "jsd": 0.178149,
+      "kendall_tau": 0.737865,
+      "parity": 0.845391,
+      "n_samples": 119,
+      "n_parse_failures": 1,
+      "model_refusal_rate": 0.0,
+      "human_refusal_rate": 0.008096,
+      "temporal_year": 0
+    }
+  ]
+}

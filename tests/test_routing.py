@@ -422,3 +422,40 @@ def test_routing_suite_runs_feed_routing_only():
         results, generated_at="2026-10-14T00:00:00+00:00", n_bootstrap=200
     )
     assert _route(payload, "us-subgroups", "all")["n_questions"] == 80
+
+
+def test_ensemble_of_routing_suite_runs_is_routing_suite(tmp_path):
+    """A blend inherits the shared suite; --suite stamps it explicitly."""
+    from click.testing import CliRunner
+
+    from synthbench.cli import main
+    from synthbench.publish import is_routing_suite_run
+
+    rows = _rows("gss", 20, jsd=0.1, tau=0.5)
+    for q in rows:
+        q["model_distribution"] = {"A": 0.6, "B": 0.4}
+        q["human_distribution"] = {"A": 0.5, "B": 0.5}
+        q["options"] = ["A", "B"]
+
+    def write(name, **cfg):
+        path = tmp_path / f"{name}.json"
+        path.write_text(
+            json.dumps(_result(f"althing/openrouter/x/{name}", "gss", rows, **cfg))
+        )
+        return str(path)
+
+    routed = [write("a", suite="routing"), write("b", suite="routing")]
+    plain = [write("c"), write("d")]
+
+    def blend(files, *extra):
+        out = tmp_path / f"out{len(list(tmp_path.glob('out*')))}"
+        res = CliRunner().invoke(
+            main, ["ensemble", *files, "-o", str(out), "--name", "t", *extra]
+        )
+        assert res.exit_code == 0, res.output
+        return json.loads(next(out.glob("*.json")).read_text())
+
+    assert is_routing_suite_run(blend(routed))
+    assert not is_routing_suite_run(blend(plain))
+    assert not is_routing_suite_run(blend([routed[0], plain[0]]))
+    assert is_routing_suite_run(blend(plain, "--suite", "routing"))

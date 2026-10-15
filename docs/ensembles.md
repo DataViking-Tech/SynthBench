@@ -53,3 +53,34 @@ despite a middling score of its own.
 The leaderboard scores ensembles on all questions, public and private, like
 every other row, so their published Index differs slightly from the private
 numbers above.
+
+## The routing blend
+
+`ensemble/althing-routing-blend` (Qwen 3.8 Flash, Gemini 3.5 Flash-Lite,
+Llama 3.3 70B and GPT-6 Luna, all through Althing, equal weights) is the
+blend Althing's `--model auto` can pick from
+[routing.json](routing-json-api.md). It was chosen the same way as the
+blends above, from the six Althing systems that have `--suite routing` runs:
+
+1. Every equal-weight blend of one to four of the six was scored on the
+   public questions of all four core datasets together (OpinionsQA 684,
+   GSS 75, SubPOP 525, GlobalOpinionQA 525).
+2. The best one was kept and checked against the best single system, Althing
+   Qwen 3.8 Flash, on the private-holdout questions.
+
+| Slice | Held-out questions | Qwen 3.8 Flash | Routing blend | Gain |
+|---|---|---|---|---|
+| US general public | 154 | 46.6 | 53.3 | +6.7 |
+| US subgroups | 145 | 35.8 | 40.0 | +4.2 |
+| Respondents outside the US | 157 | 22.1 | 20.9 | -1.2 |
+
+Choosing a different blend for each topic was also tried. Each topic has only
+9 to 34 held-out questions, so per-topic picks mostly fit noise, and two
+near-identical blends left routing.json unable to name a clear winner. One
+blend for every slice and topic is the more reliable choice.
+
+Its result files carry `config.suite = "routing"`, so it appears in
+routing.json and not on the leaderboard. routing.json scores it on all of a
+route's questions, including the public ones it was chosen on, so its lead
+there is slightly larger than on held-out questions alone. Outside the US it
+shows no held-out gain over Qwen 3.8 Flash.

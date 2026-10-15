@@ -126,6 +126,13 @@ MODEL_MAP: dict[str, tuple[str, str]] = {
         "Gemini 2.5 Flash-Lite",
         "product",
     ),
+    # Routing blend: the best equal-weight blend of the six Althing systems
+    # with --suite routing runs, chosen on public questions pooled over the
+    # core datasets. Feeds routing.json only.
+    "ensemble/althing-routing-blend": (
+        "Ensemble: Qwen 3.8 Flash, Gemini 3.5 Flash-Lite, Llama 3.3 70B, GPT-6 Luna (Althing)",
+        "product",
+    ),
     # Baselines
     "random-baseline": ("Random Baseline", "baseline"),
     "majority-baseline": ("Majority Baseline", "baseline"),
