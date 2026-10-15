@@ -1,0 +1,393 @@
+---
+import { existsSync, readFileSync, readdirSync } from "node:fs";
+import { resolve } from "node:path";
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import { compareKeys, datasetLabel } from "@/lib/runExplorer";
+import type { QuestionIndex } from "@/types/questions";
+
+// Per-dataset question index: every question ranked by how far models are
+// from humans and by how much models disagree with each other.
+//   * full-tier datasets: question/<dataset>/index.json is public and on
+//     disk, so the rows are embedded at build time.
+//   * gated datasets: the index lives behind sign-in (R2). The shell lists
+//     only the question keys (already public in gated-routes.json) and the
+//     client fetches the index through the Worker once signed in.
+export async function getStaticPaths() {
+  const publicDataRoot = resolve("public/data");
+  const questionRoot = resolve(publicDataRoot, "question");
+  const out: Array<{
+    params: { dataset: string };
+    props: { index: QuestionIndex | null; keys: string[] };
+  }> = [];
+  const seen = new Set<string>();
+  if (existsSync(questionRoot)) {
+    for (const d of readdirSync(questionRoot, { withFileTypes: true })) {
+      if (!d.isDirectory()) continue;
+      const indexPath = resolve(questionRoot, d.name, "index.json");
+      if (!existsSync(indexPath)) continue;
+      const index = JSON.parse(readFileSync(indexPath, "utf-8")) as QuestionIndex;
+      seen.add(d.name);
+      out.push({ params: { dataset: d.name }, props: { index, keys: [] } });
+    }
+  }
+  const routesPath = resolve(publicDataRoot, "gated-routes.json");
+  if (existsSync(routesPath)) {
+    const manifest = JSON.parse(readFileSync(routesPath, "utf-8")) as {
+      datasets?: Record<string, string[]>;
+    };
+    for (const [dataset, keys] of Object.entries(manifest.datasets ?? {})) {
+      if (seen.has(dataset)) continue;
+      out.push({
+        params: { dataset },
+        props: { index: null, keys: [...keys].sort(compareKeys) },
+      });
+    }
+  }
+  return out;
+}
+
+interface Props {
+  index: QuestionIndex | null;
+  keys: string[];
+}
+
+const { index, keys } = Astro.props;
+const { dataset } = Astro.params;
+const base = import.meta.env.BASE_URL.replace(/\/$/, "");
+const dsName = datasetLabel(dataset);
+const tier = index ? "full" : "gated";
+const nQuestions = index ? index.questions.length : keys.length;
+const selectCls =
+  "rounded-md border border-muted/30 bg-surface dark:bg-surface-dark px-2 py-1 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary";
+---
+
+<BaseLayout title={`${dsName} questions - SynthBench`} noindex={true}>
+  <div
+    class="question-index mx-auto w-full max-w-6xl px-4 py-8"
+    data-dataset={dataset}
+    data-tier={tier}
+    data-base={base}
+  >
+    <nav class="mb-6 text-sm text-muted" aria-label="Breadcrumb">
+      <a href={`${base}/explore/?ds=${encodeURIComponent(dataset)}`} class="hover:text-primary"
+        >Explore · {dsName}</a
+      >
+      <span class="mx-2">/</span>
+      <span class="text-text dark:text-text-dark">Questions</span>
+    </nav>
+
+    <header class="mb-6">
+      <h1 class="text-2xl font-bold sm:text-3xl">{dsName} questions</h1>
+      <p class="mt-2 max-w-3xl text-sm text-muted">
+        {nQuestions} public questions, ranked by how far the models' answers are from the human
+        distribution (mean JSD to human, across models) or by how much the models disagree with
+        each other (mean pairwise JSD). Private-holdout questions aren't listed.
+      </p>
+    </header>
+
+    <section class="mb-4 flex flex-wrap items-center gap-3" aria-label="Ranking and filters">
+      <div
+        id="qi-rank"
+        role="radiogroup"
+        aria-label="Rank by"
+        class="inline-flex overflow-hidden rounded-md border border-muted/30"
+      >
+        <button type="button" role="radio" data-rank="human" class="px-3 py-1.5 text-sm"
+          >Furthest from humans</button
+        >
+        <button type="button" role="radio" data-rank="spread" class="px-3 py-1.5 text-sm"
+          >Most model disagreement</button
+        >
+      </div>
+      <label class="inline-flex items-center gap-2 text-sm text-muted">
+        Topic
+        <select id="qi-topic" class={selectCls}><option value="">All topics</option></select>
+      </label>
+      <input
+        id="qi-search"
+        type="search"
+        placeholder="Filter by key or text"
+        aria-label="Filter questions by key or text"
+        class={`${selectCls} w-56`}
+      />
+      <span id="qi-count" class="text-xs text-muted" aria-live="polite"></span>
+    </section>
+
+    <div id="qi-gate" class="mb-4 hidden"></div>
+
+    <div class="overflow-x-auto rounded-lg border border-muted/20" id="qi-table-wrap">
+      <table class="w-full text-sm" id="qi-table">
+        <caption class="sr-only">
+          Questions in {dsName}. Select a column header to sort.
+        </caption>
+        <thead>
+          <tr class="border-b border-muted/20 bg-surface dark:bg-surface-dark">
+            <th scope="col" class="px-3 py-2 text-right font-semibold">#</th>
+            <th scope="col" class="px-3 py-2 text-left font-semibold" data-sort="key" aria-sort="none"><button type="button" class="font-semibold hover:text-primary" data-sort="key">Question</button></th>
+            <th scope="col" class="px-3 py-2 text-left font-semibold" data-sort="topic" aria-sort="none"><button type="button" class="font-semibold hover:text-primary" data-sort="topic">Topic</button></th>
+            <th scope="col" class="px-3 py-2 text-right font-semibold" data-sort="human" aria-sort="none"><button type="button" class="font-semibold hover:text-primary" data-sort="human" title="Mean JSD from the human distribution, across models">JSD to human</button></th>
+            <th scope="col" class="px-3 py-2 text-right font-semibold" data-sort="spread" aria-sort="none"><button type="button" class="font-semibold hover:text-primary" data-sort="spread" title="Mean pairwise JSD between models (max in small print)">Model disagreement</button></th>
+            <th scope="col" class="px-3 py-2 text-left font-semibold" data-sort="consensus" aria-sort="none"><button type="button" class="font-semibold hover:text-primary" data-sort="consensus" title="Most common model answer vs. the human one">Models vs. humans</button></th>
+            <th scope="col" class="px-3 py-2 text-right font-semibold" data-sort="refusal" aria-sort="none"><button type="button" class="font-semibold hover:text-primary" data-sort="refusal" title="Spread of refusal rates across models">Refusal spread</button></th>
+            <th scope="col" class="px-3 py-2 text-right font-semibold" data-sort="models" aria-sort="none"><button type="button" class="font-semibold hover:text-primary" data-sort="models">Models</button></th>
+          </tr>
+        </thead>
+        <tbody id="qi-tbody">
+          <tr><td colspan="8" class="px-3 py-8 text-center text-muted">Loading questions…</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    {
+      keys.length > 0 && (
+        <details class="mt-6 text-sm" id="qi-keys">
+          <summary class="cursor-pointer text-muted">All {keys.length} question pages by key</summary>
+          <ul class="mt-2 grid grid-cols-2 gap-x-4 gap-y-1 font-mono text-xs sm:grid-cols-4 lg:grid-cols-6">
+            {keys.map((k) => (
+              <li>
+                <a class="text-primary hover:underline" href={`${base}/question/${dataset}/${k}/`}>
+                  {k}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </details>
+      )
+    }
+
+    {index && <script type="application/json" id="qi-data" set:html={JSON.stringify(index).replace(/</g, "\\u003c")} />}
+  </div>
+</BaseLayout>
+
+<script>
+  import { safeQuestionKey } from "@/lib/runExplorer";
+  import { topicLabel } from "@/lib/topics";
+  import type { QuestionIndex, QuestionIndexEntry } from "@/types/questions";
+
+  type SortKey = "key" | "topic" | "human" | "spread" | "consensus" | "refusal" | "models";
+  type SortDir = "asc" | "desc";
+  const SORT_KEYS: SortKey[] = ["key", "topic", "human", "spread", "consensus", "refusal", "models"];
+  const TEXT_KEYS: SortKey[] = ["key", "topic", "consensus"];
+  const defaultDir = (k: SortKey): SortDir => (TEXT_KEYS.includes(k) ? "asc" : "desc");
+
+  const root = document.querySelector<HTMLElement>(".question-index");
+  const dataset = root?.dataset.dataset ?? "";
+  const base = root?.dataset.base ?? "";
+  const view = {
+    rows: [] as QuestionIndexEntry[],
+    sortKey: "human" as SortKey,
+    sortDir: "desc" as SortDir,
+    topic: "",
+    search: "",
+  };
+
+  const fmt = (n: number | null | undefined, p = 3) =>
+    n == null || Number.isNaN(n) ? "—" : n.toFixed(p);
+  const pct = (n: number | null | undefined) =>
+    n == null || Number.isNaN(n) ? "—" : `${(n * 100).toFixed(0)}%`;
+  function escapeHtml(s: unknown): string {
+    return String(s ?? "")
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#39;");
+  }
+  const $ = <T extends HTMLElement>(id: string) => document.getElementById(id) as T | null;
+
+  function sortValue(q: QuestionIndexEntry, k: SortKey): string | number | null {
+    switch (k) {
+      case "key":
+        return q.key;
+      case "topic":
+        return q.topic ? topicLabel(q.topic) : null;
+      case "human":
+        return q.jsd_to_human_mean;
+      case "spread":
+        return q.cross_model_jsd_mean;
+      case "consensus":
+        // Disagreements with humans first when ascending.
+        return q.consensus_option == null || q.human_top_option == null
+          ? null
+          : q.consensus_option === q.human_top_option
+            ? 1
+            : 0;
+      case "refusal":
+        return q.refusal_rate_spread;
+      case "models":
+        return q.n_models;
+    }
+  }
+
+  function visible(): QuestionIndexEntry[] {
+    const mult = view.sortDir === "asc" ? 1 : -1;
+    const s = view.search.toLowerCase();
+    return view.rows
+      .filter((q) => !view.topic || q.topic === view.topic)
+      .filter((q) => !s || `${q.key} ${q.question_excerpt}`.toLowerCase().includes(s))
+      .sort((a, b) => {
+        const x = sortValue(a, view.sortKey);
+        const y = sortValue(b, view.sortKey);
+        if (x == null && y == null) return 0;
+        if (x == null) return 1;
+        if (y == null) return -1;
+        const c =
+          typeof x === "number" && typeof y === "number"
+            ? x - y
+            : String(x).localeCompare(String(y), undefined, { numeric: true });
+        return c * mult;
+      });
+  }
+
+  function render(): void {
+    const tbody = $("qi-tbody");
+    if (!tbody) return;
+    const rows = visible();
+    tbody.innerHTML = rows.length
+      ? rows
+          .map((q, i) => {
+            const href = `${base}/question/${encodeURIComponent(dataset)}/${safeQuestionKey(q.key)}/`;
+            const agrees =
+              q.consensus_option != null &&
+              q.human_top_option != null &&
+              q.consensus_option === q.human_top_option;
+            const vs =
+              q.consensus_option == null
+                ? "—"
+                : `${escapeHtml(q.consensus_option)}${
+                    q.human_top_option == null
+                      ? ""
+                      : agrees
+                        ? ' <span class="text-xs text-primary">= human</span>'
+                        : ` <span class="text-xs text-accent">≠ human: ${escapeHtml(q.human_top_option)}</span>`
+                  }`;
+            return `<tr class="border-b border-muted/10 hover:bg-primary/5">
+              <td class="px-3 py-2 text-right font-mono text-xs text-muted">${i + 1}</td>
+              <td class="px-3 py-2"><a href="${href}" class="font-mono text-xs text-primary hover:underline">${escapeHtml(q.key)}</a><span class="block max-w-md text-xs text-muted">${escapeHtml(q.question_excerpt)}</span></td>
+              <td class="px-3 py-2 text-xs">${escapeHtml(q.topic ? topicLabel(q.topic) : "—")}</td>
+              <td class="px-3 py-2 text-right font-mono">${fmt(q.jsd_to_human_mean)}</td>
+              <td class="px-3 py-2 text-right font-mono">${fmt(q.cross_model_jsd_mean)}<span class="block text-[11px] text-muted">max ${fmt(q.cross_model_jsd_max)}</span></td>
+              <td class="px-3 py-2 text-xs">${vs}</td>
+              <td class="px-3 py-2 text-right font-mono text-xs">${pct(q.refusal_rate_spread)}</td>
+              <td class="px-3 py-2 text-right font-mono text-xs">${q.n_models}</td>
+            </tr>`;
+          })
+          .join("")
+      : `<tr><td colspan="8" class="px-3 py-8 text-center text-muted">No questions match.</td></tr>`;
+    const count = $("qi-count");
+    if (count) count.textContent = `${rows.length} of ${view.rows.length}`;
+    for (const th of document.querySelectorAll<HTMLElement>("#qi-table th[data-sort]")) {
+      const on = th.dataset.sort === view.sortKey;
+      th.setAttribute("aria-sort", on ? (view.sortDir === "asc" ? "ascending" : "descending") : "none");
+      const btn = th.querySelector("button");
+      btn?.querySelector(".sort-arrow")?.remove();
+      if (btn && on) {
+        const a = document.createElement("span");
+        a.className = "sort-arrow ml-1 text-xs";
+        a.setAttribute("aria-hidden", "true");
+        a.textContent = view.sortDir === "asc" ? "▲" : "▼";
+        btn.appendChild(a);
+      }
+    }
+    for (const b of document.querySelectorAll<HTMLButtonElement>("#qi-rank button")) {
+      const on = b.dataset.rank === view.sortKey && view.sortDir === "desc";
+      b.setAttribute("aria-checked", String(on));
+      b.className = `px-3 py-1.5 text-sm ${on ? "bg-primary text-white font-semibold" : "hover:bg-muted/10"}`;
+    }
+    const p = new URLSearchParams();
+    if (view.sortKey !== "human") p.set("sort", view.sortKey);
+    if (view.sortDir !== defaultDir(view.sortKey)) p.set("dir", view.sortDir);
+    if (view.topic) p.set("topic", view.topic);
+    if (view.search) p.set("q", view.search);
+    const qs = p.toString();
+    history.replaceState(null, "", `${location.pathname}${qs ? `?${qs}` : ""}`);
+  }
+
+  function setSort(k: SortKey, dir?: SortDir): void {
+    if (dir) view.sortDir = dir;
+    else if (view.sortKey === k) view.sortDir = view.sortDir === "asc" ? "desc" : "asc";
+    else view.sortDir = defaultDir(k);
+    view.sortKey = k;
+    render();
+  }
+
+  function start(index: QuestionIndex): void {
+    view.rows = index.questions;
+    const p = new URLSearchParams(location.search);
+    const k = p.get("sort") as SortKey | null;
+    view.sortKey = k && SORT_KEYS.includes(k) ? k : "human";
+    const d = p.get("dir");
+    view.sortDir = d === "asc" || d === "desc" ? d : defaultDir(view.sortKey);
+    view.topic = p.get("topic") ?? "";
+    view.search = p.get("q") ?? "";
+
+    const topics = [...new Set(view.rows.map((q) => q.topic).filter((t): t is string => !!t))].sort();
+    const sel = $<HTMLSelectElement>("qi-topic");
+    if (sel) {
+      for (const t of topics) {
+        const o = document.createElement("option");
+        o.value = t;
+        o.textContent = topicLabel(t);
+        sel.appendChild(o);
+      }
+      if (!topics.includes(view.topic)) view.topic = "";
+      sel.value = view.topic;
+      sel.addEventListener("change", () => {
+        view.topic = sel.value;
+        render();
+      });
+    }
+    const search = $<HTMLInputElement>("qi-search");
+    if (search) {
+      search.value = view.search;
+      search.addEventListener("input", () => {
+        view.search = search.value.trim();
+        render();
+      });
+    }
+    for (const b of document.querySelectorAll<HTMLButtonElement>("#qi-table thead button[data-sort]")) {
+      b.addEventListener("click", () => setSort(b.dataset.sort as SortKey));
+    }
+    for (const b of document.querySelectorAll<HTMLButtonElement>("#qi-rank button")) {
+      b.addEventListener("click", () => setSort(b.dataset.rank as SortKey, "desc"));
+    }
+    render();
+  }
+
+  async function init(): Promise<void> {
+    const embedded = $("qi-data")?.textContent;
+    if (embedded) {
+      start(JSON.parse(embedded) as QuestionIndex);
+      return;
+    }
+    // Gated dataset: the ranked index needs sign-in. Keys stay listed below.
+    const { fetchTieredJson, renderSignInGate } = await import("@/lib/dataFetch");
+    const res = await fetchTieredJson<QuestionIndex>(
+      `question/${encodeURIComponent(dataset)}/index.json`,
+      "gated",
+    );
+    if (res.ok) {
+      start(res.data);
+      return;
+    }
+    $("qi-table-wrap")?.classList.add("hidden");
+    for (const el of document.querySelectorAll<HTMLElement>("#qi-rank button, #qi-topic, #qi-search")) {
+      (el as HTMLButtonElement).disabled = true;
+    }
+    const gate = $("qi-gate");
+    if (gate) {
+      gate.classList.remove("hidden");
+      if (res.gated) {
+        renderSignInGate(gate, {
+          message: `Rankings for ${dataset} are built from per-question human distributions, which require a verified research-use account. Question pages are listed by key below.`,
+        });
+      } else {
+        gate.innerHTML = `<p class="text-sm text-muted">Could not load the question index: ${escapeHtml(res.message)}</p>`;
+      }
+    }
+    const keys = document.getElementById("qi-keys") as HTMLDetailsElement | null;
+    if (keys) keys.open = true;
+  }
+
+  void init();
+</script>

@@ -2,6 +2,7 @@
 import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { resolve } from "node:path";
 import BaseLayout from "@/layouts/BaseLayout.astro";
+import { compareKeys, datasetLabel } from "@/lib/runExplorer";
 import { topicLabel } from "@/lib/topics";
 import type { QuestionIndex, QuestionIndexEntry, QuestionPayload } from "@/types/questions";
 
@@ -26,6 +27,9 @@ export async function getStaticPaths() {
     indexEntry: QuestionIndexEntry | null;
     datasetCount: number | null;
     tier: "full" | "gated";
+    prevKey: string | null;
+    nextKey: string | null;
+    position: number;
   };
   const out: Array<{
     params: { dataset: string; key: string };
@@ -57,6 +61,9 @@ export async function getStaticPaths() {
             indexEntry: entryByKey.get(payload.key) ?? null,
             datasetCount: idx.n_questions,
             tier: "full",
+            prevKey: null,
+            nextKey: null,
+            position: 0,
           },
         });
       }
@@ -76,10 +83,32 @@ export async function getStaticPaths() {
             indexEntry: null,
             datasetCount: null,
             tier: "gated",
+            prevKey: null,
+            nextKey: null,
+            position: 0,
           },
         });
       }
     }
+  }
+
+  // Prev / next within a dataset, by key (numeric-aware). The ranking order
+  // of the question index is gated for licensed datasets, so key order is
+  // the one walk every page can render server-side.
+  const byDataset = new Map<string, typeof out>();
+  for (const page of out) {
+    const list = byDataset.get(page.params.dataset) ?? [];
+    list.push(page);
+    byDataset.set(page.params.dataset, list);
+  }
+  for (const list of byDataset.values()) {
+    list.sort((a, b) => compareKeys(a.params.key, b.params.key));
+    list.forEach((page, i) => {
+      page.props.prevKey = list[i - 1]?.params.key ?? null;
+      page.props.position = i + 1;
+      page.props.datasetCount = list.length;
+      page.props.nextKey = list[i + 1]?.params.key ?? null;
+    });
   }
 
   return out;
@@ -90,14 +119,14 @@ interface Props {
   indexEntry: QuestionIndexEntry | null;
   datasetCount: number | null;
   tier: "full" | "gated";
+  prevKey: string | null;
+  nextKey: string | null;
+  position: number;
 }
 
-const { payload, datasetCount, tier } = Astro.props;
+const { payload, datasetCount, tier, prevKey, nextKey, position } = Astro.props;
 const { dataset: routeDataset, key: routeKey } = Astro.params;
 const base = import.meta.env.BASE_URL.replace(/\/$/, "");
-
-const explorUrl = `${base}/explore`;
-const leaderboardUrl = `${base}/leaderboard`;
 
 const fmt = (n: number | null | undefined, places = 3): string =>
   n == null || Number.isNaN(n) ? "—" : n.toFixed(places);
@@ -179,6 +208,10 @@ const pageTitle = `Question ${displayKey} (${displayDataset}) - SynthBench`;
 // already, but guard against spaces and reserved chars anyway).
 const encodePathSegment = (s: string): string =>
   s.replace(/ /g, "%20").replace(/#/g, "%23").replace(/\?/g, "%3F");
+
+const exploreUrl = `${base}/explore/?ds=${encodeURIComponent(displayDataset)}`;
+const questionIndexUrl = `${base}/question/${encodePathSegment(displayDataset)}/`;
+const configUrl = (id: string): string => `${base}/config/${encodePathSegment(id)}/`;
 ---
 
 <BaseLayout title={pageTitle} noindex={true}>
@@ -188,16 +221,36 @@ const encodePathSegment = (s: string): string =>
     data-dataset={displayDataset}
     data-question-key={displayKey}
   >
-    <!-- Breadcrumb -->
-    <nav class="mb-6 text-sm text-muted" aria-label="Breadcrumb">
-      <a href={leaderboardUrl} class="hover:text-primary">Leaderboard</a>
-      <span class="mx-2">/</span>
-      <a href={explorUrl} class="hover:text-primary">Explore</a>
-      <span class="mx-2">/</span>
-      <span class="font-mono">{displayDataset}</span>
-      <span class="mx-2">/</span>
-      <span class="text-text dark:text-text-dark">question</span>
-    </nav>
+    <!-- Breadcrumb + prev / next -->
+    <div class="mb-6 flex flex-wrap items-baseline justify-between gap-3 text-sm text-muted">
+      <nav aria-label="Breadcrumb">
+        <a href={exploreUrl} class="hover:text-primary">Explore</a>
+        <span class="mx-2">/</span>
+        <a href={questionIndexUrl} class="hover:text-primary">{datasetLabel(displayDataset)} questions</a>
+        <span class="mx-2">/</span>
+        <span class="font-mono text-text dark:text-text-dark">{displayKey}</span>
+      </nav>
+      <nav aria-label="Adjacent questions" class="flex gap-4">
+        {
+          prevKey ? (
+            <a href={`${questionIndexUrl}${prevKey}/`} rel="prev" class="hover:text-primary">
+              ← <span class="font-mono">{prevKey}</span>
+            </a>
+          ) : (
+            <span class="opacity-50">← first</span>
+          )
+        }
+        {
+          nextKey ? (
+            <a href={`${questionIndexUrl}${nextKey}/`} rel="next" class="hover:text-primary">
+              <span class="font-mono">{nextKey}</span> →
+            </a>
+          ) : (
+            <span class="opacity-50">last →</span>
+          )
+        }
+      </nav>
+    </div>
     {
       payload == null && (
         <div id="question-gated-shell" class="rounded-lg border border-muted/30 bg-muted/5 p-6">
@@ -237,7 +290,10 @@ const encodePathSegment = (s: string): string =>
       <p class="mt-1 break-all font-mono text-xs text-muted">{payload.key}</p>
       <p class="mt-4 max-w-3xl text-base leading-relaxed">{payload.question}</p>
       <p class="mt-2 text-xs text-muted">
-        1 of {datasetCount} questions for {payload.dataset}.
+        Question {position} of {datasetCount} published for {datasetLabel(payload.dataset)} (by
+        key). <a href={questionIndexUrl} class="text-primary hover:underline"
+          >See them ranked by divergence →</a
+        >
       </p>
     </header>
 
@@ -425,7 +481,13 @@ const encodePathSegment = (s: string): string =>
                 return (
                   <tr class="border-b border-muted/10 hover:bg-primary/5">
                     <td class="px-3 py-2">
-                      <div class="font-semibold">{r.model}</div>
+                      <a
+                        href={configUrl(r.config_id)}
+                        class="font-semibold hover:text-primary"
+                        title="Configuration and replicates"
+                      >
+                        {r.model}
+                      </a>
                       <div class="text-xs text-muted">{r.base_provider}</div>
                     </td>
                     <td class="px-3 py-2 font-mono text-xs">{r.framework}</td>
@@ -524,7 +586,13 @@ const encodePathSegment = (s: string): string =>
                   return (
                     <tr class="border-b border-muted/10 hover:bg-accent/10">
                       <td class="px-3 py-2">
-                        <div class="font-semibold">{r.model}</div>
+                        <a
+                          href={configUrl(r.config_id)}
+                          class="font-semibold hover:text-primary"
+                          title="Configuration and replicates"
+                        >
+                          {r.model}
+                        </a>
                         <div class="text-xs text-muted">{r.base_provider}</div>
                       </td>
                       <td class="px-3 py-2 font-mono text-xs">{r.framework}</td>
@@ -574,6 +642,7 @@ const encodePathSegment = (s: string): string =>
     import { topicLabel } from "@/lib/topics";
     import type { QuestionPayload } from "@/types/questions";
 
+    const BASE = (import.meta.env.BASE_URL || "/").replace(/\/$/, "");
     const root = document.querySelector<HTMLElement>(".question-detail");
     if (root && root.dataset.tier === "gated") {
       void hydrateGatedQuestion(root);
@@ -685,12 +754,13 @@ const encodePathSegment = (s: string): string =>
         .map(
           (r) => `
           <tr class="border-b border-muted/10">
-            <td class="px-3 py-2"><div class="font-semibold">${escapeHtml(r.model)}</div><div class="text-xs text-muted">${escapeHtml(r.base_provider)}</div></td>
+            <td class="px-3 py-2"><a href="${BASE}/config/${encodeURIComponent(r.config_id)}/" class="font-semibold hover:text-primary" title="Configuration and replicates">${escapeHtml(r.model)}</a><div class="text-xs text-muted">${escapeHtml(r.base_provider)}</div></td>
             <td class="px-3 py-2 font-mono text-xs">${escapeHtml(r.framework)}</td>
             <td class="px-3 py-2">${renderBar(r.distribution, options)}</td>
             <td class="px-3 py-2 text-right font-mono">${fmt(r.jsd_to_human)}</td>
             <td class="px-3 py-2 text-right font-mono">${pct(r.refusal_rate)}</td>
             <td class="px-3 py-2 text-right font-mono text-xs">${r.n_samples}</td>
+            <td class="px-3 py-2 text-right"><a href="${BASE}/run/${encodeURIComponent(r.run_id)}/" class="text-primary hover:underline" aria-label="View full run ${escapeHtml(r.run_id)}">view →</a></td>
           </tr>
         `,
         )
@@ -708,6 +778,7 @@ const encodePathSegment = (s: string): string =>
                   <th class="px-3 py-2 text-right font-semibold">JSD → human</th>
                   <th class="px-3 py-2 text-right font-semibold">Refusal</th>
                   <th class="px-3 py-2 text-right font-semibold">N samples</th>
+                  <th class="px-3 py-2 text-right font-semibold">Run</th>
                 </tr>
               </thead>
               <tbody>${modelRows}</tbody>
