@@ -170,6 +170,11 @@ svg.sb-c .sb-warn-t {
   font-size: 12px;
   font-family: var(--sb-mono);
 }
+/* Low-sample rows are marked in text (italic + "low n"), not faded below
+   readable contrast. */
+svg.sb-c .sb-lown {
+  font-style: italic;
+}
 svg.sb-c .sb-ok-t {
   fill: var(--sb-ok);
   font-size: 12px;
@@ -215,6 +220,7 @@ table.sb-ct td {
   gap: 8px;
   height: 100%;
   box-sizing: border-box;
+  overflow-x: clip;
 }
 .sb-why h3 {
   margin: 0;

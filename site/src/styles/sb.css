@@ -125,6 +125,9 @@
   background: var(--sb-panel);
   border: 1px solid var(--sb-line);
   border-radius: 6px;
+  /* Grid and flex children default to min-width:auto, which lets a wide
+     table or chart push the panel (and the page) past the viewport. */
+  min-width: 0;
 }
 .sb-pad {
   padding: 18px 20px;
@@ -139,10 +142,14 @@
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 14px;
 }
+.sb-grid3 > *,
+.sb-grid2 > * {
+  min-width: 0;
+}
 @media (max-width: 960px) {
   .sb-grid3,
   .sb-grid2 {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
   .sb-h1 {
     font-size: 26px;
@@ -170,6 +177,10 @@
 }
 .sb-chart {
   padding: 10px 20px 14px;
+  min-width: 0;
+  /* Labels may spill into the padding (svg overflow is visible) but never
+     past the panel, where they would make the page scroll sideways. */
+  overflow-x: clip;
 }
 .sb-read {
   display: grid;
@@ -425,6 +436,12 @@ svg.sb-c {
   display: block;
   overflow: visible;
   font-family: var(--sb-sans);
+}
+/* Charts are laid out at their container's width; if the container shrinks
+   before the next layout, scale down rather than overflow. */
+svg.sb-c[viewBox]:not([aria-hidden="true"]) {
+  max-width: 100%;
+  height: auto;
 }
 svg.sb-c text {
   fill: var(--sb-ink-2);
