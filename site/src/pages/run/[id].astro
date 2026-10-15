@@ -3,6 +3,8 @@ import { existsSync, readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import ProviderLogo from "@/components/sb/ProviderLogo.astro";
 import BaseLayout from "@/layouts/BaseLayout.astro";
+import { datasetLabel } from "@/lib/runExplorer";
+import { type SystemLink, systemLinkFor } from "@/lib/systemLinks";
 import type { RunIndex, RunIndexEntry } from "@/types/runs";
 
 export async function getStaticPaths() {
@@ -11,17 +13,36 @@ export async function getStaticPaths() {
     return [];
   }
   const index = JSON.parse(readFileSync(indexPath, "utf-8")) as RunIndex;
+  // Datasets with a /question/<dataset>/ index page: full-tier ones ship
+  // question/<dataset>/index.json locally, gated ones list their keys in
+  // gated-routes.json.
+  const withQuestions = new Set<string>();
+  const routesPath = resolve("public/data/gated-routes.json");
+  if (existsSync(routesPath)) {
+    const routes = JSON.parse(readFileSync(routesPath, "utf-8")) as {
+      datasets?: Record<string, string[]>;
+    };
+    for (const ds of Object.keys(routes.datasets ?? {})) withQuestions.add(ds);
+  }
   return index.runs.map((entry) => ({
     params: { id: entry.run_id },
-    props: { entry },
+    props: {
+      entry,
+      system: systemLinkFor(entry),
+      hasQuestionIndex:
+        withQuestions.has(entry.dataset) ||
+        existsSync(resolve(`public/data/question/${entry.dataset}/index.json`)),
+    },
   }));
 }
 
 interface Props {
   entry: RunIndexEntry;
+  system: SystemLink | null;
+  hasQuestionIndex: boolean;
 }
 
-const { entry } = Astro.props;
+const { entry, system, hasQuestionIndex } = Astro.props;
 const base = import.meta.env.BASE_URL.replace(/\/$/, "");
 
 // Encode path segments for URLs — space and a few reserved chars only.
@@ -31,9 +52,24 @@ const encodePathSegment = (s: string): string =>
   s.replace(/ /g, "%20").replace(/#/g, "%23").replace(/\?/g, "%3F");
 
 const runPath = `run/${encodePathSegment(entry.run_id)}.json`;
-const configUrl = `${base}/config/${encodePathSegment(entry.config_id)}`;
-const leaderboardUrl = `${base}/leaderboard`;
+const configUrl = `${base}/config/${encodePathSegment(entry.config_id)}/`;
+const exploreUrl = `${base}/explore/?ds=${encodeURIComponent(entry.dataset)}`;
+const systemUrl = system ? `${base}/system/${system.slug}/` : null;
 const questionBaseUrl = `${base}/question/${encodePathSegment(entry.dataset)}`;
+const questionIndexUrl = hasQuestionIndex ? `${questionBaseUrl}/` : "";
+const dsName = datasetLabel(entry.dataset);
+
+// Public aggregates from runs-index.json. They render immediately and stay
+// when the per-question artifact is gated; the run JSON (when it loads)
+// replaces them with the full set including intervals.
+const indexScores = JSON.stringify({
+  sps: entry.sps,
+  p_dist: entry.p_dist,
+  p_rank: entry.p_rank,
+  p_refuse: entry.p_refuse,
+  jsd: entry.jsd,
+  tau: entry.tau,
+});
 ---
 
 <BaseLayout title={`Run ${entry.run_id} - SynthBench`} noindex={true}>
@@ -43,10 +79,22 @@ const questionBaseUrl = `${base}/question/${encodePathSegment(entry.dataset)}`;
     data-run-path={runPath}
     data-dataset={entry.dataset}
     data-question-base={questionBaseUrl}
+    data-question-index={questionIndexUrl}
+    data-index-scores={indexScores}
   >
     <!-- Breadcrumb -->
-    <nav class="mb-6 text-sm text-muted">
-      <a href={leaderboardUrl} class="hover:text-primary">Leaderboard</a>
+    <nav class="mb-6 text-sm text-muted" aria-label="Breadcrumb">
+      <a href={exploreUrl} class="hover:text-primary">Explore · {dsName}</a>
+      {
+        systemUrl && (
+          <>
+            <span class="mx-2">/</span>
+            <a href={systemUrl} class="hover:text-primary">
+              {system?.name}
+            </a>
+          </>
+        )
+      }
       <span class="mx-2">/</span>
       <a href={configUrl} class="hover:text-primary">Config</a>
       <span class="mx-2">/</span>
@@ -118,10 +166,17 @@ const questionBaseUrl = `${base}/question/${encodePathSegment(entry.dataset)}`;
           <dd class="font-mono text-xs" data-vrt-mask>{entry.timestamp ?? "—"}</dd>
         </div>
       </dl>
-      <div class="mt-4 text-sm">
+      <div class="mt-4 flex flex-wrap gap-x-5 gap-y-1 text-sm">
         <a href={configUrl} class="text-primary hover:underline"
           >View all replicates for this config →</a
         >
+        {
+          systemUrl && (
+            <a href={systemUrl} class="text-primary hover:underline">
+              {system?.name} profile →
+            </a>
+          )
+        }
       </div>
     </section>
 
@@ -143,8 +198,22 @@ const questionBaseUrl = `${base}/question/${encodePathSegment(entry.dataset)}`;
       <div class="mb-3 flex flex-wrap items-center justify-between gap-3">
         <h2 class="text-sm font-semibold uppercase tracking-wide text-muted">
           Per-question detail
+          {
+            questionIndexUrl && (
+              <a
+                href={questionIndexUrl}
+                class="ml-2 text-xs font-normal normal-case tracking-normal text-primary hover:underline"
+              >
+                All {dsName} questions, ranked by divergence →
+              </a>
+            )
+          }
         </h2>
-        <div class="flex items-center gap-2 text-sm">
+        <div class="flex flex-wrap items-center gap-3 text-sm">
+          <label class="inline-flex items-center gap-1.5 text-muted" title="Rows where the model's most common answer differs from the human one">
+            <input id="flipped-filter" type="checkbox" class="accent-primary" />
+            Modal answer differs from human
+          </label>
           <label for="topic-filter" class="text-muted">Topic:</label>
           <select
             id="topic-filter"
@@ -161,17 +230,15 @@ const questionBaseUrl = `${base}/question/${encodePathSegment(entry.dataset)}`;
 
       <div class="overflow-x-auto rounded-lg border border-muted/20">
         <table class="w-full text-sm" id="per-question-table">
-          <caption class="sr-only">Per-question results for this run. Expand a row via the button in the Question column for full distribution bars.</caption>
+          <caption class="sr-only">Per-question results for this run. Select a column header to sort; expand a row via the button in the Question column for full distribution bars.</caption>
           <thead>
             <tr class="bg-surface dark:bg-surface-dark border-b border-muted/20">
-              <th class="px-3 py-2 text-left font-semibold" scope="col">Question</th>
-              <th class="px-3 py-2 text-left font-semibold" scope="col">Topic</th>
-              <th class="px-3 py-2 text-left font-semibold" scope="col">Model modal</th>
-              <th class="px-3 py-2 text-left font-semibold" scope="col">Human modal</th>
-              <th class="year-col hidden px-3 py-2 text-right font-semibold" scope="col">
-                Year
-              </th>
-              <th class="px-3 py-2 text-right font-semibold" scope="col">JSD</th>
+              <th class="px-3 py-2 text-left font-semibold" scope="col" data-sort="key" aria-sort="none"><button type="button" class="pq-sort font-semibold hover:text-primary" data-sort="key">Question</button></th>
+              <th class="px-3 py-2 text-left font-semibold" scope="col" data-sort="topic" aria-sort="none"><button type="button" class="pq-sort font-semibold hover:text-primary" data-sort="topic">Topic</button></th>
+              <th class="px-3 py-2 text-left font-semibold" scope="col" data-sort="model" aria-sort="none"><button type="button" class="pq-sort font-semibold hover:text-primary" data-sort="model">Model modal</button></th>
+              <th class="px-3 py-2 text-left font-semibold" scope="col" data-sort="human" aria-sort="none"><button type="button" class="pq-sort font-semibold hover:text-primary" data-sort="human">Human modal</button></th>
+              <th class="year-col hidden px-3 py-2 text-right font-semibold" scope="col" data-sort="year" aria-sort="none"><button type="button" class="pq-sort font-semibold hover:text-primary" data-sort="year">Year</button></th>
+              <th class="px-3 py-2 text-right font-semibold" scope="col" data-sort="jsd" aria-sort="descending"><button type="button" class="pq-sort font-semibold hover:text-primary" data-sort="jsd">JSD</button></th>
             </tr>
           </thead>
           <tbody id="per-question-tbody">
@@ -196,13 +263,9 @@ const questionBaseUrl = `${base}/question/${encodePathSegment(entry.dataset)}`;
 </BaseLayout>
 
 <script>
+  import { modalOption, questionPageKeys, safeQuestionKey } from "@/lib/runExplorer";
   import { topicLabel } from "@/lib/topics";
-  import type {
-    PerQuestionRow,
-    RunAggregate,
-    RunDetail,
-    RunScores,
-  } from "@/types/runs";
+  import type { PerQuestionRow, RunAggregate, RunDetail, RunScores } from "@/types/runs";
 
   type DemographicEntry = {
     attribute: string;
@@ -211,22 +274,33 @@ const questionBaseUrl = `${base}/question/${encodePathSegment(entry.dataset)}`;
     p_cond: number;
     n_questions: number;
   };
+  type SortKey = "key" | "topic" | "model" | "human" | "year" | "jsd";
+  type SortDir = "asc" | "desc";
+  const SORT_KEYS: SortKey[] = ["key", "topic", "model", "human", "year", "jsd"];
+  const defaultDir = (k: SortKey): SortDir => (k === "jsd" || k === "year" ? "desc" : "asc");
+
+  interface PqRow {
+    row: PerQuestionRow;
+    topic: string;
+    modelModal: string;
+    humanModal: string;
+    /** Model's modal answer differs from the human one (null: no human data). */
+    flipped: boolean | null;
+  }
+
+  const view = {
+    rows: [] as PqRow[],
+    sortKey: "jsd" as SortKey,
+    sortDir: "desc" as SortDir,
+    topic: "all",
+    flippedOnly: false,
+    showYear: false,
+    questionBaseUrl: "",
+    pageKeys: null as Set<string> | null,
+  };
 
   const fmt = (n: number | null | undefined, places = 3): string =>
     n == null || Number.isNaN(n) ? "—" : n.toFixed(places);
-
-  function modalKey(dist: Record<string, number> | undefined): string {
-    if (!dist) return "—";
-    let best: string | null = null;
-    let bestVal = -Infinity;
-    for (const [k, v] of Object.entries(dist)) {
-      if (v > bestVal) {
-        bestVal = v;
-        best = k;
-      }
-    }
-    return best ?? "—";
-  }
 
   function escapeHtml(s: unknown): string {
     return String(s ?? "")
@@ -235,12 +309,6 @@ const questionBaseUrl = `${base}/question/${encodePathSegment(entry.dataset)}`;
       .replace(/>/g, "&gt;")
       .replace(/"/g, "&quot;")
       .replace(/'/g, "&#39;");
-  }
-
-  // Mirror publish._safe_question_key: non-alphanumeric / non-underscore /
-  // non-hyphen → `_`. Output is also URL-safe so no extra encoding needed.
-  function safeQuestionKey(key: string): string {
-    return key.replace(/[^A-Za-z0-9_\-]/g, "_");
   }
 
   /** Distribution bar palette (keyed by index, cycles on reuse). */
@@ -296,7 +364,11 @@ const questionBaseUrl = `${base}/question/${encodePathSegment(entry.dataset)}`;
       .join("");
   }
 
-  function renderScores(scores: RunScores, agg: RunAggregate): string {
+  function renderScores(
+    scores: RunScores,
+    agg: Pick<RunAggregate, "mean_jsd" | "mean_kendall_tau" | "per_metric_ci">,
+    questionIndexUrl: string,
+  ): string {
     const tiles: Array<[string, string]> = [
       ["SPS", fmt(scores.sps)],
       ["p_dist", fmt(scores.p_dist)],
@@ -317,11 +389,17 @@ const questionBaseUrl = `${base}/question/${encodePathSegment(entry.dataset)}`;
           ciRange && ciRange[0] != null && ciRange[1] != null
             ? `<div class="score-ci">[${fmt(ciRange[0])}, ${fmt(ciRange[1])}]</div>`
             : "";
+        // Mean JSD links to the dataset's question index, ranked by divergence.
+        const link =
+          label === "mean JSD" && questionIndexUrl
+            ? `<a class="score-link" href="${escapeHtml(questionIndexUrl)}?sort=human">Which questions diverge most? →</a>`
+            : "";
         return `
           <div class="score-tile">
             <div class="score-label">${escapeHtml(label)}</div>
             <div class="score-value">${escapeHtml(value)}</div>
             ${ciText}
+            ${link}
           </div>
         `;
       })
@@ -375,124 +453,209 @@ const questionBaseUrl = `${base}/question/${encodePathSegment(entry.dataset)}`;
     `;
   }
 
-  function renderPerQuestion(
-    rows: PerQuestionRow[],
-    showYearColumn: boolean,
-    questionBaseUrl: string,
-  ): string {
-    if (!rows.length) {
-      return `<tr><td colspan="6" class="px-3 py-8 text-center text-muted">No per-question data available.</td></tr>`;
+  function sortValue(r: PqRow, k: SortKey): string | number | null {
+    switch (k) {
+      case "key":
+        return r.row.key;
+      case "topic":
+        return r.topic === "—" ? null : topicLabel(r.topic);
+      case "model":
+        return r.modelModal;
+      case "human":
+        return r.humanModal === "—" ? null : r.humanModal;
+      case "year":
+        return r.row.temporal_year || null;
+      case "jsd":
+        return typeof r.row.jsd === "number" ? r.row.jsd : null;
     }
-    return rows
-      .map((row, i) => {
-        const topic = typeof row.topic === "string" ? row.topic : "—";
-        const modelModal = modalKey(row.model_distribution);
-        const humanModal = modalKey(row.human_distribution);
-        const yearCell = showYearColumn
-          ? `<td class="px-3 py-2 text-right font-mono text-xs">${
-              row.temporal_year ? String(row.temporal_year) : "—"
-            }</td>`
-          : "";
-        const detailId = `pq-detail-${i}`;
-        return `
-          <tr class="pq-row border-b border-muted/10 hover:bg-primary/5" data-index="${i}" data-topic="${escapeHtml(topic)}">
-            <td class="px-3 py-2">
-              <button type="button" class="pq-expand flex items-start gap-2 text-left"
-                      aria-expanded="false"
-                      aria-controls="${detailId}"
-                      aria-label="Show full distribution for question ${escapeHtml(row.key)}">
-                <span class="pq-caret mt-0.5 text-xs text-muted" aria-hidden="true">▸</span>
-                <span>
-                  <span class="pq-key font-mono text-xs text-muted block">${escapeHtml(row.key)}</span>
-                  <span class="pq-text block max-w-xl text-xs text-muted">${escapeHtml(row.text ?? "")}</span>
-                </span>
-              </button>
-            </td>
-            <td class="px-3 py-2 text-xs">${escapeHtml(topicLabel(topic))}</td>
-            <td class="px-3 py-2 text-xs">${escapeHtml(modelModal)}</td>
-            <td class="px-3 py-2 text-xs">${escapeHtml(humanModal)}</td>
-            ${yearCell}
-            <td class="px-3 py-2 text-right font-mono">${fmt(row.jsd)}</td>
-          </tr>
-          <tr id="${detailId}" class="pq-detail hidden border-b border-muted/10 bg-surface/50 dark:bg-surface-dark/50" data-detail-for="${i}" data-topic="${escapeHtml(topic)}">
-            <td colspan="6" class="px-4 py-4">
-              <div class="mb-3 flex flex-wrap items-baseline justify-between gap-2 text-sm">
-                <div>
-                  <strong>Question:</strong>
-                  <span class="ml-1">${escapeHtml(row.text ?? "")}</span>
-                </div>
-                ${
-                  questionBaseUrl
-                    ? `<a href="${questionBaseUrl}/${safeQuestionKey(row.key)}/"
-                          class="pq-compare shrink-0 text-xs text-primary hover:underline"
-                          aria-label="Compare all models on question ${escapeHtml(row.key)}">
-                        Compare across models →
-                      </a>`
-                    : ""
-                }
-              </div>
-              <div class="mb-2 text-xs text-muted">
-                N samples: <span class="font-mono">${row.n_samples ?? "—"}</span>
-                · JSD: <span class="font-mono">${fmt(row.jsd)}</span>
-                · τ: <span class="font-mono">${fmt(row.kendall_tau)}</span>
-                · parity: <span class="font-mono">${fmt(row.parity)}</span>
-                ${row.temporal_year ? `· year: <span class="font-mono">${row.temporal_year}</span>` : ""}
-              </div>
-              <div class="dist-legend">${renderLegend(row.options ?? [], row.human_distribution ?? row.model_distribution)}</div>
-              <div class="dist-stack">
-                ${
-                  row.human_distribution
-                    ? renderStackedBar("Human", row.human_distribution, row.options ?? [])
-                    : `<div class="dist-row"><span class="dist-label">Human</span><span class="text-xs text-muted">suppressed by dataset license</span></div>`
-                }
-                ${renderStackedBar("Model", row.model_distribution, row.options ?? [])}
-              </div>
-            </td>
-          </tr>
-        `;
-      })
-      .join("");
   }
 
-  function populateTopicFilter(rows: PerQuestionRow[]): void {
-    const select = document.getElementById("topic-filter") as HTMLSelectElement | null;
-    if (!select) return;
-    const topics = new Set<string>();
-    for (const r of rows) {
-      if (typeof r.topic === "string" && r.topic) topics.add(r.topic);
-    }
-    for (const t of [...topics].sort()) {
-      const opt = document.createElement("option");
-      opt.value = t;
-      opt.textContent = topicLabel(t);
-      select.appendChild(opt);
-    }
-    select.addEventListener("change", () => applyTopicFilter(select.value));
+  function visibleRows(): PqRow[] {
+    const mult = view.sortDir === "asc" ? 1 : -1;
+    return view.rows
+      .filter((r) => view.topic === "all" || r.topic === view.topic)
+      .filter((r) => !view.flippedOnly || r.flipped === true)
+      .sort((a, b) => {
+        const x = sortValue(a, view.sortKey);
+        const y = sortValue(b, view.sortKey);
+        if (x == null && y == null) return 0;
+        if (x == null) return 1;
+        if (y == null) return -1;
+        const c =
+          typeof x === "number" && typeof y === "number"
+            ? x - y
+            : String(x).localeCompare(String(y), undefined, { numeric: true });
+        return c * mult;
+      });
   }
 
-  function applyTopicFilter(topic: string): void {
-    // Summary rows: show if the topic matches. Detail rows are controlled by
-    // the row-click handler (wireRowExpansion) — the filter only hides them
-    // when their parent is filtered out, never re-reveals them. Otherwise a
-    // filter reset would unintentionally expand every question.
-    const summaryRows = document.querySelectorAll<HTMLElement>(
-      "#per-question-tbody tr.pq-row",
-    );
-    const detailRows = document.querySelectorAll<HTMLElement>(
-      "#per-question-tbody tr.pq-detail",
-    );
-    let shown = 0;
-    for (const row of summaryRows) {
-      const matches = topic === "all" || row.dataset.topic === topic;
-      row.classList.toggle("hidden", !matches);
-      if (matches) shown += 1;
-    }
-    for (const row of detailRows) {
-      const matches = topic === "all" || row.dataset.topic === topic;
-      if (!matches) row.classList.add("hidden");
-    }
+  function rowHtml(r: PqRow): string {
+    const { row } = r;
+    const yearCell = view.showYear
+      ? `<td class="px-3 py-2 text-right font-mono text-xs">${row.temporal_year ? String(row.temporal_year) : "—"}</td>`
+      : "";
+    const detailId = `pq-detail-${safeQuestionKey(row.key)}`;
+    const safeKey = safeQuestionKey(row.key);
+    const hasPage = view.questionBaseUrl && (!view.pageKeys || view.pageKeys.has(safeKey));
+    const flipMark =
+      r.flipped === true
+        ? ` <span class="text-accent" title="Differs from the human modal answer">≠</span>`
+        : "";
+    return `
+      <tr class="pq-row border-b border-muted/10 hover:bg-primary/5" data-key="${escapeHtml(row.key)}" data-topic="${escapeHtml(r.topic)}">
+        <td class="px-3 py-2">
+          <button type="button" class="pq-expand flex items-start gap-2 text-left"
+                  aria-expanded="false"
+                  aria-controls="${detailId}"
+                  aria-label="Show full distribution for question ${escapeHtml(row.key)}">
+            <span class="pq-caret mt-0.5 text-xs text-muted" aria-hidden="true">▸</span>
+            <span>
+              <span class="pq-key font-mono text-xs text-muted block">${escapeHtml(row.key)}</span>
+              <span class="pq-text block max-w-xl text-xs text-muted">${escapeHtml(row.text ?? "")}</span>
+            </span>
+          </button>
+        </td>
+        <td class="px-3 py-2 text-xs">${escapeHtml(topicLabel(r.topic) || "—")}</td>
+        <td class="px-3 py-2 text-xs">${escapeHtml(r.modelModal)}${flipMark}</td>
+        <td class="px-3 py-2 text-xs">${escapeHtml(r.humanModal)}</td>
+        ${yearCell}
+        <td class="px-3 py-2 text-right font-mono">${fmt(row.jsd)}</td>
+      </tr>
+      <tr id="${detailId}" class="pq-detail hidden border-b border-muted/10 bg-surface/50 dark:bg-surface-dark/50" data-topic="${escapeHtml(r.topic)}">
+        <td colspan="6" class="px-4 py-4">
+          <div class="mb-3 flex flex-wrap items-baseline justify-between gap-2 text-sm">
+            <div>
+              <strong>Question:</strong>
+              <span class="ml-1">${escapeHtml(row.text ?? "")}</span>
+            </div>
+            ${
+              hasPage
+                ? `<a href="${view.questionBaseUrl}/${safeKey}/"
+                      class="pq-compare shrink-0 text-xs text-primary hover:underline"
+                      aria-label="Compare all models on question ${escapeHtml(row.key)}">
+                    Compare across models →
+                  </a>`
+                : ""
+            }
+          </div>
+          <div class="mb-2 text-xs text-muted">
+            N samples: <span class="font-mono">${row.n_samples ?? "—"}</span>
+            · JSD: <span class="font-mono">${fmt(row.jsd)}</span>
+            · τ: <span class="font-mono">${fmt(row.kendall_tau)}</span>
+            · parity: <span class="font-mono">${fmt(row.parity)}</span>
+            ${row.temporal_year ? `· year: <span class="font-mono">${row.temporal_year}</span>` : ""}
+          </div>
+          <div class="dist-legend">${renderLegend(row.options ?? [], row.human_distribution ?? row.model_distribution)}</div>
+          <div class="dist-stack">
+            ${
+              row.human_distribution
+                ? renderStackedBar("Human", row.human_distribution, row.options ?? [])
+                : `<div class="dist-row"><span class="dist-label">Human</span><span class="text-xs text-muted">not published for this question (private holdout or dataset license)</span></div>`
+            }
+            ${renderStackedBar("Model", row.model_distribution, row.options ?? [])}
+          </div>
+        </td>
+      </tr>
+    `;
+  }
+
+  function renderTable(): void {
+    const tbody = document.getElementById("per-question-tbody");
+    if (!tbody) return;
+    const rows = visibleRows();
+    tbody.innerHTML = rows.length
+      ? rows.map(rowHtml).join("")
+      : `<tr><td colspan="6" class="px-3 py-8 text-center text-muted">${
+          view.rows.length ? "No questions match the current filters." : "No per-question data available."
+        }</td></tr>`;
     const counter = document.getElementById("row-count");
-    if (counter) counter.textContent = `${shown} row${shown === 1 ? "" : "s"}`;
+    if (counter) {
+      const flipped = view.rows.filter((r) => r.flipped === true).length;
+      const hasHuman = view.rows.some((r) => r.flipped != null);
+      counter.textContent = `${rows.length} row${rows.length === 1 ? "" : "s"}${hasHuman ? ` · ${flipped} differ from human` : ""}`;
+    }
+    for (const th of document.querySelectorAll<HTMLElement>("#per-question-table thead th[data-sort]")) {
+      const active = th.dataset.sort === view.sortKey;
+      th.setAttribute(
+        "aria-sort",
+        active ? (view.sortDir === "asc" ? "ascending" : "descending") : "none",
+      );
+      const btn = th.querySelector<HTMLButtonElement>("button");
+      btn?.querySelector(".sort-arrow")?.remove();
+      if (btn && active) {
+        const arrow = document.createElement("span");
+        arrow.className = "sort-arrow ml-1 text-xs";
+        arrow.setAttribute("aria-hidden", "true");
+        arrow.textContent = view.sortDir === "asc" ? "▲" : "▼";
+        btn.appendChild(arrow);
+      }
+    }
+  }
+
+  function readUrl(): void {
+    const p = new URLSearchParams(location.search);
+    const k = p.get("sort") as SortKey | null;
+    view.sortKey = k && SORT_KEYS.includes(k) ? k : "jsd";
+    const d = p.get("dir");
+    view.sortDir = d === "asc" || d === "desc" ? d : defaultDir(view.sortKey);
+    view.topic = p.get("topic") ?? "all";
+    view.flippedOnly = p.get("flipped") === "1";
+  }
+
+  function writeUrl(): void {
+    const p = new URLSearchParams();
+    if (view.topic !== "all") p.set("topic", view.topic);
+    if (view.flippedOnly) p.set("flipped", "1");
+    if (view.sortKey !== "jsd") p.set("sort", view.sortKey);
+    if (view.sortDir !== defaultDir(view.sortKey)) p.set("dir", view.sortDir);
+    const qs = p.toString();
+    history.replaceState(null, "", `${location.pathname}${qs ? `?${qs}` : ""}${location.hash}`);
+  }
+
+  function update(): void {
+    renderTable();
+    writeUrl();
+  }
+
+  function wireControls(): void {
+    const select = document.getElementById("topic-filter") as HTMLSelectElement | null;
+    if (select) {
+      const topics = new Set(view.rows.map((r) => r.topic).filter((t) => t !== "—"));
+      for (const t of [...topics].sort()) {
+        const opt = document.createElement("option");
+        opt.value = t;
+        opt.textContent = topicLabel(t);
+        select.appendChild(opt);
+      }
+      if (view.topic !== "all" && !topics.has(view.topic)) view.topic = "all";
+      select.value = view.topic;
+      select.addEventListener("change", () => {
+        view.topic = select.value;
+        update();
+      });
+    }
+    const flipped = document.getElementById("flipped-filter") as HTMLInputElement | null;
+    if (flipped) {
+      const hasHuman = view.rows.some((r) => r.flipped != null);
+      flipped.disabled = !hasHuman;
+      if (!hasHuman) view.flippedOnly = false;
+      flipped.checked = view.flippedOnly;
+      flipped.addEventListener("change", () => {
+        view.flippedOnly = flipped.checked;
+        update();
+      });
+    }
+    for (const btn of document.querySelectorAll<HTMLButtonElement>("#per-question-table button.pq-sort")) {
+      btn.addEventListener("click", () => {
+        const k = btn.dataset.sort as SortKey;
+        if (view.sortKey === k) view.sortDir = view.sortDir === "asc" ? "desc" : "asc";
+        else {
+          view.sortKey = k;
+          view.sortDir = defaultDir(k);
+        }
+        update();
+      });
+    }
   }
 
   function wireRowExpansion(): void {
@@ -515,9 +678,14 @@ const questionBaseUrl = `${base}/question/${encodePathSegment(entry.dataset)}`;
     });
   }
 
+  function disableTableControls(): void {
+    for (const id of ["flipped-filter", "topic-filter"]) {
+      const el = document.getElementById(id) as HTMLInputElement | HTMLSelectElement | null;
+      if (el) el.disabled = true;
+    }
+  }
+
   function showError(message: string): void {
-    const loading = document.getElementById("run-scores");
-    if (loading) loading.innerHTML = "";
     const tbody = document.getElementById("per-question-tbody");
     if (tbody) tbody.innerHTML = "";
     const box = document.getElementById("run-error");
@@ -531,6 +699,24 @@ const questionBaseUrl = `${base}/question/${encodePathSegment(entry.dataset)}`;
     if (!root) return;
     const runPath = root.dataset.runPath;
     const dataset = root.dataset.dataset ?? "";
+    const questionIndexUrl = root.dataset.questionIndex ?? "";
+    view.questionBaseUrl = root.dataset.questionBase ?? "";
+    readUrl();
+
+    // Public aggregates (runs-index) render first and survive a gate.
+    const scoresEl = document.getElementById("run-scores");
+    try {
+      const s = JSON.parse(root.dataset.indexScores ?? "{}") as Record<string, number | null>;
+      if (scoresEl) {
+        scoresEl.innerHTML = renderScores(
+          { sps: s.sps, p_dist: s.p_dist, p_rank: s.p_rank, p_refuse: s.p_refuse },
+          { mean_jsd: s.jsd, mean_kendall_tau: s.tau, per_metric_ci: null },
+          questionIndexUrl,
+        );
+      }
+    } catch {
+      // Leave the loading text; the run JSON below may still fill it.
+    }
     if (!runPath) {
       showError("Missing data URL.");
       return;
@@ -551,16 +737,7 @@ const questionBaseUrl = `${base}/question/${encodePathSegment(entry.dataset)}`;
       const lbRes = await fetch(`${normalizedBase}/data/leaderboard.json`);
       if (lbRes.ok) {
         const lb = (await lbRes.json()) as {
-          dataset_policies?: Array<{
-            name: string;
-            redistribution_policy:
-              | "full"
-              | "gated"
-              | "aggregates_only"
-              | "citation_only";
-            license_url: string | null;
-            citation: string | null;
-          }>;
+          dataset_policies?: Parameters<typeof lookupDatasetTier>[1];
         };
         tier = lookupDatasetTier(dataset, lb.dataset_policies ?? null);
       }
@@ -569,16 +746,21 @@ const questionBaseUrl = `${base}/question/${encodePathSegment(entry.dataset)}`;
     }
 
     try {
-      const result = await fetchTieredJson<RunDetail>(runPath, tier);
+      const [result, pageKeys] = await Promise.all([
+        fetchTieredJson<RunDetail>(runPath, tier),
+        questionPageKeys(normalizedBase, dataset),
+      ]);
+      view.pageKeys = pageKeys;
       if (!result.ok) {
+        disableTableControls();
+        const tbody = document.getElementById("per-question-tbody");
         if (result.gated) {
-          // Swap the loading sections for an inline sign-in gate. The run
-          // card metadata (from the index entry) stays rendered above.
-          const scoresEl = document.getElementById("run-scores");
-          if (scoresEl) renderSignInGate(scoresEl, { datasetLabel: dataset });
-          const tbody = document.getElementById("per-question-tbody");
+          // Only the per-question detail is gated; the aggregate tiles above
+          // come from the public runs index and stay.
           if (tbody) {
-            tbody.innerHTML = `<tr><td colspan="6" class="px-3 py-6 text-center text-sm text-muted">Sign in to view per-question detail for this dataset.</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="6" class="px-3 py-4"><div id="pq-gate"></div></td></tr>`;
+            const gate = document.getElementById("pq-gate");
+            if (gate) renderSignInGate(gate, { datasetLabel: dataset });
           }
           return;
         }
@@ -587,9 +769,9 @@ const questionBaseUrl = `${base}/question/${encodePathSegment(entry.dataset)}`;
       }
       const detail = result.data;
 
-      // Scores
-      const scoresEl = document.getElementById("run-scores");
-      if (scoresEl) scoresEl.innerHTML = renderScores(detail.scores, detail.aggregate);
+      if (scoresEl) {
+        scoresEl.innerHTML = renderScores(detail.scores, detail.aggregate, questionIndexUrl);
+      }
 
       // Demographic breakdown (SubPOP) — conditional
       if (detail.demographic_breakdown && Object.keys(detail.demographic_breakdown).length) {
@@ -602,24 +784,32 @@ const questionBaseUrl = `${base}/question/${encodePathSegment(entry.dataset)}`;
 
       // Year column — conditional (shown if any row has a non-zero temporal_year)
       const rows = detail.per_question ?? [];
-      const showYear = rows.some(
-        (r) => r.temporal_year != null && r.temporal_year !== 0,
-      );
-      if (showYear) {
+      view.showYear = rows.some((r) => r.temporal_year != null && r.temporal_year !== 0);
+      if (view.showYear) {
         for (const th of document.querySelectorAll<HTMLElement>(".year-col")) {
           th.classList.remove("hidden");
         }
+      } else if (view.sortKey === "year") {
+        view.sortKey = "jsd";
+        view.sortDir = "desc";
       }
 
-      // Per-question rows — pass question-page base so each expanded detail
-      // row can link to `/question/<dataset>/<key>/` for the cross-model view.
-      const questionBaseUrl = root.dataset.questionBase ?? "";
-      const tbody = document.getElementById("per-question-tbody");
-      if (tbody) tbody.innerHTML = renderPerQuestion(rows, showYear, questionBaseUrl);
-
-      populateTopicFilter(rows);
+      view.rows = rows.map((row) => {
+        const modelModal = modalOption(row.model_distribution);
+        const hasHuman =
+          row.human_distribution != null && Object.keys(row.human_distribution).length > 0;
+        const humanModal = hasHuman ? modalOption(row.human_distribution) : "—";
+        return {
+          row,
+          topic: typeof row.topic === "string" && row.topic ? row.topic : "—",
+          modelModal,
+          humanModal,
+          flipped: hasHuman ? modelModal !== humanModal : null,
+        };
+      });
+      wireControls();
       wireRowExpansion();
-      applyTopicFilter("all");
+      update();
     } catch (err) {
       showError(err instanceof Error ? err.message : String(err));
     }
@@ -667,6 +857,19 @@ const questionBaseUrl = `${base}/question/${encodePathSegment(entry.dataset)}`;
     font-size: 0.7rem;
     color: var(--color-muted);
     margin-top: 0.25rem;
+  }
+  .score-link {
+    display: block;
+    margin-top: 0.25rem;
+    font-size: 0.7rem;
+    color: var(--color-primary);
+  }
+  .score-link:hover {
+    text-decoration: underline;
+  }
+  #per-question-table thead th[data-sort] button {
+    display: inline-flex;
+    align-items: center;
   }
   .dist-stack {
     display: flex;
