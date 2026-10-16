@@ -36,7 +36,7 @@ benchmark also functions as a bias auditing tool, quantifying systematic
 asymmetries in how LLMs represent different demographic groups.
 
 <!-- BEGIN GENERATED: headline -->
-**Metric convention**: all SPS values below use the `sps` composite (equal-weighted mean of all available components), recomputed from per-question rows at publish time (#305). Random baselines score 0.774/0.774/0.774/0.774/0.774/0.735/0.735/0.735/0.735/0.735/0.763/0.763/0.763/0.763/0.763/0.757/0.757/0.757/0.757/0.757 on this scale (globalopinionqa, globalopinionqa, globalopinionqa, globalopinionqa, globalopinionqa, gss, gss, gss, gss, gss, opinionsqa, opinionsqa, opinionsqa, opinionsqa, opinionsqa, subpop, subpop, subpop, subpop, subpop) — read every headline against that floor, not against 0.
+**Metric convention**: all SPS values below use the `sps` composite (equal-weighted mean of all available components), recomputed from per-question rows at publish time (#305). Random baselines score 0.774/0.735/0.763/0.757 on this scale (globalopinionqa, gss, opinionsqa, subpop) — read every headline against that floor, not against 0.
 
 | Dataset | 3-model ensemble SPS | Best single model | Random baseline |
 |---------|---------------------|-------------------|-----------------|
