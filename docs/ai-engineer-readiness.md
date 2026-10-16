@@ -37,10 +37,14 @@ Fortune-500 AI platform teams, a dense contingent of infra/eval vendors.
 3. **Can I reproduce it?** — `pip install`, deterministic partition by SHA-256 of
    question key, bootstrap seed 42, pricing snapshot serialized into leaderboard.json.
    SynthBench nails this.
-4. **Does it tell me something actionable?** — ensemble-blending gives +6-7 SPS with
-   *no new model calls beyond the constituent runs* (though a 3-model blend costs
-   ~3× a single run to produce). That is a tweet-sized practitioner takeaway and
-   probably the single most magnetic finding on the site for this audience.
+4. **Does it tell me something actionable?** — equal-weight blending adds up to
+   ~7 SPS points over the best model in the blend (−0.2 to +7.1 across published
+   blends, per FINDINGS.md) with *no new model calls beyond the constituent runs*
+   (though a 3-model blend costs ~3× a single run to produce). Against the best
+   single leaderboard entry the gain is −3.3 to +3.9, and the original 3-model
+   blend now trails it on three of four datasets — so the takeaway is "blend
+   complementary models", not "any blend wins". Still a tweet-sized practitioner
+   takeaway and probably the most magnetic finding on the site for this audience.
 5. **Is the evaluator itself honest?** — null-agent floors tracked in CI, run-validity
    filters for silent API failures, cost reported as `null` rather than imputed for
    self-hosted. These details signal intellectual seriousness.
@@ -111,7 +115,8 @@ one-sentence "what is SPS, what does ⚠ mean" orienting callout above the table
 
 ### Lower-value (nice to have)
 
-9. **Ensemble recipe card.** The "+6-7 SPS from equal-weight blending" is the most
+9. **Ensemble recipe card.** Equal-weight blending (up to +7.1 SPS over the best
+   model in the blend; −3.3 to +3.9 vs the best single entry) is the most
    share-worthy finding. A dedicated `/blog/ensemble-for-free` post (or an expanded
    Findings card) gives Twitter something concrete to link to.
 
@@ -169,7 +174,7 @@ I'd submit a run — probably a Sonnet 4.6 baseline — just to see my own model
 number, and because I trust the validator to catch me if I try to cheat."*
 
 **Archetype B — "The practitioner hunting a lever" (~30%).** *"The ensemble result
-is wild — +6-7 SPS from averaging three distributions, zero extra API calls. I'm
+is wild — up to +7 SPS from averaging three distributions, zero extra API calls. I'm
 literally going to ship that tomorrow on my persona-simulation pipeline. I'd
 submit mostly to get a row showing my stack's blend beats the shipped ensemble
 on my target subpopulation."*
@@ -215,14 +220,15 @@ https://synthbench.org in full-page layout.
 knows how honest the answer is. This is SynthBench — an open benchmark that
 scores how closely an LLM's survey responses match the real Pew American Trends
 Panel. Think MLPerf for synthetic respondents."* → Point at the Best-vs-Random
-bar on the home hero. Note the gap: SPS ~0.88 vs ~0.76 random floor on
-OpinionsQA under current scoring (3-model ensemble, recomputed) — roughly 48
-on the SynthBench Index.
+bar on the home hero. Note the gap: the 3-model ensemble's SPS 0.871 vs the
+0.763 random floor on OpinionsQA (FINDINGS.md, current scoring) — about 46 on
+the SynthBench Index.
 
 **[0:30 – 1:00] The finding that makes them lean in.**
-Scroll to the "Key Findings" cards. Read the first one aloud: *"Blend three
-models with equal weight, you gain 6–7 SPS points. No new model calls beyond
-the runs you already made — the blend is arithmetic on responses you already
+Scroll to the "Key Findings" cards. Read the first one aloud: *"Blend models
+with equal weight and you gain up to 7 SPS points over the best model in the
+blend; the best published blend beats the best single entry by 3.9. No new
+model calls beyond the runs you already made — the blend is arithmetic on responses you already
 paid for, though producing all three runs costs about 3× a single model."*
 Click through to Findings → Ensemble
 section for one beat. *"If you only remember one thing: ensemble before you
