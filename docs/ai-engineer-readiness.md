@@ -95,7 +95,10 @@ one-sentence "what is SPS, what does ⚠ mean" orienting callout above the table
 6. **SPS one-liner above the fold.** The Home page currently explains *what's best*
    before explaining *what SPS is*. Add a single sentence under the hero: *"SPS
    measures how closely a model's answer distribution matches real human survey
-   answers. 1.0 = perfect match; the random baseline scores ~0.31."*
+   answers. 1.0 = perfect match; uniform random answers already score ~0.76."*
+   (Under current scoring the random floor is ~0.73–0.78 per dataset, which is
+   why the site now leads with the SynthBench Index: 0 = random, 100 = human
+   split-half ceiling.)
 
 7. **Explore page smoke test.** I confirmed `/explore` returns 200 but did not
    interact. Before Tuesday, a human should click through each dataset × model
@@ -212,7 +215,9 @@ https://synthbench.org in full-page layout.
 knows how honest the answer is. This is SynthBench — an open benchmark that
 scores how closely an LLM's survey responses match the real Pew American Trends
 Panel. Think MLPerf for synthetic respondents."* → Point at the Best-vs-Random
-bar on the home hero. Note the gap: SPS 0.83 vs 0.31 random floor.
+bar on the home hero. Note the gap: SPS ~0.88 vs ~0.76 random floor on
+OpinionsQA under current scoring (3-model ensemble, recomputed) — roughly 48
+on the SynthBench Index.
 
 **[0:30 – 1:00] The finding that makes them lean in.**
 Scroll to the "Key Findings" cards. Read the first one aloud: *"Blend three

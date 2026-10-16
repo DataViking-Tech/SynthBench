@@ -46,19 +46,19 @@ def _std_str(row: dict) -> str:
 
 
 def render_headline(f: dict) -> str:
+    # ensemble_comparison has one row per blend, so a dataset with several
+    # blends repeats its random baseline; quote each dataset's floor once.
+    floors: dict[str, float] = {}
+    for e in f["ensemble_comparison"]:
+        if "random_baseline_sps" in e:
+            floors.setdefault(e["dataset"], e["random_baseline_sps"])
     lines = [
         f"**Metric convention**: all SPS values below use the `{f['sps_convention']}` "
         "composite (equal-weighted mean of all available components), recomputed "
         "from per-question rows at publish time (#305). Random baselines score "
-        + "/".join(
-            _fmt(e["random_baseline_sps"])
-            for e in f["ensemble_comparison"]
-            if "random_baseline_sps" in e
-        )
+        + "/".join(_fmt(v) for v in floors.values())
         + " on this scale ("
-        + ", ".join(
-            e["dataset"] for e in f["ensemble_comparison"] if "random_baseline_sps" in e
-        )
+        + ", ".join(floors)
         + ") — read every headline against that floor, not against 0.",
         "",
         "| Dataset | 3-model ensemble SPS | Best single model | Random baseline |",

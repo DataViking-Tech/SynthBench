@@ -2,6 +2,15 @@
 
 **Author**: datascientist | **Date**: 2026-04-10 | **Status**: PROPOSAL
 
+> **Current scoring (2026-10):** this began as the April design proposal. The
+> composite (§1.4), baselines (§4) and example output (§5) have been updated to
+> match current scoring: SPS is the equal-weighted mean of the components
+> computed for a run, recomputed from per-question rows at publish time (#305),
+> and published results lead with the **SynthBench Index**, which rescales SPS
+> so 0 = uniform random answers and 100 = the human split-half ceiling. The
+> [methodology page](https://synthbench.org/methodology/) is canonical; live
+> numbers are on the leaderboard and in [`FINDINGS.md`](FINDINGS.md).
+
 ---
 
 ## Quick Guide: What SynthBench Measures
@@ -12,7 +21,7 @@ We compare the AI's answers against ground-truth data from thousands of real hum
 
 | Metric | Plain English | 0 means... | 1 means... |
 |--------|--------------|------------|------------|
-| **SPS** | Overall score (average of all metrics below) | Random noise | Indistinguishable from humans |
+| **SPS** | Overall score (average of the metrics below that were computed for the run) | Nothing in common with human answers (in practice, uniform random answers already score ~0.73–0.78) | Indistinguishable from humans |
 | **P_dist** | Do the AI's answer percentages match humans? | Completely different distributions | Identical distributions |
 | **P_rank** | Does the AI rank options in the same order as humans? | Reversed or random ordering | Perfect rank agreement |
 | **P_refuse** | Does the AI decline to answer at the right rate? | Refusal rates completely off | Matches human refusal patterns |
@@ -22,8 +31,10 @@ We compare the AI's answers against ground-truth data from thousands of real hum
 **Concrete example**: On "Do you support renewable energy?" real humans split 70/30. If the AI also splits 70/30, P_dist is near 1. If the AI splits 50/50, P_dist drops. P_rank checks whether the AI at least got the *ordering* right (more "yes" than "no"), even if the exact percentages are off.
 
 **Baselines** give meaning to scores:
-- **Random**: Picks answers uniformly. The absolute floor — scoring at or below this means the AI adds negative value.
-- **Majority-Class**: Always picks the most popular answer. Scores well on consensus questions, poorly on divisive ones.
+- **Random**: Picks answers uniformly. Scores SPS ~0.73–0.78 depending on dataset, because a flat distribution is already fairly close to many human splits, and by never refusing it lands near the low human refusal rate. It is the floor: scoring at or below it means the AI adds no value.
+- **Majority-Class**: Always picks the most popular answer. Scores SPS ~0.67–0.72 — *below* random, because putting all the mass on one option is far from most human distributions.
+
+**SynthBench Index**: because the random floor sits so high, published results lead with an Index that rescales SPS per dataset: 0 = the random baseline, 100 = the human split-half ceiling (§1.4). Raw SPS is still published for every result.
 
 For the full technical details, read on.
 
@@ -202,10 +213,36 @@ or purpose-built question sets.
 ### 1.4 Composite Score
 
 ```
-SPS = w1*P_dist + w2*P_rank + w3*P_cond + w4*P_sub + w5*P_refuse
+SPS = mean(available components)    # equal weights, renormalized over what was computed
 ```
 
-**Phase 1 default weights**: Equal (0.20 each).
+The composite is the equal-weighted mean of whichever components were
+computed for a run (`synthbench.metrics.composite.synthbench_parity_score`).
+At publish time P_dist, P_rank and P_refuse are recomputed from the run's
+per-question rows rather than trusted from the submission (#305).
+
+- **Standard leaderboard runs** compute P_dist, P_rank and P_refuse, so their
+  SPS is the mean of those three (⅓ each). This is the SPS on the leaderboard.
+- **P_cond and P_sub** need demographic-conditioning runs and cannot be derived
+  from per-question rows. They are reported separately in the demographic
+  scorecards; when a conditioned run submits them they are folded into that
+  run's composite (0.20 each with all five present), so conditioned-run SPS is
+  not directly comparable with standard leaderboard SPS.
+
+**SynthBench Index.** Because uniform random answers already score SPS
+~0.73–0.78, the site leads with an Index that places SPS between two
+per-dataset reference points (§4):
+
+```
+Index_d          = 100 × (SPS − SPS_random,d) ÷ (ceiling_d − SPS_random,d)
+SynthBench Index = mean of Index_d over OpinionsQA, SubPOP, GSS, GlobalOpinionQA
+```
+
+0 means no better than the random baseline; 100 means the system matches the
+human distribution as well as one random half of the human panel matches the
+other (split-half ceiling, §4.5). NTIA is shown for reference only and stays
+out of the headline Index. Any change to the weights or reference points
+changes the Index version (currently v1).
 
 Weights are a policy choice, not a statistical one. Different use cases may
 weight differently:
@@ -501,7 +538,13 @@ For sampling-based providers, multiply by n_samples.
 
 Every baseline uses the same evaluation pipeline as real providers. Baselines
 give meaning to scores — a P_dist of 0.72 is meaningless without knowing the
-floor and ceiling.
+floor and ceiling (uniform random answers reach P_dist 0.81–0.89).
+
+Measured values below are recomputed under current scoring; sources are the
+headline table in [`FINDINGS.md`](FINDINGS.md),
+[`docs/baseline-floors-log.md`](docs/baseline-floors-log.md), and the pinned
+split-half ceilings in `site/src/lib/ceilings.ts`. They move slightly as
+baseline runs are refreshed; the leaderboard is authoritative.
 
 ### 4.1 Random Baseline (Lower Bound)
 
@@ -514,8 +557,15 @@ P(refusal) = 0.
 (strong consensus), random will score poorly. For maximum-entropy questions,
 random will score well by accident.
 
-**Purpose**: Absolute floor. Any provider scoring at or below random is adding
-negative value.
+**Measured**: SPS 0.735 (GSS) to 0.774 (GlobalOpinionQA); OpinionsQA 0.763,
+SubPOP 0.757. Components are typically P_dist 0.81–0.89, P_rank 0.42–0.50 and
+P_refuse 0.97–0.99: a flat distribution is already close to many human
+splits, and a null agent that never refuses nearly matches the low human
+refusal rate, so the floor sits far above 0 (see
+`docs/baseline-floors-log.md`).
+
+**Purpose**: The floor, and the 0 point of the SynthBench Index. Any provider
+scoring at or below random is adding no value.
 
 ### 4.2 Majority-Class Baseline
 
@@ -528,6 +578,11 @@ all others.
 **Expected behavior**: Scores well on consensus questions, poorly on divisive
 ones. P_cond = 0 by definition (no conditioning mechanism). P_sub will be poor
 (ignores subgroup variation).
+
+**Measured**: SPS 0.673 (SubPOP) to 0.721 (GSS); OpinionsQA 0.715,
+GlobalOpinionQA 0.690. This is *below* the random baseline on every dataset:
+a one-hot distribution has poor P_dist (~0.47–0.54) even though it gets the
+top option right. On the Index it is negative.
 
 **Purpose**: Shows the value of distributional modeling. If a provider can't
 beat majority-class on P_dist, it's not learning the shape of opinions — just
@@ -551,6 +606,9 @@ groups).
 Population-Average and a conditioned provider is the *conditioning premium* —
 the whole reason synthetic respondent products exist.
 
+**Status**: implemented as the `population-average` provider but not
+currently published as a standing leaderboard baseline.
+
 ### 4.4 Unconditioned LLM Baseline (GPT-4o, No Persona)
 
 **Definition**: Raw GPT-4o prompted with the survey question and options, no
@@ -568,6 +626,11 @@ groups the base model naturally aligns with.
 "use AI for surveys." Every dedicated synthetic respondent product must
 demonstrate clear improvement over this to justify its existence.
 
+**In practice**: the raw-model leaderboard rows (same model, no product
+framework) play this role, per model rather than as a single GPT-4o row; the
+publish step uses them as the reference for `normalized_sps` on product rows
+built on the same model.
+
 ### 4.5 Human Ceiling (Split-Half Reliability)
 
 **Definition**: The theoretical maximum score, determined by human response
@@ -581,26 +644,31 @@ inherent noise in human survey data.
 variance. This ceiling tells us the maximum achievable score.
 
 **Purpose**: A provider scoring *above* the human ceiling is overfitting or
-exploiting artifacts. The meaningful range for evaluation is
-[Unconditioned LLM, Human Ceiling].
+exploiting artifacts. The ceiling is the 100 point of the SynthBench Index,
+whose range is [Random, Human Ceiling].
 
-**Computation note**: Requires access to individual-level OpinionsQA response
-data (not just aggregated distributions). If individual responses are not
-available in the public dataset, we estimate the ceiling via bootstrap
-resampling of the aggregate distributions.
+**Measured**: SPS 0.9995 (OpinionsQA), 0.9953 (SubPOP), 0.9988 (GSS), 0.9972
+(GlobalOpinionQA).
+
+**Computation note**: Published ceilings use a multinomial split-half
+bootstrap on the human category counts (B=1000, seed 42;
+`synthbench.baselines.compute_ceiling`), so individual-level responses are not
+required. SubPOP and GlobalOpinionQA infer n from published probabilities and
+carry a "medium" quality flag.
 
 ### 4.6 Baseline Summary
 
-```
-Score axis:  0.0                                              1.0
-             |----|----|----|----|----|----|----|----|----|----|
-             ^         ^              ^                   ^
-           Random   Majority    Unconditioned LLM    Human Ceiling
-                       ^
-                  Pop-Average
+| Reference point | SPS (current scoring) | Index |
+|-----------------|-----------------------|-------|
+| Majority-Class | 0.67–0.72 | negative (below random) |
+| Random | 0.735–0.774 | 0 by definition |
+| Top single systems and ensembles (FINDINGS.md) | ~0.80–0.91 | — |
+| Human ceiling | 0.995–0.9995 | 100 by definition |
 
-Meaningful evaluation range: [Unconditioned LLM ... Human Ceiling]
-```
+Population-Average is not published; the unconditioned-LLM reference is the
+raw-model row for each model. Because the whole populated range is roughly
+0.67–1.00, small SPS gaps are large on the Index: on OpinionsQA, 0.01 SPS is
+about 4 Index points.
 
 ---
 
@@ -608,7 +676,13 @@ Meaningful evaluation range: [Unconditioned LLM ... Human Ceiling]
 
 ### 5.1 Machine-Readable Output (JSON)
 
-Every SynthBench run produces a JSON artifact:
+Every SynthBench run produces a JSON artifact. The block below shows the
+proposed score-card shape with **illustrative** values on the current SPS
+scale (a standard OpinionsQA run, real OpinionsQA baseline and ceiling
+values). The artifacts actually committed to `leaderboard-results/` are
+leaner: `config`, `scores` (`sps`, `p_dist`, `p_rank`, `p_refuse`),
+`aggregate` and `per_question`; baselines, ceilings and the Index are
+attached at publish time.
 
 ```json
 {
@@ -616,6 +690,7 @@ Every SynthBench run produces a JSON artifact:
   "run_id": "run-20260410-a1b2c3",
   "timestamp": "2026-04-10T12:00:00Z",
   "suite": "core",
+  "dataset": "opinionsqa",
   "provider": {
     "name": "althing",
     "version": "2.1.0",
@@ -623,33 +698,37 @@ Every SynthBench run produces a JSON artifact:
     "config_hash": "sha256:..."
   },
   "scores": {
-    "composite": 0.74,
-    "P_dist": 0.81,
-    "P_rank": 0.77,
-    "P_cond": 0.68,
-    "P_sub": 0.72,
-    "P_refuse": 0.71,
-    "weights": [0.2, 0.2, 0.2, 0.2, 0.2]
+    "sps": 0.861,
+    "p_dist": 0.792,
+    "p_rank": 0.801,
+    "p_refuse": 0.990,
+    "components": ["p_dist", "p_rank", "p_refuse"],
+    "weights": "equal over available components"
+  },
+  "index": {
+    "version": "v1",
+    "value": 41.4,
+    "random_sps": 0.763,
+    "ceiling_sps": 0.9995
   },
   "baselines": {
-    "random":        {"composite": 0.31, "P_dist": 0.42, "...": "..."},
-    "majority":      {"composite": 0.45, "P_dist": 0.55, "...": "..."},
-    "pop_average":   {"composite": 0.52, "P_dist": 0.65, "...": "..."},
-    "unconditioned": {"composite": 0.58, "P_dist": 0.67, "...": "..."},
-    "human_ceiling": {"composite": 0.89, "P_dist": 0.92, "...": "..."}
+    "random":        {"sps": 0.763, "p_dist": 0.806, "p_rank": 0.493, "p_refuse": 0.990},
+    "majority":      {"sps": 0.715, "p_dist": 0.512, "p_rank": 0.641, "p_refuse": 0.991},
+    "human_ceiling": {"sps": 0.9995, "quality_flag": "high"}
   },
   "demographic_breakdown": {
+    "note": "conditioned runs only; P_cond / P_sub reported here, not in sps",
     "by_attribute": {
-      "age": {"18-29": 0.83, "30-49": 0.79, "50-64": 0.74, "65+": 0.62},
+      "age": {"18-29": 0.80, "30-49": 0.79, "50-64": 0.77, "65+": 0.72},
       "...": "..."
     },
-    "best_group":  {"group": "Liberal", "P_dist": 0.91},
-    "worst_group": {"group": "65+",     "P_dist": 0.62}
+    "best_group":  {"group": "Liberal", "P_dist": 0.84},
+    "worst_group": {"group": "65+",     "P_dist": 0.72}
   },
   "topic_breakdown": {
-    "by_topic": {"abortion": 0.65, "climate": 0.78, "...": "..."},
-    "best_topic":  {"topic": "technology", "P_dist": 0.88},
-    "worst_topic": {"topic": "abortion",   "P_dist": 0.65}
+    "by_topic": {"abortion": 0.71, "climate": 0.80, "...": "..."},
+    "best_topic":  {"topic": "technology", "P_dist": 0.86},
+    "worst_topic": {"topic": "abortion",   "P_dist": 0.71}
   },
   "run_metadata": {
     "questions_evaluated": 300,
@@ -665,42 +744,42 @@ Every SynthBench run produces a JSON artifact:
 
 ### 5.2 Human-Readable Score Card
 
+Same illustrative run:
+
 ```
 ================================================================
   SYNTHBENCH v1.0 SCORE CARD
 ================================================================
   Provider:  althing v2.1.0
-  Suite:     SynthBench-Core (300 questions)
+  Suite:     SynthBench-Core (300 questions), OpinionsQA
   Date:      2026-04-10
   Run ID:    run-20260410-a1b2c3
 ================================================================
 
-  COMPOSITE PARITY SCORE:  0.74 / 1.00
+  SYNTHBENCH INDEX:        41.4   (0 = random, 100 = human ceiling)
+  SURVEY PARITY SCORE:     0.861 / 1.00
   ────────────────────────────────────────────────
-  P_dist   Distributional   0.81  ████████░░  
-  P_rank   Rank-Order       0.77  ████████░░  
-  P_cond   Conditioning     0.68  ███████░░░  
-  P_sub    Subgroup         0.72  ███████░░░  
-  P_refuse Refusal Cal.     0.71  ███████░░░  
+  P_dist   Distributional   0.79  ████████░░
+  P_rank   Rank-Order       0.80  ████████░░
+  P_refuse Refusal Cal.     0.99  ██████████
+  P_cond / P_sub            not computed (standard run)
 
-  VERSUS BASELINES
+  VERSUS BASELINES (SPS)
   ────────────────────────────────────────────────
-  vs Random:            +0.43  (+138%)
-  vs Majority-Class:    +0.29  (+64%)
-  vs Population-Avg:    +0.22  (+42%)
-  vs Unconditioned LLM: +0.16  (+28%)
-  vs Human Ceiling:     -0.15  (-17%)
+  vs Random (0.763):         +0.098
+  vs Majority-Class (0.715): +0.146
+  vs Human Ceiling (0.9995): -0.139
 
-  DEMOGRAPHIC HIGHLIGHTS
+  DEMOGRAPHIC HIGHLIGHTS (conditioned runs)
   ────────────────────────────────────────────────
-  Best aligned:   Liberal          (P_dist = 0.91)
-  Worst aligned:  65+              (P_dist = 0.62)
-  Spread (CV):    0.12
+  Best aligned:   Liberal          (P_dist = 0.84)
+  Worst aligned:  65+              (P_dist = 0.72)
+  Spread (CV):    0.05
 
   TOPIC HIGHLIGHTS
   ────────────────────────────────────────────────
-  Best topic:     Technology       (P_dist = 0.88)
-  Worst topic:    Abortion         (P_dist = 0.65)
+  Best topic:     Technology       (P_dist = 0.86)
+  Worst topic:    Abortion         (P_dist = 0.71)
 
   RUN INFO
   ────────────────────────────────────────────────
@@ -713,20 +792,14 @@ Every SynthBench run produces a JSON artifact:
 ================================================================
 ```
 
-### 5.3 Comparative Leaderboard Row
+### 5.3 Comparative Leaderboard
 
-For multi-provider comparisons:
-
-```
-| Provider        | Version | SPS  | P_dist | P_rank | P_cond | P_sub | P_refuse | Suite |
-|-----------------|---------|------|--------|--------|--------|-------|----------|-------|
-| althing      | 2.1.0   | 0.74 | 0.81   | 0.77   | 0.68   | 0.72  | 0.71     | core  |
-| GPT-4o (portray)| 2026-03 | 0.61 | 0.67   | 0.63   | 0.55   | 0.58  | 0.62     | core  |
-| Claude (portray)| sonnet  | 0.59 | 0.65   | 0.61   | 0.52   | 0.60  | 0.58     | core  |
-| GPT-4o (raw)    | 2026-03 | 0.48 | 0.55   | 0.52   | 0.00   | 0.45  | 0.40     | core  |
-| Pop-Average     | —       | 0.52 | 0.65   | 0.58   | 0.00   | 0.39  | 0.48     | core  |
-| Random          | —       | 0.31 | 0.42   | 0.30   | 0.00   | 0.25  | 0.20     | core  |
-```
+Multi-provider comparisons live on the
+[leaderboard](https://synthbench.org/leaderboard/), which ranks systems by
+the SynthBench Index in statistical tiers (raw SPS and components are
+published for every run), and in the headline tables of
+[`FINDINGS.md`](FINDINGS.md), which are regenerated from `leaderboard-results/`
+with each dataset's random-baseline floor in its own column.
 
 ---
 
