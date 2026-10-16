@@ -38,28 +38,14 @@ asymmetries in how LLMs represent different demographic groups.
 <!-- BEGIN GENERATED: headline -->
 **Metric convention**: all SPS values below use the `sps` composite (equal-weighted mean of all available components), recomputed from per-question rows at publish time (#305). Random baselines score 0.774/0.735/0.763/0.757 on this scale (globalopinionqa, gss, opinionsqa, subpop) — read every headline against that floor, not against 0.
 
+3-model ensemble = the equal-weight blend of Haiku 4.5, Gemini 2.5 Flash-Lite, GPT-4o mini (Althing). Every other published blend is listed in [Experiment C](#experiment-c-ensemble-blending).
+
 | Dataset | 3-model ensemble SPS | Best single model | Random baseline |
 |---------|---------------------|-------------------|-----------------|
 | globalopinionqa (n=100) | **0.810** | 0.799 (Althing (Qwen 3.8 Flash), product) | 0.774 (n=100) |
-| globalopinionqa (n=100) | **0.831** | 0.799 (Althing (Qwen 3.8 Flash), product) | 0.774 (n=100) |
-| globalopinionqa (n=100) | **0.818** | 0.799 (Althing (Qwen 3.8 Flash), product) | 0.774 (n=100) |
-| globalopinionqa (n=100) | **0.825** | 0.799 (Althing (Qwen 3.8 Flash), product) | 0.774 (n=100) |
-| globalopinionqa (n=100) | **0.817** | 0.799 (Althing (Qwen 3.8 Flash), product) | 0.774 (n=100) |
 | gss (n=75) | **0.816** | 0.849 (Althing (Qwen 3.8 Flash), product) | 0.735 (n=75) |
-| gss (n=75) | **0.863** | 0.849 (Althing (Qwen 3.8 Flash), product) | 0.735 (n=75) |
-| gss (n=75) | **0.848** | 0.849 (Althing (Qwen 3.8 Flash), product) | 0.735 (n=75) |
-| gss (n=75) | **0.851** | 0.849 (Althing (Qwen 3.8 Flash), product) | 0.735 (n=75) |
-| gss (n=75) | **0.845** | 0.849 (Althing (Qwen 3.8 Flash), product) | 0.735 (n=75) |
 | opinionsqa (n=100) | **0.871** | 0.874 (DeepSeek V4.1 Flash, raw) | 0.763 (n=684) |
-| opinionsqa (n=100) | **0.913** | 0.874 (DeepSeek V4.1 Flash, raw) | 0.763 (n=684) |
-| opinionsqa (n=100) | **0.897** | 0.874 (DeepSeek V4.1 Flash, raw) | 0.763 (n=684) |
-| opinionsqa (n=100) | **0.906** | 0.874 (DeepSeek V4.1 Flash, raw) | 0.763 (n=684) |
-| opinionsqa (n=100) | **0.891** | 0.874 (DeepSeek V4.1 Flash, raw) | 0.763 (n=684) |
 | subpop (n=100) | **0.823** | 0.838 (DeepSeek V4.1 Flash, raw) | 0.757 (n=200) |
-| subpop (n=100) | **0.865** | 0.838 (DeepSeek V4.1 Flash, raw) | 0.757 (n=200) |
-| subpop (n=100) | **0.846** | 0.838 (DeepSeek V4.1 Flash, raw) | 0.757 (n=200) |
-| subpop (n=100) | **0.856** | 0.838 (DeepSeek V4.1 Flash, raw) | 0.757 (n=200) |
-| subpop (n=100) | **0.859** | 0.838 (DeepSeek V4.1 Flash, raw) | 0.757 (n=200) |
 <!-- END GENERATED: headline -->
 
 Note on interpretation: SPS is a composite parity score, not a
@@ -314,28 +300,28 @@ three runs costs roughly 3× a single-model run.
 ### Results
 
 <!-- BEGIN GENERATED: ensemble -->
-| Dataset | Best single model | Equal blend | Improvement | Random baseline |
-|---------|-------------------|-------------|-------------|-----------------|
-| globalopinionqa (100q) | 0.799 (Althing (Qwen 3.8 Flash), product) | **0.810** | **+1.1 pts** | 0.774 (n=100) |
-| globalopinionqa (100q) | 0.799 (Althing (Qwen 3.8 Flash), product) | **0.831** | **+3.1 pts** | 0.774 (n=100) |
-| globalopinionqa (100q) | 0.799 (Althing (Qwen 3.8 Flash), product) | **0.818** | **+1.9 pts** | 0.774 (n=100) |
-| globalopinionqa (100q) | 0.799 (Althing (Qwen 3.8 Flash), product) | **0.825** | **+2.6 pts** | 0.774 (n=100) |
-| globalopinionqa (100q) | 0.799 (Althing (Qwen 3.8 Flash), product) | **0.817** | **+1.8 pts** | 0.774 (n=100) |
-| gss (75q) | 0.849 (Althing (Qwen 3.8 Flash), product) | **0.816** | **-3.3 pts** | 0.735 (n=75) |
-| gss (75q) | 0.849 (Althing (Qwen 3.8 Flash), product) | **0.863** | **+1.4 pts** | 0.735 (n=75) |
-| gss (75q) | 0.849 (Althing (Qwen 3.8 Flash), product) | **0.848** | **-0.2 pts** | 0.735 (n=75) |
-| gss (75q) | 0.849 (Althing (Qwen 3.8 Flash), product) | **0.851** | **+0.2 pts** | 0.735 (n=75) |
-| gss (75q) | 0.849 (Althing (Qwen 3.8 Flash), product) | **0.845** | **-0.4 pts** | 0.735 (n=75) |
-| opinionsqa (100q) | 0.874 (DeepSeek V4.1 Flash, raw) | **0.871** | **-0.3 pts** | 0.763 (n=684) |
-| opinionsqa (100q) | 0.874 (DeepSeek V4.1 Flash, raw) | **0.913** | **+3.9 pts** | 0.763 (n=684) |
-| opinionsqa (100q) | 0.874 (DeepSeek V4.1 Flash, raw) | **0.897** | **+2.3 pts** | 0.763 (n=684) |
-| opinionsqa (100q) | 0.874 (DeepSeek V4.1 Flash, raw) | **0.906** | **+3.2 pts** | 0.763 (n=684) |
-| opinionsqa (100q) | 0.874 (DeepSeek V4.1 Flash, raw) | **0.891** | **+1.7 pts** | 0.763 (n=684) |
-| subpop (100q) | 0.838 (DeepSeek V4.1 Flash, raw) | **0.823** | **-1.4 pts** | 0.757 (n=200) |
-| subpop (100q) | 0.838 (DeepSeek V4.1 Flash, raw) | **0.865** | **+2.7 pts** | 0.757 (n=200) |
-| subpop (100q) | 0.838 (DeepSeek V4.1 Flash, raw) | **0.846** | **+0.8 pts** | 0.757 (n=200) |
-| subpop (100q) | 0.838 (DeepSeek V4.1 Flash, raw) | **0.856** | **+1.9 pts** | 0.757 (n=200) |
-| subpop (100q) | 0.838 (DeepSeek V4.1 Flash, raw) | **0.859** | **+2.2 pts** | 0.757 (n=200) |
+| Dataset | Blend (equal weight) | Best single model | Blend SPS | Improvement | Random baseline |
+|---------|----------------------|-------------------|-----------|-------------|-----------------|
+| globalopinionqa (100q) | Haiku 4.5, Gemini 2.5 Flash-Lite, GPT-4o mini (Althing) | 0.799 (Althing (Qwen 3.8 Flash), product) | **0.810** | **+1.1 pts** | 0.774 (n=100) |
+| globalopinionqa (100q) | Qwen 3.8 Flash (Althing), Sonnet 4 (Althing), DeepSeek V4.1 Flash, Gemini 2.5 Flash-Lite | 0.799 (Althing (Qwen 3.8 Flash), product) | **0.831** | **+3.1 pts** | 0.774 (n=100) |
+| globalopinionqa (100q) | Haiku 5.5 (Althing), Llama 3.3 70B, Gemini 2.5 Flash-Lite | 0.799 (Althing (Qwen 3.8 Flash), product) | **0.818** | **+1.9 pts** | 0.774 (n=100) |
+| globalopinionqa (100q) | Haiku 5.5 (Althing), DeepSeek V4.1 Flash, Gemini 2.5 Flash-Lite | 0.799 (Althing (Qwen 3.8 Flash), product) | **0.825** | **+2.6 pts** | 0.774 (n=100) |
+| globalopinionqa (100q) | Qwen 3.8 Flash, DeepSeek V4.1 Flash, Gemini 3.5 Flash-Lite (raw) | 0.799 (Althing (Qwen 3.8 Flash), product) | **0.817** | **+1.8 pts** | 0.774 (n=100) |
+| gss (75q) | Haiku 4.5, Gemini 2.5 Flash-Lite, GPT-4o mini (Althing) | 0.849 (Althing (Qwen 3.8 Flash), product) | **0.816** | **-3.3 pts** | 0.735 (n=75) |
+| gss (75q) | Qwen 3.8 Flash (Althing), Sonnet 4 (Althing), DeepSeek V4.1 Flash, Gemini 2.5 Flash-Lite | 0.849 (Althing (Qwen 3.8 Flash), product) | **0.863** | **+1.4 pts** | 0.735 (n=75) |
+| gss (75q) | Haiku 5.5 (Althing), Llama 3.3 70B, Gemini 2.5 Flash-Lite | 0.849 (Althing (Qwen 3.8 Flash), product) | **0.848** | **-0.2 pts** | 0.735 (n=75) |
+| gss (75q) | Haiku 5.5 (Althing), DeepSeek V4.1 Flash, Gemini 2.5 Flash-Lite | 0.849 (Althing (Qwen 3.8 Flash), product) | **0.851** | **+0.2 pts** | 0.735 (n=75) |
+| gss (75q) | Qwen 3.8 Flash, DeepSeek V4.1 Flash, Gemini 3.5 Flash-Lite (raw) | 0.849 (Althing (Qwen 3.8 Flash), product) | **0.845** | **-0.4 pts** | 0.735 (n=75) |
+| opinionsqa (100q) | Haiku 4.5, Gemini 2.5 Flash-Lite, GPT-4o mini (Althing) | 0.874 (DeepSeek V4.1 Flash, raw) | **0.871** | **-0.3 pts** | 0.763 (n=684) |
+| opinionsqa (100q) | Qwen 3.8 Flash (Althing), Sonnet 4 (Althing), DeepSeek V4.1 Flash, Gemini 2.5 Flash-Lite | 0.874 (DeepSeek V4.1 Flash, raw) | **0.913** | **+3.9 pts** | 0.763 (n=684) |
+| opinionsqa (100q) | Haiku 5.5 (Althing), Llama 3.3 70B, Gemini 2.5 Flash-Lite | 0.874 (DeepSeek V4.1 Flash, raw) | **0.897** | **+2.3 pts** | 0.763 (n=684) |
+| opinionsqa (100q) | Haiku 5.5 (Althing), DeepSeek V4.1 Flash, Gemini 2.5 Flash-Lite | 0.874 (DeepSeek V4.1 Flash, raw) | **0.906** | **+3.2 pts** | 0.763 (n=684) |
+| opinionsqa (100q) | Qwen 3.8 Flash, DeepSeek V4.1 Flash, Gemini 3.5 Flash-Lite (raw) | 0.874 (DeepSeek V4.1 Flash, raw) | **0.891** | **+1.7 pts** | 0.763 (n=684) |
+| subpop (100q) | Haiku 4.5, Gemini 2.5 Flash-Lite, GPT-4o mini (Althing) | 0.838 (DeepSeek V4.1 Flash, raw) | **0.823** | **-1.4 pts** | 0.757 (n=200) |
+| subpop (100q) | Qwen 3.8 Flash (Althing), Sonnet 4 (Althing), DeepSeek V4.1 Flash, Gemini 2.5 Flash-Lite | 0.838 (DeepSeek V4.1 Flash, raw) | **0.865** | **+2.7 pts** | 0.757 (n=200) |
+| subpop (100q) | Haiku 5.5 (Althing), Llama 3.3 70B, Gemini 2.5 Flash-Lite | 0.838 (DeepSeek V4.1 Flash, raw) | **0.846** | **+0.8 pts** | 0.757 (n=200) |
+| subpop (100q) | Haiku 5.5 (Althing), DeepSeek V4.1 Flash, Gemini 2.5 Flash-Lite | 0.838 (DeepSeek V4.1 Flash, raw) | **0.856** | **+1.9 pts** | 0.757 (n=200) |
+| subpop (100q) | Qwen 3.8 Flash, DeepSeek V4.1 Flash, Gemini 3.5 Flash-Lite (raw) | 0.838 (DeepSeek V4.1 Flash, raw) | **0.859** | **+2.2 pts** | 0.757 (n=200) |
 
 Comparison set: best_single = highest recomputed-SPS non-ensemble, non-baseline leaderboard row (raw or product framework) evaluated on at least as many questions as the ensemble, after per-(model, framework, dataset) dedup; random_baseline = recomputed SPS of the random-baseline run for the same dataset (n in random_baseline_n).
 <!-- END GENERATED: ensemble -->
@@ -354,7 +340,7 @@ way?) — the latter carried as an asserted constant because committed gated
 artifacts strip `human_distribution` (#308).
 
 <!-- BEGIN GENERATED: ensemble-error-correlation -->
-**globalopinionqa** (n=100 common questions, mean pairwise r = 0.528):
+**globalopinionqa**, blend of Haiku 4.5, Gemini 2.5 Flash-Lite, GPT-4o mini (Althing) (n=100 common questions, mean pairwise r = 0.528):
 
 | Constituent pair | Pearson r (per-question JSD) | n |
 |------------------|------------------------------|---|
@@ -362,7 +348,7 @@ artifacts strip `human_distribution` (#308).
 | Althing (Haiku 4.5) ↔ Althing (GPT-4o-mini) | 0.576 | 100 |
 | Althing (Gemini Flash Lite) ↔ Althing (GPT-4o-mini) | 0.498 | 100 |
 
-**globalopinionqa** (n=100 common questions, mean pairwise r = 0.538):
+**globalopinionqa**, blend of Qwen 3.8 Flash (Althing), Sonnet 4 (Althing), DeepSeek V4.1 Flash, Gemini 2.5 Flash-Lite (n=100 common questions, mean pairwise r = 0.538):
 
 | Constituent pair | Pearson r (per-question JSD) | n |
 |------------------|------------------------------|---|
@@ -373,7 +359,7 @@ artifacts strip `human_distribution` (#308).
 | Althing (Sonnet 4) ↔ Gemini Flash Lite | 0.609 | 100 |
 | DeepSeek V4.1 Flash ↔ Gemini Flash Lite | 0.593 | 100 |
 
-**globalopinionqa** (n=100 common questions, mean pairwise r = 0.550):
+**globalopinionqa**, blend of Haiku 5.5 (Althing), Llama 3.3 70B, Gemini 2.5 Flash-Lite (n=100 common questions, mean pairwise r = 0.550):
 
 | Constituent pair | Pearson r (per-question JSD) | n |
 |------------------|------------------------------|---|
@@ -381,7 +367,7 @@ artifacts strip `human_distribution` (#308).
 | Althing (Haiku 5.5) ↔ Gemini Flash Lite | 0.455 | 100 |
 | Llama 3.3 70B ↔ Gemini Flash Lite | 0.548 | 100 |
 
-**globalopinionqa** (n=100 common questions, mean pairwise r = 0.493):
+**globalopinionqa**, blend of Haiku 5.5 (Althing), DeepSeek V4.1 Flash, Gemini 2.5 Flash-Lite (n=100 common questions, mean pairwise r = 0.493):
 
 | Constituent pair | Pearson r (per-question JSD) | n |
 |------------------|------------------------------|---|
@@ -389,7 +375,7 @@ artifacts strip `human_distribution` (#308).
 | Althing (Haiku 5.5) ↔ Gemini Flash Lite | 0.455 | 100 |
 | DeepSeek V4.1 Flash ↔ Gemini Flash Lite | 0.593 | 100 |
 
-**globalopinionqa** (n=100 common questions, mean pairwise r = 0.535):
+**globalopinionqa**, blend of Qwen 3.8 Flash, DeepSeek V4.1 Flash, Gemini 3.5 Flash-Lite (raw) (n=100 common questions, mean pairwise r = 0.535):
 
 | Constituent pair | Pearson r (per-question JSD) | n |
 |------------------|------------------------------|---|
@@ -397,7 +383,7 @@ artifacts strip `human_distribution` (#308).
 | Qwen 3.8 Flash ↔ Gemini 3.5 Flash-Lite | 0.461 | 100 |
 | DeepSeek V4.1 Flash ↔ Gemini 3.5 Flash-Lite | 0.646 | 100 |
 
-**gss** (n=75 common questions, mean pairwise r = 0.633):
+**gss**, blend of Haiku 4.5, Gemini 2.5 Flash-Lite, GPT-4o mini (Althing) (n=75 common questions, mean pairwise r = 0.633):
 
 | Constituent pair | Pearson r (per-question JSD) | n |
 |------------------|------------------------------|---|
@@ -405,7 +391,7 @@ artifacts strip `human_distribution` (#308).
 | Althing (Haiku 4.5) ↔ Althing (GPT-4o-mini) | 0.617 | 75 |
 | Althing (Gemini Flash Lite) ↔ Althing (GPT-4o-mini) | 0.680 | 75 |
 
-**gss** (n=75 common questions, mean pairwise r = 0.530):
+**gss**, blend of Qwen 3.8 Flash (Althing), Sonnet 4 (Althing), DeepSeek V4.1 Flash, Gemini 2.5 Flash-Lite (n=75 common questions, mean pairwise r = 0.530):
 
 | Constituent pair | Pearson r (per-question JSD) | n |
 |------------------|------------------------------|---|
@@ -416,7 +402,7 @@ artifacts strip `human_distribution` (#308).
 | Althing (Sonnet 4) ↔ Gemini Flash Lite | 0.486 | 75 |
 | DeepSeek V4.1 Flash ↔ Gemini Flash Lite | 0.398 | 75 |
 
-**gss** (n=75 common questions, mean pairwise r = 0.546):
+**gss**, blend of Haiku 5.5 (Althing), Llama 3.3 70B, Gemini 2.5 Flash-Lite (n=75 common questions, mean pairwise r = 0.546):
 
 | Constituent pair | Pearson r (per-question JSD) | n |
 |------------------|------------------------------|---|
@@ -424,7 +410,7 @@ artifacts strip `human_distribution` (#308).
 | Althing (Haiku 5.5) ↔ Gemini Flash Lite | 0.517 | 75 |
 | Llama 3.3 70B ↔ Gemini Flash Lite | 0.532 | 75 |
 
-**gss** (n=75 common questions, mean pairwise r = 0.461):
+**gss**, blend of Haiku 5.5 (Althing), DeepSeek V4.1 Flash, Gemini 2.5 Flash-Lite (n=75 common questions, mean pairwise r = 0.461):
 
 | Constituent pair | Pearson r (per-question JSD) | n |
 |------------------|------------------------------|---|
@@ -432,7 +418,7 @@ artifacts strip `human_distribution` (#308).
 | Althing (Haiku 5.5) ↔ Gemini Flash Lite | 0.517 | 75 |
 | DeepSeek V4.1 Flash ↔ Gemini Flash Lite | 0.398 | 75 |
 
-**gss** (n=75 common questions, mean pairwise r = 0.604):
+**gss**, blend of Qwen 3.8 Flash, DeepSeek V4.1 Flash, Gemini 3.5 Flash-Lite (raw) (n=75 common questions, mean pairwise r = 0.604):
 
 | Constituent pair | Pearson r (per-question JSD) | n |
 |------------------|------------------------------|---|
@@ -440,7 +426,7 @@ artifacts strip `human_distribution` (#308).
 | Qwen 3.8 Flash ↔ Gemini 3.5 Flash-Lite | 0.644 | 75 |
 | DeepSeek V4.1 Flash ↔ Gemini 3.5 Flash-Lite | 0.500 | 75 |
 
-**opinionsqa** (n=100 common questions, mean pairwise r = 0.498):
+**opinionsqa**, blend of Haiku 4.5, Gemini 2.5 Flash-Lite, GPT-4o mini (Althing) (n=100 common questions, mean pairwise r = 0.498):
 
 | Constituent pair | Pearson r (per-question JSD) | n |
 |------------------|------------------------------|---|
@@ -448,7 +434,7 @@ artifacts strip `human_distribution` (#308).
 | Althing (Haiku 4.5) ↔ Althing (GPT-4o-mini) | 0.360 | 100 |
 | Althing (Gemini Flash Lite) ↔ Althing (GPT-4o-mini) | 0.618 | 100 |
 
-**opinionsqa** (n=100 common questions, mean pairwise r = 0.411):
+**opinionsqa**, blend of Qwen 3.8 Flash (Althing), Sonnet 4 (Althing), DeepSeek V4.1 Flash, Gemini 2.5 Flash-Lite (n=100 common questions, mean pairwise r = 0.411):
 
 | Constituent pair | Pearson r (per-question JSD) | n |
 |------------------|------------------------------|---|
@@ -459,7 +445,7 @@ artifacts strip `human_distribution` (#308).
 | Althing (Sonnet 4) ↔ Gemini Flash Lite | 0.390 | 100 |
 | DeepSeek V4.1 Flash ↔ Gemini Flash Lite | 0.300 | 100 |
 
-**opinionsqa** (n=100 common questions, mean pairwise r = 0.384):
+**opinionsqa**, blend of Haiku 5.5 (Althing), Llama 3.3 70B, Gemini 2.5 Flash-Lite (n=100 common questions, mean pairwise r = 0.384):
 
 | Constituent pair | Pearson r (per-question JSD) | n |
 |------------------|------------------------------|---|
@@ -467,7 +453,7 @@ artifacts strip `human_distribution` (#308).
 | Althing (Haiku 5.5) ↔ Gemini Flash Lite | 0.232 | 100 |
 | Llama 3.3 70B ↔ Gemini Flash Lite | 0.486 | 100 |
 
-**opinionsqa** (n=100 common questions, mean pairwise r = 0.318):
+**opinionsqa**, blend of Haiku 5.5 (Althing), DeepSeek V4.1 Flash, Gemini 2.5 Flash-Lite (n=100 common questions, mean pairwise r = 0.318):
 
 | Constituent pair | Pearson r (per-question JSD) | n |
 |------------------|------------------------------|---|
@@ -475,7 +461,7 @@ artifacts strip `human_distribution` (#308).
 | Althing (Haiku 5.5) ↔ Gemini Flash Lite | 0.232 | 100 |
 | DeepSeek V4.1 Flash ↔ Gemini Flash Lite | 0.300 | 100 |
 
-**opinionsqa** (n=100 common questions, mean pairwise r = 0.403):
+**opinionsqa**, blend of Qwen 3.8 Flash, DeepSeek V4.1 Flash, Gemini 3.5 Flash-Lite (raw) (n=100 common questions, mean pairwise r = 0.403):
 
 | Constituent pair | Pearson r (per-question JSD) | n |
 |------------------|------------------------------|---|
@@ -483,7 +469,7 @@ artifacts strip `human_distribution` (#308).
 | Qwen 3.8 Flash ↔ Gemini 3.5 Flash-Lite | 0.329 | 100 |
 | DeepSeek V4.1 Flash ↔ Gemini 3.5 Flash-Lite | 0.558 | 100 |
 
-**subpop** (n=100 common questions, mean pairwise r = 0.353):
+**subpop**, blend of Haiku 4.5, Gemini 2.5 Flash-Lite, GPT-4o mini (Althing) (n=100 common questions, mean pairwise r = 0.353):
 
 | Constituent pair | Pearson r (per-question JSD) | n |
 |------------------|------------------------------|---|
@@ -491,7 +477,7 @@ artifacts strip `human_distribution` (#308).
 | Althing (Haiku 4.5) ↔ Althing (GPT-4o-mini) | 0.388 | 100 |
 | Althing (Gemini Flash Lite) ↔ Althing (GPT-4o-mini) | 0.439 | 100 |
 
-**subpop** (n=100 common questions, mean pairwise r = 0.523):
+**subpop**, blend of Qwen 3.8 Flash (Althing), Sonnet 4 (Althing), DeepSeek V4.1 Flash, Gemini 2.5 Flash-Lite (n=100 common questions, mean pairwise r = 0.523):
 
 | Constituent pair | Pearson r (per-question JSD) | n |
 |------------------|------------------------------|---|
@@ -502,7 +488,7 @@ artifacts strip `human_distribution` (#308).
 | Althing (Sonnet 4) ↔ Gemini Flash Lite | 0.490 | 100 |
 | DeepSeek V4.1 Flash ↔ Gemini Flash Lite | 0.343 | 100 |
 
-**subpop** (n=100 common questions, mean pairwise r = 0.310):
+**subpop**, blend of Haiku 5.5 (Althing), Llama 3.3 70B, Gemini 2.5 Flash-Lite (n=100 common questions, mean pairwise r = 0.310):
 
 | Constituent pair | Pearson r (per-question JSD) | n |
 |------------------|------------------------------|---|
@@ -510,7 +496,7 @@ artifacts strip `human_distribution` (#308).
 | Althing (Haiku 5.5) ↔ Gemini Flash Lite | 0.230 | 100 |
 | Llama 3.3 70B ↔ Gemini Flash Lite | 0.412 | 100 |
 
-**subpop** (n=100 common questions, mean pairwise r = 0.251):
+**subpop**, blend of Haiku 5.5 (Althing), DeepSeek V4.1 Flash, Gemini 2.5 Flash-Lite (n=100 common questions, mean pairwise r = 0.251):
 
 | Constituent pair | Pearson r (per-question JSD) | n |
 |------------------|------------------------------|---|
@@ -518,7 +504,7 @@ artifacts strip `human_distribution` (#308).
 | Althing (Haiku 5.5) ↔ Gemini Flash Lite | 0.230 | 100 |
 | DeepSeek V4.1 Flash ↔ Gemini Flash Lite | 0.343 | 100 |
 
-**subpop** (n=100 common questions, mean pairwise r = 0.452):
+**subpop**, blend of Qwen 3.8 Flash, DeepSeek V4.1 Flash, Gemini 3.5 Flash-Lite (raw) (n=100 common questions, mean pairwise r = 0.452):
 
 | Constituent pair | Pearson r (per-question JSD) | n |
 |------------------|------------------------------|---|
@@ -613,7 +599,7 @@ more temperature — it just adds noise.
 <!-- BEGIN GENERATED: levers -->
 | Lever | Effect size (SPS pts) | Cost | Status |
 |-------|----------------------|------|--------|
-| **Ensemble blending** | +-0.2–7.1 | zero | done |
+| **Ensemble blending** | -0.2 to +7.1 | zero | done |
 | **Per-model optimal temperature** | +1.5–4.5 | low | actionable |
 | **Demographic conditioning** | +4.0–10.5 | moderate | scientific |
 | **Persona template** | 'current' template already optimal (+5.8 pts over the best alternative); no further gain available from this lever. | zero | done |
