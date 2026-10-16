@@ -31,6 +31,9 @@ MARKER_RE = re.compile(
     re.DOTALL,
 )
 
+# Provider id of the original equal-weight 3-model blend the headline reports.
+CANONICAL_ENSEMBLE = "ensemble/3-model-blend"
+
 
 def _pts(delta: float) -> str:
     return f"{delta * 100:+.1f}"
@@ -45,6 +48,24 @@ def _std_str(row: dict) -> str:
     return f" ± {std:.3f}" if std is not None else ""
 
 
+def _blend_label(row: dict) -> str:
+    """Member list of an ensemble row ("Ensemble: A, B, C" -> "A, B, C")."""
+    return row["ensemble_model"].removeprefix("Ensemble: ")
+
+
+def _canonical_ensembles(f: dict) -> list[dict]:
+    """The canonical 3-model blend row per dataset.
+
+    ``ensemble_comparison`` carries one row per published blend; the headline
+    (like the site's findings page) shows one ensemble per dataset, the
+    original equal-weight 3-model blend. Every blend is in render_ensemble.
+    """
+    from synthbench.leaderboard import display_provider_name
+
+    canonical = display_provider_name(CANONICAL_ENSEMBLE)
+    return [e for e in f["ensemble_comparison"] if e["ensemble_model"] == canonical]
+
+
 def render_headline(f: dict) -> str:
     # ensemble_comparison has one row per blend, so a dataset with several
     # blends repeats its random baseline; quote each dataset's floor once.
@@ -52,6 +73,8 @@ def render_headline(f: dict) -> str:
     for e in f["ensemble_comparison"]:
         if "random_baseline_sps" in e:
             floors.setdefault(e["dataset"], e["random_baseline_sps"])
+    rows = _canonical_ensembles(f)
+    members = _blend_label(rows[0]) if rows else "—"
     lines = [
         f"**Metric convention**: all SPS values below use the `{f['sps_convention']}` "
         "composite (equal-weighted mean of all available components), recomputed "
@@ -61,10 +84,13 @@ def render_headline(f: dict) -> str:
         + ", ".join(floors)
         + ") — read every headline against that floor, not against 0.",
         "",
+        f"3-model ensemble = the equal-weight blend of {members}. Every other "
+        "published blend is listed in [Experiment C](#experiment-c-ensemble-blending).",
+        "",
         "| Dataset | 3-model ensemble SPS | Best single model | Random baseline |",
         "|---------|---------------------|-------------------|-----------------|",
     ]
-    for e in f["ensemble_comparison"]:
+    for e in rows:
         rb = (
             f"{_fmt(e['random_baseline_sps'])} (n={e['random_baseline_n']})"
             if "random_baseline_sps" in e
@@ -249,8 +275,10 @@ def render_conditioning(f: dict) -> str:
 
 def render_ensemble(f: dict) -> str:
     lines = [
-        "| Dataset | Best single model | Equal blend | Improvement | Random baseline |",
-        "|---------|-------------------|-------------|-------------|-----------------|",
+        "| Dataset | Blend (equal weight) | Best single model | Blend SPS | "
+        "Improvement | Random baseline |",
+        "|---------|----------------------|-------------------|-----------|"
+        "-------------|-----------------|",
     ]
     for e in f["ensemble_comparison"]:
         rb = (
@@ -259,7 +287,7 @@ def render_ensemble(f: dict) -> str:
             else "—"
         )
         lines.append(
-            f"| {e['dataset']} ({e['n_questions']}q) | "
+            f"| {e['dataset']} ({e['n_questions']}q) | {_blend_label(e)} | "
             f"{_fmt(e['best_single_sps'])} ({e['best_single_model']}, "
             f"{e['best_single_framework']}) | **{_fmt(e['ensemble_sps'])}** | "
             f"**{_pts(e['improvement'])} pts** | {rb} |"
@@ -281,7 +309,8 @@ def render_error_correlation(f: dict) -> str:
     all_r: list[float] = []
     for row in rows:
         out += [
-            f"**{row['dataset']}** (n={row['n_questions']} common questions, "
+            f"**{row['dataset']}**, blend of {_blend_label(row)} "
+            f"(n={row['n_questions']} common questions, "
             f"mean pairwise r = {_fmt(row['mean_pearson_r'])}):",
             "",
             "| Constituent pair | Pearson r (per-question JSD) | n |",
@@ -331,7 +360,8 @@ def render_levers(f: dict) -> str:
         if lv["effect_min"] == lv["effect_max"] == 0.0:
             effect = lv.get("note", "no further gain")
         else:
-            effect = f"+{lv['effect_min']}–{lv['effect_max']}"
+            lo, hi = lv["effect_min"], lv["effect_max"]
+            effect = f"+{lo}–{hi}" if lo >= 0 else f"{lo:+.1f} to {hi:+.1f}"
         lines.append(f"| **{lv['name']}** | {effect} | {lv['cost']} | {lv['status']} |")
     return "\n".join(lines)
 
