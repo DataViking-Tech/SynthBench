@@ -4,7 +4,7 @@ Stable HTTP endpoint for downstream consumers (Althing `--best-model-for`,
 agents, dashboards) that want SynthBench's current model recommendation data
 without scraping the site or cloning the repo.
 
-Issue: [#295](https://github.com/DataViking-Tech/SynthBench/issues/295) · Bead: sb-ty6
+Issue: [#295](https://github.com/DataViking-Tech/SynthBench/issues/295)
 
 ## Endpoint
 

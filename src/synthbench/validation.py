@@ -1108,7 +1108,7 @@ def _validate_raw_responses(data: Mapping[str, Any]) -> list[Issue]:
 
     Missing or malformed raw samples surface as WARNINGS so existing
     leaderboard files without the field still validate. Once the
-    ecosystem has migrated, the bead plans to graduate this to ERROR.
+    ecosystem has migrated, the plan is to graduate this to ERROR.
     """
     issues: list[Issue] = []
     per_question = data.get("per_question") or []

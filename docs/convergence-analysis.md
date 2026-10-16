@@ -60,8 +60,8 @@ from that aggregate. That means:
 
 The true human-convergence question — *how fast does a realistic survey
 design converge under actual population heterogeneity* — requires
-individual-level microdata. That work lives in the microdata adapter bead
-(sibling issue `sb-gh1n`). The bootstrap curve here is the **lower-bound
+individual-level microdata. That work lives in the microdata adapter
+follow-up. The bootstrap curve here is the **lower-bound
 abstraction** that the microdata path eventually gets compared to.
 
 ## Output schema
@@ -250,7 +250,7 @@ when the distinction does not matter.
 ## Cross-reference
 
 * `docs/microdata-ingestion.md` — microdata setup + `MicrodataRow` schema.
-* Sibling bead `sb-gh1n` — microdata adapters for real-population convergence.
+* Microdata adapters for real-population convergence (follow-up work).
 * `src/synthbench/metrics/distributional.py` — the JSD implementation reused
   here.
 * `src/synthbench/datasets/policy.py` — redistribution-policy lookup.

@@ -59,7 +59,7 @@ class TestDeterminism:
 
 
 class TestEnabledDatasets:
-    def test_bead_specifies_eight_datasets(self):
+    def test_specifies_eight_datasets(self):
         assert len(HOLDOUT_ENABLED_DATASETS) == 8
 
     def test_per_dataset_fractions_match_hardening_plan(self):

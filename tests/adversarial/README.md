@@ -7,7 +7,7 @@ caught by at least one detector. The suite runs in CI (via `pytest tests/`)
 and is the contract that future detector tuning — threshold changes,
 severity promotions, new detector additions — has to keep passing.
 
-Introduced by bead **sb-5xfk** in response to Wang et al. 2026 (Berkeley
+Introduced in response to Wang et al. 2026 (Berkeley
 RDI, *How We Broke Top AI Agent Benchmarks*). See
 `docs/benchmark-hardening-analysis.md` section 5 for the full threat
 model and recipe catalogue.
@@ -48,7 +48,7 @@ For every fixture, three contract directions are checked.
 * **`must_be_ok`** — when `true`, the fixture must validate cleanly (no
   errors); when `false`, it must be rejected. `null` defers the check —
   used for fixtures whose primary detector is still WARNING-tier today
-  and is scheduled to graduate to ERROR in a dependent bead.
+  and is scheduled to graduate to ERROR in follow-up work.
 
 Two additional protections:
 
@@ -56,7 +56,7 @@ Two additional protections:
   The check reads the dotted detector path (e.g.
   `synthbench.anomaly.check_near_copy_public`) and **skips** the
   assertion when the symbol isn't importable. The moment the upstream
-  bead lands and the detector is callable, the same check goes live
+  detector lands and is callable, the same check goes live
   without any change to this directory.
 * **`extra_assertions`** — named bespoke checks implemented in
   `test_adversarial_suite.py::TestBespokeAssertions`. Today: the
@@ -139,11 +139,11 @@ When you implement a new Tier-3 detector:
 * **`must_fire` severity-agnostic.** A detector promoted from WARNING
   to ERROR should not force a sweeping fixture rewrite. The suite's
   job is to detect *presence*; severity is decided by the validator.
-* **`future_fire` for staged rollouts.** The roadmap bead plan in
+* **`future_fire` for staged rollouts.** The roadmap work plan in
   `docs/benchmark-hardening-analysis.md` §7 lands detectors serially.
-  Rather than publishing a broken suite between beads, the harness
+  Rather than publishing a broken suite between steps, the harness
   skips detectors that aren't yet callable. Nothing to clean up after
   a detector ships — the check automatically activates.
-* **10 fixtures is the floor, not the ceiling.** Bead sb-5xfk
+* **10 fixtures is the floor, not the ceiling.** The suite
   mandates ≥10; add more as new attack classes surface. The intent is
   to grow the suite every time a gaming attempt is caught in the wild.

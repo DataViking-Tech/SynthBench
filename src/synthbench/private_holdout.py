@@ -31,8 +31,8 @@ us three properties we rely on:
 
 Only datasets in :data:`HOLDOUT_ENABLED_DATASETS` are split. Other datasets
 resolve to public (``is_private_holdout`` → ``False``) so they are unchanged
-by holdout enforcement. Tightening that set is a policy decision — see the
-bead for the current rationale.
+by holdout enforcement. Tightening that set is a policy decision — see
+``docs/benchmark-hardening-analysis.md`` for the current rationale.
 """
 
 from __future__ import annotations

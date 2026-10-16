@@ -223,14 +223,14 @@ outcome is good for SynthBench's authoritativeness.
 
 ## Tracking and measurement
 
-We track in a single bead with weekly updates:
+We track in a single tracking issue with weekly updates:
 
 | Week of | Target hit | Tier | Citation | Weighted points |
 |---|---|---|---|---|
 | 2026-05-19 | (placeholder) | — | — | 0.0 |
 | ... | | | | |
 
-Source of truth: `bd update sb-v6a --notes "..."` each Friday until the
+Source of truth: a weekly update on the tracking issue each Friday until the
 90-day window closes (2026-08-12). At that point, the cumulative weighted-
 point total goes in the 2026-Q3 quarterly report's §5 ("Integrity update"
 section is the natural home; a successful flywheel is itself an integrity
@@ -300,7 +300,7 @@ signal).
       responded
 - [ ] 2026-Q3 quarterly report drafted (deadline 2026-08-15), which
       includes the citation-flywheel scorecard in §5
-- [ ] `bd close sb-v6a` with the cumulative weighted points and a
+- [ ] Close the tracking issue with the cumulative weighted points and a
       retrospective on what worked
 
 ---

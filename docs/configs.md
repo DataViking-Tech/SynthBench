@@ -1,6 +1,6 @@
 # User-configuration artifacts
 
-> Tracks Wesley directive 2026-05-14, [GH#257](https://github.com/DataViking-Tech/SynthBench/issues/257), bead `sb-vgb`.
+> Tracks Wesley directive 2026-05-14, [GH#257](https://github.com/DataViking-Tech/SynthBench/issues/257).
 
 A **user configuration** lets a contributor publish *how they tuned a vendor*
 for a specific subgroup — system prompts, persona packs, decoding knobs,
@@ -171,7 +171,7 @@ metadata and re-aggregating. Configs without a `selector` get whole-bench
 scoring only.
 
 Leaderboard UI work (row grouping, win-region rendering, the re-run button)
-is tracked separately under follow-up beads filed against this one; this
+is tracked separately as follow-up issues; this
 document specifies the on-disk artifact + submission body so the UI work
 has a stable schema to build against.
 
@@ -186,7 +186,7 @@ Each config is a reproducible artifact pinned to:
 Anyone with the same harness and an API key for the same vendor can re-run
 the benchmark against the config and expect the same scores (modulo
 sampling noise). The "Re-run" button on the leaderboard (see follow-up
-beads) kicks off a CI verification that does exactly that.
+issues) kicks off a CI verification that does exactly that.
 
 ## Sample configs
 
