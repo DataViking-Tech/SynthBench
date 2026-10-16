@@ -17,7 +17,7 @@ Three layers:
 The output is the theoretical lower bound an idealized i.i.d. sampler from the
 aggregate distribution would achieve. It is NOT an estimate of real-population
 convergence (population heterogeneity requires microdata; see the microdata
-bead). Treat this curve as the floor everything else gets compared to.
+adapter follow-up). Treat this curve as the floor everything else gets compared to.
 """
 
 from __future__ import annotations

@@ -1,7 +1,7 @@
 import { expect, test } from "@playwright/test";
 
 // sb-djv — Explore page: surface config differentiators + hide exploratory
-// runs by default. Asserts the acceptance criteria from the bead:
+// runs by default. Asserts the acceptance criteria:
 //   * rows expose `s=<samples>` and `n=<questions>` chips so configs that
 //     look identical at a glance are visually distinguishable
 //   * the "Show exploratory runs" toggle defaults to OFF, hiding rows with

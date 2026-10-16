@@ -39,7 +39,7 @@ export interface CreateApiKeyResult {
   row: ApiKeyRow;
 }
 
-/** Per-user cap. Mirrors the bead spec; UI enforces, DB does not. */
+/** Per-user cap. Mirrors the feature spec; UI enforces, DB does not. */
 export const MAX_ACTIVE_KEYS_PER_USER = 5;
 
 const KEY_BODY_LEN = 32;

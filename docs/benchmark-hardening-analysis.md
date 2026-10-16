@@ -278,11 +278,11 @@ We intend this posture to be *conservative*. The correct failure mode for a scie
 
 ---
 
-## 7. Effort estimates & bead plan
+## 7. Effort estimates & work plan
 
-Converted to bead proposals (for mayor to schedule):
+Converted to work-item proposals for scheduling:
 
-| Bead | Title | Effort | Priority | Depends on |
+| Item | Title | Effort | Priority | Depends on |
 | ---- | ----- | ------ | -------- | ---------- |
 | A | Promote `ANOMALY_PERFECTION` to ERROR at n≥25 | S | P0 | — |
 | B | Promote `HOLDOUT_DIVERGENCE` to ERROR at min_side≥50 | S | P0 | — |

@@ -2,7 +2,6 @@
 
 Audit date: 2026-04-15
 Auditor: synthbench/polecats/chrome
-Tracking bead: sb-arr
 
 ## Status: GREEN
 
@@ -58,7 +57,7 @@ SynthPanel repo; a synthbench polecat cannot land them from here.
    trap for future polecats who may `cd` into the wrong tree. Candidate for
    `rm -rf` by operator once verified to contain no uncommitted work.
 
-6. **Version bump to v0.9.0 explicitly deferred.** Per the bead notes, the
+6. **Version bump to v0.9.0 explicitly deferred.** Per the tracking notes, the
    next operator action is a separate v0.9.0 release; this audit did not bump
    versions.
 
@@ -91,9 +90,9 @@ SynthPanel repo; a synthbench polecat cannot land them from here.
   all reference `synthpanel` (lowercase distribution name) in user-facing
   summary lines only; GitHub URLs there use relative references and work
   post-rename.
-- **No open synthbench beads mention `synth-panel`** other than the audit
-  bead itself (`sb-arr`). The only other hit (`sb-0kc`) is a closed
-  historical slice and was left alone. Eight SynthPanel beads mention
+- **No open synthbench issues mention `synth-panel`** other than the
+  audit's own tracking item. The only other hit is a closed
+  historical slice and was left alone. Eight SynthPanel issues mention
   `synth-panel` but are all closed historical records and were left alone.
 
 ## Fixed in this PR
@@ -132,7 +131,7 @@ after these edits (verified by repo-wide grep).
   synthbench repo itself is still PRIVATE (`gh repo view` confirms). If the
   operator intends the leaderboard to cite a public benchmark harness, the
   harness repo needs to be public too. Deferred — not in scope for this
-  bead.
+  audit.
 - **Add LICENSE + topics to synthbench for parity when it does go
   public.** Current `synthbench` repo has no license and no topics; a
   public flip would want MIT (matching SynthPanel) and topics like

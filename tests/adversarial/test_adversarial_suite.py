@@ -60,7 +60,7 @@ def _detector_installed(dotted: str) -> bool:
 
     Used to make ``future_fire`` checks skip cleanly when the detector
     hasn't shipped yet (e.g. before the ``ANOMALY_NEAR_COPY_PUBLIC``
-    bead lands). Once the detector lands, the same check becomes live
+    detector lands). Once the detector lands, the same check becomes live
     without any change to this file.
     """
     module_name, _, attr = dotted.rpartition(".")
@@ -170,7 +170,7 @@ class TestAdversarialFixtures:
     def test_future_detectors_fire_when_installed(self, fixture_name: str) -> None:
         """Detectors that aren't yet implemented are declared in
         ``future_fire`` so the suite promotes itself automatically the
-        moment the upstream bead lands. Until then the case is skipped.
+        moment the upstream detector lands. Until then the case is skipped.
         """
         contract = EXPECTED[fixture_name]
         future = contract.get("future_fire") or []
@@ -242,10 +242,10 @@ class TestBespokeAssertions:
 
 class TestSuiteIntegrity:
     def test_at_least_ten_fixtures(self) -> None:
-        """Acceptance criterion: suite contains >=10 fabrications (sb-5xfk)."""
+        """Acceptance criterion: suite contains >=10 fabrications."""
         assert len(FIXTURE_NAMES) >= 10, (
             f"adversarial suite has only {len(FIXTURE_NAMES)} fixtures; "
-            "bead sb-5xfk requires at least 10."
+            "the suite requires at least 10."
         )
 
     def test_every_fixture_declares_a_contract(self) -> None:

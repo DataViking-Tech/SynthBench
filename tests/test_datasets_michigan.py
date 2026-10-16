@@ -38,8 +38,8 @@ def test_info_metadata():
     assert info["demographics"] == len(DEMOGRAPHIC_ATTRIBUTES)
 
 
-def test_demographic_attributes_match_bead_spec():
-    # sb-michigan requires age, income, education, political party.
+def test_demographic_attributes_match_spec():
+    # The Michigan adapter spec requires age, income, education, political party.
     assert set(DEMOGRAPHIC_ATTRIBUTES) == {"AGE", "INCOME", "EDUCATION", "POLPARTY"}
 
 
