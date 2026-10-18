@@ -5,9 +5,21 @@ import IndexScales from "@/components/sb/IndexScales.astro";
 import Info from "@/components/sb/Info.astro";
 import ProviderLogo from "@/components/sb/ProviderLogo.astro";
 import BaseLayout from "@/layouts/BaseLayout.astro";
+import "@/styles/dist-bars.css";
+import leaderboardRaw from "@/data/leaderboard.json";
 import { datasetLabel } from "@/lib/runExplorer";
+import { indexScales } from "@/lib/synthIndex";
 import { type SystemLink, systemLinkFor } from "@/lib/systemLinks";
-import { INDEX_EXPLAINER, METHOD_NAMES, datasetAudience, runSystem } from "@/lib/vocab";
+import {
+  INDEX_EXPLAINER,
+  METHOD_NAMES,
+  datasetAudience,
+  datasetId,
+  fmtIndex,
+  runSystem,
+  spsToIndex,
+} from "@/lib/vocab";
+import type { SynthBenchData } from "@/types/leaderboard";
 import type { RunIndex, RunIndexEntry } from "@/types/runs";
 
 export async function getStaticPaths() {
@@ -63,6 +75,22 @@ const questionIndexUrl = hasQuestionIndex ? `${questionBaseUrl}/` : "";
 const dsName = datasetLabel(entry.dataset);
 // Canonical names (lib/vocab.ts), shared with the leaderboard and charts.
 const sys = runSystem(entry);
+// An ensemble's full name lists every member (five lines on a phone): the
+// heading is its short name and the members go underneath.
+const isEnsemble = sys.method === "ensemble";
+const heading = isEnsemble ? sys.short : sys.full;
+const members = isEnsemble && sys.short !== sys.full ? sys.full : null;
+// The verdict under the heading: this run's Index on its dataset. The run
+// JSON adds the interval once it loads.
+const scale = indexScales(leaderboardRaw as unknown as SynthBenchData)[datasetId(entry.dataset)];
+const runIndex = spsToIndex(entry.sps, scale);
+const settings = [
+  `temperature ${entry.temperature ?? "default"}`,
+  entry.template && entry.template !== "current" ? `${entry.template} template` : null,
+  entry.effort ? `${entry.effort} effort` : null,
+]
+  .filter(Boolean)
+  .join(" · ");
 
 // Public aggregates from runs-index.json. They render immediately and stay
 // when the per-question artifact is gated; the run JSON (when it loads)
@@ -110,7 +138,7 @@ const indexScores = JSON.stringify({
     <!-- Header (server-rendered from index entry) -->
     <header class="mb-8">
       <div class="flex flex-wrap items-baseline gap-2">
-        <h1 class="flex items-center gap-2 text-2xl font-bold sm:text-3xl"><ProviderLogo of={sys.method === "ensemble" ? "ensemble" : entry.model} />{sys.full}</h1>
+        <h1 class="flex items-center gap-2 text-2xl font-bold sm:text-3xl"><ProviderLogo of={isEnsemble ? "ensemble" : entry.model} />{heading}</h1>
         {
           entry.is_ensemble && (
             <span class="rounded bg-primary/10 px-2 py-0.5 text-xs text-primary">
@@ -126,18 +154,34 @@ const indexScores = JSON.stringify({
           )
         }
       </div>
+      {members && <p class="mt-1 max-w-3xl text-sm text-muted">{members}</p>}
       <p class="mt-1 text-sm text-muted">
         {dsName}{datasetAudience(entry.dataset) && ` · ${datasetAudience(entry.dataset)}`}
       </p>
-      <p class="mt-1 break-all font-mono text-xs text-muted">{entry.run_id}</p>
+      {
+        runIndex != null && (
+          <p class="run-verdict mt-3" id="run-verdict">
+            <span class="run-verdict-k">Index on {dsName}</span>
+            <span class="run-verdict-v">{fmtIndex(runIndex)}</span>
+            <span class="run-verdict-d" id="run-verdict-d">
+              {runIndex > 0 ? "above" : runIndex < 0 ? "below" : "level with"} random answers (0); real
+              people score 100
+            </span>
+          </p>
+        )
+      }
+      <p class="mt-2 break-all font-mono text-xs text-muted">{entry.run_id}</p>
     </header>
 
     <!-- 1. Config metadata -->
-    <section class="mb-8 rounded-lg border border-muted/20 p-5">
-      <h2 class="mb-3 text-sm font-semibold uppercase tracking-wide text-muted">
-        Configuration
-      </h2>
-      <dl class="grid grid-cols-2 gap-x-6 gap-y-3 text-sm sm:grid-cols-3 md:grid-cols-4">
+    <details class="run-config mb-8 rounded-lg border border-muted/20 p-5" id="run-config">
+      <summary class="run-config-sum">
+        <h2 class="text-sm font-semibold uppercase tracking-wide text-muted">Configuration</h2>
+        <span class="run-config-brief text-xs text-muted">
+          {METHOD_NAMES[sys.method].label} · {settings}
+        </span>
+      </summary>
+      <dl class="mt-3 grid grid-cols-2 gap-x-6 gap-y-3 text-sm sm:grid-cols-3 md:grid-cols-4">
         <div>
           <dt class="text-xs text-muted">Method</dt>
           <dd>{METHOD_NAMES[sys.method].label}</dd>
@@ -195,7 +239,11 @@ const indexScores = JSON.stringify({
           )
         }
       </div>
-    </section>
+    </details>
+    <script is:inline>
+      // Open on wide screens (as it always was); phones start collapsed.
+      if (matchMedia("(min-width: 640px)").matches) document.getElementById("run-config").open = true;
+    </script>
 
     <!-- 2. Aggregate scores -->
     <section class="mb-8">
@@ -238,13 +286,15 @@ const indexScores = JSON.stringify({
             <input id="flipped-filter" type="checkbox" class="accent-primary" />
             Modal answer differs from human
           </label>
-          <label for="topic-filter" class="text-muted">Topic:</label>
-          <select
-            id="topic-filter"
-            class="rounded border border-muted/30 bg-surface px-2 py-1 text-sm dark:bg-surface-dark"
-          >
-            <option value="all">All</option>
-          </select>
+          <span class="inline-flex min-w-0 items-center gap-2">
+            <label for="topic-filter" class="text-muted">Topic</label>
+            <select
+              id="topic-filter"
+              class="min-w-0 rounded border border-muted/30 bg-surface px-2 py-1 text-sm dark:bg-surface-dark"
+            >
+              <option value="all">All</option>
+            </select>
+          </span>
           <span id="row-count" class="text-xs text-muted"></span>
         </div>
       </div>
@@ -274,6 +324,7 @@ const indexScores = JSON.stringify({
           </tbody>
         </table>
       </div>
+      <button type="button" id="pq-more" class="pq-more" hidden></button>
     </section>
 
     <div
@@ -288,6 +339,8 @@ const indexScores = JSON.stringify({
 
 <script>
   import "@/scripts/stackTables";
+  import "@/scripts/distBars";
+  import { distBarHtml, distLegendHtml, distReadout } from "@/lib/distBar";
   import {
     datasetLabel,
     modalOption,
@@ -295,7 +348,6 @@ const indexScores = JSON.stringify({
     safeQuestionKey,
   } from "@/lib/runExplorer";
   import { METRIC_NAMES, datasetId, fmtIndex, readIndexScales, spsToIndex } from "@/lib/vocab";
-  import { optionColor } from "@/lib/answerPalette";
   import { topicLabel } from "@/lib/topics";
   import type { PerQuestionRow, RunAggregate, RunDetail, RunScores } from "@/types/runs";
 
@@ -329,7 +381,12 @@ const indexScores = JSON.stringify({
     showYear: false,
     questionBaseUrl: "",
     pageKeys: null as Set<string> | null,
+    /** Some rows have human answers: a row without them is a private-holdout question. */
+    someHuman: false,
+    /** Phones list the first ROWS_FIRST rows until "Show all" (CSS, .pq-clamped). */
+    showAll: false,
   };
+  const ROWS_FIRST = 15;
 
   const fmt = (n: number | null | undefined, places = 3): string =>
     n == null || Number.isNaN(n) ? "—" : n.toFixed(places);
@@ -349,25 +406,11 @@ const indexScores = JSON.stringify({
     options: string[],
   ): string {
     if (!dist) return "";
-    // Preserve option order; fall back to dist key order if options is empty.
-    const keys = options.length ? options : Object.keys(dist);
-    const segments = keys
-      .map((k, i) => {
-        const v = dist[k] ?? 0;
-        const pct = Math.max(0, Math.min(1, v)) * 100;
-        const color = optionColor(keys, i);
-        const title = `${escapeHtml(k)}: ${(v * 100).toFixed(1)}%`;
-        return `<span class="dist-seg" title="${title}" style="width:${pct}%;background:${color}"></span>`;
-      })
-      .join("");
-    const accessibleSummary = keys
-      .map((k) => `${k}: ${((dist[k] ?? 0) * 100).toFixed(1)}%`)
-      .join(", ");
-    const barLabel = `${label} distribution: ${accessibleSummary}`;
+    const name = label === "Human" ? "people" : "model";
     return `
       <div class="dist-row">
         <span class="dist-label" aria-hidden="true">${escapeHtml(label)}</span>
-        <span class="dist-bar" role="img" aria-label="${escapeHtml(barLabel)}">${segments}</span>
+        ${distBarHtml(dist, options, { aria: `${label} distribution: `, name })}
       </div>
     `;
   }
@@ -377,13 +420,7 @@ const indexScores = JSON.stringify({
     dist: Record<string, number> | undefined,
   ): string {
     if (!dist) return "";
-    const keys = options.length ? options : Object.keys(dist);
-    return keys
-      .map((k, i) => {
-        const color = optionColor(keys, i);
-        return `<span class="dist-chip"><span class="dist-swatch" style="background:${color}"></span>${escapeHtml(k)}</span>`;
-      })
-      .join("");
+    return distLegendHtml(options.length ? options : Object.keys(dist));
   }
 
   function renderScores(
@@ -406,6 +443,14 @@ const indexScores = JSON.stringify({
       r ? `[${f(r[0])}, ${f(r[1])}]` : "";
     const spsCi = range("sps");
     const toIdx = (v: number) => fmtIndex(spsToIndex(v, scale));
+    // The verdict under the heading gains the interval once the run JSON has it.
+    const verdict = document.getElementById("run-verdict-d");
+    const lo = spsCi ? spsToIndex(spsCi[0], scale) : null;
+    const hi = spsCi ? spsToIndex(spsCi[1], scale) : null;
+    if (verdict && lo != null && hi != null)
+      verdict.textContent = `95% interval ${fmtIndex(lo)} to ${fmtIndex(hi)}: ${
+        lo > 0 ? "above" : hi < 0 ? "below" : "not clearly different from"
+      } random answers (0); real people score 100`;
     type Tile = [keyof typeof METRIC_NAMES, string, string];
     const tiles: Tile[] = [
       ["index", fmtIndex(spsToIndex(scores.sps, scale)), ciText(spsCi, toIdx)],
@@ -536,6 +581,14 @@ const indexScores = JSON.stringify({
       r.flipped === true
         ? ` <span class="sb-warn" title="Differs from the human modal answer">≠</span>`
         : "";
+    // No human answers for this row: a private-holdout question when other
+    // rows have them, otherwise the dataset's license keeps them back.
+    const humanCell =
+      r.flipped == null
+        ? view.someHuman
+          ? `<span class="pq-private" title="Private holdout: the human answers to this question are not published">private</span>`
+          : `<span class="pq-private" title="The dataset's license keeps per-question human answers back">not published</span>`
+        : escapeHtml(r.humanModal);
     return `
       <tr class="pq-row border-b border-muted/10 hover:bg-primary/5" data-key="${escapeHtml(row.key)}" data-topic="${escapeHtml(r.topic)}">
         <td class="px-3 py-2">
@@ -550,11 +603,11 @@ const indexScores = JSON.stringify({
             </span>
           </button>
         </td>
-        <td class="px-3 py-2 text-xs">${escapeHtml(topicLabel(r.topic) || "—")}</td>
-        <td class="px-3 py-2 text-xs">${escapeHtml(r.modelModal)}${flipMark}</td>
-        <td class="px-3 py-2 text-xs">${escapeHtml(r.humanModal)}</td>
+        <td class="pq-topic px-3 py-2 text-xs">${escapeHtml(topicLabel(r.topic) || "—")}</td>
+        <td class="pq-model px-3 py-2 text-xs" data-k="Model">${escapeHtml(r.modelModal)}${flipMark}</td>
+        <td class="pq-human px-3 py-2 text-xs" data-k="People">${humanCell}</td>
         ${yearCell}
-        <td class="px-3 py-2 text-right font-mono">${fmt(row.jsd)}</td>
+        <td class="pq-jsd px-3 py-2 text-right font-mono" data-k="Gap">${fmt(row.jsd)}</td>
       </tr>
       <tr id="${detailId}" class="pq-detail hidden border-b border-muted/10 bg-surface/50 dark:bg-surface-dark/50" data-topic="${escapeHtml(r.topic)}">
         <td colspan="6" class="px-4 py-4">
@@ -581,13 +634,14 @@ const indexScores = JSON.stringify({
             ${row.temporal_year ? `· year: <span class="font-mono">${row.temporal_year}</span>` : ""}
           </div>
           <div class="dist-legend">${renderLegend(row.options ?? [], row.human_distribution ?? row.model_distribution)}</div>
-          <div class="dist-stack">
+          <div class="dist-stack" data-dist-group>
             ${
               row.human_distribution
                 ? renderStackedBar("Human", row.human_distribution, row.options ?? [])
                 : `<div class="dist-row"><span class="dist-label">Human</span><span class="text-xs text-muted">not published for this question (private holdout or dataset license)</span></div>`
             }
             ${renderStackedBar("Model", row.model_distribution, row.options ?? [])}
+            ${distReadout("Tap or click a segment to see its share.")}
           </div>
         </td>
       </tr>
@@ -603,6 +657,14 @@ const indexScores = JSON.stringify({
       : `<tr><td colspan="6" class="px-3 py-8 text-center text-muted">${
           view.rows.length ? "No questions match the current filters." : "No per-question data available."
         }</td></tr>`;
+    const table = document.getElementById("per-question-table");
+    const more = document.getElementById("pq-more") as HTMLButtonElement | null;
+    const clamped = !view.showAll && rows.length > ROWS_FIRST;
+    table?.classList.toggle("pq-clamped", clamped);
+    if (more) {
+      more.hidden = !clamped;
+      more.textContent = `Show all ${rows.length} questions`;
+    }
     const counter = document.getElementById("row-count");
     if (counter) {
       const flipped = view.rows.filter((r) => r.flipped === true).length;
@@ -691,6 +753,19 @@ const indexScores = JSON.stringify({
         update();
       });
     }
+  }
+
+  function wireShowAll(): void {
+    const more = document.getElementById("pq-more");
+    more?.addEventListener("click", () => {
+      view.showAll = true;
+      renderTable();
+      // Keep the reader where they were: on the first newly shown row.
+      document
+        .querySelectorAll<HTMLElement>("#per-question-tbody tr.pq-row")
+        [ROWS_FIRST]?.querySelector<HTMLButtonElement>("button.pq-expand")
+        ?.focus({ preventScroll: true });
+    });
   }
 
   function wireRowExpansion(): void {
@@ -843,8 +918,10 @@ const indexScores = JSON.stringify({
           flipped: hasHuman ? modelModal !== humanModal : null,
         };
       });
+      view.someHuman = view.rows.some((r) => r.flipped != null);
       wireControls();
       wireRowExpansion();
+      wireShowAll();
       update();
     } catch (err) {
       showError(err instanceof Error ? err.message : String(err));
@@ -914,60 +991,213 @@ const indexScores = JSON.stringify({
     display: inline-flex;
     align-items: center;
   }
-  .dist-stack {
-    display: flex;
-    flex-direction: column;
-    gap: 0.4rem;
-    margin-top: 0.5rem;
-  }
-  .dist-row {
-    display: grid;
-    grid-template-columns: 4.5rem 1fr;
-    align-items: center;
-    gap: 0.5rem;
-  }
-  .dist-label {
-    font-size: 0.75rem;
-    color: var(--color-muted);
-  }
-  .dist-bar {
-    display: flex;
-    width: 100%;
-    height: 1rem;
-    overflow: hidden;
-    border-radius: 0.25rem;
-    background: color-mix(in oklch, var(--color-muted) 15%, transparent);
-  }
-  .dist-seg {
-    display: block;
-    height: 100%;
-  }
-  .dist-legend {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.5rem 0.75rem;
-    font-size: 0.7rem;
-    color: var(--color-muted);
-    margin-bottom: 0.35rem;
-  }
-  .dist-chip {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.25rem;
-  }
-  .dist-swatch {
-    display: inline-block;
-    width: 0.65rem;
-    height: 0.65rem;
-    border-radius: 0.125rem;
-  }
   /* Phones: no text under 12px. */
   @media (max-width: 639px) {
     .score-tech,
     .score-ci,
-    .score-link,
-    .dist-legend {
+    .score-link {
       font-size: 0.75rem;
+    }
+  }
+
+  /* ---------- Verdict and configuration (all widths) ---------- */
+  .run-verdict {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.25rem 0.75rem;
+  }
+  .run-verdict-k {
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--color-muted);
+  }
+  .run-verdict-v {
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 1.75rem;
+    font-weight: 600;
+    line-height: 1;
+  }
+  .run-verdict-d {
+    font-size: 0.875rem;
+    color: var(--color-muted);
+  }
+  .run-config > summary {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.25rem 0.75rem;
+    list-style: none;
+  }
+  .run-config > summary::-webkit-details-marker {
+    display: none;
+  }
+  .pq-private {
+    display: inline-block;
+    padding: 0 0.375rem;
+    border-radius: 0.25rem;
+    border: 1px dashed color-mix(in oklch, var(--color-muted) 60%, transparent);
+    color: var(--color-muted);
+    font-size: 0.75rem;
+    line-height: 1.25rem;
+  }
+  .pq-more {
+    display: none;
+  }
+  /* Wide screens: the configuration card is always open, as before. */
+  @media (min-width: 640px) {
+    .run-config > summary {
+      pointer-events: none;
+    }
+    .run-config-brief {
+      display: none;
+    }
+  }
+
+  /* ---------- Phones ---------- */
+  @media (max-width: 639px) {
+    /* Configuration collapses to one line under the verdict. */
+    .run-config {
+      padding: 0;
+    }
+    .run-config > summary {
+      min-height: 44px;
+      padding: 0.625rem 2.25rem 0.625rem 0.875rem;
+      position: relative;
+      cursor: pointer;
+    }
+    .run-config > summary::after {
+      content: "▸";
+      position: absolute;
+      right: 0.875rem;
+      top: 0.625rem;
+      color: var(--color-muted);
+    }
+    .run-config[open] > summary::after {
+      content: "▾";
+    }
+    .run-config > :not(summary) {
+      margin-left: 0.875rem;
+      margin-right: 0.875rem;
+    }
+    .run-config > :last-child {
+      margin-bottom: 0.875rem;
+    }
+
+    /* Scores: a compact list, value on the right. */
+    #run-scores {
+      grid-template-columns: 1fr;
+      gap: 0;
+    }
+    #run-scores .score-tile {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      column-gap: 0.75rem;
+      border-radius: 0;
+      border-width: 0 0 1px;
+      padding: 0.5rem 0.25rem;
+      background: none;
+    }
+    #run-scores .score-tile--lead {
+      border-color: color-mix(in oklch, var(--color-muted) 25%, transparent);
+    }
+    #run-scores .score-label {
+      grid-column: 1;
+      grid-row: 1;
+      font-size: 0.875rem;
+    }
+    #run-scores .score-tech {
+      grid-column: 1;
+      grid-row: 2;
+    }
+    #run-scores .score-value {
+      grid-column: 2;
+      grid-row: 1;
+      margin: 0;
+      text-align: right;
+    }
+    #run-scores .score-ci {
+      grid-column: 2;
+      grid-row: 2;
+      margin: 0;
+      text-align: right;
+    }
+    #run-scores .score-link {
+      grid-column: 1 / -1;
+      min-height: 44px;
+      display: flex;
+      align-items: center;
+      margin: 0;
+    }
+
+    /* Per-question rows: key and gap on the first line, the question in
+       two lines (full text on expand), then model and people answers. */
+    #per-question-table tbody tr.pq-row:not(.hidden) {
+      position: relative;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      gap: 0.125rem 0.75rem;
+      padding: 0.625rem 0.25rem;
+    }
+    #per-question-table td.pq-jsd {
+      position: absolute;
+      top: 0.625rem;
+      right: 0.5rem;
+      padding: 0;
+      text-align: right;
+    }
+    #per-question-table tr.pq-row td:first-child button {
+      padding-right: 5rem;
+      min-height: 0;
+    }
+    #per-question-table tr.pq-row .pq-text {
+      display: -webkit-box;
+      -webkit-box-orient: vertical;
+      -webkit-line-clamp: 2;
+      line-clamp: 2;
+      overflow: hidden;
+    }
+    #per-question-table tr.pq-row button[aria-expanded="true"] .pq-text {
+      display: block;
+      -webkit-line-clamp: unset;
+      line-clamp: none;
+    }
+    #per-question-table td.pq-model,
+    #per-question-table td.pq-human {
+      grid-row: 2;
+    }
+    #per-question-table td.pq-topic {
+      grid-row: 3;
+      grid-column: 1 / -1;
+      color: var(--color-muted);
+    }
+    #per-question-table td.pq-topic::before {
+      content: none;
+    }
+    #per-question-table td[data-k]::before {
+      content: attr(data-k);
+      display: inline;
+      margin-right: 0.375rem;
+      font-family: inherit;
+      font-size: 0.75rem;
+      letter-spacing: 0;
+      text-transform: none;
+    }
+    #per-question-table.pq-clamped tbody > tr:nth-child(n + 31) {
+      display: none;
+    }
+    .pq-more:not([hidden]) {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      min-height: 44px;
+      margin-top: 0.75rem;
+      border: 1px solid color-mix(in oklch, var(--color-muted) 30%, transparent);
+      border-radius: 0.5rem;
+      font-size: 0.875rem;
+      font-weight: 600;
     }
   }
 </style>
