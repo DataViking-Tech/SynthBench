@@ -1398,7 +1398,7 @@ function condAll(el: HTMLElement, W: number): string[] {
       .map(change);
     for (const d of ds) changes.push({ row: r, d });
     band(
-      fade ? s("g", { opacity: 0.45 }, svg) : svg,
+      fade ? s("g", { class: "sb-fade" }, svg) : svg,
       x,
       cy,
       ds,
