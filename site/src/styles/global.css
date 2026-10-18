@@ -159,7 +159,7 @@ svg.sb-logo-i {
   }
   table.sb-stack thead tr::before {
     content: "Sort by";
-    font-size: 0.7rem;
+    font-size: 0.75rem;
     text-transform: uppercase;
     letter-spacing: 0.04em;
   }
@@ -209,7 +209,7 @@ svg.sb-logo-i {
     content: attr(data-label);
     display: block;
     font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-    font-size: 0.65rem;
+    font-size: 0.75rem;
     font-weight: 400;
     letter-spacing: 0.04em;
     text-transform: uppercase;
@@ -222,6 +222,19 @@ svg.sb-logo-i {
     table.sb-stack td[data-label]:not(:first-child)::before {
       color: var(--color-muted-dark);
     }
+  }
+}
+
+/* Phones: no text under 12px, and form fields at 16px so iOS Safari doesn't
+   zoom the page when one gets focus. */
+@media (max-width: 639px) {
+  .text-\[11px\] {
+    font-size: 12px;
+  }
+  input:not([type="checkbox"], [type="radio"], [type="range"], [type="file"]),
+  select,
+  textarea {
+    font-size: 16px;
   }
 }
 

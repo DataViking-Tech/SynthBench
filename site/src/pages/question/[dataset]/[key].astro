@@ -2,8 +2,8 @@
 import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { resolve } from "node:path";
 import BaseLayout from "@/layouts/BaseLayout.astro";
-import { compareKeys, datasetLabel, methodName, systemName } from "@/lib/runExplorer";
 import { optionColor } from "@/lib/answerPalette";
+import { compareKeys, datasetLabel, methodName, systemName } from "@/lib/runExplorer";
 import { topicLabel } from "@/lib/topics";
 import type { QuestionIndex, QuestionIndexEntry, QuestionPayload } from "@/types/questions";
 
@@ -849,5 +849,11 @@ const configUrl = (id: string): string => `${base}/config/${encodePathSegment(id
     width: 0.65rem;
     height: 0.65rem;
     border-radius: 0.125rem;
+  }
+  /* Phones: no text under 12px. */
+  @media (max-width: 639px) {
+    .question-detail .dist-legend {
+      font-size: 0.75rem;
+    }
   }
 </style>

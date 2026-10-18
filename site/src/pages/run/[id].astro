@@ -961,4 +961,13 @@ const indexScores = JSON.stringify({
     height: 0.65rem;
     border-radius: 0.125rem;
   }
+  /* Phones: no text under 12px. */
+  @media (max-width: 639px) {
+    .score-tech,
+    .score-ci,
+    .score-link,
+    .dist-legend {
+      font-size: 0.75rem;
+    }
+  }
 </style>
