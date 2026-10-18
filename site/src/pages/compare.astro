@@ -42,14 +42,10 @@ const labelCls = "text-xs font-semibold uppercase tracking-wide text-muted";
           id="pick-mode"
           role="radiogroup"
           aria-labelledby="pick-mode-label"
-          class="inline-flex overflow-hidden rounded-md border border-muted/30"
+          class="sb-seg"
         >
-          <button type="button" role="radio" data-mode="config" class="px-3 py-1.5 text-sm"
-            >Configs</button
-          >
-          <button type="button" role="radio" data-mode="run" class="px-3 py-1.5 text-sm"
-            >Runs</button
-          >
+          <button type="button" role="radio" data-mode="config">Configs</button>
+          <button type="button" role="radio" data-mode="run">Runs</button>
         </div>
       </div>
       <div class="flex flex-col gap-1">
@@ -176,6 +172,7 @@ const labelCls = "text-xs font-semibold uppercase tracking-wide text-muted";
 </BaseLayout>
 
 <script>
+  import "@/scripts/segScroll";
   import "@/scripts/stackTables";
   import {
     datasetLabel,
@@ -511,7 +508,7 @@ const labelCls = "text-xs font-semibold uppercase tracking-wide text-muted";
     for (const b of document.querySelectorAll<HTMLButtonElement>("#pick-mode button")) {
       const on = b.dataset.mode === state.mode;
       b.setAttribute("aria-checked", String(on));
-      b.className = `px-3 py-1.5 text-sm ${on ? "bg-primary text-white font-semibold" : "hover:bg-muted/10"}`;
+      b.className = on ? "on" : "";
     }
     const datasets = [...new Set(state.index.map((r) => r.dataset))].sort((x, y) =>
       datasetLabel(x).localeCompare(datasetLabel(y)),

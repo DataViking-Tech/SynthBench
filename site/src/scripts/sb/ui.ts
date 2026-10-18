@@ -2,6 +2,7 @@
 // drawer and the compare tray.
 
 import { PROVIDER_ICONS } from "@/lib/providerIcons";
+import "@/scripts/segScroll";
 import { harnessTag } from "@/lib/vocab";
 import { axisTitle, css, fill, fmt, h, linear, s, thinTicks } from "./dom";
 import {

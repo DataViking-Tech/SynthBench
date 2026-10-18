@@ -240,29 +240,75 @@
   text-transform: uppercase;
   color: var(--sb-muted);
 }
+/* Segmented control. Also used outside .sb (/explore, /compare), so the
+   button reset is part of the rule. */
 .sb-seg {
   display: inline-flex;
   border: 1px solid var(--sb-line-2);
   border-radius: 6px;
   overflow: hidden;
   flex-wrap: wrap;
+  font-family: var(--sb-sans);
 }
-.sb .sb-seg button {
+.sb-seg button {
+  font: inherit;
+  background: none;
+  border: 0;
+  cursor: pointer;
   padding: 5px 11px;
   font-size: 13px;
   color: var(--sb-ink-2);
   border-right: 1px solid var(--sb-line-2);
 }
-.sb .sb-seg button:last-child {
+.sb-seg button:last-child {
   border-right: 0;
 }
-.sb .sb-seg button:hover {
+.sb-seg button:hover {
   background: var(--sb-hover);
   color: var(--sb-ink);
 }
-.sb .sb-seg button.on {
+.sb-seg button.on {
   background: var(--sb-ink);
   color: var(--sb-panel);
+}
+/* A count after the option name (/explore's dataset picker). */
+.sb-seg-n {
+  font-size: 12px;
+  opacity: 0.7;
+}
+/* Phones: one row that scrolls sideways (scripts/segScroll.ts fades the
+   clipped edge and keeps the checked option in view), 44px tall. */
+@media (max-width: 639px) {
+  /* Let the row shrink to the screen instead of widening its flex parents. */
+  .sb-filter {
+    min-width: 0;
+    max-width: 100%;
+  }
+  .sb-seg {
+    flex-wrap: nowrap;
+    min-width: 0;
+    max-width: 100%;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scrollbar-width: none;
+  }
+  .sb-seg::-webkit-scrollbar {
+    display: none;
+  }
+  .sb-seg button {
+    flex: none;
+    min-height: 44px;
+    white-space: nowrap;
+  }
+  .sb-seg[data-more="right"] {
+    mask-image: linear-gradient(to right, #000 calc(100% - 28px), transparent);
+  }
+  .sb-seg[data-more="left"] {
+    mask-image: linear-gradient(to left, #000 calc(100% - 28px), transparent);
+  }
+  .sb-seg[data-more="both"] {
+    mask-image: linear-gradient(to right, transparent, #000 28px, #000 calc(100% - 28px), transparent);
+  }
 }
 .sb-chips {
   display: flex;
