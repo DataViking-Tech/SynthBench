@@ -1,14 +1,17 @@
 // Charts for the Overview and Analysis pages. Every chart labels its axes.
 
 import {
+  axisTicks,
   axisTitle,
   css,
+  fitText,
   fmt,
   linear,
   logScale,
   s,
   spread,
   textWidth,
+  thinTicks,
   ticks,
   tryPlaceLabel,
 } from "./dom";
@@ -62,14 +65,6 @@ const svgEl = (
 export const methodTag = (c: SystemConfig): string =>
   c.method === "ensemble" ? "" : METHODS[c.method as ShownMethod].short;
 
-/** Trim text with an ellipsis so it fits in `max` px. */
-function fitText(t: string, max: number, size = 12.5, weight = 500): string {
-  if (textWidth(t, size, weight) <= max) return t;
-  let out = t;
-  while (out.length > 1 && textWidth(`${out}…`, size, weight) > max) out = out.slice(0, -1);
-  return `${out.trimEnd()}…`;
-}
-
 /**
  * One row per system, sorted by Index (rows arrive sorted), labels in a fixed
  * left gutter. Scores below the -40 edge get an arrow and their value instead
@@ -119,7 +114,7 @@ export function gapChart(el: HTMLElement, width: number, rows: Ranked[]): void {
     },
     svg,
   );
-  for (const t of [-40, -20, 0, 20, 40, 60, 80, 100]) {
+  for (const t of thinTicks([-40, -20, 0, 20, 40, 60, 80, 100], x, fmt.int)) {
     s("line", { class: "sb-gl", x1: x(t), x2: x(t), y1: top - 6, y2: plotB }, svg);
     s(
       "text",
@@ -329,7 +324,7 @@ export function liftMini(el: HTMLElement, width: number): { up: number; total: n
     "Index with a raw prompt and with an Althing persona, per base model",
   );
   const plotB = rows.length * rowH;
-  for (const t of ticks(d0, d1, 4)) {
+  for (const t of axisTicks(d0, d1, x, fmt.int, 4)) {
     s("line", { class: "sb-gl", x1: x(t), x2: x(t), y1: 0, y2: plotB }, svg);
     s(
       "text",
@@ -401,7 +396,7 @@ export function whyMini(el: HTMLElement, width: number): void {
     "Random answers and raw LLMs compared on shares match and order match",
   );
   const plotB = rows.length * 46 + 6;
-  for (const t of [0.4, 0.6, 0.8, 1]) {
+  for (const t of thinTicks([0.4, 0.6, 0.8, 1], x, (v) => v.toFixed(1))) {
     s("line", { class: "sb-gl", x1: x(t), x2: x(t), y1: 0, y2: plotB }, svg);
     s(
       "text",
@@ -560,7 +555,7 @@ export function sharesOrder(
       svg,
     );
   }
-  for (const t of ticks(x0, x1, 7)) {
+  for (const t of axisTicks(x0, x1, X, (v) => v.toFixed(2), 7)) {
     s("line", { class: "sb-gl", x1: X(t), x2: X(t), y1: m.t, y2: H - m.b }, svg);
     s(
       "text",
@@ -569,10 +564,17 @@ export function sharesOrder(
     );
   }
   // Plain axis names first; the formula is secondary.
-  const xt = axisTitle(svg, "Shares match", { x: (m.l + width - m.r) / 2, y: H - 8 });
-  s("tspan", { dx: 8, class: "sb-sub", text: "1 − Jensen-Shannon divergence, 0 to 1" }, xt);
-  const yt = axisTitle(svg, "Order match", { x: 16, y: (m.t + H - m.b) / 2, vertical: true });
-  s("tspan", { dx: 8, class: "sb-sub", text: "(1 + Kendall τ) ÷ 2, 0 to 1" }, yt);
+  axisTitle(svg, "Shares match", {
+    x: (m.l + width - m.r) / 2,
+    y: H - 8,
+    sub: "1 − Jensen-Shannon divergence, 0 to 1",
+  });
+  axisTitle(svg, "Order match", {
+    x: 16,
+    y: (m.t + H - m.b) / 2,
+    vertical: true,
+    sub: "(1 + Kendall τ) ÷ 2, 0 to 1",
+  });
   const placedBoxes: [number, number, number, number][] = [];
   for (const r of refs) {
     const inside = r.x >= x0 && r.x <= x1 && r.y >= y0 && r.y <= y1;
@@ -1382,14 +1384,19 @@ export function costChart(
       svg,
     );
   }
+  const usd = (t: number) => `$${t}`;
   const xt = log
-    ? [0.01, 0.02, 0.05, 0.1, 0.2, 0.5, 1, 2, 5, 10, 20, 50].filter((t) => t <= xmax)
-    : ticks(0, xmax, 6);
+    ? thinTicks(
+        [0.01, 0.02, 0.05, 0.1, 0.2, 0.5, 1, 2, 5, 10, 20, 50].filter((t) => t <= xmax),
+        X,
+        usd,
+      )
+    : axisTicks(0, xmax, X, usd, 6);
   for (const t of xt) {
     s("line", { class: "sb-gl", x1: X(t), x2: X(t), y1: m.t, y2: H - m.b }, svg);
     s(
       "text",
-      { class: "sb-t", x: X(t), y: H - m.b + 17, "text-anchor": "middle", text: `$${t}` },
+      { class: "sb-t", x: X(t), y: H - m.b + 17, "text-anchor": "middle", text: usd(t) },
       svg,
     );
   }

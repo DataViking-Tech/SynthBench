@@ -20,6 +20,7 @@ import { harnessTag, modelName, systemFullName } from "@/lib/vocab";
 import { payload } from "../boot";
 import {
   type Scale,
+  axisTicks,
   axisTitle,
   css,
   fill,
@@ -29,7 +30,6 @@ import {
   mount,
   s,
   textWidth,
-  ticks,
 } from "../dom";
 import {
   METHODS,
@@ -444,9 +444,17 @@ function xAxis(
   title: string,
   signedTicks: boolean,
 ): void {
-  // About one tick per 44px so labels never run together on narrow charts.
+  const label = (t: number) =>
+    signedTicks
+      ? t === 0
+        ? "0"
+        : `${t > 0 ? "+" : "−"}${Math.abs(t)}`
+      : Number.isInteger(t)
+        ? String(t)
+        : t.toFixed(1);
+  // About one tick per 44px, fewer if the labels still run together.
   const n = Math.max(3, Math.min(12, Math.floor(Math.abs(x(dom[1]) - x(dom[0])) / 44)));
-  for (const t of ticks(dom[0], dom[1], n)) {
+  for (const t of axisTicks(dom[0], dom[1], x, label, n)) {
     s(
       "line",
       {
@@ -465,13 +473,7 @@ function xAxis(
         x: x(t),
         y: bottom + 16,
         "text-anchor": "middle",
-        text: signedTicks
-          ? t === 0
-            ? "0"
-            : `${t > 0 ? "+" : "−"}${Math.abs(t)}`
-          : Number.isInteger(t)
-            ? String(t)
-            : t.toFixed(1),
+        text: label(t),
       },
       svg,
     );

@@ -1,6 +1,6 @@
 import { topicLabel } from "@/lib/topics";
 import { harnessTag, modelNameFromLabel } from "@/lib/vocab";
-import { axisTitle, css, fmt, h, linear, mount, s, ticks } from "../dom";
+import { axisTicks, axisTitle, css, fmt, h, linear, mount, s, thinTicks, ticks } from "../dom";
 import {
   ALL,
   CORE,
@@ -232,7 +232,7 @@ mount(
       { x: x(-40), y: 0, width: x(0) - x(-40), height: plotB, fill: "var(--sb-zone-neg)" },
       svg,
     );
-    for (const t of [-40, -20, 0, 20, 40, 60]) {
+    for (const t of thinTicks([-40, -20, 0, 20, 40, 60], x, fmt.int)) {
       s("line", { class: "sb-gl", x1: x(t), x2: x(t), y1: 0, y2: plotB }, svg);
       s(
         "text",
@@ -492,7 +492,7 @@ mount(
       { x: x(-100), y: 0, width: x(0) - x(-100), height: plotB, fill: "var(--sb-zone-neg)" },
       svg,
     );
-    for (const t of [-100, -50, 0, 50]) {
+    for (const t of thinTicks([-100, -50, 0, 50], x, fmt.int)) {
       s("line", { class: "sb-gl", x1: x(t), x2: x(t), y1: 0, y2: plotB }, svg);
       s(
         "text",
@@ -663,7 +663,12 @@ renderExperiments();
           svg,
         );
       }
-      for (const q of pts)
+      const shown = thinTicks(
+        pts.map((q) => q.x),
+        X,
+        String,
+      );
+      for (const q of pts.filter((p) => shown.includes(p.x)))
         s(
           "text",
           {
@@ -725,7 +730,7 @@ renderExperiments();
       const lo = Math.min(-20, Math.floor(Math.min(...rows.map((c) => c.ds.subpop.idx)) / 20) * 20);
       const hi = Math.max(20, Math.ceil(Math.max(...rows.map((c) => c.ds.subpop.idx)) / 20) * 20);
       const x = linear(lo, hi, labelW + 10, W - 40);
-      for (const t of ticks(lo, hi, 5)) {
+      for (const t of axisTicks(lo, hi, x, fmt.int, 5)) {
         s("line", { class: "sb-gl", x1: x(t), x2: x(t), y1: 0, y2: plotB }, svg);
         s(
           "text",
@@ -812,7 +817,9 @@ mount(trustEl, (W) => {
     return;
   }
   const x = linear(0, 0.16, labelW + 10, W - 74);
-  for (const t of narrow ? [0, 0.08, 0.16] : [0, 0.04, 0.08, 0.12, 0.16]) {
+  for (const t of thinTicks(narrow ? [0, 0.08, 0.16] : [0, 0.04, 0.08, 0.12, 0.16], x, (v) =>
+    v.toFixed(2),
+  )) {
     s("line", { class: "sb-gl", x1: x(t), x2: x(t), y1: 0, y2: plotB }, svg);
     s(
       "text",

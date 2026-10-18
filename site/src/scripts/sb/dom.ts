@@ -98,6 +98,85 @@ export function textWidth(t: string, size = 12.5, weight = 500, mono = false): n
   return measureCtx.measureText(t).width;
 }
 
+/** Trim text with an ellipsis so it fits in `max` px. */
+export function fitText(t: string, max: number, size = 12.5, weight = 500): string {
+  if (textWidth(t, size, weight) <= max) return t;
+  let out = t;
+  while (out.length > 1 && textWidth(`${out}…`, size, weight) > max) out = out.slice(0, -1);
+  return `${out.trimEnd()}…`;
+}
+
+// ---------- Axis tick density ----------
+// Tick labels (.sb-t: 11px mono) need room on narrow charts, where a fixed
+// list like -40…100 in steps of 20 ran together ("−806040200"). These keep
+// only ticks whose labels clear their neighbours at the chart's actual
+// scale, always keeping 0 and, where possible, the two ends.
+
+/** Smallest centre-to-centre distance between two tick labels, in px. */
+const MIN_TICK_GAP = 32;
+const tickLabelW = (t: string) => textWidth(t, 11, 400, true);
+function ticksFit(vals: number[], x: Scale, label: (v: number) => string, pad: number): boolean {
+  for (let i = 1; i < vals.length; i++) {
+    const room = Math.abs(x(vals[i]) - x(vals[i - 1]));
+    const need = (tickLabelW(label(vals[i - 1])) + tickLabelW(label(vals[i]))) / 2 + pad;
+    if (room < Math.max(need, MIN_TICK_GAP)) return false;
+  }
+  return true;
+}
+
+/**
+ * Thin a list of tick values (sorted ascending) until their labels fit at
+ * scale `x`: every k-th tick counting from 0 (or the first), plus the two
+ * ends when they fit, dropping the tick next to an end to make room for it.
+ * Returns the list unchanged when it already fits, so wide charts keep
+ * every tick.
+ */
+export function thinTicks(
+  values: number[],
+  x: Scale,
+  label: (v: number) => string = String,
+  pad = 8,
+): number[] {
+  if (values.length < 3 || ticksFit(values, x, label, pad)) return values;
+  const anchor = Math.max(0, values.indexOf(0));
+  const fixed = values[anchor];
+  for (let k = 2; k < values.length; k++) {
+    let keep = values.filter((_, i) => (i - anchor) % k === 0);
+    for (const end of [values[0], values[values.length - 1]]) {
+      if (keep.includes(end)) continue;
+      const trial = [...keep, end].sort((a, b) => a - b);
+      // Make room by dropping the end's neighbour (never 0 / the anchor).
+      while (!ticksFit(trial, x, label, pad) && trial.length > 2) {
+        const i = trial.indexOf(end);
+        const j = i === 0 ? 1 : i - 1;
+        if (trial[j] === fixed) break;
+        trial.splice(j, 1);
+      }
+      if (ticksFit(trial, x, label, pad)) keep = trial;
+    }
+    if (ticksFit(keep, x, label, pad)) return keep;
+  }
+  return [fixed];
+}
+
+/**
+ * Nice ticks between a and b for a horizontal axis at scale `x`: up to `n`
+ * of them, fewer (with a rounder step) when the labels wouldn't fit.
+ */
+export function axisTicks(
+  a: number,
+  b: number,
+  x: Scale,
+  label: (v: number) => string = String,
+  n = 6,
+): number[] {
+  for (let k = n; k >= 2; k--) {
+    const t = ticks(a, b, k);
+    if (ticksFit(t, x, label, 8)) return t;
+  }
+  return thinTicks(ticks(a, b, 2), x, label);
+}
+
 const minus = (s: string) => s.replace("-", "−");
 export const fmt = {
   int: (v: number | null | undefined) => (v == null ? "—" : minus(Math.round(v).toString())),
@@ -287,13 +366,33 @@ export function luminance(rgb: number[]): number {
   return 0.2126 * r + 0.7152 * g + 0.0722 * b;
 }
 
-/** Axis title: horizontal under the axis, or rotated along a vertical axis. */
+/** Make room below the chart: grow the SVG (and its viewBox) by `dy` px. */
+function growSvg(svg: SVGSVGElement, dy: number): void {
+  const w = Number(svg.getAttribute("width"));
+  const hh = Number(svg.getAttribute("height")) + dy;
+  svg.setAttribute("height", String(hh));
+  if (svg.hasAttribute("viewBox")) svg.setAttribute("viewBox", `0 0 ${w} ${hh}`);
+}
+
+/**
+ * Axis title: horizontal under the axis, or rotated along a vertical axis.
+ * `sub` is a secondary note in muted text after the title, dropped when there
+ * is no room for it. A centred horizontal title is kept inside the SVG: moved
+ * in from the edge if it would run over, or wrapped onto a second line (the
+ * SVG grows to fit) when it is wider than the chart.
+ */
 export function axisTitle(
   svg: SVGSVGElement,
   text: string,
-  opts: { x: number; y: number; vertical?: boolean; anchor?: "start" | "middle" | "end" },
+  opts: {
+    x: number;
+    y: number;
+    vertical?: boolean;
+    anchor?: "start" | "middle" | "end";
+    sub?: string;
+  },
 ): SVGTextElement {
-  return s(
+  const el = s(
     "text",
     {
       class: "sb-axis-title",
@@ -305,4 +404,42 @@ export function axisTitle(
     },
     svg,
   );
+  const W = Number(svg.getAttribute("width"));
+  const tw = (t: string) => textWidth(t, 12, 500);
+  const subW = opts.sub ? 8 + textWidth(opts.sub, 11.5, 400) : 0;
+  if (opts.vertical) {
+    const room = Number(svg.getAttribute("height")) - 8;
+    if (opts.sub && tw(text) + subW <= room)
+      s("tspan", { dx: 8, class: "sb-sub", text: opts.sub }, el);
+    return el;
+  }
+  if ((opts.anchor ?? "middle") !== "middle" || !W) {
+    if (opts.sub) s("tspan", { dx: 8, class: "sb-sub", text: opts.sub }, el);
+    return el;
+  }
+  const pad = 4;
+  const room = W - 2 * pad;
+  const w = tw(text) + (opts.sub && tw(text) + subW <= room ? subW : 0);
+  if (w > tw(text)) s("tspan", { dx: 8, class: "sb-sub", text: opts.sub }, el);
+  if (w <= room) {
+    el.setAttribute("x", String(Math.min(W - pad - w / 2, Math.max(pad + w / 2, opts.x))));
+    return el;
+  }
+  // Too wide for the chart: two lines, split where they come out most even.
+  const words = text.split(" ");
+  let best = 1;
+  let bestW = Number.POSITIVE_INFINITY;
+  for (let i = 1; i < words.length; i++) {
+    const m = Math.max(tw(words.slice(0, i).join(" ")), tw(words.slice(i).join(" ")));
+    if (m < bestW) {
+      best = i;
+      bestW = m;
+    }
+  }
+  el.textContent = "";
+  el.setAttribute("x", String(W / 2));
+  s("tspan", { x: W / 2, text: fitText(words.slice(0, best).join(" "), room, 12) }, el);
+  s("tspan", { x: W / 2, dy: 15, text: fitText(words.slice(best).join(" "), room, 12) }, el);
+  growSvg(svg, 15);
+  return el;
 }

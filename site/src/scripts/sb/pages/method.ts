@@ -1,4 +1,4 @@
-import { axisTitle, css, fmt, h, linear, mount, s } from "../dom";
+import { axisTitle, css, fmt, h, linear, mount, s, thinTicks } from "../dom";
 import { type SystemConfig, data, fullName, pruneCompare, systems } from "../model";
 import { hoverInfo, initShell, marker, methodColor } from "../ui";
 
@@ -73,7 +73,7 @@ const drawDist = mount(distEl, (W) => {
     "aria-label": "Answer shares: real people vs. synthetic panel",
   });
   distEl.append(svg);
-  for (const t of [0, 0.25, 0.5, 0.75, 1]) {
+  for (const t of thinTicks([0, 0.25, 0.5, 0.75, 1], x, (v) => `${v * 100}%`)) {
     s("line", { class: "sb-gl", x1: x(t), x2: x(t), y1: 0, y2: plotB }, svg);
     s(
       "text",
@@ -216,7 +216,7 @@ if (oq && pool.length) {
         },
         svg,
       );
-      for (const v of sc.ticks)
+      for (const v of thinTicks(sc.ticks, sc.x, sc.tf))
         s(
           "text",
           { class: "sb-t", x: sc.x(v), y: sc.cy + 30, "text-anchor": "middle", text: sc.tf(v) },

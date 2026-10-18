@@ -3,7 +3,7 @@
 
 import { PROVIDER_ICONS } from "@/lib/providerIcons";
 import { harnessTag } from "@/lib/vocab";
-import { axisTitle, css, fill, fmt, h, linear, s } from "./dom";
+import { axisTitle, css, fill, fmt, h, linear, s, thinTicks } from "./dom";
 import {
   ALL,
   CORE,
@@ -717,7 +717,7 @@ export function datasetDots(list: SystemConfig[], width = 392, letters = false):
     { x: x(-40), y: 0, width: x(0) - x(-40), height: plotB, fill: "var(--sb-zone-neg)" },
     svg,
   );
-  for (const t of [-40, -20, 0, 20, 40, 60]) {
+  for (const t of thinTicks([-40, -20, 0, 20, 40, 60], x, fmt.int)) {
     s("line", { class: "sb-gl", x1: x(t), x2: x(t), y1: 0, y2: plotB }, svg);
     s(
       "text",
@@ -849,7 +849,7 @@ export function componentBars(c: SystemConfig, width = 392): SVGSVGElement {
     );
   });
   const axisY = rows.length * 26 + 2;
-  for (const t of [0.4, 0.6, 0.8, 1])
+  for (const t of thinTicks([0.4, 0.6, 0.8, 1], x, (v) => v.toFixed(1)))
     s(
       "text",
       { class: "sb-t", x: x(t), y: axisY + 10, "text-anchor": "middle", text: t.toFixed(1) },
