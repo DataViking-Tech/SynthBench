@@ -106,6 +106,68 @@ export function fitText(t: string, max: number, size = 12.5, weight = 500): stri
   return `${out.trimEnd()}…`;
 }
 
+// ---------- Row charts: labels in a gutter, or above the row when narrow ----------
+
+/** Below this chart width, row labels go on their own line above each row. */
+export const NARROW_ROWS = 480;
+export interface RowLayout {
+  narrow: boolean;
+  /** Right edge of the label gutter (0 when narrow: the plot gets the full width). */
+  labelW: number;
+  rowH: number;
+  /** Label baseline, from the top of the row. */
+  labelY: number;
+  /** Centre line of the row's marks, from the top of the row. */
+  markY: number;
+}
+/**
+ * Layout for a chart with one labelled row per item. Wide: labels
+ * right-aligned in a `labelW` gutter, marks centred in `rowH`. Narrow (chart
+ * under NARROW_ROWS px, or the gutter would leave the plot under `minPlot`
+ * px): each label on a line of its own above its row.
+ */
+export function rowLayout(
+  W: number,
+  labelW: number,
+  rowH: number,
+  minPlot = 0,
+  narrowAt = NARROW_ROWS,
+): RowLayout {
+  if (W >= narrowAt && W - labelW >= minPlot)
+    return { narrow: false, labelW, rowH, labelY: rowH / 2 + 4, markY: rowH / 2 };
+  return { narrow: true, labelW: 0, rowH: rowH + 8, labelY: 13, markY: 16 + (rowH - 8) / 2 };
+}
+/**
+ * A row's label, cut to fit with an ellipsis (the full text goes in a
+ * <title>, so it shows on hover and is read out). Narrow layouts start it at
+ * the left edge on a background-coloured strip, so gridlines stop short of it.
+ */
+export function rowLabel(
+  g: Element,
+  L: RowLayout,
+  W: number,
+  y0: number,
+  text: string,
+  cls = "sb-lab sb-light",
+): SVGTextElement {
+  const weight = cls.includes("sb-light") ? 400 : 500;
+  if (L.narrow) s("rect", { x: 0, y: y0 + 1, width: W, height: 16, fill: "var(--sb-panel)" }, g);
+  const shown = fitText(text, L.narrow ? W : L.labelW - 2, 12.5, weight);
+  const el = s(
+    "text",
+    {
+      x: L.narrow ? 0 : L.labelW,
+      y: y0 + L.labelY,
+      "text-anchor": L.narrow ? "start" : "end",
+      class: `${cls} sb-halo`,
+      text: shown,
+    },
+    g,
+  );
+  if (shown !== text) s("title", { text }, el);
+  return el;
+}
+
 // ---------- Axis tick density ----------
 // Tick labels (.sb-t: 11px mono) need room on narrow charts, where a fixed
 // list like -40…100 in steps of 20 ran together ("−806040200"). These keep

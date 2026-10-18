@@ -1,6 +1,19 @@
 import { signedRange } from "@/lib/format";
 import { ensembleNames, modelNameFromLabel } from "@/lib/vocab";
-import { axisTicks, axisTitle, css, fmt, h, linear, mount, s, thinTicks, ticks } from "../dom";
+import {
+  axisTicks,
+  axisTitle,
+  css,
+  fmt,
+  h,
+  linear,
+  mount,
+  rowLabel,
+  rowLayout,
+  s,
+  thinTicks,
+  ticks,
+} from "../dom";
 import {
   CORE,
   type Method,
@@ -50,7 +63,10 @@ interface DumbRow {
   errB?: [number, number];
   tip?: [string, string][];
 }
-/** One row per item: a line from value a to value b, with a value label on the right. */
+/**
+ * One row per item: a line from value a to value b, with a value label on the
+ * right. Narrow charts put each row's label on its own line above it.
+ */
 function dumbbell(
   el: HTMLElement,
   rows: DumbRow[],
@@ -67,12 +83,12 @@ function dumbbell(
   },
 ): void {
   mount(el, (W) => {
-    const rowH = 34;
-    const labelW = Math.min(o.labelW ?? 130, W * 0.46);
+    const L = rowLayout(W, Math.min(o.labelW ?? 130, W * 0.46), 34);
+    const { rowH } = L;
     const plotB = rows.length * rowH;
     const H = plotB + 44;
     const tick = o.tick ?? fmt.int;
-    const x = linear(o.domain[0], o.domain[1], labelW + 12, W - 82);
+    const x = linear(o.domain[0], o.domain[1], L.narrow ? 8 : L.labelW + 12, W - 82);
     const clampX = (v: number) => x(Math.max(o.domain[0], Math.min(o.domain[1], v)));
     const svg = s("svg", { class: "sb-c", width: W, height: H, role: "img", "aria-label": o.axis });
     el.append(svg);
@@ -121,12 +137,9 @@ function dumbbell(
         );
     };
     rows.forEach((r, i) => {
-      const cy = i * rowH + rowH / 2;
-      s(
-        "text",
-        { x: labelW, y: cy + 4, "text-anchor": "end", class: "sb-lab sb-light", text: r.name },
-        svg,
-      );
+      const y0 = i * rowH;
+      const cy = y0 + L.markY;
+      rowLabel(svg, L, W, y0, r.name);
       s(
         "line",
         { x1: x(r.a), x2: x(r.b), y1: cy, y2: cy, stroke: css("--sb-line-2"), "stroke-width": 2 },
@@ -139,7 +152,7 @@ function dumbbell(
       s("text", { x: W - 2, y: cy + 4, "text-anchor": "end", class: "sb-val", text: r.label }, svg);
       if (r.tip)
         hoverInfo(
-          s("rect", { class: "sb-hit", x: 0, y: cy - rowH / 2, width: W, height: rowH }, svg),
+          s("rect", { class: "sb-hit", x: 0, y: y0, width: W, height: rowH }, svg),
           r.name,
           r.tip,
         );
@@ -809,12 +822,12 @@ if (stt?.items?.length) {
           ["Althing persona", "althing", runs.filter((r) => r.framework !== "raw")],
         ];
         mount(strip, (W) => {
-          const rowH = 30;
-          const labelW = 120;
+          const L = rowLayout(W, 120, 30);
+          const { rowH } = L;
           const plotB = groups.length * rowH;
           const H = plotB + 44;
           const hi = Math.max(0.2, Math.ceil(Math.max(...runs.map(optionShare)) * 10) / 10);
-          const x = linear(0, hi, labelW + 12, W - 16);
+          const x = linear(0, hi, L.narrow ? 8 : L.labelW + 12, W - 16);
           const svg = s("svg", {
             class: "sb-c",
             width: W,
@@ -854,12 +867,8 @@ if (stt?.items?.length) {
             y: H - 4,
           });
           groups.forEach(([name, m, rs], i) => {
-            const cy = i * rowH + rowH / 2;
-            s(
-              "text",
-              { x: labelW, y: cy + 4, "text-anchor": "end", class: "sb-lab sb-light", text: name },
-              svg,
-            );
+            const cy = i * rowH + L.markY;
+            rowLabel(svg, L, W, i * rowH, name);
             for (const r of rs) {
               const g = s("g", { opacity: 0.8 }, svg);
               marker(g, m, x(optionShare(r)), cy, 4);

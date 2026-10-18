@@ -1,4 +1,15 @@
-import { axisTitle, css, fmt, h, linear, mount, s, thinTicks } from "../dom";
+import {
+  NARROW_ROWS,
+  axisTitle,
+  css,
+  fmt,
+  h,
+  linear,
+  mount,
+  s,
+  textWidth,
+  thinTicks,
+} from "../dom";
 import { type SystemConfig, data, fullName, pruneCompare, systems } from "../model";
 import { hoverInfo, initShell, marker, methodColor } from "../ui";
 
@@ -162,8 +173,12 @@ const pool = systems().filter((c) => !c.variant && c.ds.opinionsqa);
 const whyEl = $("mt-why");
 if (oq && pool.length) {
   mount(whyEl, (W) => {
-    const H = 210;
-    const labelW = 150;
+    // Narrow: each scale's name goes above its axis, which gets the full width.
+    const narrow = W < NARROW_ROWS;
+    const H = narrow ? 236 : 210;
+    // Narrow: room at both ends for the end tick labels ("0.00", "100").
+    const labelW = narrow ? 18 : 150;
+    const right = narrow ? W - 18 : W - 16;
     const svg = s("svg", {
       class: "sb-c",
       width: W,
@@ -174,20 +189,20 @@ if (oq && pool.length) {
     whyEl.append(svg);
     const scales = [
       {
-        cy: 46,
+        cy: narrow ? 64 : 46,
         title: "Raw SPS",
         sub: "0 to 1",
-        x: linear(0, 1, labelW, W - 16),
+        x: linear(0, 1, labelW, right),
         get: (c: SystemConfig) => c.ds.opinionsqa.sps,
         ticks: [0, 0.25, 0.5, 0.75, 1],
         tf: (v: number) => v.toFixed(2),
         random: oq.random,
       },
       {
-        cy: 146,
+        cy: narrow ? 176 : 146,
         title: "SynthBench Index",
         sub: "0 = random, 100 = people",
-        x: linear(-40, 100, labelW, W - 16),
+        x: linear(-40, 100, labelW, right),
         get: (c: SystemConfig) => c.ds.opinionsqa.idx,
         ticks: [-40, -20, 0, 20, 40, 60, 80, 100],
         tf: fmt.int,
@@ -195,16 +210,21 @@ if (oq && pool.length) {
       },
     ];
     for (const sc of scales) {
-      s(
-        "text",
-        { x: labelW - 14, y: sc.cy, "text-anchor": "end", class: "sb-lab", text: sc.title },
-        svg,
-      );
-      s(
-        "text",
-        { x: labelW - 14, y: sc.cy + 15, "text-anchor": "end", class: "sb-sub", text: sc.sub },
-        svg,
-      );
+      if (narrow) {
+        const t = s("text", { x: 0, y: sc.cy - 42, class: "sb-lab", text: sc.title }, svg);
+        s("tspan", { dx: 8, class: "sb-sub", text: sc.sub }, t);
+      } else {
+        s(
+          "text",
+          { x: labelW - 14, y: sc.cy, "text-anchor": "end", class: "sb-lab", text: sc.title },
+          svg,
+        );
+        s(
+          "text",
+          { x: labelW - 14, y: sc.cy + 15, "text-anchor": "end", class: "sb-sub", text: sc.sub },
+          svg,
+        );
+      }
       s(
         "line",
         {
@@ -234,11 +254,13 @@ if (oq && pool.length) {
         },
         svg,
       );
+      // Centred over the random-answers tick, but never past the chart's edge.
+      const rw = textWidth("random answers", 11.5, 400) / 2 + 2;
       s(
         "text",
         {
           class: "sb-sub",
-          x: sc.x(sc.random),
+          x: Math.max(rw, Math.min(W - rw, sc.x(sc.random))),
           y: sc.cy - 20,
           "text-anchor": "middle",
           text: "random answers",
