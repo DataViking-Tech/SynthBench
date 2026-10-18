@@ -1,25 +1,29 @@
 ---
+import Cmd from "@/components/shared/Cmd.astro";
 import CodeBlock from "@/components/shared/CodeBlock.astro";
+
+// `Backticks` in a detail mark code, rendered with <Cmd> so a flag like
+// "--provider" never splits across two lines.
 const steps = [
   {
     title: "Subclass Provider",
     detail:
-      "Create a new file in src/synthbench/providers/ and subclass Provider from providers/base.py. Implement async respond() and the name property.",
+      "Create a new file in `src/synthbench/providers/` and subclass `Provider` from `providers/base.py`. Implement `async respond()` and the `name` property.",
   },
   {
     title: "Wire distribution output (optional)",
     detail:
-      "If your provider returns logprobs or native probabilities, override get_distribution() and set supports_distribution to True. Otherwise the base class samples respond() to build an empirical distribution.",
+      "If your provider returns logprobs or native probabilities, override `get_distribution()` and set `supports_distribution` to `True`. Otherwise the base class samples `respond()` to build an empirical distribution.",
   },
   {
     title: "Register in the PROVIDERS dict",
     detail:
-      "Add a name -> dotted path entry in src/synthbench/providers/__init__.py so the CLI can load it via --provider <your-name>.",
+      "Add a name -> dotted path entry in `src/synthbench/providers/__init__.py` so the CLI can load it via `--provider <your-name>`.",
   },
   {
     title: "Test end-to-end",
     detail:
-      "Run synthbench run --provider <your-name> --dataset opinionsqa against a small question slice, then submit the result JSON as usual.",
+      "Run `synthbench run --provider <your-name> --dataset opinionsqa` against a small question slice, then submit the result JSON as usual.",
   },
 ];
 
@@ -64,7 +68,11 @@ class MyProvider(Provider):
             <h3 class="text-sm font-semibold text-text dark:text-text-dark">
               {s.title}
             </h3>
-            <p class="text-sm text-muted mt-1">{s.detail}</p>
+            <p class="text-sm text-muted mt-1">
+              {s.detail
+                .split("`")
+                .map((part, j) => (j % 2 ? <Cmd class="sb-qs-code" text={part} /> : part))}
+            </p>
           </div>
         </li>
       ))
