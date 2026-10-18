@@ -45,7 +45,7 @@ const btnCls =
         id="filter-dataset"
         role="radiogroup"
         aria-labelledby="ds-heading"
-        class="inline-flex flex-wrap rounded-md border border-muted/30 overflow-hidden"
+        class="sb-seg"
       >
       </div>
     </section>
@@ -105,14 +105,10 @@ const btnCls =
           id="view-mode"
           role="radiogroup"
           aria-label="View"
-          class="inline-flex rounded-md border border-muted/30 overflow-hidden"
+          class="sb-seg"
         >
-          <button type="button" role="radio" data-view="table" class="view-btn px-3 py-1.5 text-sm"
-            >Table</button
-          >
-          <button type="button" role="radio" data-view="grouped" class="view-btn px-3 py-1.5 text-sm"
-            >Grouped</button
-          >
+          <button type="button" role="radio" data-view="table" class="view-btn">Table</button>
+          <button type="button" role="radio" data-view="grouped" class="view-btn">Grouped</button>
         </div>
         <button id="filter-reset" type="button" class={btnCls}>Reset</button>
       </div>
@@ -161,6 +157,7 @@ const btnCls =
 </BaseLayout>
 
 <script>
+  import "@/scripts/segScroll";
   import "@/scripts/stackTables";
   import { labOf, logoMarkup } from "@/lib/providerIcons";
   import {
@@ -507,8 +504,8 @@ const btnCls =
           b.setAttribute("role", "radio");
           b.setAttribute("aria-checked", String(on));
           b.dataset.dataset = d;
-          b.className = `seg-btn px-3 py-1.5 text-sm border-r border-muted/30 last:border-r-0 ${on ? "bg-primary text-white font-semibold" : "hover:bg-muted/10"}`;
-          b.innerHTML = `${escapeHtml(datasetLabel(d))} <span class="${on ? "text-white/80" : "text-muted"} text-xs">${n}</span>`;
+          b.className = on ? "seg-btn on" : "seg-btn";
+          b.innerHTML = `${escapeHtml(datasetLabel(d))} <span class="sb-seg-n">${n}</span>`;
           b.addEventListener("click", () => setDataset(d));
           return b;
         }),
@@ -568,7 +565,7 @@ const btnCls =
     for (const b of document.querySelectorAll<HTMLButtonElement>("#view-mode .view-btn")) {
       const on = b.dataset.view === state.view;
       b.setAttribute("aria-checked", String(on));
-      b.className = `view-btn px-3 py-1.5 text-sm ${on ? "bg-primary text-white font-semibold" : "hover:bg-muted/10"}`;
+      b.className = on ? "view-btn on" : "view-btn";
     }
   }
 
