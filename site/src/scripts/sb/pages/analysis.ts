@@ -38,7 +38,7 @@ const VIEWS: { id: View; title: string; desc: string; sub: () => string; howto: 
     desc: "What each layer adds",
     sub: () => `${scopeName()}. Each line is one base model.`,
     howto:
-      "Left column: each base model prompted directly. Middle: the same model with an Althing persona, with the change from the raw prompt next to it. Right: the ensembles, equal-weight blends of three or four systems. Hover an ensemble to see its members, or a model to see the ensembles it is in. A red line means the persona lowered the score.",
+      "Left column: each base model prompted directly. Middle: the same model with an Althing persona, with the change from the raw prompt next to it. Right: the ensembles, equal-weight blends of three or four systems. Tap or hover an ensemble to see its members, or a model to see the ensembles it is in. A red line means the persona lowered the score.",
   },
   {
     id: "shares",
@@ -46,7 +46,7 @@ const VIEWS: { id: View; title: string; desc: string; sub: () => string; howto: 
     desc: "Why most systems sit near random",
     sub: () => `${scopeName()}. Up and to the right is better.`,
     howto:
-      "Each mark is one system: hollow circles are raw prompts, filled circles are Althing personas, diamonds are ensembles. Arrows join the same base model before and after adding a persona. Labels show the top five, every ensemble, the best of each method and any system you are comparing; hover a mark for the rest. Systems in the shaded corner score below random answers, assuming equal refusal match.",
+      "Each mark is one system: hollow circles are raw prompts, filled circles are Althing personas, diamonds are ensembles. Arrows join the same base model before and after adding a persona. Labels show the top five, every ensemble, the best of each method and any system you are comparing; tap or hover a mark for the rest. Systems in the shaded corner score below random answers, assuming equal refusal match.",
   },
   {
     id: "datasets",

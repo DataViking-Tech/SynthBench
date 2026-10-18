@@ -51,6 +51,7 @@ import {
   METHOD_IDS,
   filterStatus,
   glyph,
+  hoverInfo,
   initShell,
   methodChips,
   methodColor,
@@ -59,7 +60,6 @@ import {
   setParam,
   showAllToggle,
   takeaways,
-  tip,
   toggleCompare,
   writeParams,
 } from "../ui";
@@ -206,12 +206,6 @@ const reset = () => {
   changed();
 };
 
-function refInfo(node: SVGElement, title: string, rows: [string, string][]): void {
-  node.addEventListener("pointerenter", (e) => tip.show(e, title, rows));
-  node.addEventListener("pointermove", (e) => tip.move(e));
-  node.addEventListener("pointerleave", () => tip.hide());
-}
-
 // ---------- Marks ----------
 /** Reference glyphs: triangle = all respondents, square = majority, cross = random. */
 function refMark(g: Element, id: RefRow["id"], x: number, y: number): SVGElement {
@@ -281,7 +275,7 @@ function letterMark(
     { x, y: y + 3.5, "text-anchor": "middle", class: "sb-letter-t", text: letterOf(c) },
     grp,
   );
-  refInfo(grp as unknown as SVGElement, `${letterOf(c)}: ${fullName(c)}`, rows);
+  hoverInfo(grp as unknown as SVGElement, `${letterOf(c)}: ${fullName(c)}`, rows);
 }
 
 interface BandSet {
@@ -380,7 +374,7 @@ function band(
     },
     g,
   );
-  refInfo(hit, title, [
+  hoverInfo(hit, title, [
     ["Systems", String(vals.length)],
     ["Median", show(md)],
     ["Middle half", `${show(q1)} to ${show(q3)}`],
@@ -602,7 +596,7 @@ function leanChart(el: HTMLElement, W: number): string[] {
       );
     for (const { r, v } of row.refs) {
       const m = refMark(svg, r.id, x(v[0]), r.id === "everyone" ? y0 + 26 + lab : mid);
-      refInfo(m, r.name, [
+      hoverInfo(m, r.name, [
         [`${last} minus ${first}`, `${signed(v[0])} points`],
         ["95% interval", `${signed(v[1])} to ${signed(v[2])}`],
         ["What it is", r.desc],
@@ -1045,7 +1039,7 @@ function detailChart(el: HTMLElement, W: number): string[] {
     });
     for (const { r, v } of row.refs) {
       const m = refMark(svg, r.id, x(v), mid);
-      refInfo(m, `${r.name}: ${row.label}`, [
+      hoverInfo(m, `${r.name}: ${row.label}`, [
         [rel ? "Versus its average" : "Match", rel ? `${signed(v)} points` : fmt.one(v)],
         ["What it is", r.desc],
       ]);
@@ -1514,7 +1508,7 @@ function condOne(el: HTMLElement, W: number, c: ConditionSet): string[] {
     const rv = rnd(r);
     if (rv != null) {
       const m = refMark(svg, "random", x(rv), cy);
-      refInfo(m, `Random answers: ${r.label}`, [["Match", fmt.one(rv)]]);
+      hoverInfo(m, `Random answers: ${r.label}`, [["Match", fmt.one(rv)]]);
     }
     const [before, after, , n, runs] = c.attrs[r.a.id][r.id];
     const d = after - before;
@@ -1542,7 +1536,7 @@ function condOne(el: HTMLElement, W: number, c: ConditionSet): string[] {
       ["Questions", String(n)],
       ["Runs", String(runs)],
     ];
-    refInfo(
+    hoverInfo(
       s(
         "circle",
         { cx: x0, cy, r: 4.5, fill: css("--sb-panel"), stroke: col, "stroke-width": 2 },
@@ -1551,7 +1545,7 @@ function condOne(el: HTMLElement, W: number, c: ConditionSet): string[] {
       r.label,
       info,
     );
-    refInfo(
+    hoverInfo(
       s(
         "circle",
         { cx: x1, cy, r: 5, fill: col, stroke: css("--sb-panel"), "stroke-width": 1.5 },
@@ -1750,7 +1744,7 @@ function renderControls(): void {
     ...refLegend(["everyone", "majority", "random"]),
   );
   $("gr-lean-howto").textContent =
-    "Each row is an attribute with a natural order. Right of 0 means the systems match the right-hand group better than the left-hand group. Box: middle half of the shown systems. Thin line: all of them. Short ticks: one per system. Grey marks are reference points. Hover any mark for numbers.";
+    "Each row is an attribute with a natural order. Right of 0 means the systems match the right-hand group better than the left-hand group. Box: middle half of the shown systems. Thin line: all of them. Short ticks: one per system. Grey marks are reference points. Tap or hover any mark for numbers.";
   $("gr-sys-howto").textContent =
     "Ordered attributes show the gap between the two ends (+ means closer to the group named under the column). Other attributes show the gap between the closest and furthest group. Faded values have a 95% interval that includes 0. Click a row to highlight that system on the charts.";
 

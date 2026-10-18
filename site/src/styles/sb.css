@@ -500,7 +500,11 @@ svg.sb-c .sb-hit {
   fill: transparent;
   cursor: pointer;
 }
+/* Keyboard focus only: a tap or click on a mark shouldn't leave a box around it. */
 svg.sb-c .sb-hit:focus {
+  outline: none;
+}
+svg.sb-c .sb-hit:focus-visible {
   outline: none;
   stroke: var(--sb-ink);
   stroke-width: 1;
