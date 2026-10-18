@@ -1205,4 +1205,14 @@ const labelCls = "text-xs font-semibold uppercase tracking-wide text-muted";
   #flipped-table thead th[data-sort]:hover {
     background: color-mix(in oklch, var(--color-primary) 8%, transparent);
   }
+  /* Phones: no text under 12px. */
+  @media (max-width: 639px) {
+    .metric-tech,
+    .metric-sig,
+    .metric-side,
+    .metric-ci,
+    .dist-legend {
+      font-size: 0.75rem;
+    }
+  }
 </style>

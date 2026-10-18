@@ -915,6 +915,11 @@ table.sb-gr-sys td.sb-gr-cell svg {
    instead of a dropdown under the icon that ran off the bottom. The icon
    gets a 44px hit area. */
 @media (max-width: 639px) {
+  .sb-info-i {
+    width: 20px;
+    height: 20px;
+    font-size: 12px;
+  }
   .sb-info::before {
     content: "";
     position: absolute;
@@ -1015,4 +1020,37 @@ details.sb-fold-flat[open] > summary {
 }
 details.sb-fold-flat .sb-notes {
   margin-top: 8px;
+}
+
+/* ---------- Small-text floor on phones ----------
+   Nothing under 12px on phones. Kept last so it follows every rule it
+   overrides. (Chart text inside SVGs is laid out in pixels by the chart
+   code and keeps its sizes.) */
+@media (max-width: 639px) {
+  .sb-kicker,
+  .sb-lbl,
+  .sb-tag,
+  .sb-chip-note,
+  .sb-scrollhint,
+  .sb-small,
+  .sb-letter,
+  .sb-conf,
+  .sb-read h5,
+  .sb-ds h3,
+  .sb-notes h3,
+  .sb-notes h4,
+  .sb-stats .k,
+  .sb-range-labels,
+  .sb-finding summary,
+  table.sb-lb th,
+  table.sb-ct th,
+  table.sb-mh th,
+  table.sb-lb td.v small,
+  table.sb-lb th .sb-th-scale,
+  table.sb-gr-sys th small {
+    font-size: 12px;
+  }
+  .sb-tag {
+    line-height: 18px;
+  }
 }
