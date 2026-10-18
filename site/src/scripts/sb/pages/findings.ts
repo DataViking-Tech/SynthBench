@@ -152,7 +152,11 @@ function dumbbell(
       whisker(r.errB, cy);
       (r.markA ?? o.a)(svg, x(r.a), cy);
       o.b(svg, x(r.b), cy);
-      s("text", { x: W - 2, y: cy + 4, "text-anchor": "end", class: "sb-val", text: r.label }, svg);
+      s(
+        "text",
+        { x: W - 2, y: cy + 4, "text-anchor": "end", class: "sb-val sb-halo", text: r.label },
+        svg,
+      );
       if (r.tip)
         hoverInfo(
           s("rect", { class: "sb-hit", x: 0, y: y0, width: W, height: rowH }, svg),
@@ -708,8 +712,10 @@ if (party.length === 2) {
         ] as [string, string][],
       }));
       const top = Math.max(...rows.map((r) => r.errB?.[1] ?? r.b));
-      // Ticks every 0.02, so labels like 0.025 never round to "0.03".
-      const steps = Math.ceil(top / 0.02 - 1e-9);
+      // Ticks every 0.02, so labels like 0.025 never round to "0.03". The axis
+      // ends on a multiple of 0.04 so that when a narrow chart keeps every
+      // other tick, they stay evenly spaced up to the end.
+      const steps = 2 * Math.ceil(top / 0.04 - 1e-9);
       const tickValues = Array.from({ length: steps + 1 }, (_, k) => +(k * 0.02).toFixed(2));
       const hi = tickValues[tickValues.length - 1];
       dumbbell(el, rows, {
@@ -853,18 +859,24 @@ if (stt?.items?.length) {
               svg,
             );
           }
-          s(
-            "line",
-            {
-              x1: x(humanOpt),
-              x2: x(humanOpt),
-              y1: 0,
-              y2: plotB,
-              stroke: css("--sb-ink"),
-              "stroke-width": 1.5,
-            },
-            svg,
-          );
+          // Narrow rows put their label above the dots, so the people line is
+          // drawn through each row's dots only, never through a label.
+          const spans: [number, number][] = L.narrow
+            ? groups.map((_, i) => [i * rowH + L.markY - 10, i * rowH + L.markY + 10])
+            : [[0, plotB]];
+          for (const [y1, y2] of spans)
+            s(
+              "line",
+              {
+                x1: x(humanOpt),
+                x2: x(humanOpt),
+                y1,
+                y2,
+                stroke: css("--sb-ink"),
+                "stroke-width": 1.5,
+              },
+              svg,
+            );
           axisTitle(svg, "Share of answers that pick “don't know” (line = people)", {
             x: (x(0) + x(hi)) / 2,
             y: H - 4,

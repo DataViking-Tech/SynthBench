@@ -549,11 +549,14 @@ table.sb-lb td.hc.cur span {
   letter-spacing: -0.01em;
   margin: 0;
 }
+/* Headline number: body face with tabular figures, so "15 of 17" reads as
+   text and its digits line up. */
 .sb-finding .num {
-  font-family: var(--sb-mono);
+  font-family: var(--sb-sans);
+  font-variant-numeric: tabular-nums;
   font-size: 30px;
-  font-weight: 500;
-  letter-spacing: -0.02em;
+  font-weight: 600;
+  letter-spacing: -0.01em;
   line-height: 1;
 }
 .sb-finding .numl {
@@ -615,6 +618,23 @@ table.sb-lb td.hc.cur span {
   font-size: 12.5px;
   font-weight: 600;
 }
+/* Value labels beside each chart row ("median −14", "20% lower"): same
+   face and figures as the headline number. */
+.sb-finding .viz svg.sb-c .sb-val {
+  font-family: var(--sb-sans);
+  font-variant-numeric: tabular-nums;
+  font-size: 12px;
+  font-weight: 600;
+}
+/* Sub-chart headings ("Every run on GSS", "Worst run: …"). */
+.sb-finding .viz > div > h3 {
+  margin: 0 0 4px;
+  font-size: 13px;
+  font-weight: 600;
+}
+.sb-finding .viz > div > * + h3 {
+  margin-top: 22px;
+}
 @media (max-width: 960px) {
   .sb-finding {
     grid-template-columns: 1fr;
@@ -628,6 +648,36 @@ table.sb-lb td.hc.cur span {
   }
   .sb-sm3 {
     grid-template-columns: 1fr;
+  }
+}
+/* Findings on phones: the summary is a one-column list, one line per
+   finding (name left, evidence and number right). */
+@media (max-width: 639px) {
+  .sb-toc {
+    grid-template-columns: 1fr;
+  }
+  .sb .sb-toc a {
+    align-items: center;
+    min-height: 44px;
+    padding: 8px 14px;
+    border-right: 0;
+  }
+  .sb .sb-toc a:last-child {
+    border-bottom: 0;
+  }
+  .sb-toc a > span:last-child {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 2px 10px;
+    color: var(--sb-muted);
+  }
+  .sb-toc b {
+    display: inline;
+  }
+  .sb-finding .num {
+    font-size: 28px;
   }
 }
 
