@@ -1,4 +1,6 @@
 ---
+import MethodSection from "./MethodSection.astro";
+
 interface Reference {
   title: string;
   authors: string;
@@ -91,71 +93,42 @@ function arxivUrl(id: string): string {
 }
 ---
 
-<section class="w-full max-w-4xl mx-auto py-12" id="related-work">
-  <h2
-    class="text-2xl font-bold tracking-tight text-text dark:text-text-dark mb-2"
-  >
-    Related work
-  </h2>
-  <p class="text-muted mb-8 max-w-2xl">
-    SynthBench builds on prior work on LLM-based synthetic survey respondents
-    and social simulation. It also relates to a wider discussion of LLM failure
-    modes in advisory settings. The references below explain our methodological
-    choices and where SynthBench fits in both literatures.
+<MethodSection id="related-work" title="Related work" fold>
+  <p class="sb-muted sb-measure" slot="lede">
+    SynthBench builds on prior work on LLM-based synthetic survey respondents and social simulation. It
+    also relates to a wider discussion of LLM failure modes in advisory settings. The references below
+    explain our methodological choices and where SynthBench fits in both literatures.
   </p>
 
   {
     groups.map((group) => (
-      <div class="mb-10 last:mb-0">
-        <h3 class="text-lg font-semibold tracking-tight text-text dark:text-text-dark mb-2">
-          {group.heading}
-        </h3>
-        {group.intro && (
-          <p class="text-sm text-muted mb-4 max-w-2xl">{group.intro}</p>
-        )}
-        <ol class="space-y-5">
+      <div class="sb-mgroup">
+        <h3 class="sb-h3 sb-mh3">{group.heading}</h3>
+        {group.intro && <p class="sb-prose sb-measure">{group.intro}</p>}
+        <ol class="sb-msubs sb-mrefs">
           {group.references.map((r) => (
-            <li class="rounded-lg border border-muted/20 bg-surface p-5 dark:bg-surface-dark">
-              <div class="flex flex-wrap items-baseline gap-x-3 gap-y-1 mb-2">
-                <h4 class="text-base font-semibold text-text dark:text-text-dark">
-                  {r.title}
-                </h4>
-                <span class="text-xs font-medium text-primary dark:text-primary-light">
-                  {r.venue}
-                </span>
-              </div>
-              <p class="text-sm text-muted mb-2">
-                <span class="font-medium text-text/80 dark:text-text-dark/80">
-                  {r.authors}
-                </span>
+            <li class="sb-msub">
+              <h4 class="sb-h3">{r.title}</h4>
+              <p class="sb-mref-meta">
+                <span class="sb-ink">{r.authors}</span>
+                {" · "}
+                <span class="sb-muted">{r.venue}</span>
                 {" · "}
                 {r.arxiv ? (
-                  <a
-                    href={arxivUrl(r.arxiv)}
-                    class="text-primary dark:text-primary-light underline underline-offset-2 hover:no-underline"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
+                  <a href={arxivUrl(r.arxiv)} target="_blank" rel="noopener noreferrer">
                     arXiv:{r.arxiv}
                   </a>
                 ) : r.url ? (
-                  <a
-                    href={r.url}
-                    class="text-primary dark:text-primary-light underline underline-offset-2 hover:no-underline"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
+                  <a href={r.url} target="_blank" rel="noopener noreferrer">
                     {r.urlLabel ?? r.url}
                   </a>
                 ) : null}
               </p>
-              <p class="text-sm text-text/80 dark:text-text-dark/80">
-                {r.positioning}
-              </p>
+              <p>{r.positioning}</p>
             </li>
           ))}
         </ol>
       </div>
     ))
   }
-</section>
+</MethodSection>

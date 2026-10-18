@@ -1,90 +1,57 @@
 ---
+import MethodSection from "./MethodSection.astro";
+
 const rawBase = import.meta.env.BASE_URL || "/";
 const base = rawBase.endsWith("/") ? rawBase : `${rawBase}/`;
 ---
 
-<section class="w-full max-w-4xl mx-auto py-12" id="problem-framing">
-  <h2
-    class="text-2xl font-bold tracking-tight text-text dark:text-text-dark mb-2"
-  >
-    Why measure against human data
-  </h2>
-  <p class="text-muted mb-4 max-w-2xl">
-    Critiques of cross-provider homogenization need a ground truth to measure
-    against. Real human response distributions provide one.
+<MethodSection id="problem-framing" title="Why measure against human data" fold>
+  <p class="sb-muted sb-measure" slot="lede">
+    Critiques of cross-provider homogenization need a ground truth to measure against. Real human
+    response distributions provide one.
   </p>
 
-  <div
-    class="rounded-lg border border-muted/20 bg-surface p-6 mb-6 dark:bg-surface-dark"
-  >
-    <p class="text-sm text-text/80 dark:text-text-dark/80 mb-3">
-      Romasanta, Thomas, and Levina
-      (<a
+  <div class="sb-prose">
+    <p>
+      Romasanta, Thomas, and Levina (<a
         href="https://hbr.org/2026/03/researchers-asked-llms-for-strategic-advice-they-got-trendslop-in-return"
-        class="text-primary dark:text-primary-light underline underline-offset-2 hover:no-underline"
         target="_blank"
         rel="noopener noreferrer">HBR, March 2026</a
-      >) ran 15,000 strategic-advice queries across seven frontier LLMs and
-      found that responses converged on the same trend-aligned recommendations
-      regardless of scenario context. They called this <em>trendslop</em>: a
-      shared attractor across providers, not a quirk of any single model. The
-      critique is sound, but it has no measurement behind it. Cross-model
-      consensus is only evidence of failure if you can point to the
-      distribution the models should have matched, and open-ended strategic
-      questions have no such ground truth.
+      >) ran 15,000 strategic-advice queries across seven frontier LLMs and found that responses
+      converged on the same trend-aligned recommendations regardless of scenario context. They called
+      this <em>trendslop</em>: a shared attractor across providers, not a quirk of any single model. The
+      critique is sound, but it has no measurement behind it. Cross-model consensus is only evidence of
+      failure if you can point to the distribution the models should have matched, and open-ended
+      strategic questions have no such ground truth.
     </p>
-    <p class="text-sm text-text/80 dark:text-text-dark/80">
-      SynthBench supplies that measurement. Every question we evaluate has a
-      human response distribution from a real survey: the Pew American Trends
-      Panel, SubPOP subpopulations, GlobalOpinionQA cross-country data or the
-      General Social Survey. We score how far
-      each provider's output is from that distribution, overall and for each
-      demographic slice.
+    <p>
+      SynthBench supplies that measurement. Every question we evaluate has a human response distribution
+      from a real survey: the Pew American Trends Panel, SubPOP subpopulations, GlobalOpinionQA
+      cross-country data or the General Social Survey. We score how far each provider's output is from
+      that distribution, overall and for each demographic slice.
     </p>
   </div>
 
-  <h3
-    class="text-lg font-semibold tracking-tight text-text dark:text-text-dark mb-3"
-  >
-    Two separate diagnostics
-  </h3>
-  <div class="grid gap-4 md:grid-cols-2 mb-6">
-    <div
-      class="rounded-lg border border-muted/20 bg-surface p-5 dark:bg-surface-dark"
-    >
-      <h4 class="text-base font-semibold mb-1">Ground-truth fidelity</h4>
-      <p class="text-xs uppercase tracking-wide text-muted mb-2">
-        Model vs. human distribution
-      </p>
-      <p class="text-sm text-text/80 dark:text-text-dark/80">
-        Mean Jensen-Shannon divergence against real survey responses, rolled up
-        into the Survey Parity Score (SPS). This is SynthBench's primary
-        metric. The sections below describe how it is measured.
+  <h3 class="sb-h3 sb-mh3">Two separate diagnostics</h3>
+  <div class="sb-msubs sb-msubs-2">
+    <div class="sb-msub">
+      <h4 class="sb-h3">Ground-truth fidelity</h4>
+      <div class="sb-kicker">Model vs. human distribution</div>
+      <p>
+        Mean Jensen-Shannon divergence against real survey responses, rolled up into the Survey Parity
+        Score (SPS). This is SynthBench's primary metric, and the rest of this page describes how it is
+        measured.
       </p>
     </div>
-    <div
-      class="rounded-lg border border-muted/20 bg-surface p-5 dark:bg-surface-dark"
-    >
-      <h4 class="text-base font-semibold mb-1">Cross-provider concordance</h4>
-      <p class="text-xs uppercase tracking-wide text-muted mb-2">
-        Model vs. model distribution
-      </p>
-      <p class="text-sm text-text/80 dark:text-text-dark/80">
-        Pairwise JSD between raw-LLM providers on the same items. Low
-        cross-provider JSD with high human-alignment means real population
-        variance is being tracked; low cross-provider JSD with low
-        human-alignment is the trendslop signature.{" "}
-        <a
-          href={`${base}findings/#consensus`}
-          class="text-primary dark:text-primary-light underline underline-offset-2 hover:no-underline"
-          >See how much models agree with each other →</a
-        >
+    <div class="sb-msub">
+      <h4 class="sb-h3">Cross-provider concordance</h4>
+      <div class="sb-kicker">Model vs. model distribution</div>
+      <p>
+        Pairwise JSD between raw-LLM providers on the same items. Low cross-provider JSD with high
+        human-alignment means real population variance is being tracked; low cross-provider JSD with low
+        human-alignment is the trendslop signature.
+        <a href={`${base}findings/#consensus`}>See how much models agree with each other →</a>
       </p>
     </div>
   </div>
-
-  <p class="text-sm text-muted max-w-2xl">
-    The rest of this page documents the metrics, datasets, baselines, scoring
-    protocol, cost model, and related literature behind those two diagnostics.
-  </p>
-</section>
+</MethodSection>

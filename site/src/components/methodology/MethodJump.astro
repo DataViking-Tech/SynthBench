@@ -1,0 +1,60 @@
+---
+// "On this page" for the Method page, listing every section (h2).
+// Wide screens: the grouped inline list under the lede. Phones: a bar that
+// sticks to the top of the screen while you read; it names the section you
+// are in and opens the full list (scripts/methodNav.ts closes it after a
+// jump, marks the current section and drops links whose section is absent).
+// It works as a plain <details> without JavaScript. Styles: sb-method.css.
+export interface JumpGroup {
+  label: string;
+  items: { id: string; label: string }[];
+}
+interface Props {
+  groups: JumpGroup[];
+}
+const { groups } = Astro.props;
+const first = groups[0]?.items[0]?.label ?? "";
+---
+
+<nav class="sb-toc-inline sb-mtoc" aria-label="On this page">
+  {
+    groups.map((g) => (
+      <div class="sb-mtoc-g">
+        <span class="sb-kicker">{g.label}</span>
+        {g.items.map((it) => (
+          <a href={`#${it.id}`} data-jump={it.id}>
+            {it.label}
+          </a>
+        ))}
+      </div>
+    ))
+  }
+</nav>
+
+<!-- Only one of the two navs is displayed at a time, so they share a name. -->
+<nav class="sb-jump" aria-label="On this page">
+  <details class="sb-jump-d">
+    <summary>
+      <span class="sb-jump-k">On this page</span>
+      <span class="sb-jump-cur" data-jump-cur>{first}</span>
+    </summary>
+    <div class="sb-jump-menu">
+      {
+        groups.map((g) => (
+          <>
+            <div class="sb-kicker">{g.label}</div>
+            <ol>
+              {g.items.map((it) => (
+                <li>
+                  <a href={`#${it.id}`} data-jump={it.id}>
+                    {it.label}
+                  </a>
+                </li>
+              ))}
+            </ol>
+          </>
+        ))
+      }
+    </div>
+  </details>
+</nav>

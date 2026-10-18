@@ -2,8 +2,9 @@
 import AntiGamingSection from "@/components/methodology/AntiGamingSection.astro";
 import CeilingDetail from "@/components/methodology/CeilingDetail.astro";
 import CostMethodology from "@/components/methodology/CostMethodology.astro";
-import DatasetCards from "@/components/methodology/DatasetCards.astro";
-import DatasetPolicyTable from "@/components/methodology/DatasetPolicyTable.astro";
+import DatasetSummary from "@/components/methodology/DatasetSummary.astro";
+import MethodJump, { type JumpGroup } from "@/components/methodology/MethodJump.astro";
+import MethodSection from "@/components/methodology/MethodSection.astro";
 import OperatorDisclosure from "@/components/methodology/OperatorDisclosure.astro";
 import PreliminaryResults from "@/components/methodology/PreliminaryResults.astro";
 import PrivateHoldoutSection from "@/components/methodology/PrivateHoldoutSection.astro";
@@ -16,6 +17,7 @@ import SubMetrics from "@/components/methodology/SubMetrics.astro";
 import IndexPayload from "@/components/sb/IndexPayload.astro";
 import CodeBlock from "@/components/shared/CodeBlock.astro";
 import BaseLayout from "@/layouts/BaseLayout.astro";
+import "@/styles/sb-method.css";
 
 const bibtex = `@software{synthbench2026,
   title   = {SynthBench: Open Benchmark for Synthetic Survey Respondents},
@@ -24,6 +26,40 @@ const bibtex = `@software{synthbench2026,
   url     = {https://github.com/DataViking-Tech/synthbench},
   version = {0.1.0}
 }`;
+
+// Every section (h2) on the page, in order. A section that doesn't render
+// (Preliminary, when there are no matched pairs) is dropped from the menu
+// at runtime.
+const jump: JumpGroup[] = [
+  {
+    label: "How a score is made",
+    items: [
+      { id: "example", label: "Worked example" },
+      { id: "why-index", label: "Why an Index" },
+      { id: "recipe", label: "Formula" },
+      { id: "metrics", label: "Sub-metrics" },
+      { id: "anchors", label: "Reference points" },
+      { id: "ceiling", label: "Ceiling" },
+      { id: "preliminary", label: "Preliminary results" },
+    ],
+  },
+  {
+    label: "Full methodology",
+    items: [
+      { id: "problem-framing", label: "Why human data" },
+      { id: "scope-of-claim", label: "Scope of claim" },
+      { id: "operator-disclosure", label: "Who runs this" },
+      { id: "datasets", label: "Datasets" },
+      { id: "private-holdout", label: "Private holdout" },
+      { id: "scoring", label: "How a run works" },
+      { id: "run-validity", label: "Run validity" },
+      { id: "anti-gaming", label: "Anti-gaming" },
+      { id: "cost-computation", label: "Cost" },
+      { id: "related-work", label: "Related work" },
+      { id: "citation", label: "Citation" },
+    ],
+  },
+];
 ---
 
 <BaseLayout
@@ -31,31 +67,21 @@ const bibtex = `@software{synthbench2026,
   description="How SynthBench scores synthetic survey respondents: three checks against real answer distributions, combined into SPS and placed on the SynthBench Index between random answers and real people."
 >
   <IndexPayload />
-  <div class="sb">
+  <div class="sb sb-meth">
     <section class="sb-head">
       <div class="sb-kicker">Method · Index v1</div>
-      <h1 class="sb-h1 sm">How a score is made</h1>
+      <h1 class="sb-h1 sm" tabindex="-1">How a score is made</h1>
       <p class="sb-lede">
         Each system is scored on three checks against real survey answers. The three are averaged into the
         Survey Parity Score (SPS), which is then placed between two fixed reference points to give the
         SynthBench Index. Raw SPS is still published for every result.
       </p>
-      <nav class="sb-toc-inline" aria-label="On this page">
-        <a href="#example">Worked example</a>
-        <a href="#why-index">Why an Index</a>
-        <a href="#recipe">Formula</a>
-        <a href="#metrics">Sub-metrics</a>
-        <a href="#anchors">Reference points</a>
-        <a href="#ceiling">Ceiling</a>
-        <a href="#scope-of-claim">Scope of claim</a>
-        <a href="#run-validity">Run validity</a>
-        <a href="#citation">Citation</a>
-      </nav>
     </section>
 
-    <section class="sb-block sb-panel sb-pad" id="example">
-      <h2 class="sb-h2">One survey question, scored</h2>
-      <p class="sb-muted">Illustrative numbers. Move the slider to change how the synthetic panel answers.</p>
+    <MethodJump groups={jump} />
+
+    <MethodSection id="example" title="One survey question, scored">
+      <p class="sb-muted" slot="lede">Illustrative numbers. Move the slider to change how the synthetic panel answers.</p>
       <div class="sb-demo">
         <div>
           <div class="sb-strong">“How much do you trust the national news media?”</div>
@@ -71,18 +97,16 @@ const bibtex = `@software{synthbench2026,
           <p class="sb-note" id="mt-note"></p>
         </div>
       </div>
-    </section>
+    </MethodSection>
 
-    <section class="sb-block sb-panel sb-pad" id="why-index">
-      <h2 class="sb-h2">Why an Index instead of raw SPS</h2>
-      <p class="sb-muted">The same systems on both scales, OpinionsQA.</p>
+    <MethodSection id="why-index" title="Why an Index instead of raw SPS">
+      <p class="sb-muted" slot="lede">The same systems on both scales, OpinionsQA.</p>
       <div id="mt-why"></div>
       <p class="sb-note" id="mt-why-note"></p>
-    </section>
+    </MethodSection>
 
-    <section class="sb-block sb-panel sb-pad" id="recipe">
-      <h2 class="sb-h2">The formula</h2>
-      <p class="sb-muted">Versioned. Any change to the weights or reference points changes the Index version.</p>
+    <MethodSection id="recipe" title="The formula">
+      <p class="sb-muted" slot="lede">Versioned. Any change to the weights or reference points changes the Index version.</p>
       <div class="sb-formula">
         <div>
           <span>Per question</span>
@@ -107,74 +131,59 @@ const bibtex = `@software{synthbench2026,
           </p>
         </div>
       </div>
-    </section>
+    </MethodSection>
 
     <SubMetrics />
 
-    <section class="sb-block sb-panel sb-pad" id="anchors">
-      <h2 class="sb-h2">Where 0 and 100 sit</h2>
-      <p class="sb-muted">
+    <MethodSection id="anchors" title="Where 0 and 100 sit">
+      <p class="sb-muted sb-measure" slot="lede">
         0 is the SPS of uniformly random answers. 100 is the ceiling: how well one random half of the real
         panel matches the other half (split-half bootstrap). The majority-answer baseline is shown for reference.
       </p>
-      <div class="sb-tablewrap sb-sticky"><table class="sb-ct" id="mt-anchors"></table></div>
-    </section>
+      <div class="sb-tablewrap sb-sticky sb-mt"><table class="sb-ct" id="mt-anchors"></table></div>
+    </MethodSection>
 
     <CeilingDetail />
 
     <PreliminaryResults />
 
-    <section class="sb-block sb-head">
-      <h2 class="sb-h2">Full methodology</h2>
-    </section>
+    <div class="sb-mdiv">
+      <div class="sb-kicker">Full methodology</div>
+      <p class="sb-muted sb-measure">
+        The claim and its limits, who runs the benchmark, the datasets, the holdout, the run protocol, cost
+        and related work.
+      </p>
+    </div>
+
+    <ProblemFraming />
+
+    <ScopeOfClaim />
+
+    <OperatorDisclosure />
+
+    <DatasetSummary />
+
+    <PrivateHoldoutSection />
+
+    <ScoringProtocol />
+
+    <RunValidity />
+
+    <AntiGamingSection />
+
+    <CostMethodology />
+
+    <RelatedWork />
+
+    <MethodSection id="citation" title="Citation">
+      <p class="sb-muted" slot="lede">If you use SynthBench in your research, please cite:</p>
+      <CodeBlock code={bibtex} what="BibTeX" wrap class="sb-mt" />
+    </MethodSection>
   </div>
-
-  <ProblemFraming />
-
-  <ScopeOfClaim />
-
-  <OperatorDisclosure />
-
-  <DatasetCards />
-
-  <p class="w-full max-w-4xl mx-auto -mt-6 pb-6 text-sm text-muted">
-    These dataset cards also live on the standalone{" "}
-    <a
-      href={`${import.meta.env.BASE_URL?.replace(/\/?$/, "/") ?? "/"}datasets/`}
-      class="text-primary dark:text-primary-light underline underline-offset-2 hover:no-underline"
-      >datasets page</a
-    >.
-  </p>
-
-  <DatasetPolicyTable />
-
-  <PrivateHoldoutSection />
-
-  <ScoringProtocol />
-
-  <RunValidity />
-
-  <AntiGamingSection />
-
-  <CostMethodology />
-
-  <RelatedWork />
-
-  <!-- Citation -->
-  <section class="w-full max-w-4xl mx-auto py-12" id="citation">
-    <h2
-      class="text-2xl font-bold tracking-tight text-text dark:text-text-dark mb-2"
-    >
-      Citation
-    </h2>
-    <p class="text-muted mb-6">
-      If you use SynthBench in your research, please cite:
-    </p>
-    <CodeBlock code={bibtex} what="BibTeX" wrap />
-  </section>
 </BaseLayout>
 
 <script>
+  import "@/scripts/methodNav";
   import { boot } from "@/scripts/sb/boot";
   boot(() => import("@/scripts/sb/pages/method"));
 </script>
