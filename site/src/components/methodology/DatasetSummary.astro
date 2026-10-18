@@ -1,0 +1,121 @@
+---
+// The Method page's datasets section: one line per registered dataset
+// (name, redistribution tier, whether it is scored, source with its license
+// link) and the four redistribution tiers. The full cards and the policy
+// table live on /datasets (DatasetCards / DatasetPolicyTable). Everything
+// here comes from leaderboard.json, so the list follows the data.
+import leaderboardRaw from "@/data/leaderboard.json";
+import { buildIndexData } from "@/lib/synthIndex";
+import { DATASET_NAMES } from "@/lib/vocab";
+import type { DatasetPolicyEntry, SynthBenchData } from "@/types/leaderboard";
+import MethodSection from "./MethodSection.astro";
+
+const raw = leaderboardRaw as unknown as SynthBenchData;
+const policies: DatasetPolicyEntry[] = raw.dataset_policies ?? [];
+const index = buildIndexData(raw);
+const scored = new Map(index.datasets.map((d) => [d.id, d]));
+
+// Display names for registered datasets that have no leaderboard results
+// (vocab.ts only names the scored ones).
+const OTHER_NAMES: Record<string, string> = {
+  wvs: "WVS",
+  eurobarometer: "Eurobarometer",
+  michigan: "Michigan Surveys of Consumers",
+  pewtech: "Pew Technology",
+};
+const nameOf = (id: string) => DATASET_NAMES[id]?.name ?? OTHER_NAMES[id] ?? id;
+// "Santurkar et al., ICML 2023 — Whose Opinions…" → "Santurkar et al., ICML 2023".
+const shortSource = (c: string | null | undefined) =>
+  c ? c.split(" — ")[0].replace(/\s*\(.*\)\s*$/, "") : "";
+
+const rank = (id: string) => {
+  const d = scored.get(id);
+  return d ? (d.core ? 0 : 1) : 2;
+};
+const order = index.datasets.map((d) => d.id);
+const rows = [...policies]
+  .map((p) => ({
+    id: p.name,
+    name: nameOf(p.name),
+    tier: p.redistribution_policy,
+    status: rank(p.name),
+    source: shortSource(p.citation),
+    license: p.license_url,
+  }))
+  .sort(
+    (a, b) =>
+      a.status - b.status ||
+      (a.status < 2 ? order.indexOf(a.id) - order.indexOf(b.id) : a.name.localeCompare(b.name)),
+  );
+const STATUS = ["In the Index", "Scored, not in the Index", "Not scored yet"];
+const nCore = rows.filter((r) => r.status === 0).length;
+const nOther = rows.filter((r) => r.status === 1).length;
+const nNone = rows.length - nCore - nOther;
+const lede = [
+  `${rows.length} registered human survey datasets.`,
+  `${nCore} make up the SynthBench Index`,
+  nOther ? `, ${nOther} more ${nOther === 1 ? "is" : "are"} scored but kept out of it` : "",
+  nNone ? `, and ${nNone} have an adapter but no results yet.` : ".",
+]
+  .join(" ")
+  .replace(/ ([,.])/g, "$1");
+
+const rawBase = import.meta.env.BASE_URL || "/";
+const base = rawBase.endsWith("/") ? rawBase : `${rawBase}/`;
+---
+
+<MethodSection id="datasets" title="Datasets">
+  <p class="sb-muted sb-measure" slot="lede">
+    {lede} Sources, coverage and demographics for each are on the
+    <a href={`${base}datasets/`}>Datasets page</a>.
+  </p>
+
+  <ul class="sb-mds">
+    {
+      rows.map((r) => (
+        <li data-dataset={r.id}>
+          <span class="sb-mds-n">
+            <b>{r.name}</b>
+            <span class="sb-tag">{r.tier}</span>
+          </span>
+          <span class:list={["sb-mds-s", { "sb-muted": r.status === 2 }]}>{STATUS[r.status]}</span>
+          <span class="sb-mds-src sb-muted">
+            {r.license ? (
+              <a href={r.license} target="_blank" rel="noopener noreferrer">
+                {r.source}
+                <span class="sr-only"> (license, opens in a new tab)</span>
+              </a>
+            ) : (
+              r.source
+            )}
+          </span>
+        </li>
+      ))
+    }
+  </ul>
+
+  <div id="dataset-policies" class="sb-mt">
+    <h3 class="sb-h3">Redistribution tiers</h3>
+    <p class="sb-prose">
+      Each upstream dataset has its own license terms. SynthBench applies them at publish time using four
+      tiers:
+    </p>
+    <ul class="sb-mlist sb-prose">
+      <li><code class="sb-mcode">full</code>: per-question distributions are published openly (public-domain datasets).</li>
+      <li>
+        <code class="sb-mcode">gated</code>: per-question distributions are served from a Cloudflare Worker
+        that validates a Supabase JWT, so research-use sign-in is required. No distribution is served
+        anonymously.
+      </li>
+      <li>
+        <code class="sb-mcode">aggregates_only</code>: aggregate scores are public, and no per-question
+        artifact ships at all. Gating is not a substitute for missing redistribution permission.
+      </li>
+      <li><code class="sb-mcode">citation_only</code>: question metadata only. Every downstream metric is suppressed.</li>
+    </ul>
+    <p class="sb-prose sb-mt-s">
+      Aggregate metrics (SPS, JSD, ranks, cross-model parity) are derived quantities and remain public
+      regardless of tier.
+    </p>
+  </div>
+</MethodSection>
