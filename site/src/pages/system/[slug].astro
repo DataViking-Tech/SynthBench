@@ -7,16 +7,29 @@ import type { SynthBenchData } from "@/types/leaderboard";
 
 export function getStaticPaths() {
   const index = buildIndexData(leaderboardRaw as unknown as SynthBenchData);
-  const seen = new Map<string, { baseId: string; base: string; lab: string }>();
+  const seen = new Map<
+    string,
+    { baseId: string; base: string; heading: string; members: string | null; lab: string }
+  >();
   for (const c of index.systems) {
     // Ensembles use their canonical name (lib/vocab.ts), models their display name.
-    const base = c.method === "ensemble" ? c.name : c.base;
-    if (!seen.has(c.baseId)) seen.set(c.baseId, { baseId: c.baseId, base, lab: c.lab });
+    const ens = c.method === "ensemble";
+    const base = ens ? c.name : c.base;
+    if (!seen.has(c.baseId))
+      seen.set(c.baseId, {
+        baseId: c.baseId,
+        base,
+        // An ensemble's full name lists every member and runs to five lines on
+        // a phone: the heading is its short name, the member list sits below.
+        heading: ens ? c.short : c.base,
+        members: ens && c.short !== c.name ? c.name : null,
+        lab: c.lab,
+      });
   }
   return [...seen.values()].map((s) => ({ params: { slug: systemSlug(s.baseId) }, props: s }));
 }
 
-const { baseId, base: name, lab } = Astro.props;
+const { baseId, base: name, heading, members, lab } = Astro.props;
 const rawBase = import.meta.env.BASE_URL || "/";
 const base = rawBase.endsWith("/") ? rawBase : `${rawBase}/`;
 ---
@@ -30,10 +43,14 @@ const base = rawBase.endsWith("/") ? rawBase : `${rawBase}/`;
     <section class="sb-head sb-head-row">
       <div>
         <div class="sb-kicker"><a href={`${base}leaderboard/`}>Leaderboard</a> / System profile</div>
-        <h1 class="sb-h1 sm" id="pf-title">{name}</h1>
+        <h1 class="sb-h1 sm" id="pf-title">{heading}</h1>
+        {members && <p class="pf-members">{members}</p>}
         <div class="sb-meta" id="pf-meta"><span>{lab}</span><span class="sb-tag">{baseId}</span></div>
       </div>
-      <div class="sb-filter" id="pf-method"></div>
+      <div class="pf-method-wrap">
+        <div class="sb-filter" id="pf-method"></div>
+        <div class="pf-member-of" id="pf-member-of" hidden></div>
+      </div>
     </section>
 
     <section class="sb-block sb-panel">
@@ -48,8 +65,11 @@ const base = rawBase.endsWith("/") ? rawBase : `${rawBase}/`;
         <div class="sb-chart"><div id="pf-ds"></div></div>
       </div>
       <div class="sb-panel">
-        <div class="sb-panel-head"><div><h2>Score components</h2><div class="q">The three parts SPS averages, each on a 0 to 1 scale (not Index points). Red tick: random answers.</div></div></div>
-        <div class="sb-chart sb-tablewrap"><table class="sb-ct" id="pf-comp"></table></div>
+        <div class="sb-panel-head">
+          <div><h2>Score components</h2><div class="q">The three parts SPS averages, each on a 0 to 1 scale (not Index points). Red tick: random answers.</div></div>
+          <div class="sb-filter pf-comp-ds" id="pf-comp-ds"></div>
+        </div>
+        <div class="sb-chart sb-tablewrap"><table class="sb-ct pf-comp" id="pf-comp"></table></div>
       </div>
     </section>
 
@@ -74,12 +94,12 @@ const base = rawBase.endsWith("/") ? rawBase : `${rawBase}/`;
 
     <section class="sb-block sb-grid2">
       <div class="sb-panel">
-        <div class="sb-panel-head"><div><h2>Holdout check</h2><div class="q">Gap in SPS (0 to 1) between public questions and the private answer key. Gaps above 0.05 are flagged for review. The threshold is wider when only a few questions are private.</div></div></div>
+        <div class="sb-panel-head"><div><h2>Holdout check</h2><div class="q">The human answers to some questions are kept private. A system that does much better on the public questions than on the private ones may be copying or tuned to the published answers. Bar: public SPS minus private SPS (0 to 1). Tick: the review threshold, 0.05, or wider when only a few questions are private.</div></div></div>
         <div class="sb-chart"><div id="pf-trust"></div></div>
       </div>
       <div class="sb-panel">
-        <div class="sb-panel-head"><div><h2>Runs</h2><div class="q">The published runs behind these numbers.</div></div></div>
-        <div class="sb-chart sb-tablewrap"><table class="sb-ct" id="pf-runs"></table></div>
+        <div class="sb-panel-head"><div><h2>Runs</h2><div class="q">The published runs behind these numbers. Each links to its configuration and replicates.</div></div></div>
+        <div class="sb-chart sb-tablewrap"><table class="sb-ct pf-runs" id="pf-runs"></table></div>
       </div>
     </section>
   </div>

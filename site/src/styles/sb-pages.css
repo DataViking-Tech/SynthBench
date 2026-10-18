@@ -488,6 +488,150 @@ table.sb-lb td.hc.cur span {
   .sb-stats {
     grid-template-columns: 1fr 1fr;
   }
+  .sb-stats > div:nth-child(2n) {
+    border-right: 0;
+  }
+  .sb-stats > div:nth-child(n + 3) {
+    border-top: 1px solid var(--sb-line);
+  }
+}
+.sb-stats .pf-to {
+  font-family: var(--sb-sans);
+  font-size: 0.55em;
+  letter-spacing: 0;
+  color: var(--sb-muted);
+}
+/* Ensemble profiles: short name as the heading, members underneath. */
+.pf-members {
+  margin: 6px 0 8px;
+  max-width: 60ch;
+  font-size: 14px;
+  line-height: 1.45;
+  color: var(--sb-ink-2);
+}
+.pf-method-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 0;
+  max-width: 100%;
+}
+.pf-member-of {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.pf-member-of ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.sb .pf-member-of a {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 4px 0;
+  font-size: 13.5px;
+}
+.pf-member-of .pf-mo-n {
+  text-decoration: underline;
+  text-decoration-color: var(--sb-muted);
+  text-underline-offset: 3px;
+}
+.pf-member-of .pf-mo-v {
+  font-family: var(--sb-mono);
+  font-size: 12.5px;
+  color: var(--sb-muted);
+  white-space: nowrap;
+}
+/* Score components: every dataset's column on wide screens, one at a time
+   (picked with the Dataset control) on phones. */
+.pf-comp-ds {
+  display: none;
+}
+.pf-runs .pf-r-sub {
+  display: none;
+}
+@media (max-width: 639px) {
+  .sb-stats > div {
+    padding: 12px 14px;
+  }
+  .sb-stats .k {
+    letter-spacing: 0.02em;
+  }
+  .sb-stats .v {
+    font-size: 26px;
+  }
+  .sb-summary {
+    font-size: 15px;
+    padding: 14px;
+  }
+  .sb .pf-member-of a {
+    min-height: 44px;
+    align-items: center;
+    padding: 0;
+    border-bottom: 1px solid var(--sb-line);
+  }
+  .pf-comp-ds:not(:empty) {
+    display: flex;
+    width: 100%;
+  }
+  table.pf-comp .pf-off {
+    display: none;
+  }
+  /* Runs: one card per run; the configuration link covers the card. */
+  table.pf-runs,
+  table.pf-runs tbody {
+    display: block;
+  }
+  table.pf-runs thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+  }
+  table.pf-runs tr {
+    position: relative;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 2px 10px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--sb-line);
+  }
+  table.pf-runs td {
+    display: block;
+    padding: 0;
+    border: 0;
+    min-width: 0;
+  }
+  table.pf-runs td.pf-r-ds {
+    flex: 1 1 0;
+    font-weight: 600;
+  }
+  table.pf-runs td.pf-r-n {
+    display: none;
+  }
+  table.pf-runs td.pf-r-cfg {
+    flex: 1 1 100%;
+  }
+  table.pf-runs .pf-r-sub {
+    display: block;
+    font-size: 13px;
+    color: var(--sb-ink-2);
+  }
+  table.pf-runs td.pf-r-cfg a {
+    font-size: 13px;
+    text-decoration: underline;
+    text-decoration-color: var(--sb-muted);
+    text-underline-offset: 3px;
+  }
+  table.pf-runs td.pf-r-cfg a::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+  }
 }
 
 /* ---------- Findings ---------- */
