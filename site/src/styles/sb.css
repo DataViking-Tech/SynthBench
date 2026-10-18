@@ -515,9 +515,12 @@ svg.sb-c .sb-s {
 svg.sb-c.sb-dim .sb-s:not(.hl) {
   opacity: 0.18;
 }
+/* Chart text that a gridline or reference line may cross: a ring of the
+   background colour keeps it legible. Set --sb-halo on text drawn over a
+   different fill (striped rows). */
 svg.sb-c .sb-halo {
   paint-order: stroke;
-  stroke: var(--sb-panel);
+  stroke: var(--sb-halo, var(--sb-panel));
   stroke-width: 4px;
   stroke-linejoin: round;
 }

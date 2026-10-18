@@ -544,13 +544,21 @@ function leanChart(el: HTMLElement, W: number): string[] {
     const mid = y0 + 26 + lab + (sets.length * bandH) / 2;
     const [first, last] = ends(row.a);
     if (i) s("line", { x1: 0, x2: W, y1: y0, y2: y0, stroke: css("--sb-line") }, svg);
-    s("text", { class: "sb-lab", x: 0, y: narrow ? y0 + 16 : mid + 4, text: row.a.label }, svg);
+    s(
+      "text",
+      { class: "sb-lab sb-halo", x: 0, y: narrow ? y0 + 16 : mid + 4, text: row.a.label },
+      svg,
+    );
     const near = narrow ? "" : "closer to ";
-    s("text", { class: "sb-sub", x: x(-D) + 2, y: y0 + 16 + lab, text: `← ${near}${first}` }, svg);
+    s(
+      "text",
+      { class: "sb-sub sb-halo", x: x(-D) + 2, y: y0 + 16 + lab, text: `← ${near}${first}` },
+      svg,
+    );
     s(
       "text",
       {
-        class: "sb-sub",
+        class: "sb-sub sb-halo",
         x: x(D) - 2,
         y: y0 + 16 + lab,
         "text-anchor": "end",
@@ -1013,7 +1021,9 @@ function detailChart(el: HTMLElement, W: number): string[] {
     s(
       "text",
       {
-        class: isCountry ? "sb-lab sb-light" : "sb-lab",
+        class: `${isCountry ? "sb-lab sb-light" : "sb-lab"} sb-halo`,
+        // The halo matches the striped row behind it.
+        style: i % 2 === 0 ? "--sb-halo: var(--sb-panel-2)" : null,
         x: 6,
         y: narrow ? rowTop + 14 : mid + 4,
         text: row.label,
@@ -1354,14 +1364,20 @@ function condAll(el: HTMLElement, W: number): string[] {
     const cy = ys[i] + ("head" in r ? 0 : off);
     if ("head" in r && r.head === ONE_HEAD) {
       s("line", { x1: 0, x2: W, y1: cy - 10, y2: cy - 10, stroke: css("--sb-line-2") }, svg);
-      s("text", { class: "sb-lab", x: 0, y: cy + 8, text: r.head }, svg);
+      s("text", { class: "sb-lab sb-halo", x: 0, y: cy + 8, text: r.head }, svg);
       return;
     }
     const fade = faded.has(r);
     if ("head" in r) {
       s(
         "text",
-        { class: "sb-t", x: 0, y: cy + 6, text: r.head.toUpperCase(), opacity: fade ? 0.75 : null },
+        {
+          class: "sb-t sb-halo",
+          x: 0,
+          y: cy + 6,
+          text: r.head.toUpperCase(),
+          opacity: fade ? 0.75 : null,
+        },
         svg,
       );
       return;
@@ -1369,7 +1385,7 @@ function condAll(el: HTMLElement, W: number): string[] {
     s(
       "text",
       {
-        class: fade ? "sb-lab sb-light" : "sb-lab",
+        class: fade ? "sb-lab sb-light sb-halo" : "sb-lab sb-halo",
         x: 14,
         y: narrow ? cy - 14 : cy + 4,
         text: r.label,
@@ -1503,10 +1519,10 @@ function condOne(el: HTMLElement, W: number, c: ConditionSet): string[] {
   rows.forEach((r, i) => {
     const cy = ys[i] + ("head" in r ? 0 : off);
     if ("head" in r) {
-      s("text", { class: "sb-t", x: 0, y: cy + 6, text: r.head.toUpperCase() }, svg);
+      s("text", { class: "sb-t sb-halo", x: 0, y: cy + 6, text: r.head.toUpperCase() }, svg);
       return;
     }
-    s("text", { class: "sb-lab", x: 14, y: narrow ? cy - 14 : cy + 4, text: r.label }, svg);
+    s("text", { class: "sb-lab sb-halo", x: 14, y: narrow ? cy - 14 : cy + 4, text: r.label }, svg);
     const rv = rnd(r);
     if (rv != null) {
       const m = refMark(svg, "random", x(rv), cy);

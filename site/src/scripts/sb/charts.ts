@@ -187,6 +187,8 @@ export function gapChart(el: HTMLElement, width: number, rows: Ranked[]): void {
     const ty = narrow ? y0 + 14 : cy + 4.5;
     const col = methodColor(r.c.method);
     const g = s("g", { class: "sb-s", "data-k": r.c.key }, svg);
+    // Narrow: the label has a line of its own; keep grid and reference lines off it.
+    if (narrow) s("rect", { x: 0, y: ty - 13, width, height: 17, fill: "var(--sb-panel)" }, g);
     s("line", { class: "sb-gl", x1: x(D0), x2: x(D1), y1: cy, y2: cy }, g);
     const { v, lo, hi } = r.v;
     if (lo != null && hi != null && hi >= D0) {
@@ -311,7 +313,10 @@ export function liftMini(el: HTMLElement, width: number): { up: number; total: n
     .map((p) => ({ a: p.raw, b: p.persona, va: p.va, vb: p.vb }))
     .sort((p, q) => q.vb - q.va - (p.vb - p.va));
   const rowH = 26;
-  const labelW = 92;
+  // Gutter sized to the longest name, up to 38% of the chart; longer names are cut.
+  const labelW = Math.round(
+    Math.min(width * 0.38, Math.max(92, ...rows.map((r) => textWidth(shortName(r.a)) + 2))),
+  );
   const H = rows.length * rowH + 44;
   const vals = rows.flatMap((r) => [r.va, r.vb]);
   const d0 = Math.min(-10, Math.floor((Math.min(...vals, 0) - 4) / 10) * 10);
@@ -337,11 +342,13 @@ export function liftMini(el: HTMLElement, width: number): { up: number; total: n
   rows.forEach((r, i) => {
     const cy = i * rowH + rowH / 2;
     const g = s("g", { class: "sb-s", "data-k": r.b.key }, svg);
-    s(
+    const name = fitText(shortName(r.a), labelW - 2);
+    const lab = s(
       "text",
-      { x: labelW, y: cy + 4, "text-anchor": "end", class: "sb-lab", text: shortName(r.a) },
+      { x: labelW, y: cy + 4, "text-anchor": "end", class: "sb-lab", text: name },
       g,
     );
+    if (name !== shortName(r.a)) s("title", { text: shortName(r.a) }, lab);
     s(
       "line",
       {
