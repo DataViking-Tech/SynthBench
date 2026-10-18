@@ -7,7 +7,7 @@ import ProviderLogo from "@/components/sb/ProviderLogo.astro";
 import BaseLayout from "@/layouts/BaseLayout.astro";
 import "@/styles/dist-bars.css";
 import leaderboardRaw from "@/data/leaderboard.json";
-import { datasetLabel } from "@/lib/runExplorer";
+import { datasetLabel, settingsLabel } from "@/lib/runExplorer";
 import { indexScales } from "@/lib/synthIndex";
 import { type SystemLink, systemLinkFor } from "@/lib/systemLinks";
 import {
@@ -84,13 +84,7 @@ const members = isEnsemble && sys.short !== sys.full ? sys.full : null;
 // JSON adds the interval once it loads.
 const scale = indexScales(leaderboardRaw as unknown as SynthBenchData)[datasetId(entry.dataset)];
 const runIndex = spsToIndex(entry.sps, scale);
-const settings = [
-  `temperature ${entry.temperature ?? "default"}`,
-  entry.template && entry.template !== "current" ? `${entry.template} template` : null,
-  entry.effort ? `${entry.effort} effort` : null,
-]
-  .filter(Boolean)
-  .join(" · ");
+const settings = settingsLabel(entry, { n: false });
 
 // Public aggregates from runs-index.json. They render immediately and stay
 // when the per-question artifact is gated; the run JSON (when it loads)
