@@ -3,6 +3,7 @@ import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { resolve } from "node:path";
 import BaseLayout from "@/layouts/BaseLayout.astro";
 import { compareKeys, datasetLabel, methodName, systemName } from "@/lib/runExplorer";
+import { optionColor } from "@/lib/answerPalette";
 import { topicLabel } from "@/lib/topics";
 import type { QuestionIndex, QuestionIndexEntry, QuestionPayload } from "@/types/questions";
 
@@ -167,15 +168,6 @@ const options = (() => {
   return [...keys];
 })();
 
-const BAR_COLORS = [
-  "var(--color-primary)",
-  "var(--color-accent)",
-  "var(--color-provider-raw-llm)",
-  "var(--color-baseline)",
-  "var(--color-provider-althing)",
-  "var(--color-muted)",
-];
-
 const escapeHtml = (s: unknown): string =>
   String(s ?? "")
     .replace(/&/g, "&amp;")
@@ -189,7 +181,7 @@ function renderBar(dist: Record<string, number>): string {
     .map((k, i) => {
       const v = dist[k] ?? 0;
       const pctWidth = Math.max(0, Math.min(1, v)) * 100;
-      const color = BAR_COLORS[i % BAR_COLORS.length];
+      const color = optionColor(options, i);
       const title = `${escapeHtml(k)}: ${(v * 100).toFixed(1)}%`;
       return `<span class="dist-seg" title="${title}" style="width:${pctWidth}%;background:${color}"></span>`;
     })
@@ -345,7 +337,7 @@ const configUrl = (id: string): string => `${base}/config/${encodePathSegment(id
             {
               humanTop && consensus && (
                 <span
-                  class={`ml-1 text-xs ${consensusAgrees ? "text-primary" : "text-accent"}`}
+                  class={`ml-1 text-xs ${consensusAgrees ? "text-muted" : "sb-warn"}`}
                 >
                   {consensusAgrees ? "matches human" : `human: ${humanTop}`}
                 </span>
@@ -376,7 +368,7 @@ const configUrl = (id: string): string => `${base}/config/${encodePathSegment(id
                   <span class="dist-chip">
                     <span
                       class="dist-swatch"
-                      style={`background:${BAR_COLORS[i % BAR_COLORS.length]}`}
+                      style={`background:${optionColor(options, i)}`}
                     />
                     {opt}
                   </span>
@@ -641,6 +633,7 @@ const configUrl = (id: string): string => `${base}/config/${encodePathSegment(id
     // gate; 200 swaps the shell for a full-render built from the fetched
     // payload.
     import { datasetLabel, methodName, systemName } from "@/lib/runExplorer";
+    import { optionColor } from "@/lib/answerPalette";
     import { topicLabel } from "@/lib/topics";
     import type { QuestionPayload } from "@/types/questions";
 
@@ -698,15 +691,6 @@ const configUrl = (id: string): string => `${base}/config/${encodePathSegment(id
     function pct(n: number | null | undefined): string {
       return n == null || Number.isNaN(n) ? "—" : `${(n * 100).toFixed(1)}%`;
     }
-
-    const BAR_COLORS = [
-      "var(--color-primary)",
-      "var(--color-accent)",
-      "var(--color-provider-raw-llm)",
-      "var(--color-baseline)",
-      "var(--color-provider-althing)",
-      "var(--color-muted)",
-    ];
 
     function buildQuestionMarkup(payload: QuestionPayload): string {
       const options = payload.options?.length
@@ -799,7 +783,7 @@ const configUrl = (id: string): string => `${base}/config/${encodePathSegment(id
         .map((k, i) => {
           const v = dist[k] ?? 0;
           const width = Math.max(0, Math.min(1, v)) * 100;
-          const color = BAR_COLORS[i % BAR_COLORS.length];
+          const color = optionColor(options, i);
           return `<span class="dist-seg" title="${escapeHtml(k)}: ${(v * 100).toFixed(1)}%" style="width:${width}%;background:${color}"></span>`;
         })
         .join("");
