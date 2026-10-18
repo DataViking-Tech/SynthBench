@@ -871,6 +871,53 @@ table.sb-gr-sys td {
 table.sb-gr-sys td.sb-gr-cell svg {
   margin-left: 6px;
 }
+/* Reference rows: names in the body face, like the system names above them. */
+table.sb-gr-sys tr.refrow b {
+  font-family: inherit;
+  font-size: 12.5px;
+  font-weight: 600;
+}
+/* Column picker: phones only (wider screens show every column). */
+.sb-gr-colpick {
+  display: none;
+}
+
+/* ---------- Groups: phones ----------
+   The systems table shows one attribute column at a time, chosen from the
+   Column menu, so it fits without sideways scrolling. */
+@media (max-width: 639px) {
+  #gr-sys-find {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px 12px;
+    align-items: center;
+  }
+  .sb-gr-colpick {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .sb-gr-colpick .sb-select {
+    max-width: 230px;
+  }
+  table.sb-gr-sys .sb-gr-off {
+    display: none;
+  }
+  /* With one data column the table fits, so names needn't be capped. */
+  #gr-sys.sb-tablewrap :where(tr) > :nth-child(2) {
+    max-width: none;
+  }
+  /* Let the one column's header wrap so the column is only as wide as its bars. */
+  table.sb-gr-sys th.r {
+    white-space: normal;
+  }
+  table.sb-gr-sys {
+    width: 100%;
+  }
+  table.sb-gr-sys .sb-sysname .m {
+    white-space: normal;
+  }
+}
 
 /* ---------- Info popovers, folded findings ---------- */
 .sb-info {
