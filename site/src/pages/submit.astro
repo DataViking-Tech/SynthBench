@@ -2,28 +2,69 @@
 import FAQ from "@/components/submit/FAQ.astro";
 import QuickStart from "@/components/submit/QuickStart.astro";
 import SubmissionAdapters from "@/components/submit/SubmissionAdapters.astro";
-import SubmissionFlow from "@/components/submit/SubmissionFlow.astro";
 import SubmissionRequirements from "@/components/submit/SubmissionRequirements.astro";
 import BaseLayout from "@/layouts/BaseLayout.astro";
+import "@/styles/sb-submit.css";
 
 const rawBase = import.meta.env.BASE_URL || "/";
 const base = rawBase.endsWith("/") ? rawBase : `${rawBase}/`;
 const uploadHref = `${base}submit/upload/`;
+const forkHref = "https://github.com/DataViking-Tech/synthbench/fork";
+// The upload page needs Supabase auth and the submissions API baked in at
+// build time (the production build in .github/workflows/cf-pages.yml sets
+// both). A build without them only offers the pull-request route, so the
+// buttons never promise an upload that /submit/upload/ would refuse.
+const uploadAvailable = Boolean(
+  import.meta.env.PUBLIC_SUPABASE_URL &&
+    import.meta.env.PUBLIC_SUPABASE_ANON_KEY &&
+    import.meta.env.PUBLIC_GATED_API_BASE,
+);
+const primaryCls =
+  "inline-flex min-h-11 items-center justify-center gap-2 rounded-lg bg-primary px-6 py-3 text-sm font-semibold text-white hover:bg-primary/90 dark:bg-primary-light dark:text-surface-dark dark:hover:bg-primary-light/90";
+const secondaryCls =
+  "inline-flex min-h-11 items-center justify-center gap-2 rounded-lg border border-muted/40 bg-surface px-6 py-3 text-sm font-semibold text-text hover:bg-muted/10 dark:bg-surface-dark dark:text-text-dark dark:hover:bg-muted/10";
 ---
 
 <BaseLayout title="Submit - SynthBench">
-  <div class="py-12 text-center">
-    <h1 class="text-3xl sm:text-4xl font-bold tracking-tight">
-      Submit your model
-    </h1>
+  <div class="pt-10 pb-4 sm:py-12 text-center">
+    <h1 class="text-3xl sm:text-4xl font-bold tracking-tight">Submit your model</h1>
     <p class="mt-3 text-lg text-muted max-w-2xl mx-auto">
       Score your synthetic survey method against real human survey data.
     </p>
+    <div class="sb-sub-ctas mt-6">
+      {
+        uploadAvailable && (
+          <a href={uploadHref} class={primaryCls}>
+            Upload a run
+          </a>
+        )
+      }
+      <a
+        href={forkHref}
+        class={uploadAvailable ? secondaryCls : primaryCls}
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        Fork on GitHub<span class="sr-only"> (opens in a new tab)</span>
+        <svg class="size-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true">
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25"
+          ></path>
+        </svg>
+      </a>
+    </div>
+    <p class="mt-3 text-sm text-muted max-w-xl mx-auto">
+      {
+        uploadAvailable
+          ? "Upload a result JSON you generated (sign-in required), or open a pull request that adds it to the repository."
+          : "Open a pull request that adds your result JSON to the repository. Uploading is not available on this copy of the site."
+      }
+    </p>
   </div>
 
-  <QuickStart />
-
-  <SubmissionFlow />
+  <QuickStart uploadAvailable={uploadAvailable} uploadHref={uploadHref} />
 
   <SubmissionRequirements />
 
@@ -33,42 +74,35 @@ const uploadHref = `${base}submit/upload/`;
 
   <!-- Final CTA -->
   <section class="w-full max-w-4xl mx-auto py-12 text-center">
-    <h2
-      class="text-2xl font-bold tracking-tight text-text dark:text-text-dark mb-4"
-    >
-      Submit a run
-    </h2>
+    <h2 class="text-2xl font-bold tracking-tight text-text dark:text-text-dark mb-4">Submit a run</h2>
     <p class="text-muted mb-6 max-w-lg mx-auto">
-      Run the benchmark locally and upload the result JSON, or open a pull request
-      that adds the file to the repository.
+      {
+        uploadAvailable
+          ? "Run the benchmark locally and upload the result JSON, or open a pull request that adds the file to the repository."
+          : "Run the benchmark locally and open a pull request that adds the result JSON to the repository."
+      }
     </p>
-    <div class="flex flex-wrap items-center justify-center gap-3">
+    <div class="sb-sub-ctas">
+      {
+        uploadAvailable && (
+          <a href={uploadHref} class={primaryCls}>
+            Upload a run
+          </a>
+        )
+      }
       <a
-        href={uploadHref}
-        class="inline-flex items-center gap-2 rounded-lg bg-primary px-6 py-3 text-sm font-semibold text-white hover:bg-primary/90 dark:bg-primary-light dark:text-surface-dark dark:hover:bg-primary-light/90"
-      >
-        Upload a run
-      </a>
-      <a
-        href="https://github.com/DataViking-Tech/synthbench/fork"
-        class="inline-flex items-center gap-2 rounded-lg border border-muted/40 bg-surface px-6 py-3 text-sm font-semibold text-text hover:bg-muted/10 dark:bg-surface-dark dark:text-text-dark dark:hover:bg-muted/10"
+        href={forkHref}
+        class={uploadAvailable ? secondaryCls : primaryCls}
         target="_blank"
         rel="noopener noreferrer"
       >
         Fork on GitHub<span class="sr-only"> (opens in a new tab)</span>
-        <svg
-          class="size-4"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke-width="2"
-          stroke="currentColor"
-          aria-hidden="true"
-        >
+        <svg class="size-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true">
           <path
             stroke-linecap="round"
             stroke-linejoin="round"
             d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25"
-          />
+          ></path>
         </svg>
       </a>
     </div>
