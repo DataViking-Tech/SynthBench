@@ -183,7 +183,6 @@ const btnCls =
     datasetBase,
     datasetLabel,
     replicateStats,
-    settingsLabel,
     tempLabel,
     templateLabel,
   } from "@/lib/runExplorer";
@@ -625,7 +624,7 @@ const btnCls =
     ].sort((a, b) => a - b);
     const tempValues: [string, string][] = [
       ["default", "Provider default only"],
-      ...temps.map((t): [string, string] => [String(t), `t = ${t}`]),
+      ...temps.map((t): [string, string] => [String(t), `Temperature ${t}`]),
     ];
     if (state.temp && !tempValues.some(([v]) => v === state.temp)) state.temp = "";
     const tSel = byId<HTMLSelectElement>("filter-temp");
@@ -761,8 +760,43 @@ const btnCls =
     }
   }
 
+  // ---------- Settings in words ----------
+  // "default temperature" / "temperature 0.85" rather than "t default".
+
+  const tempIsDefault = (r: Row) => r.temperature == null;
+  const tplIsDefault = (r: Row) => templateLabel(r.template) === "default";
+  const tempWords = (r: Row) =>
+    tempIsDefault(r) ? "default temperature" : `temperature ${r.temperature}`;
+  const tplWords = (r: Row) =>
+    tplIsDefault(r) ? "default template" : `${templateLabel(r.template)} template`;
+
+  /**
+   * Temperature and template in words, folded into "default settings" when
+   * both are the defaults, unless `keep` says one of them is what tells this
+   * row apart from a same-named row (then both are spelled out).
+   */
+  function settingParts(r: Row, keep = false): { k: "temp" | "tpl" | null; text: string }[] {
+    if (!keep && tempIsDefault(r) && tplIsDefault(r)) return [{ k: null, text: "default settings" }];
+    return [
+      { k: "temp", text: tempWords(r) },
+      { k: "tpl", text: tplWords(r) },
+    ];
+  }
+
+  /** "default settings · 100 questions" (plus effort and persona pack when set). */
+  function settingsText(r: Row): string {
+    return [
+      ...settingParts(r).map((p) => p.text),
+      r.effort ? `${r.effort} effort` : null,
+      r.persona_pack ? `${r.persona_pack} personas` : null,
+      `${r.n_questions} questions`,
+    ]
+      .filter(Boolean)
+      .join(" · ");
+  }
+
   const rowLabel = (r: Row): string =>
-    `${r.name} (${settingsLabel(r)}${r.mode === "run" ? `, ${r.id.slice(-15)}` : ""})`;
+    `${r.name} (${settingsText(r)}${r.mode === "run" ? `, ${r.id.slice(-15)}` : ""})`;
 
   function guardDisabledLink(el: HTMLAnchorElement): void {
     const block = (e: Event): void => {
@@ -855,10 +889,10 @@ const btnCls =
   function metaHtml(r: Row, diff: Set<DiffKey> | undefined): string {
     const part = (k: DiffKey | null, text: string) =>
       k && diff?.has(k) ? `<b class="ex-diff">${escapeHtml(text)}</b>` : escapeHtml(text);
+    const keep = diff?.has("temp") || diff?.has("tpl");
     const bits = [
       part(null, METHOD_NAMES[r.method].label),
-      part("temp", `t ${tempLabel(r.temperature)}`),
-      part("tpl", `${templateLabel(r.template)} template`),
+      ...settingParts(r, keep).map((s) => part(s.k, s.text)),
       part("n", `${r.n_questions} questions`),
       r.samples_per_question == null ? "" : part("spq", `${r.samples_per_question} samples`),
       `${r.runs} run${r.runs === 1 ? "" : "s"}`,
