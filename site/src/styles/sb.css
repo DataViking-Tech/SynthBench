@@ -1173,3 +1173,49 @@ svg.sb-c .sb-logo {
 .sb-loadnote.err {
   color: var(--sb-neg-ink);
 }
+
+/* ---------- Touch targets on phones ----------
+   At least 44 x 44px to tap (WCAG 2.5.5) without changing how small
+   controls look: an invisible box centred on each control takes the tap.
+   Add .sb-tap to any other small control that needs it. Labels around
+   checkboxes grow instead, so the whole label is the target. */
+@media (max-width: 639px) {
+  :is(
+    .sb-tap,
+    .sb-chip,
+    .sb-linkbtn,
+    .sb-gr-sort,
+    .sb-btn-sm,
+    .sb-tray button,
+    details > summary,
+    nav[aria-label="Breadcrumb"] a,
+    footer a,
+    table.sb-stack thead th button
+  ) {
+    position: relative;
+  }
+  :is(
+    .sb-tap,
+    .sb-chip,
+    .sb-linkbtn,
+    .sb-gr-sort,
+    .sb-btn-sm,
+    .sb-tray button,
+    details > summary,
+    nav[aria-label="Breadcrumb"] a,
+    footer a,
+    table.sb-stack thead th button
+  )::before {
+    content: "";
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: max(100%, 44px);
+    height: max(100%, 44px);
+    transform: translate(-50%, -50%);
+  }
+  .sb-toggle,
+  label:has(> input[type="checkbox"]) {
+    min-height: 44px;
+  }
+}
