@@ -1,6 +1,19 @@
 import { topicLabel } from "@/lib/topics";
 import { harnessTag, modelNameFromLabel } from "@/lib/vocab";
-import { axisTicks, axisTitle, css, fmt, h, linear, mount, s, thinTicks, ticks } from "../dom";
+import {
+  axisTicks,
+  axisTitle,
+  css,
+  fmt,
+  h,
+  linear,
+  mount,
+  rowLabel,
+  rowLayout,
+  s,
+  thinTicks,
+  ticks,
+} from "../dom";
 import {
   ALL,
   CORE,
@@ -19,6 +32,7 @@ import {
   methodLabel,
   methodShort,
   onChange,
+  profileHref,
   profileQuery,
   pruneCompare,
   scopeName,
@@ -45,20 +59,22 @@ const $ = (id: string) => document.getElementById(id) as HTMLElement;
 
 const mine = systems().filter((c) => c.baseId === baseId && !c.variant);
 const variants = systems().filter((c) => c.baseId === baseId && c.variant);
-const options: [SystemConfig, string][] = [
-  ...mine.map((c): [SystemConfig, string] => [c, methodLabel(c)]),
-  ...ensembles()
-    .filter((e) => e.baseId !== baseId && e.members.some((m) => m.id === baseId))
-    .map((e): [SystemConfig, string] => [e, `In the ensemble ${ensembleLabel(e.base)}`]),
-];
-/** URL state for an option: the method and harness, or which ensemble it is on a member's page. */
-const optionParams = (c: SystemConfig): Record<string, string | null> => ({
-  ...profileQuery(c),
-  ensemble: c.baseId !== baseId ? c.baseId : null,
-});
+const options: [SystemConfig, string][] = mine.map((c): [SystemConfig, string] => [
+  c,
+  methodLabel(c),
+]);
+// Ensembles this model is a member of. They have profiles of their own, so
+// they are links there rather than options that would show an ensemble's
+// scores under this model's name.
+const memberOf = ensembles().filter(
+  (e) => e.baseId !== baseId && e.members.some((m) => m.id === baseId),
+);
 const fromUrl = new URLSearchParams(location.search);
+// Old links selected an ensemble in place (?ensemble=<id>): send them on.
+const legacy = memberOf.find((e) => e.baseId === fromUrl.get("ensemble"));
+if (legacy) location.replace(profileHref(legacy));
 const matchesUrl = (c: SystemConfig) =>
-  Object.entries(optionParams(c)).every(([k, v]) => (fromUrl.get(k) ?? null) === v);
+  Object.entries(profileQuery(c)).every(([k, v]) => (fromUrl.get(k) ?? null) === v);
 let cur: SystemConfig =
   options.find(([c]) => matchesUrl(c))?.[0] ??
   mine.find((c) => c.method === fromUrl.get("method") && !c.harness) ??
@@ -73,8 +89,6 @@ const median = (a: number[]) => {
 const others = (id: string, me: SystemConfig | null) =>
   systems().filter((c) => !c.variant && c.ds[id] && c !== me);
 const clamp = (v: number, lo: number, hi: number) => Math.max(lo, Math.min(hi, v));
-/** Below this chart width, row labels sit above their bars instead of beside them. */
-const NARROW = 480;
 /** Topics with fewer questions than this are marked "low n". */
 const LOW_N = 10;
 
@@ -97,7 +111,7 @@ function renderMethod(): void {
             class: c === cur ? "on" : null,
             onclick: () => {
               cur = c;
-              writeParams(optionParams(c));
+              writeParams(profileQuery(c));
               emit();
             },
           },
@@ -109,6 +123,47 @@ function renderMethod(): void {
       "button",
       { type: "button", class: "sb-btn sb-btn-sm", onclick: () => toggleCompare(cur.key) },
       state.compare.includes(cur.key) ? "Remove from compare" : "Add to compare",
+    ),
+  );
+}
+
+// ---------- Ensembles this model is in ----------
+function renderMemberOf(): void {
+  const el = $("pf-member-of");
+  el.hidden = !memberOf.length;
+  if (!memberOf.length) return;
+  el.replaceChildren(
+    h(
+      "span",
+      { class: "sb-lbl" },
+      memberOf.length === 1 ? "Also in an ensemble" : `Also in ${memberOf.length} ensembles`,
+    ),
+    h(
+      "ul",
+      null,
+      memberOf.map((e) => {
+        const v = scoreIn(e);
+        return h(
+          "li",
+          null,
+          h(
+            "a",
+            { href: profileHref(e) },
+            h(
+              "span",
+              { class: "sb-inl" },
+              methodKey(e.method),
+              h("span", { class: "pf-mo-n" }, ensembleLabel(e.base)),
+            ),
+            h(
+              "span",
+              { class: "pf-mo-v" },
+              v ? `${state.scope === "all" ? "Index" : dsLabel(state.scope)} ${fmt.int(v.v)}` : "",
+              " →",
+            ),
+          ),
+        );
+      }),
     ),
   );
 }
@@ -140,7 +195,7 @@ function renderStats(): void {
         ? v.v - bestPersona
         : null
       : lift;
-  const stat = (k: string, val: string, sub: string, color?: string) =>
+  const stat = (k: string, val: string | Node[], sub: string, color?: string) =>
     h(
       "div",
       null,
@@ -169,7 +224,13 @@ function renderStats(): void {
     ),
     stat(
       "Range across core datasets",
-      worst && best ? `${fmt.int(worst[1])} to ${fmt.int(best[1])}` : "—",
+      worst && best
+        ? [
+            document.createTextNode(fmt.int(worst[1])),
+            h("span", { class: "pf-to" }, " to "),
+            document.createTextNode(fmt.int(best[1])),
+          ]
+        : "—",
       worst ? `Lowest on ${dsLabel(worst[0])}` : "",
     ),
   );
@@ -358,8 +419,44 @@ mount(
 );
 
 // ---------- Components ----------
+// Phones show one dataset's column at a time (picked here); wider screens
+// show them all and hide the picker.
+// It follows the score selector above when that picks a dataset.
+let compDs: string | null = null;
+let compScope = "";
 function renderComponents(): void {
-  const ids = CORE.filter((id) => cur.ds[id]);
+  const ids: string[] = CORE.filter((id) => cur.ds[id]);
+  if (state.scope !== compScope && ids.includes(state.scope)) compDs = state.scope;
+  compScope = state.scope;
+  if (!compDs || !ids.includes(compDs)) compDs = ids[0] ?? null;
+  const off = (id: string) => (ids.length > 1 && id !== compDs ? "pf-off" : null);
+  $("pf-comp-ds").replaceChildren(
+    ...(ids.length > 1
+      ? [
+          h("span", { class: "sb-lbl" }, "Dataset"),
+          h(
+            "div",
+            { class: "sb-seg", role: "radiogroup", "aria-label": "Score components dataset" },
+            ids.map((id) =>
+              h(
+                "button",
+                {
+                  type: "button",
+                  role: "radio",
+                  "aria-checked": id === compDs ? "true" : "false",
+                  class: id === compDs ? "on" : null,
+                  onclick: () => {
+                    compDs = id;
+                    renderComponents();
+                  },
+                },
+                dsLabel(id),
+              ),
+            ),
+          ),
+        ]
+      : []),
+  );
   const random = d.references.random;
   const bullet = (val: number, r: number) => {
     const W = 88;
@@ -397,7 +494,7 @@ function renderComponents(): void {
         "tr",
         null,
         h("th", { scope: "col" }, "Component"),
-        ids.map((id) => h("th", { scope: "col" }, dsLabel(id))),
+        ids.map((id) => h("th", { scope: "col", class: off(id) }, dsLabel(id))),
       ),
     ),
     h(
@@ -413,7 +510,7 @@ function renderComponents(): void {
             const r = random.ds[id]?.[k] ?? 0;
             return h(
               "td",
-              { class: "nowrap" },
+              { class: off(id) ? "nowrap pf-off" : "nowrap" },
               bullet(val, r),
               h("span", { class: "sb-mono sb-cellnum" }, val.toFixed(2)),
               h(
@@ -473,12 +570,11 @@ mount(
     const ds = cur.ds[topicDs];
     const topics = Object.keys(ds.topicIdx).sort((a, b) => ds.topicIdx[b] - ds.topicIdx[a]);
     // Narrow screens: topic names go on their own line above each bar.
-    const narrow = W < NARROW;
-    const rowH = narrow ? 38 : 26;
-    const labelW = narrow ? -10 : Math.min(240, W * 0.3);
-    const plotB = topics.length * rowH;
+    const L = rowLayout(W, Math.min(240, W * 0.3), 26);
+    const narrow = L.narrow;
+    const plotB = topics.length * L.rowH;
     const H = plotB + 44;
-    const x = linear(-100, 60, labelW + 10, W - (narrow ? 34 : 70));
+    const x = linear(-100, 60, narrow ? 8 : L.labelW + 10, W - (narrow ? 34 : 70));
     const svg = s("svg", {
       class: "sb-c",
       width: W,
@@ -510,20 +606,18 @@ mount(
     );
     axisTitle(svg, narrow ? "Qs" : "Questions", { x: W - 2, y: plotB + 15, anchor: "end" });
     topics.forEach((t, i) => {
-      const cy = narrow ? i * rowH + 26 : i * rowH + rowH / 2;
+      const y0 = i * L.rowH;
+      const cy = y0 + L.markY;
       const n = ds.topicN[t];
       const val = ds.topicIdx[t];
       const g = s("g", null, svg);
-      s(
-        "text",
-        {
-          x: narrow ? 0 : labelW,
-          y: narrow ? cy - 10 : cy + 4,
-          "text-anchor": narrow ? "start" : "end",
-          class: n < LOW_N ? "sb-lab sb-light sb-lown" : "sb-lab sb-light",
-          text: n < LOW_N ? `${topicLabel(t)} (low n)` : topicLabel(t),
-        },
+      rowLabel(
         g,
+        L,
+        W,
+        y0,
+        n < LOW_N ? `${topicLabel(t)} (low n)` : topicLabel(t),
+        n < LOW_N ? "sb-lab sb-light sb-lown" : "sb-lab sb-light",
       );
       const peer = others(topicDs, cur)
         .map((o) => o.ds[topicDs].topicIdx[t])
@@ -789,9 +883,9 @@ mount(trustEl, (W) => {
   for (const c of mine)
     for (const [id, v] of Object.entries(c.ds))
       if (v.holdoutGap != null) items.push({ c, id, gap: v.holdoutGap, limit: v.holdoutLimit });
-  const narrow = W < NARROW;
-  const rowH = narrow ? 38 : 26;
-  const labelW = narrow ? -10 : 170;
+  const L = rowLayout(W, 170, 26);
+  const narrow = L.narrow;
+  const rowH = L.rowH;
   const plotB = Math.max(1, items.length) * rowH;
   const H = plotB + 44;
   const svg = s("svg", {
@@ -816,7 +910,7 @@ mount(trustEl, (W) => {
     );
     return;
   }
-  const x = linear(0, 0.16, labelW + 10, W - 74);
+  const x = linear(0, 0.16, narrow ? 8 : L.labelW + 10, W - 74);
   for (const t of thinTicks(narrow ? [0, 0.08, 0.16] : [0, 0.04, 0.08, 0.12, 0.16], x, (v) =>
     v.toFixed(2),
   )) {
@@ -835,19 +929,10 @@ mount(trustEl, (W) => {
     { x: (x(0) + x(0.16)) / 2, y: H - 4 },
   );
   items.forEach((it, i) => {
-    const cy = narrow ? i * rowH + 26 : i * rowH + rowH / 2;
+    const y0 = i * rowH;
+    const cy = y0 + L.markY;
     const over = it.gap > it.limit;
-    s(
-      "text",
-      {
-        x: narrow ? 0 : labelW,
-        y: narrow ? cy - 10 : cy + 4,
-        "text-anchor": narrow ? "start" : "end",
-        class: "sb-lab sb-light",
-        text: `${methodShort(it.c)}, ${dsLabel(it.id)}`,
-      },
-      svg,
-    );
+    rowLabel(svg, L, W, y0, `${methodShort(it.c)}, ${dsLabel(it.id)}`);
     s(
       "rect",
       {
@@ -888,6 +973,9 @@ mount(trustEl, (W) => {
 });
 
 // ---------- Runs ----------
+// Phones show each run as a card (sb-pages.css, .pf-runs) whose whole area
+// is the configuration link.
+const DEFAULT_SETTINGS = "default temperature and template";
 $("pf-runs").replaceChildren(
   h(
     "thead",
@@ -904,48 +992,60 @@ $("pf-runs").replaceChildren(
     "tbody",
     null,
     mine.flatMap((c) =>
-      Object.entries(c.ds).map(([id, v]) =>
-        h(
+      Object.entries(c.ds).map(([id, v]) => {
+        const total = dsMeta(id)?.questions ?? v.n;
+        const questions = total > v.n ? `${v.n} of ${total}` : String(v.n);
+        return h(
           "tr",
           null,
-          h("td", null, h("span", { class: "sb-inl" }, methodKey(c.method), methodShort(c))),
-          h("td", null, dsLabel(id)),
           h(
             "td",
-            { class: "sb-mono" },
-            (dsMeta(id)?.questions ?? v.n) > v.n
-              ? `${v.n} of ${dsMeta(id)?.questions}`
-              : String(v.n),
+            { class: "pf-r-m" },
+            h("span", { class: "sb-inl" }, methodKey(c.method), methodShort(c)),
           ),
+          h("td", { class: "pf-r-ds" }, dsLabel(id)),
+          h("td", { class: "sb-mono pf-r-n" }, questions),
           h(
             "td",
-            { class: "sb-mono" },
+            { class: "sb-mono pf-r-n" },
             v.samplesPerQuestion == null ? "—" : String(v.samplesPerQuestion),
           ),
-          h("td", { class: "sb-mono" }, v.runs == null ? "—" : String(v.runs)),
+          h("td", { class: "sb-mono pf-r-n" }, v.runs == null ? "—" : String(v.runs)),
           h(
             "td",
-            null,
+            { class: "pf-r-cfg" },
+            // Phones: the three number columns as one line above the link.
+            h(
+              "span",
+              { class: "pf-r-sub" },
+              [
+                `${questions} questions`,
+                v.samplesPerQuestion == null ? null : `${v.samplesPerQuestion} samples each`,
+                v.runs == null ? null : `${v.runs} run${v.runs === 1 ? "" : "s"}`,
+              ]
+                .filter(Boolean)
+                .join(" · "),
+            ),
             v.configId
               ? h(
                   "a",
                   {
                     href: `${d.base}config/${v.configId}/`,
-                    title: `${dsLabel(id)}, ${c.variant ?? "default temperature, default template"}: replicates, metrics and per-topic scores`,
-                    style: { whiteSpace: "nowrap" },
+                    title: `${dsLabel(id)}, ${c.variant ?? DEFAULT_SETTINGS}: replicates, metrics and per-topic scores`,
                   },
-                  `${c.variant ?? "t default · default template"} →`,
+                  `${c.variant ?? DEFAULT_SETTINGS} →`,
                 )
               : null,
           ),
-        ),
-      ),
+        );
+      }),
     ),
   ),
 );
 
 function render(): void {
   renderMethod();
+  renderMemberOf();
   renderStats();
   renderComponents();
 }
