@@ -85,7 +85,7 @@ const selectCls =
       </p>
     </header>
 
-    <section class="mb-4 flex flex-wrap items-center gap-3" aria-label="Ranking and filters">
+    <section class="mb-4 flex flex-wrap items-center gap-3" aria-label="Ranking and filters" id="qi-controls">
       <div
         id="qi-rank"
         role="radiogroup"
@@ -93,10 +93,10 @@ const selectCls =
         class="inline-flex overflow-hidden rounded-md border border-muted/30"
       >
         <button type="button" role="radio" data-rank="human" class="px-3 py-1.5 text-sm"
-          >Furthest from humans</button
+          >Furthest from <span class="qi-long">humans</span><span class="qi-short">people</span></button
         >
         <button type="button" role="radio" data-rank="spread" class="px-3 py-1.5 text-sm"
-          >Most model disagreement</button
+          ><span class="qi-long">Most model disagreement</span><span class="qi-short">Models disagree most</span></button
         >
       </div>
       <label class="inline-flex items-center gap-2 text-sm text-muted">
@@ -116,7 +116,7 @@ const selectCls =
     <div id="qi-gate" class="mb-4 hidden"></div>
 
     <div class="overflow-x-auto rounded-lg border border-muted/20" id="qi-table-wrap">
-      <table class="sb-stack w-full text-sm" id="qi-table" data-stack-lead>
+      <table class="sb-stack qi-table w-full text-sm" id="qi-table" data-stack-lead>
         <caption class="sr-only">
           Questions in {dsName}. Select a column header to sort.
         </caption>
@@ -137,6 +137,8 @@ const selectCls =
         </tbody>
       </table>
     </div>
+    <button type="button" id="qi-more" class="qi-more" hidden></button>
+    <a href="#qi-controls" id="qi-top" class="qi-top" hidden>↑ Sort and filter</a>
 
     {
       keys.length > 0 && (
@@ -159,6 +161,121 @@ const selectCls =
   </div>
 </BaseLayout>
 
+<style is:global>
+  .qi-short,
+  .qi-more,
+  .qi-top {
+    display: none;
+  }
+  /* Phones: each question a compact card that is one link, the first 20
+     until "Show all", and a button back to the controls. */
+  @media (max-width: 639px) {
+    .qi-long {
+      display: none;
+    }
+    .qi-short {
+      display: inline;
+    }
+    .question-index table.sb-stack.qi-table[data-stack-lead] tbody tr:not(.hidden) {
+      position: relative;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.125rem 0.75rem;
+      padding: 0.625rem 0.5rem 0.625rem 2.5rem;
+    }
+    .question-index table.sb-stack.qi-table[data-stack-lead] td {
+      padding: 0;
+    }
+    .question-index table.sb-stack.qi-table[data-stack-lead] td.qi-q {
+      flex: 1 1 100%;
+      padding: 0 5rem 0 0;
+    }
+    .question-index table.sb-stack.qi-table[data-stack-lead] .qi-text {
+      display: -webkit-box;
+      -webkit-box-orient: vertical;
+      -webkit-line-clamp: 2;
+      line-clamp: 2;
+      overflow: hidden;
+    }
+    .question-index table.sb-stack.qi-table[data-stack-lead] .qi-link::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+    }
+    .question-index table.sb-stack.qi-table[data-stack-lead] td.qi-gap {
+      position: absolute;
+      top: 0.625rem;
+      right: 0.25rem;
+      pointer-events: none;
+    }
+    .question-index table.sb-stack.qi-table[data-stack-lead] td.qi-vs {
+      order: 1;
+      flex: 1 1 100%;
+    }
+    /* Topic, disagreement, refusal spread and model count share one line. */
+    .question-index table.sb-stack.qi-table[data-stack-lead] td.qi-meta {
+      order: 2;
+      flex: none;
+      padding: 0;
+      color: var(--color-muted);
+      font-family: inherit;
+      font-size: 0.75rem;
+    }
+    .question-index table.sb-stack.qi-table[data-stack-lead] td.qi-topic::before {
+      content: none;
+    }
+    .question-index table.sb-stack.qi-table[data-stack-lead] td.qi-meta span {
+      display: inline;
+      margin-left: 0.25rem;
+    }
+    .question-index table.sb-stack.qi-table[data-stack-lead] td[data-k]::before {
+      content: attr(data-k);
+      display: inline;
+      margin-right: 0.375rem;
+      font-family: inherit;
+      letter-spacing: 0;
+      text-transform: none;
+    }
+    .question-index table.sb-stack.qi-table[data-stack-lead].qi-clamped tbody > tr:nth-child(n + 21) {
+      display: none;
+    }
+    .qi-more:not([hidden]) {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      min-height: 44px;
+      margin-top: 0.75rem;
+      border: 1px solid color-mix(in oklch, var(--color-muted) 30%, transparent);
+      border-radius: 0.5rem;
+      font-size: 0.875rem;
+      font-weight: 600;
+    }
+    .qi-top:not([hidden]) {
+      position: fixed;
+      right: 1rem;
+      bottom: calc(1rem + env(safe-area-inset-bottom, 0px));
+      z-index: 20;
+      display: inline-flex;
+      align-items: center;
+      min-height: 44px;
+      padding: 0 1rem;
+      border-radius: 999px;
+      background: var(--color-primary);
+      color: #fff;
+      font-size: 0.875rem;
+      font-weight: 600;
+      box-shadow: 0 4px 14px rgb(0 0 0 / 0.2);
+    }
+    .qi-clear {
+      display: inline-flex;
+      align-items: center;
+      min-height: 44px;
+      margin-left: 0.25rem;
+    }
+  }
+</style>
+
 <script>
   import "@/scripts/stackTables";
   import { safeQuestionKey } from "@/lib/runExplorer";
@@ -180,7 +297,10 @@ const selectCls =
     sortDir: "desc" as SortDir,
     topic: "",
     search: "",
+    /** Phones list the first ROWS_FIRST rows until "Show all" (CSS, .qi-clamped). */
+    showAll: false,
   };
+  const ROWS_FIRST = 20;
 
   const fmt = (n: number | null | undefined, p = 3) =>
     n == null || Number.isNaN(n) ? "—" : n.toFixed(p);
@@ -264,19 +384,30 @@ const selectCls =
                   }`;
             return `<tr class="border-b border-muted/10 hover:bg-primary/5">
               <td class="px-3 py-2 text-right font-mono text-xs text-muted">${i + 1}</td>
-              <td class="px-3 py-2"><a href="${href}" class="font-mono text-xs text-primary hover:underline">${escapeHtml(q.key)}</a><span class="block max-w-md text-xs text-muted">${escapeHtml(q.question_excerpt)}</span></td>
-              <td class="px-3 py-2 text-xs">${escapeHtml(q.topic ? topicLabel(q.topic) : "—")}</td>
-              <td class="px-3 py-2 text-right font-mono">${fmt(q.jsd_to_human_mean)}</td>
-              <td class="px-3 py-2 text-right font-mono">${fmt(q.cross_model_jsd_mean)}<span class="block text-[11px] text-muted">max ${fmt(q.cross_model_jsd_max)}</span></td>
-              <td class="px-3 py-2 text-xs">${vs}</td>
-              <td class="px-3 py-2 text-right font-mono text-xs">${pct(q.refusal_rate_spread)}</td>
-              <td class="px-3 py-2 text-right font-mono text-xs">${q.n_models}</td>
+              <td class="qi-q px-3 py-2"><a href="${href}" class="qi-link font-mono text-xs text-primary hover:underline">${escapeHtml(q.key)}</a><span class="qi-text block max-w-md text-xs text-muted">${escapeHtml(q.question_excerpt)}</span></td>
+              <td class="qi-meta qi-topic px-3 py-2 text-xs">${escapeHtml(q.topic ? topicLabel(q.topic) : "—")}</td>
+              <td class="qi-gap px-3 py-2 text-right font-mono" data-k="Gap">${fmt(q.jsd_to_human_mean)}</td>
+              <td class="qi-meta px-3 py-2 text-right font-mono" data-k="Disagreement">${fmt(q.cross_model_jsd_mean)}<span class="block text-[11px] text-muted">max ${fmt(q.cross_model_jsd_max)}</span></td>
+              <td class="qi-vs px-3 py-2 text-xs" data-k="Models' answer">${vs}</td>
+              <td class="qi-meta px-3 py-2 text-right font-mono text-xs" data-k="Refusal spread">${pct(q.refusal_rate_spread)}</td>
+              <td class="qi-meta px-3 py-2 text-right font-mono text-xs" data-k="Models">${q.n_models}</td>
             </tr>`;
           })
           .join("")
-      : `<tr><td colspan="8" class="px-3 py-8 text-center text-muted">No questions match.</td></tr>`;
+      : `<tr><td colspan="8" class="px-3 py-8 text-center text-muted">No questions match.${
+          view.topic || view.search
+            ? ` <button type="button" id="qi-clear" class="qi-clear text-primary hover:underline">Clear filters</button>`
+            : ""
+        }</td></tr>`;
     const count = $("qi-count");
     if (count) count.textContent = `${rows.length} of ${view.rows.length}`;
+    const clamped = !view.showAll && rows.length > ROWS_FIRST;
+    $("qi-table")?.classList.toggle("qi-clamped", clamped);
+    const more = $<HTMLButtonElement>("qi-more");
+    if (more) {
+      more.hidden = !clamped;
+      more.textContent = `Show all ${rows.length} questions`;
+    }
     for (const th of document.querySelectorAll<HTMLElement>("#qi-table th[data-sort]")) {
       const on = th.dataset.sort === view.sortKey;
       th.setAttribute("aria-sort", on ? (view.sortDir === "asc" ? "ascending" : "descending") : "none");
@@ -351,6 +482,31 @@ const selectCls =
     }
     for (const b of document.querySelectorAll<HTMLButtonElement>("#qi-rank button")) {
       b.addEventListener("click", () => setSort(b.dataset.rank as SortKey, "desc"));
+    }
+    $("qi-more")?.addEventListener("click", () => {
+      view.showAll = true;
+      render();
+      document
+        .querySelectorAll<HTMLElement>("#qi-tbody tr")
+        [ROWS_FIRST]?.querySelector<HTMLAnchorElement>("a")
+        ?.focus({ preventScroll: true });
+    });
+    $("qi-tbody")?.addEventListener("click", (e) => {
+      if (!(e.target as Element | null)?.closest("#qi-clear")) return;
+      view.topic = "";
+      view.search = "";
+      if (sel) sel.value = "";
+      if (search) search.value = "";
+      render();
+      search?.focus();
+    });
+    // Phones: once the controls scroll away, a button brings them back.
+    const controls = $("qi-controls");
+    const top = $("qi-top");
+    if (controls && top && "IntersectionObserver" in window) {
+      new IntersectionObserver(([e]) => {
+        top.hidden = e.isIntersecting || e.boundingClientRect.top > 0;
+      }).observe(controls);
     }
     render();
   }
