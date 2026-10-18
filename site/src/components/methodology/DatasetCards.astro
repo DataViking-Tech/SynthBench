@@ -3,6 +3,15 @@
 // (src/synthbench/datasets/__init__.py). The drift-guard test
 // tests/test_site_dataset_cards.py asserts this set equality so a new
 // adapter can't be registered without a methodology card.
+import leaderboardRaw from "@/data/leaderboard.json";
+import { CORE_DATASETS } from "@/lib/synthIndex";
+
+interface Props {
+  /** Section heading: "Datasets" on /methodology; the /datasets page has its own h1. */
+  title?: string;
+}
+const { title = "Datasets" } = Astro.props;
+
 type Tier = "full" | "gated";
 
 type DatasetCard = {
@@ -15,7 +24,6 @@ type DatasetCard = {
   temporal: string;
   demographics: string;
   description: string;
-  highlight?: boolean;
 };
 
 const datasets: DatasetCard[] = [
@@ -30,7 +38,6 @@ const datasets: DatasetCard[] = [
     demographics: "56 groups across 11 attributes",
     description:
       "The primary ground-truth dataset. Multiple-choice questions covering political, social, and economic attitudes from nationally representative US surveys.",
-    highlight: true,
   },
   {
     slug: "globalopinionqa",
@@ -134,97 +141,175 @@ const tierLabel: Record<Tier, string> = {
   full: "full",
   gated: "gated",
 };
+
+// Whether each dataset is scored, from the published leaderboard: the core
+// datasets make up the Index, others with runs are scored for reference only
+// (NTIA), and the rest are registered adapters with no published runs yet.
+type Status = "index" | "reference" | "registered";
+const scored = new Set(
+  ((leaderboardRaw as { datasets?: string[] }).datasets ?? []).map((d) => d.split(" ", 1)[0]),
+);
+const statusOf = (id: string): Status =>
+  (CORE_DATASETS as readonly string[]).includes(id)
+    ? "index"
+    : scored.has(id)
+      ? "reference"
+      : "registered";
+const statusLabel: Record<Status, string> = {
+  index: "In the Index",
+  reference: "Reference only",
+  registered: "Not scored yet",
+};
+const statusStyle: Record<Status, string> = {
+  index: "border-primary/40 text-primary dark:border-primary-light/40 dark:text-primary-light",
+  reference: "border-muted/40 text-muted",
+  registered: "border-dashed border-muted/40 text-muted",
+};
+const count = (s: Status) => datasets.filter((d) => statusOf(d.slug) === s).length;
+const WORDS = ["no", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten"];
+const word = (n: number) => WORDS[n] ?? String(n);
+const cap = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
+const nIndex = count("index");
+const nReference = count("reference");
+const nRegistered = count("registered");
+const referenceNames = datasets
+  .filter((d) => statusOf(d.slug) === "reference")
+  .map((d) => (d.slug === "ntia" ? "NTIA" : d.name));
 ---
 
-<section class="w-full max-w-4xl mx-auto py-12" id="datasets">
+<section class="w-full max-w-4xl mx-auto py-8 sm:py-12" id="datasets">
   <h2
     class="text-2xl font-bold tracking-tight text-text dark:text-text-dark mb-2"
   >
-    Datasets
+    {title}
   </h2>
-  <p class="text-muted mb-8 max-w-2xl">
-    SynthBench validates models against real human survey data from nine
-    registered datasets. Each card shows the dataset's redistribution tier.
+  <p class="text-muted mb-3 max-w-2xl">
+    {cap(word(datasets.length))} datasets are registered.{" "}
+    {cap(word(nIndex))} are scored and make up the SynthBench Index
+    (<b class="font-medium text-text dark:text-text-dark">{statusLabel.index}</b>).
+    {
+      nReference > 0 && (
+        <>
+          {" "}
+          {referenceNames.join(" and ")}{nReference === 1 ? " is" : " are"} scored for reference
+          only{referenceNames.join() === "NTIA" ? ": its questions are yes/no facts about internet use, not opinions" : ""}
+          (<b class="font-medium text-text dark:text-text-dark">{statusLabel.reference}</b>).
+        </>
+      )
+    }
+    {
+      nRegistered > 0 && (
+        <>
+          {" "}
+          The other {word(nRegistered)} have adapters but no published runs yet
+          (<b class="font-medium text-text dark:text-text-dark">{statusLabel.registered}</b>).
+        </>
+      )
+    }
+  </p>
+  <p class="text-muted mb-6 sm:mb-8 max-w-2xl">
+    Each card also shows the dataset's redistribution tier.
     <span class="font-mono">full</span> datasets ship per-question distributions
     publicly. <span class="font-mono">gated</span> datasets require a research-use
     sign-in for per-question data.
   </p>
 
-  <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+  <div class="grid gap-4 sm:gap-6 sm:grid-cols-2 lg:grid-cols-3">
     {
-      datasets.map((d) => (
-        <div
-          data-dataset-slug={d.slug}
-          class:list={[
-            "rounded-lg border p-6 flex flex-col",
-            d.highlight
-              ? "border-primary/40 bg-primary/5 dark:border-primary-light/30 dark:bg-primary-light/5"
-              : "border-muted/20 bg-surface dark:bg-surface-dark",
-          ]}
-        >
-          <div class="flex items-baseline gap-2 mb-3 flex-wrap">
-            <h3 class="text-lg font-semibold text-text dark:text-text-dark">
-              {d.name}
-            </h3>
-            <span
-              class:list={[
-                "text-xs font-mono px-2 py-0.5 rounded-full",
-                tierStyle[d.tier],
-              ]}
-              title={
-                d.tier === "full"
-                  ? "Per-question distributions published openly"
-                  : "Per-question distributions gated behind research-use sign-in"
-              }
-            >
-              {tierLabel[d.tier]}
-            </span>
-          </div>
+      datasets.map((d) => {
+        const st = statusOf(d.slug);
+        return (
+          <div
+            data-dataset-slug={d.slug}
+            data-status={st}
+            class="rounded-lg border border-muted/20 bg-surface dark:bg-surface-dark p-4 sm:p-6 flex flex-col"
+          >
+            <div class="flex items-center gap-2 mb-3 flex-wrap">
+              <h3 class="text-lg font-semibold text-text dark:text-text-dark mr-auto lg:basis-full">
+                {d.name}
+              </h3>
+              <span
+                class:list={["text-xs px-2 py-0.5 rounded-full border", statusStyle[st]]}
+              >
+                {statusLabel[st]}
+              </span>
+              <span
+                class:list={[
+                  "text-xs font-mono px-2 py-0.5 rounded-full",
+                  tierStyle[d.tier],
+                ]}
+                title={
+                  d.tier === "full"
+                    ? "Per-question distributions published openly"
+                    : "Per-question distributions gated behind research-use sign-in"
+                }
+              >
+                {tierLabel[d.tier]}
+              </span>
+            </div>
 
-          <p class="text-sm text-muted mb-4 flex-1">{d.description}</p>
+            <p class="text-sm text-muted mb-4 flex-1">{d.description}</p>
 
-          <dl class="space-y-2 text-sm">
-            {d.questions && (
-              <div class="flex justify-between">
-                <dt class="text-muted">Questions</dt>
-                <dd class="font-medium text-text dark:text-text-dark text-right">
-                  {d.questions.full.toLocaleString()}
-                  {d.questions.core && (
-                    <span class="text-muted font-normal">
-                      {" "}
-                      ({d.questions.core} core)
-                    </span>
-                  )}
+            <dl class="ds-facts space-y-2 text-sm">
+              {d.questions && (
+                <div>
+                  <dt class="text-muted">Questions</dt>
+                  <dd class="font-medium text-text dark:text-text-dark">
+                    {d.questions.full.toLocaleString()}
+                    {d.questions.core && (
+                      <span class="text-muted font-normal">
+                        {" "}
+                        ({d.questions.core} core)
+                      </span>
+                    )}
+                  </dd>
+                </div>
+              )}
+              <div>
+                <dt class="text-muted">Source</dt>
+                <dd class="font-medium text-text dark:text-text-dark">{d.source}</dd>
+              </div>
+              <div>
+                <dt class="text-muted">Scope</dt>
+                <dd class="font-medium text-text dark:text-text-dark">{d.scope}</dd>
+              </div>
+              <div>
+                <dt class="text-muted">Coverage</dt>
+                <dd class="font-medium text-text dark:text-text-dark">{d.temporal}</dd>
+              </div>
+              <div class="ds-wide">
+                <dt class="text-muted mb-0.5">Demographics</dt>
+                <dd class="text-xs text-text/80 dark:text-text-dark/80">
+                  {d.demographics}
                 </dd>
               </div>
-            )}
-            <div class="flex justify-between">
-              <dt class="text-muted">Source</dt>
-              <dd class="font-medium text-text dark:text-text-dark text-right">
-                {d.source}
-              </dd>
-            </div>
-            <div class="flex justify-between">
-              <dt class="text-muted">Scope</dt>
-              <dd class="font-medium text-text dark:text-text-dark text-right">
-                {d.scope}
-              </dd>
-            </div>
-            <div class="flex justify-between">
-              <dt class="text-muted">Coverage</dt>
-              <dd class="font-medium text-text dark:text-text-dark text-right">
-                {d.temporal}
-              </dd>
-            </div>
-            <div>
-              <dt class="text-muted mb-0.5">Demographics</dt>
-              <dd class="text-xs text-text/80 dark:text-text-dark/80">
-                {d.demographics}
-              </dd>
-            </div>
-          </dl>
-        </div>
-      ))
+            </dl>
+          </div>
+        );
+      })
     }
   </div>
 </section>
+
+<style>
+  /* Label and value on one row. Wide cards push the value right; phones put
+     it in a column beside a fixed-width label, so long values wrap under
+     themselves instead of ragged right. */
+  .ds-facts > div:not(.ds-wide) {
+    display: flex;
+    justify-content: space-between;
+    gap: 0.75rem;
+  }
+  .ds-facts > div:not(.ds-wide) > dd {
+    text-align: right;
+  }
+  @media (max-width: 639px) {
+    .ds-facts > div:not(.ds-wide) {
+      display: grid;
+      grid-template-columns: 6.5rem minmax(0, 1fr);
+    }
+    .ds-facts > div:not(.ds-wide) > dd {
+      text-align: left;
+    }
+  }
+</style>

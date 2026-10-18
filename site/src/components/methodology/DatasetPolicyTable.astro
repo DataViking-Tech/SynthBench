@@ -16,6 +16,13 @@ const tierLabel: Record<string, string> = {
   citation_only: "citation-only",
 };
 
+const tierStyle: Record<string, string> = {
+  full: "bg-emerald-500/15 text-emerald-700 dark:text-emerald-300",
+  gated: "bg-slate-500/15 text-slate-700 dark:text-slate-300",
+};
+
+// The list above the table explains each tier once; rows carry the tier's
+// one-line summary as a tooltip rather than repeating it.
 const tierCopy: Record<string, string> = {
   full: "Per-question human distributions published openly on the static site.",
   gated:
@@ -28,7 +35,7 @@ const tierCopy: Record<string, string> = {
 
 {
   policies.length > 0 && (
-    <section class="w-full max-w-4xl mx-auto py-12" id="dataset-policies">
+    <section class="w-full max-w-4xl mx-auto py-8 sm:py-12" id="dataset-policies">
       <h2
         class="text-2xl font-bold tracking-tight text-text dark:text-text-dark mb-2"
       >
@@ -64,7 +71,7 @@ const tierCopy: Record<string, string> = {
       </p>
 
       <div class="overflow-x-auto rounded-lg border border-muted/20">
-        <table class="w-full text-sm">
+        <table class="ds-policy w-full text-sm">
           <caption class="sr-only">
             Per-dataset redistribution policy tier and provenance, used by
             synthbench publish to gate which fields appear in public
@@ -85,17 +92,20 @@ const tierCopy: Record<string, string> = {
           </thead>
           <tbody>
             {policies.map((p) => (
-              <tr class="border-b border-muted/10">
-                <td class="px-3 py-2 font-mono text-xs">{p.name}</td>
-                <td class="px-3 py-2">
-                  <span class="font-mono text-xs">
+              <tr class="border-b border-muted/10 last:border-b-0">
+                <td class="ds-name px-3 py-2 font-mono text-xs">{p.name}</td>
+                <td class="ds-tier px-3 py-2">
+                  <span
+                    class:list={[
+                      "inline-block whitespace-nowrap rounded-full px-2 py-0.5 font-mono text-xs",
+                      tierStyle[p.redistribution_policy] ?? "bg-muted/10 text-muted",
+                    ]}
+                    title={tierCopy[p.redistribution_policy] ?? undefined}
+                  >
                     {tierLabel[p.redistribution_policy] ?? p.redistribution_policy}
                   </span>
-                  <p class="mt-0.5 text-xs text-muted">
-                    {tierCopy[p.redistribution_policy] ?? ""}
-                  </p>
                 </td>
-                <td class="px-3 py-2 text-xs">
+                <td class="ds-src px-3 py-2 text-xs">
                   {p.citation ?? "—"}
                   {p.license_url && (
                     <>
@@ -119,3 +129,41 @@ const tierCopy: Record<string, string> = {
     </section>
   )
 }
+
+<style>
+  /* Phones: each row is a two-line list item (dataset and tier, then source
+     and license) instead of three squeezed columns. */
+  @media (max-width: 639px) {
+    .ds-policy thead {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip: rect(0 0 0 0);
+      white-space: nowrap;
+    }
+    .ds-policy,
+    .ds-policy tbody {
+      display: block;
+    }
+    .ds-policy tr {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      align-items: center;
+      gap: 0.25rem 0.75rem;
+      padding: 0.625rem 0.75rem;
+    }
+    .ds-policy td {
+      display: block;
+      padding: 0;
+    }
+    .ds-policy td.ds-name {
+      font-size: 0.875rem;
+      font-weight: 600;
+    }
+    .ds-policy td.ds-src {
+      grid-column: 1 / -1;
+      color: var(--color-muted);
+    }
+  }
+</style>
