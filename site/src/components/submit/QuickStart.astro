@@ -1,60 +1,75 @@
 ---
+// From install to a leaderboard listing, one step at a time. Each command
+// step has exactly one command with its own Copy button (a one-line
+// CodeBlock, .sb-cmdline in styles/sb-submit.css). This replaces the
+// separate "Submission flow" list, which repeated these steps.
 import Cmd from "@/components/shared/Cmd.astro";
 import CodeBlock from "@/components/shared/CodeBlock.astro";
-const commands = [
-  {
-    cmd: 'pip install "synthbench-eval[openai] @ git+https://github.com/DataViking-Tech/SynthBench.git"',
-    desc: "Install the SynthBench CLI and evaluation framework from GitHub. (The synthbench name on PyPI is an unrelated project.)",
-  },
-  {
-    cmd: "synthbench run --dataset opinionsqa --provider your-provider",
-    desc: "Run the benchmark against your model. Replace your-provider with your adapter (e.g. openai, anthropic, openrouter).",
-  },
-  {
-    cmd: "# Copy result JSON to leaderboard-results/ and open a PR",
-    desc: "Fork the repo, add your result file, and submit a pull request. CI validates the submission.",
-  },
-];
+
+interface Props {
+  /** Upload is configured in this build (see pages/submit.astro). */
+  uploadAvailable: boolean;
+  uploadHref: string;
+}
+const { uploadAvailable, uploadHref } = Astro.props;
+
+const install =
+  'pip install "synthbench-eval[openai] @ git+https://github.com/DataViking-Tech/SynthBench.git"';
+const run = "synthbench run --dataset opinionsqa --provider your-provider";
+const repo = "https://github.com/DataViking-Tech/synthbench";
 ---
 
-<section class="w-full max-w-4xl mx-auto py-12" id="quick-start">
-  <h2
-    class="text-2xl font-bold tracking-tight text-text dark:text-text-dark mb-2"
-  >
-    Quick start
-  </h2>
-  <p class="text-muted mb-8 max-w-2xl">
-    Three commands to benchmark your model and submit results.
+<section class="w-full max-w-4xl mx-auto py-10 sm:py-12" id="quick-start">
+  <h2 class="text-2xl font-bold tracking-tight text-text dark:text-text-dark mb-2">Quick start</h2>
+  <p class="text-muted mb-6 max-w-2xl">
+    Two commands to benchmark your model, then one step to submit the result.
   </p>
 
-  <CodeBlock code={commands.map((c) => c.cmd).join("\n")} what="commands" />
-
-  <div class="mt-6 space-y-4">
-    {
-      commands.map((c, i) => (
-        <div class="flex gap-3">
-          <span class="flex size-6 shrink-0 items-center justify-center rounded-full bg-primary text-white text-xs font-bold dark:bg-primary-light">
-            {i + 1}
-          </span>
-          <div>
-            <p class="text-sm font-medium text-text dark:text-text-dark">
-              <Cmd class="text-sm bg-muted/10 rounded px-1.5 py-0.5" text={c.cmd.replace(/^#\s*/, "")} />
-            </p>
-            <p class="text-sm text-muted mt-1">{c.desc}</p>
-          </div>
-        </div>
-      ))
-    }
-  </div>
-
-  <div class="mt-6 flex flex-wrap gap-4 text-sm">
-    <a
-      href="https://github.com/DataViking-Tech/synthbench"
-      class="text-primary hover:underline dark:text-primary-light"
-      target="_blank"
-      rel="noopener noreferrer"
-    >
-      GitHub repository
-    </a>
-  </div>
+  <ol class="sb-qs">
+    <li>
+      <h3 class="text-base font-semibold text-text dark:text-text-dark">Install the CLI</h3>
+      <CodeBlock code={install} what="install command" class="sb-cmdline" />
+      <p class="text-sm text-muted">
+        Installs the SynthBench CLI and evaluation framework from GitHub. Requires Python 3.10+. (The
+        synthbench name on PyPI is an unrelated project.)
+      </p>
+    </li>
+    <li>
+      <h3 class="text-base font-semibold text-text dark:text-text-dark">Run the benchmark</h3>
+      <CodeBlock code={run} what="run command" class="sb-cmdline" />
+      <p class="text-sm text-muted">
+        Replace <Cmd class="sb-qs-code" text="your-provider" /> with your adapter (e.g. openai, anthropic,
+        openrouter). The CLI handles sampling, parsing, and metric computation, and writes a result JSON
+        with per-question response distributions and aggregate scores.
+      </p>
+    </li>
+    <li>
+      <h3 class="text-base font-semibold text-text dark:text-text-dark">Submit the result JSON</h3>
+      <p class="text-sm text-muted">
+        {
+          uploadAvailable ? (
+            <>
+              <a href={uploadHref} class="text-primary hover:underline dark:text-primary-light">
+                Upload it
+              </a>{" "}
+              (sign-in required), or fork{" "}
+            </>
+          ) : (
+            <>Fork </>
+          )
+        }
+        <a href={`${repo}/fork`} class="text-primary hover:underline dark:text-primary-light" target="_blank" rel="noopener noreferrer"
+          >DataViking-Tech/synthbench<span class="sr-only"> (opens in a new tab)</span></a
+        >, copy the file into <Cmd class="sb-qs-code" text="leaderboard-results/" /> and open a pull request.
+      </p>
+    </li>
+    <li>
+      <h3 class="text-base font-semibold text-text dark:text-text-dark">Validation and listing</h3>
+      <p class="text-sm text-muted">
+        CI validates the JSON schema and recomputes all aggregate scores from your per-question data.
+        Reported scores that don't match the recomputed ones are rejected. Once the submission is merged,
+        the site rebuilds automatically and your model appears on the leaderboard.
+      </p>
+    </li>
+  </ol>
 </section>
