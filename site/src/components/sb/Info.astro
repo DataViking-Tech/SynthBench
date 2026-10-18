@@ -1,7 +1,8 @@
 ---
 // Small (i) marker that shows its content on hover, focus or tap. Used for
 // "how to read this chart" text so it stays out of the way until asked for.
-// Pass `id` when a script fills the content in.
+// On phones the content opens as a sheet at the bottom of the screen, with a
+// close button. Pass `id` when a script fills the content in.
 interface Props {
   label?: string;
   id?: string;
@@ -11,5 +12,26 @@ const { label = "How to read this chart", id } = Astro.props;
 
 <span class="sb-info" tabindex="0" aria-label={label}>
   <span class="sb-info-i" aria-hidden="true">i</span>
-  <span class="sb-info-pop" role="note" id={id}><slot /></span>
+  <span class="sb-info-pop" role="note">
+    <button type="button" class="sb-info-x" aria-label="Close">×</button>
+    <span id={id}><slot /></span>
+  </span>
 </span>
+
+<script>
+  // The popover is open while its marker (or the close button) has focus, so
+  // closing it is just moving focus away: the close button, or Escape.
+  const shut = () => {
+    const el = document.activeElement;
+    if (el instanceof HTMLElement && el.closest(".sb-info")) el.blur();
+  };
+  document.addEventListener("click", (e) => {
+    if ((e.target as Element | null)?.closest?.(".sb-info-x")) {
+      e.preventDefault();
+      shut();
+    }
+  });
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") shut();
+  });
+</script>
