@@ -24,6 +24,7 @@ import {
   axisTitle,
   css,
   fill,
+  fitText,
   fmt,
   h,
   linear,
@@ -182,8 +183,8 @@ const median = (xs: number[]) => quantile(xs, 0.5);
 const niceMax = (v: number, step = 2) => Math.max(step * 2, Math.ceil(v / step) * step);
 
 // ---------- URL + change wiring ----------
-const isDefault = () =>
-  st.ds === "opinionsqa" && setParam(st.methods, METHOD_IDS) == null && !st.variants;
+/** Filters (not the survey, which is a view choice): every method, no experiments. */
+const isDefault = () => setParam(st.methods, METHOD_IDS) == null && !st.variants;
 const changed = () => {
   writeParams({
     ds: st.ds === "opinionsqa" ? null : st.ds,
@@ -200,7 +201,6 @@ const changed = () => {
   emit();
 };
 const reset = () => {
-  st.ds = "opinionsqa";
   for (const m of METHOD_IDS) st.methods.add(m);
   st.variants = false;
   changed();
@@ -454,7 +454,11 @@ function xAxis(
         : t.toFixed(1);
   // About one tick per 44px, fewer if the labels still run together.
   const n = Math.max(3, Math.min(12, Math.floor(Math.abs(x(dom[1]) - x(dom[0])) / 44)));
+  const svgW = Number(svg.getAttribute("width")) || Number.POSITIVE_INFINITY;
   for (const t of axisTicks(dom[0], dom[1], x, label, n)) {
+    // Keep end labels ("−10") inside the chart when the plot runs to its edge.
+    const half = textWidth(label(t), 11, 400, true) / 2 + 1;
+    const tx = Math.min(Math.max(x(t), half), svgW - half);
     s(
       "line",
       {
@@ -470,7 +474,7 @@ function xAxis(
       "text",
       {
         class: "sb-t",
-        x: x(t),
+        x: tx,
         y: bottom + 16,
         "text-anchor": "middle",
         text: label(t),
@@ -550,9 +554,18 @@ function leanChart(el: HTMLElement, W: number): string[] {
       svg,
     );
     const near = narrow ? "" : "closer to ";
+    // The two end labels share the plot width; on a narrow screen the left
+    // one gives way (ellipsis) so they never run into each other.
+    const rightText = `${near}${last} →`;
+    const leftRoom = x(D) - x(-D) - 4 - textWidth(rightText, 11.5, 400) - 12;
     s(
       "text",
-      { class: "sb-sub sb-halo", x: x(-D) + 2, y: y0 + 16 + lab, text: `← ${near}${first}` },
+      {
+        class: "sb-sub sb-halo",
+        x: x(-D) + 2,
+        y: y0 + 16 + lab,
+        text: fitText(`← ${near}${first}`, leftRoom, 11.5, 400),
+      },
       svg,
     );
     s(
@@ -562,7 +575,7 @@ function leanChart(el: HTMLElement, W: number): string[] {
         x: x(D) - 2,
         y: y0 + 16 + lab,
         "text-anchor": "end",
-        text: `${near}${last} →`,
+        text: rightText,
       },
       svg,
     );
@@ -604,8 +617,11 @@ function leanChart(el: HTMLElement, W: number): string[] {
         },
         svg,
       );
+    // The all-respondents triangle points down at the bands from above; the
+    // other references sit in a lane below them so they never cover a tick.
+    const lane = mid + (sets.length * bandH) / 2 + 6;
     for (const { r, v } of row.refs) {
-      const m = refMark(svg, r.id, x(v[0]), r.id === "everyone" ? y0 + 26 + lab : mid);
+      const m = refMark(svg, r.id, x(v[0]), r.id === "everyone" ? y0 + 26 + lab : lane);
       hoverInfo(m, r.name, [
         [`${last} minus ${first}`, `${signed(v[0])} points`],
         ["95% interval", `${signed(v[1])} to ${signed(v[2])}`],
@@ -696,8 +712,8 @@ function tableCols(): Col[] {
   });
 }
 
-function cellBar(v: Interval | undefined, col: Col, max: number): HTMLElement {
-  if (!v) return h("td", { class: "r sb-muted" }, "—");
+function cellBar(v: Interval | undefined, col: Col, max: number, extra = ""): HTMLElement {
+  if (!v) return h("td", { class: `r sb-muted${extra}` }, "—");
   const unclear = col.signed && v[1] <= 0 && v[2] >= 0;
   const w = 48;
   const svg = s("svg", { width: w, height: 12, "aria-hidden": "true", class: "sb-c" });
@@ -723,7 +739,7 @@ function cellBar(v: Interval | undefined, col: Col, max: number): HTMLElement {
   return h(
     "td",
     {
-      class: `r sb-gr-cell${unclear ? " unclear" : ""}`,
+      class: `r sb-gr-cell${unclear ? " unclear" : ""}${extra}`,
       title: `95% interval ${signed(v[1])} to ${signed(v[2])}${unclear ? ". Includes 0, so the direction is unclear." : ""}`,
     },
     h("span", { class: "sb-gr-num" }, col.signed ? signed(v[0]) : fmt.one(v[0])),
@@ -756,6 +772,32 @@ function systemsTable(): HTMLElement {
       ),
     );
   const maxes = cols.map(max);
+  // Phones show one attribute column at a time (the sorted one, picked from
+  // the menu above the table); the rest are hidden by CSS.
+  const off = (col: Col) => (col === sortCol ? "" : " sb-gr-off");
+  fill(
+    colPick,
+    h("span", { class: "sb-lbl" }, "Column"),
+    h(
+      "select",
+      {
+        class: "sb-select",
+        "aria-label": "Attribute column to show",
+        onchange: (e: Event) => {
+          st.sort = (e.target as HTMLSelectElement).value;
+          st.asc = false;
+          changed();
+        },
+      },
+      cols.map((col) =>
+        h(
+          "option",
+          { value: col.id, selected: col === sortCol ? true : null },
+          `${col.label} (${col.sub})`,
+        ),
+      ),
+    ),
+  );
   const head = h(
     "tr",
     null,
@@ -765,7 +807,10 @@ function systemsTable(): HTMLElement {
       const on = col === sortCol;
       return h(
         "th",
-        { class: "r", "aria-sort": on ? (st.asc ? "ascending" : "descending") : null },
+        {
+          class: `r${off(col)}`,
+          "aria-sort": on ? (st.asc ? "ascending" : "descending") : null,
+        },
         h(
           "button",
           {
@@ -829,7 +874,7 @@ function systemsTable(): HTMLElement {
           ),
         ),
       ),
-      cols.map((col, k) => cellBar(col.get(c), col, maxes[k])),
+      cols.map((col, k) => cellBar(col.get(c), col, maxes[k], off(col))),
     );
   });
   const refRows = REFS.map((r) =>
@@ -839,7 +884,7 @@ function systemsTable(): HTMLElement {
       h("td", null),
       h("td", null, h("b", null, r.name)),
       cols.map((col, k) =>
-        cellBar(col.signed ? r.score(col.id)?.ends : r.score(col.id)?.gap, col, maxes[k]),
+        cellBar(col.signed ? r.score(col.id)?.ends : r.score(col.id)?.gap, col, maxes[k], off(col)),
       ),
     ),
   );
@@ -951,7 +996,14 @@ function detailChart(el: HTMLElement, W: number): string[] {
   const padR = 64 + hl.length * colW;
   const x = linear(dom[0], dom[1], labelW, W - padR);
   const bandH = st.split ? 16 : isCountry ? 22 : 30;
-  const rowH = lab + (st.split ? 8 + sets.length * bandH : bandH + (isCountry ? 4 : 6));
+  const half = st.split ? 5 : isCountry ? 6 : 8;
+  // Reference marks get their own lane under the bands so they never cover a tick.
+  const laneH = rows.some((r) => r.refs.length) ? 10 : 0;
+  const rowH = lab + laneH + (st.split ? 8 + sets.length * bandH : bandH + (isCountry ? 4 : 6));
+  /** Centre of the band area: the row minus its label line and reference lane. */
+  const bandMid = (rowTop: number) => rowTop + lab + (rowH - lab - laneH) / 2;
+  const laneY = (mid: number) =>
+    mid + (st.split ? (sets.length * bandH) / 2 : half + 3) + (laneH ? 5 : 0);
   const top = 22;
   const bottom = top + rows.length * rowH + gapH;
   // Row centre, skipping the gap between the best and worst ends when capped.
@@ -1015,7 +1067,7 @@ function detailChart(el: HTMLElement, W: number): string[] {
   const paths: [number, number][][] = hl.map(() => []);
   rows.forEach((row, i) => {
     const rowTop = midOf(i) - rowH / 2;
-    const mid = rowTop + lab + (rowH - lab) / 2;
+    const mid = bandMid(rowTop);
     if (i % 2 === 0)
       s("rect", { x: 0, y: rowTop, width: W, height: rowH, fill: css("--sb-panel-2") }, svg);
     s(
@@ -1038,19 +1090,12 @@ function detailChart(el: HTMLElement, W: number): string[] {
     sets.forEach((b, j) => {
       const cy = mid + subRow(sets.length, j, bandH);
       const v = b.list.map((c) => valOf(cellOf(c, row.id))).filter((x): x is number => x != null);
-      band(
-        svg,
-        x,
-        cy,
-        v,
-        st.split ? 5 : isCountry ? 6 : 8,
-        b.color,
-        `${row.label}: ${b.label}`,
-        (u) => (rel ? `${signed(u)} points` : fmt.one(u)),
+      band(svg, x, cy, v, half, b.color, `${row.label}: ${b.label}`, (u) =>
+        rel ? `${signed(u)} points` : fmt.one(u),
       );
     });
     for (const { r, v } of row.refs) {
-      const m = refMark(svg, r.id, x(v), mid);
+      const m = refMark(svg, r.id, x(v), laneY(mid));
       hoverInfo(m, `${r.name}: ${row.label}`, [
         [rel ? "Versus its average" : "Match", rel ? `${signed(v)} points` : fmt.one(v)],
         ["What it is", r.desc],
@@ -1276,6 +1321,12 @@ function rowLayout(rows: CondLine[], top: number, rowH = 28, headH = 26) {
   });
   return { ys, bottom: y };
 }
+/**
+ * Panel-coloured backing for a section heading drawn across the plot, so the
+ * zero line and gridlines stop at the words instead of running through them.
+ */
+const headBack = (svg: SVGSVGElement, w: number, baseline: number) =>
+  s("rect", { x: 0, y: baseline - 12, width: w + 6, height: 16, fill: css("--sb-panel") }, svg);
 const condLabelW = (rows: CondLine[]) =>
   Math.max(...rows.map((r) => ("head" in r ? 0 : textWidth(r.label, 12.5)))) + 34;
 const change = (v: ConditionCell) => v[1] - v[0];
@@ -1310,7 +1361,7 @@ function condAll(el: HTMLElement, W: number): string[] {
   );
   const D = niceMax(Math.max(...vals.map(Math.abs)), 5);
   const narrow = W < NARROW;
-  const x = linear(-D, D, narrow ? 14 : condLabelW(rows), W - (narrow ? 72 : 96));
+  const x = linear(-D, D, narrow ? 14 : condLabelW(rows), W - (narrow ? 86 : 96));
   const top = 26;
   const { ys, bottom } = rowLayout(rows, top, narrow ? 44 : 30);
   // Narrow: the group name sits above the band, which moves down to make room.
@@ -1364,11 +1415,13 @@ function condAll(el: HTMLElement, W: number): string[] {
     const cy = ys[i] + ("head" in r ? 0 : off);
     if ("head" in r && r.head === ONE_HEAD) {
       s("line", { x1: 0, x2: W, y1: cy - 10, y2: cy - 10, stroke: css("--sb-line-2") }, svg);
-      s("text", { class: "sb-lab sb-halo", x: 0, y: cy + 8, text: r.head }, svg);
+      headBack(svg, textWidth(r.head, 12.5, 500), cy + 8);
+      s("text", { class: "sb-lab", x: 0, y: cy + 8, text: r.head }, svg);
       return;
     }
     const fade = faded.has(r);
     if ("head" in r) {
+      headBack(svg, textWidth(r.head.toUpperCase(), 11, 400, true), cy + 6);
       s(
         "text",
         {
@@ -1519,7 +1572,8 @@ function condOne(el: HTMLElement, W: number, c: ConditionSet): string[] {
   rows.forEach((r, i) => {
     const cy = ys[i] + ("head" in r ? 0 : off);
     if ("head" in r) {
-      s("text", { class: "sb-t sb-halo", x: 0, y: cy + 6, text: r.head.toUpperCase() }, svg);
+      headBack(svg, textWidth(r.head.toUpperCase(), 11, 400, true), cy + 6);
+      s("text", { class: "sb-t", x: 0, y: cy + 6, text: r.head.toUpperCase() }, svg);
       return;
     }
     s("text", { class: "sb-lab sb-halo", x: 14, y: narrow ? cy - 14 : cy + 4, text: r.label }, svg);
@@ -1764,7 +1818,7 @@ function renderControls(): void {
   $("gr-lean-howto").textContent =
     "Each row is an attribute with a natural order. Right of 0 means the systems match the right-hand group better than the left-hand group. Box: middle half of the shown systems. Thin line: all of them. Short ticks: one per system. Grey marks are reference points. Tap or hover any mark for numbers.";
   $("gr-sys-howto").textContent =
-    "Ordered attributes show the gap between the two ends (+ means closer to the group named under the column). Other attributes show the gap between the closest and furthest group. Faded values have a 95% interval that includes 0. Click a row to highlight that system on the charts.";
+    "Ordered attributes show the gap between the two ends (+ means closer to the group named under the column). Other attributes show the gap between the closest and furthest group. Faded values have a 95% interval that includes 0. Tap or click a row to highlight that system on the charts. On a phone, pick which attribute column to show from the Column menu.";
 
   $("gr-sys-sub").textContent = `${dsLabel(st.ds)} · gap in points per attribute`;
 
@@ -1837,7 +1891,7 @@ function renderControls(): void {
   );
   $("gr-cond-sub").textContent = cur
     ? `${condName(cur)} · SubPOP`
-    : `SubPOP only, whichever survey is picked above · ${sets.length} systems tested`;
+    : `Uses SubPOP data regardless of the survey selected · ${sets.length} systems tested`;
   if (!cur)
     fill(
       $("gr-cond-legend"),
@@ -1900,6 +1954,7 @@ function renderControls(): void {
   $("gr-boot").textContent = String(G.bootstrap);
 }
 
+const colPick = h("div", { class: "sb-filter sb-gr-colpick" });
 const findBox = h("input", {
   type: "search",
   class: "sb-select",
@@ -1910,7 +1965,7 @@ findBox.addEventListener("input", () => {
   st.find = findBox.value;
   fill($("gr-sys"), systemsTable());
 });
-$("gr-sys-find").append(findBox);
+$("gr-sys-find").append(findBox, colPick);
 
 onChange(renderControls);
 renderControls();
