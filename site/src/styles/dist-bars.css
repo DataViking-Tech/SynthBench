@@ -1,0 +1,103 @@
+/* Stacked answer-distribution bars on the question and run pages
+   (lib/distBar.ts builds them, scripts/distBars.ts adds tap-to-read).
+   Global, not scoped: most bars are inserted as HTML strings. */
+.dist-bar {
+  display: flex;
+  width: 100%;
+  min-width: 140px;
+  height: 1.25rem;
+  overflow: hidden;
+  border-radius: 0.25rem;
+  background: color-mix(in oklch, var(--color-muted) 15%, transparent);
+}
+/* People's answers, drawn thin under each model's bar. */
+.dist-bar--ref {
+  height: 0.375rem;
+  margin-top: 3px;
+  opacity: 0.85;
+}
+.dist-seg {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 0;
+  height: 100%;
+  overflow: hidden;
+  cursor: pointer;
+  transition: opacity 0.12s;
+}
+.dist-pct {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  line-height: 1;
+  color: #fff;
+  text-shadow: 0 0 2px rgb(0 0 0 / 0.75), 0 0 1px rgb(0 0 0 / 0.9);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  pointer-events: none;
+}
+.dist-pct[hidden] {
+  display: none;
+}
+/* A tapped option stays at full strength; the rest of the group fades. */
+[data-dist-group].has-sel .dist-seg:not(.is-sel) {
+  opacity: 0.3;
+}
+.dist-readout {
+  display: block;
+  min-height: 1rem;
+  margin-top: 0.25rem;
+  font-size: 0.75rem;
+  line-height: 1rem;
+  color: var(--color-muted);
+}
+.dist-readout:empty {
+  display: none;
+}
+.dist-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  margin-top: 0.5rem;
+}
+.dist-row {
+  display: grid;
+  grid-template-columns: 4.5rem 1fr;
+  align-items: center;
+  gap: 0.5rem;
+}
+.dist-label {
+  font-size: 0.75rem;
+  color: var(--color-muted);
+}
+.dist-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.375rem 0.75rem;
+  font-size: 0.75rem;
+  color: var(--color-muted);
+  margin-bottom: 0.35rem;
+}
+.dist-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+.dist-swatch {
+  display: inline-block;
+  flex: none;
+  width: 0.65rem;
+  height: 0.65rem;
+  border-radius: 0.125rem;
+}
+@media (max-width: 639px) {
+  .dist-pct {
+    font-size: 0.75rem;
+  }
+  .dist-row {
+    grid-template-columns: 3.25rem 1fr;
+  }
+  .dist-bar {
+    min-width: 0;
+  }
+}
