@@ -914,21 +914,57 @@ table.sb-gr-sys td.sb-gr-cell svg {
   color: var(--sb-ink-2);
   white-space: normal;
 }
-.sb-info:hover .sb-info-pop,
 .sb-info:focus .sb-info-pop,
 .sb-info:focus-within .sb-info-pop {
   display: block;
 }
-/* Phones: span the viewport (minus a margin) below the icon instead of
-   starting at the icon and running off the right edge. */
+/* Hover only where there is real hover: on touch screens a tapped element
+   stays :hover, which would keep the popover open after closing it. */
+@media (hover: hover) {
+  .sb-info:hover .sb-info-pop {
+    display: block;
+  }
+}
+.sb-info .sb-info-x {
+  display: none;
+}
+/* Phones: a sheet along the bottom of the screen with a close button,
+   instead of a dropdown under the icon that ran off the bottom. The icon
+   gets a 44px hit area. */
 @media (max-width: 639px) {
+  .sb-info::before {
+    content: "";
+    position: absolute;
+    inset: -14px;
+  }
   .sb-info-pop {
     position: fixed;
-    left: 12px;
-    right: 12px;
+    left: 16px;
+    right: 16px;
     top: auto;
+    bottom: 12px;
     width: auto;
-    margin-top: 24px;
+    max-height: 60vh;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    z-index: 75;
+    padding: 14px 48px 14px 16px;
+    font-size: 14px;
+  }
+  .sb-info .sb-info-x {
+    display: grid;
+    place-items: center;
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 44px;
+    height: 44px;
+    padding: 0;
+    border: 0;
+    background: none;
+    font: 400 22px / 1 var(--sb-sans);
+    color: var(--sb-muted);
+    cursor: pointer;
   }
 }
 .sb-takes {
