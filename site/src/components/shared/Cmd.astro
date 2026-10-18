@@ -10,11 +10,10 @@ const { text, class: cls } = Astro.props;
 const words = text.split(" ");
 ---
 
+<!-- One line per word: a line break inside the fragment would render as a
+     trailing space inside the <code>. -->
 <code class={cls}>{
   words.map((w, i) => (
-    <>
-      <span class={w.length > 28 ? "sb-cmd-long" : "sb-cmd-w"}>{w}</span>
-      {i < words.length - 1 ? " " : null}
-    </>
+    <>{i > 0 ? " " : null}<span class={w.length > 28 ? "sb-cmd-long" : "sb-cmd-w"}>{w}</span></>
   ))
 }</code>
