@@ -8,28 +8,33 @@ const base = rawBase.endsWith("/") ? rawBase : `${rawBase}/`;
 ---
 
 <BaseLayout title="Datasets">
-  <div class="py-12 text-center">
-    <h1 class="text-3xl sm:text-4xl font-bold tracking-tight">Datasets</h1>
-    <p class="mt-3 text-lg text-muted max-w-2xl mx-auto">
-      The human survey datasets SynthBench scores against, with the source,
-      coverage, demographics, and redistribution policy for each.
-    </p>
+  <!-- Same hero as the other pages (kicker, h1, lede, left-aligned), and the
+       same side gutter on phones as the .sb pages. -->
+  <div class="mx-auto max-w-4xl px-3 sm:px-0">
+    <section class="sb-head">
+      <div class="sb-kicker">Datasets</div>
+      <h1 class="sb-h1 sm">The surveys SynthBench scores against</h1>
+      <p class="sb-lede">
+        The human survey datasets behind every score, with the source, coverage,
+        demographics, and redistribution policy for each.
+      </p>
+    </section>
+
+    <DatasetCards title="Registered datasets" />
+
+    <DatasetPolicyTable />
+
+    <section class="w-full max-w-4xl mx-auto pb-8">
+      <p class="text-sm text-muted">
+        The{" "}
+        <a
+          href={`${base}methodology/`}
+          class="text-primary dark:text-primary-light underline underline-offset-2 hover:no-underline"
+          >methodology page</a
+        >{" "}
+        explains how these datasets are scored: metrics, baselines, the private
+        holdout split, and anti-gaming defences.
+      </p>
+    </section>
   </div>
-
-  <DatasetCards />
-
-  <DatasetPolicyTable />
-
-  <section class="w-full max-w-4xl mx-auto py-8">
-    <p class="text-sm text-muted">
-      The{" "}
-      <a
-        href={`${base}methodology/`}
-        class="text-primary dark:text-primary-light underline underline-offset-2 hover:no-underline"
-        >methodology page</a
-      >{" "}
-      explains how these datasets are scored: metrics, baselines, the private
-      holdout split, and anti-gaming defences.
-    </p>
-  </section>
 </BaseLayout>
