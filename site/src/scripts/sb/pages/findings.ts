@@ -1,6 +1,6 @@
 import { signedRange } from "@/lib/format";
 import { ensembleNames, modelNameFromLabel } from "@/lib/vocab";
-import { axisTitle, css, fmt, h, linear, mount, s, ticks } from "../dom";
+import { axisTicks, axisTitle, css, fmt, h, linear, mount, s, thinTicks, ticks } from "../dom";
 import {
   CORE,
   type Method,
@@ -88,7 +88,10 @@ function dumbbell(
         },
         svg,
       );
-    for (const t of o.tickValues ?? ticks(o.domain[0], o.domain[1], 5)) {
+    const tv = o.tickValues
+      ? thinTicks(o.tickValues, x, tick)
+      : axisTicks(o.domain[0], o.domain[1], x, tick, 5);
+    for (const t of tv) {
       s("line", { class: "sb-gl", x1: x(t), x2: x(t), y1: 0, y2: plotB }, svg);
       s(
         "text",
@@ -516,7 +519,7 @@ if (models.length) {
               svg,
             );
           }
-          for (const t of ticks(tMin, tMax, 4))
+          for (const t of axisTicks(tMin, tMax, X, String, 4))
             s(
               "text",
               {
@@ -820,7 +823,7 @@ if (stt?.items?.length) {
             "aria-label": "Share of answers that pick “don't know”, per run",
           });
           strip.append(svg);
-          for (const t of ticks(0, hi, 5)) {
+          for (const t of axisTicks(0, hi, x, (v) => `${Math.round(v * 100)}%`, 5)) {
             s("line", { class: "sb-gl", x1: x(t), x2: x(t), y1: 0, y2: plotB }, svg);
             s(
               "text",
