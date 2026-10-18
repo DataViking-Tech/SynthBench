@@ -1,6 +1,8 @@
 import { modelShortName } from "@/lib/vocab";
 import { byDataset, costChart, ladder, sharesOrder } from "../charts";
+import { DATASETS_NARROW, LADDER_NARROW, byDatasetNarrow, ladderNarrow } from "../chartsNarrow";
 import { h, mount } from "../dom";
+import { filterFold } from "../filterFold";
 import {
   type SystemConfig,
   emit,
@@ -20,7 +22,6 @@ import {
   methodChips,
   readSet,
   scopeControl,
-  scrollHint,
   setParam,
   takeaways,
   toggleChips,
@@ -121,7 +122,7 @@ const reset = () => {
 // ---------- Controls ----------
 const $ = (id: string) => document.getElementById(id) as HTMLElement;
 const famChips = toggleChips(
-  "Systems",
+  "Models & ensembles",
   {
     all: FAMILY_IDS,
     on: st.families,
@@ -141,18 +142,43 @@ const status = filterStatus(
   isDefault,
   reset,
 );
-// 20-odd system chips fold behind a disclosure; the summary says how many are on.
-const famSummary = h("summary", null);
+// 20-odd model chips fold behind a disclosure; the summary says how many are
+// on. One chip per base model or ensemble: each model's raw and persona runs
+// are separate systems, so this count differs from "Showing n of m systems".
+const famSummary = h("summary", {
+  title: "One per base model or ensemble. A model's raw and persona runs count as two systems.",
+});
 const famBox = h("details", { class: "sb-disclose" }, famSummary, famChips);
 const renderFamSummary = () => {
   const on = FAMILY_IDS.filter((id) => st.families.has(id)).length;
   famSummary.replaceChildren(
-    h("span", { class: "sb-lbl" }, "Systems"),
+    h("span", { class: "sb-lbl" }, "Models & ensembles"),
     h("span", null, `${on} of ${FAMILY_IDS.length} on`),
   );
 };
 renderFamSummary();
-$("an-filters").append(scopeControl(), mChips, famBox, status);
+const filterBar = $("an-filters");
+filterBar.append(scopeControl(), mChips, famBox, status);
+// Phones: Method and the model picker fold behind "Filters (n)".
+const fold = filterFold(
+  filterBar,
+  [mChips, famBox],
+  () =>
+    Number(setParam(st.methods, METHOD_IDS) != null) +
+    Number(setParam(st.families, DEFAULT_FAMILIES) != null),
+);
+// Phones show the four views as one scrolling row of tabs (sb-pages.css);
+// keep the current one in view.
+$("an-views").classList.add("sb-scrollx");
+const revealView = () => {
+  const strip = $("an-views");
+  const on = strip.querySelector<HTMLElement>(".on");
+  if (!on || strip.scrollWidth <= strip.clientWidth) return;
+  const r = on.getBoundingClientRect();
+  const w = strip.getBoundingClientRect();
+  if (r.left < w.left) strip.scrollLeft -= w.left - r.left + 24;
+  else if (r.right > w.right) strip.scrollLeft += r.right - w.right + 24;
+};
 
 function renderViews(): void {
   $("an-views").replaceChildren(
@@ -174,6 +200,7 @@ function renderViews(): void {
       ),
     ),
   );
+  requestAnimationFrame(revealView);
   const seg = (
     opts: [boolean, string][],
     get: () => boolean,
@@ -247,35 +274,36 @@ onChange(() => {
   famChips.rerender();
   renderFamSummary();
   status.rerender();
+  fold.rerender();
 });
 renderViews();
 
 // ---------- Chart ----------
 const chartEl = $("an-chart");
-// The ladder and by-dataset views need fixed label columns on both sides.
-// Below this width they are drawn at the minimum and scroll sideways (with
-// the usual scroll hint) rather than squeezing the plot to nothing.
-const MIN_WIDTH: Partial<Record<View, number>> = { ladder: 620, datasets: 600 };
+// The ladder and by-dataset views need label columns on both sides; below
+// their minimum width (phones, narrow tablets) they switch to layouts that
+// fit the width (chartsNarrow.ts) rather than scrolling sideways.
 mount(
   chartEl,
-  (avail) => {
-    const W = Math.max(avail, MIN_WIDTH[st.view] ?? 0);
-    const scrolls = W > avail;
-    chartEl.classList.toggle("sb-tablewrap", scrolls);
-    if (scrolls) scrollHint(chartEl, "of the chart");
+  (W) => {
     const list = pool();
     let notes: string[] = [];
+    const cap = {
+      limit: DATASET_TOP,
+      all: st.rowsAll,
+      onToggle: () => {
+        st.rowsAll = !st.rowsAll;
+        changed();
+      },
+    };
     if (st.view === "shares") notes = sharesOrder(chartEl, W, list, !st.withRefs);
-    else if (st.view === "ladder") notes = ladder(chartEl, W, list);
+    else if (st.view === "ladder")
+      notes = W < LADDER_NARROW ? ladderNarrow(chartEl, W, list) : ladder(chartEl, W, list);
     else if (st.view === "datasets")
-      notes = byDataset(chartEl, W, list, {
-        limit: DATASET_TOP,
-        all: st.rowsAll,
-        onToggle: () => {
-          st.rowsAll = !st.rowsAll;
-          changed();
-        },
-      });
+      notes =
+        W < DATASETS_NARROW
+          ? byDatasetNarrow(chartEl, W, list, cap)
+          : byDataset(chartEl, W, list, cap);
     else notes = costChart(chartEl, W, list, st.log);
     if (!list.length)
       chartEl.append(
