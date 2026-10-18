@@ -4,7 +4,7 @@
 import { PROVIDER_ICONS } from "@/lib/providerIcons";
 import "@/scripts/scrollEdges";
 import { harnessTag } from "@/lib/vocab";
-import { axisTitle, css, fill, fmt, h, linear, s, thinTicks } from "./dom";
+import { axisTicks, axisTitle, css, fill, fmt, h, linear, s, thinTicks } from "./dom";
 import {
   ALL,
   CORE,
@@ -562,7 +562,7 @@ function renderTray(): void {
         "span",
         { class: "sb-tray-chip" },
         letter(i),
-        shortWithMethod(c),
+        h("span", { class: "sb-tray-name", title: shortWithMethod(c) }, shortWithMethod(c)),
         h(
           "button",
           {
@@ -704,7 +704,17 @@ export function datasetDots(list: SystemConfig[], width = 392, letters = false):
   const rowH = letters ? 16 + list.length * 12 : 26;
   const labelW = 112;
   const H = ids.length * rowH + 40;
-  const x = linear(-40, 60, labelW + 8, width - 30);
+  // Axis: from −40 (or lower) to the next 10 above the highest upper
+  // interval, so no interval is cut off at the edge.
+  const ends = ids.flatMap((id) =>
+    list.flatMap((c) => {
+      const d = c.ds[id];
+      return d ? [d.idx, d.lo ?? d.idx, d.hi ?? d.idx] : [];
+    }),
+  );
+  const D0 = Math.min(-40, Math.floor(Math.min(...ends, 0) / 10) * 10);
+  const D1 = Math.max(20, Math.ceil(Math.max(...ends, 0) / 10) * 10);
+  const x = linear(D0, D1, labelW + 8, width - 30);
   const svg = s("svg", {
     class: "sb-c",
     width,
@@ -715,10 +725,10 @@ export function datasetDots(list: SystemConfig[], width = 392, letters = false):
   const plotB = H - 40;
   s(
     "rect",
-    { x: x(-40), y: 0, width: x(0) - x(-40), height: plotB, fill: "var(--sb-zone-neg)" },
+    { x: x(D0), y: 0, width: x(0) - x(D0), height: plotB, fill: "var(--sb-zone-neg)" },
     svg,
   );
-  for (const t of thinTicks([-40, -20, 0, 20, 40, 60], x, fmt.int)) {
+  for (const t of axisTicks(D0, D1, x, fmt.int, 6)) {
     s("line", { class: "sb-gl", x1: x(t), x2: x(t), y1: 0, y2: plotB }, svg);
     s(
       "text",
@@ -727,7 +737,7 @@ export function datasetDots(list: SystemConfig[], width = 392, letters = false):
     );
   }
   s("line", { x1: x(0), x2: x(0), y1: 0, y2: plotB, stroke: css("--sb-ink-2") }, svg);
-  axisTitle(svg, "SynthBench Index (0 = random answers)", { x: (x(-40) + x(60)) / 2, y: H - 4 });
+  axisTitle(svg, "SynthBench Index (0 = random answers)", { x: (x(D0) + x(D1)) / 2, y: H - 4 });
   ids.forEach((id, r) => {
     const y0 = r * rowH;
     s(
@@ -745,7 +755,7 @@ export function datasetDots(list: SystemConfig[], width = 392, letters = false):
       const d = c.ds[id];
       if (!d) return;
       const cy = letters ? y0 + 10 + i * 12 : y0 + rowH / 2;
-      const cl = (v: number) => Math.max(-40, Math.min(60, v));
+      const cl = (v: number) => Math.max(D0, Math.min(D1, v));
       if (d.lo != null && d.hi != null)
         s(
           "line",
@@ -978,6 +988,9 @@ function verdicts(a: SystemConfig, b: SystemConfig, ia: number, ib: number): HTM
   return out;
 }
 
+/** Width for the drawer's charts: its content box (phones: the screen), at most 392px. */
+const chartW = (): number => Math.min(392, Math.max(260, (drawer.clientWidth || 430) - 36));
+
 function renderDrawer(): void {
   drawer.replaceChildren();
   const x = h(
@@ -1015,6 +1028,8 @@ function renderDrawer(): void {
     );
     for (const [k, get, f, better] of rows) {
       const vals = list.map(get);
+      // A row with nothing to compare (a dataset none of them ran) is noise.
+      if (vals.every((v) => v == null)) continue;
       const nums = vals.filter((v): v is number => typeof v === "number");
       const best =
         better && nums.length > 1
@@ -1070,7 +1085,12 @@ function renderDrawer(): void {
         table,
         h("p", { class: "sb-note" }, "▲ marks the best value in each row."),
       ),
-      h("div", { class: "sb-ds" }, h("h3", null, "Index by dataset"), datasetDots(list, 392, true)),
+      h(
+        "div",
+        { class: "sb-ds" },
+        h("h3", null, "Index by dataset"),
+        datasetDots(list, chartW(), true),
+      ),
       h(
         "div",
         { class: "sb-ds" },
@@ -1170,10 +1190,10 @@ function renderDrawer(): void {
             : "",
         ),
       ),
-      v ? positionStrip(v) : null,
+      v ? positionStrip(v, chartW()) : null,
     ),
-    h("div", { class: "sb-ds" }, h("h3", null, "By dataset"), datasetDots([c])),
-    h("div", { class: "sb-ds" }, h("h3", null, "Score components"), componentBars(c)),
+    h("div", { class: "sb-ds" }, h("h3", null, "By dataset"), datasetDots([c], chartW())),
+    h("div", { class: "sb-ds" }, h("h3", null, "Score components"), componentBars(c, chartW())),
     personaRow,
     h(
       "div",
