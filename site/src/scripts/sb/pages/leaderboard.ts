@@ -1,4 +1,5 @@
 import { css, fmt, h, heat, linear, s, ticks } from "../dom";
+import { filterFold } from "../filterFold";
 import {
   ALL,
   METHODS,
@@ -38,6 +39,7 @@ import {
   readSet,
   scopeControl,
   setParam,
+  tip,
   toggleCompare,
   writeParams,
 } from "../ui";
@@ -148,15 +150,27 @@ const renderCols = () =>
 const chips = methodChips(st.methods, changed);
 let shownCount = 0;
 const status = filterStatus(() => [shownCount, systems().length], isDefault, reset);
-document
-  .getElementById("lb-filters")
-  ?.append(
-    scopeControl(),
-    chips,
-    h("div", { class: "sb-filter" }, h("span", { class: "sb-lbl" }, "Include"), expT, partT),
-    h("div", { class: "sb-filter" }, h("span", { class: "sb-lbl" }, "Columns"), colsSeg),
-    status,
-  );
+const include = h(
+  "div",
+  { class: "sb-filter" },
+  h("span", { class: "sb-lbl" }, "Include"),
+  expT,
+  partT,
+);
+const filterBar = document.getElementById("lb-filters") as HTMLElement;
+filterBar.append(
+  scopeControl(),
+  chips,
+  include,
+  h("div", { class: "sb-filter" }, h("span", { class: "sb-lbl" }, "Columns"), colsSeg),
+  status,
+);
+// Phones: Method and Include fold behind "Filters (n)"; Score and Columns stay out.
+const fold = filterFold(
+  filterBar,
+  [chips, include],
+  () => Number(st.methods.size !== METHOD_IDS.length) + Number(st.experiments) + Number(st.partial),
+);
 
 // ---------- Small inline charts ----------
 // Interval column domain, set from the rows shown on each render.
@@ -371,6 +385,42 @@ function header(): HTMLElement[] {
   return head;
 }
 
+/**
+ * The "!" holdout flag: a button (24px, 44px to tap on phones) that pins a
+ * tip saying what it means, without also opening the row's details.
+ */
+function flagButton(c: SystemConfig): HTMLElement {
+  const g = worstHoldout(c);
+  const what = "Public vs. private gap above the review threshold";
+  const btn = h(
+    "button",
+    {
+      type: "button",
+      class: "sb-warn sb-flag sb-tap",
+      title: what,
+      "aria-label": `${what}: what this means`,
+    },
+    "!",
+  );
+  btn.addEventListener("click", (e) => {
+    e.stopPropagation();
+    // Keyboard clicks have no pointer position: anchor the tip to the button.
+    const r = btn.getBoundingClientRect();
+    const at = e.detail ? e : new MouseEvent("click", { clientX: r.right, clientY: r.bottom });
+    tip.pin(btn, at, `${what}: under review`, [
+      ...(g
+        ? ([
+            ["Public vs. private SPS gap", g.gap.toFixed(3)],
+            ["Review threshold", g.limit.toFixed(2)],
+          ] as [string, string][])
+        : []),
+      ...(c.flagged ? ([["Datasets flagged", String(c.flagged)]] as [string, string][]) : []),
+    ]);
+  });
+  btn.addEventListener("keydown", (e) => e.stopPropagation());
+  return btn;
+}
+
 function row(r: Row, rows: Row[], i: number): HTMLElement {
   const { c, v } = r;
   const sel = state.compare.includes(c.key);
@@ -440,7 +490,7 @@ function row(r: Row, rows: Row[], i: number): HTMLElement {
         // still opens the inspector.
         h(
           "a",
-          { href: profileHref(c), onclick: (e: Event) => e.stopPropagation() },
+          { href: profileHref(c), title: fullName(c), onclick: (e: Event) => e.stopPropagation() },
           c.method === "ensemble" ? shortName(c) : baseName(c),
         ),
       ),
@@ -451,13 +501,7 @@ function row(r: Row, rows: Row[], i: number): HTMLElement {
         METHODS[c.method as ShownMethod].label,
         c.variant ? h("span", { class: "sb-tag" }, c.variant) : null,
         harnessChip(c),
-        c.flagged
-          ? h(
-              "span",
-              { class: "sb-warn", title: "Public vs. private gap above the review threshold" },
-              "!",
-            )
-          : null,
+        c.flagged ? flagButton(c) : null,
       ),
     ),
   );
@@ -492,7 +536,7 @@ function row(r: Row, rows: Row[], i: number): HTMLElement {
         g == null
           ? h("span", { class: "sb-muted" }, "—")
           : g.gap > g.limit
-            ? h("span", { class: "sb-warn" }, "!")
+            ? flagButton(c)
             : h("span", { class: "sb-ok" }, "✓"),
       ),
     );
@@ -567,6 +611,7 @@ function render(): void {
   setAxis([...rows, ...partial].map((r) => r.v));
   shownCount = rows.length + partial.length;
   status.rerender();
+  fold.rerender();
   const head = header();
   const ncol = head.length;
   const body: HTMLElement[] = [];
@@ -584,10 +629,32 @@ function render(): void {
       h(
         "tr",
         { class: "refrow" },
-        h("td", { colspan: String(ncol) }, h("b", null, r.label), r.text),
+        // The label sticks to the left edge so it stays readable while the
+        // table is scrolled sideways on phones.
+        h(
+          "td",
+          { colspan: String(ncol) },
+          h("span", { class: "sb-refl" }, h("b", null, r.label), r.text),
+        ),
       ),
     );
   };
+  // Phones hide the Tier column; a slim heading row starts each tier instead.
+  const tierRow = (r: Row) =>
+    h(
+      "tr",
+      { class: "tierrow" },
+      h(
+        "th",
+        { colspan: String(ncol), scope: "rowgroup" },
+        h(
+          "span",
+          { class: "sb-refl" },
+          `Tier ${r.tier}`,
+          h("small", null, r.tied > 1 ? ` · ${r.tied} tied` : " · alone"),
+        ),
+      ),
+    );
   if (!rows.length && !partial.length)
     body.push(
       h(
@@ -603,6 +670,7 @@ function render(): void {
     );
   rows.forEach((r, i) => {
     for (const rf of refs) if (!done.has(rf) && r.v.v < rf.v) refRow(rf);
+    if (r.tier != null && rows.findIndex((x) => x.tier === r.tier) === i) body.push(tierRow(r));
     body.push(row(r, rows, i));
   });
   if (rows.length) for (const rf of refs) if (!done.has(rf)) refRow(rf);
@@ -614,8 +682,12 @@ function render(): void {
         h(
           "td",
           { colspan: String(ncol) },
-          h("b", null, "—"),
-          "Partial coverage, not ranked. Index averages only the datasets each system was run on.",
+          h(
+            "span",
+            { class: "sb-refl" },
+            h("b", null, "—"),
+            "Partial coverage, not ranked. Index averages only the datasets each system was run on.",
+          ),
         ),
       ),
     );
