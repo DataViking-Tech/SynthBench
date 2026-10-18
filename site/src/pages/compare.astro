@@ -116,9 +116,25 @@ const labelCls = "text-xs font-semibold uppercase tracking-wide text-muted";
     <!-- Section 1: metric tiles -->
     <section id="compare-metrics-wrap" class="mb-8 hidden">
       <h2 class="mb-3 text-sm font-semibold uppercase tracking-wide text-muted">Metrics</h2>
+      <p id="compare-summary" class="mb-3 text-base font-medium" aria-live="polite"></p>
       <p class="mb-1 text-xs text-muted">{INDEX_EXPLAINER}</p>
       <p id="compare-metrics-note" class="mb-3 text-xs text-muted"></p>
-      <div id="compare-metrics" class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4"></div>
+      <!-- Wide screens: one tile per metric. Phones: the same numbers as one compact table. -->
+      <div id="compare-metrics" class="hidden gap-3 sm:grid sm:grid-cols-2 lg:grid-cols-4"></div>
+      <div class="overflow-x-auto sm:hidden">
+        <table id="compare-metrics-table" class="metric-table w-full text-sm">
+          <caption class="sr-only">A and B on each metric, with the difference A − B</caption>
+          <thead>
+            <tr>
+              <th scope="col">Metric</th>
+              <th scope="col" class="text-right">A</th>
+              <th scope="col" class="text-right">B</th>
+              <th scope="col" class="text-right">A − B</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
     </section>
 
     <!-- Section 2: flipped questions table -->
@@ -185,12 +201,15 @@ const labelCls = "text-xs font-semibold uppercase tracking-wide text-muted";
     systemName,
   } from "@/lib/runExplorer";
   import {
+    METHOD_NAMES,
     METRIC_NAMES,
     datasetId,
     fmtIndex,
     readIndexScales,
+    runSystem,
     spsToIndex,
   } from "@/lib/vocab";
+  import { isAuthConfigured } from "@/lib/auth";
   import { optionColor } from "@/lib/answerPalette";
   import { topicLabel } from "@/lib/topics";
   import type { DatasetPolicyEntry } from "@/types/leaderboard";
@@ -460,36 +479,94 @@ const labelCls = "text-xs font-semibold uppercase tracking-wide text-muted";
 
   // ---------- Pickers ----------
 
-  function pickerOptions(mode: Mode, dataset: string): [string, string][] {
+  /** [value, label, group] — grouped by model, best-scoring group first. */
+  type PickerOption = [string, string, string];
+
+  /**
+   * Option text leads with what tells siblings in a group apart: the method
+   * and any non-default setting (temperature, template). Default settings,
+   * shared by most configs, are left out. The model name stays in the text
+   * because a closed <select> shows only the option, not its group.
+   */
+  function optionText(r: RunIndexEntry, score: number | null, extra: string): string {
+    const sys = runSystem(r);
+    const lead = [
+      sys.method === "ensemble" || sys.method === "baseline" ? null : METHOD_NAMES[sys.method].short,
+      sys.variant,
+    ]
+      .filter(Boolean)
+      .join(", ");
+    const name = sys.method === "ensemble" ? sys.short : `${sys.base}${sys.harness ? ` via ${sys.harness}` : ""}`;
+    const Lead = lead.charAt(0).toUpperCase() + lead.slice(1);
+    return `${Lead ? `${Lead} — ` : ""}${name} · Index ${idxOf(score, r.dataset)}${extra}`;
+  }
+  const groupOf = (r: RunIndexEntry): string => {
+    const sys = runSystem(r);
+    return sys.method === "ensemble" ? "Ensembles" : sys.method === "baseline" ? "Baselines" : sys.base;
+  };
+
+  function pickerOptions(mode: Mode, dataset: string): PickerOption[] {
     const rows = state.index.filter((r) => r.dataset === dataset);
-    if (mode === "run") {
-      return rows
-        .slice()
-        .sort((x, y) => (y.sps ?? -1) - (x.sps ?? -1))
-        .map((r) => [
-          r.run_id,
-          `${systemName(r)} — ${settingsLabel(r)} · ${r.timestamp?.slice(0, 10) ?? ""} (Index ${idxOf(r.sps, r.dataset)})`,
-        ]);
+    const items =
+      mode === "run"
+        ? rows.map((r) => ({
+            id: r.run_id,
+            head: r,
+            score: r.sps,
+            extra: ` · ${r.timestamp?.slice(0, 10) ?? ""}`,
+          }))
+        : [
+            ...rows
+              .reduce((m, r) => m.set(r.config_id, [...(m.get(r.config_id) ?? []), r]), new Map<string, RunIndexEntry[]>())
+              .entries(),
+          ].map(([id, reps]) => ({
+            id,
+            head: reps[0],
+            score: replicateStats(reps.map((r) => r.sps)).mean,
+            extra: reps.length > 1 ? ` · ${reps.length} reps` : "",
+          }));
+    const best = new Map<string, number>();
+    for (const it of items) {
+      const g = groupOf(it.head);
+      best.set(g, Math.max(best.get(g) ?? -1, it.score ?? -1));
     }
-    const byConfig = new Map<string, RunIndexEntry[]>();
-    for (const r of rows) byConfig.set(r.config_id, [...(byConfig.get(r.config_id) ?? []), r]);
-    return [...byConfig]
-      .map(([id, reps]) => ({ id, reps, mean: replicateStats(reps.map((r) => r.sps)).mean }))
-      .sort((x, y) => (y.mean ?? -1) - (x.mean ?? -1))
-      .map(({ id, reps, mean }): [string, string] => [
-        id,
-        `${systemName(reps[0])} — ${settingsLabel(reps[0])}${reps.length > 1 ? ` · ${reps.length} reps` : ""} (Index ${idxOf(mean, reps[0].dataset)})`,
-      ]);
+    return items
+      .sort(
+        (x, y) =>
+          (best.get(groupOf(y.head)) ?? -1) - (best.get(groupOf(x.head)) ?? -1) ||
+          groupOf(x.head).localeCompare(groupOf(y.head)) ||
+          (y.score ?? -1) - (x.score ?? -1),
+      )
+      .map((it): PickerOption => [it.id, optionText(it.head, it.score, it.extra), groupOf(it.head)]);
   }
 
-  function fillSelect(sel: HTMLSelectElement | null, placeholder: string, opts: [string, string][], value: string) {
+  function fillSelect(
+    sel: HTMLSelectElement | null,
+    placeholder: string,
+    opts: (PickerOption | [string, string])[],
+    value: string,
+  ) {
     if (!sel) return;
     sel.replaceChildren();
-    for (const [v, label] of [["", placeholder] as [string, string], ...opts]) {
+    const option = (v: string, label: string) => {
       const o = document.createElement("option");
       o.value = v;
       o.textContent = label;
-      sel.appendChild(o);
+      return o;
+    };
+    sel.appendChild(option("", placeholder));
+    let group: HTMLOptGroupElement | null = null;
+    for (const [v, label, g] of opts as PickerOption[]) {
+      if (!g) {
+        sel.appendChild(option(v, label));
+        continue;
+      }
+      if (group?.label !== g) {
+        group = document.createElement("optgroup");
+        group.label = g;
+        sel.appendChild(group);
+      }
+      group.appendChild(option(v, label));
     }
     sel.value = opts.some(([v]) => v === value) ? value : "";
   }
@@ -628,6 +705,7 @@ const labelCls = "text-xs font-semibold uppercase tracking-wide text-muted";
     const metricOf = (s: Subject, key: Key): MetricValue =>
       key === "index" ? indexMetric(s.metrics.sps, s.head.dataset) : s.metrics[key];
 
+    const tableRows: string[] = [];
     container.innerHTML = metrics
       .map(({ key, label }) => {
         const m = METRIC_NAMES[key];
@@ -654,6 +732,14 @@ const labelCls = "text-xs font-semibold uppercase tracking-wide text-muted";
                 : "CI n/a";
         const ciLine = (ci: CiRange | null) =>
           ci ? `<span class="metric-ci">[${f(ci.low)}, ${f(ci.high)}]</span>` : "";
+        // Phones: the same numbers as one row of a compact table.
+        tableRows.push(`
+          <tr data-metric="${key}" title="${escapeHtml(m.desc)}">
+            <th scope="row">${escapeHtml(label)}<span class="metric-tech">${escapeHtml(sigLabel)}</span></th>
+            <td class="text-right font-mono">${escapeHtml(f(aVal))}${ciLine(am.ci)}</td>
+            <td class="text-right font-mono">${escapeHtml(f(bVal))}${ciLine(bm.ci)}</td>
+            <td class="text-right font-mono">${escapeHtml(fmtSigned(delta, key === "index" ? 0 : 3))}</td>
+          </tr>`);
         return `
           <div class="metric-tile ${borderClass}" data-metric="${key}" title="${escapeHtml(m.desc)}">
             <div class="flex items-baseline justify-between">
@@ -677,7 +763,36 @@ const labelCls = "text-xs font-semibold uppercase tracking-wide text-muted";
         `;
       })
       .join("");
+    const tbody = document.querySelector<HTMLTableSectionElement>("#compare-metrics-table tbody");
+    if (tbody) tbody.innerHTML = tableRows.join("");
+    renderSummary(a, b, metricOf(a, "index"), metricOf(b, "index"));
     wrap.classList.remove("hidden");
+  }
+
+  /** One sentence above the metrics: who scores higher, by how much, and whether it's clear. */
+  function renderSummary(a: Subject, b: Subject, ai: MetricValue, bi: MetricValue): void {
+    const el = $("compare-summary");
+    if (!el) return;
+    if (ai.value == null || bi.value == null) {
+      el.textContent = "";
+      return;
+    }
+    const d = Math.round(ai.value - bi.value);
+    const ds = datasetLabel(a.head.dataset);
+    if (d === 0) {
+      el.textContent = `A and B score the same on ${ds} (Index ${fmtIndex(ai.value)}).`;
+      return;
+    }
+    const [hi, lo] = d > 0 ? ["A", "B"] : ["B", "A"];
+    const pts = `${Math.abs(d)} Index point${Math.abs(d) === 1 ? "" : "s"}`;
+    const overlap = ciOverlap(ai.ci, bi.ci);
+    const tail =
+      overlap === "disjoint"
+        ? "and their 95% intervals don't overlap."
+        : overlap === "overlap"
+          ? "but their 95% intervals overlap, so it may be noise."
+          : `but ${a.ciNote || b.ciNote ? "there are too few replicates for an interval" : "no interval is published"}, so it may be noise.`;
+    el.textContent = `${hi} scores ${pts} higher than ${lo} on ${ds}, ${tail}`;
   }
 
   /** Average each question over replicates: mean distribution, mean JSD. */
@@ -924,6 +1039,47 @@ const labelCls = "text-xs font-semibold uppercase tracking-wide text-muted";
     });
   }
 
+  // ---------- Gated per-question data ----------
+
+  /** Can this deployment fetch gated per-question data at all (sign-in + proxy)? */
+  const gatedReachable = (): boolean =>
+    isAuthConfigured() && Boolean(import.meta.env.PUBLIC_GATED_API_BASE);
+
+  /** Datasets whose per-question data is public, most configs first. */
+  function publicDatasets(): string[] {
+    const configs = new Map<string, Set<string>>();
+    for (const r of state.index)
+      configs.set(r.dataset, (configs.get(r.dataset) ?? new Set()).add(r.config_id));
+    return [...configs]
+      .filter(([d]) => dataFetch.lookupDatasetTier(d, state.policies) === "full")
+      .sort((x, y) => y[1].size - x[1].size)
+      .map(([d]) => d);
+  }
+
+  /**
+   * Where the per-question view is gated: the sign-in gate when signing in
+   * can help, a plain note when this deployment has no sign-in, and either
+   * way a link to a dataset whose per-question data is public.
+   */
+  function renderGate(gate: HTMLElement): void {
+    const ds = datasetLabel(state.dataset);
+    const alt = publicDatasets().find((d) => d !== state.dataset);
+    const altHtml = alt
+      ? `<p class="mt-3"><a class="text-primary hover:underline" href="${state.base}/compare/?mode=${state.mode}&ds=${encodeURIComponent(alt)}">Compare two ${datasetLabel(alt)} ${state.mode}s instead</a>: its per-question answers are public.</p>`
+      : "";
+    if (gatedReachable()) {
+      dataFetch.renderSignInGate(gate, { datasetLabel: ds });
+      gate.firstElementChild?.insertAdjacentHTML("beforeend", altHtml);
+      return;
+    }
+    gate.innerHTML = `
+      <div class="rounded-lg border border-muted/30 bg-muted/5 p-5 text-sm">
+        <strong class="mb-1 block">Per-question answers for ${escapeHtml(ds)} aren't available here</strong>
+        <p class="text-muted">They are shared only with verified research accounts, and this deployment has no sign-in. The metrics above are public.</p>
+        ${altHtml}
+      </div>`;
+  }
+
   // ---------- Loading ----------
 
   /** Fetch every run behind a subject (tier-aware). "gated" when not signed in. */
@@ -952,7 +1108,14 @@ const labelCls = "text-xs font-semibold uppercase tracking-wide text-muted";
     ].filter(Boolean);
     if (subjA) state.dataset = subjA.head.dataset;
     else if (subjB) state.dataset = subjB.head.dataset;
-    if (!state.dataset) state.dataset = state.index.some((r) => r.dataset === "opinionsqa") ? "opinionsqa" : (state.index[0]?.dataset ?? "");
+    if (!state.dataset) {
+      // Start where the per-question view can actually be shown: OpinionsQA
+      // when gated data can be signed in for, else a dataset that is public.
+      const fallback = state.index.some((r) => r.dataset === "opinionsqa")
+        ? "opinionsqa"
+        : (state.index[0]?.dataset ?? "");
+      state.dataset = gatedReachable() ? fallback : (publicDatasets()[0] ?? fallback);
+    }
     let crossNote = "";
     if (subjA && subjB && subjA.head.dataset !== subjB.head.dataset) {
       crossNote = `A is on ${datasetLabel(subjA.head.dataset)} and B on ${datasetLabel(subjB.head.dataset)}. Compares work within one dataset, so B was cleared: pick a ${datasetLabel(subjA.head.dataset)} ${noun} for B.`;
@@ -1009,7 +1172,7 @@ const labelCls = "text-xs font-semibold uppercase tracking-wide text-muted";
         const gate = $("flipped-gate");
         if (gate) {
           gate.classList.remove("hidden");
-          dataFetch.renderSignInGate(gate, { datasetLabel: datasetLabel(state.dataset) });
+          renderGate(gate);
         }
         const count = $("flipped-count");
         if (count) count.textContent = "";
@@ -1149,6 +1312,31 @@ const labelCls = "text-xs font-semibold uppercase tracking-wide text-muted";
   .metric-delta {
     margin-top: 0.6rem;
     font-size: 0.8rem;
+    color: var(--color-muted);
+  }
+  /* Phones: the four metric tiles as one table. */
+  .metric-table th,
+  .metric-table td {
+    padding: 0.5rem 0.25rem;
+    border-bottom: 1px solid color-mix(in oklch, var(--color-muted) 20%, transparent);
+    vertical-align: top;
+  }
+  .metric-table thead th {
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--color-muted);
+    text-align: left;
+  }
+  .metric-table thead th.text-right {
+    text-align: right;
+  }
+  .metric-table tbody th {
+    text-align: left;
+    font-weight: 600;
+  }
+  .metric-table .metric-tech {
     color: var(--color-muted);
   }
   .dist-stack {
