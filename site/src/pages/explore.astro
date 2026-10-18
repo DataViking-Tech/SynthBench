@@ -50,11 +50,24 @@ const btnCls =
       </div>
     </section>
 
+    <!-- Phones: the fields fold behind a "Filters (n)" button; view and reset stay out. -->
     <section
+      id="ex-filters"
       aria-label="Filters"
-      class="rounded-lg border border-muted/20 bg-surface dark:bg-surface-dark p-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4"
+      class="ex-filters rounded-lg border border-muted/20 bg-surface dark:bg-surface-dark p-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4"
     >
-      <div class="flex flex-col gap-1">
+      <button
+        id="filters-toggle"
+        type="button"
+        class="ex-ftoggle sm:hidden"
+        aria-expanded="false"
+        aria-controls="ex-filters"
+      >
+        <span aria-hidden="true" class="ex-caret">▸</span>
+        <span>Filters</span>
+        <span id="filters-count" class="text-muted"></span>
+      </button>
+      <div class="ex-f flex flex-col gap-1">
         <label for="filter-search" class={labelCls}>Search model</label>
         <input
           id="filter-search"
@@ -64,28 +77,28 @@ const btnCls =
         />
       </div>
 
-      <div class="flex flex-col gap-1">
+      <div class="ex-f flex flex-col gap-1">
         <label for="filter-framework" class={labelCls}>Method</label>
         <select id="filter-framework" class={selectCls}>
           <option value="">All methods</option>
         </select>
       </div>
 
-      <div class="flex flex-col gap-1">
+      <div class="ex-f flex flex-col gap-1">
         <label for="filter-temp" class={labelCls}>Temperature</label>
         <select id="filter-temp" class={selectCls}>
           <option value="">Any temperature</option>
         </select>
       </div>
 
-      <div class="flex flex-col gap-1">
+      <div class="ex-f flex flex-col gap-1">
         <label for="filter-template" class={labelCls}>Prompt template</label>
         <select id="filter-template" class={selectCls}>
           <option value="">Any template</option>
         </select>
       </div>
 
-      <div class="flex flex-wrap items-center gap-x-5 gap-y-2 sm:col-span-2 lg:col-span-3">
+      <div class="ex-f flex flex-wrap items-center gap-x-5 gap-y-2 sm:col-span-2 lg:col-span-3">
         <label class="inline-flex items-center gap-2 text-sm">
           <input id="filter-baselines" type="checkbox" checked class="accent-primary" />
           Show baselines
@@ -100,7 +113,7 @@ const btnCls =
         </label>
       </div>
 
-      <div class="flex flex-wrap items-center gap-2 lg:justify-end">
+      <div class="ex-view flex flex-wrap items-center gap-2 lg:justify-end">
         <div
           id="view-mode"
           role="radiogroup"
@@ -110,12 +123,18 @@ const btnCls =
           <button type="button" role="radio" data-view="table" class="view-btn">Table</button>
           <button type="button" role="radio" data-view="grouped" class="view-btn">Grouped</button>
         </div>
-        <button id="filter-reset" type="button" class={btnCls}>Reset</button>
+        <button id="filter-reset" type="button" class={btnCls} hidden>Reset</button>
       </div>
     </section>
 
     <div class="flex flex-wrap items-center justify-between gap-2">
       <p id="explore-summary" class="text-sm text-muted" aria-live="polite"></p>
+      <!-- Phones: the table's sortable headers become this menu. -->
+      <div id="sort-phone" class="ex-sort sm:hidden">
+        <label for="sort-select" class={labelCls}>Sort</label>
+        <select id="sort-select" class={selectCls}></select>
+        <button id="sort-dir" type="button" class={btnCls} aria-label="Reverse the order"></button>
+      </div>
       <div id="group-actions" class="hidden items-center gap-2">
         <button id="expand-all" type="button" class={btnCls}>Expand all</button>
         <button id="collapse-all" type="button" class={btnCls}>Collapse all</button>
@@ -133,14 +152,14 @@ const btnCls =
       role="region"
       aria-label="Compare selection"
       hidden
-      class="sticky bottom-4 z-30 mx-auto max-w-4xl rounded-lg border border-primary/40 bg-surface dark:bg-surface-dark shadow-lg p-4 flex flex-col sm:flex-row sm:items-center gap-3"
+      class="ex-tray sticky bottom-4 z-30 mx-auto max-w-4xl rounded-lg border border-primary/40 bg-surface dark:bg-surface-dark shadow-lg p-4 flex flex-col sm:flex-row sm:items-center gap-3"
     >
-      <div class="flex-1 flex flex-wrap items-center gap-2">
-        <span class="text-sm font-semibold">Compare:</span>
+      <div class="ex-tray-main flex-1 flex flex-wrap items-center gap-2">
+        <span class="ex-tray-lbl text-sm font-semibold">Compare:</span>
         <span id="compare-chips" class="flex flex-wrap gap-2"></span>
         <span id="compare-hint" class="text-xs text-muted">Pick another to enable compare</span>
       </div>
-      <div class="flex items-center gap-2">
+      <div class="ex-tray-act flex items-center gap-2">
         <button id="compare-clear" type="button" class={btnCls}>Clear</button>
         <a
           id="compare-go"
@@ -341,6 +360,84 @@ const btnCls =
     set("sel", state.selection.map((s) => s.id).join(","));
     const qs = p.toString();
     history.replaceState(null, "", `${location.pathname}${qs ? `?${qs}` : ""}${location.hash}`);
+  }
+
+  // ---------- Filter chrome ----------
+
+  /** How many filters differ from their defaults (the "Filters (n)" count). */
+  function activeFilters(): number {
+    return [
+      state.search !== "",
+      state.framework !== "",
+      state.temp !== "",
+      state.template !== "",
+      !state.showBaselines,
+      state.showExploratory,
+      !state.collapseReplicates,
+    ].filter(Boolean).length;
+  }
+  const filtersAtDefault = () => activeFilters() === 0;
+  /** Reset also restores the view and sort, so it shows when any of those changed. */
+  const resetNeeded = () =>
+    !filtersAtDefault() ||
+    state.view !== "table" ||
+    state.sortKey !== "score" ||
+    state.sortDir !== "desc";
+
+  function resetAll(): void {
+    Object.assign(state, {
+      search: "",
+      framework: "",
+      temp: "",
+      template: "",
+      showBaselines: true,
+      showExploratory: false,
+      collapseReplicates: true,
+      view: "table",
+      sortKey: "score",
+      sortDir: "desc",
+      showAll: false,
+    });
+    state.openGroups.clear();
+    populateControls();
+    update();
+  }
+
+  const SORT_LABELS: Record<SortKey, [string, string]> = {
+    // [default direction, reversed]
+    score: ["Index, best first", "Index, worst first"],
+    name: ["System, A to Z", "System, Z to A"],
+    method: ["Method, A to Z", "Method, Z to A"],
+    temp: ["Temperature, highest first", "Temperature, lowest first"],
+    tpl: ["Template, A to Z", "Template, Z to A"],
+    n: ["Questions, most first", "Questions, fewest first"],
+    spq: ["Samples, most first", "Samples, fewest first"],
+    runs: ["Runs, most first", "Runs, fewest first"],
+  };
+
+  /** Filter count, Reset visibility and the phone sort menu, after any change. */
+  function renderChrome(): void {
+    const n = activeFilters();
+    const count = byId("filters-count");
+    if (count) count.textContent = n ? `(${n})` : "";
+    const reset = byId<HTMLButtonElement>("filter-reset");
+    if (reset) reset.hidden = !resetNeeded();
+    const sel = byId<HTMLSelectElement>("sort-select");
+    if (sel) {
+      if (!sel.options.length)
+        for (const k of SORT_KEYS) {
+          const o = document.createElement("option");
+          o.value = k;
+          sel.appendChild(o);
+        }
+      const flipped = state.sortDir !== defaultDir(state.sortKey);
+      for (const o of sel.options) o.textContent = SORT_LABELS[o.value as SortKey][0];
+      const cur = [...sel.options].find((o) => o.value === state.sortKey);
+      if (cur) cur.textContent = SORT_LABELS[state.sortKey][flipped ? 1 : 0];
+      sel.value = state.sortKey;
+    }
+    const dir = byId("sort-dir");
+    if (dir) dir.textContent = state.sortDir === "asc" ? "↑" : "↓";
   }
 
   /** URL → leaderboard scope (persisted by the leaderboard) → OpinionsQA. */
@@ -612,8 +709,20 @@ const btnCls =
     for (const s of state.selection) {
       const chip = document.createElement("span");
       chip.className =
-        "inline-flex items-center gap-1 rounded-full bg-primary/10 text-primary px-2 py-0.5 text-xs font-medium";
-      chip.textContent = s.label;
+        "ex-chip inline-flex items-center gap-1 rounded-full bg-primary/10 text-primary px-2 py-0.5 text-xs font-medium";
+      chip.title = s.label;
+      // Phones cut the name short, so the row's Index leads to tell picks apart.
+      const row = lastRows.find((x) => x.id === s.id);
+      if (row) {
+        const idx = document.createElement("b");
+        idx.className = "ex-chip-i sm:hidden";
+        idx.textContent = fmtIndex(toIndex(row.score, row.dataset));
+        chip.appendChild(idx);
+      }
+      const text = document.createElement("span");
+      text.className = "ex-chip-t";
+      text.textContent = s.label;
+      chip.appendChild(text);
       const close = document.createElement("button");
       close.type = "button";
       close.setAttribute("aria-label", `Remove ${s.label}`);
@@ -625,6 +734,7 @@ const btnCls =
     }
 
     const mode = state.selection[0]?.mode;
+    tray.classList.toggle("ex-ready", state.selection.length === 2);
     if (state.selection.length === 2 && mode) {
       const [a, b] = state.selection;
       const url = `${BASE}/compare/?a=${encodeURIComponent(a.id)}&b=${encodeURIComponent(b.id)}&mode=${mode}`;
@@ -636,9 +746,12 @@ const btnCls =
       go.setAttribute("href", "#");
       go.setAttribute("aria-disabled", "true");
       go.setAttribute("tabindex", "-1");
-      hint.textContent = `Pick one more ${mode ?? "item"} to enable compare`;
+      hint.textContent = `Pick one more ${mode ?? "row"} to compare`;
     }
   }
+
+  /** Rows of the last render (the tray looks up each pick's Index). */
+  let lastRows: Row[] = [];
 
   /** Give URL-restored selections their human labels once rows exist. */
   function labelSelection(rows: Row[]): void {
@@ -711,7 +824,50 @@ const btnCls =
   const tag = (text: string, cls = "bg-muted/10 text-muted", title = "") =>
     `<span class="rounded px-1.5 py-0.5 text-xs font-mono ${cls}"${title ? ` title="${escapeHtml(title)}"` : ""}>${escapeHtml(text)}</span>`;
 
-  function rowHtml(r: Row): string {
+  /** Settings that tell a row apart from same-named rows in its table (row id → keys). */
+  type DiffKey = "temp" | "tpl" | "n" | "spq";
+  const DIFF_OF: Record<DiffKey, (r: Row) => string> = {
+    temp: (r) => tempLabel(r.temperature),
+    tpl: (r) => templateLabel(r.template),
+    n: (r) => String(r.n_questions),
+    spq: (r) => String(r.samples_per_question),
+  };
+  function diffKeys(rows: Row[]): Map<string, Set<DiffKey>> {
+    const byName = new Map<string, Row[]>();
+    for (const r of rows) byName.set(r.name, [...(byName.get(r.name) ?? []), r]);
+    const out = new Map<string, Set<DiffKey>>();
+    for (const same of byName.values()) {
+      if (same.length < 2) continue;
+      const keys = (Object.keys(DIFF_OF) as DiffKey[]).filter(
+        (k) => new Set(same.map(DIFF_OF[k])).size > 1,
+      );
+      for (const r of same) out.set(r.id, new Set(keys));
+    }
+    return out;
+  }
+  /** Emphasis for a setting that differs between rows with the same name. */
+  const DIFF_CLS = " ex-diff";
+
+  /**
+   * Phones: the settings columns fold into one line under the name. Words
+   * rather than the n= / s= column tokens, so it reads as a sentence.
+   */
+  function metaHtml(r: Row, diff: Set<DiffKey> | undefined): string {
+    const part = (k: DiffKey | null, text: string) =>
+      k && diff?.has(k) ? `<b class="ex-diff">${escapeHtml(text)}</b>` : escapeHtml(text);
+    const bits = [
+      part(null, METHOD_NAMES[r.method].label),
+      part("temp", `t ${tempLabel(r.temperature)}`),
+      part("tpl", `${templateLabel(r.template)} template`),
+      part("n", `${r.n_questions} questions`),
+      r.samples_per_question == null ? "" : part("spq", `${r.samples_per_question} samples`),
+      `${r.runs} run${r.runs === 1 ? "" : "s"}`,
+    ].filter(Boolean);
+    return `<div class="ex-meta sm:hidden">${bits.join(" · ")}</div>`;
+  }
+
+  function rowHtml(r: Row, diff?: Set<DiffKey>): string {
+    const dc = (k: DiffKey) => (diff?.has(k) ? DIFF_CLS : "");
     const href =
       r.mode === "run"
         ? `${BASE}/run/${encodeURIComponent(r.id)}/`
@@ -737,14 +893,15 @@ const btnCls =
       <td class="px-3 py-1.5 align-top">
         <a href="${href}" class="font-medium text-text dark:text-text-dark hover:text-primary dark:hover:text-primary-light inline-flex items-center gap-1.5">${logoMarkup(labOf(r.is_ensemble ? "ensemble" : r.model), 14)}${escapeHtml(r.name)}</a>
         ${tags ? `<div class="mt-1 flex flex-wrap gap-1">${tags}</div>` : ""}
+        ${metaHtml(r, diff)}
       </td>
       <td class="px-3 py-1.5 align-top text-xs">${escapeHtml(METHOD_NAMES[r.method].label)}</td>
-      <td class="px-3 py-1.5 align-top text-right font-mono text-xs${r.temperature == null ? " text-muted" : ""}">${escapeHtml(tempLabel(r.temperature))}</td>
-      <td class="px-3 py-1.5 align-top font-mono text-xs${!r.template || r.template === "current" ? " text-muted" : ""}">${escapeHtml(templateLabel(r.template))}</td>
-      <td class="px-3 py-1.5 align-top text-right font-mono text-xs" data-col="n">n=${r.n_questions}</td>
-      <td class="px-3 py-1.5 align-top text-right font-mono text-xs" data-col="spq">${r.samples_per_question == null ? "—" : `s=${r.samples_per_question}`}</td>
+      <td class="px-3 py-1.5 align-top text-right font-mono text-xs${r.temperature == null ? " text-muted" : ""}${dc("temp")}">${escapeHtml(tempLabel(r.temperature))}</td>
+      <td class="px-3 py-1.5 align-top font-mono text-xs${!r.template || r.template === "current" ? " text-muted" : ""}${dc("tpl")}">${escapeHtml(templateLabel(r.template))}</td>
+      <td class="px-3 py-1.5 align-top text-right font-mono text-xs${dc("n")}" data-col="n">n=${r.n_questions}</td>
+      <td class="px-3 py-1.5 align-top text-right font-mono text-xs${dc("spq")}" data-col="spq">${r.samples_per_question == null ? "—" : `s=${r.samples_per_question}`}</td>
       <td class="px-3 py-1.5 align-top text-right font-mono text-xs">${r.runs}</td>
-      <td class="px-3 py-1.5 align-top text-right font-mono"><span class="font-semibold">${fmtIndex(toIndex(r.score, r.dataset))}</span>${ci}<div class="whitespace-nowrap text-[11px] text-muted" title="Survey Parity Score, 0 to 1">SPS ${fmtScore(r.score)}</div></td>
+      <td class="ex-index px-3 py-1.5 align-top text-right font-mono"><span class="font-semibold">${fmtIndex(toIndex(r.score, r.dataset))}</span>${ci}<div class="whitespace-nowrap text-[11px] text-muted" title="Survey Parity Score, 0 to 1">SPS ${fmtScore(r.score)}</div></td>
     </tr>`;
   }
 
@@ -756,11 +913,12 @@ const btnCls =
       const r = sorted.find((x) => x.id === s.id);
       if (r && !shown.includes(r)) shown.push(r);
     }
+    const diffs = diffKeys(shown);
     const more =
       sorted.length > shown.length
         ? `<div class="flex items-center justify-between gap-3 border-t border-muted/20 px-3 py-2 text-sm text-muted"><span>Showing ${shown.length} of ${sorted.length}.</span><button type="button" id="show-all" class="rounded-md border border-muted/30 px-3 py-1 text-sm font-medium text-text dark:text-text-dark hover:bg-muted/10">Show all ${sorted.length}</button></div>`
         : "";
-    return `<div class="overflow-x-auto rounded-lg border border-muted/20"><table class="sb-stack w-full text-sm explore-table" data-stack-lead><caption class="sr-only">${escapeHtml(caption)}</caption>${headHtml()}<tbody>${shown.map(rowHtml).join("")}</tbody></table>${more}</div>`;
+    return `<div class="overflow-x-auto rounded-lg border border-muted/20"><table class="sb-stack w-full text-sm explore-table" data-stack-lead><caption class="sr-only">${escapeHtml(caption)}</caption>${headHtml()}<tbody>${shown.map((r) => rowHtml(r, diffs.get(r.id))).join("")}</tbody></table>${more}</div>`;
   }
 
   function groupOf(r: Row): string {
@@ -783,8 +941,8 @@ const btnCls =
         const bodyId = `grp-${k}`.replace(/[^a-zA-Z0-9_-]/g, "_");
         return `<section class="rounded-lg border border-muted/20 bg-surface dark:bg-surface-dark overflow-hidden">
           <button type="button" class="w-full flex items-center justify-between gap-3 px-4 py-2 text-left text-sm hover:bg-muted/5" data-group="${escapeHtml(k)}" data-focus-key="grp::${escapeHtml(k)}" aria-expanded="${open}" aria-controls="${bodyId}">
-            <span class="flex items-center gap-2"><span aria-hidden="true" class="text-muted">${open ? "▾" : "▸"}</span>${logoMarkup(labOf(k === "Baselines" ? "" : k), 15)}<span class="font-medium">${escapeHtml(k)}</span><span class="text-xs text-muted">· ${rs.length} ${state.collapseReplicates ? "config" : "run"}${rs.length === 1 ? "" : "s"}</span></span>
-            <span class="font-mono text-xs text-muted">best Index <span class="font-semibold text-text dark:text-text-dark">${fmtIndex(best(rs) < 0 ? null : toIndex(best(rs), state.dataset))}</span></span>
+            <span class="flex min-w-0 items-center gap-2"><span aria-hidden="true" class="text-muted">${open ? "▾" : "▸"}</span>${logoMarkup(labOf(k === "Baselines" ? "" : k), 15)}<span class="min-w-0"><span class="font-medium">${escapeHtml(k)}</span> <span class="whitespace-nowrap text-xs text-muted">· ${rs.length} ${state.collapseReplicates ? "config" : "run"}${rs.length === 1 ? "" : "s"}</span></span></span>
+            <span class="shrink-0 whitespace-nowrap font-mono text-xs text-muted">best Index <span class="font-semibold text-text dark:text-text-dark">${fmtIndex(best(rs) < 0 ? null : toIndex(best(rs), state.dataset))}</span></span>
           </button>
           <div id="${bodyId}" class="px-2 pb-2"${open ? "" : " hidden"}>${tableHtml(rs, `Configurations in ${k}`)}</div>
         </section>`;
@@ -822,11 +980,15 @@ const btnCls =
       groupActions.classList.toggle("flex", state.view === "grouped");
     }
 
+    byId("sort-phone")?.classList.toggle("ex-none", nRuns === 0);
     if (nRuns === 0) {
-      tree.innerHTML = `<p class="text-sm text-muted">No runs match the current filters.</p>`;
+      tree.innerHTML = filtersAtDefault()
+        ? `<p class="text-sm text-muted">No runs to show.</p>`
+        : `<div class="flex flex-wrap items-center gap-3"><p class="text-sm text-muted">No runs match the current filters.</p><button type="button" id="empty-reset" class="rounded-md border border-muted/30 px-3 py-1.5 text-sm font-medium hover:bg-muted/10">Clear filters</button></div>`;
       return;
     }
     const rows = toRows(filtered);
+    lastRows = rows;
     labelSelection(rows);
     tree.innerHTML =
       state.view === "grouped"
@@ -842,6 +1004,7 @@ const btnCls =
   function update(): void {
     render();
     renderCompareTray();
+    renderChrome();
     writeUrl();
   }
 
@@ -860,6 +1023,10 @@ const btnCls =
           state.sortDir = defaultDir(k);
         }
         update();
+        return;
+      }
+      if (t.closest("#empty-reset")) {
+        resetAll();
         return;
       }
       if (t.closest("#show-all")) {
@@ -932,22 +1099,21 @@ const btnCls =
         update();
       });
     }
-    byId("filter-reset")?.addEventListener("click", () => {
-      Object.assign(state, {
-        search: "",
-        framework: "",
-        temp: "",
-        template: "",
-        showBaselines: true,
-        showExploratory: false,
-        collapseReplicates: true,
-        view: "table",
-        sortKey: "score",
-        sortDir: "desc",
-        showAll: false,
-      });
-      state.openGroups.clear();
-      populateControls();
+    byId("filter-reset")?.addEventListener("click", resetAll);
+    const fToggle = byId<HTMLButtonElement>("filters-toggle");
+    fToggle?.addEventListener("click", () => {
+      const open = fToggle.getAttribute("aria-expanded") !== "true";
+      fToggle.setAttribute("aria-expanded", String(open));
+      byId("ex-filters")?.classList.toggle("ex-open", open);
+    });
+    const sortSel = byId<HTMLSelectElement>("sort-select");
+    sortSel?.addEventListener("change", () => {
+      state.sortKey = sortSel.value as SortKey;
+      state.sortDir = defaultDir(state.sortKey);
+      update();
+    });
+    byId("sort-dir")?.addEventListener("click", () => {
+      state.sortDir = state.sortDir === "asc" ? "desc" : "asc";
       update();
     });
     byId("expand-all")?.addEventListener("click", () => {
@@ -1029,3 +1195,185 @@ const btnCls =
 
   init();
 </script>
+
+<style is:global>
+  /* A setting that tells a row apart from rows with the same name. */
+  .explore-table td.ex-diff,
+  .ex-meta .ex-diff {
+    color: var(--sb-ink);
+    font-weight: 600;
+  }
+
+  /* ---------- /explore on phones ---------- */
+  @media (max-width: 639px) {
+    /* Filters fold behind "Filters (n)"; the view switch and Reset stay out. */
+    .ex-filters:not(.ex-open) {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.5rem;
+      padding: 0.5rem 0.75rem;
+    }
+    .ex-filters:not(.ex-open) .ex-f {
+      display: none;
+    }
+    .ex-ftoggle {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      min-height: 44px;
+      font-size: 0.9375rem;
+      font-weight: 600;
+    }
+    .ex-ftoggle .ex-caret {
+      display: inline-block;
+      transition: transform 0.12s;
+    }
+    .ex-filters.ex-open .ex-ftoggle .ex-caret {
+      transform: rotate(90deg);
+    }
+    .ex-view .sb-seg button,
+    .ex-view #filter-reset {
+      min-height: 44px;
+    }
+
+    /* Sort menu in place of the column headers. */
+    .ex-sort {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      width: 100%;
+    }
+    .ex-sort.ex-none {
+      display: none;
+    }
+    .ex-sort select {
+      flex: 1;
+      min-width: 0;
+      min-height: 44px;
+    }
+    .ex-sort #sort-dir {
+      min-width: 44px;
+      min-height: 44px;
+    }
+    #explore-tree table.explore-table thead {
+      display: none;
+    }
+
+    /* Compact row cards: checkbox, name and Index on the first line, the
+       settings as one line of text under the name. */
+    #explore-tree table.explore-table tbody tr:not(.hidden) {
+      display: grid;
+      grid-template-columns: 2rem minmax(0, 1fr) auto;
+      column-gap: 0.5rem;
+      align-items: start;
+      padding: 0.625rem 0.5rem;
+    }
+    #explore-tree table.explore-table td {
+      display: none;
+      padding: 0;
+    }
+    #explore-tree table.explore-table td:first-child:not([colspan]) {
+      display: block;
+      position: static;
+      grid-column: 1;
+      padding: 0;
+    }
+    #explore-tree table.explore-table td:first-child:not([colspan]) + td {
+      display: block;
+      grid-column: 2;
+      padding: 0.125rem 0 0;
+      min-width: 0;
+    }
+    #explore-tree table.explore-table td.ex-index {
+      display: block;
+      grid-column: 3;
+      grid-row: 1;
+      text-align: right;
+      padding: 0.125rem 0 0;
+    }
+    #explore-tree table.explore-table td.ex-index::before {
+      content: "Index";
+      display: inline;
+      margin-right: 0.35rem;
+      font-size: 0.75rem;
+    }
+    #explore-tree table.explore-table td.ex-index > span {
+      font-size: 1rem;
+    }
+    /* Logo beside the first line of a long name, not its middle. */
+    #explore-tree table.explore-table td:nth-child(2) > a {
+      align-items: flex-start;
+    }
+    #explore-tree table.explore-table td:nth-child(2) > a > :first-child {
+      margin-top: 0.2rem;
+    }
+    .ex-meta {
+      margin-top: 0.25rem;
+      font-size: 0.8125rem;
+      line-height: 1.35;
+      color: var(--color-muted);
+    }
+
+    /* Compare tray: one line at the bottom of the screen. */
+    .ex-tray {
+      flex-direction: row;
+      align-items: center;
+      gap: 0.5rem;
+      bottom: 0.5rem;
+      padding: 0.375rem 0.375rem 0.375rem 0.625rem;
+    }
+    /* The picks stack, one line each, cut with an ellipsis. */
+    .ex-tray-main {
+      flex-direction: column;
+      flex-wrap: nowrap;
+      align-items: stretch;
+      min-width: 0;
+      gap: 0.25rem;
+    }
+    .ex-tray-lbl,
+    .ex-tray #compare-clear,
+    .ex-tray.ex-ready #compare-hint {
+      display: none;
+    }
+    .ex-tray #compare-chips {
+      flex-direction: column;
+      flex-wrap: nowrap;
+      min-width: 0;
+      gap: 0.25rem;
+    }
+    .ex-tray .ex-chip {
+      justify-content: space-between;
+      min-width: 0;
+      max-width: 100%;
+      padding-right: 0;
+    }
+    .ex-tray .ex-chip-i {
+      flex: none;
+      font-family: var(--font-mono);
+    }
+    .ex-tray .ex-chip-t {
+      flex: 1;
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .ex-tray .ex-chip button {
+      min-width: 32px;
+      min-height: 32px;
+      justify-content: center;
+      font-size: 1rem;
+    }
+    .ex-tray #compare-hint {
+      padding-left: 0.5rem;
+    }
+    .ex-tray #compare-go {
+      display: inline-flex;
+      align-items: center;
+      min-height: 44px;
+      white-space: nowrap;
+    }
+  }
+</style>
