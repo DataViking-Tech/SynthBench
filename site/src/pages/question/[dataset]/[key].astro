@@ -2,7 +2,8 @@
 import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { resolve } from "node:path";
 import BaseLayout from "@/layouts/BaseLayout.astro";
-import { optionColor } from "@/lib/answerPalette";
+import "@/styles/dist-bars.css";
+import { distBarHtml, distLegendHtml, distReadout } from "@/lib/distBar";
 import { compareKeys, datasetLabel, methodName, systemName } from "@/lib/runExplorer";
 import { topicLabel } from "@/lib/topics";
 import type { QuestionIndex, QuestionIndexEntry, QuestionPayload } from "@/types/questions";
@@ -176,20 +177,19 @@ const escapeHtml = (s: unknown): string =>
     .replace(/"/g, "&quot;")
     .replace(/'/g, "&#39;");
 
-function renderBar(dist: Record<string, number>): string {
-  const segments = options
-    .map((k, i) => {
-      const v = dist[k] ?? 0;
-      const pctWidth = Math.max(0, Math.min(1, v)) * 100;
-      const color = optionColor(options, i);
-      const title = `${escapeHtml(k)}: ${(v * 100).toFixed(1)}%`;
-      return `<span class="dist-seg" title="${title}" style="width:${pctWidth}%;background:${color}"></span>`;
-    })
-    .join("");
-  const accessibleSummary = options
-    .map((k) => `${k}: ${((dist[k] ?? 0) * 100).toFixed(1)}%`)
-    .join(", ");
-  return `<span class="dist-bar" role="img" aria-label="Distribution: ${escapeHtml(accessibleSummary)}">${segments}</span>`;
+// Each model's bar, with people's answers as a thin bar under it (when
+// published) and a readout for the segment tapped (scripts/distBars.ts).
+const humanDist = payload?.human_distribution ?? {};
+function modelBars(dist: Record<string, number>): string {
+  return `<div class="qd-dist" data-dist-group>${distBarHtml(dist, options, { aria: "Distribution: ", name: "model" })}${
+    humanHasData
+      ? distBarHtml(humanDist, options, {
+          aria: "People's distribution: ",
+          ref: true,
+          name: "people",
+        })
+      : ""
+  }${distReadout()}</div>`;
 }
 
 const displayKey = payload?.key ?? routeKey ?? "";
@@ -363,20 +363,15 @@ const configUrl = (id: string): string => `${base}/config/${encodePathSegment(id
         {
           humanHasData ? (
             <>
-              <div class="dist-legend">
-                {options.map((opt, i) => (
-                  <span class="dist-chip">
-                    <span
-                      class="dist-swatch"
-                      style={`background:${optionColor(options, i)}`}
-                    />
-                    {opt}
-                  </span>
-                ))}
-              </div>
-              <div class="dist-row mt-2">
-                <span class="dist-label">Human</span>
-                <span set:html={renderBar(payload.human_distribution ?? {})} />
+              <div class="dist-legend" set:html={distLegendHtml(options)} />
+              <div class="mt-2" data-dist-group>
+                <div class="dist-row">
+                  <span class="dist-label">Human</span>
+                  <Fragment
+                    set:html={distBarHtml(humanDist, options, { aria: "Distribution: ", name: "people" })}
+                  />
+                </div>
+                <Fragment set:html={distReadout("Tap or click a segment to see its share.")} />
               </div>
               {payload.human_refusal_rate != null && (
                 <p class="mt-2 text-xs text-muted">
@@ -448,8 +443,13 @@ const configUrl = (id: string): string => `${base}/config/${encodePathSegment(id
           sorted by gap to people (JSD), ascending
         </span>
       </h2>
+      <p class="mb-2 text-xs text-muted">
+        {humanHasData ? "The thin bar under each model's bar is people's answers. " : ""}Tap or click
+        a segment to see its share.
+      </p>
+      <div class="qd-key mb-3 dist-legend" set:html={distLegendHtml(options)} />
       <div class="overflow-x-auto rounded-lg border border-muted/20">
-        <table class="sb-stack w-full text-sm" id="per-model-table">
+        <table class="sb-stack qd-models w-full text-sm" id="per-model-table">
           <caption class="sr-only">
             Each model's distribution over the question options, alongside its
             divergence from the human baseline and refusal rate. Rows link to
@@ -472,7 +472,7 @@ const configUrl = (id: string): string => `${base}/config/${encodePathSegment(id
                 const runUrl = `${base}/run/${encodePathSegment(r.run_id)}/`;
                 return (
                   <tr class="border-b border-muted/10 hover:bg-primary/5">
-                    <td class="px-3 py-2">
+                    <td class="qd-sys px-3 py-2">
                       <a
                         href={configUrl(r.config_id)}
                         class="font-semibold hover:text-primary"
@@ -482,23 +482,18 @@ const configUrl = (id: string): string => `${base}/config/${encodePathSegment(id
                       </a>
                       <div class="text-xs text-muted">{r.base_provider}</div>
                     </td>
-                    <td class="px-3 py-2 text-xs">{methodName(r)}</td>
-                    <td class="px-3 py-2">
-                      <span
-                        class="inline-block w-full min-w-[140px]"
-                        set:html={renderBar(r.distribution)}
-                      />
-                    </td>
-                    <td class="px-3 py-2 text-right font-mono">
+                    <td class="qd-method px-3 py-2 text-xs">{methodName(r)}</td>
+                    <td class="qd-bars px-3 py-2" set:html={modelBars(r.distribution)} />
+                    <td class="qd-num px-3 py-2 text-right font-mono" data-k="Gap">
                       {fmt(r.jsd_to_human)}
                     </td>
-                    <td class="px-3 py-2 text-right font-mono">
+                    <td class="qd-num px-3 py-2 text-right font-mono" data-k="Refusal">
                       {pct(r.refusal_rate)}
                     </td>
-                    <td class="px-3 py-2 text-right font-mono text-xs">
+                    <td class="qd-num px-3 py-2 text-right font-mono text-xs" data-k="n">
                       {r.n_samples}
                     </td>
-                    <td class="px-3 py-2 text-right">
+                    <td class="qd-run px-3 py-2 text-right">
                       <a
                         href={runUrl}
                         class="text-primary hover:underline"
@@ -542,7 +537,7 @@ const configUrl = (id: string): string => `${base}/config/${encodePathSegment(id
             avoid double-counting.
           </p>
           <div class="overflow-x-auto rounded-lg border border-accent/30 bg-accent/5">
-            <table class="sb-stack w-full text-sm" id="aggregated-table">
+            <table class="sb-stack qd-models w-full text-sm" id="aggregated-table">
               <caption class="sr-only">
                 Post-hoc ensemble blends of the single-model rows above. These
                 rows are excluded from the trendslop summary statistics.
@@ -577,7 +572,7 @@ const configUrl = (id: string): string => `${base}/config/${encodePathSegment(id
                   const runUrl = `${base}/run/${encodePathSegment(r.run_id)}/`;
                   return (
                     <tr class="border-b border-muted/10 hover:bg-accent/10">
-                      <td class="px-3 py-2">
+                      <td class="qd-sys px-3 py-2">
                         <a
                           href={configUrl(r.config_id)}
                           class="font-semibold hover:text-primary"
@@ -587,23 +582,18 @@ const configUrl = (id: string): string => `${base}/config/${encodePathSegment(id
                         </a>
                         <div class="text-xs text-muted">{r.base_provider}</div>
                       </td>
-                      <td class="px-3 py-2 text-xs">{methodName(r)}</td>
-                      <td class="px-3 py-2">
-                        <span
-                          class="inline-block w-full min-w-[140px]"
-                          set:html={renderBar(r.distribution)}
-                        />
-                      </td>
-                      <td class="px-3 py-2 text-right font-mono">
+                      <td class="qd-method px-3 py-2 text-xs">{methodName(r)}</td>
+                      <td class="qd-bars px-3 py-2" set:html={modelBars(r.distribution)} />
+                      <td class="qd-num px-3 py-2 text-right font-mono" data-k="Gap">
                         {fmt(r.jsd_to_human)}
                       </td>
-                      <td class="px-3 py-2 text-right font-mono">
+                      <td class="qd-num px-3 py-2 text-right font-mono" data-k="Refusal">
                         {pct(r.refusal_rate)}
                       </td>
-                      <td class="px-3 py-2 text-right font-mono text-xs">
+                      <td class="qd-num px-3 py-2 text-right font-mono text-xs" data-k="n">
                         {r.n_samples}
                       </td>
-                      <td class="px-3 py-2 text-right">
+                      <td class="qd-run px-3 py-2 text-right">
                         <a
                           href={runUrl}
                           class="text-primary hover:underline"
@@ -626,6 +616,7 @@ const configUrl = (id: string): string => `${base}/config/${encodePathSegment(id
   </div>
   <script>
     import "@/scripts/stackTables";
+    import "@/scripts/distBars";
     // sb-sj6: gated-tier hydration. For ``gated`` shell pages the server
     // rendered only the breadcrumb + loading placeholder; everything else
     // (aggregates, human baseline, per-model table) is fetched client-side
@@ -633,7 +624,7 @@ const configUrl = (id: string): string => `${base}/config/${encodePathSegment(id
     // gate; 200 swaps the shell for a full-render built from the fetched
     // payload.
     import { datasetLabel, methodName, systemName } from "@/lib/runExplorer";
-    import { optionColor } from "@/lib/answerPalette";
+    import { distBarHtml, distLegendHtml, distReadout } from "@/lib/distBar";
     import { topicLabel } from "@/lib/topics";
     import type { QuestionPayload } from "@/types/questions";
 
@@ -730,7 +721,11 @@ const configUrl = (id: string): string => `${base}/config/${encodePathSegment(id
           <section class="mb-8">
             <h2 class="text-sm font-semibold uppercase tracking-wide text-muted mb-3">Human baseline</h2>
             <div class="rounded-lg border border-muted/20 p-4">
-              <div class="dist-row"><span class="dist-label">Human</span>${renderBar(humanDist, options)}</div>
+              <div class="dist-legend">${distLegendHtml(options)}</div>
+              <div class="mt-2" data-dist-group>
+                <div class="dist-row"><span class="dist-label">Human</span>${distBarHtml(humanDist, options, { aria: "Distribution: ", name: "people" })}</div>
+                ${distReadout("Tap or click a segment to see its share.")}
+              </div>
               ${payload.human_refusal_rate != null ? `<p class="mt-2 text-xs text-muted">Human refusal rate: <span class="font-mono">${pct(payload.human_refusal_rate)}</span></p>` : ""}
             </div>
           </section>
@@ -740,13 +735,17 @@ const configUrl = (id: string): string => `${base}/config/${encodePathSegment(id
         .map(
           (r) => `
           <tr class="border-b border-muted/10">
-            <td class="px-3 py-2"><a href="${BASE}/config/${encodeURIComponent(r.config_id)}/" class="font-semibold hover:text-primary" title="Configuration and replicates">${escapeHtml(systemName(r))}</a><div class="text-xs text-muted">${escapeHtml(r.base_provider)}</div></td>
-            <td class="px-3 py-2 text-xs">${escapeHtml(methodName(r))}</td>
-            <td class="px-3 py-2">${renderBar(r.distribution, options)}</td>
-            <td class="px-3 py-2 text-right font-mono">${fmt(r.jsd_to_human)}</td>
-            <td class="px-3 py-2 text-right font-mono">${pct(r.refusal_rate)}</td>
-            <td class="px-3 py-2 text-right font-mono text-xs">${r.n_samples}</td>
-            <td class="px-3 py-2 text-right"><a href="${BASE}/run/${encodeURIComponent(r.run_id)}/" class="text-primary hover:underline" aria-label="View full run ${escapeHtml(r.run_id)}">view →</a></td>
+            <td class="qd-sys px-3 py-2"><a href="${BASE}/config/${encodeURIComponent(r.config_id)}/" class="font-semibold hover:text-primary" title="Configuration and replicates">${escapeHtml(systemName(r))}</a><div class="text-xs text-muted">${escapeHtml(r.base_provider)}</div></td>
+            <td class="qd-method px-3 py-2 text-xs">${escapeHtml(methodName(r))}</td>
+            <td class="qd-bars px-3 py-2"><div class="qd-dist" data-dist-group>${distBarHtml(r.distribution, options, { aria: "Distribution: ", name: "model" })}${
+              humanHasData
+                ? distBarHtml(humanDist, options, { aria: "People's distribution: ", ref: true, name: "people" })
+                : ""
+            }${distReadout()}</div></td>
+            <td class="qd-num px-3 py-2 text-right font-mono" data-k="Gap">${fmt(r.jsd_to_human)}</td>
+            <td class="qd-num px-3 py-2 text-right font-mono" data-k="Refusal">${pct(r.refusal_rate)}</td>
+            <td class="qd-num px-3 py-2 text-right font-mono text-xs" data-k="n">${r.n_samples}</td>
+            <td class="qd-run px-3 py-2 text-right"><a href="${BASE}/run/${encodeURIComponent(r.run_id)}/" class="text-primary hover:underline" aria-label="View full run ${escapeHtml(r.run_id)}">view →</a></td>
           </tr>
         `,
         )
@@ -754,8 +753,10 @@ const configUrl = (id: string): string => `${base}/config/${encodePathSegment(id
       const perModel = `
         <section class="mb-8">
           <h2 class="text-sm font-semibold uppercase tracking-wide text-muted mb-3">Model distributions</h2>
+          <p class="mb-2 text-xs text-muted">${humanHasData ? "The thin bar under each model's bar is people's answers. " : ""}Tap or click a segment to see its share.</p>
+          <div class="qd-key mb-3 dist-legend">${distLegendHtml(options)}</div>
           <div class="overflow-x-auto rounded-lg border border-muted/20">
-            <table class="sb-stack w-full text-sm">
+            <table class="sb-stack qd-models w-full text-sm">
               <thead>
                 <tr class="bg-surface dark:bg-surface-dark border-b border-muted/20">
                   <th class="px-3 py-2 text-left font-semibold">Model</th>
@@ -773,21 +774,6 @@ const configUrl = (id: string): string => `${base}/config/${encodePathSegment(id
         </section>
       `;
       return header + trendslop + humanSection + perModel;
-    }
-
-    function renderBar(
-      dist: Record<string, number>,
-      options: string[],
-    ): string {
-      const segments = options
-        .map((k, i) => {
-          const v = dist[k] ?? 0;
-          const width = Math.max(0, Math.min(1, v)) * 100;
-          const color = optionColor(options, i);
-          return `<span class="dist-seg" title="${escapeHtml(k)}: ${(v * 100).toFixed(1)}%" style="width:${width}%;background:${color}"></span>`;
-        })
-        .join("");
-      return `<span class="dist-bar">${segments}</span>`;
     }
 
     function collectKeys(payload: QuestionPayload): string[] {
@@ -808,52 +794,70 @@ const configUrl = (id: string): string => `${base}/config/${encodePathSegment(id
 </BaseLayout>
 
 <style is:global>
-  .question-detail .dist-bar {
-    display: flex;
-    width: 100%;
-    min-width: 140px;
-    height: 1rem;
-    overflow: hidden;
-    border-radius: 0.25rem;
-    background: color-mix(in oklch, var(--color-muted) 15%, transparent);
+  /* Distribution bars: styles/dist-bars.css. */
+  .question-detail .qd-dist {
+    min-width: 160px;
   }
-  .question-detail .dist-seg {
-    display: block;
-    height: 100%;
-  }
-  .question-detail .dist-row {
-    display: grid;
-    grid-template-columns: 4.5rem 1fr;
-    align-items: center;
-    gap: 0.5rem;
-  }
-  .question-detail .dist-label {
-    font-size: 0.75rem;
-    color: var(--color-muted);
-  }
-  .question-detail .dist-legend {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.5rem 0.75rem;
-    font-size: 0.7rem;
-    color: var(--color-muted);
-    margin-bottom: 0.35rem;
-  }
-  .question-detail .dist-chip {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.25rem;
-  }
-  .question-detail .dist-swatch {
-    display: inline-block;
-    width: 0.65rem;
-    height: 0.65rem;
-    border-radius: 0.125rem;
-  }
-  /* Phones: no text under 12px. */
+  /* Phones: each model a compact card. Name and run link on the first line,
+     its bar (with people's thin bar under it) across the card, then gap,
+     refusal and samples on one line. The method is already in the name. */
   @media (max-width: 639px) {
-    .question-detail .dist-legend {
-      font-size: 0.75rem;
+    .question-detail table.sb-stack.qd-models tbody tr:not(.hidden) {
+      position: relative;
+      grid-template-columns: auto auto minmax(0, 1fr);
+      gap: 0.25rem 1.25rem;
+      padding: 0.625rem 0.25rem;
+    }
+    .question-detail table.sb-stack.qd-models td.qd-sys {
+      padding-right: 4.5rem;
+    }
+    .question-detail table.sb-stack.qd-models td.qd-method {
+      display: none;
+    }
+    .question-detail table.sb-stack.qd-models td.qd-bars {
+      grid-column: 1 / -1;
+    }
+    .question-detail table.sb-stack.qd-models td.qd-bars::before,
+    .question-detail table.sb-stack.qd-models td.qd-run::before {
+      content: none;
+    }
+    .question-detail table.sb-stack.qd-models td.qd-run {
+      position: absolute;
+      top: 0.625rem;
+      right: 0.5rem;
+      padding: 0;
+    }
+    .question-detail table.sb-stack.qd-models td.qd-run a {
+      display: inline-flex;
+      align-items: center;
+      min-height: 44px;
+      margin-top: -0.75rem;
+      padding: 0 0.25rem;
+    }
+    .question-detail table.sb-stack.qd-models td.qd-num {
+      white-space: nowrap;
+    }
+    .question-detail table.sb-stack.qd-models td.qd-num::before {
+      content: attr(data-k);
+      display: inline;
+      margin-right: 0.375rem;
+      font-family: inherit;
+      letter-spacing: 0;
+      text-transform: none;
+    }
+    /* The legend stays in view while scrolling through the cards. */
+    .question-detail .qd-key {
+      position: sticky;
+      top: 0;
+      z-index: 5;
+      padding: 0.5rem 0;
+      background: var(--color-surface);
+      box-shadow: 0 1px 0 color-mix(in oklch, var(--color-muted) 20%, transparent);
+    }
+  }
+  @media (max-width: 639px) and (prefers-color-scheme: dark) {
+    .question-detail .qd-key {
+      background: var(--color-surface-dark);
     }
   }
 </style>
