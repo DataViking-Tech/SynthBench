@@ -32,10 +32,29 @@ import {
 } from "./model";
 
 // ---------- Tooltip ----------
+// Mouse: shows on hover, follows the pointer, hides on leave. Touch and pen
+// have no hover (a tap fires enter and leave back to back), so a tap opens
+// the tip and pins it until the next tap elsewhere, a scroll or Escape.
+// Keyboard focus shows it only when the focus ring does (:focus-visible), so
+// focus moved back to a mark by script doesn't leave a stray tip behind.
 const tipEl = h("div", { class: "sb-tip", role: "tooltip" });
 document.body.append(tipEl);
+let pinned: Element | null = null;
+/** True while restoreFocus() moves focus back to a mark: no tip for that. */
+let quietFocus = false;
+const isTouch = (e: Event): boolean =>
+  "pointerType" in e && (e as PointerEvent).pointerType !== "mouse";
+/** Focus that should show a tip: keyboard focus, not a click or a script. */
+const showsFocus = (e: FocusEvent): boolean => {
+  if (quietFocus) return false;
+  try {
+    return (e.target as Element).matches(":focus-visible");
+  } catch {
+    return true;
+  }
+};
 export const tip = {
-  show(e: PointerEvent | FocusEvent, title: string, rows: [string, string][]): void {
+  show(e: MouseEvent | FocusEvent, title: string, rows: [string, string][]): void {
     tipEl.replaceChildren(
       h("div", { class: "sb-tip-t" }, title),
       ...rows.map(([k, v]) => h("div", { class: "sb-tip-r" }, h("span", null, k), h("b", null, v))),
@@ -43,7 +62,7 @@ export const tip = {
     tipEl.classList.add("on");
     tip.move(e);
   },
-  move(e: PointerEvent | FocusEvent): void {
+  move(e: MouseEvent | FocusEvent): void {
     let cx: number;
     let cy: number;
     if ("clientX" in e) {
@@ -58,15 +77,50 @@ export const tip = {
     const hh = tipEl.offsetHeight;
     let x = cx + 14;
     let y = cy + 14;
+    // A finger covers the spot below the tap: put the tip above it when it fits.
+    if (pinned && cy - hh - 18 > 8) y = cy - hh - 18;
     if (x + w > innerWidth - 8) x = cx - w - 14;
     if (y + hh > innerHeight - 8) y = cy - hh - 12;
-    tipEl.style.left = `${x}px`;
-    tipEl.style.top = `${y}px`;
+    tipEl.style.left = `${Math.max(8, x)}px`;
+    tipEl.style.top = `${Math.max(8, y)}px`;
   },
   hide(): void {
+    pinned = null;
     tipEl.classList.remove("on");
   },
+  /** Open (or, on a second tap, close) a tip pinned to `node`. */
+  pin(node: Element, e: MouseEvent, title: string, rows: [string, string][]): void {
+    if (pinned === node) {
+      tip.hide();
+      return;
+    }
+    pinned = node;
+    tip.show(e, title, rows);
+  },
 };
+document.addEventListener(
+  "pointerdown",
+  (e) => {
+    if (pinned && !pinned.contains(e.target as Node)) tip.hide();
+  },
+  true,
+);
+addEventListener(
+  "scroll",
+  () => {
+    if (pinned) tip.hide();
+  },
+  { capture: true, passive: true },
+);
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape" && tipEl.classList.contains("on")) tip.hide();
+});
+/** Remembers whether the press that leads to a click was a finger or pen. */
+let lastPress = "mouse";
+document.addEventListener("pointerdown", (e) => {
+  lastPress = e.pointerType;
+});
+const tapped = () => lastPress !== "mouse";
 
 // ---------- Keyboard access to chart marks ----------
 // A chart with clickable marks is one tab stop (role="group", so assistive
@@ -131,18 +185,28 @@ export function interactive(
       .join(", ")}. Open details.`,
   );
   if (svg) addRover(svg, node, scoreIn(c)?.v ?? Number.NEGATIVE_INFINITY);
-  const enter = (e: PointerEvent | FocusEvent) => {
+  const enter = (e: MouseEvent | FocusEvent) => {
     tip.show(e, fullName(c), rows());
     if (svg) highlight(svg, c.key);
   };
-  node.addEventListener("pointerenter", enter);
-  node.addEventListener("focus", enter);
-  node.addEventListener("pointermove", (e) => tip.move(e));
+  // Touch: no hover tip at all. A tap selects the mark and opens the details
+  // drawer, which shows everything the tip would, so nothing is left over it.
+  node.addEventListener("pointerenter", (e) => {
+    if (!isTouch(e)) enter(e);
+  });
+  node.addEventListener("focus", (e) => {
+    if (showsFocus(e)) enter(e);
+  });
+  node.addEventListener("pointermove", (e) => {
+    if (!isTouch(e)) tip.move(e);
+  });
   const leave = () => {
     tip.hide();
     if (svg) highlight(svg, null);
   };
-  node.addEventListener("pointerleave", leave);
+  node.addEventListener("pointerleave", (e) => {
+    if (!isTouch(e)) leave();
+  });
   node.addEventListener("blur", leave);
   node.addEventListener("click", () => {
     tip.hide();
@@ -156,11 +220,30 @@ export function interactive(
   });
 }
 
-/** Plain tooltip for marks that aren't systems (reference points, findings). */
+/**
+ * Plain tooltip for marks that aren't systems (reference points, findings):
+ * hover or keyboard focus, or a tap on touch screens (pinned until the next
+ * tap elsewhere).
+ */
 export function hoverInfo(node: SVGElement, title: string, rows: [string, string][]): void {
-  node.addEventListener("pointerenter", (e) => tip.show(e, title, rows));
-  node.addEventListener("pointermove", (e) => tip.move(e));
-  node.addEventListener("pointerleave", () => tip.hide());
+  node.addEventListener("pointerenter", (e) => {
+    if (!isTouch(e)) tip.show(e, title, rows);
+  });
+  node.addEventListener("pointermove", (e) => {
+    if (!isTouch(e) && !pinned) tip.move(e);
+  });
+  node.addEventListener("pointerleave", (e) => {
+    if (!isTouch(e) && !pinned) tip.hide();
+  });
+  node.addEventListener("click", (e) => {
+    if (tapped()) tip.pin(node, e, title, rows);
+  });
+  node.addEventListener("focus", (e) => {
+    if (showsFocus(e)) tip.show(e, title, rows);
+  });
+  node.addEventListener("blur", () => {
+    if (!pinned) tip.hide();
+  });
 }
 
 let focused: string | null = null;
@@ -548,7 +631,10 @@ function restoreFocus(): void {
       )
     : undefined;
   const target = el.isConnected ? el : (byId ?? byLabel);
+  // Focus goes back for keyboard users; it shouldn't reopen the mark's tooltip.
+  quietFocus = true;
   target?.focus();
+  quietFocus = false;
 }
 const FOCUSABLE =
   'a[href], button:not([disabled]), input:not([disabled]), select, textarea, [tabindex]:not([tabindex="-1"])';

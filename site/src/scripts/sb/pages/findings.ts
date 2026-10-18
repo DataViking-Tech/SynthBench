@@ -201,7 +201,7 @@ items.push({
   meaning:
     "A plain prompt is not a substitute for a survey panel. Check results against real data before using them for a new population.",
   evidence:
-    "Random answers spread probability evenly across the options, which matches questions where people are split. LLMs do worse than random at matching answer shares and better at matching answer order (see Analysis, Shares vs. order). Each system has a bootstrap 95% interval; hover a row for how many raw LLMs sit clearly above or below 0.",
+    "Random answers spread probability evenly across the options, which matches questions where people are split. LLMs do worse than random at matching answer shares and better at matching answer order (see Analysis, Shares vs. order). Each system has a bootstrap 95% interval; tap or hover a row for how many raw LLMs sit clearly above or below 0.",
   viz(el) {
     const rows = CORE.map((id): DumbRow => {
       const sys = raws.filter((c) => c.ds[id]).sort((p, q) => p.ds[id].idx - q.ds[id].idx);
