@@ -597,6 +597,55 @@ svg.sb-c .sb-halo {
 .sb-tablewrap.sb-sticky[data-more="left"] {
   mask-image: none;
 }
+/* Phones: wide tables keep their label column in view while the rest
+   scrolls under it. .sb-sticky pins the first column; .sb-sticky-2 pins a
+   narrow leading column (checkbox, rank; --sb-sticky-w wide) plus the label
+   column after it. The label column is capped at 136px and wraps; wrap long
+   labels in .sb-clamp2 to cut them at two lines. #leaderboard has its own
+   pinned columns (above). */
+@media (max-width: 639px) {
+  .sb-tablewrap.sb-sticky:not(:has(> #leaderboard)) :where(tr) > :first-child,
+  .sb-tablewrap.sb-sticky-2 :where(tr) > :nth-child(-n + 2) {
+    position: sticky;
+    left: 0;
+    z-index: 1;
+  }
+  .sb-tablewrap.sb-sticky-2 :where(tr) > :first-child {
+    width: var(--sb-sticky-w, 34px);
+    min-width: var(--sb-sticky-w, 34px);
+    max-width: var(--sb-sticky-w, 34px);
+  }
+  .sb-tablewrap.sb-sticky-2 :where(tr) > :nth-child(2) {
+    left: var(--sb-sticky-w, 34px);
+  }
+  /* In a table wider than the screen each column shrinks to its longest
+     word: letting the label wrap keeps it narrow, the min-width keeps it
+     readable. */
+  .sb-tablewrap.sb-sticky:not(:has(> #leaderboard)) :where(tr) > :first-child,
+  .sb-tablewrap.sb-sticky-2 :where(tr) > :nth-child(2) {
+    min-width: 120px;
+    max-width: 140px;
+    white-space: normal;
+    overflow-wrap: break-word;
+    box-shadow: inset -1px 0 0 var(--sb-line-2);
+  }
+  /* Doubled class: beats page rules that keep names on one line. */
+  .sb-tablewrap.sb-tablewrap.sb-sticky:not(:has(> #leaderboard)) :where(tr) > :first-child *,
+  .sb-tablewrap.sb-tablewrap.sb-sticky-2 :where(tr) > :nth-child(2) * {
+    white-space: normal;
+  }
+  /* Low specificity so hover / selected row colours still win. */
+  :where(.sb-tablewrap.sb-sticky:not(:has(> #leaderboard))) :where(tr) > :first-child,
+  :where(.sb-tablewrap.sb-sticky-2) :where(tr) > :nth-child(-n + 2) {
+    background: var(--sb-panel);
+  }
+}
+.sb-clamp2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
 .sb-tablewrap:focus-visible {
   outline: 2px solid var(--sb-ink);
   outline-offset: -2px;
