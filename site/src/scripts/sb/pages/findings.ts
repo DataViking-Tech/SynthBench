@@ -11,6 +11,7 @@ import {
   rowLabel,
   rowLayout,
   s,
+  textWidth,
   thinTicks,
   ticks,
 } from "../dom";
@@ -83,7 +84,9 @@ function dumbbell(
   },
 ): void {
   mount(el, (W) => {
-    const L = rowLayout(W, Math.min(o.labelW ?? 130, W * 0.46), 34);
+    // Gutter: at least `labelW`, wider for a longer label, never over 46%.
+    const longest = Math.max(0, ...rows.map((r) => textWidth(r.name, 12.5, 400) + 4));
+    const L = rowLayout(W, Math.min(Math.max(o.labelW ?? 130, longest), W * 0.46), 34);
     const { rowH } = L;
     const plotB = rows.length * rowH;
     const H = plotB + 44;
