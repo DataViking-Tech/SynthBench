@@ -276,7 +276,7 @@
   font-size: 12px;
   opacity: 0.7;
 }
-/* Phones: one row that scrolls sideways (scripts/segScroll.ts fades the
+/* Phones: one row that scrolls sideways (scripts/scrollEdges.ts fades the
    clipped edge and keeps the checked option in view), 44px tall. */
 @media (max-width: 639px) {
   /* Let the row shrink to the screen instead of widening its flex parents. */
@@ -307,7 +307,13 @@
     mask-image: linear-gradient(to left, #000 calc(100% - 28px), transparent);
   }
   .sb-seg[data-more="both"] {
-    mask-image: linear-gradient(to right, transparent, #000 28px, #000 calc(100% - 28px), transparent);
+    mask-image: linear-gradient(
+      to right,
+      transparent,
+      #000 28px,
+      #000 calc(100% - 28px),
+      transparent
+    );
   }
 }
 .sb-chips {
@@ -1223,6 +1229,91 @@ svg.sb-c .sb-logo {
   color: var(--sb-neg-ink);
 }
 
+/* ---------- Code samples (components/shared/CodeBlock.astro) ----------
+   Header row with the Copy button, then a block that scrolls sideways on its
+   own with its clipped edge faded (.sb-scrollx, scripts/scrollEdges.ts). */
+.sb-codeblock {
+  margin: 12px 0 8px;
+  min-width: 0;
+  border: 1px solid var(--sb-line);
+  border-radius: 6px;
+  background: var(--sb-panel-2);
+  font-family: var(--sb-sans);
+}
+.sb-codeblock-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 4px 4px 4px 12px;
+  border-bottom: 1px solid var(--sb-line);
+}
+.sb-codeblock-t {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-family: var(--sb-mono);
+  font-size: 12px;
+  color: var(--sb-muted);
+}
+.sb-codeblock .sb-copy {
+  flex: none;
+  padding: 5px 12px;
+  border: 1px solid var(--sb-line-2);
+  border-radius: 5px;
+  background: var(--sb-panel);
+  color: var(--sb-ink);
+  font: 500 12.5px / 1.2 var(--sb-sans);
+  cursor: pointer;
+}
+.sb-codeblock .sb-copy:hover {
+  border-color: var(--sb-ink-2);
+}
+.sb-codeblock .sb-copy.ok {
+  color: var(--sb-ok);
+  border-color: currentColor;
+}
+.sb-codeblock pre {
+  margin: 0;
+  padding: 12px;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  border: 0;
+  background: none;
+  color: var(--sb-ink);
+  font-family: var(--sb-mono);
+  font-size: 12.5px;
+  line-height: 1.6;
+}
+.sb-codeblock-wrap pre {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.sb-scrollx[data-more="right"] {
+  mask-image: linear-gradient(to right, #000 calc(100% - 32px), transparent);
+}
+.sb-scrollx[data-more="left"] {
+  mask-image: linear-gradient(to left, #000 calc(100% - 32px), transparent);
+}
+.sb-scrollx[data-more="both"] {
+  mask-image: linear-gradient(to right, transparent, #000 32px, #000 calc(100% - 32px), transparent);
+}
+@media (max-width: 639px) {
+  .sb-codeblock .sb-copy {
+    min-width: 72px;
+    min-height: 44px;
+  }
+}
+/* An inline command: breaks only between words, never inside "--provider"
+   (components/shared/Cmd.astro). */
+.sb-cmd-w {
+  white-space: nowrap;
+}
+.sb-cmd-long {
+  overflow-wrap: anywhere;
+}
+
 /* ---------- Touch targets on phones ----------
    At least 44 x 44px to tap (WCAG 2.5.5) without changing how small
    controls look: an invisible box centred on each control takes the tap.
@@ -1230,31 +1321,31 @@ svg.sb-c .sb-logo {
    checkboxes grow instead, so the whole label is the target. */
 @media (max-width: 639px) {
   :is(
-    .sb-tap,
-    .sb-chip,
-    .sb-linkbtn,
-    .sb-gr-sort,
-    .sb-btn-sm,
-    .sb-tray button,
-    details > summary,
-    nav[aria-label="Breadcrumb"] a,
-    footer a,
-    table.sb-stack thead th button
-  ) {
+      .sb-tap,
+      .sb-chip,
+      .sb-linkbtn,
+      .sb-gr-sort,
+      .sb-btn-sm,
+      .sb-tray button,
+      details > summary,
+      nav[aria-label="Breadcrumb"] a,
+      footer a,
+      table.sb-stack thead th button
+    ) {
     position: relative;
   }
   :is(
-    .sb-tap,
-    .sb-chip,
-    .sb-linkbtn,
-    .sb-gr-sort,
-    .sb-btn-sm,
-    .sb-tray button,
-    details > summary,
-    nav[aria-label="Breadcrumb"] a,
-    footer a,
-    table.sb-stack thead th button
-  )::before {
+      .sb-tap,
+      .sb-chip,
+      .sb-linkbtn,
+      .sb-gr-sort,
+      .sb-btn-sm,
+      .sb-tray button,
+      details > summary,
+      nav[aria-label="Breadcrumb"] a,
+      footer a,
+      table.sb-stack thead th button
+    )::before {
     content: "";
     position: absolute;
     left: 50%;

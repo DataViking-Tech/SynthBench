@@ -1,0 +1,59 @@
+---
+// A code sample with a header row (optional title, Copy button) above a
+// block that scrolls sideways on its own. The Copy button sits outside the
+// scrolling area so it never covers code, is 44px tall on phones and says
+// "Copied" when it worked. `wrap` wraps long lines instead of scrolling
+// (BibTeX, prose-like samples). Styles: .sb-codeblock in sb.css.
+interface Props {
+  code: string;
+  /** Header text, e.g. a file name. */
+  title?: string;
+  /** What the Copy button copies, for its accessible name ("Copy BibTeX"). */
+  what?: string;
+  wrap?: boolean;
+  class?: string;
+}
+const { code, title, what = "code", wrap = false, class: cls } = Astro.props;
+---
+
+<figure class:list={["sb-codeblock", { "sb-codeblock-wrap": wrap }, cls]}>
+  <div class="sb-codeblock-head">
+    <span class="sb-codeblock-t">{title}</span>
+    <button type="button" class="sb-copy" data-copy={code} aria-label={`Copy ${what}`}>Copy</button>
+  </div>
+  <pre class="sb-scrollx"><code>{code}</code></pre>
+</figure>
+
+<script>
+  import "@/scripts/scrollEdges";
+
+  // One handler for every Copy button on the page (bundled once).
+  document.addEventListener("click", (e) => {
+    const btn = (e.target as Element | null)?.closest?.<HTMLButtonElement>(".sb-copy");
+    if (!btn) return;
+    const text = btn.dataset.copy ?? "";
+    btn.dataset.label ??= btn.getAttribute("aria-label") ?? "Copy";
+    const label = btn.dataset.label;
+    const done = (ok: boolean) => {
+      if (!ok) {
+        // No clipboard access: select the code so it can be copied by hand.
+        const code = btn.closest(".sb-codeblock")?.querySelector("code");
+        if (code) getSelection()?.selectAllChildren(code);
+      }
+      btn.textContent = ok ? "Copied" : "Selected";
+      btn.setAttribute("aria-label", ok ? "Copied" : "Code selected");
+      btn.classList.toggle("ok", ok);
+      window.setTimeout(() => {
+        btn.textContent = "Copy";
+        btn.setAttribute("aria-label", label);
+        btn.classList.remove("ok");
+      }, 2000);
+    };
+    if (navigator.clipboard?.writeText)
+      navigator.clipboard.writeText(text).then(
+        () => done(true),
+        () => done(false),
+      );
+    else done(false);
+  });
+</script>

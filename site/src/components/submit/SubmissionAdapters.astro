@@ -1,4 +1,5 @@
 ---
+import CodeBlock from "@/components/shared/CodeBlock.astro";
 const steps = [
   {
     title: "Subclass Provider",
@@ -70,18 +71,7 @@ class MyProvider(Provider):
     }
   </ol>
 
-  <div
-    class="rounded-lg border border-muted/20 bg-surface dark:bg-surface-dark overflow-hidden"
-  >
-    <div
-      class="px-4 py-2 text-xs font-mono text-muted border-b border-muted/20"
-    >
-      src/synthbench/providers/my_provider.py
-    </div>
-    <pre
-      class="p-6 text-sm/6 font-mono text-text dark:text-text-dark overflow-x-auto"
-    >{example}</pre>
-  </div>
+  <CodeBlock code={example} title="src/synthbench/providers/my_provider.py" what="adapter example" />
 
   <p class="text-sm text-muted mt-6">
     See{" "}

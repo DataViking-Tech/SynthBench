@@ -1,0 +1,20 @@
+---
+// An inline shell command in <code>. Lines break only between words, so a
+// flag like "--provider" is never split into "-" and "-provider"; a single
+// long word (a URL) may still break anywhere rather than overflow.
+interface Props {
+  text: string;
+  class?: string;
+}
+const { text, class: cls } = Astro.props;
+const words = text.split(" ");
+---
+
+<code class={cls}>{
+  words.map((w, i) => (
+    <>
+      <span class={w.length > 28 ? "sb-cmd-long" : "sb-cmd-w"}>{w}</span>
+      {i < words.length - 1 ? " " : null}
+    </>
+  ))
+}</code>
