@@ -1,4 +1,6 @@
 ---
+import MethodSection from "./MethodSection.astro";
+
 const steps = [
   {
     number: 1,
@@ -68,57 +70,35 @@ const protocols = [
 ];
 ---
 
-<section class="w-full max-w-4xl mx-auto py-12" id="scoring">
-  <h2
-    class="text-2xl font-bold tracking-tight text-text dark:text-text-dark mb-2"
-  >
-    How a benchmark run works
-  </h2>
-  <p class="text-muted mb-8 max-w-2xl">
-    Every provider goes through the same evaluation pipeline. These are the
-    steps that run when you call <code
-      class="text-sm bg-muted/10 rounded px-1.5 py-0.5"
-      >synthbench run</code
-    >.
+<MethodSection id="scoring" title="How a benchmark run works" fold>
+  <p class="sb-muted sb-measure" slot="lede">
+    Every provider goes through the same evaluation pipeline. These are the steps that run when you call
+    <code class="sb-mcode">synthbench run</code>.
   </p>
 
-  <!-- Steps -->
-  <ol class="relative border-l border-muted/30 ml-4 mb-10 space-y-6">
+  <ol class="sb-msteps">
     {
       steps.map((s) => (
-        <li class="pl-8">
-          <div class="absolute -left-3 flex size-6 items-center justify-center rounded-full bg-primary text-white text-xs font-bold dark:bg-primary-light">
-            {s.number}
-          </div>
-          <h3 class="text-base font-semibold text-text dark:text-text-dark mb-1">
-            {s.title}
-          </h3>
-          <p class="text-sm text-muted">{s.detail}</p>
+        <li>
+          <h3 class="sb-h3">{s.title}</h3>
+          <p>{s.detail}</p>
         </li>
       ))
     }
   </ol>
 
-  <!-- Protocol details -->
-  <div class="grid gap-6 sm:grid-cols-3">
+  <div class="sb-msubs sb-msubs-3">
     {
       protocols.map((p) => (
-        <div class="rounded-lg border border-muted/20 bg-surface p-5 dark:bg-surface-dark">
-          <h3 class="text-sm font-semibold text-text dark:text-text-dark mb-3">
-            {p.title}
-          </h3>
-          <ul class="space-y-2">
+        <div class="sb-msub">
+          <h3 class="sb-h3">{p.title}</h3>
+          <ul class="sb-mlist">
             {p.items.map((item) => (
-              <li class="text-sm text-muted flex gap-2">
-                <span class="text-primary dark:text-primary-light mt-1 shrink-0">
-                  &bull;
-                </span>
-                {item}
-              </li>
+              <li>{item}</li>
             ))}
           </ul>
         </div>
       ))
     }
   </div>
-</section>
+</MethodSection>

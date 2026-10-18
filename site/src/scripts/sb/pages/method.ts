@@ -1,3 +1,4 @@
+import { datasetAudience } from "@/lib/vocab";
 import {
   NARROW_ROWS,
   axisTitle,
@@ -284,6 +285,18 @@ if (oq && pool.length) {
 }
 
 // ---------- Reference points ----------
+// The two anchors (0 and 100) sit right after the dataset name. Phones drop
+// the Population column (styles/sb-method.css) and show a short version
+// under the name.
+const COLS: [string, string | null][] = [
+  ["Dataset", null],
+  ["Population", "sb-mpop"],
+  ["0 = random SPS", "r"],
+  ["100 = ceiling SPS", "r"],
+  ["Majority answer SPS (Index)", "r"],
+  ["Questions", "r"],
+  ["Ceiling quality", null],
+];
 $("mt-anchors").replaceChildren(
   h(
     "thead",
@@ -291,15 +304,7 @@ $("mt-anchors").replaceChildren(
     h(
       "tr",
       null,
-      [
-        "Dataset",
-        "Population",
-        "Questions",
-        "0 = random SPS",
-        "Majority answer SPS (Index)",
-        "100 = ceiling SPS",
-        "Ceiling quality",
-      ].map((t, i) => h("th", { scope: "col", class: i >= 2 && i <= 5 ? "r" : null }, t)),
+      COLS.map(([t, cls]) => h("th", { scope: "col", class: cls }, t)),
     ),
   ),
   h(
@@ -309,16 +314,25 @@ $("mt-anchors").replaceChildren(
       h(
         "tr",
         null,
-        h("td", { class: "sb-strong" }, `${x.label}${x.ceilingAssumed ? " †" : ""}`),
-        h("td", { class: "sb-muted" }, x.population),
-        h("td", { class: "r sb-mono" }, x.questions.toLocaleString("en-US")),
+        h(
+          "td",
+          null,
+          h("span", { class: "sb-strong" }, `${x.label}${x.ceilingAssumed ? " †" : ""}`),
+          h(
+            "div",
+            { class: "sb-mpop-sub sb-muted sb-small" },
+            datasetAudience(x.id) || x.population,
+          ),
+        ),
+        h("td", { class: "sb-muted sb-mpop" }, x.population),
         h("td", { class: "r sb-mono" }, x.random.toFixed(3)),
+        h("td", { class: "r sb-mono" }, x.ceiling != null ? x.ceiling.toFixed(4) : "1.0, assumed"),
         h(
           "td",
           { class: "r sb-mono" },
           x.majority != null ? `${x.majority.toFixed(3)} (${fmt.int(x.majorityIdx)})` : "—",
         ),
-        h("td", { class: "r sb-mono" }, x.ceiling != null ? x.ceiling.toFixed(4) : "1.0, assumed"),
+        h("td", { class: "r sb-mono" }, x.questions.toLocaleString("en-US")),
         h(
           "td",
           null,

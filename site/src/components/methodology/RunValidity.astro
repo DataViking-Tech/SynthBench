@@ -1,4 +1,6 @@
 ---
+import MethodSection from "./MethodSection.astro";
+
 const criteria = [
   {
     label: "Uniform fraction",
@@ -18,50 +20,30 @@ const criteria = [
 ];
 ---
 
-<section class="w-full max-w-4xl mx-auto py-12" id="run-validity">
-  <h2
-    class="text-2xl font-bold tracking-tight text-text dark:text-text-dark mb-2"
-  >
-    Run validity filtering
-  </h2>
-  <p class="text-muted mb-6 max-w-2xl">
-    Silent API failures (budget exhaustion, missed model aliases, provider
-    fallbacks) can return responses that parse cleanly but carry no real
-    signal. The result is a run whose per-question distributions are all
-    perfectly uniform. Parse-failure tracking does not catch this case,
-    because the responses did parse. We filter these runs out at publish
-    time so they never reach the leaderboard.
+<MethodSection id="run-validity" title="Run validity filtering" fold>
+  <p class="sb-muted sb-measure" slot="lede">
+    Silent API failures (budget exhaustion, missed model aliases, provider fallbacks) can return responses
+    that parse cleanly but carry no real signal. The result is a run whose per-question distributions are
+    all perfectly uniform. Parse-failure tracking does not catch this case, because the responses did
+    parse. We filter these runs out at publish time so they never reach the leaderboard.
   </p>
 
-  <p class="text-muted mb-6 max-w-2xl">
-    A run is excluded when <strong>all three</strong> of the following hold:
-  </p>
-
-  <ul class="space-y-3 mb-6">
-    {
-      criteria.map((c) => (
-        <li class="flex gap-3">
-          <span class="text-primary dark:text-primary-light mt-1 shrink-0">
-            &bull;
-          </span>
-          <span class="text-sm text-muted">
-            <strong class="text-text dark:text-text-dark">{c.label}.</strong>{" "}
-            {c.detail}
-          </span>
-        </li>
-      ))
-    }
-  </ul>
-
-  <p class="text-muted max-w-2xl text-sm">
-    Excluded runs are listed in <code
-      class="text-xs bg-muted/10 rounded px-1.5 py-0.5"
-      >leaderboard.json#excluded_runs</code
-    > for transparency, and operators can run
-    <code class="text-xs bg-muted/10 rounded px-1.5 py-0.5"
-      >synthbench scan-invalid</code
-    > locally against any results directory. The rule is deliberately strict:
-    we would rather miss a borderline case than wrongly exclude a legitimate
-    run whose distributions happen to be flat.
-  </p>
-</section>
+  <div class="sb-prose">
+    <p>A run is excluded when <strong class="sb-ink">all three</strong> of the following hold:</p>
+    <ul class="sb-mlist">
+      {
+        criteria.map((c) => (
+          <li>
+            <strong class="sb-ink">{c.label}.</strong> {c.detail}
+          </li>
+        ))
+      }
+    </ul>
+    <p>
+      Excluded runs are listed in <code class="sb-mcode">leaderboard.json#excluded_runs</code> for
+      transparency, and operators can run <code class="sb-mcode">synthbench scan-invalid</code> locally against
+      any results directory. The rule is deliberately strict: we would rather miss a borderline case than
+      wrongly exclude a legitimate run whose distributions happen to be flat.
+    </p>
+  </div>
+</MethodSection>

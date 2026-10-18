@@ -1,19 +1,22 @@
 ---
-const defences = [
+import MethodSection from "./MethodSection.astro";
+
+// The private holdout is explained once, in PrivateHoldoutSection (split
+// sizes, hashing, limits, flag threshold); defence 1 summarises it and links
+// there.
+const defences: { title: string; detail: string; link?: { href: string; text: string } }[] = [
   {
-    number: 1,
     title: "Private holdout",
     detail:
-      "Each holdout-enabled dataset is deterministically split into a public subset, whose per-question human distributions are published on the leaderboard, and a private subset whose distributions are withheld. The private share is 20% for large datasets (OpinionsQA, WVS, GSS), 30% for medium ones (SubPOP, GlobalOpinionQA), and 40% for small ones (Michigan, NTIA, Eurobarometer). A submitter who copies published distributions has no signal for the private subset, so their public and private SPS will diverge. A gap above 0.05 at production scale is flagged for review, with a wider threshold for runs with few private questions. The mechanism has limits. The split is an unsalted SHA-256 hash of the dataset name and question key. It is stable across runs by design, so ground-truth lookups stay deterministic, and anyone with the source can reconstruct which questions are held out. What stays private is the human distribution for those questions.",
+      "A share of every holdout-enabled dataset (20% to 40%, by dataset size) has its human answers withheld from everything we publish. A submitter who copies the published distributions has no signal for the private questions, so their public and private SPS diverge and the row is flagged for review. The split, why it is deterministic, its limits and the flag threshold are described under",
+    link: { href: "#private-holdout", text: "Private holdout split" },
   },
   {
-    number: 2,
     title: "Tiered statistical validation",
     detail:
       "Every submission goes through three tiers of checks. Tier 1 verifies schema, bounds, and distribution validity. Tier 2 recomputes JSD, Kendall's τ, and composite parity from the per-question distributions and rejects any submission whose reported aggregates do not match its per-question data. Tier 3 runs statistical anomaly detectors that compare the submission against the distribution of legitimate runs. They flag implausibly perfect per-question JSD, distributions suspiciously close to the public human data, and deviation from peers in the same model family.",
   },
   {
-    number: 3,
     title: "Adversarial regression suite",
     detail:
       "Our test harness keeps a set of fabricated submissions that must fail validation: pure answer-key copies, public-copy-with-fabricated-private attacks, constant-offset noise attacks, aggregate inflation, and claimed-model swaps. New detectors are tested against this suite before merge, and any change to existing detector thresholds must keep the suite passing. The suite is versioned with the validator and runs as a CI gate.",
@@ -21,99 +24,72 @@ const defences = [
 ];
 ---
 
-<section class="w-full max-w-4xl mx-auto py-12" id="anti-gaming">
-  <h2
-    class="text-2xl font-bold tracking-tight text-text dark:text-text-dark mb-2"
-  >
-    Anti-gaming defences
-  </h2>
-  <p class="text-muted mb-4 max-w-3xl">
-    Our threat model and defences draw on recent adversarial analyses of AI
-    benchmarks, in particular Wang et al. (UC Berkeley, 2026) [<a
-      href="#anti-gaming-ref-1"
-      class="text-primary dark:text-primary-light underline underline-offset-2 hover:no-underline"
-      >1</a
-    >]. They pushed eight widely used agent benchmarks to near-perfect scores
-    without solving any of the tasks.
-  </p>
-  <p class="text-muted mb-6 max-w-3xl">
-    SynthBench is a submission-artifact benchmark: participants submit a JSON
-    file and we score it. Attacks that assume an evaluating agent running
-    alongside the submission (sandbox escapes, <span class="font-mono">eval()</span>
-    on agent input, binary-trojan wrappers, LLM-judge prompt injection) do not
-    apply. The general pattern behind Wang et al.'s attacks, targeting the
-    evaluator instead of the task, does apply. We have three lines of defence
-    against it.
+<MethodSection id="anti-gaming" title="Anti-gaming defences" fold>
+  <p class="sb-muted sb-measure" slot="lede">
+    Our threat model and defences draw on recent adversarial analyses of AI benchmarks, in particular Wang
+    et al. (UC Berkeley, 2026) [<a href="#anti-gaming-ref-1">1</a>]. They pushed eight widely used agent
+    benchmarks to near-perfect scores without solving any of the tasks.
   </p>
 
-  <ol class="relative border-l border-muted/30 ml-4 mb-10 space-y-6">
+  <p class="sb-prose">
+    SynthBench is a submission-artifact benchmark: participants submit a JSON file and we score it. Attacks
+    that assume an evaluating agent running alongside the submission (sandbox escapes,
+    <code class="sb-mcode">eval()</code> on agent input, binary-trojan wrappers, LLM-judge prompt injection)
+    do not apply. The general pattern behind Wang et al.'s attacks, targeting the evaluator instead of the
+    task, does apply. We have three lines of defence against it.
+  </p>
+
+  <ol class="sb-msteps">
     {
       defences.map((d) => (
-        <li class="pl-8">
-          <div class="absolute -left-3 flex size-6 items-center justify-center rounded-full bg-primary text-white text-xs font-bold dark:bg-primary-light">
-            {d.number}
-          </div>
-          <h3 class="text-base font-semibold text-text dark:text-text-dark mb-1">
-            {d.title}
-          </h3>
-          <p class="text-sm text-muted max-w-3xl">{d.detail}</p>
+        <li>
+          <h3 class="sb-h3">{d.title}</h3>
+          <p>
+            {d.detail}
+            {d.link && (
+              <>
+                {" "}
+                <a href={d.link.href}>{d.link.text}</a>.
+              </>
+            )}
+          </p>
         </li>
       ))
     }
   </ol>
 
-  <h3
-    class="text-lg font-semibold tracking-tight text-text dark:text-text-dark mb-2"
-  >
-    Null-agent baselines
-  </h3>
-  <p class="text-muted mb-4 max-w-3xl">
-    Following Wang et al.'s recommendation, we also track two "null agent"
-    baselines over time: a uniform-random baseline and a majority-class
-    baseline. A model has to score above these floors for its result to be
-    non-trivial. On a stable dataset, an upward drift in baseline SPS would
-    indicate a bug in the scoring function. CI monitors for it.
-  </p>
+  <h3 class="sb-h3 sb-mh3">Null-agent baselines</h3>
+  <div class="sb-prose">
+    <p>
+      Following Wang et al.'s recommendation, we also track two "null agent" baselines over time: a
+      uniform-random baseline and a majority-class baseline. A model has to score above these floors for its
+      result to be non-trivial. On a stable dataset, an upward drift in baseline SPS would indicate a bug in
+      the scoring function. CI monitors for it.
+    </p>
+    <p>
+      Their current scores per dataset are in the <a href="#anchors">reference points table</a> above; random
+      answers are the Index's 0. CI enforces <code class="sb-mcode">random-baseline SPS &lt; 0.80</code> and
+      <code class="sb-mcode">majority-baseline SPS &lt; 0.85</code>. The Berkeley paper's target for the
+      random baseline is 0.70. The remaining gap comes from SynthBench's
+      <code class="sb-mcode">p_refuse</code> term, which rewards agreement with human DK/Refused rates. The
+      git log of <code class="sb-mcode">docs/baseline-floors-log.md</code> is the canonical drift record.
+    </p>
+    <p>
+      We err on the conservative side. For a scientific leaderboard, it is better to hold a legitimate
+      superhuman submission for human review than to accept a fabricated one. Submitters whose runs are
+      flagged can appeal. At validation time, the null hypothesis is that suspicious-looking data was
+      fabricated.
+    </p>
+  </div>
 
-  <p class="text-xs text-muted mb-4 max-w-3xl">
-    Their current scores per dataset are in the
-    <a href="#anchors" class="underline">reference points table</a>
-    above; random answers are the Index's 0. CI enforces
-    <span class="font-mono">random-baseline SPS &lt; 0.80</span> and
-    <span class="font-mono">majority-baseline SPS &lt; 0.85</span>. The
-    Berkeley paper's target for the random baseline is 0.70. The remaining
-    gap comes from SynthBench's
-    <span class="font-mono">p_refuse</span> term, which rewards agreement with
-    human DK/Refused rates. The git log of
-    <span class="font-mono">docs/baseline-floors-log.md</span> is the
-    canonical drift record.
-  </p>
-  <p class="text-muted mb-8 max-w-3xl">
-    We err on the conservative side. For a scientific leaderboard, it is better
-    to hold a legitimate superhuman submission for human review than to accept a
-    fabricated one. Submitters whose runs are flagged can appeal. At validation
-    time, the null hypothesis is that suspicious-looking data was fabricated.
-  </p>
-
-  <div
-    class="rounded-lg border border-muted/20 bg-surface p-5 dark:bg-surface-dark"
-    id="anti-gaming-ref-1"
-  >
-    <p class="text-xs text-muted mb-1">Reference [1]</p>
-    <p class="text-sm text-text/90 dark:text-text-dark/90">
+  <div class="sb-msub sb-mt" id="anti-gaming-ref-1">
+    <div class="sb-kicker">Reference [1]</div>
+    <p>
       Wang, Y., Mang, K., Cheung, T., Sen, S., &amp; Song, D. (2026).
-      <em>How We Broke Top AI Agent Benchmarks</em>. UC Berkeley RDI.
-      {" "}
-      <a
-        href="https://rdi.berkeley.edu/blog/trustworthy-benchmarks-cont/"
-        class="text-primary dark:text-primary-light underline underline-offset-2 hover:no-underline"
-        target="_blank"
-        rel="noopener noreferrer"
-      >
-        rdi.berkeley.edu/blog/trustworthy-benchmarks-cont<span class="sr-only">
-          (opens in a new tab)</span
-        >
+      <em>How We Broke Top AI Agent Benchmarks</em>. UC Berkeley RDI.{" "}
+      <a href="https://rdi.berkeley.edu/blog/trustworthy-benchmarks-cont/" target="_blank" rel="noopener noreferrer">
+        rdi.berkeley.edu/blog/trustworthy-benchmarks-cont<span class="sr-only"> (opens in a new tab)</span>
       </a>
     </p>
   </div>
-</section>
+</MethodSection>

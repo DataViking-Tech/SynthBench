@@ -6,6 +6,7 @@
 // affirmatively instead of leaving it to be discovered. Keep this factual:
 // no marketing gloss, just the relationship and the mechanisms that keep
 // the ranking honest despite it.
+import MethodSection from "./MethodSection.astro";
 
 const mitigations = [
   {
@@ -31,50 +32,35 @@ const mitigations = [
 ];
 ---
 
-<section class="w-full max-w-4xl mx-auto py-12 scroll-mt-24" id="operator-disclosure">
-  <h2
-    class="text-2xl font-bold tracking-tight text-text dark:text-text-dark mb-2"
-  >
-    Who runs this
-  </h2>
-  <p class="text-muted mb-4 max-w-3xl">
-    SynthBench is built and operated by <strong class="text-text dark:text-text-dark">DataViking</strong>,
-    the company that also makes
-    <a
-      href="https://github.com/DataViking-Tech/Althing"
-      class="text-primary dark:text-primary-light hover:underline"
-      target="_blank"
-      rel="noopener noreferrer"
-    >Althing</a>, a synthetic-survey product. Althing-branded entries
-    on the leaderboard are the operator's own product being scored on the
-    operator's own benchmark. That is a conflict of interest, so the ranking
-    should be checkable without relying on our word.
-  </p>
-  <p class="text-muted mb-6 max-w-3xl">
-    The benchmark is designed so that the operator gets no mechanical
-    advantage:
-  </p>
+<MethodSection id="operator-disclosure" title="Who runs this" fold>
+  <div class="sb-prose" slot="lede">
+    <p>
+      SynthBench is built and operated by <strong class="sb-ink">DataViking</strong>, the company that also
+      makes
+      <a href="https://github.com/DataViking-Tech/Althing" target="_blank" rel="noopener noreferrer"
+        >Althing</a
+      >, a synthetic-survey product. Althing-branded entries on the leaderboard are the operator's own
+      product being scored on the operator's own benchmark. That is a conflict of interest, so the ranking
+      should be checkable without relying on our word. The benchmark is designed so that the operator gets
+      no mechanical advantage:
+    </p>
+  </div>
 
-  <div class="space-y-4">
+  <div class="sb-msubs">
     {
       mitigations.map((m) => (
-        <div class="rounded-lg border border-muted/20 bg-surface p-5 dark:bg-surface-dark">
-          <h3 class="text-base font-semibold text-text dark:text-text-dark mb-1">
-            {m.title}
-          </h3>
-          <p class="text-sm text-muted">{m.body}</p>
+        <div class="sb-msub">
+          <h3 class="sb-h3">{m.title}</h3>
+          <p>{m.body}</p>
         </div>
       ))
     }
   </div>
 
-  <p class="text-muted mt-6 max-w-3xl text-sm">
+  <p class="sb-prose sb-mt">
     If you find a place where these mechanisms fall short, please
-    <a
-      href="https://github.com/DataViking-Tech/synthbench/issues"
-      class="text-primary dark:text-primary-light hover:underline"
-      target="_blank"
-      rel="noopener noreferrer"
-    > open an issue</a>. The benchmark is only useful if it is neutral.
+    <a href="https://github.com/DataViking-Tech/synthbench/issues" target="_blank" rel="noopener noreferrer"
+      >open an issue</a
+    >. The benchmark is only useful if it is neutral.
   </p>
-</section>
+</MethodSection>

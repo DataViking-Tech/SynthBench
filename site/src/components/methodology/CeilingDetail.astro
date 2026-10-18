@@ -5,6 +5,7 @@
 import leaderboardRaw from "@/data/leaderboard.json";
 import { buildIndexData } from "@/lib/synthIndex";
 import type { LeaderboardData, SynthBenchData } from "@/types/leaderboard";
+import MethodSection from "./MethodSection.astro";
 
 const raw = leaderboardRaw as unknown as LeaderboardData;
 const index = buildIndexData(leaderboardRaw as unknown as SynthBenchData);
@@ -33,39 +34,38 @@ const byGap = gaps
   .join(", ");
 ---
 
-<section class="sb-block sb-panel sb-pad" id="ceiling">
-  <h2 class="sb-h2">How the ceiling is measured</h2>
-  <p class="sb-muted">
+<MethodSection id="ceiling" title="How the ceiling is measured" fold>
+  <p class="sb-muted sb-measure" slot="lede">
     The ceiling is the split-half reliability of the real survey: how closely one random half of the panel
     matches the other. Humans disagree with each other, so no system can match the survey better than the
     survey matches itself.
   </p>
-  <div class="sb-mt sb-paras">
-    <p class="sb-note">
-      <b>Method.</b>
+  <div class="sb-prose">
+    <p>
+      <b class="sb-ink">Method.</b>
       For each question, take the observed answer counts, draw two independent half-samples from the
       multinomial they imply, and compute the Jensen-Shannon divergence between the halves. Repeat 1,000
       times (seed 42). Ceiling = 1 − mean JSD.
     </p>
-    <p class="sb-note">
-      <b>Per dataset.</b>
+    <p>
+      <b class="sb-ink">Per dataset.</b>
       OpinionsQA is computed within each Pew wave, never across waves, then averaged with weights by
       questions per wave. SubPOP is computed per subpopulation and GlobalOpinionQA per country, weighted by
       actual (country, question) coverage so US data is not over-weighted. GSS uses its per-option counts.
       NTIA publishes shares and standard errors, so its n is the effective sample size p(1 − p) ÷ SE².
     </p>
-    <p class="sb-note">
-      <b>Sample size.</b>
+    <p>
+      <b class="sb-ink">Sample size.</b>
       Quality flags follow Cochran (1977): high when n ≥ 400, medium for 200 to 399, low below 200.
       {mediumNote}
     </p>
-    <p class="sb-note">
-      <b>Survey weights.</b>
+    <p>
+      <b class="sb-ink">Survey weights.</b>
       The ceiling uses raw counts, not survey weights. Weighting could shift it by 1 to 3% on
       demographically skewed groups.
     </p>
-    <p class="sb-note">
-      <b>Sources.</b>
+    <p>
+      <b class="sb-ink">Sources.</b>
       Santurkar et al. 2023; Durmus et al. 2023; Suh et al. 2025; split-half reliability (Spearman 1910,
       Brown 1910), the bootstrap (Efron 1979), Jensen-Shannon divergence (Lin 1991).
     </p>
@@ -74,8 +74,8 @@ const byGap = gaps
   {
     drift && gaps.length > 0 && (
       <>
-        <h3 class="sb-h3 sb-mt" id="temporal-drift">Opinion drift between waves</h3>
-        <p class="sb-note">
+        <h3 class="sb-h3 sb-mh3" id="temporal-drift">Opinion drift between waves</h3>
+        <p class="sb-prose">
           Pew repeats some questions across waves. On the {drift.n_stems} repeated question stems in the
           published OpinionsQA set ({drift.n_pairs} cross-wave pairs), the mean JSD between waves is{" "}
           <span class="sb-mono">{drift.mean_drift.toFixed(4)}</span> (95% interval{" "}
@@ -96,4 +96,4 @@ const byGap = gaps
       </>
     )
   }
-</section>
+</MethodSection>

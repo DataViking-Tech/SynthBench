@@ -2,6 +2,10 @@
 // The sub-metrics behind SPS. Leaderboard SPS and the Index use the first
 // three; P_cond and P_sub are computed only for runs that test demographic
 // conditioning and are published alongside, never folded into the score.
+// Phones show the table as one stacked block per metric (.sb-msub-t in
+// styles/sb-method.css).
+import MethodSection from "./MethodSection.astro";
+
 const rows = [
   {
     name: "P_dist",
@@ -43,17 +47,16 @@ const rows = [
 ];
 ---
 
-<section class="sb-block sb-panel sb-pad" id="metrics">
-  <h2 class="sb-h2">The sub-metrics</h2>
-  <p class="sb-muted">
+<MethodSection id="metrics" title="The sub-metrics">
+  <p class="sb-muted sb-measure" slot="lede">
     Each runs from 0 to 1. SPS is the mean of the first three, with equal weights. P_cond and P_sub are
     published only for runs that name a demographic group in the prompt, and are not part of SPS or the
     Index. The
     <a href={`${import.meta.env.BASE_URL?.replace(/\/?$/, "/") ?? "/"}groups/`}>Groups</a> page shows
     the per-group comparisons they summarize.
   </p>
-  <div class="sb-tablewrap sb-sticky sb-mt">
-    <table class="sb-ct">
+  <div class="sb-tablewrap sb-mt">
+    <table class="sb-ct sb-msub-t">
       <thead>
         <tr>
           <th scope="col">Metric</th>
@@ -70,13 +73,13 @@ const rows = [
                 <span class="sb-strong">{r.label}</span>
                 <div class="sb-mono sb-muted sb-small">{r.name}</div>
               </td>
-              <td>{r.checks}</td>
-              <td class="sb-mono sb-small">{r.formula}</td>
-              <td class="nowrap sb-muted">{r.use}</td>
+              <td class="sb-msub-c">{r.checks}</td>
+              <td class="sb-mono sb-small" data-label="Per run">{r.formula}</td>
+              <td class="nowrap sb-muted" data-label="Used in">{r.use}</td>
             </tr>
           ))
         }
       </tbody>
     </table>
   </div>
-</section>
+</MethodSection>

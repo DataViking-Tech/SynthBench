@@ -4,6 +4,7 @@
 import leaderboardRaw from "@/data/leaderboard.json";
 import { buildIndexData } from "@/lib/synthIndex";
 import type { LeaderboardData, SynthBenchData } from "@/types/leaderboard";
+import MethodSection from "./MethodSection.astro";
 
 const raw = leaderboardRaw as unknown as LeaderboardData;
 const index = buildIndexData(leaderboardRaw as unknown as SynthBenchData);
@@ -42,9 +43,8 @@ const scope = [
 
 {
   pairs.length > 0 && (
-    <section class="sb-block sb-panel sb-pad" id="preliminary">
-      <h2 class="sb-h2">Preliminary: forced answer format</h2>
-      <p class="sb-muted">
+    <MethodSection id="preliminary" title="Preliminary: forced answer format">
+      <p class="sb-muted sb-measure" slot="lede">
         By default a system answers in character and the answer is parsed from its text. The structured variant
         forces a JSON answer schema instead, which cuts parse failures. Across {pairs.length} matched pairs that
         differ only in answer format ({scope}), the structured runs scored {signed(lo)} to {signed(hi)} Index
@@ -54,6 +54,6 @@ const scope = [
           : "No consistent effect so far."}{" "}
         The structured runs appear on the leaderboard as “structured template” variants.
       </p>
-    </section>
+    </MethodSection>
   )
 }

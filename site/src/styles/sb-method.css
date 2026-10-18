@@ -1,0 +1,483 @@
+/* Method page (/methodology) only: imported by pages/methodology.astro.
+   Every section is a MethodSection panel (components/methodology/), so the
+   page has one look from the worked example to the citation. Tokens and
+   shared pieces (.sb-panel, .sb-h2, .sb-tag, .sb-ct) live in sb.css and
+   sb-pages.css. */
+
+/* ---------- Sections ---------- */
+.sb-msec {
+  overflow-wrap: break-word;
+}
+.sb-msec > .sb-muted,
+.sb-msec > .sb-prose {
+  margin: 2px 0 0;
+}
+/* Readable line length for prose in the full-width panels. */
+.sb-measure,
+.sb-msec .sb-prose {
+  max-width: 76ch;
+}
+.sb-prose,
+.sb-prose p,
+.sb-prose li {
+  color: var(--sb-ink-2);
+}
+.sb-ink,
+.sb-prose .sb-ink {
+  color: var(--sb-ink);
+}
+:where(.sb-prose) p {
+  margin: 0;
+}
+.sb-prose > * + *,
+.sb-msec-body > * + * {
+  margin-top: 12px;
+}
+.sb-msec-body:not(:empty) {
+  margin-top: 12px;
+}
+.sb-msec-body:has(> .sb-demo:first-child) {
+  margin-top: 0;
+}
+/* Doubled up to beat .sb-h3's margin in sb-pages.css (loaded after this). */
+.sb-msec .sb-mh3 {
+  margin: 22px 0 4px;
+}
+.sb-msec .sb-h3 {
+  color: var(--sb-ink);
+}
+.sb-msec .sb-mt-s {
+  margin-top: 8px;
+}
+.sb-msec a:not(.sb-btn) {
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  text-decoration-color: var(--sb-line-2);
+}
+.sb-msec a:not(.sb-btn):hover {
+  text-decoration-color: currentColor;
+}
+.sb-mcode {
+  font-family: var(--sb-mono);
+  font-size: 0.9em;
+  background: var(--sb-panel-2);
+  border: 1px solid var(--sb-line);
+  border-radius: 3px;
+  padding: 0 4px;
+  color: var(--sb-ink);
+  overflow-wrap: anywhere;
+}
+/* Scope of claim: the one disclosure readers must not miss. */
+.sb-msec.sb-mkey {
+  border-left: 3px solid var(--sb-ink);
+}
+
+/* Sub-cards inside a section (mitigations, cost, references). */
+.sb-msubs {
+  display: grid;
+  gap: 10px;
+  margin: 12px 0 0;
+  padding: 0;
+  list-style: none;
+}
+@media (min-width: 760px) {
+  .sb-msubs-2 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .sb-msubs-3 {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+.sb-msub {
+  background: var(--sb-panel-2);
+  border: 1px solid var(--sb-line);
+  border-radius: 5px;
+  padding: 12px 14px;
+  min-width: 0;
+}
+.sb-msub p {
+  margin: 4px 0 0;
+  color: var(--sb-ink-2);
+}
+.sb-msub .sb-kicker + p {
+  margin-top: 6px;
+}
+.sb-msub h4.sb-h3 + .sb-kicker {
+  margin-top: 2px;
+}
+.sb-mnote {
+  font-size: 13px;
+  border-left: 2px solid var(--sb-line-2);
+  padding-left: 10px;
+  margin-top: 10px !important;
+}
+.sb-mref-meta {
+  font-size: 13px;
+}
+.sb-mgroup + .sb-mgroup {
+  margin-top: 8px;
+}
+
+/* Numbered steps (run pipeline, defences). */
+.sb-msteps {
+  list-style: none;
+  padding: 0;
+  margin: 14px 0 0;
+  counter-reset: sb-step;
+  display: grid;
+  gap: 14px;
+  max-width: 80ch;
+}
+.sb-msteps > li {
+  counter-increment: sb-step;
+  display: grid;
+  grid-template-columns: 26px minmax(0, 1fr);
+  column-gap: 8px;
+}
+.sb-msteps > li::before {
+  content: counter(sb-step);
+  grid-row: span 2;
+  font-family: var(--sb-mono);
+  font-size: 12px;
+  line-height: 20px;
+  width: 22px;
+  height: 22px;
+  text-align: center;
+  border: 1px solid var(--sb-line-2);
+  border-radius: 50%;
+  color: var(--sb-ink-2);
+}
+.sb-msteps > li > p {
+  margin: 2px 0 0;
+  color: var(--sb-ink-2);
+}
+
+/* Bulleted lists: real list markers, aligned with the text. */
+.sb-mlist {
+  margin: 8px 0 0;
+  padding-left: 20px;
+  list-style: disc;
+}
+.sb-mlist-num {
+  list-style: decimal;
+}
+.sb-mlist > li + li {
+  margin-top: 6px;
+}
+.sb-mlist > li::marker {
+  color: var(--sb-muted);
+}
+.sb-mlist-plain {
+  list-style: none;
+  padding-left: 0;
+}
+.sb-msec .sb-tag.sb-ok {
+  border-color: color-mix(in srgb, var(--sb-ok) 45%, transparent);
+}
+.sb-msec .sb-tag.sb-warn {
+  border-color: color-mix(in srgb, var(--sb-warn) 45%, transparent);
+}
+
+/* Datasets: one line per dataset. */
+.sb-mds {
+  list-style: none;
+  margin: 12px 0 0;
+  padding: 0;
+  border-top: 1px solid var(--sb-line);
+}
+.sb-mds > li {
+  display: grid;
+  grid-template-columns: minmax(150px, 1.1fr) minmax(120px, 0.9fr) minmax(0, 2fr);
+  gap: 4px 14px;
+  align-items: baseline;
+  padding: 7px 0;
+  border-bottom: 1px solid var(--sb-line);
+  font-size: 13.5px;
+}
+.sb-mds-n {
+  display: inline-flex;
+  gap: 8px;
+  align-items: baseline;
+  flex-wrap: wrap;
+}
+.sb-mds-n b {
+  font-weight: 500;
+}
+.sb-mds-s {
+  font-size: 12.5px;
+}
+.sb-mds-src {
+  font-size: 12.5px;
+}
+
+/* Divider before the reference half of the page. */
+.sb-mdiv {
+  margin-top: 40px;
+}
+.sb-mdiv .sb-muted {
+  margin: 4px 0 0;
+}
+
+/* Sub-metrics: on phones each metric is one stacked block. */
+@media (max-width: 639px) {
+  .sb-meth table.sb-msub-t,
+  .sb-meth table.sb-msub-t tbody,
+  .sb-meth table.sb-msub-t tr,
+  .sb-meth table.sb-msub-t td {
+    display: block;
+  }
+  .sb-meth table.sb-msub-t thead {
+    display: none;
+  }
+  .sb-meth table.sb-msub-t tr {
+    padding: 10px 0;
+    border-bottom: 1px solid var(--sb-line);
+  }
+  .sb-meth table.sb-msub-t td {
+    border: 0;
+    padding: 0;
+    white-space: normal;
+  }
+  .sb-meth table.sb-msub-t td.nowrap {
+    white-space: normal;
+  }
+  .sb-meth table.sb-msub-t td:first-child {
+    display: flex;
+    gap: 8px;
+    align-items: baseline;
+  }
+  .sb-meth table.sb-msub-t td:first-child > div {
+    font-size: 12px;
+  }
+  .sb-meth table.sb-msub-t .sb-msub-c {
+    margin-top: 2px;
+    color: var(--sb-ink-2);
+  }
+  .sb-meth table.sb-msub-t td[data-label] {
+    margin-top: 4px;
+    font-size: 12.5px;
+  }
+  .sb-meth table.sb-msub-t td[data-label]::before {
+    content: attr(data-label) ": ";
+    font-family: var(--sb-sans);
+    color: var(--sb-muted);
+  }
+}
+
+/* Reference points: phones drop Population (shown under the name). */
+.sb-mpop-sub {
+  display: none;
+}
+@media (max-width: 639px) {
+  #mt-anchors .sb-mpop {
+    display: none;
+  }
+  #mt-anchors .sb-mpop-sub {
+    display: block;
+    font-weight: 400;
+  }
+}
+
+/* ---------- On this page ---------- */
+.sb-meth .sb-mtoc {
+  display: grid;
+  gap: 6px;
+  margin-top: 4px;
+}
+.sb-mtoc-g {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 18px;
+  align-items: baseline;
+}
+.sb-mtoc-g .sb-kicker {
+  min-width: 150px;
+}
+.sb .sb-mtoc a[aria-current] {
+  color: var(--sb-ink);
+}
+.sb-jump {
+  display: none;
+}
+.sb-meth [id] {
+  scroll-margin-top: 16px;
+}
+
+/* Folded section bodies (scripts/methodNav.ts adds the button on phones). */
+.sb .sb-mfold-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  margin-top: 10px;
+  padding: 0 14px;
+  border: 1px solid var(--sb-line-2);
+  border-radius: 6px;
+  background: var(--sb-panel-2);
+  font-size: 13.5px;
+  font-weight: 500;
+  color: var(--sb-ink);
+}
+.sb .sb-mfold-btn::after {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-right: 1.5px solid var(--sb-ink-2);
+  border-bottom: 1.5px solid var(--sb-ink-2);
+  transform: translateY(-2px) rotate(45deg);
+}
+.sb .sb-mfold-btn[aria-expanded="true"]::after {
+  transform: translateY(1px) rotate(-135deg);
+}
+.sb .sb-mfold-btn[hidden] {
+  display: none;
+}
+
+/* Back to top. */
+.sb .sb-totop {
+  position: fixed;
+  right: max(12px, env(safe-area-inset-right));
+  bottom: max(16px, env(safe-area-inset-bottom));
+  z-index: 30;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 44px;
+  padding: 0 14px;
+  border: 1px solid var(--sb-line-2);
+  border-radius: 22px;
+  background: var(--sb-panel);
+  box-shadow: 0 4px 14px rgba(21, 23, 26, 0.14);
+  font-size: 13.5px;
+  font-weight: 500;
+  color: var(--sb-ink);
+}
+.sb .sb-totop[hidden] {
+  display: none;
+}
+
+@media (max-width: 639px) {
+  /* main already pads 16px; panels pad 16px; vertical rhythm a bit tighter. */
+  .sb.sb-meth {
+    padding: 0;
+  }
+  .sb-meth .sb-pad {
+    padding: 16px 14px;
+  }
+  .sb-meth .sb-block {
+    margin-top: 14px;
+  }
+  .sb-meth .sb-head {
+    padding-top: 24px;
+  }
+  .sb-meth .sb-mdiv {
+    margin-top: 28px;
+  }
+  /* Land below the sticky bar. */
+  .sb-meth [id] {
+    scroll-margin-top: 64px;
+  }
+  .sb-meth .sb-mtoc {
+    display: none;
+  }
+  .sb-mds > li {
+    grid-template-columns: minmax(0, 1fr) auto;
+    padding: 8px 0;
+  }
+  .sb-mds-s {
+    text-align: right;
+    color: var(--sb-muted);
+  }
+  .sb-mds-src {
+    grid-column: 1 / -1;
+  }
+
+  /* The sticky bar spans the screen edge to edge (main pads 16px). */
+  .sb-jump {
+    display: block;
+    position: sticky;
+    top: 0;
+    z-index: 25;
+    margin: 12px -16px 0;
+    background: var(--sb-bg);
+    border-bottom: 1px solid var(--sb-line);
+  }
+  .sb-jump-d > summary {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-height: 48px;
+    padding: 0 16px;
+    list-style: none;
+    cursor: pointer;
+  }
+  .sb-jump-d > summary::-webkit-details-marker {
+    display: none;
+  }
+  .sb-jump-d > summary::after {
+    content: "";
+    flex: none;
+    margin-left: auto;
+    width: 7px;
+    height: 7px;
+    border-right: 1.5px solid var(--sb-ink-2);
+    border-bottom: 1.5px solid var(--sb-ink-2);
+    transform: translateY(-2px) rotate(45deg);
+  }
+  .sb-jump-d[open] > summary::after {
+    transform: translateY(1px) rotate(-135deg);
+  }
+  .sb-jump-k {
+    flex: none;
+    font-family: var(--sb-mono);
+    font-size: 12px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--sb-muted);
+  }
+  .sb-jump-cur {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-weight: 500;
+  }
+  .sb-jump-menu {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 100%;
+    max-height: min(70vh, calc(100vh - 120px));
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding: 6px 0 10px;
+    background: var(--sb-panel);
+    border-bottom: 1px solid var(--sb-line-2);
+    box-shadow: var(--sb-shadow);
+  }
+  .sb-jump-menu .sb-kicker {
+    padding: 10px 16px 2px;
+  }
+  /* Two columns, so the whole list fits on one screen. */
+  .sb-jump-menu ol {
+    list-style: none;
+    margin: 0;
+    padding: 0 4px;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .sb .sb-jump-menu a {
+    display: flex;
+    align-items: center;
+    min-height: 44px;
+    padding: 0 12px;
+    text-decoration: none;
+    font-size: 15px;
+    line-height: 1.25;
+  }
+  .sb .sb-jump-menu a[aria-current] {
+    font-weight: 600;
+    box-shadow: inset 3px 0 0 var(--sb-ink);
+    background: var(--sb-hover);
+  }
+}
