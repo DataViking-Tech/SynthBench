@@ -834,58 +834,106 @@ table.sb-lb tr.refrow b {
   margin-right: 8px;
   color: var(--sb-ink);
 }
-/* Narrow screens: pin Tier, System and Index; the rest scrolls under them. */
+/* Tier heading rows and the "!" holdout flag (scripts/sb/pages/leaderboard.ts).
+   Wide screens show tiers in the Tier column, so the heading rows only
+   appear on phones (below). */
+table.sb-lb tr.tierrow {
+  display: none;
+}
+.sb .sb-flag {
+  display: inline-grid;
+  place-items: center;
+  min-width: 24px;
+  min-height: 24px;
+  margin: -5px 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--sb-warn);
+  font: inherit;
+  font-weight: 600;
+  cursor: help;
+}
+/* Narrow screens: pin System and Index (tier becomes a heading row and the
+   compare box and interval chart go: the details panel has both); the rest
+   scrolls under them. */
 @media (max-width: 639px) {
   #leaderboard th.cb,
   #leaderboard td.cb,
   #leaderboard th.ci,
-  #leaderboard td.ci {
-    display: none;
-  }
+  #leaderboard td.ci,
   #leaderboard th.tier,
   #leaderboard td.tier {
-    position: sticky;
-    left: 0;
-    z-index: 1;
-    width: 62px;
-    min-width: 62px;
-    max-width: 62px;
-    padding-left: 8px;
+    display: none;
   }
-  #leaderboard td.tier .tb {
-    left: 8px;
+  #leaderboard tr.tierrow {
+    display: table-row;
   }
-  #leaderboard td.tier .tl {
-    padding-left: 8px;
-    font-size: 11px;
+  #leaderboard tr.tierrow th {
+    padding: 10px 8px 4px;
+    font-family: var(--sb-mono);
+    font-size: 12px;
+    letter-spacing: 0.02em;
+    text-transform: none;
+    color: var(--sb-ink);
+    background: var(--sb-panel-2);
+  }
+  #leaderboard tr.tierrow small {
+    color: var(--sb-muted);
+    font-size: 12px;
   }
   #leaderboard th.sys,
   #leaderboard td.sys {
     position: sticky;
-    left: 62px;
+    left: 0;
     z-index: 1;
-    width: 136px;
-    min-width: 136px;
-    max-width: 136px;
-    padding-left: 6px;
+    width: 128px;
+    min-width: 128px;
+    max-width: 128px;
+    padding-left: 8px;
     padding-right: 6px;
     font-size: 13px;
   }
+  /* Two lines of name at most; the full name is the link's title. */
+  #leaderboard .sb-sysname .n a {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    overflow-wrap: anywhere;
+  }
+  #leaderboard .sb-sysname .n {
+    gap: 5px;
+  }
   #leaderboard .sb-sysname .m {
     flex-wrap: wrap;
-    font-size: 11px;
+    gap: 2px 6px;
+    font-size: 12px;
   }
   #leaderboard th.idx,
   #leaderboard td.idx {
     position: sticky;
-    left: 198px;
+    left: 128px;
     z-index: 1;
-    width: 64px;
-    min-width: 64px;
+    width: 58px;
+    min-width: 58px;
+    padding-left: 4px;
+    padding-right: 8px;
     box-shadow: inset -1px 0 0 var(--sb-line-2);
   }
+  /* Reference and tier labels stay at the left edge while the table scrolls. */
+  #leaderboard tr.refrow td {
+    height: auto;
+    padding: 6px 8px;
+  }
+  #leaderboard .sb-refl {
+    position: sticky;
+    left: 8px;
+    display: inline-block;
+    max-width: calc(100vw - 100px);
+  }
   /* Low specificity so the hover / selected row colours still win. */
-  :where(#leaderboard) :is(th, td):is(.tier, .sys, .idx) {
+  :where(#leaderboard) :is(th, td):is(.sys, .idx) {
     background: var(--sb-panel);
   }
 }
