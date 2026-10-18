@@ -101,6 +101,11 @@ const fmtDate = (iso: string | null | undefined): string => {
 
 // Canonical names and the Index scale (lib/vocab.ts), as on the leaderboard.
 const sys = runSystem(head);
+// An ensemble's full name lists every member (five lines on a phone): the
+// heading is its short name and the members go underneath.
+const isEnsemble = sys.method === "ensemble";
+const heading = isEnsemble ? sys.short : sys.full;
+const members = isEnsemble && sys.short !== sys.full ? sys.full : null;
 const scale = indexScales(leaderboardRaw as unknown as SynthBenchData)[datasetId(dataset)];
 const idx = (v: number | null | undefined) => fmtIndex(spsToIndex(v, scale));
 const idxSpan = (v: number | null | undefined) => {
@@ -142,8 +147,9 @@ const dsName = datasetLabel(dataset);
         id="config-title"
         class="flex items-center gap-2 text-2xl sm:text-3xl font-bold tracking-tight break-words"
       >
-        <ProviderLogo of={sys.method === "ensemble" ? "ensemble" : head.model} />{sys.full}
+        <ProviderLogo of={isEnsemble ? "ensemble" : head.model} />{heading}
       </h1>
+      {members && <p class="mt-1 max-w-3xl text-sm text-muted">{members}</p>}
       <p class="mt-1 text-sm text-muted">
         {dsName} · {METHOD_NAMES[sys.method].label} · {settingsLabel(head)}
       </p>
@@ -170,11 +176,17 @@ const dsName = datasetLabel(dataset);
     </div>
 
     <!-- Section 1: Metadata card -->
-    <section class="mb-8">
-      <h2 class="mb-3 text-lg font-semibold">Metadata</h2>
+    <details class="cfg-meta mb-8" id="cfg-meta">
+      <summary class="cfg-meta-sum">
+        <h2 class="text-lg font-semibold">Metadata</h2>
+        <span class="cfg-meta-brief text-xs text-muted">
+          {METHOD_NAMES[sys.method].label} · {reps.length} replicate{reps.length === 1 ? "" : "s"} ·
+          {head.n_questions} questions
+        </span>
+      </summary>
       <dl
         id="metadata-card"
-        class="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-3 rounded-lg border border-black/10 dark:border-white/10 bg-white/50 dark:bg-white/5 p-4 text-sm"
+        class="mt-3 grid grid-cols-2 gap-x-6 gap-y-3 rounded-lg border border-black/10 dark:border-white/10 bg-white/50 dark:bg-white/5 p-4 text-sm"
       >
         <div><dt class="text-muted">Method</dt><dd>{METHOD_NAMES[sys.method].label}</dd></div>
         {sys.harness && <div><dt class="text-muted">Harness</dt><dd>{`via ${sys.harness}`}</dd></div>}
@@ -193,7 +205,11 @@ const dsName = datasetLabel(dataset);
           <dt class="text-muted">Last replicate</dt><dd>{fmtDate(reps[reps.length - 1]?.timestamp)}</dd>
         </div>
       </dl>
-    </section>
+    </details>
+    <script is:inline>
+      // Open on wide screens (as it always was); phones start collapsed.
+      if (matchMedia("(min-width: 640px)").matches) document.getElementById("cfg-meta").open = true;
+    </script>
 
     <!-- Section 2: Aggregated metrics (rendered before replicates for scannability) -->
     <section class="mb-8">
@@ -206,7 +222,7 @@ const dsName = datasetLabel(dataset);
           this config's dataset. The leaderboard averages it over the core datasets.
         </Info>
       </p>
-      <div id="aggregated-metrics" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+      <div id="aggregated-metrics" class="grid grid-cols-2 lg:grid-cols-4 gap-3">
         {
           (
             [
@@ -218,7 +234,7 @@ const dsName = datasetLabel(dataset);
           ).map(([k, label, mean, std]) => (
             <div
               class:list={[
-                "rounded-lg border bg-white/50 dark:bg-white/5 p-4",
+                "min-w-0 rounded-lg border bg-white/50 dark:bg-white/5 p-3 sm:p-4",
                 k === "index" ? "border-primary/40" : "border-black/10 dark:border-white/10",
               ]}
               data-metric={k}
@@ -310,7 +326,7 @@ const dsName = datasetLabel(dataset);
         Replicates <span id="replicates-count" class="text-muted font-normal">({reps.length})</span>
       </h2>
       <div class="overflow-x-auto rounded-lg border border-black/10 dark:border-white/10">
-        <table class="w-full text-sm">
+        <table class="sb-stack cfg-reps w-full text-sm">
           <thead class="bg-black/5 dark:bg-white/5 text-left">
             <tr>
               <th class="p-2 font-medium">Run</th>
@@ -326,9 +342,9 @@ const dsName = datasetLabel(dataset);
             {
               reps.map((rep) => (
                 <tr class="border-t border-black/5 dark:border-white/5 hover:bg-black/5 dark:hover:bg-white/5">
-                  <td class="p-2 whitespace-nowrap">
+                  <td class="p-2 sm:whitespace-nowrap">
                     <a
-                      class="text-primary hover:underline font-mono text-xs"
+                      class="break-all text-primary hover:underline font-mono text-xs sm:break-normal"
                       href={`${base}run/${encodePathSegment(rep.run_id)}/`}
                     >
                       {rep.run_id}
@@ -350,7 +366,62 @@ const dsName = datasetLabel(dataset);
   </div>
 </BaseLayout>
 
+<style is:global>
+  .cfg-meta > summary {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.25rem 0.75rem;
+    list-style: none;
+  }
+  .cfg-meta > summary::-webkit-details-marker {
+    display: none;
+  }
+  /* Wide screens: always open, as before. */
+  @media (min-width: 640px) {
+    .cfg-meta > summary {
+      pointer-events: none;
+    }
+    .cfg-meta-brief {
+      display: none;
+    }
+  }
+  @media (max-width: 639px) {
+    .cfg-meta > summary {
+      position: relative;
+      min-height: 44px;
+      padding: 0.5rem 2rem 0.5rem 0;
+      cursor: pointer;
+      border-bottom: 1px solid color-mix(in oklch, var(--color-muted) 25%, transparent);
+    }
+    .cfg-meta > summary::after {
+      content: "▸";
+      position: absolute;
+      right: 0.25rem;
+      top: 0.625rem;
+      color: var(--color-muted);
+    }
+    .cfg-meta[open] > summary::after {
+      content: "▾";
+    }
+    #metadata-card dd {
+      overflow-wrap: anywhere;
+    }
+    /* Replicates: one card per run, the run id as its title. */
+    table.cfg-reps td:first-child {
+      padding-top: 0.25rem;
+    }
+    /* Sentence-case labels: upper-casing turns "Kendall τ" into "KENDALL Τ". */
+    table.sb-stack.cfg-reps td[data-label]:not(:first-child)::before {
+      font-family: inherit;
+      letter-spacing: 0;
+      text-transform: none;
+    }
+  }
+</style>
+
 <script>
+  import "@/scripts/stackTables";
   import * as echarts from "echarts";
   import { TOPICS } from "@/lib/topics";
   import {
