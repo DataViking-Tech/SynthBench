@@ -1241,6 +1241,65 @@ table.sb-lb tr.tierrow {
   text-underline-offset: 3px;
   padding-right: 6px;
 }
+/* Phones: the tray is one full-width bar along the bottom, "Ⓐ name × Ⓑ name ×
+   Compare Clear"; with three picked only the letters show (the side-by-side
+   view names them). */
+@media (max-width: 639px) {
+  .sb-tray {
+    left: 8px;
+    right: 8px;
+    bottom: calc(8px + env(safe-area-inset-bottom, 0px));
+    transform: translateY(160%);
+    max-width: none;
+    flex-wrap: nowrap;
+    gap: 6px;
+    padding: 4px 4px 4px 8px;
+  }
+  .sb-tray.on {
+    transform: none;
+  }
+  .sb-drawer.on ~ .sb-tray {
+    left: 8px;
+  }
+  .sb-tray > .sb-lbl {
+    display: none;
+  }
+  .sb-tray-chip {
+    flex: 0 1 auto;
+    min-width: 0;
+    gap: 4px;
+    padding: 0 0 0 6px;
+  }
+  .sb-tray-name,
+  .sb-tray-hint {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .sb-tray-hint {
+    flex: 1 1 auto;
+  }
+  .sb-tray:has(> .sb-tray-chip ~ .sb-tray-chip ~ .sb-tray-chip) .sb-tray-name {
+    display: none;
+  }
+  .sb-tray .sb-tray-chip button {
+    flex: none;
+    width: 32px;
+    min-height: 44px;
+    font-size: 18px;
+  }
+  .sb-tray .sb-tray-go {
+    flex: none;
+    min-height: 40px;
+    margin-left: auto;
+  }
+  .sb-tray .sb-tray-clear {
+    flex: none;
+    min-height: 44px;
+    padding: 0 8px;
+  }
+}
 .sb-tip {
   position: fixed;
   z-index: 70;
