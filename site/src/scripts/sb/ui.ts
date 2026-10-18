@@ -1226,7 +1226,8 @@ function renderDrawer(): void {
 /**
  * Marks a horizontal scroller with `data-more="right|left|both"` (CSS fades
  * the clipped edge) and shows a "scroll for more" hint above it while
- * there are columns out of view. Safe to call more than once.
+ * there are columns out of view, until the reader has scrolled to the end
+ * once. Safe to call more than once.
  */
 export function scrollHint(wrap: HTMLElement, what = "columns"): void {
   if (wrap.dataset.hint) return;
@@ -1245,7 +1246,9 @@ export function scrollHint(wrap: HTMLElement, what = "columns"): void {
     const more = left && right ? "both" : right ? "right" : left ? "left" : "";
     if (more) wrap.dataset.more = more;
     else delete wrap.dataset.more;
-    hint.hidden = max <= 2;
+    // Reached the last column: they know it scrolls, so the hint can go.
+    if (max > 2 && !right) wrap.dataset.seenEnd = "1";
+    hint.hidden = max <= 2 || wrap.dataset.seenEnd === "1";
     // Keyboard users need a tab stop to scroll a region with nothing focusable in it.
     if (max > 2 && !wrap.querySelector("a[href],button,input,select,[tabindex]")) {
       wrap.tabIndex = 0;
