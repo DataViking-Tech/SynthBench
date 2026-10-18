@@ -1,5 +1,6 @@
 ---
 import IndexPayload from "@/components/sb/IndexPayload.astro";
+import CodeBlock from "@/components/shared/CodeBlock.astro";
 import leaderboardRaw from "@/data/leaderboard.json";
 import BaseLayout from "@/layouts/BaseLayout.astro";
 import type { LeaderboardData } from "@/types/leaderboard";
@@ -86,10 +87,7 @@ const reproduceCommands = [
         Every number on this page is recomputed from per-question data when the site is built. The scoring
         code and public data are open, so you can re-run any of it:
       </p>
-      <div class="sb-code">
-        <pre><code>{reproduceCommands}</code></pre>
-        <button type="button" id="copy-reproduce" class="sb-btn sb-btn-sm" data-commands={reproduceCommands}>Copy</button>
-      </div>
+      <CodeBlock code={reproduceCommands} what="commands" />
       <p class="sb-note">
         <code>run</code> scores your provider on the same public questions. <code>validate</code> checks the
         result file against the integrity rules. <code>compare</code> runs a paired bootstrap test against any
@@ -114,14 +112,4 @@ const reproduceCommands = [
 <script>
   import { boot } from "@/scripts/sb/boot";
   boot(() => import("@/scripts/sb/pages/leaderboard"));
-
-  const copyBtn = document.getElementById("copy-reproduce");
-  copyBtn?.addEventListener("click", () => {
-    navigator.clipboard.writeText(copyBtn.dataset.commands ?? "").then(() => {
-      copyBtn.textContent = "Copied";
-      setTimeout(() => {
-        copyBtn.textContent = "Copy";
-      }, 2000);
-    });
-  });
 </script>
