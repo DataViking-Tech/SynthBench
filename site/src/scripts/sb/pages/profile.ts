@@ -975,7 +975,8 @@ mount(trustEl, (W) => {
 // ---------- Runs ----------
 // Phones show each run as a card (sb-pages.css, .pf-runs) whose whole area
 // is the configuration link.
-const DEFAULT_SETTINGS = "default temperature and template";
+// Same wording as settingsLabel() (lib/runExplorer.ts) and /explore.
+const DEFAULT_SETTINGS = "default settings";
 $("pf-runs").replaceChildren(
   h(
     "thead",

@@ -43,15 +43,25 @@ type SettingsLike = Pick<
 
 /**
  * One-line description of the settings that distinguish configs of the same
- * model: "t default · default template · n=100". Optional parts (effort,
+ * model, in words: "temperature 0.85 · default template · 100 questions",
+ * or "default settings · 100 questions" when temperature and template are
+ * both the defaults (the same wording as /explore). Optional parts (effort,
  * persona pack) only appear when set. The harness is part of the system name
  * (systemName), so it is not repeated here.
  */
 export function settingsLabel(e: SettingsLike, opts: { n?: boolean } = {}): string {
-  const parts = [`t ${tempLabel(e.temperature)}`, `${templateLabel(e.template)} template`];
+  const tempDefault = e.temperature == null;
+  const tplDefault = templateLabel(e.template) === "default";
+  const parts =
+    tempDefault && tplDefault
+      ? ["default settings"]
+      : [
+          tempDefault ? "default temperature" : `temperature ${tempLabel(e.temperature)}`,
+          `${templateLabel(e.template)} template`,
+        ];
   if (e.effort) parts.push(`${e.effort} effort`);
   if (e.persona_pack) parts.push(`${e.persona_pack} personas`);
-  if (opts.n !== false) parts.push(`n=${e.n_questions}`);
+  if (opts.n !== false) parts.push(`${e.n_questions} questions`);
   return parts.join(" · ");
 }
 
