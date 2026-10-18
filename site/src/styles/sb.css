@@ -56,7 +56,9 @@
     --sb-line: #252932;
     --sb-line-2: #323743;
     --sb-grid: #1c2029;
-    --sb-zone-neg: rgba(224, 108, 108, 0.08);
+    /* Stronger than the light value: at 0.08 the below-random zone all but
+       vanished on the dark panel. */
+    --sb-zone-neg: rgba(224, 108, 108, 0.15);
     --sb-neg-ink: #e08a8a;
     --sb-raw: #6b93d6;
     --sb-althing: #d27552;
@@ -67,6 +69,10 @@
     --sb-ok: #5cc27a;
     --sb-warn: #e3ae4f;
     --sb-shadow: 0 18px 50px rgba(0, 0, 0, 0.55);
+    /* Unchecked checkbox outline: --sb-faint / --sb-line-2 read as disabled. */
+    --sb-check-line: #6f7580;
+    /* Marks drawn faded (e.g. groups tested on one system): less faded here. */
+    --sb-fade-o: 0.7;
     --sb-opt-1: #3987e5;
     --sb-opt-2: #d95926;
     --sb-opt-3: #199e70;
@@ -375,7 +381,7 @@
 .sb-check {
   width: 13px;
   height: 13px;
-  border: 1.5px solid var(--sb-faint);
+  border: 1.5px solid var(--sb-check-line, var(--sb-faint));
   border-radius: 3px;
   display: inline-grid;
   place-items: center;
@@ -886,7 +892,7 @@ table.sb-lb tr.refrow b {
 .sb .sb-cbox {
   width: 15px;
   height: 15px;
-  border: 1.5px solid var(--sb-line-2);
+  border: 1.5px solid var(--sb-check-line, var(--sb-line-2));
   border-radius: 3px;
   display: inline-grid;
   place-items: center;
