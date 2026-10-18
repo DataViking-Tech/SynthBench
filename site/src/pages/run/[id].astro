@@ -295,6 +295,7 @@ const indexScores = JSON.stringify({
     safeQuestionKey,
   } from "@/lib/runExplorer";
   import { METRIC_NAMES, datasetId, fmtIndex, readIndexScales, spsToIndex } from "@/lib/vocab";
+  import { optionColor } from "@/lib/answerPalette";
   import { topicLabel } from "@/lib/topics";
   import type { PerQuestionRow, RunAggregate, RunDetail, RunScores } from "@/types/runs";
 
@@ -342,16 +343,6 @@ const indexScores = JSON.stringify({
       .replace(/'/g, "&#39;");
   }
 
-  /** Distribution bar palette (keyed by index, cycles on reuse). */
-  const BAR_COLORS = [
-    "var(--color-primary)",
-    "var(--color-accent)",
-    "var(--color-provider-raw-llm)",
-    "var(--color-baseline)",
-    "var(--color-provider-althing)",
-    "var(--color-muted)",
-  ];
-
   function renderStackedBar(
     label: string,
     dist: Record<string, number> | undefined,
@@ -364,7 +355,7 @@ const indexScores = JSON.stringify({
       .map((k, i) => {
         const v = dist[k] ?? 0;
         const pct = Math.max(0, Math.min(1, v)) * 100;
-        const color = BAR_COLORS[i % BAR_COLORS.length];
+        const color = optionColor(keys, i);
         const title = `${escapeHtml(k)}: ${(v * 100).toFixed(1)}%`;
         return `<span class="dist-seg" title="${title}" style="width:${pct}%;background:${color}"></span>`;
       })
@@ -389,7 +380,7 @@ const indexScores = JSON.stringify({
     const keys = options.length ? options : Object.keys(dist);
     return keys
       .map((k, i) => {
-        const color = BAR_COLORS[i % BAR_COLORS.length];
+        const color = optionColor(keys, i);
         return `<span class="dist-chip"><span class="dist-swatch" style="background:${color}"></span>${escapeHtml(k)}</span>`;
       })
       .join("");
@@ -543,7 +534,7 @@ const indexScores = JSON.stringify({
     const hasPage = view.questionBaseUrl && (!view.pageKeys || view.pageKeys.has(safeKey));
     const flipMark =
       r.flipped === true
-        ? ` <span class="text-accent" title="Differs from the human modal answer">≠</span>`
+        ? ` <span class="sb-warn" title="Differs from the human modal answer">≠</span>`
         : "";
     return `
       <tr class="pq-row border-b border-muted/10 hover:bg-primary/5" data-key="${escapeHtml(row.key)}" data-topic="${escapeHtml(r.topic)}">

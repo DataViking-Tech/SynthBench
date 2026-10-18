@@ -191,6 +191,7 @@ const labelCls = "text-xs font-semibold uppercase tracking-wide text-muted";
     readIndexScales,
     spsToIndex,
   } from "@/lib/vocab";
+  import { optionColor } from "@/lib/answerPalette";
   import { topicLabel } from "@/lib/topics";
   import type { DatasetPolicyEntry } from "@/types/leaderboard";
   import type { PerQuestionRow, RunDetail, RunIndex, RunIndexEntry } from "@/types/runs";
@@ -321,17 +322,6 @@ const labelCls = "text-xs font-semibold uppercase tracking-wide text-muted";
     return { low, high };
   }
 
-  /** Distribution bar palette (keyed by index, cycles on reuse).
-   *  Matches the run detail page so colors are consistent across views. */
-  const BAR_COLORS = [
-    "var(--color-primary)",
-    "var(--color-accent)",
-    "var(--color-provider-raw-llm)",
-    "var(--color-baseline)",
-    "var(--color-provider-althing)",
-    "var(--color-muted)",
-  ];
-
   function renderStackedBar(
     label: string,
     dist: Record<string, number> | null | undefined,
@@ -343,7 +333,7 @@ const labelCls = "text-xs font-semibold uppercase tracking-wide text-muted";
       .map((k, i) => {
         const v = dist[k] ?? 0;
         const pct = Math.max(0, Math.min(1, v)) * 100;
-        const color = BAR_COLORS[i % BAR_COLORS.length];
+        const color = optionColor(keys, i);
         const title = `${escapeHtml(k)}: ${(v * 100).toFixed(1)}%`;
         return `<span class="dist-seg" title="${title}" style="width:${pct}%;background:${color}"></span>`;
       })
@@ -366,7 +356,7 @@ const labelCls = "text-xs font-semibold uppercase tracking-wide text-muted";
     const keys = options.length ? options : Object.keys(dist ?? {});
     return keys
       .map((k, i) => {
-        const color = BAR_COLORS[i % BAR_COLORS.length];
+        const color = optionColor(keys, i);
         return `<span class="dist-chip"><span class="dist-swatch" style="background:${color}"></span>${escapeHtml(k)}</span>`;
       })
       .join("");
@@ -791,7 +781,7 @@ const labelCls = "text-xs font-semibold uppercase tracking-wide text-muted";
 
   function modalCell(modal: string, human: string): string {
     const differs = human !== "—" && modal !== human;
-    return `<td class="px-3 py-2 text-xs">${escapeHtml(modal)}${differs ? ' <span class="text-accent" title="Differs from the human modal answer">≠</span>' : ""}</td>`;
+    return `<td class="px-3 py-2 text-xs">${escapeHtml(modal)}${differs ? ' <span class="sb-warn" title="Differs from the human modal answer">≠</span>' : ""}</td>`;
   }
 
   function renderTable(): void {
