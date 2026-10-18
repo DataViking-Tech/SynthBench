@@ -1042,6 +1042,154 @@ details.sb-fold-flat .sb-notes {
   margin-top: 8px;
 }
 
+/* ---------- Home, leaderboard, analysis on phones (P-A) ---------- */
+
+/* Filters fold (scripts/sb/filterFold.ts): wide screens never see the
+   button; phones fold the secondary filters behind it. */
+.sb-ffold-btn {
+  display: none;
+}
+@media (max-width: 639px) {
+  .sb .sb-ffold-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    min-height: 44px;
+    padding: 0 14px;
+    border: 1px solid var(--sb-line-2);
+    border-radius: 6px;
+    background: var(--sb-panel);
+    color: var(--sb-ink);
+    font: 500 13.5px / 1 var(--sb-sans);
+    cursor: pointer;
+  }
+  .sb-ffold-btn::after {
+    content: "";
+    width: 6px;
+    height: 6px;
+    margin-left: 8px;
+    border-right: 1.5px solid var(--sb-ink-2);
+    border-bottom: 1.5px solid var(--sb-ink-2);
+    transform: translateY(-2px) rotate(45deg);
+  }
+  .sb-ffold-open > .sb-ffold-btn::after {
+    transform: translateY(1px) rotate(-135deg);
+  }
+  .sb-filterbar:not(.sb-ffold-open) > .sb-ffold-item {
+    display: none;
+  }
+  .sb-ffold-open > .sb-ffold-item {
+    flex-basis: 100%;
+  }
+  .sb-filterbar > .sb-status {
+    min-height: 44px;
+  }
+}
+
+/* Home */
+.mh-phone {
+  display: none;
+}
+@media (max-width: 639px) {
+  .sb-trust {
+    grid-template-columns: 1fr;
+  }
+  .sb-trust > div {
+    border-right: 0;
+    border-bottom: 1px solid var(--sb-line);
+  }
+  .sb-trust > div:last-child {
+    border-bottom: 0;
+  }
+  table.sb-mh .mh-sec,
+  .mh-wide {
+    display: none;
+  }
+  .mh-phone {
+    display: inline;
+  }
+}
+
+/* Analysis: the four view cards become one scrolling row of tabs. */
+@media (max-width: 639px) {
+  .sb-views {
+    display: flex;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scrollbar-width: none;
+  }
+  .sb-views::-webkit-scrollbar {
+    display: none;
+  }
+  .sb .sb-views button {
+    flex: none;
+    min-height: 44px;
+    padding: 0 14px;
+    border-right: 0;
+    white-space: nowrap;
+  }
+  .sb-views button b {
+    margin: 0;
+    font-size: 13.5px;
+  }
+  .sb-views button span {
+    display: none;
+  }
+}
+/* Narrow ladder legend and the numbered key under the narrow by-dataset
+   chart (scripts/sb/chartsNarrow.ts). */
+.sb-nlegend-key {
+  margin-bottom: 6px;
+}
+.sb-nkey {
+  margin: 8px 0 0;
+  padding: 0;
+  list-style: none;
+  font-size: 13px;
+}
+.sb-nkey li {
+  border-top: 1px solid var(--sb-line);
+}
+.sb-nkey button,
+.sb-nkey .sb-nkey-ref {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  width: 100%;
+  min-height: 40px;
+  padding: 0 2px;
+  border: 0;
+  background: none;
+  color: var(--sb-ink);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.sb-nkey .sb-nkey-ref {
+  color: var(--sb-muted);
+  cursor: default;
+}
+.sb-nkey-n {
+  width: 18px;
+  flex: none;
+  font-family: var(--sb-mono);
+  font-size: 12px;
+  color: var(--sb-muted);
+  text-align: right;
+}
+.sb-nkey-t {
+  flex: 1;
+  min-width: 0;
+}
+.sb-nkey-t small {
+  color: var(--sb-muted);
+  font-size: 12px;
+}
+.sb-nkey-v {
+  font-family: var(--sb-mono);
+  font-size: 12.5px;
+}
+
 /* ---------- Small-text floor on phones ----------
    Nothing under 12px on phones. Kept last so it follows every rule it
    overrides. (Chart text inside SVGs is laid out in pixels by the chart

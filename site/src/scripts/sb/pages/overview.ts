@@ -1,6 +1,7 @@
 import { signedRange } from "@/lib/format";
 import { gapChart, liftMini, whyMini } from "../charts";
 import { fmt, h, heat, mount } from "../dom";
+import { filterFold } from "../filterFold";
 import {
   CORE,
   type SystemConfig,
@@ -21,7 +22,6 @@ import {
 import {
   METHOD_IDS,
   capRows,
-  filterStatus,
   initShell,
   methodChips,
   methodKey,
@@ -50,15 +50,30 @@ const reset = () => {
   changed();
 };
 const chips = methodChips(methods, changed);
-const status = filterStatus(
-  () => [tiers(rankedPool().filter(visible)).length, tiers(rankedPool()).length],
-  () => state.scope === "all" && methods.size === METHOD_IDS.length,
-  reset,
-);
-$("ov-filters").append(scopeControl(), chips, status);
+// The chart's "Showing the top 10 of 33 systems" line carries the count, so
+// the status here only speaks up when a filter is changed.
+const status = h("div", { class: "sb-status", "aria-live": "polite" });
+const renderStatus = () => {
+  const shown = tiers(rankedPool().filter(visible)).length;
+  const total = tiers(rankedPool()).length;
+  const isDefault = state.scope === "all" && methods.size === METHOD_IDS.length;
+  status.replaceChildren(
+    ...(isDefault
+      ? []
+      : [
+          shown < total ? h("span", null, `${shown} of ${total} systems match`) : null,
+          h("button", { type: "button", class: "sb-linkbtn", onclick: reset }, "Reset filters"),
+        ].filter((n): n is HTMLElement => n != null)),
+  );
+};
+const filters = $("ov-filters");
+filters.append(scopeControl(), chips, status);
+const fold = filterFold(filters, [chips], () => (methods.size === METHOD_IDS.length ? 0 : 1));
+renderStatus();
 onChange(() => {
   chips.rerender();
-  status.rerender();
+  renderStatus();
+  fold.rerender();
 });
 
 // ---------- Lede (fixed: all methods, headline Index) ----------
@@ -97,7 +112,7 @@ const drawGap = mount(
     const shown = capRows(rows, GAP_TOP, gapAll);
     $("gap-q").textContent =
       shown.length < rows.length
-        ? `${scopeName()}. The top ${shown.length} of ${rows.length} ranked systems, highest first.`
+        ? `${scopeName()}. The top ${shown.length} ranked systems, highest first.`
         : `${scopeName()}. All ${rows.length} ranked systems, highest first.`;
     if (!rows.length) {
       gapEl.append(
@@ -155,8 +170,20 @@ const drawGap = mount(
 // ---------- By dataset (mini heat table) ----------
 function miniHeat(): void {
   const rows = tiers(rankedPool().filter(visible), "all").slice(0, 6);
+  // Phones show only the headline contrast, US adults vs. cross-national
+  // (the takeaway below compares the same two); the link has all four.
+  const sec = (id: string) => (id === "opinionsqa" || id === "globalopinionqa" ? null : "mh-sec");
   $("ov-heat").replaceChildren(
-    h("caption", null, "SynthBench Index per dataset, top systems"),
+    h(
+      "caption",
+      null,
+      h("span", { class: "mh-wide" }, "SynthBench Index per dataset, top systems"),
+      h(
+        "span",
+        { class: "mh-phone" },
+        "SynthBench Index, top systems: US adults vs. cross-national",
+      ),
+    ),
     h(
       "thead",
       null,
@@ -169,7 +196,7 @@ function miniHeat(): void {
           // "GlobalOpinionQA" instead of clipping it.
           h(
             "th",
-            { scope: "col", title: `${dsLabel(id)}: ${dsAudience(id)}` },
+            { scope: "col", class: sec(id), title: `${dsLabel(id)}: ${dsAudience(id)}` },
             dsLabel(id).replace(/([a-z])([A-Z])/g, "$1\u200b$2"),
           ),
         ),
@@ -186,7 +213,11 @@ function miniHeat(): void {
           CORE.map((id) => {
             const v = r.c.ds[id]?.idx;
             const { bg, fg } = heat(v);
-            return h("td", { class: "c", style: { background: bg, color: fg } }, fmt.int(v));
+            return h(
+              "td",
+              { class: sec(id) ? "c mh-sec" : "c", style: { background: bg, color: fg } },
+              fmt.int(v),
+            );
           }),
         ),
       ),

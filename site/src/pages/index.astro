@@ -3,6 +3,7 @@ import IndexPayload from "@/components/sb/IndexPayload.astro";
 import Info from "@/components/sb/Info.astro";
 import leaderboardRaw from "@/data/leaderboard.json";
 import BaseLayout from "@/layouts/BaseLayout.astro";
+import { CORE_DATASETS } from "@/lib/synthIndex";
 import type { LeaderboardData } from "@/types/leaderboard";
 
 const leaderboard = leaderboardRaw as LeaderboardData;
@@ -14,6 +15,12 @@ for (const e of leaderboard.entries) {
   questionsByDataset.set(e.dataset, Math.max(questionsByDataset.get(e.dataset) ?? 0, e.n));
 }
 const nDatasets = questionsByDataset.size;
+// The Index averages the core datasets; any others (NTIA) are scored for
+// reference only. Say so, so "5 datasets" here and "average of 4 core
+// datasets" under the chart don't read as a contradiction.
+const nCore = [...questionsByDataset.keys()].filter((id) =>
+  (CORE_DATASETS as readonly string[]).includes(id),
+).length;
 const nQuestions = [...questionsByDataset.values()].reduce((a, b) => a + b, 0);
 const updated = leaderboard.generated_at
   ? new Date(leaderboard.generated_at).toLocaleDateString("en-US", {
@@ -32,7 +39,7 @@ const updated = leaderboard.generated_at
   <div class="sb sb-overview">
     <section class="sb-head">
       <div class="sb-kicker">
-        Open benchmark · {nDatasets} survey datasets · {nQuestions.toLocaleString("en-US")} questions
+        Open benchmark · {nDatasets} survey datasets{nCore < nDatasets && ` (${nCore} in the Index)`} · {nQuestions.toLocaleString("en-US")} questions
         {updated && <> · updated <span data-vrt-mask>{updated}</span></>}
       </div>
       <h1 class="sb-h1">How close can synthetic respondents get to real people?</h1>
