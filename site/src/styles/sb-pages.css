@@ -220,9 +220,25 @@ table.sb-ct td {
   gap: 8px;
   height: 100%;
   box-sizing: border-box;
-  /* Not overflow clip: the dataset table scrolls in its own .sb-tablewrap,
-     and clipping here hid its right-hand columns on phones. */
   min-width: 0;
+  overflow-x: clip;
+}
+/* Wide screens: the dataset table sits in the panel as before (it may run a
+   little into the padding). Phones: clipping hid its right-hand columns, so
+   it scrolls in its own .sb-tablewrap instead. */
+@media (min-width: 640px) {
+  .sb-why-pad > .sb-tablewrap {
+    overflow: visible;
+    mask-image: none;
+  }
+  .sb-why-pad > .sb-scrollhint {
+    display: none;
+  }
+}
+@media (max-width: 639px) {
+  .sb-why-pad {
+    overflow-x: visible;
+  }
 }
 .sb-why h3 {
   margin: 0;
