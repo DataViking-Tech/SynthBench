@@ -1,0 +1,579 @@
+{
+  "schema_version": 1,
+  "study_date": "2026-11-25",
+  "scope": "Historical synthetic-survey distributional fidelity. Conditional metrics below are not leaderboard SPS, behavioral validation or model equivalence. All original analyses used option parser version3.",
+  "protocol": "../../claude-population-confirmation-2026-11-25.md",
+  "protocol_pre_inference_commit": "85be801c1b2866e7c30b6f48e49c013946731759",
+  "logical_completed_responses": 121200,
+  "infrastructure_error_slots_repaired": 114,
+  "phases": {
+    "exploratory": {
+      "logical_responses": 85200,
+      "complete_question_cells": 2760,
+      "scorable_question_cells": 2747,
+      "accounted_usd": 121.038759055,
+      "evaluation_question_count_population": 21,
+      "population_effects_evaluation": [
+        {
+          "model": "anthropic/claude-haiku-5.5",
+          "elicitation": "natural",
+          "effect": "global-respondents minus generic",
+          "contrast": {
+            "n_questions": 21,
+            "n_replicate_cells": 63,
+            "metrics": {
+              "sps": {
+                "delta": 0.05654812610175869,
+                "ci95": [
+                  -0.016727043986256834,
+                  0.11746131309652089
+                ]
+              },
+              "p_dist": {
+                "delta": 0.14921028615106963,
+                "ci95": [
+                  0.04986433170052454,
+                  0.2682217777977919
+                ]
+              },
+              "p_rank": {
+                "delta": 0.02043484801210513,
+                "ci95": [
+                  -0.16821773505102486,
+                  0.09463916420765314
+                ]
+              },
+              "p_refuse": {
+                "delta": -7.558578987154618e-07,
+                "ci95": [
+                  -2.2675736961463855e-06,
+                  -0.0
+                ]
+              }
+            },
+            "bootstrap_unit": "question_with_replicates_averaged",
+            "resamples": 2000,
+            "multiple_comparison_adjustment": "none; exploratory contrasts"
+          }
+        },
+        {
+          "model": "anthropic/claude-haiku-5.5",
+          "elicitation": "structured",
+          "effect": "global-respondents minus generic",
+          "contrast": {
+            "n_questions": 21,
+            "n_replicate_cells": 63,
+            "metrics": {
+              "sps": {
+                "delta": 0.04105915189360917,
+                "ci95": [
+                  -0.009678783235832123,
+                  0.09884557795682343
+                ]
+              },
+              "p_dist": {
+                "delta": 0.08861284080127428,
+                "ci95": [
+                  0.0002821037462638019,
+                  0.19791712585130727
+                ]
+              },
+              "p_rank": {
+                "delta": 0.03456461487955317,
+                "ci95": [
+                  -0.030489395268530735,
+                  0.09952465067884748
+                ]
+              },
+              "p_refuse": {
+                "delta": -0.0,
+                "ci95": [
+                  -0.0,
+                  -0.0
+                ]
+              }
+            },
+            "bootstrap_unit": "question_with_replicates_averaged",
+            "resamples": 2000,
+            "multiple_comparison_adjustment": "none; exploratory contrasts"
+          }
+        },
+        {
+          "model": "anthropic/claude-haiku-5.5",
+          "persona_pack": null,
+          "effect": "structured minus natural",
+          "contrast": {
+            "n_questions": 21,
+            "n_replicate_cells": 63,
+            "metrics": {
+              "sps": {
+                "delta": 0.009034028596614006,
+                "ci95": [
+                  -0.06790985589204523,
+                  0.0825240061891254
+                ]
+              },
+              "p_dist": {
+                "delta": -0.0009140427030774838,
+                "ci95": [
+                  -0.0825786710316528,
+                  0.10714146706056234
+                ]
+              },
+              "p_rank": {
+                "delta": 0.02801688435081827,
+                "ci95": [
+                  -0.13301631022298294,
+                  0.15670122147776863
+                ]
+              },
+              "p_refuse": {
+                "delta": -7.558578987154618e-07,
+                "ci95": [
+                  -3.779289493577309e-06,
+                  0.0
+                ]
+              }
+            },
+            "bootstrap_unit": "question_with_replicates_averaged",
+            "resamples": 2000,
+            "multiple_comparison_adjustment": "none; exploratory contrasts"
+          },
+          "natural_parse_failure_rate": 0.014285714285714285,
+          "structured_parse_failure_rate": 0.0
+        },
+        {
+          "model": "anthropic/claude-haiku-5.5",
+          "persona_pack": "global-respondents",
+          "effect": "structured minus natural",
+          "contrast": {
+            "n_questions": 21,
+            "n_replicate_cells": 63,
+            "metrics": {
+              "sps": {
+                "delta": -0.006454945611535511,
+                "ci95": [
+                  -0.04337940417989071,
+                  0.03494570585854066
+                ]
+              },
+              "p_dist": {
+                "delta": -0.06151148805287283,
+                "ci95": [
+                  -0.14542871987131792,
+                  -0.01706873640441079
+                ]
+              },
+              "p_rank": {
+                "delta": 0.04214665121826631,
+                "ci95": [
+                  -0.013308819316085883,
+                  0.14758085633423848
+                ]
+              },
+              "p_refuse": {
+                "delta": 0.0,
+                "ci95": [
+                  0.0,
+                  0.0
+                ]
+              }
+            },
+            "bootstrap_unit": "question_with_replicates_averaged",
+            "resamples": 2000,
+            "multiple_comparison_adjustment": "none; exploratory contrasts"
+          },
+          "natural_parse_failure_rate": 0.0068783068783068784,
+          "structured_parse_failure_rate": 0.0
+        },
+        {
+          "model": "anthropic/claude-sonnet-4.6",
+          "elicitation": "natural",
+          "effect": "global-respondents minus generic",
+          "contrast": {
+            "n_questions": 21,
+            "n_replicate_cells": 63,
+            "metrics": {
+              "sps": {
+                "delta": 0.06864429849151693,
+                "ci95": [
+                  0.03563071437758892,
+                  0.11472635203982115
+                ]
+              },
+              "p_dist": {
+                "delta": 0.14283091459636127,
+                "ci95": [
+                  0.0792265366846347,
+                  0.24089054411993668
+                ]
+              },
+              "p_rank": {
+                "delta": 0.06310198087818951,
+                "ci95": [
+                  0.02490751782224678,
+                  0.11431114467169311
+                ]
+              },
+              "p_refuse": {
+                "delta": -0.0,
+                "ci95": [
+                  -0.0,
+                  -0.0
+                ]
+              }
+            },
+            "bootstrap_unit": "question_with_replicates_averaged",
+            "resamples": 2000,
+            "multiple_comparison_adjustment": "none; exploratory contrasts"
+          }
+        },
+        {
+          "model": "anthropic/claude-sonnet-4.6",
+          "elicitation": "structured",
+          "effect": "global-respondents minus generic",
+          "contrast": {
+            "n_questions": 21,
+            "n_replicate_cells": 63,
+            "metrics": {
+              "sps": {
+                "delta": 0.06354988995090517,
+                "ci95": [
+                  0.025056871189705458,
+                  0.1096262356673469
+                ]
+              },
+              "p_dist": {
+                "delta": 0.12512744323202166,
+                "ci95": [
+                  0.055990798963599674,
+                  0.21900089500231343
+                ]
+              },
+              "p_rank": {
+                "delta": 0.0655222266206938,
+                "ci95": [
+                  0.016972677748271645,
+                  0.13046583845990073
+                ]
+              },
+              "p_refuse": {
+                "delta": -0.0,
+                "ci95": [
+                  -0.0,
+                  -0.0
+                ]
+              }
+            },
+            "bootstrap_unit": "question_with_replicates_averaged",
+            "resamples": 2000,
+            "multiple_comparison_adjustment": "none; exploratory contrasts"
+          }
+        },
+        {
+          "model": "anthropic/claude-sonnet-4.6",
+          "persona_pack": null,
+          "effect": "structured minus natural",
+          "contrast": {
+            "n_questions": 21,
+            "n_replicate_cells": 63,
+            "metrics": {
+              "sps": {
+                "delta": -0.013122384748151117,
+                "ci95": [
+                  -0.046156339321390474,
+                  0.0015706311153993494
+                ]
+              },
+              "p_dist": {
+                "delta": -0.013556738993435258,
+                "ci95": [
+                  -0.05234727541588354,
+                  0.005680953928985646
+                ]
+              },
+              "p_rank": {
+                "delta": -0.025810415251018078,
+                "ci95": [
+                  -0.10907056837927413,
+                  -0.0034857858989698195
+                ]
+              },
+              "p_refuse": {
+                "delta": 0.0,
+                "ci95": [
+                  0.0,
+                  0.0
+                ]
+              }
+            },
+            "bootstrap_unit": "question_with_replicates_averaged",
+            "resamples": 2000,
+            "multiple_comparison_adjustment": "none; exploratory contrasts"
+          },
+          "natural_parse_failure_rate": 0.0005291005291005291,
+          "structured_parse_failure_rate": 0.0
+        },
+        {
+          "model": "anthropic/claude-sonnet-4.6",
+          "persona_pack": "global-respondents",
+          "effect": "structured minus natural",
+          "contrast": {
+            "n_questions": 21,
+            "n_replicate_cells": 63,
+            "metrics": {
+              "sps": {
+                "delta": -0.018216793288762884,
+                "ci95": [
+                  -0.05367974714766046,
+                  0.003136849910431018
+                ]
+              },
+              "p_dist": {
+                "delta": -0.03126021035777486,
+                "ci95": [
+                  -0.0992096843655473,
+                  0.00733039473189922
+                ]
+              },
+              "p_rank": {
+                "delta": -0.02339016950851379,
+                "ci95": [
+                  -0.06308343146486614,
+                  0.00754610102711036
+                ]
+              },
+              "p_refuse": {
+                "delta": 0.0,
+                "ci95": [
+                  0.0,
+                  0.0
+                ]
+              }
+            },
+            "bootstrap_unit": "question_with_replicates_averaged",
+            "resamples": 2000,
+            "multiple_comparison_adjustment": "none; exploratory contrasts"
+          },
+          "natural_parse_failure_rate": 0.020634920634920634,
+          "structured_parse_failure_rate": 0.0
+        }
+      ],
+      "findings": [
+        {
+          "finding": "Population conditioning is the clearest fidelity candidate in this matched experiment.",
+          "evidence": "All eight population/capture conditions have full scorable evaluation coverage (21 questions times 3 replicates). Sonnet 4.6 natural conditional parity gain is +0.0686443, paired question-level 95% BCa CI [0.0356307, 0.1147264]. Haiku natural distributional fidelity gain is +0.1492103, CI [0.0498643, 0.2682218], while its parity CI crosses zero. Development conditioning effects are positive for both models.",
+          "candidate_decision": "Prioritize population-aware experimental routes and a larger question-level confirmation; do not change product defaults from this campaign alone."
+        },
+        {
+          "finding": "Structured capture improves format reliability without demonstrating a parity gain.",
+          "evidence": "All four structured population conditions have zero evaluation parse failures; natural conditioned Haiku and Sonnet 4.6 have 0.6878% and 2.0635% parse failures. No matched structured-minus-natural evaluation parity CI excludes zero in the positive direction. Haiku conditioned p_dist decreases by 0.0615115, CI [-0.1454287, -0.0170687].",
+          "candidate_decision": "Expose structured capture for explicit format needs; do not advertise it as a fidelity upgrade. Keep Sonnet 5.5 forced structured capture unsupported."
+        },
+        {
+          "finding": "Increasing samples from 10 to 150 does not establish an evaluation parity improvement.",
+          "evidence": "On 21 complete/scorable evaluation questions, Haiku parity delta is +0.0140322, CI [-0.0044621,0.0392097]; Sonnet 5.5 delta is -0.00041855, CI [-0.0055430,0.0060635]. All 10/20/30/60/100/150 prefixes are preserved. Haiku p_dist improves modestly; Sonnet p_dist decreases modestly.",
+          "candidate_decision": "Prefer broad question coverage over automatically increasing synthetic samples to 150; test adaptive sample counts separately."
+        },
+        {
+          "finding": "Provider/request path matters and blanket model rankings are unsupported.",
+          "evidence": "Opus Althing-minus-raw evaluation parity is +0.137998 on 16 GlobalOpinionQA questions, CI [0.0648045,0.2394969], and +0.191001 on 18 population-average SubPOP questions, CI [0.0848849,0.2693029]. Overall 13 fully captured raw-provider cells remain unscorable, so affected paired contrasts are withheld. The natural conditioned population comparison costs $0.741321 accounted for 5,400 Haiku samples versus $15.084479 for the same Sonnet 4.6 sample count; the model parity difference CI crosses zero, which is not an equivalence result.",
+          "candidate_decision": "Keep provider/capture identity explicit. Consider Haiku as a cost-efficient research route, with broader confirmation before selecting a fidelity default."
+        }
+      ]
+    },
+    "confirmation": {
+      "logical_responses": 36000,
+      "question_count": 300,
+      "complete_question_cells": 1200,
+      "scorable_question_cells": 1197,
+      "primary_gates": [
+        {
+          "id": "population_gain",
+          "contrast": "Sonnet4.6 population minus generic",
+          "metric": "p_dist",
+          "threshold_strictly_greater_than": 0,
+          "evidence": {
+            "available": false,
+            "minuend": "config-2",
+            "subtrahend": "config-3",
+            "withheld_by_strict_analyzer": {
+              "left": "config-2",
+              "right": "config-3",
+              "direction": "right-minus-left",
+              "reason": "unscorable_cells_no_paired_estimate",
+              "unscorable_cells_left": 1,
+              "unscorable_cells_right": 1
+            }
+          },
+          "established": false,
+          "status": "not_established"
+        },
+        {
+          "id": "haiku_distribution_noninferiority",
+          "contrast": "Haiku5.5 population minus Sonnet4.6 population",
+          "metric": "p_dist",
+          "threshold_strictly_greater_than": -0.03,
+          "evidence": {
+            "available": false,
+            "minuend": "config-0",
+            "subtrahend": "config-2",
+            "withheld_by_strict_analyzer": {
+              "left": "config-0",
+              "right": "config-2",
+              "direction": "right-minus-left",
+              "reason": "unscorable_cells_no_paired_estimate",
+              "unscorable_cells_left": 0,
+              "unscorable_cells_right": 1
+            }
+          },
+          "established": false,
+          "status": "not_established"
+        }
+      ],
+      "both_primary_gates_established": false,
+      "primary_gate_note": "Not established because strict frozen coverage rules withhold comparisons when either arm has any unscorable cell. No null hypothesis rejection, no dropped questions, and no completed nonanswer retries.",
+      "descriptive_configuration_summaries": [
+        {
+          "id": "config-0",
+          "config": {
+            "dataset": "globalopinionqa",
+            "elicitation": "natural",
+            "model": "anthropic/claude-haiku-5.5",
+            "persona_pack": "global-respondents",
+            "provider": "althing",
+            "samples_per_question": 30
+          },
+          "n_question_cells": 300,
+          "n_complete_cells": 300,
+          "n_scored_cells": 300,
+          "scores": {
+            "sps": 0.8100292320058117,
+            "p_dist": 0.735629404374164,
+            "p_rank": 0.7279450322860209,
+            "p_refuse": 0.9665132593572501
+          },
+          "refusal_rate": 0.004222222222222222,
+          "parse_failure_rate": 0.015666666666666666,
+          "counts": {
+            "n_completed": 9000,
+            "n_valid_answers": 8821,
+            "n_refusals": 38,
+            "n_parse_failures": 141,
+            "n_errors": 9,
+            "n_unresolved_error_samples": 0
+          },
+          "cost_per_completed_response_usd": "0.0001381899583333333333333333333"
+        },
+        {
+          "id": "config-1",
+          "config": {
+            "dataset": "globalopinionqa",
+            "elicitation": "natural",
+            "model": "anthropic/claude-haiku-5.5",
+            "persona_pack": null,
+            "provider": "althing",
+            "samples_per_question": 30
+          },
+          "n_question_cells": 300,
+          "n_complete_cells": 300,
+          "n_scored_cells": 299,
+          "scores": {
+            "sps": 0.7557270514819712,
+            "p_dist": 0.621500762246879,
+            "p_rank": 0.6787399628544402,
+            "p_refuse": 0.9669404293445945
+          },
+          "refusal_rate": 0.002111111111111111,
+          "parse_failure_rate": 0.015666666666666666,
+          "counts": {
+            "n_completed": 9000,
+            "n_valid_answers": 8840,
+            "n_refusals": 19,
+            "n_parse_failures": 141,
+            "n_errors": 10,
+            "n_unresolved_error_samples": 0
+          },
+          "cost_per_completed_response_usd": "0.0001107232916666666666666666667"
+        },
+        {
+          "id": "config-2",
+          "config": {
+            "dataset": "globalopinionqa",
+            "elicitation": "natural",
+            "model": "anthropic/claude-sonnet-4.6",
+            "persona_pack": "global-respondents",
+            "provider": "althing",
+            "samples_per_question": 30
+          },
+          "n_question_cells": 300,
+          "n_complete_cells": 300,
+          "n_scored_cells": 299,
+          "scores": {
+            "sps": 0.817010555211413,
+            "p_dist": 0.7245839708245162,
+            "p_rank": 0.7556912873928572,
+            "p_refuse": 0.9707564074168654
+          },
+          "refusal_rate": 0.0,
+          "parse_failure_rate": 0.02022222222222222,
+          "counts": {
+            "n_completed": 9000,
+            "n_valid_answers": 8818,
+            "n_refusals": 0,
+            "n_parse_failures": 182,
+            "n_errors": 6,
+            "n_unresolved_error_samples": 0
+          },
+          "cost_per_completed_response_usd": "0.002751237083333333333333333333"
+        },
+        {
+          "id": "config-3",
+          "config": {
+            "dataset": "globalopinionqa",
+            "elicitation": "natural",
+            "model": "anthropic/claude-sonnet-4.6",
+            "persona_pack": null,
+            "provider": "althing",
+            "samples_per_question": 30
+          },
+          "n_question_cells": 300,
+          "n_complete_cells": 300,
+          "n_scored_cells": 299,
+          "scores": {
+            "sps": 0.7502235521721817,
+            "p_dist": 0.5905630182988515,
+            "p_rank": 0.691248029654149,
+            "p_refuse": 0.9688596085635448
+          },
+          "refusal_rate": 0.0016666666666666668,
+          "parse_failure_rate": 0.009777777777777778,
+          "counts": {
+            "n_completed": 9000,
+            "n_valid_answers": 8897,
+            "n_refusals": 15,
+            "n_parse_failures": 88,
+            "n_errors": 6,
+            "n_unresolved_error_samples": 0
+          },
+          "cost_per_completed_response_usd": "0.00202714875"
+        }
+      ],
+      "accounted_usd": 45.24569175,
+      "population_haiku_over_sonnet_accounted_cost_ratio": 0.05022829881527537
+    }
+  },
+  "accounting": {
+    "accounted_including_known_pilots_and_probe_usd": 166.334541455,
+    "conservative_including_full5_pilot_envelope_usd": 171.284450805,
+    "unspent_against200_conservative_usd": 28.715549195,
+    "note": "Includes retained reservations, not all proven debits. Gateway and upstream values overlap; never sum them. Separate upstream Claude promotional balance was not independently queried."
+  },
+  "coverage_note": "Descriptive means are conditional on scorable cells and have differing denominators. They must not be used to assert the withheld paired gates.",
+  "adoption": "No default or auto-routing change. Explicit opt-in research recipes only; cheaper preset qualification not established.",
+  "private_artifacts": {
+    "exploratory_archive_sha256": "bcf2546f1d1f190e680a0dbf58cc1ad5087a6a9b37ebe07e4b0041f38291820f",
+    "confirmation_archive_sha256": "913be91ea54369580a8a8b21e145fd27f1489bdc41196b99249d884411ad9845",
+    "verification": "Local bytes hashed. Remote HEAD size and uploader-supplied SHA metadata matched; remote bytes not read back. No raw private paths, survey text, individual responses, distributions or question keys published here."
+  }
+}

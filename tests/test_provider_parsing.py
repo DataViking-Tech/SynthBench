@@ -1200,7 +1200,7 @@ def test_option_parser_v2_keeps_refusal_detection():
 def test_option_parser_version_constant():
     from synthbench.providers._parsing import OPTION_PARSER_VERSION
 
-    assert OPTION_PARSER_VERSION == 3
+    assert OPTION_PARSER_VERSION == 4
 
 
 # ---------------------------------------------------------------------------
@@ -1483,3 +1483,133 @@ def test_option_parser_v3_keeps_real_answers(text, expected):
 def test_option_parser_v3_two_option_menu():
     text = "Which one? I can answer (A) Favor or (B) Oppose once you say."
     assert parse_option_response(text, ["Favor", "Oppose"]).is_parse_failure
+
+
+# ---------------------------------------------------------------------------
+# Option parser v4 — mentioning alternatives is not selecting one
+# ---------------------------------------------------------------------------
+
+
+@pytest.mark.parametrize(
+    "text",
+    [
+        "The rating question about whether it is good or bad does not apply.",
+        "Good or Bad? I need the missing item before I can choose.",
+        "Very good, somewhat good, somewhat bad or very bad? Which item should I rate?",
+    ],
+)
+def test_option_parser_v4_rejects_same_line_clarification_choices(text):
+    options = (
+        ["Good", "Bad", "Neither"]
+        if "Very good" not in text
+        else ["Very good", "Somewhat good", "Somewhat bad", "Very bad"]
+    )
+    assert parse_option_response(text, options) == ParsedResponse()
+    # The old first-line longest match remains callable for historical runs.
+    for version in (1, 2, 3):
+        assert (
+            parse_option_response(text, options, option_parser_version=version).option
+            is not None
+        )
+
+
+@pytest.mark.parametrize(
+    "text,expected",
+    [
+        ("I would choose very good given those results.", "Very good"),
+        ("My view is somewhat good, based on experience.", "Somewhat good"),
+        ("Hard to say.\nMy view is very good given those results.", "Very good"),
+        ("Good. Overall, a good result.", "Good"),
+    ],
+)
+def test_option_parser_v4_nested_positive_choice_is_not_ambiguous(text, expected):
+    options = ["Good", "Very good", "Somewhat good", "Bad"]
+    assert parse_option_response(text, options).option == expected
+
+
+@pytest.mark.parametrize(
+    "text",
+    [
+        "Good, or perhaps very good; I have not decided.",
+        "Bad versus very good: no single choice is settled yet.",
+        "Hard to say.\nGood and bad both seem possible.",
+        "Hard to say.\nGood, or perhaps very good; I have not decided.",
+    ],
+)
+def test_option_parser_v4_separate_options_remain_ambiguous(text):
+    assert parse_option_response(text, ["Good", "Very good", "Bad"]) == ParsedResponse()
+
+
+@pytest.mark.parametrize(
+    "text,expected",
+    [
+        ("Good", "Good"),
+        ("A", "Good"),
+        ("(A) Good. Bad would not reflect my view.", "Good"),
+        ("Choice: B. Bad. Others may prefer Good.", "Bad"),
+    ],
+)
+def test_option_parser_v4_preserves_exact_echo_and_explicit_label_precedence(
+    text, expected
+):
+    assert parse_option_response(text, ["Good", "Bad", "Neither"]).option == expected
+
+
+def test_option_parser_v4_whole_response_guard_matches_first_line_guard():
+    options = ["Good", "Bad", "Neither"]
+    for prefix in ("", "I need to think.\n"):
+        assert (
+            parse_option_response(prefix + "Good and bad are both possible.", options)
+            == ParsedResponse()
+        )
+        assert (
+            parse_option_response(
+                prefix + "I would pick good given that evidence.", options
+            ).option
+            == "Good"
+        )
+
+
+@pytest.mark.parametrize(
+    "text",
+    [
+        "I choose (A) Good or (B) Bad.",
+        "I choose (A) Good and I choose (B) Bad.",
+        "I choose (A) or\n(B).",
+        "I choose (A).\nI choose (B).",
+        "I choose (A), or why not (B)?",
+        "I choose (A) or not (B).",
+        "I choose (A) Good or not (B) Bad.",
+        "I choose (A) Bad, not (B) Good.",
+        "I choose (A) Good, not (A) Good.",
+        'Someone said "I choose (A) Good or (B) Bad."',
+        '"I choose (A) Good or (B) Bad."',
+        "I do not choose (A) Good or (B) Bad.",
+        "Should I choose (A) Good or (B) Bad?",
+    ],
+)
+def test_option_parser_v4_intent_leadin_does_not_select_ambiguous_or_quoted_choices(
+    text,
+):
+    assert parse_option_response(text, ["Good", "Bad", "Neither"]) == ParsedResponse()
+
+
+def test_option_parser_v4_explicit_choice_can_negate_an_alternative():
+    assert (
+        parse_option_response(
+            "I choose (A) Good, not (B) Bad.", ["Good", "Bad", "Neither"]
+        ).option
+        == "Good"
+    )
+
+
+@pytest.mark.parametrize(
+    "text",
+    [
+        "I'd say (A) Good. Final answer: (A).",
+        "I'd say (A) Good.\nFinal answer: (A).",
+        "I’d say (A) Good, not (B) Bad.",
+    ],
+)
+def test_option_parser_v4_repeated_positive_label_and_curly_apostrophe(text):
+    assert parse_option_response(text, ["Good", "Bad", "Neither"]).option == "Good"

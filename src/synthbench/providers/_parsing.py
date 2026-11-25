@@ -33,7 +33,7 @@ Parser versions (``config.option_parser_version``; absent key = v1):
 
 * **v1** — the matching order above, verbatim. Kept callable so historical
   runs re-parse bit-for-bit.
-* **v2** (current, synthbench#352) — newer models answer in markdown prose
+* **v2** (synthbench#352) — newer models answer in markdown prose
   (``**(D) Depends on the situation.**`` followed by an explanation). v1
   counted those as parse failures, and its whole-text containment could
   mis-score them by matching an option mentioned in the explanation. v2:
@@ -47,7 +47,7 @@ Parser versions (``config.option_parser_version``; absent key = v1):
 
   Refusal detection is unchanged (it is versioned separately).
 
-* **v3** (current) — a response that restates the option menu ("Once you
+* **v3** — a response that restates the option menu ("Once you
   name it, I'll answer with (A) a great deal, (B) only some, (C) hardly
   any") is a parse failure. v2 read the first label of such a list as the
   answer and counted a vote for option A. Haiku 5.5 does this on the GSS
@@ -55,6 +55,13 @@ Parser versions (``config.option_parser_version``; absent key = v1):
   to name an institution". A menu is three or more labeled options, or every
   option when there are fewer than three; a real answer that compares two
   options by label is unaffected.
+
+* **v4** (current) — unlabeled containment on the first line, like the
+  whole-response fallback, must identify exactly one option. Merely naming
+  several choices while asking for clarification is not a selection.
+  Matches contained within a longer offered choice (``Good`` within
+  ``Very good``) count only as the longer choice. Exact echoes and explicit
+  option labels retain their earlier precedence. v1–v3 remain reproducible.
 """
 
 from __future__ import annotations
@@ -79,7 +86,7 @@ _WS_RE = re.compile(r"\s+")
 
 #: Parser version stamped into run metadata (``config.option_parser_version``).
 #: Absent key on a committed run file means v1.
-OPTION_PARSER_VERSION = 3
+OPTION_PARSER_VERSION = 4
 
 # v2: markdown markup to drop before matching — emphasis runs (``**``,
 # ``__``, ``*``), and line-leading heading / blockquote / bullet markers.
@@ -98,6 +105,9 @@ _LEADING_LABEL_RE = re.compile(
     re.IGNORECASE | re.DOTALL,
 )
 _PAREN_LABEL_RE = re.compile(r"\(([A-Za-z])\)")
+_EXPLICIT_CHOICE_PREFIX_RE = re.compile(
+    r"^i(?:['’]d| would)? (?:say|choose|pick|select)\s+", re.IGNORECASE
+)
 
 
 @dataclass(frozen=True)
@@ -148,6 +158,37 @@ def _containment_match(text: str, options: list[str]) -> str | None:
     return None
 
 
+def _unambiguous_containment_match(text: str, options: list[str]) -> str | None:
+    """v4 containment: one choice, ignoring occurrences nested in longer choices.
+
+    ``Very good`` contains the shorter offered ``Good`` but names one
+    choice. ``Good, or perhaps Very good`` names two separate choices.
+    Comparing match spans distinguishes these without interpreting prose.
+    """
+    text_norm = _normalize(text)
+    matches = []
+    for opt in options:
+        opt_norm = _normalize(opt)
+        if not opt_norm:
+            continue
+        pattern = r"(?<!\w)" + re.escape(opt_norm) + r"(?!\w)"
+        matches.extend(
+            (match.start(), match.end(), opt)
+            for match in re.finditer(pattern, text_norm)
+        )
+    choices = {
+        opt
+        for start, end, opt in matches
+        if not any(
+            outer_start <= start
+            and end <= outer_end
+            and outer_end - outer_start > end - start
+            for outer_start, outer_end, _ in matches
+        )
+    }
+    return next(iter(choices)) if len(choices) == 1 else None
+
+
 def _strip_markdown(text: str) -> str:
     """Drop markdown emphasis and line-leading markup (v2)."""
     return _MD_EMPHASIS_RE.sub("", _MD_LINE_PREFIX_RE.sub("", text))
@@ -192,8 +233,10 @@ def _restates_menu(text: str, options: list[str]) -> bool:
     return listed >= min(3, len(options))
 
 
-def _parse_v2_options(stripped: str, options: list[str]) -> ParsedResponse:
-    """v2 option matching on markdown-stripped text (after refusal checks)."""
+def _parse_v2_options(
+    stripped: str, options: list[str], *, unique_containment: bool = False
+) -> ParsedResponse:
+    """Markdown-aware matching; v4 additionally requires unique containment."""
     text = _strip_markdown(stripped).strip()
     if not text:
         return ParsedResponse()
@@ -214,6 +257,39 @@ def _parse_v2_options(stripped: str, options: list[str]) -> ParsedResponse:
     if labelled is not None:
         return labelled
 
+    if unique_containment:
+        # Preserve explicit choices comparing a selected label with negated
+        # alternatives: "I'd say (A) Good, not (B) Bad." An anchored lead-in
+        # is required, and "I choose (A) or (B)" remains ambiguous.
+        prefix = _EXPLICIT_CHOICE_PREFIX_RE.match(text)
+        if prefix:
+            # Check the entire response: a second line can contain an
+            # alternative or a contradictory explicit choice.
+            answer = text[prefix.end() :]
+            answer_labels = list(_PAREN_LABEL_RE.finditer(answer))
+            if answer_labels:
+                first = answer_labels[0].group(1).upper()
+                for i, label in enumerate(answer_labels):
+                    idx = ord(label.group(1).upper()) - ord("A")
+                    if not 0 <= idx < len(options):
+                        return ParsedResponse()
+                    clause = re.split(
+                        r"[,;\n]|\.\s", answer[label.end() :], maxsplit=1
+                    )[0]
+                    echoed = by_norm.get(_normalize(clause))
+                    if echoed is not None and echoed != options[idx]:
+                        return ParsedResponse()
+                    if i:
+                        bridge = answer[answer_labels[i - 1].end() : label.start()]
+                        direct_not = re.search(r"[,;]\s*not\s*$", bridge, re.IGNORECASE)
+                        if label.group(1).upper() == first:
+                            if direct_not:
+                                return ParsedResponse()
+                        elif not direct_not:
+                            return ParsedResponse()
+                labelled = _leading_label_match(answer, options)
+                return labelled if labelled is not None else ParsedResponse()
+
     lines = [ln for ln in text.splitlines() if ln.strip()]
     # A parenthesized label after a short lead-in ("I'd say (B) agree",
     # possibly below a roleplay line like "*thinks*"). Only when the opening
@@ -227,9 +303,15 @@ def _parse_v2_options(stripped: str, options: list[str]) -> ParsedResponse:
             return inline
 
     first_line = lines[0] if lines else ""
-    contained = _containment_match(first_line, options)
+    match_containment = (
+        _unambiguous_containment_match if unique_containment else _containment_match
+    )
+    contained = match_containment(first_line, options)
     if contained is not None:
         return ParsedResponse(option=contained)
+
+    if unique_containment:
+        return ParsedResponse(option=_unambiguous_containment_match(text, options))
 
     # Whole-response containment only when unambiguous: an explanation that
     # mentions several options must not be scored as whichever matched first.
@@ -259,9 +341,9 @@ def parse_option_response(
     un-anchored patterns). Older versions stay callable so historical runs
     can be reproduced bit-for-bit.
 
-    ``option_parser_version`` selects option matching the same way: 3
-    (default, v2 plus menu restatements as failures), 2 (markdown-aware) or
-    1 (legacy).
+    ``option_parser_version`` selects option matching the same way: 4
+    (default, unambiguous nested-aware containment), 3 (v2 plus menu
+    restatements as failures), 2 (markdown-aware) or 1 (legacy).
     """
     raw = str(text)
     stripped = raw.strip()
@@ -296,7 +378,9 @@ def parse_option_response(
     ):
         return ParsedResponse()
     if option_parser_version >= 2:
-        return _parse_v2_options(stripped, options)
+        return _parse_v2_options(
+            stripped, options, unique_containment=option_parser_version >= 4
+        )
 
     # 3. Bare letter, anchored full-match only.
     match = _BARE_LETTER_RE.match(stripped)
