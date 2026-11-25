@@ -372,8 +372,13 @@ async def test_generation_lookup_uses_upstream_cost_when_gateway_is_zero(
     collector = Collector(ledger, {"anthropic/test": (Decimal(2), Decimal(10))}, {})
     await collector.cost_client.aclose()
 
+    calls = []
+
     def respond(request):
         assert request.url.params["id"] == "gen-example"
+        calls.append(request)
+        if len(calls) == 1:
+            return httpx.Response(404, json={"error": "not indexed yet"})
         return httpx.Response(
             200,
             json={
@@ -392,6 +397,7 @@ async def test_generation_lookup_uses_upstream_cost_when_gateway_is_zero(
         )
         assert cost == Decimal("0.0000068")
         assert source == "generation-api-max-gateway-upstream"
+        assert len(calls) == 2
     finally:
         await collector.cost_client.aclose()
         ledger.close()

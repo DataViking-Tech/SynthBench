@@ -70,13 +70,27 @@ for in-flight calls and billing reconciliation before the actual expiry.
 - Screening: Haiku 5.5, Sonnet 5.5, and Opus 5.5; raw and Althing; four core
   datasets; 50 questions and 20 samples per cell. Extend promising candidates
   only after measuring actual cost and throughput.
-- Population and capture: Haiku and Sonnet; generic and global-respondents;
+- Population and capture: Haiku 5.5 and Sonnet 4.6; generic and global-respondents;
   natural and structured; 60 matched GlobalOpinionQA questions, 30 samples,
   and three independent repetitions. Freeze roughly two thirds development
   and one third evaluation before inspecting outputs. Assign by normalized
   question-text hash, keeping identical items in the same split across datasets.
 - Sample size: two configurations, 60 questions, up to 150 samples. Analyze
   nested prefixes at 10, 20, 30, 60, 100, and 150 responses.
+
+The pilot found that Sonnet 5.5 rejects forced tool capture (`tool_choice`
+types `tool` and `any`) with HTTP 400. It stays in natural model screening;
+Sonnet 4.6 replaces it only in the matched capture experiment. Do not silently
+change structured capture to optional tool use: that would change the
+experimental condition. All eight Haiku 5.5/Sonnet 4.6 population and capture
+combinations passed the revised connectivity pilot.
+
+Althing's Messages passthrough returns an Anthropic `msg_*` body id and an
+OpenRouter `gen-*` header. The per-instance instrumentation in
+`campaign_transport.py` preserves both ids and raw usage without changing
+native request bodies, provider routing, decoding parameters, or parsing.
+The generation header is required for successful OpenRouter billing lookup;
+an Anthropic message id cannot be looked up as an OpenRouter generation.
 
 Prefer questions absent from committed result artifacts. The available
 GlobalOpinionQA and SubPOP pools contain such items; the available OpinionsQA

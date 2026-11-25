@@ -298,6 +298,9 @@ class Collector:
                 "collector_sha256": hashlib.sha256(
                     Path(__file__).read_bytes()
                 ).hexdigest(),
+                "transport_sha256": hashlib.sha256(
+                    Path(__file__).with_name("campaign_transport.py").read_bytes()
+                ).hexdigest(),
             }
         )
         self.providers: dict[tuple, Any] = {}
@@ -478,6 +481,9 @@ class Collector:
             )
             if not provider._use_api:
                 raise ValueError("Campaign requires the direct Althing Python API")
+            from synthbench.campaign_transport import attach_openrouter_billing
+
+            attach_openrouter_billing(provider._client, task["model"])
             provider._client._retry_policy = _SingleAttempt()
             self.providers[key] = provider
         return self.providers[key]
@@ -519,23 +525,31 @@ class Collector:
         started = time.monotonic()
         try:
             response = await asyncio.to_thread(provider._client.send, request)
-            usage = dataclasses.asdict(response.usage)
+            usage = {
+                **dataclasses.asdict(response.usage),
+                **getattr(response, "_openrouter_usage", {}),
+            }
+            generation_id = getattr(response, "_openrouter_generation_id", None)
+            if not generation_id and response.id.startswith("gen-"):
+                generation_id = response.id
             self.ledger.append(
                 {
                     "kind": "received",
                     "attempt_id": attempt_id,
                     "task_id": task["id"],
-                    "generation_id": response.id,
+                    "generation_id": generation_id,
+                    "native_response_id": response.id,
                     "usage": usage,
                     "response": dataclasses.asdict(response),
                 }
             )
-            cost, source = await self._cost(task["model"], response.id, usage)
+            cost, source = await self._cost(task["model"], generation_id, usage)
             self.ledger.settle(
                 attempt_id,
                 cost,
                 task_id=task["id"],
-                generation_id=response.id,
+                generation_id=generation_id,
+                native_response_id=response.id,
                 usage=usage,
                 response=dataclasses.asdict(response),
                 cost_source=source,
@@ -549,7 +563,8 @@ class Collector:
                 metadata={
                     "model": response.model,
                     "usage": usage,
-                    "generation_id": response.id,
+                    "generation_id": generation_id,
+                    "native_response_id": response.id,
                     "transport": "anthropic-messages-passthrough",
                 },
             )
