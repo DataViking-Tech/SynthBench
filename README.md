@@ -157,12 +157,18 @@ Our benchmarking experiments across 3 models, 3 datasets, and 200+ runs reveal:
 
 | Finding | Impact |
 |---------|--------|
-| **3-model ensemble hits SPS 0.90** | Equal-weight average of Haiku + Gemini + GPT-4o-mini beats any single model by +5-7 pts |
+| **Ensemble effects depend on dataset** | Compare held-out blends with their strongest constituent and the random baseline |
 | **Temperature is model-specific** | Gemini benefits from high temp (+4.5%), Haiku is insensitive, GPT-4o-mini mild |
-| **Demographic conditioning quantifies LLM bias** | Republican conditioning 2.4x stronger than Democrat — model defaults approximate liberal responses |
-| **Persona template matters** | Default template beats stripped/broken templates by +11 SPS pts |
+| **Demographic conditioning shifts distributions** | Measured effects vary by group; see the regenerated findings tables |
+| **Persona template matters** | Compare runnable, fully specified templates on matched questions |
 
 See [FINDINGS.md](FINDINGS.md) for the full experimental report with methodology, replications, and per-metric breakdowns.
+
+The [November Claude credit study](docs/reports/claude-credit-study-2026-11-25.md)
+adds 121,200 completed responses and explicit population/capture comparisons.
+Its independent confirmation gates were not established because three cells
+were unscorable under the frozen rules. Defaults and auto-routing are unchanged;
+the report includes bounded opt-in recipes, cost evidence, and software fixes.
 
 ## Status
 
