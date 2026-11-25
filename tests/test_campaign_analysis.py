@@ -345,3 +345,186 @@ def test_conflicting_logical_samples_and_split_overlap_fail_closed(files):
             directory,
             selection={"fixture": {"development": ["q0"], "evaluation": ["q0"]}},
         )
+
+
+def _repair(task, suffix="repair", **overrides):
+    return {**task, "id": f"{task['id']}-{suffix}", "retry_of": task["id"], **overrides}
+
+
+def _charge(task, amount, elapsed):
+    return [
+        {
+            "kind": "reservation",
+            "attempt_id": task["id"],
+            "task_id": task["id"],
+            "reserved_usd": amount,
+        },
+        {
+            "kind": "attempt",
+            "attempt_id": task["id"],
+            "task_id": task["id"],
+            "accounted_usd": amount,
+            "cost_source": "provider-reported-max-gateway-upstream",
+            "usage": {"cost": amount},
+            "elapsed_seconds": elapsed,
+        },
+    ]
+
+
+def test_explicit_repair_fills_one_slot_and_retains_error_cost_and_history(files):
+    directory, write = files
+    original = {**_task(n=1), "_question_hash": "snapshot-v1"}
+    repair = _repair(original)
+    failed = {**_final(original, status="error"), "elapsed_seconds": 10}
+    completed = _final(repair)
+    original_path = write([*_charge(original, "0.1", 10), failed], "original.jsonl")
+    repair_path = write([*_charge(repair, "0.2", 2), completed], "repair.jsonl")
+    # Ordering input files does not change the declared causal lineage.
+    result = analyze_campaign([repair_path, original_path], directory)
+    config = result["configurations"][0]
+    cell = config["questions"][0]
+    assert cell["complete"] and cell["n_completed"] == 1
+    assert cell["n_errors"] == 1
+    assert cell["n_unresolved_error_samples"] == 0
+    assert cell["retry_history"] == [
+        {
+            "sample_index": 0,
+            "root_task_id": original["id"],
+            "task_ids": [original["id"], repair["id"]],
+            "statuses": ["error", "completed"],
+            "errors": ["TransportError", None],
+            "selected_task_id": repair["id"],
+            "recovered": True,
+        }
+    ]
+    assert config["retry_coverage"] == {
+        "retried_samples": 1,
+        "retry_tasks": 1,
+        "recovered_samples": 1,
+        "unresolved_retried_samples": 0,
+    }
+    assert config["billing"]["accounted_usd"] == pytest.approx(0.3)
+    assert result["all_journal_billing"]["accounted_usd"] == pytest.approx(0.3)
+    assert config["billing"]["attempt_latency"]["mean_seconds"] == 6
+    assert config["response_latency"]["count"] == 1
+    assert config["response_latency"]["mean_seconds"] == 2
+    assert config["errors"] == {"TransportError": 1}
+
+
+@pytest.mark.parametrize(
+    ("option", "refusal"), [("A", False), (None, False), (None, True)]
+)
+def test_retry_of_completed_answer_parse_failure_or_refusal_is_rejected(
+    files, option, refusal
+):
+    directory, write = files
+    original = _task(n=1)
+    repair = _repair(original)
+    path = write([_final(original, option=option, refusal=refusal), _final(repair)])
+    with pytest.raises(ValueError, match="final error"):
+        analyze_campaign([path], directory)
+
+
+@pytest.mark.parametrize(
+    ("field", "value"),
+    [
+        ("dataset", "other"),
+        ("question_key", "q1"),
+        ("model", "other"),
+        ("provider", "openrouter"),
+        ("elicitation", "structured"),
+        ("persona_pack", "global-respondents"),
+        ("replicate", 1),
+        ("sample_index", 1),
+        ("samples_per_question", 6),
+        ("_question_hash", "changed-snapshot"),
+    ],
+)
+def test_retry_cannot_change_sample_scope_or_question_snapshot(files, field, value):
+    directory, write = files
+    original = {**_task(), "_question_hash": "original-snapshot"}
+    repair = _repair(original, **{field: value})
+    path = write([_final(original, status="error"), _final(repair)])
+    with pytest.raises(ValueError, match="same sample"):
+        analyze_campaign([path], directory)
+
+
+def test_retry_unknown_parent_cycle_and_branch_fail_closed(files):
+    directory, write = files
+    original = _task(n=1)
+    repair = _repair(original)
+    with pytest.raises(ValueError, match="unknown parent"):
+        analyze_campaign([write([_final(repair)])], directory)
+    cyclic_original = {**original, "retry_of": repair["id"]}
+    with pytest.raises(ValueError, match="cycle"):
+        analyze_campaign(
+            [
+                write(
+                    [
+                        _final(cyclic_original, status="error"),
+                        _final(repair, status="error"),
+                    ]
+                )
+            ],
+            directory,
+        )
+    alternate = _repair(original, suffix="alternate")
+    with pytest.raises(ValueError, match="branching"):
+        analyze_campaign(
+            [
+                write(
+                    [
+                        _final(original, status="error"),
+                        _final(repair),
+                        _final(alternate),
+                    ]
+                )
+            ],
+            directory,
+        )
+
+
+def test_failed_to_failed_to_completed_retry_chain_and_pending_terminal(files):
+    directory, write = files
+    original = _task(n=1)
+    first = _repair(original)
+    second = _repair(first)
+    rows = [
+        _final(original, status="error"),
+        _final(first, status="error"),
+        _final(second),
+    ]
+    result = analyze_campaign([write(rows)], directory)
+    cell = result["configurations"][0]["questions"][0]
+    assert cell["n_completed"] == 1 and cell["n_errors"] == 2
+    assert cell["retry_history"][0]["task_ids"] == [
+        original["id"],
+        first["id"],
+        second["id"],
+    ]
+    assert cell["retry_history"][0]["statuses"] == ["error", "error", "completed"]
+    manifest = write([original, first, second], "tasks.jsonl")
+    result = analyze_campaign([write(rows[:2])], directory, task_files=[manifest])
+    config = result["configurations"][0]
+    assert config["questions"][0]["missing_sample_indices"] == [0]
+    assert config["questions"][0]["retry_history"][0]["statuses"] == [
+        "error",
+        "error",
+        "pending",
+    ]
+    assert config["retry_coverage"]["unresolved_retried_samples"] == 1
+
+
+def test_retry_parent_requires_observed_error_final_and_preserves_journal_hash(files):
+    directory, write = files
+    original = _task(n=1)
+    repair = _repair(original)
+    manifest = write([original, repair], "tasks.jsonl")
+    with pytest.raises(ValueError, match="final error"):
+        analyze_campaign([write([_final(repair)])], directory, task_files=[manifest])
+    original_row = _final({**original, "_question_hash": "old"}, status="error")
+    repair_row = _final({**repair, "_question_hash": "new"})
+    with pytest.raises(ValueError, match="same sample"):
+        analyze_campaign(
+            [write([original_row, repair_row])], directory, task_files=[manifest]
+        )

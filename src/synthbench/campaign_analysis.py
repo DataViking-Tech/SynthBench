@@ -38,6 +38,55 @@ def _config_key(task):
     return json.dumps(_configuration(task), sort_keys=True)
 
 
+def _retry_lineage(tasks, finals):
+    """Validate linear, explicit retries of final errors in the same sample slot."""
+    parents, children = {}, {}
+    for task_id, task in tasks.items():
+        if "retry_of" not in task:
+            continue
+        parent_id = task["retry_of"]
+        if not isinstance(parent_id, str) or parent_id not in tasks:
+            raise ValueError("Retry references an unknown parent task")
+        parent = tasks[parent_id]
+        if (
+            _configuration(task) != _configuration(parent)
+            or task["question_key"] != parent["question_key"]
+            or task.get("replicate", 0) != parent.get("replicate", 0)
+            or task.get("sample_index", 0) != parent.get("sample_index", 0)
+            or (
+                "_question_hash" in task
+                and "_question_hash" in parent
+                and task["_question_hash"] != parent["_question_hash"]
+            )
+        ):
+            raise ValueError("Retry parent and child must describe the same sample")
+        if parent_id in children:
+            raise ValueError("Retry lineage must be linear; branching retries rejected")
+        parents[task_id], children[parent_id] = parent_id, task_id
+
+    roots = {}
+    for task_id in tasks:
+        path, visited = [], set()
+        current = task_id
+        while current not in roots:
+            if current in visited:
+                raise ValueError("Retry lineage contains a cycle")
+            visited.add(current)
+            path.append(current)
+            if current not in parents:
+                break
+            current = parents[current]
+        root = roots.get(current, current)
+        for member in path:
+            roots[member] = root
+    for parent_id in parents.values():
+        if finals.get(parent_id, {}).get("status") != "error":
+            raise ValueError(
+                "Retry parent must have a final error, never a completed response"
+            )
+    return roots, children
+
+
 def _number(value):
     if value is None:
         return None
@@ -299,16 +348,29 @@ def analyze_campaign(
         for line in Path(path).read_text().splitlines():
             if line.strip():
                 task = json.loads(line)
+                recorded = tasks.get(task["id"], {})
                 existing = {
                     key: value
-                    for key, value in tasks.get(task["id"], {}).items()
+                    for key, value in recorded.items()
                     if key != "_question_hash"
                 }
-                if existing and existing != task:
+                manifest = {
+                    key: value for key, value in task.items() if key != "_question_hash"
+                }
+                if existing and (
+                    existing != manifest
+                    or (
+                        "_question_hash" in recorded
+                        and "_question_hash" in task
+                        and recorded["_question_hash"] != task["_question_hash"]
+                    )
+                ):
                     raise ValueError("Task manifest conflicts with journal")
-                tasks[task["id"]] = task
+                # Collector-added question hashes remain available for lineage checks.
+                tasks[task["id"]] = {**recorded, **task}
     if attempts.keys() - reservations.keys():
         raise ValueError("Attempt has no reservation")
+    roots, children = _retry_lineage(tasks, finals)
     if split is not None and selection is None:
         raise ValueError("--split requires --selection")
     if selection:
@@ -345,7 +407,7 @@ def analyze_campaign(
             row["key"]: row
             for row in (raw["questions"] if isinstance(raw, dict) else raw)
         }
-        cells = defaultdict(dict)
+        cells = defaultdict(lambda: defaultdict(list))
         for task, final in members:
             key = (task["question_key"], task.get("replicate", 0))
             sample = task.get("sample_index", 0)
@@ -358,11 +420,49 @@ def analyze_campaign(
                 or not 0 <= sample < expected
             ):
                 raise ValueError("Invalid sample index or expected sample count")
-            if sample in cells[key]:
-                raise ValueError("Duplicate logical sample across task ids")
-            cells[key][sample] = final
+            cells[key][sample].append((task, final))
         output_cells = []
-        for (question_key, replicate), by_sample in sorted(cells.items()):
+        for (question_key, replicate), sample_tasks in sorted(cells.items()):
+            by_sample, retry_history = {}, []
+            for sample, records in sorted(sample_tasks.items()):
+                if len({roots[task["id"]] for task, _ in records}) != 1:
+                    raise ValueError(
+                        "Duplicate logical sample across task ids without retry lineage"
+                    )
+                terminal = [
+                    (task, final)
+                    for task, final in records
+                    if task["id"] not in children
+                ]
+                if len(terminal) != 1:
+                    raise ValueError(
+                        "Logical sample must have exactly one terminal retry"
+                    )
+                leaf, final = terminal[0]
+                by_sample[sample] = final
+                if len(records) > 1:
+                    root = roots[leaf["id"]]
+                    chain = [root]
+                    while chain[-1] in children:
+                        chain.append(children[chain[-1]])
+                    retry_history.append(
+                        {
+                            "sample_index": sample,
+                            "root_task_id": root,
+                            "task_ids": chain,
+                            "statuses": [
+                                finals.get(task_id, {}).get("status", "pending")
+                                for task_id in chain
+                            ],
+                            "errors": [
+                                finals.get(task_id, {}).get("error")
+                                for task_id in chain
+                            ],
+                            "selected_task_id": leaf["id"],
+                            "recovered": final is not None
+                            and final["status"] == "completed",
+                        }
+                    )
             q = lookup[question_key]
             question = Question(
                 key=question_key,
@@ -386,8 +486,14 @@ def analyze_campaign(
                 "missing_sample_indices": missing,
                 "n_errors": sum(
                     row is not None and row["status"] == "error"
+                    for records in sample_tasks.values()
+                    for _, row in records
+                ),
+                "n_unresolved_error_samples": sum(
+                    row is not None and row["status"] == "error"
                     for row in by_sample.values()
                 ),
+                "retry_history": retry_history,
                 "scores": None,
             }
             if not missing:
@@ -432,12 +538,32 @@ def analyze_campaign(
                     for rep in sorted({cell["replicate"] for cell in output_cells})
                 },
                 "questions": output_cells,
+                "retry_coverage": {
+                    "retried_samples": sum(
+                        len(cell["retry_history"]) for cell in output_cells
+                    ),
+                    "retry_tasks": sum(
+                        len(history["task_ids"]) - 1
+                        for cell in output_cells
+                        for history in cell["retry_history"]
+                    ),
+                    "recovered_samples": sum(
+                        history["recovered"]
+                        for cell in output_cells
+                        for history in cell["retry_history"]
+                    ),
+                    "unresolved_retried_samples": sum(
+                        not history["recovered"]
+                        for cell in output_cells
+                        for history in cell["retry_history"]
+                    ),
+                },
                 "billing": _billing(relevant_reservations, relevant_attempts),
                 "response_latency": _latencies(
                     [
                         _number(row.get("elapsed_seconds"))
                         for _, row in members
-                        if row is not None
+                        if row is not None and row["status"] == "completed"
                     ]
                 ),
                 "settings_counts": dict(
