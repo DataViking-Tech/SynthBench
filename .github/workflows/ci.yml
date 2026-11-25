@@ -221,7 +221,9 @@ jobs:
     #      regenerates to a no-op diff, commits nothing, and proceeds to the
     #      compare-mode test — a commit-message guard below is the final
     #      backstop against a regen/push loop.
-    runs-on: ubuntu-latest
+    # Playwright 1.60 supports Ubuntu 24.04; ubuntu-latest now selects 26.04,
+    # where Chromium dependency installation fails before visual tests run.
+    runs-on: ubuntu-24.04
     permissions:
       contents: write
       # Needed to remove the vrt-baseline-update label after committing.

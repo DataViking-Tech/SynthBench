@@ -78,7 +78,7 @@ class OpenRouterProvider(Provider):
     def __init__(
         self,
         model: str = "openai/gpt-4o-mini",
-        temperature: float = 1.0,
+        temperature: float | None = None,
         effort: str | None = None,
     ):
         try:
@@ -126,12 +126,13 @@ class OpenRouterProvider(Provider):
         request_kwargs: dict = {
             "model": self._model,
             "max_tokens": RAW_ANSWER_MAX_TOKENS,
-            "temperature": self._temperature,
             "messages": [
                 {"role": "system", "content": system},
                 {"role": "user", "content": prompt},
             ],
         }
+        if self._temperature is not None:
+            request_kwargs["temperature"] = self._temperature
         if self._effort is not None:
             # OpenRouter's unified reasoning parameter (sent via extra_body so
             # it reaches the request JSON regardless of openai SDK version).

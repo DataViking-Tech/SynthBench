@@ -5,6 +5,7 @@ from __future__ import annotations
 import asyncio
 from types import SimpleNamespace
 
+import httpx
 import pytest
 
 openai = pytest.importorskip("openai")
@@ -50,8 +51,11 @@ class _FakeCompletions:
         if answer == "mandatory":
             raise openai.BadRequestError(
                 "Reasoning is mandatory for this endpoint",
-                response=SimpleNamespace(
-                    request=None, status_code=400, headers={}, json=lambda: {}
+                response=httpx.Response(
+                    400,
+                    request=httpx.Request(
+                        "POST", "https://openrouter.ai/api/v1/chat/completions"
+                    ),
                 ),
                 body=None,
             )
