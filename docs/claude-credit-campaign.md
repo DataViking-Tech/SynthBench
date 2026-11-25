@@ -52,6 +52,16 @@ again. Runtime, pricing, and question-input fingerprints prevent incompatible
 replays. A changed collector/runtime requires a new journal and a budget that
 subtracts prior spending. Keep a separate campaign-wide total across journals.
 
+To repair an infrastructure failure, create a new task id with `retry_of` set
+to the failed task id. Preserve its configuration, question, replicate, sample
+index, and sample count. Keep the original manifest and journal unchanged and
+pass all original and repair manifests/journals to the analyzer. Retry chains
+must be linear, and every parent must have an observed final `error` record.
+A completed answer, model refusal, or parse failure cannot be retried this way.
+The terminal retry fills one logical sample slot; ancestor errors, charges,
+and explicit recovery history remain in the analysis. Apply a separate repair
+budget and include it in the campaign-wide total.
+
 The request reserve uses UTF-8 bytes, framing allowance, output ceilings, and
 a cache-write premium. This is a conservative estimate, not a formal provider
 token-count guarantee. An observed overrun stops collection for reconciliation.
